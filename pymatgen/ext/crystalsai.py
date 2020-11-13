@@ -3,18 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
-import requests
-
-
 """
 This module provides an interface to the MaterialsVirtualLab's MEGNet REST API
 for rapid property prediction.
 """
 
-__author__ = "Shyue Ping Ong"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
+import requests
 
 
 class CrystalAIRester:
@@ -34,6 +28,9 @@ class CrystalAIRester:
     """
 
     def __init__(self):
+        """
+        Init for Rester.
+        """
         self.session = requests.Session()
         self.url = "http://megnet.crystals.ai"
 

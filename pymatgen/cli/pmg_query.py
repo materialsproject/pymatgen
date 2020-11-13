@@ -4,17 +4,26 @@
 
 
 """
-#TODO: Replace with proper module doc.
+Implementation for `pmg query` CLI.
 """
 
-from pymatgen.ext.matproj import MPRester
 import json
-from monty.serialization import dumpfn
 import re
+
 from tabulate import tabulate
+
+from monty.serialization import dumpfn
+
+from pymatgen.ext.matproj import MPRester
 
 
 def do_query(args):
+    """
+    Perform query to the Materials Project
+
+    Args:
+        args (dict): Args from argparse.
+    """
     m = MPRester()
     try:
         criteria = json.loads(args.criteria)

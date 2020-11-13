@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Classes and methods related to the Structure Notation Language (SNL)
+"""
 
 import sys
 import re
@@ -9,16 +12,15 @@ import datetime
 from collections import namedtuple
 import json
 from io import StringIO
+
+from pybtex.database.input import bibtex
+from pybtex import errors
+
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
 
 from pymatgen.core.structure import Structure, Molecule
-from pybtex.database.input import bibtex
-from pybtex import errors
 
-"""
-Classes and methods related to the Structure Notation Language (SNL)
-"""
 
 __author__ = 'Anubhav Jain, Shyue Ping Ong'
 __credits__ = 'Dan Gunter'
@@ -27,7 +29,6 @@ __version__ = '0.1'
 __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Feb 11, 2013'
-
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
 MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
@@ -82,11 +83,21 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
     """
 
     def as_dict(self):
+        """
+        Returns: Dict
+        """
         return {"name": self.name, "url": self.url,
                 "description": self.description}
 
     @staticmethod
     def from_dict(h_node):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            HistoryNode
+        """
         return HistoryNode(h_node['name'], h_node['url'],
                            h_node['description'])
 
@@ -105,12 +116,11 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         if isinstance(h_node, dict):
             return HistoryNode.from_dict(h_node)
 
-        else:
-            if len(h_node) != 3:
-                raise ValueError("Invalid History node, "
-                                 "should be dict or (name, version, "
-                                 "description) tuple: {}".format(h_node))
-            return HistoryNode(h_node[0], h_node[1], h_node[2])
+        if len(h_node) != 3:
+            raise ValueError("Invalid History node, "
+                             "should be dict or (name, version, "
+                             "description) tuple: {}".format(h_node))
+        return HistoryNode(h_node[0], h_node[1], h_node[2])
 
 
 class Author(namedtuple('Author', ['name', 'email'])):
@@ -133,10 +143,20 @@ class Author(namedtuple('Author', ['name', 'email'])):
         return '{} <{}>'.format(self.name, self.email)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict.
+        """
         return {"name": self.name, "email": self.email}
 
     @staticmethod
     def from_dict(d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Author
+        """
         return Author(d['name'], d['email'])
 
     @staticmethod
@@ -158,13 +178,12 @@ class Author(namedtuple('Author', ['name', 'email'])):
             if not m or m.start() != 0 or m.end() != len(author):
                 raise ValueError("Invalid author format! {}".format(author))
             return Author(m.groups()[0], m.groups()[1])
-        elif isinstance(author, dict):
+        if isinstance(author, dict):
             return Author.from_dict(author)
-        else:
-            if len(author) != 2:
-                raise ValueError("Invalid author, should be String or (name, "
-                                 "email) tuple: {}".format(author))
-            return Author(author[0], author[1])
+        if len(author) != 2:
+            raise ValueError("Invalid author, should be String or (name, "
+                             "email) tuple: {}".format(author))
+        return Author(author[0], author[1])
 
 
 class StructureNL:
@@ -184,28 +203,29 @@ class StructureNL:
         - history
     - lattice (optional)
     - sites
-
-    Args:
-        struct_or_mol: A pymatgen.core.structure Structure/Molecule object
-        authors: *List* of {"name":'', "email":''} dicts,
-            *list* of Strings as 'John Doe <johndoe@gmail.com>',
-            or a single String with commas separating authors
-        projects: List of Strings ['Project A', 'Project B']
-        references: A String in BibTeX format
-        remarks: List of Strings ['Remark A', 'Remark B']
-        data: A free form dict. Namespaced at the root level with an
-            underscore, e.g. {"_materialsproject": <custom data>}
-        history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
-        created_at: A datetime object
     """
 
     def __init__(self, struct_or_mol, authors, projects=None, references='',
                  remarks=None, data=None, history=None, created_at=None):
+        """
+        Args:
+            struct_or_mol: A pymatgen.core.structure Structure/Molecule object
+            authors: *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors
+            projects: List of Strings ['Project A', 'Project B']
+            references: A String in BibTeX format
+            remarks: List of Strings ['Remark A', 'Remark B']
+            data: A free form dict. Namespaced at the root level with an
+                underscore, e.g. {"_materialsproject": <custom data>}
+            history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
+            created_at: A datetime object
+        """
         # initialize root-level structure keys
         self.structure = struct_or_mol
 
         # turn authors into list of Author objects
-        authors = authors.split(',')\
+        authors = authors.split(',') \
             if isinstance(authors, str) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
@@ -265,6 +285,9 @@ class StructureNL:
             else datetime.datetime.utcnow()
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         d = self.structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -274,13 +297,20 @@ class StructureNL:
                       "remarks": self.remarks,
                       "history": [h.as_dict() for h in self.history],
                       "created_at": json.loads(json.dumps(self.created_at,
-                                               cls=MontyEncoder))}
+                                                          cls=MontyEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,
                                                 cls=MontyEncoder)))
         return d
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Class
+        """
         a = d["about"]
         dec = MontyDecoder()
 

@@ -2,19 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import numpy as np
-import warnings
-import scipy.constants as const
-
-from monty.json import MSONable
-
-from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    OrderDisorderElementComparator
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord import pbc_diff
-
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider
@@ -30,6 +17,22 @@ citing the following papers::
     Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,
     24(1), 15-17. doi:10.1021/cm203303y
 """
+
+
+import warnings
+import multiprocessing
+
+import numpy as np
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord import pbc_diff
+
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
@@ -150,7 +153,7 @@ class DiffusionAnalyzer(MSONable):
             structure (Structure): Initial structure.
             displacements (array): Numpy array of with shape [site,
                 time step, axis]
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             temperature (float): Temperature of the diffusion run in Kelvin.
             time_step (int): Time step between measurements.
@@ -272,10 +275,8 @@ class DiffusionAnalyzer(MSONable):
                 if smoothed == "max":
                     # For max smoothing, we need to weight by variance.
                     w_root = (1 / dt) ** 0.5
-                    return np.linalg.lstsq(
-                        a * w_root[:, None], b * w_root, rcond=None)
-                else:
-                    return np.linalg.lstsq(a, b, rcond=None)
+                    return np.linalg.lstsq(a * w_root[:, None], b * w_root, rcond=None)
+                return np.linalg.lstsq(a, b, rcond=None)
 
             # Get self diffusivity
             m_components = np.zeros(3)
@@ -312,8 +313,7 @@ class DiffusionAnalyzer(MSONable):
             # Pre-compute the denominator since we will use it later.
             # We divide dt by 1000 to avoid overflow errors in some systems (
             # e.g., win). This is subsequently corrected where denom is used.
-            denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (
-                    n - 2)
+            denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (n - 2)
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
             self.chg_diffusivity_std_dev = np.sqrt(n * res_chg[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
@@ -321,8 +321,7 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
 
             self.diffusivity_components = m_components / 20
-            self.diffusivity_components_std_dev = np.sqrt(
-                n * m_components_res / denom) / 20 / 1000
+            self.diffusivity_components_std_dev = np.sqrt(n * m_components_res / denom) / 20 / 1000
             self.conductivity_components = self.diffusivity_components * conv_factor
             self.conductivity_components_std_dev = self.diffusivity_components_std_dev * conv_factor
 
@@ -331,8 +330,7 @@ class DiffusionAnalyzer(MSONable):
             self.corrected_displacements = dc
             self.max_ion_displacements = np.max(np.sum(
                 dc ** 2, axis=-1) ** 0.5, axis=1)
-            self.max_framework_displacement = \
-                np.max(self.max_ion_displacements[framework_indices])
+            self.max_framework_displacement = np.max(self.max_ion_displacements[framework_indices])
             self.msd = msd
             self.mscd = mscd
             self.haven_ratio = self.diffusivity / self.chg_diffusivity
@@ -553,7 +551,7 @@ class DiffusionAnalyzer(MSONable):
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, initial_disp=None,
                         initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
 
@@ -561,7 +559,7 @@ class DiffusionAnalyzer(MSONable):
             structures ([Structure]): list of Structure objects (must be
                 ordered in sequence of run). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             temperature (float): Temperature of the diffusion run in Kelvin.
             time_step (int): Time step between measurements.
@@ -617,7 +615,7 @@ class DiffusionAnalyzer(MSONable):
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, initial_disp=None,
                       initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
 
@@ -625,7 +623,7 @@ class DiffusionAnalyzer(MSONable):
             vaspruns ([Vasprun]): List of Vaspruns (must be ordered  in
                 sequence of MD simulation). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             initial_disp (np.ndarray): Sometimes, you need to iteratively
                 compute estimates of the diffusivity. This supplies an
@@ -673,7 +671,7 @@ class DiffusionAnalyzer(MSONable):
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, ncores=None,
                    initial_disp=None, initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
 
@@ -683,7 +681,7 @@ class DiffusionAnalyzer(MSONable):
                 you may have done sequential VASP runs and they are in run1,
                 run2, run3, etc. You should then pass in
                 ["run1/vasprun.xml", "run2/vasprun.xml", ...].
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
@@ -709,7 +707,6 @@ class DiffusionAnalyzer(MSONable):
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
-            import multiprocessing
             p = multiprocessing.Pool(ncores)
             vaspruns = p.imap(_get_vasprun,
                               [(fp, step_skip) for fp in filepaths])
@@ -719,21 +716,24 @@ class DiffusionAnalyzer(MSONable):
             p.close()
             p.join()
             return analyzer
-        else:
-            def vr(filepaths):
-                offset = 0
-                for p in filepaths:
-                    v = Vasprun(p, ionic_step_offset=offset,
-                                ionic_step_skip=step_skip)
-                    yield v
-                    # Recompute offset.
-                    offset = (-(v.nionic_steps - offset)) % step_skip
 
-            return cls.from_vaspruns(
-                vr(filepaths), specie=specie, initial_disp=initial_disp,
-                initial_structure=initial_structure, **kwargs)
+        def vr(filepaths):
+            offset = 0
+            for p in filepaths:
+                v = Vasprun(p, ionic_step_offset=offset,
+                            ionic_step_skip=step_skip)
+                yield v
+                # Recompute offset.
+                offset = (-(v.nionic_steps - offset)) % step_skip
+
+        return cls.from_vaspruns(
+            vr(filepaths), specie=specie, initial_disp=initial_disp,
+            initial_structure=initial_structure, **kwargs)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -751,15 +751,19 @@ class DiffusionAnalyzer(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns: DiffusionAnalyzer
+        """
         structure = Structure.from_dict(d["structure"])
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
                    smoothed=d.get("smoothed", "max"),
                    avg_nsteps=d.get("avg_nsteps", 1000),
-                   lattices=np.array(d.get("lattices",
-                                           [d["structure"]["lattice"][
-                                                "matrix"]])))
+                   lattices=np.array(d.get("lattices", [d["structure"]["lattice"]["matrix"]])))
 
 
 def get_conversion_factor(structure, species, temperature):
@@ -772,7 +776,7 @@ def get_conversion_factor(structure, species, temperature):
 
     Args:
         structure (Structure): Input structure.
-        species (Element/Specie): Diffusing species.
+        species (Element/Species): Diffusing species.
         temperature (float): Temperature of the diffusion run in Kelvin.
 
     Returns:
@@ -817,8 +821,7 @@ def fit_arrhenius(temps, diffusivities):
     w = np.array(w)
     n = len(temps)
     if n > 2:
-        std_Ea = (res[0] / (n - 2) / (
-                n * np.var(t_1))) ** 0.5 * const.k / const.e
+        std_Ea = (res[0] / (n - 2) / (n * np.var(t_1))) ** 0.5 * const.k / const.e
     else:
         std_Ea = None
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
@@ -852,7 +855,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
         structure (structure): Structure used for the diffusivity calculation
-        species (string/Specie): conducting species
+        species (string/Species): conducting species
 
     Returns:
         (float) Conductivity at extrapolated temp in mS/cm.
@@ -863,7 +866,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
 
 def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
                        **kwargs):
-    """
+    r"""
     Returns an Arrhenius plot.
 
     Args:

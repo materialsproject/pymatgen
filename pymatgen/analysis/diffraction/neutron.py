@@ -2,20 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-from math import sin, cos, asin, pi, degrees, radians
-import os
-
-import numpy as np
-import json
-
-from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
-    get_unique_families
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 """
 This module implements a neutron diffraction (ND) pattern calculator.
 """
+
+from math import sin, cos, asin, pi, degrees, radians
+import os
+import json
+
+import numpy as np
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
+    get_unique_families
+
 
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -194,7 +194,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
             if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v[0])
-                hkls.append(fam)
+                hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
                 d_hkls.append(v[2])
         nd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:

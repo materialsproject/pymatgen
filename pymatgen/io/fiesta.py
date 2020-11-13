@@ -198,7 +198,8 @@ class BasisSetReader:
         # compute the number of nlm orbitals per atom
         self.data.update(n_nlmo=self.set_n_nlmo())
 
-    def _parse_file(self, input):
+    @staticmethod
+    def _parse_file(input):
 
         lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ",
                                     re.VERBOSE)
@@ -344,20 +345,20 @@ class FiestaInput(MSONable):
         :param n_grid and dE_grid:: number of points and spacing in eV for correlation grid
         """
 
-        self.GW_options.update(nv_corr=nv_band, nc_corr=nc_band,
-                               nit_gw=n_iteration)
+        self.GW_options.update(nv_corr=nv_band, nc_corr=nc_band, nit_gw=n_iteration)
         self.correlation_grid.update(dE_grid=dE_grid, n_grid=n_grid)
 
-    def make_FULL_BSE_Densities_folder(self, folder):
+    @staticmethod
+    def make_FULL_BSE_Densities_folder(folder):
         """
         mkdir "FULL_BSE_Densities" folder (needed for bse run) in the desired folder
         """
 
         if os.path.exists(folder + "/FULL_BSE_Densities"):
             return "FULL_BSE_Densities folder already exists"
-        else:
-            os.makedirs(folder + "/FULL_BSE_Densities")
-            return "makedirs FULL_BSE_Densities folder"
+
+        os.makedirs(folder + "/FULL_BSE_Densities")
+        return "makedirs FULL_BSE_Densities folder"
 
     def set_BSE_options(self, n_excitations=10, nit_bse=200):
         """
@@ -367,7 +368,6 @@ class FiestaInput(MSONable):
         :param n_excitations: number of excitations
         :param nit_bse: number of iterations
         """
-
         self.BSE_TDDFT_options.update(npsi_bse=n_excitations, nit_bse=nit_bse)
 
     def dump_BSE_data_in_GW_run(self, BSE_dump=True):
@@ -734,7 +734,8 @@ class FiestaOutput:
         # self.job_info = self._parse_preamble(preamble)
         self.data = [self._parse_job(c) for c in chunks]
 
-    def _parse_job(self, output):
+    @staticmethod
+    def _parse_job(output):
 
         GW_BANDS_results_patt = re.compile(
             r"^<it.*  \| \s+ (\D+\d*) \s+ \| \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ ([-\d.]+) \s+ \| "
@@ -770,23 +771,23 @@ class FiestaOutput:
                     parse_total_time = True
                     parse_gw_results = False
                     continue
-                else:
-                    m = GW_BANDS_results_patt.search(l)
-                    if m:
-                        d = {}
-                        d.update(band=m.group(1).strip(), eKS=m.group(2),
-                                 eXX=m.group(3), eQP_old=m.group(4),
-                                 z=m.group(5), sigma_c_Linear=m.group(6),
-                                 eQP_Linear=m.group(7),
-                                 sigma_c_SCF=m.group(8), eQP_SCF=m.group(9))
-                        GW_results[m.group(1).strip()] = d
 
-                    n = GW_GAPS_results_patt.search(l)
-                    if n:
-                        d = {}
-                        d.update(Egap_KS=n.group(1), Egap_QP_Linear=n.group(2),
-                                 Egap_QP_SCF=n.group(3))
-                        GW_results["Gaps"] = d
+                m = GW_BANDS_results_patt.search(l)
+                if m:
+                    d = {}
+                    d.update(band=m.group(1).strip(), eKS=m.group(2),
+                             eXX=m.group(3), eQP_old=m.group(4),
+                             z=m.group(5), sigma_c_Linear=m.group(6),
+                             eQP_Linear=m.group(7),
+                             sigma_c_SCF=m.group(8), eQP_SCF=m.group(9))
+                    GW_results[m.group(1).strip()] = d
+
+                n = GW_GAPS_results_patt.search(l)
+                if n:
+                    d = {}
+                    d.update(Egap_KS=n.group(1), Egap_QP_Linear=n.group(2),
+                             Egap_QP_SCF=n.group(3))
+                    GW_results["Gaps"] = d
 
             if l.find("GW Results") != -1:
                 parse_gw_results = True
@@ -814,7 +815,8 @@ class BSEOutput:
         # self.job_info = self._parse_preamble(preamble)
         self.exiton = self._parse_job(log_bse)
 
-    def _parse_job(self, output):
+    @staticmethod
+    def _parse_job(output):
 
         BSE_exitons_patt = re.compile(
             r"^exiton \s+ (\d+)  : \s+  ([\d.]+) \( \s+ ([-\d.]+) \) \s+ \| .*  ",
@@ -846,12 +848,12 @@ class BSEOutput:
                     parse_total_time = True
                     parse_BSE_results = False
                     continue
-                else:
-                    m = BSE_exitons_patt.search(l)
-                    if m:
-                        d = {}
-                        d.update(bse_eig=m.group(2), osc_strength=m.group(3))
-                        BSE_results[str(m.group(1).strip())] = d
+
+                m = BSE_exitons_patt.search(l)
+                if m:
+                    d = {}
+                    d.update(bse_eig=m.group(2), osc_strength=m.group(3))
+                    BSE_results[str(m.group(1).strip())] = d
 
             if l.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
                 parse_BSE_results = True

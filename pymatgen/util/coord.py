@@ -3,23 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 
-import itertools
-import numpy as np
-import math
-from . import coord_cython as cuc
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Nov 27, 2011"
+import math
+import itertools
+
+import numpy as np
+
+from . import coord_cython as cuc
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -114,6 +109,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     Returns:
         list of indices such that superset[indices] = subset
     """
+    # pylint: disable=I1101
     atol = np.array([1., 1., 1.]) * atol
     return cuc.coord_list_mapping_pbc(subset, superset, atol)
 
@@ -206,6 +202,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None,
         array of displacement vectors from fcoords1 to fcoords2
         first index is fcoords1 index, second is fcoords2 index
     """
+    # pylint: disable=I1101
     return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask,
                                     return_d2)
 
@@ -261,6 +258,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     Returns:
         True if all of subset is in superset.
     """
+    # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
     if mask is not None:
@@ -346,10 +344,9 @@ def get_angle(v1, v2, units="degrees"):
     angle = math.acos(d)
     if units == "degrees":
         return math.degrees(angle)
-    elif units == "radians":
+    if units == "radians":
         return angle
-    else:
-        raise ValueError("Invalid units {}".format(units))
+    raise ValueError("Invalid units {}".format(units))
 
 
 class Simplex:
@@ -390,12 +387,26 @@ class Simplex:
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
+        """
+        Args:
+            point (): Point coordinates.
+
+        Returns:
+            Barycentric coordinations.
+        """
         try:
             return np.dot(np.concatenate([point, [1]]), self._aug_inv)
         except AttributeError:
             raise ValueError('Simplex is not full-dimensional')
 
     def point_from_bary_coords(self, bary_coords):
+        """
+        Args:
+            bary_coords (): Barycentric coordinates
+
+        Returns:
+            Point coordinates
+        """
         try:
             return np.dot(bary_coords, self._aug[:, :-1])
         except AttributeError:

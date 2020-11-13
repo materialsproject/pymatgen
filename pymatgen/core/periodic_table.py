@@ -2,25 +2,25 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-"""Module contains classes presenting Element and Specie (Element + oxidation state) and PeriodicTable."""
-
-import re
+"""Module contains classes presenting Element and Species (Element + oxidation state) and PeriodicTable."""
+import ast
 import json
+import re
 import warnings
-from io import open
-from pathlib import Path
+from collections import Counter
 from enum import Enum
-from typing import Optional, Callable
+from io import open
 from itertools import product, \
     combinations
-from collections import Counter
+from pathlib import Path
+from typing import Optional, Callable
 
 import numpy as np
+from monty.json import MSONable
 
 from pymatgen.core.units import Mass, Length, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
-from monty.json import MSONable
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -138,6 +138,21 @@ class Element(Enum):
     Md = "Md"
     No = "No"
     Lr = "Lr"
+    Rf = "Rf"
+    Db = "Db"
+    Sg = "Sg"
+    Bh = "Bh"
+    Hs = "Hs"
+    Mt = "Mt"
+    Ds = "Ds"
+    Rg = "Rg"
+    Cn = "Cn"
+    Nh = "Nh"
+    Fl = "Fl"
+    Mc = "Mc"
+    Lv = "Lv"
+    Ts = "Ts"
+    Og = "Og"
 
     def __init__(self, symbol: str):
         """
@@ -280,7 +295,7 @@ class Element(Enum):
 
             Mendeleev number from definition given by Pettifor, D. G. (1984).
             A chemical scale for crystal-structure maps. Solid State Communications,
-            51 (1), 31-34 
+            51 (1), 31-34
 
         .. attribute:: electrical_resistivity
 
@@ -308,9 +323,9 @@ class Element(Enum):
 
         .. attribute:: electronic_structure
 
-            Electronic structure. Simplified form with HTML formatting.
+            Electronic structure.
             E.g., The electronic structure for Fe is represented as
-            [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+            [Ar].3d6.4s2
 
         .. attribute:: atomic_orbitals
 
@@ -444,8 +459,7 @@ class Element(Enum):
         if item in ["mendeleev_no", "electrical_resistivity",
                     "velocity_of_sound", "reflectivity",
                     "refractive_index", "poissons_ratio", "molar_volume",
-                    "electronic_structure", "thermal_conductivity",
-                    "boiling_point", "melting_point",
+                    "thermal_conductivity", "boiling_point", "melting_point",
                     "critical_temperature", "superconduction_temperature",
                     "liquid_range", "bulk_modulus", "youngs_modulus",
                     "brinell_hardness", "rigidity_modulus",
@@ -496,11 +510,19 @@ class Element(Enum):
         raise AttributeError("Element has no attribute %s!" % item)
 
     @property
-    def data(self):
+    def data(self) -> dict:
         """
         Returns dict of data for element.
         """
         return self._data.copy()
+
+    @property
+    def electronic_structure(self) -> str:
+        """
+        Electronic structure as string, with only valence electrons.
+        E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        """
+        return re.sub("</*sup>", "", self._data["Electronic structure"])
 
     @property
     def average_ionic_radius(self):
@@ -603,10 +625,10 @@ class Element(Enum):
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)]
         """
-        estr = self._data["Electronic structure"]
+        estr = self.electronic_structure
 
         def parse_orbital(orbstr):
-            m = re.match(r"(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
+            m = re.match(r"(\d+)([spdfg]+)(\d+)", orbstr)
             if m:
                 return int(m.group(1)), m.group(2), int(m.group(3))
             return orbstr
@@ -631,9 +653,13 @@ class Element(Enum):
         L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
         valence = []
         full_electron_config = self.full_electronic_structure
-        for _, l_symbol, ne in full_electron_config[::-1]:
+        last_orbital = full_electron_config[-1]
+        for n, l_symbol, ne in full_electron_config:
             l = L_symbols.lower().index(l_symbol)
             if ne < (2 * l + 1) * 2:
+                valence.append((l, ne))
+            # check for full last shell (e.g. column 2)
+            elif (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0:
                 valence.append((l, ne))
         if len(valence) > 1:
             raise ValueError("Ambiguous valence")
@@ -670,7 +696,7 @@ class Element(Enum):
               for comb in e_config_combs]
         TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)])
               for comb in e_config_combs]
-        comb_counter = Counter([r for r in zip(TL, TS)])
+        comb_counter = Counter(zip(TL, TS))
 
         term_symbols = []
         while sum(comb_counter.values()) > 0:
@@ -1031,38 +1057,38 @@ class Element(Enum):
             print(" ".join(rowstr))
 
 
-class Specie(MSONable):
+class Species(MSONable):
     """
     An extension of Element with an oxidation state and other optional
-    properties. Properties associated with Specie should be "idealized"
+    properties. Properties associated with Species should be "idealized"
     values, not calculated values. For example, high-spin Fe2+ may be
     assigned an idealized spin of +5, but an actual Fe2+ site may be
     calculated to have a magmom of +4.5. Calculated properties should be
-    assigned to Site objects, and not Specie.
+    assigned to Site objects, and not Species.
     """
 
     supported_properties = ("spin",)
 
     def __init__(self, symbol: str,
-                 oxidation_state: float = 0.0,
+                 oxidation_state: Optional[float] = 0.0,
                  properties: dict = None):
         """
-        Initializes a Specie.
+        Initializes a Species.
 
         Args:
             symbol (str): Element symbol, e.g., Fe
             oxidation_state (float): Oxidation state of element, e.g., 2 or -2
-            properties: Properties associated with the Specie, e.g.,
+            properties: Properties associated with the Species, e.g.,
                 {"spin": 5}. Defaults to None. Properties must be one of the
-                Specie supported_properties.
+                Species supported_properties.
 
         .. attribute:: oxi_state
 
-            Oxidation state associated with Specie
+            Oxidation state associated with Species
 
         .. attribute:: ionic_radius
 
-            Ionic radius of Specie (with specific oxidation state).
+            Ionic radius of Species (with specific oxidation state).
 
         .. versionchanged:: 2.6.7
 
@@ -1071,8 +1097,8 @@ class Specie(MSONable):
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
-            if k not in Specie.supported_properties:
+        for k, _ in self._properties.items():
+            if k not in Species.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
@@ -1085,10 +1111,10 @@ class Specie(MSONable):
 
     def __eq__(self, other):
         """
-        Specie is equal to other only if element and oxidation states are
+        Species is equal to other only if element and oxidation states are
         exactly the same.
         """
-        return (isinstance(other, Specie) and self.symbol == other.symbol
+        return (isinstance(other, Species) and self.symbol == other.symbol
                 and self.oxi_state == other.oxi_state
                 and self._properties == other._properties)
 
@@ -1097,8 +1123,8 @@ class Specie(MSONable):
 
     def __hash__(self):
         """
-        Equal Specie should have the same str representation, hence
-        should hash equally. Unequal Specie will have differnt str
+        Equal Species should have the same str representation, hence
+        should hash equally. Unequal Species will have differnt str
         representations.
         """
         return self.__str__().__hash__()
@@ -1156,39 +1182,60 @@ class Specie(MSONable):
     @property
     def oxi_state(self):
         """
-        Oxidation state of Specie.
+        Oxidation state of Species.
         """
         return self._oxi_state
 
     @staticmethod
     def from_string(species_string: str):
         """
-        Returns a Specie from a string representation.
+        Returns a Species from a string representation.
 
         Args:
             species_string (str): A typical string representation of a
                 species, e.g., "Mn2+", "Fe3+", "O2-".
 
         Returns:
-            A Specie object.
+            A Species object.
 
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-])(.*)", species_string)
+
+        # e.g. Fe2+,spin=5
+        # 1st group: ([A-Z][a-z]*)    --> Fe
+        # 2nd group: ([0-9.]*)        --> "2"
+        # 3rd group: ([+\-])          --> +
+        # 4th group: (.*)             --> everything else, ",spin=5"
+
+        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
+
+            # parse symbol
             sym = m.group(1)
-            oxi = 1 if m.group(2) == "" else float(m.group(2))
-            oxi = -oxi if m.group(3) == "-" else oxi
+
+            # parse oxidation state (optional)
+            if not m.group(2) and not m.group(3):
+                oxi = None
+            else:
+                oxi = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = -oxi if m.group(3) == "-" else oxi
+
+            # parse properties (optional)
             properties = None
             if m.group(4):
                 toks = m.group(4).replace(",", "").split("=")
-                properties = {toks[0]: float(toks[1])}
-            return Specie(sym, oxi, properties)
+                properties = {toks[0]: ast.literal_eval(toks[1])}
+
+            # but we need either an oxidation state or a property
+            if oxi is None and properties is None:
+                raise ValueError("Invalid Species String")
+
+            return Species(sym, oxi, properties)
         raise ValueError("Invalid Species String")
 
     def __repr__(self):
-        return "Specie " + self.__str__()
+        return "Species " + self.__str__()
 
     def __str__(self):
         output = self.symbol
@@ -1310,7 +1357,7 @@ class Specie(MSONable):
         raise RuntimeError()
 
     def __deepcopy__(self, memo):
-        return Specie(self.symbol, self.oxi_state, self._properties)
+        return Species(self.symbol, self.oxi_state, self._properties)
 
     def as_dict(self):
         """
@@ -1328,13 +1375,13 @@ class Specie(MSONable):
     def from_dict(cls, d):
         """
         :param d: Dict representation.
-        :return: Specie.
+        :return: Species.
         """
         return cls(d["element"], d["oxidation_state"],
                    d.get("properties", None))
 
 
-class DummySpecie(Specie):
+class DummySpecies(Species):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -1342,24 +1389,24 @@ class DummySpecie(Specie):
 
     .. attribute:: oxi_state
 
-        Oxidation state associated with Specie.
+        Oxidation state associated with Species.
 
     .. attribute:: Z
 
-        DummySpecie is always assigned an atomic number equal to the hash
+        DummySpecies is always assigned an atomic number equal to the hash
         number of the symbol. Obviously, it makes no sense whatsoever to use
         the atomic number of a Dummy specie for anything scientific. The purpose
-        of this is to ensure that for most use cases, a DummySpecie behaves no
-        differently from an Element or Specie.
+        of this is to ensure that for most use cases, a DummySpecies behaves no
+        differently from an Element or Species.
 
     .. attribute:: X
 
-        DummySpecie is always assigned an electronegativity of 0.
+        DummySpecies is always assigned an electronegativity of 0.
     """
 
     def __init__(self,
                  symbol: str = "X",
-                 oxidation_state: float = 0,
+                 oxidation_state: Optional[float] = 0,
                  properties: dict = None):
         """
         Args:
@@ -1372,18 +1419,22 @@ class DummySpecie(Specie):
             oxidation_state (float): Oxidation state for dummy specie.
                 Defaults to zero.
         """
+        # enforce title case to match other elements, reduces confusion
+        # when multiple DummySpecies in a "formula" string
+        symbol = symbol.title()
+
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError("{} contains {}, which is a valid element "
                                  "symbol.".format(symbol, symbol[:i]))
 
-        # Set required attributes for DummySpecie to function like a Specie in
+        # Set required attributes for DummySpecies to function like a Species in
         # most instances.
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
-            if k not in Specie.supported_properties:
+        for k, _ in self._properties.items():
+            if k not in Species.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
@@ -1399,12 +1450,12 @@ class DummySpecie(Specie):
 
     def __eq__(self, other):
         """
-        Specie is equal to other only if element and oxidation states are
+        Species is equal to other only if element and oxidation states are
         exactly the same.
         """
-        if not isinstance(other, DummySpecie):
+        if not isinstance(other, DummySpecies):
             return False
-        return (isinstance(other, Specie) and
+        return (isinstance(other, Species) and
                 self.symbol == other.symbol and
                 self.oxi_state == other.oxi_state and
                 self._properties == other._properties)
@@ -1429,36 +1480,36 @@ class DummySpecie(Specie):
     @property
     def Z(self) -> int:
         """
-        DummySpecie is always assigned an atomic number equal to the hash of
+        DummySpecies is always assigned an atomic number equal to the hash of
         the symbol. The expectation is that someone would be an actual dummy
         to use atomic numbers for a Dummy specie.
         """
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
-        Oxidation state associated with DummySpecie
+        Oxidation state associated with DummySpecies
         """
         return self._oxi_state
 
     @property
     def X(self) -> float:
         """
-        DummySpecie is always assigned an electronegativity of 0. The effect of
-        this is that DummySpecie are always sorted in front of actual Specie.
+        DummySpecies is always assigned an electronegativity of 0. The effect of
+        this is that DummySpecies are always sorted in front of actual Species.
         """
         return 0.0
 
     @property
     def symbol(self) -> str:
         """
-        :return: Symbol for DummySpecie.
+        :return: Symbol for DummySpecies.
         """
         return self._symbol
 
     def __deepcopy__(self, memo):
-        return DummySpecie(self.symbol, self._oxi_state)
+        return DummySpecies(self.symbol, self._oxi_state)
 
     @staticmethod
     def from_string(species_string: str):
@@ -1470,12 +1521,12 @@ class DummySpecie(Specie):
                 species, e.g., "X2+", "X3+".
 
         Returns:
-            A DummySpecie object.
+            A DummySpecies object.
 
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
+        m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
@@ -1487,7 +1538,7 @@ class DummySpecie(Specie):
             if m.group(4):
                 toks = m.group(4).split("=")
                 properties = {toks[0]: float(toks[1])}
-            return DummySpecie(sym, oxi, properties)
+            return DummySpecies(sym, oxi, properties)
         raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self):
@@ -1506,13 +1557,13 @@ class DummySpecie(Specie):
     def from_dict(cls, d):
         """
         :param d: Dict representation
-        :return: DummySpecie
+        :return: DummySpecies
         """
         return cls(d["element"], d["oxidation_state"],
                    d.get("properties", None))
 
     def __repr__(self):
-        return "DummySpecie " + self.__str__()
+        return "DummySpecies " + self.__str__()
 
     def __str__(self):
         output = self.symbol
@@ -1526,29 +1577,45 @@ class DummySpecie(Specie):
         return output
 
 
+class Specie(Species):
+    """
+    This maps the historical grammatically inaccurate Specie to Species
+    to maintain backwards compatibility.
+    """
+    pass
+
+
+class DummySpecie(DummySpecies):
+    """
+    This maps the historical grammatically inaccurate DummySpecie to DummySpecies
+    to maintain backwards compatibility.
+    """
+    pass
+
+
 def get_el_sp(obj):
     """
-    Utility method to get an Element or Specie from an input obj.
+    Utility method to get an Element or Species from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
     If obj is an int or a string representing an integer, the Element
     with the atomic number obj is returned.
-    If obj is a string, Specie parsing will be attempted (e.g., Mn2+), failing
+    If obj is a string, Species parsing will be attempted (e.g., Mn2+), failing
     which Element parsing will be attempted (e.g., Mn), failing which
     DummyElement parsing will be attempted.
 
     Args:
-        obj (Element/Specie/str/int): An arbitrary object.  Supported objects
-            are actual Element/Specie objects, integers (representing atomic
+        obj (Element/Species/str/int): An arbitrary object.  Supported objects
+            are actual Element/Species objects, integers (representing atomic
             numbers) or strings (element symbols or species strings).
 
     Returns:
-        Specie or Element, with a bias for the maximum number of properties
+        Species or Element, with a bias for the maximum number of properties
         that can be determined.
 
     Raises:
-        ValueError if obj cannot be converted into an Element or Specie.
+        ValueError if obj cannot be converted into an Element or Species.
     """
-    if isinstance(obj, (Element, Specie, DummySpecie)):
+    if isinstance(obj, (Element, Species, DummySpecies)):
         return obj
 
     if isinstance(obj, (list, tuple)):
@@ -1565,13 +1632,13 @@ def get_el_sp(obj):
         return Element.from_Z(i)
 
     try:
-        return Specie.from_string(obj)
+        return Species.from_string(obj)
     except (ValueError, KeyError):
         try:
             return Element(obj)
         except (ValueError, KeyError):
             try:
-                return DummySpecie.from_string(obj)
+                return DummySpecies.from_string(obj)
             except Exception:
                 raise ValueError("Can't parse Element or String from type"
                                  " %s: %s." % (type(obj), obj))

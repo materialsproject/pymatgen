@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.symmetry.bandstructure &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.bandstructure</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.symmetry.bandstructure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Provides a class for interacting with KPath classes to</span>
+<span class="sd">generate high-symmetry k-paths using different conventions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.kpath</span> <span class="kn">import</span> <span class="n">KPathBase</span><span class="p">,</span> <span class="n">KPathSetyawanCurtarolo</span><span class="p">,</span> <span class="n">KPathLatimerMunro</span><span class="p">,</span> <span class="n">KPathSeek</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Jason Munro&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2020, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Jason Munro&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;jmunro@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 2020&quot;</span>
+
+
+<div class="viewcode-block" id="HighSymmKpath"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath">[docs]</a><span class="k">class</span> <span class="nc">HighSymmKpath</span><span class="p">(</span><span class="n">KPathBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class generates path along high symmetry lines in the</span>
+<span class="sd">    Brillouin zone according to different conventions.</span>
+<span class="sd">    The class is designed to be used with a specific primitive</span>
+<span class="sd">    cell setting. The definitions for the primitive cell</span>
+<span class="sd">    used can be found in: Computational Materials Science,</span>
+<span class="sd">    49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.</span>
+<span class="sd">    The space group analyzer can be used to produce the correct</span>
+<span class="sd">    primitive structure</span>
+<span class="sd">    (method get_primitive_standard_structure(international_monoclinic=False)).</span>
+<span class="sd">    Ensure input structure is correct before &#39;get_kpoints()&#39; method is used.</span>
+<span class="sd">    See individual KPath classes for details on specific conventions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">has_magmoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">magmom_axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">path_type</span><span class="o">=</span><span class="s2">&quot;sc&quot;</span><span class="p">,</span>
+            <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure object</span>
+<span class="sd">            has_magmoms (boolean): Whether the input structure contains</span>
+<span class="sd">                magnetic moments as site properties with the key &#39;magmom.&#39;</span>
+<span class="sd">                Values may be in the form of 3-component vectors given in</span>
+<span class="sd">                the basis of the input lattice vectors, in</span>
+<span class="sd">                which case the spin axis will default to a_3, the third</span>
+<span class="sd">                real-space lattice vector (this triggers a warning).</span>
+<span class="sd">            magmom_axis (list or numpy array): 3-component vector specifying</span>
+<span class="sd">                direction along which magnetic moments given as scalars</span>
+<span class="sd">                should point. If all magnetic moments are provided as</span>
+<span class="sd">                vectors then this argument is not used.</span>
+<span class="sd">            path_type (string): Chooses which convention to use to generate</span>
+<span class="sd">                the high symmetry path. Options are: &#39;sc&#39;, &#39;hin&#39;, &#39;lm&#39; for the</span>
+<span class="sd">                Setyawan &amp; Curtarolo, Hinuma et al., and  Latimer &amp; Munro conventions.</span>
+<span class="sd">                Choosing &#39;all&#39; will generate one path with points from all three</span>
+<span class="sd">                conventions. Equivalent labels between each will also be generated.</span>
+<span class="sd">                Order will always be Latimer &amp; Munro, Setyawan &amp; Curtarolo, and Hinuma et al.</span>
+<span class="sd">                Lengths for each of the paths will also be generated and output</span>
+<span class="sd">                as a list. Note for &#39;all&#39; the user will have to alter the labels on</span>
+<span class="sd">                their own for plotting.</span>
+<span class="sd">            symprec (float): Tolerance for symmetry finding</span>
+<span class="sd">            angle_tolerance (float): Angle tolerance for symmetry finding.</span>
+<span class="sd">            atol (float): Absolute tolerance used to determine symmetric</span>
+<span class="sd">                equivalence of points and lines on the BZ.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_type</span> <span class="o">=</span> <span class="n">path_type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_equiv_labels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_lengths</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label_index</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">path_type</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">path_type</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lm_kpath</span><span class="p">(</span><span class="n">has_magmoms</span><span class="p">,</span> <span class="n">magmom_axis</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span><span class="o">.</span><span class="n">kpath</span>
+            <span class="k">elif</span> <span class="n">path_type</span> <span class="o">==</span> <span class="s2">&quot;sc&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sc_kpath</span><span class="p">(</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span><span class="o">.</span><span class="n">kpath</span>
+            <span class="k">elif</span> <span class="n">path_type</span> <span class="o">==</span> <span class="s2">&quot;hin&quot;</span><span class="p">:</span>
+                <span class="n">hin_dat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_hin_kpath</span><span class="p">(</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">,</span> <span class="ow">not</span> <span class="n">has_magmoms</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="n">hin_dat</span><span class="o">.</span><span class="n">kpath</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_hin_tmat</span> <span class="o">=</span> <span class="n">hin_dat</span><span class="o">.</span><span class="n">_tmat</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">has_magmoms</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot select &#39;all&#39; with non-zero magmoms.&quot;</span><span class="p">)</span>
+
+            <span class="n">lm_bs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lm_kpath</span><span class="p">(</span><span class="n">has_magmoms</span><span class="p">,</span> <span class="n">magmom_axis</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+            <span class="n">rpg</span> <span class="o">=</span> <span class="n">lm_bs</span><span class="o">.</span><span class="n">_rpg</span>
+
+            <span class="n">sc_bs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sc_kpath</span><span class="p">(</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+            <span class="n">hin_bs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_hin_kpath</span><span class="p">(</span><span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">,</span> <span class="ow">not</span> <span class="n">has_magmoms</span><span class="p">)</span>
+
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">cat_points</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">label_index</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">num_path</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_lengths</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="p">[</span><span class="n">lm_bs</span><span class="p">,</span> <span class="n">sc_bs</span><span class="p">,</span> <span class="n">hin_bs</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]):</span>
+                    <span class="n">cat_points</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">][</span><span class="n">value</span><span class="p">]</span>
+                    <span class="n">label_index</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">total_points_path</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]:</span>
+                    <span class="n">total_points_path</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]:</span>
+                    <span class="n">new_block</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label_index</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_index</span><span class="p">),):</span>
+                            <span class="k">if</span> <span class="n">label_index</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">:</span>
+                                <span class="n">new_block</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+
+                    <span class="n">num_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_block</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_path_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_points_path</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_label_index</span> <span class="o">=</span> <span class="n">label_index</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kpath</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;kpoints&quot;</span><span class="p">:</span> <span class="n">cat_points</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">num_path</span><span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_equiv_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_klabels</span><span class="p">(</span><span class="n">lm_bs</span><span class="p">,</span> <span class="n">sc_bs</span><span class="p">,</span> <span class="n">hin_bs</span><span class="p">,</span> <span class="n">rpg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        The type of kpath chosen</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        The correspondance between numbers and kpoint symbols for the</span>
+<span class="sd">        combined kpath generated when path_type = &#39;all&#39;. None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_index</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equiv_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        The correspondance between the kpoint symbols in the Latimer and</span>
+<span class="sd">        Munro convention, Setyawan and Curtarolo, and Hinuma</span>
+<span class="sd">        conventions respectively. Only generated when path_type = &#39;all&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equiv_labels</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma</span>
+<span class="sd">        conventions in the combined HighSymmKpath object when path_type = &#39;all&#39; respectively.</span>
+<span class="sd">        None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_lengths</span>
+
+    <span class="k">def</span> <span class="nf">_get_lm_kpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">has_magmoms</span><span class="p">,</span> <span class="n">magmom_axis</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        Latimer and Munro k-path with labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">KPathLatimerMunro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="n">has_magmoms</span><span class="p">,</span> <span class="n">magmom_axis</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_sc_kpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        Setyawan and Curtarolo k-path with labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kpath</span> <span class="o">=</span> <span class="n">KPathSetyawanCurtarolo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prim</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">prim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conventional</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">conventional</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prim_rec</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">prim_rec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rec_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prim_rec</span>
+
+        <span class="k">return</span> <span class="n">kpath</span>
+
+    <span class="k">def</span> <span class="nf">_get_hin_kpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">,</span> <span class="n">tri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        Hinuma et al. k-path with labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bs</span> <span class="o">=</span> <span class="n">KPathSeek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">atol</span><span class="p">,</span> <span class="n">tri</span><span class="p">)</span>
+
+        <span class="n">kpoints</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span>
+        <span class="n">tmat</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">_tmat</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kpoints</span><span class="p">:</span>
+            <span class="n">kpoints</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">tmat</span><span class="p">)),</span> <span class="n">kpoints</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">bs</span>
+
+    <span class="k">def</span> <span class="nf">_get_klabels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lm_bs</span><span class="p">,</span> <span class="n">sc_bs</span><span class="p">,</span> <span class="n">hin_bs</span><span class="p">,</span> <span class="n">rpg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        labels (dict): Dictionary of equivalent labels for paths if &#39;all&#39; is chosen.</span>
+<span class="sd">            If an exact kpoint match cannot be found, symmetric equivalency will be</span>
+<span class="sd">            searched for and indicated with an asterisk in the equivalent label.</span>
+<span class="sd">            If an equivalent label can still not be found, or the point is not in</span>
+<span class="sd">            the explicit kpath, its equivalent label will be set to itself in the output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lm_path</span> <span class="o">=</span> <span class="n">lm_bs</span><span class="o">.</span><span class="n">kpath</span>
+        <span class="n">sc_path</span> <span class="o">=</span> <span class="n">sc_bs</span><span class="o">.</span><span class="n">kpath</span>
+        <span class="n">hin_path</span> <span class="o">=</span> <span class="n">hin_bs</span><span class="o">.</span><span class="n">kpath</span>
+
+        <span class="n">n_op</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rpg</span><span class="p">)</span>
+
+        <span class="n">pairs</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">([{</span><span class="s2">&quot;sc&quot;</span><span class="p">:</span> <span class="n">sc_path</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;lm&quot;</span><span class="p">:</span> <span class="n">lm_path</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;hin&quot;</span><span class="p">:</span> <span class="n">hin_path</span><span class="p">}],</span> <span class="n">r</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sc&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;lm&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;hin&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="p">[(</span><span class="n">a_type</span><span class="p">,</span> <span class="n">a_path</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="p">[(</span><span class="n">b_type</span><span class="p">,</span> <span class="n">b_path</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+            <span class="n">sc_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_op</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">o_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_op</span><span class="p">):</span>
+                <span class="n">a_tr_coord</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">for</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">coord_a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">a_path</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">a_tr_coord</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rpg</span><span class="p">[</span><span class="n">o_num</span><span class="p">],</span> <span class="n">coord_a</span><span class="p">))</span>
+
+                <span class="k">for</span> <span class="n">coord_a</span> <span class="ow">in</span> <span class="n">a_tr_coord</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">b_path</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">coord_a</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_atol</span><span class="p">):</span>
+                            <span class="n">sc_count</span><span class="p">[</span><span class="n">o_num</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">break</span>
+
+            <span class="n">a_to_b_labels</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">unlabeled</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">coord_a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">a_path</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">coord_a_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rpg</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">sc_count</span><span class="p">)],</span> <span class="n">coord_a</span><span class="p">)</span>
+                <span class="n">assigned</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">for</span> <span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="n">coord_b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">b_path</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">coord_b</span><span class="p">,</span> <span class="n">coord_a_t</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_atol</span><span class="p">):</span>
+                        <span class="n">a_to_b_labels</span><span class="p">[</span><span class="n">label_a</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_b</span>
+                        <span class="n">assigned</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">assigned</span><span class="p">:</span>
+                    <span class="n">unlabeled</span><span class="p">[</span><span class="n">label_a</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord_a</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">coord_a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">unlabeled</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">rpg</span><span class="p">:</span>
+                    <span class="n">coord_a_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">coord_a</span><span class="p">)</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">key</span>
+                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">b_path</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">coord_a_t</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_atol</span><span class="p">)</span>
+                    <span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="p">[]:</span>
+                        <span class="n">a_to_b_labels</span><span class="p">[</span><span class="n">label_a</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;^{*}&quot;</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="p">[]:</span>
+                    <span class="n">a_to_b_labels</span><span class="p">[</span><span class="n">label_a</span><span class="p">]</span> <span class="o">=</span> <span class="n">label_a</span>
+
+            <span class="n">labels</span><span class="p">[</span><span class="n">a_type</span><span class="p">][</span><span class="n">b_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">a_to_b_labels</span>
+
+        <span class="k">return</span> <span class="n">labels</span>
+
+<div class="viewcode-block" id="HighSymmKpath.get_continuous_path"><a class="viewcode-back" href="../../../pymatgen.symmetry.bandstructure.html#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_continuous_path</span><span class="p">(</span><span class="n">bandstructure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a continous version of an inputted path using graph theory.</span>
+<span class="sd">        This routine will attempt to add connections between nodes of</span>
+<span class="sd">        odd-degree to ensure a Eulerian path can be formed. Initial</span>
+<span class="sd">        k-path must be able to be converted to a connected graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        bandstructure (Bandstructure): Bandstructure object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        distances_map (list): Mapping of &#39;distance&#39; segments for altering a</span>
+<span class="sd">            BSPlotter object to new continuous path. List of tuples indicating the</span>
+<span class="sd">            new order of distances, and whether they should be plotted in reverse.</span>
+<span class="sd">        kpath_euler (list): New continuous kpath in the HighSymmKpath format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">bandstructure</span><span class="o">.</span><span class="n">kpoints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">point</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="n">plot_axis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)):</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="n">labels</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">labels</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])])</span>
+            <span class="n">plot_axis</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">labels</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">labels</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+
+        <span class="n">G_euler</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">euler</span><span class="o">.</span><span class="n">eulerize</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+        <span class="n">G_euler_circuit</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">euler</span><span class="o">.</span><span class="n">eulerian_circuit</span><span class="p">(</span><span class="n">G_euler</span><span class="p">)</span>
+
+        <span class="n">distances_map</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">kpath_euler</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">edge_euler</span> <span class="ow">in</span> <span class="n">G_euler_circuit</span><span class="p">:</span>
+            <span class="n">kpath_euler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge_euler</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">edge_reg</span> <span class="ow">in</span> <span class="n">plot_axis</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">edge_euler</span> <span class="o">==</span> <span class="n">edge_reg</span><span class="p">:</span>
+                    <span class="n">distances_map</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">plot_axis</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">edge_reg</span><span class="p">),</span> <span class="kc">False</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">edge_euler</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">edge_reg</span><span class="p">:</span>
+                    <span class="n">distances_map</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">plot_axis</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">edge_reg</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">distances_map</span><span class="p">,</span> <span class="n">kpath_euler</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.bandstructure</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

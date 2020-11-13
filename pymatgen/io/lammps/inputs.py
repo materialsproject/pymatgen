@@ -1,6 +1,12 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+
+"""
+This module implements methods for writing LAMMPS input files.
+"""
+
+
 import os
 import re
 import shutil
@@ -10,10 +16,6 @@ from string import Template
 from monty.json import MSONable
 from pymatgen.io.lammps.data import LammpsData
 
-"""
-This module implements methods for writing LAMMPS input files.
-
-"""
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -76,7 +78,7 @@ class LammpsRun(MSONable):
     @classmethod
     def md(cls, data, force_field, temperature, nsteps,
            other_settings=None):
-        """
+        r"""
         Example for a simple MD run based on template md.txt.
 
         Args:

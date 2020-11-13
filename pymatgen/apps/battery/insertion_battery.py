@@ -18,6 +18,8 @@ __status__ = "Beta"
 
 import itertools
 
+from scipy.constants import N_A
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.units import Charge, Time
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -25,8 +27,6 @@ from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.core.periodic_table import Element
-
-from scipy.constants import N_A
 
 
 class InsertionElectrode(AbstractElectrode):
@@ -95,10 +95,16 @@ class InsertionElectrode(AbstractElectrode):
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     @property
     def voltage_pairs(self):
+        """
+        Returns: All InsertionVoltagePairs in electrode.
+        """
         return self._vpairs
 
     def get_stable_entries(self, charge_to_discharge=True):
@@ -147,8 +153,7 @@ class InsertionElectrode(AbstractElectrode):
         all_entries = list(self.get_stable_entries())
         all_entries.extend(self.get_unstable_entries())
         # sort all entries by amount of working ion ASC
-        all_entries = sorted([e for e in all_entries],
-                             key=lambda e: e.composition.get_atomic_fraction(self.working_ion))
+        all_entries = sorted(all_entries, key=lambda e: e.composition.get_atomic_fraction(self.working_ion))
         return all_entries if charge_to_discharge else all_entries.reverse()
 
     @property
@@ -373,12 +378,22 @@ class InsertionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            InsertionElectrode
+        """
         from monty.json import MontyDecoder
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["entries"]),
                    dec.process_decoded(d["working_ion_entry"]))
 
     def as_dict(self):
+        """
+        Returns: MSONAble dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entries": [entry.as_dict() for entry in self._entries],
@@ -388,15 +403,16 @@ class InsertionElectrode(AbstractElectrode):
 class InsertionVoltagePair(AbstractVoltagePair):
     """
     Defines an Insertion Voltage Pair.
-
-    Args:
-        entry1: Entry corresponding to one of the entries in the voltage step.
-        entry2: Entry corresponding to the other entry in the voltage step.
-        working_ion_entry: A single ComputedEntry or PDEntry representing
-            the element that carries charge across the battery, e.g. Li.
     """
 
     def __init__(self, entry1, entry2, working_ion_entry):
+        """
+        Args:
+            entry1: Entry corresponding to one of the entries in the voltage step.
+            entry2: Entry corresponding to the other entry in the voltage step.
+            working_ion_entry: A single ComputedEntry or PDEntry representing
+                the element that carries charge across the battery, e.g. Li.
+        """
         # initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
 
@@ -492,51 +508,83 @@ class InsertionVoltagePair(AbstractVoltagePair):
             comp_discharge.get_atomic_fraction(working_element)
 
     @property
+    def working_ion(self):
+        """
+        Returns: working ion
+        """
+        return self._working_ion_entry.composition.elements[0]
+
+    @property
     def frac_charge(self):
+        """
+        Returns: Amount of working ion at charge
+        """
         return self._frac_charge
 
     @property
     def frac_discharge(self):
+        """
+        Returns: Amount of working ion at discharge
+        """
         return self._frac_discharge
 
     @property
     def voltage(self):
+        """
+        Returns: Voltage of electrode
+        """
         return self._voltage
 
     @property
     def mAh(self):
+        """
+        Returns: Energy in mAh.
+        """
         return self._mAh
 
     @property
     def mass_charge(self):
+        """
+        Returns: Mass of charged electrode.
+        """
         return self._mass_charge
 
     @property
     def mass_discharge(self):
+        """
+        Returns: Mass of discharged electrode.
+        """
         return self._mass_discharge
 
     @property
     def vol_charge(self):
+        """
+        Returns: Volume of charged electrode.
+        """
         return self._vol_charge
 
     @property
     def vol_discharge(self):
+        """
+        Returns: Volume of discharged electrode.
+        """
         return self._vol_discharge
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     def __repr__(self):
-        output = ["Insertion voltage pair with working ion {}".format(
-                      self._working_ion_entry.composition.reduced_formula),
-                  "V = {}, mAh = {}".format(self.voltage, self.mAh),
-                  "mass_charge = {}, mass_discharge = {}".format(
-                      self.mass_charge, self.mass_discharge),
-                  "vol_charge = {}, vol_discharge = {}".format(
-                      self.vol_charge, self.vol_discharge),
-                  "frac_charge = {}, frac_discharge = {}".format(
-                      self.frac_charge, self.frac_discharge)]
+        output = [
+            "Insertion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula),
+            "V = {}, mAh = {}".format(self.voltage, self.mAh),
+            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
+            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge),
+            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge)
+        ]
         return "\n".join(output)
 
     def __str__(self):

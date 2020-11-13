@@ -80,19 +80,12 @@ class LammpsDataTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "data.peptide"))
-        cls.ethane = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "ethane.data"))
-        cls.quartz = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "data.quartz"),
-                      atom_style="atomic")
-        cls.virus = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "virus.data"),
-                      atom_style="angle")
-        cls.tatb = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "tatb.data"),
-                      atom_style="charge", sort_id=True)
+        cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide"))
+        cls.ethane = LammpsData.from_file(filename=os.path.join(test_dir, "ethane.data"))
+        cls.quartz = LammpsData.from_file(filename=os.path.join(test_dir, "data.quartz"), atom_style="atomic")
+        cls.virus = LammpsData.from_file(filename=os.path.join(test_dir, "virus.data"), atom_style="angle")
+        cls.tatb = LammpsData.from_file(filename=os.path.join(test_dir, "tatb.data"),
+                                        atom_style="charge", sort_id=True)
 
     def test_structure(self):
         quartz = self.quartz.structure
@@ -128,6 +121,23 @@ class LammpsDataTest(unittest.TestCase):
                                        ["Ni"], [[0, 0, 0]])
         ld_ni = LammpsData.from_structure(ni)
         self.assertEqual(ld_ni.structure.composition.reduced_formula, "Ni")
+
+    def test_sort_structure(self):
+        s = Structure(Lattice.cubic(4), ['S', 'Fe'], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        lmp = LammpsData.from_structure(s, is_sort=False)
+        lmp.write_file('test1.data')
+        lmp2 = LammpsData.from_file('test1.data', atom_style="charge")
+
+        # internally element:type will be {Fe: 1, S: 2},
+        # therefore without sorting the atom types in structure
+        # will be [2, 1], i.e., (S, Fe)
+        self.assertListEqual(lmp2.atoms['type'].values.tolist(), [2, 1])
+
+        # with sorting the atom types in structures will be [1, 2]
+        lmp = LammpsData.from_structure(s, is_sort=True)
+        lmp.write_file('test1.data')
+        lmp2 = LammpsData.from_file('test1.data', atom_style="charge")
+        self.assertListEqual(lmp2.atoms['type'].values.tolist(), [1, 2])
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
@@ -306,7 +316,7 @@ class LammpsDataTest(unittest.TestCase):
                                         1)[0]
             topo_type_idx = sample_topo[0] - 1
             topo_type = tuple([atom_labels[i - 1] for i in
-                               atoms.loc[sample_topo[1:], "type"]])
+                               atoms.loc[list(sample_topo[1:])]["type"]])
 
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
@@ -823,9 +833,9 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
         # header box
         np.testing.assert_array_equal(ec_fec.box.bounds,
-                                      [[-1.000000, 54.000000],
-                                       [-1.000000, 54.000000],
-                                       [-1.000000, 54.000000]])
+                                      [[-0.597365, 54.56835],
+                                       [-0.597365, 54.56835],
+                                       [-0.597365, 54.56835]])
         # body
         self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
         self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)
@@ -875,9 +885,9 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
         # header box
         np.testing.assert_array_equal(ec_fec.box.bounds,
-                                      [[-1.000000, 54.000000],
-                                       [-1.000000, 54.000000],
-                                       [-1.000000, 54.000000]])
+                                      [[-0.597365, 54.56835],
+                                       [-0.597365, 54.56835],
+                                       [-0.597365, 54.56835]])
         # body
         self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
         self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)

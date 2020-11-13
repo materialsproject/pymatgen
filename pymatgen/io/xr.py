@@ -12,6 +12,15 @@ to remove shell positions from relaxations
 that employed core-shell models.
 """
 
+import re
+from math import fabs
+
+import numpy as np
+from monty.io import zopen
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"
 __version__ = "0.1"
@@ -19,26 +28,18 @@ __maintainer__ = "Nils Edvin Richard Zimmermann"
 __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
-import re
-
-import numpy as np
-
-from monty.io import zopen
-from math import fabs
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-
 
 class Xr:
     """
     Basic object for working with xr files.
-
-    Args:
-        structure (Structure/IStructure): Structure object to create the
-                Xr object.
     """
 
     def __init__(self, structure):
+        """
+        Args:
+            structure (Structure/IStructure): Structure object to create the
+                    Xr object.
+        """
         if not structure.is_ordered:
             raise ValueError("Xr file can only be constructed from ordered "
                              "structure")

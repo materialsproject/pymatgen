@@ -1,0 +1,458 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.apps.battery.battery_abc &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.apps.battery.battery_abc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.apps.battery.battery_abc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines the abstract base classes for battery-related classes.</span>
+<span class="sd">Regardless of the kind of electrode, conversion or insertion, there are many</span>
+<span class="sd">common definitions and properties, e.g., average voltage, capacity, etc. which</span>
+<span class="sd">can be defined in a general way. The Abc for battery classes implements some of</span>
+<span class="sd">these common definitions to allow sharing of common logic between them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="kn">import</span> <span class="n">N_A</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Anubhav Jain, Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 1, 2012&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
+
+
+<div class="viewcode-block" id="AbstractVoltagePair"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair">[docs]</a><span class="k">class</span> <span class="nc">AbstractVoltagePair</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An Abstract Base Class for a Voltage Pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Voltage of voltage pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mAh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Energy in mAh.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mass_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Mass of charged pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mass_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Mass of discharged pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">vol_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Vol of charged pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">vol_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Vol of discharged pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">frac_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Frac of working ion in charged pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">frac_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Frac of working ion in discharged pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">working_ion_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Working ion as an entry.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="AbstractElectrode"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode">[docs]</a><span class="k">class</span> <span class="nc">AbstractElectrode</span><span class="p">(</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An Abstract Base Class representing an Electrode. It is essentially a</span>
+<span class="sd">    sequence of VoltagePairs. Generally, subclasses only need to implement</span>
+<span class="sd">    three abstract properties: voltage_pairs, working_ion and</span>
+<span class="sd">    working_ion_entry.</span>
+
+<span class="sd">    The general concept is that all other battery properties such as capacity,</span>
+<span class="sd">    etc. are derived from voltage pairs.</span>
+
+<span class="sd">    One of the major challenges with representing battery materials is keeping</span>
+<span class="sd">    track of the normalization between different entries. For example, one</span>
+<span class="sd">    entry might be TiO2 with one unit cell whereas another is LiTi2O4 with two</span>
+<span class="sd">    unit cells. When computing battery properties, it is needed to always use</span>
+<span class="sd">    a universal reference state otherwise you have normalization errors (e.g.,</span>
+<span class="sd">    the energy of LiTi2O4 must be divided by two to be compared with TiO2).</span>
+
+<span class="sd">    For properties such as volume, mass, or mAh transferred within the voltage</span>
+<span class="sd">    pair, a universal convention is necessary. AbstractElectrode can query for</span>
+<span class="sd">    extrinsic properties of several different AbstractVoltagePairs belonging to</span>
+<span class="sd">    a single charge/discharge path and be confident that the normalization is</span>
+<span class="sd">    being carried out properly throughout, even if more AbstractVoltagePairs</span>
+<span class="sd">    are added later.</span>
+
+<span class="sd">    The universal normalization is defined by the reduced structural framework</span>
+<span class="sd">    of the entries, which is common along the entire charge/discharge path. For</span>
+<span class="sd">    example, LiTi2O4 has a reduced structural framework of TiO2. Another</span>
+<span class="sd">    example is Li9V6P16O58 which would have a reduced structural framework of</span>
+<span class="sd">    V3P8O29. Note that reduced structural frameworks need not be</span>
+<span class="sd">    charge-balanced or physical, e.g. V3P8O29 is not charge-balanced, they are</span>
+<span class="sd">    just a tool for normalization.</span>
+
+<span class="sd">    Example: for a LiTi2O4 -&gt; TiO2 AbstractVoltagePair, extrinsic quantities</span>
+<span class="sd">    like mAh or cell volumes are given per TiO2 formula unit.</span>
+
+<span class="sd">    Developers implementing a new battery (other than the two general ones</span>
+<span class="sd">    already implemented) need to implement a VoltagePair and an Electrode.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">voltage_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all the VoltagePairs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">working_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The working ion as an Element object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">working_ion_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The working ion as an Entry object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_delta_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maximum volume change along insertion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vols</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">vol_charge</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">]</span>
+        <span class="n">vols</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">vol_discharge</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">vols</span><span class="p">)</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span><span class="n">vols</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The number of distinct voltage steps in from fully charge to discharge</span>
+<span class="sd">        based on the stable intermediate states</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Highest voltage along insertion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">voltage</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min_voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lowest voltage along insertion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">voltage</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_voltage_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maximum absolute difference in adjacent voltage steps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">voltage</span>
+                 <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">voltage</span>
+                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalization_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Mass used for normalization. This is the mass of the discharged</span>
+<span class="sd">            electrode of the last voltage pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mass_discharge</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalization_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Mass used for normalization. This is the vol of the discharged</span>
+<span class="sd">            electrode of the last voltage pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">vol_discharge</span>
+
+<div class="viewcode-block" id="AbstractElectrode.get_average_voltage"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_average_voltage">[docs]</a>    <span class="k">def</span> <span class="nf">get_average_voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Average voltage for path satisfying between a min and max voltage.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_voltage (float): The minimum allowable voltage for a given</span>
+<span class="sd">                step.</span>
+<span class="sd">            max_voltage (float): The maximum allowable voltage allowable for a</span>
+<span class="sd">                given step.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Average voltage in V across the insertion path (a subset of the</span>
+<span class="sd">            path can be chosen by the optional arguments)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pairs_in_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_in_voltage_range</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span>
+                                                       <span class="n">max_voltage</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_in_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">total_cap_in_range</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">mAh</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs_in_range</span><span class="p">])</span>
+        <span class="n">total_edens_in_range</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">mAh</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">voltage</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs_in_range</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">total_edens_in_range</span> <span class="o">/</span> <span class="n">total_cap_in_range</span></div>
+
+<div class="viewcode-block" id="AbstractElectrode.get_capacity_grav"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_capacity_grav">[docs]</a>    <span class="k">def</span> <span class="nf">get_capacity_grav</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">use_overall_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the gravimetric capacity of the electrode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_voltage (float): The minimum allowable voltage for a given</span>
+<span class="sd">                step.</span>
+<span class="sd">            max_voltage (float): The maximum allowable voltage allowable for a</span>
+<span class="sd">                given step.</span>
+<span class="sd">            use_overall_normalization (booL): If False, normalize by the</span>
+<span class="sd">                discharged state of only the voltage pairs matching the voltage</span>
+<span class="sd">                criteria. if True, use default normalization of the full</span>
+<span class="sd">                electrode path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Gravimetric capacity in mAh/g across the insertion path (a subset</span>
+<span class="sd">            of the path can be chosen by the optional arguments).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pairs_in_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_in_voltage_range</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span>
+                                                       <span class="n">max_voltage</span><span class="p">)</span>
+        <span class="n">normalization_mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_mass</span> \
+            <span class="k">if</span> <span class="n">use_overall_normalization</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_in_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> \
+            <span class="k">else</span> <span class="n">pairs_in_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mass_discharge</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">pair</span><span class="o">.</span><span class="n">mAh</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs_in_range</span><span class="p">])</span> <span class="o">/</span> <span class="n">normalization_mass</span></div>
+
+<div class="viewcode-block" id="AbstractElectrode.get_capacity_vol"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_capacity_vol">[docs]</a>    <span class="k">def</span> <span class="nf">get_capacity_vol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">use_overall_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the volumetric capacity of the electrode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_voltage (float): The minimum allowable voltage for a given</span>
+<span class="sd">                step.</span>
+<span class="sd">            max_voltage (float): The maximum allowable voltage allowable for a</span>
+<span class="sd">                given step.</span>
+<span class="sd">            use_overall_normalization (booL): If False, normalize by the</span>
+<span class="sd">                discharged state of only the voltage pairs matching the voltage</span>
+<span class="sd">                criteria. if True, use default normalization of the full</span>
+<span class="sd">                electrode path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Volumetric capacity in mAh/cc across the insertion path (a subset</span>
+<span class="sd">            of the path can be chosen by the optional arguments)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pairs_in_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_in_voltage_range</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span>
+                                                       <span class="n">max_voltage</span><span class="p">)</span>
+        <span class="n">normalization_vol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization_volume</span> \
+            <span class="k">if</span> <span class="n">use_overall_normalization</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs_in_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> \
+            <span class="k">else</span> <span class="n">pairs_in_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">vol_discharge</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">pair</span><span class="o">.</span><span class="n">mAh</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs_in_range</span><span class="p">])</span> <span class="o">/</span> <span class="n">normalization_vol</span> <span class="o">*</span> <span class="mf">1e24</span> <span class="o">/</span> <span class="n">N_A</span></div>
+
+<div class="viewcode-block" id="AbstractElectrode.get_specific_energy"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_specific_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_specific_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">use_overall_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the specific energy of the battery in mAh/g.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_voltage (float): The minimum allowable voltage for a given</span>
+<span class="sd">                step.</span>
+<span class="sd">            max_voltage (float): The maximum allowable voltage allowable for a</span>
+<span class="sd">                given step.</span>
+<span class="sd">            use_overall_normalization (booL): If False, normalize by the</span>
+<span class="sd">                discharged state of only the voltage pairs matching the voltage</span>
+<span class="sd">                criteria. if True, use default normalization of the full</span>
+<span class="sd">                electrode path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Specific energy in Wh/kg across the insertion path (a subset of</span>
+<span class="sd">            the path can be chosen by the optional arguments)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_capacity_grav</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span> <span class="n">max_voltage</span><span class="p">,</span>
+                                      <span class="n">use_overall_normalization</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_voltage</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span> <span class="n">max_voltage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AbstractElectrode.get_energy_density"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode.get_energy_density">[docs]</a>    <span class="k">def</span> <span class="nf">get_energy_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">use_overall_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            min_voltage (float): The minimum allowable voltage for a given</span>
+<span class="sd">                step.</span>
+<span class="sd">            max_voltage (float): The maximum allowable voltage allowable for a</span>
+<span class="sd">                given step.</span>
+<span class="sd">            use_overall_normalization (booL): If False, normalize by the</span>
+<span class="sd">                discharged state of only the voltage pairs matching the voltage</span>
+<span class="sd">                criteria. if True, use default normalization of the full</span>
+<span class="sd">                electrode path.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Energy density in Wh/L across the insertion path (a subset of the</span>
+<span class="sd">            path can be chosen by the optional arguments).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_capacity_vol</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span> <span class="n">max_voltage</span><span class="p">,</span>
+                                     <span class="n">use_overall_normalization</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_average_voltage</span><span class="p">(</span><span class="n">min_voltage</span><span class="p">,</span> <span class="n">max_voltage</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_select_in_voltage_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_voltage</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects VoltagePairs within a certain voltage range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_voltage (float): The minimum allowable voltage for a given</span>
+<span class="sd">                step.</span>
+<span class="sd">            max_voltage (float): The maximum allowable voltage allowable for a</span>
+<span class="sd">                given step.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of VoltagePair objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_voltage</span> <span class="o">=</span> <span class="n">min_voltage</span> <span class="k">if</span> <span class="n">min_voltage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_voltage</span>
+        <span class="n">max_voltage</span> <span class="o">=</span> <span class="n">max_voltage</span> <span class="k">if</span> <span class="n">max_voltage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_voltage</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">min_voltage</span> <span class="o">&lt;=</span> <span class="n">p</span><span class="o">.</span><span class="n">voltage</span> <span class="o">&lt;=</span> <span class="n">max_voltage</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">voltage_pairs</span><span class="p">))</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.apps.battery.battery_abc</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

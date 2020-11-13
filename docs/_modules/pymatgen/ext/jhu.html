@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.ext.jhu &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.ext.jhu</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.ext.jhu</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module creates an interface to the JHU kpoints servlet,</span>
+<span class="sd">see http://muellergroup.jhu.edu/K-Points.html.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Kpoints</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;montoyjh@lbl.gov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;June 22, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="get_kpoints"><a class="viewcode-back" href="../../../pymatgen.ext.jhu.html#pymatgen.ext.jhu.get_kpoints">[docs]</a><span class="k">def</span> <span class="nf">get_kpoints</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">min_distance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">min_total_kpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">kppra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gap_distance</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">remove_symmetry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">include_gamma</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="n">incar</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get kpoints object from JHU servlet, per Wisesa-McGill-Mueller</span>
+<span class="sd">    methodology.  Refer to http://muellergroup.jhu.edu/K-Points.html</span>
+<span class="sd">    and P. Wisesa, K. A. McGill, T. Mueller, Phys. Rev. B 93,</span>
+<span class="sd">    155109 (2016)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (Structure): structure object</span>
+<span class="sd">        min_distance (float): The minimum allowed distance</span>
+<span class="sd">            between lattice points on the real-space superlattice</span>
+<span class="sd">        min_total_kpoints (int): The minimum allowed number of</span>
+<span class="sd">            total k-points in the Brillouin zone.</span>
+<span class="sd">        kppra (float): minimum k-points per reciprocal atom.</span>
+<span class="sd">        gap_distance (float): auto-detection threshold for</span>
+<span class="sd">            non-periodicity (in slabs, nanowires, etc.)</span>
+<span class="sd">        remove_symmetry (string): optional flag to control</span>
+<span class="sd">            symmetry options, can be none, structural,</span>
+<span class="sd">            time_reversal, or all</span>
+<span class="sd">        include_gamma (string or bool): whether to include</span>
+<span class="sd">            gamma point</span>
+<span class="sd">        header (string): &quot;verbose&quot; or &quot;simple&quot;, denotes</span>
+<span class="sd">            the verbosity of the header</span>
+<span class="sd">        incar (Incar): incar object to upload</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="s2">&quot;incar&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Generate PRECALC string</span>
+    <span class="n">precalc</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">=</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+    <span class="n">precalc</span> <span class="o">=</span> <span class="n">precalc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">precalc</span> <span class="o">=</span> <span class="n">precalc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;REMOVESYMMETRY&#39;</span><span class="p">,</span> <span class="s1">&#39;REMOVE_SYMMETRY&#39;</span><span class="p">)</span>
+    <span class="n">precalc</span> <span class="o">=</span> <span class="n">precalc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;TIMEREVERSAL&#39;</span><span class="p">,</span> <span class="s1">&#39;TIME_REVERSAL&#39;</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://muellergroup.jhu.edu:8080/PreCalcServer/PreCalcServlet&quot;</span>
+    <span class="n">temp_dir_name</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">temp_dir_name</span><span class="p">)</span>
+
+    <span class="n">precalc_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;PRECALC&quot;</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span>
+    <span class="n">poscar_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span>
+    <span class="n">incar_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;INCAR&quot;</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span>
+
+    <span class="n">precalc_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">precalc</span><span class="p">)</span>
+    <span class="n">poscar_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">))</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;fileupload&quot;</span><span class="p">,</span> <span class="n">precalc_file</span><span class="p">),</span>
+             <span class="p">(</span><span class="s2">&quot;fileupload&quot;</span><span class="p">,</span> <span class="n">poscar_file</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">incar</span><span class="p">:</span>
+        <span class="n">incar_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">incar</span><span class="o">.</span><span class="n">get_string</span><span class="p">())</span>
+        <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;fileupload&quot;</span><span class="p">,</span> <span class="n">incar_file</span><span class="p">))</span>
+
+    <span class="n">precalc_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">poscar_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">incar_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">)</span>
+
+    <span class="n">precalc_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">poscar_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">incar_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">kpoints</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.ext.jhu</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

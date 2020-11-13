@@ -17,22 +17,24 @@ more info.
 
 """
 
-from collections import OrderedDict
-from io import StringIO
 import itertools
 import re
 import warnings
+from collections import OrderedDict
+from io import StringIO
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from monty.json import MSONable
-from monty.dev import deprecated
-from monty.serialization import loadfn
 from ruamel.yaml import YAML
 
-from pymatgen.util.io_utils import clean_lines
+from monty.dev import deprecated
+from monty.json import MSONable
+from monty.serialization import loadfn
+
+
 from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
+from pymatgen.util.io_utils import clean_lines
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -391,7 +393,7 @@ class LammpsData(MSONable):
         section_template = "{kw}\n\n{df}\n"
         parts = []
         for k, v in body_dict.items():
-            index = True if k != "PairIJ Coeffs" else False
+            index = k != "PairIJ Coeffs"
             if k in ['Bond Coeffs', 'Angle Coeffs', 'Dihedral Coeffs', 'Improper Coeffs']:
                 listofdf = np.array_split(v, len(v.index))
                 df_string = ''
@@ -540,10 +542,9 @@ class LammpsData(MSONable):
                 ff_kw = k[:-1] + " Coeffs"
                 for topo in v.itertuples(False, None):
                     topo_idx = topo[0] - 1
-                    indices = topo[1:]
-                    mids = atoms_df.loc[indices, "molecule-ID"].unique()
-                    assert len(mids) == 1, \
-                        "Do not support intermolecular topology formed " \
+                    indices = list(topo[1:])
+                    mids = atoms_df.loc[indices]["molecule-ID"].unique()
+                    assert len(mids) == 1, "Do not support intermolecular topology formed " \
                         "by atoms with different molecule-IDs"
                     label = label_topo(indices)
                     topo_coeffs[ff_kw][topo_idx]["types"].append(label)
@@ -621,8 +622,6 @@ class LammpsData(MSONable):
                 match = re.match(v, l)
                 if match:
                     break
-                else:
-                    continue
             if match and k in ["counts", "types"]:
                 header[k][match.group(2)] = int(match.group(1))
             elif match and k == "bounds":
@@ -788,7 +787,8 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
+    def from_structure(cls, structure, ff_elements=None, atom_style="charge",
+                       is_sort=False):
         """
         Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
@@ -799,10 +799,14 @@ class LammpsData(MSONable):
                 be present due to force field settings but not
                 necessarily in the structure. Default to None.
             atom_style (str): Choose between "atomic" (neutral) and
-            "charge" (charged). Default to "charge".
+                "charge" (charged). Default to "charge".
+            is_sort (bool): whether to sort sites
 
         """
-        s = structure.get_sorted_structure()
+        if is_sort:
+            s = structure.get_sorted_structure()
+        else:
+            s = structure.copy()
         box, symmop = lattice_2_lmpbox(s.lattice)
         coords = symmop.operate_multi(s.cart_coords)
         site_properties = s.site_properties
@@ -978,42 +982,42 @@ class Topology(MSONable):
         if not all((bond, bond_list)):
             # do not search for others if not searching for bonds or no bonds
             return cls(sites=molecule, **kwargs)
-        else:
-            angle_list, dihedral_list = [], []
-            dests, freq = np.unique(bond_list, return_counts=True)
-            hubs = dests[np.where(freq > 1)].tolist()
-            bond_arr = np.array(bond_list)
-            if len(hubs) > 0:
-                hub_spokes = {}
-                for hub in hubs:
-                    ix = np.any(np.isin(bond_arr, hub), axis=1)
-                    bonds = np.unique(bond_arr[ix]).tolist()
-                    bonds.remove(hub)
-                    hub_spokes[hub] = bonds
-            # skip angle or dihedral searching if too few bonds or hubs
-            dihedral = False if len(bond_list) < 3 or len(hubs) < 2 \
-                else dihedral
-            angle = False if len(bond_list) < 2 or len(hubs) < 1 else angle
 
-            if angle:
-                for k, v in hub_spokes.items():
-                    angle_list.extend([[i, k, j] for i, j in
-                                       itertools.combinations(v, 2)])
-            if dihedral:
-                hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
-                for i, j in hub_cons.tolist():
-                    ks = [k for k in hub_spokes[i] if k != j]
-                    ls = [l for l in hub_spokes[j] if l != i]
-                    dihedral_list.extend([[k, i, j, l] for k, l in
-                                          itertools.product(ks, ls)
-                                          if k != l])
+        angle_list, dihedral_list = [], []
+        dests, freq = np.unique(bond_list, return_counts=True)
+        hubs = dests[np.where(freq > 1)].tolist()
+        bond_arr = np.array(bond_list)
+        if len(hubs) > 0:
+            hub_spokes = {}
+            for hub in hubs:
+                ix = np.any(np.isin(bond_arr, hub), axis=1)
+                bonds = np.unique(bond_arr[ix]).tolist()
+                bonds.remove(hub)
+                hub_spokes[hub] = bonds
+        # skip angle or dihedral searching if too few bonds or hubs
+        dihedral = False if len(bond_list) < 3 or len(hubs) < 2 \
+            else dihedral
+        angle = False if len(bond_list) < 2 or len(hubs) < 1 else angle
 
-            topologies = {k: v for k, v
-                          in zip(SECTION_KEYWORDS["topology"][:3],
-                                 [bond_list, angle_list, dihedral_list])
-                          if len(v) > 0}
-            topologies = None if len(topologies) == 0 else topologies
-            return cls(sites=molecule, topologies=topologies, **kwargs)
+        if angle:
+            for k, v in hub_spokes.items():
+                angle_list.extend([[i, k, j] for i, j in
+                                   itertools.combinations(v, 2)])
+        if dihedral:
+            hub_cons = bond_arr[np.all(np.isin(bond_arr, hubs), axis=1)]
+            for i, j in hub_cons.tolist():
+                ks = [k for k in hub_spokes[i] if k != j]
+                ls = [l for l in hub_spokes[j] if l != i]
+                dihedral_list.extend([[k, i, j, l] for k, l in
+                                      itertools.product(ks, ls)
+                                      if k != l])
+
+        topologies = {k: v for k, v
+                      in zip(SECTION_KEYWORDS["topology"][:3],
+                             [bond_list, angle_list, dihedral_list])
+                      if len(v) > 0}
+        topologies = None if len(topologies) == 0 else topologies
+        return cls(sites=molecule, topologies=topologies, **kwargs)
 
 
 class ForceField(MSONable):
@@ -1028,7 +1032,8 @@ class ForceField(MSONable):
 
     """
 
-    def _is_valid(self, df):
+    @staticmethod
+    def _is_valid(df):
         return not pd.isnull(df).values.any()
 
     def __init__(self, mass_info, nonbond_coeffs=None, topo_coeffs=None):
@@ -1135,8 +1140,7 @@ class ForceField(MSONable):
                 seqs = [[0, 1, 2, 3], [0, 2, 1, 3],
                         [3, 1, 2, 0], [3, 2, 1, 0]]
                 return [tuple(label_arr[s]) for s in seqs]
-            else:
-                return [label] + [label[::-1]]
+            return [label] + [label[::-1]]
 
         main_data, distinct_types = [], []
         class2_data = {k: [] for k in self.topo_coeffs[kw][0].keys()
@@ -1239,7 +1243,9 @@ class CombinedData(LammpsData):
 
         """
 
-        self.box = list_of_molecules[0].box
+        max_xyz = coordinates[['x', 'y', 'z']].max().max()
+        min_xyz = coordinates[['x', 'y', 'z']].min().min()
+        self.box = LammpsBox(np.array(3*[[min_xyz - 0.5, max_xyz + 0.5]]))
         self.atom_style = atom_style
         self.n = sum(list_of_numbers)
         self.names = list_of_names
@@ -1387,7 +1393,8 @@ class CombinedData(LammpsData):
 @deprecated(LammpsData.from_structure,
             "structure_2_lmpdata has been deprecated "
             "in favor of LammpsData.from_structure")
-def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
+def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge",
+                        is_sort=False):
     """
     Converts a structure to a LammpsData object with no force field
     parameters and topologies.
@@ -1399,12 +1406,15 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
             the structure. Default to None.
         atom_style (str): Choose between "atomic" (neutral) and
             "charge" (charged). Default to "charge".
-
+        is_sort (bool): whether to sort the structure sites
     Returns:
         LammpsData
 
     """
-    s = structure.get_sorted_structure()
+    if is_sort:
+        s = structure.get_sorted_structure()
+    else:
+        s = structure.copy()
 
     a, b, c = s.lattice.abc
     m = s.lattice.matrix

@@ -2,19 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+A module for NMR analysis
+"""
+
 from pymatgen.core.tensors import SquareTensor
 from collections import namedtuple
 
 from pymatgen.core.units import FloatWithUnit
 
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Site
 
 import numpy as np
 
-"""
-A module for NMR analysis
-"""
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -110,6 +111,17 @@ class ChemicalShielding(SquareTensor):
 
     @classmethod
     def from_maryland_notation(cls, sigma_iso, omega, kappa):
+        """
+        Initialize from Maryland notation.
+
+        Args:
+            sigma_iso ():
+            omega ():
+            kappa ():
+
+        Returns:
+            ChemicalShielding
+        """
         sigma_22 = sigma_iso + kappa * omega / 3.0
         sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
         sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
@@ -156,16 +168,25 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def V_xx(self):
+        """
+        Returns: First diagonal element
+        """
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[0]
 
     @property
     def V_yy(self):
+        """
+        Returns: Second diagonal element
+        """
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[1]
 
     @property
     def V_zz(self):
+        """
+        Returns: Third diagonal element
+        """
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[2]
 
@@ -193,7 +214,7 @@ class ElectricFieldGradient(SquareTensor):
 
         Args:
             specie: flexible input to specify the species at this site.
-                    Can take a isotope or element string, Specie object,
+                    Can take a isotope or element string, Species object,
                     or Site object
 
         Return:
@@ -204,20 +225,20 @@ class ElectricFieldGradient(SquareTensor):
         Vzz = FloatWithUnit(self.V_zz, "V ang^-2")
         e = FloatWithUnit(-1.60217662E-19, "C")
 
-        # Convert from string to Specie object
+        # Convert from string to Species object
         if isinstance(specie, str):
             # isotope was provided in string format
             if len(specie.split("-")) > 1:
                 isotope = str(specie)
-                specie = Specie(specie.split("-")[0])
+                specie = Species(specie.split("-")[0])
                 Q = specie.get_nmr_quadrupole_moment(isotope)
             else:
-                specie = Specie(specie)
+                specie = Species(specie)
                 Q = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Site):
             specie = specie.specie
             Q = specie.get_nmr_quadrupole_moment()
-        elif isinstance(specie, Specie):
+        elif isinstance(specie, Species):
             Q = specie.get_nmr_quadrupole_moment()
         else:
             raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")

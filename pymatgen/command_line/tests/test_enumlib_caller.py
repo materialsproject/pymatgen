@@ -15,16 +15,6 @@ from pymatgen.transformations.site_transformations import \
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-"""
-Created on Jul 22, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 22, 2012"
 
 enum_cmd = which('enum.x') or which('multienum.x')
 makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')

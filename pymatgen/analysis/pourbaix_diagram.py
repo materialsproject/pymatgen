@@ -15,22 +15,22 @@ Fast computation of many-element Pourbaix diagrams:
 """
 
 import logging
-import numpy as np
 import itertools
 import re
 from copy import deepcopy
-from functools import cmp_to_key, partial, lru_cache
-from monty.json import MSONable, MontyDecoder
-
-from multiprocessing import Pool
 import warnings
+from multiprocessing import Pool
 
+from functools import cmp_to_key, partial, lru_cache
+import numpy as np
+from monty.json import MSONable, MontyDecoder
 from scipy.spatial import ConvexHull, HalfspaceIntersection
-
 try:
     from scipy.special import comb
 except ImportError:
     from scipy.misc import comb
+from tqdm import tqdm
+
 from pymatgen.util.coord import Simplex
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
@@ -38,9 +38,9 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
-from tqdm import tqdm
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -53,7 +53,6 @@ __date__ = "Nov 1, 2012"
 
 logger = logging.getLogger(__name__)
 
-MU_H2O = -2.4583
 PREFAC = 0.0591
 
 
@@ -72,13 +71,16 @@ class PourbaixEntry(MSONable):
     should be formation energies with respect to hydrogen and
     oxygen gas in order for the pourbaix diagram formalism to
     work. This may be changed to be more flexible in the future.
-
-    Args:
-        entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-            entry object
     """
 
     def __init__(self, entry, entry_id=None, concentration=1e-6):
+        """
+        Args:
+            entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
+                entry object
+            entry_id ():
+            concentration ():
+        """
         self.entry = entry
         if isinstance(entry, IonEntry):
             self.concentration = concentration
@@ -98,23 +100,34 @@ class PourbaixEntry(MSONable):
 
     @property
     def npH(self):
-        return self.entry.composition.get("H", 0.) \
-               - 2 * self.entry.composition.get("O", 0.)
+        """
+        Returns:
+        """
+        return self.entry.composition.get("H", 0.) - 2 * self.entry.composition.get("O", 0.)
 
     @property
     def nH2O(self):
+        """
+        Returns: Number of H2O.
+        """
         return self.entry.composition.get("O", 0.)
 
     @property
     def nPhi(self):
+        """
+        Returns: Number of H2O.
+        """
         return self.npH - self.charge
 
     @property
     def name(self):
+        """
+        Returns: Name for entry
+        """
         if self.phase_type == "Solid":
             return self.entry.composition.reduced_formula + "(s)"
-        elif self.phase_type == "Ion":
-            return self.entry.name
+
+        return self.entry.name
 
     @property
     def energy(self):
@@ -293,9 +306,11 @@ class MultiEntry(PourbaixEntry):
                 start = 0
             return sum([getattr(e, item) * w
                         for e, w in zip(self.entry_list, self.weights)], start)
+
         # Attributes that are just lists of entry attributes
-        elif item in ["entry_id", "phase_type"]:
+        if item in ["entry_id", "phase_type"]:
             return [getattr(e, item) for e in self.entry_list]
+
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(item)
 
@@ -314,6 +329,9 @@ class MultiEntry(PourbaixEntry):
         return self.__repr__()
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entry_list": [e.as_dict() for e in self.entry_list],
@@ -321,6 +339,13 @@ class MultiEntry(PourbaixEntry):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (): Dict representation
+
+        Returns:
+            MultiEntry
+        """
         entry_list = [PourbaixEntry.from_dict(e) for e in d.get("entry_list")]
         return cls(entry_list, d.get("weights"))
 
@@ -332,12 +357,6 @@ class IonEntry(PDEntry):
     Object similar to PDEntry, but contains an Ion object instead of a
     Composition object.
 
-    Args:
-        ion: Ion object
-        energy: Energy for composition.
-        name: Optional parameter to name the entry. Defaults to the
-            chemical formula.
-
     .. attribute:: name
 
         A name for the entry. This is the string shown in the phase diagrams.
@@ -346,10 +365,17 @@ class IonEntry(PDEntry):
     """
 
     def __init__(self, ion, energy, name=None, attribute=None):
+        """
+        Args:
+            ion: Ion object
+            energy: Energy for composition.
+            name: Optional parameter to name the entry. Defaults to the
+                chemical formula.
+        """
         self.ion = ion
         # Auto-assign name
         name = name if name else self.ion.reduced_formula
-        super(IonEntry, self).__init__(
+        super().__init__(
             composition=ion.composition, energy=energy, name=name,
             attribute=attribute)
 
@@ -413,25 +439,26 @@ ELEMENTS_HO = {Element('H'), Element('O')}
 class PourbaixDiagram(MSONable):
     """
     Class to create a Pourbaix diagram from entries
-
-    Args:
-        entries ([PourbaixEntry] or [MultiEntry]): Entries list
-            containing Solids and Ions or a list of MultiEntries
-        comp_dict ({str: float}): Dictionary of compositions,
-            defaults to equal parts of each elements
-        conc_dict ({str: float}): Dictionary of ion concentrations,
-            defaults to 1e-6 for each element
-        filter_solids (bool): applying this filter to a pourbaix
-            diagram ensures all included phases are filtered by
-            stability on the compositional phase diagram.  This
-            breaks some of the functionality of the analysis,
-            though, so use with caution.
-        nproc (int): number of processes to generate multientries with
-            in parallel.  Defaults to None (serial processing)
     """
 
     def __init__(self, entries, comp_dict=None, conc_dict=None,
                  filter_solids=False, nproc=None):
+        """
+        Args:
+            entries ([PourbaixEntry] or [MultiEntry]): Entries list
+                containing Solids and Ions or a list of MultiEntries
+            comp_dict ({str: float}): Dictionary of compositions,
+                defaults to equal parts of each elements
+            conc_dict ({str: float}): Dictionary of ion concentrations,
+                defaults to 1e-6 for each element
+            filter_solids (bool): applying this filter to a pourbaix
+                diagram ensures all included phases are filtered by
+                stability on the compositional phase diagram.  This
+                breaks some of the functionality of the analysis,
+                though, so use with caution.
+            nproc (int): number of processes to generate multientries with
+                in parallel.  Defaults to None (serial processing)
+        """
         entries = deepcopy(entries)
 
         # Get non-OH elements
@@ -509,7 +536,6 @@ class PourbaixDiagram(MSONable):
 
     def _convert_entries_to_points(self, pourbaix_entries):
         """
-
         Args:
             pourbaix_entries ([PourbaixEntry]): list of pourbaix entries
                 to process into vectors in nph-nphi-composition space
@@ -722,13 +748,15 @@ class PourbaixDiagram(MSONable):
             # their charge state.
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
-            coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
+            react_coeffs = [-rxn.get_coeff(comp) for comp in entry_comps]
+            all_coeffs = react_coeffs + [rxn.get_coeff(prod_comp)]
 
-            # Return None if reaction coeff threshold is not met
-            if (coeffs > coeff_threshold).all():
-                return MultiEntry(entry_list, weights=coeffs.tolist())
-            else:
-                return None
+            # Check if reaction coeff threshold met for pourbaix compounds
+            # All reactant/product coefficients must be positive nonzero
+            if all([coeff > coeff_threshold for coeff in all_coeffs]):
+                return MultiEntry(entry_list, weights=react_coeffs)
+
+            return None
         except ReactionError:
             return None
 
@@ -927,6 +955,13 @@ class PourbaixDiagram(MSONable):
         return self._unprocessed_entries
 
     def as_dict(self, include_unprocessed_entries=False):
+        """
+        Args:
+            include_unprocessed_entries (): Whether to include unprocessed entries.
+
+        Returns:
+            MSONable dict.
+        """
         if include_unprocessed_entries:
             entries = [e.as_dict() for e in self._unprocessed_entries]
         else:
@@ -940,6 +975,13 @@ class PourbaixDiagram(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (): Dict representation.
+
+        Returns:
+            PourbaixDiagram
+        """
         decoded_entries = MontyDecoder().process_decoded(d['entries'])
         return cls(decoded_entries, d.get('comp_dict'),
                    d.get('conc_dict'))
@@ -948,12 +990,13 @@ class PourbaixDiagram(MSONable):
 class PourbaixPlotter:
     """
     A plotter class for phase diagrams.
-
-    Args:
-        pourbaix_diagram (PourbaixDiagram): A PourbaixDiagram object.
     """
 
     def __init__(self, pourbaix_diagram):
+        """
+        Args:
+            pourbaix_diagram (PourbaixDiagram): A PourbaixDiagram object.
+        """
         self._pbx = pourbaix_diagram
 
     def show(self, *args, **kwargs):
@@ -1026,6 +1069,20 @@ class PourbaixPlotter:
     def plot_entry_stability(self, entry, pH_range=None, pH_resolution=100,
                              V_range=None, V_resolution=100, e_hull_max=1,
                              cmap='RdYlBu_r', **kwargs):
+        """
+        Args:
+            entry ():
+            pH_range ():
+            pH_resolution ():
+            V_range ():
+            V_resolution ():
+            e_hull_max ():
+            cmap ():
+            **kwargs ():
+
+        Returns:
+
+        """
         if pH_range is None:
             pH_range = [-2, 16]
         if V_range is None:
@@ -1072,9 +1129,18 @@ def generate_entry_label(entry):
     """
     if isinstance(entry, MultiEntry):
         return " + ".join([latexify_ion(latexify(e.name)) for e in entry.entry_list])
-    else:
-        return latexify_ion(latexify(entry.name))
+
+    return latexify_ion(latexify(entry.name))
 
 
 def latexify_ion(formula):
+    """
+    Convert a formula to latex format.
+
+    Args:
+        formula (str): Formula
+
+    Returns:
+        Latex string.
+    """
     return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", formula)

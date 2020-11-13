@@ -1,0 +1,661 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.phonon.bandstructure &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.phonon.bandstructure</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.phonon.bandstructure</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to define a phonon band structure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> <span class="n">Kpoint</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+
+<div class="viewcode-block" id="get_reasonable_repetitions"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.get_reasonable_repetitions">[docs]</a><span class="k">def</span> <span class="nf">get_reasonable_repetitions</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose the number of repetitions</span>
+<span class="sd">    according to the number of atoms in the system</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">natoms</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="k">if</span> <span class="mi">4</span> <span class="o">&lt;</span> <span class="n">natoms</span> <span class="o">&lt;</span> <span class="mi">15</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="mi">15</span> <span class="o">&lt;</span> <span class="n">natoms</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="mi">50</span> <span class="o">&lt;</span> <span class="n">natoms</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="eigenvectors_from_displacements"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.eigenvectors_from_displacements">[docs]</a><span class="k">def</span> <span class="nf">eigenvectors_from_displacements</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">masses</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the eigenvectors from the atomic displacements</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nphonons</span><span class="p">,</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">ndirections</span> <span class="o">=</span> <span class="n">disp</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">sqrt_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">masses</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;nax,a-&gt;nax&quot;</span><span class="p">,</span> <span class="n">disp</span><span class="p">,</span> <span class="n">sqrt_masses</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="estimate_band_connection"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.estimate_band_connection">[docs]</a><span class="k">def</span> <span class="nf">estimate_band_connection</span><span class="p">(</span><span class="n">prev_eigvecs</span><span class="p">,</span> <span class="n">eigvecs</span><span class="p">,</span> <span class="n">prev_band_order</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function to order the phonon eigenvectors taken from phonopy</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">prev_eigvecs</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">eigvecs</span><span class="p">))</span>
+    <span class="n">connection_order</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">overlaps</span> <span class="ow">in</span> <span class="n">metric</span><span class="p">:</span>
+        <span class="n">maxval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">metric</span><span class="p">))):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">overlaps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">connection_order</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="n">maxval</span><span class="p">:</span>
+                <span class="n">maxval</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="n">maxindex</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">connection_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">maxindex</span><span class="p">)</span>
+
+    <span class="n">band_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">connection_order</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">prev_band_order</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">band_order</span></div>
+
+
+<div class="viewcode-block" id="PhononBandStructure"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure">[docs]</a><span class="k">class</span> <span class="nc">PhononBandStructure</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the most generic phonon band structure data possible</span>
+<span class="sd">    it&#39;s defined by a list of qpoints + frequencies for each of them.</span>
+<span class="sd">    Additional information may be given for frequencies at Gamma, where</span>
+<span class="sd">    non-analytical contribution may be taken into account.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">nac_frequencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">eigendisplacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nac_eigendisplacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            qpoints: list of qpoint as numpy arrays, in frac_coords of the</span>
+<span class="sd">                given lattice by default</span>
+<span class="sd">            frequencies: list of phonon frequencies in THz as a numpy array with shape</span>
+<span class="sd">                (3*len(structure), len(qpoints)). The First index of the array</span>
+<span class="sd">                refers to the band and the second to the index of the qpoint.</span>
+<span class="sd">            lattice: The reciprocal lattice as a pymatgen Lattice object.</span>
+<span class="sd">                Pymatgen uses the physics convention of reciprocal lattice vectors</span>
+<span class="sd">                WITH a 2*pi coefficient.</span>
+<span class="sd">            nac_frequencies: Frequencies with non-analytical contributions at Gamma in THz.</span>
+<span class="sd">                A list of tuples. The first element of each tuple should be a list</span>
+<span class="sd">                defining the direction (not necessarily a versor, will be normalized</span>
+<span class="sd">                internally). The second element containing the 3*len(structure)</span>
+<span class="sd">                phonon frequencies with non-analytical correction for that direction.</span>
+<span class="sd">            eigendisplacements: the phonon eigendisplacements associated to the</span>
+<span class="sd">                frequencies in cartesian coordinates. A numpy array of complex</span>
+<span class="sd">                numbers with shape (3*len(structure), len(qpoints), len(structure), 3).</span>
+<span class="sd">                he First index of the array refers to the band, the second to the index</span>
+<span class="sd">                of the qpoint, the third to the atom in the structure and the fourth</span>
+<span class="sd">                to the cartesian coordinates.</span>
+<span class="sd">            nac_eigendisplacements: the phonon eigendisplacements associated to the</span>
+<span class="sd">                non-analytical frequencies in nac_frequencies in cartesian coordinates.</span>
+<span class="sd">                A list of tuples. The first element of each tuple should be a list</span>
+<span class="sd">                defining the direction. The second element containing a numpy array of</span>
+<span class="sd">                complex numbers with shape (3*len(structure), len(structure), 3).</span>
+<span class="sd">            labels_dict: (dict) of {} this links a qpoint (in frac coords or</span>
+<span class="sd">                cartesian coordinates depending on the coords) to a label.</span>
+<span class="sd">            coords_are_cartesian: Whether the qpoint coordinates are cartesian.</span>
+<span class="sd">            structure: The crystal structure (as a pymatgen Structure object)</span>
+<span class="sd">                associated with the band structure. This is needed if we</span>
+<span class="sd">                provide projections to the band structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="k">if</span> <span class="n">eigendisplacements</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">eigendisplacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span> <span class="o">=</span> <span class="n">eigendisplacements</span>
+        <span class="k">if</span> <span class="n">labels_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpoints</span><span class="p">:</span>
+            <span class="c1"># let see if this qpoint has been assigned a label</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">labels_dict</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels_dict</span><span class="p">[</span><span class="n">c</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="mf">0.0001</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">c</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">Kpoint</span><span class="p">(</span>
+                        <span class="n">q</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                        <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Kpoint</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                       <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bands</span> <span class="o">=</span> <span class="n">frequencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nb_bands</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nb_qpoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">)</span>
+
+        <span class="c1"># normalize directions for nac_frequencies and nac_eigendisplacements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nac_frequencies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nac_eigendisplacements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">nac_frequencies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nac_frequencies</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nac_frequencies</span><span class="o">.</span><span class="n">append</span><span class="p">(([</span><span class="n">i</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">nac_eigendisplacements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nac_eigendisplacements</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nac_eigendisplacements</span><span class="o">.</span><span class="n">append</span><span class="p">(([</span><span class="n">i</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<div class="viewcode-block" id="PhononBandStructure.min_freq"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.min_freq">[docs]</a>    <span class="k">def</span> <span class="nf">min_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the point where the minimum frequency is reached and its value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="PhononBandStructure.has_imaginary_freq"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.has_imaginary_freq">[docs]</a>    <span class="k">def</span> <span class="nf">has_imaginary_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if imaginary frequencies are present in the BS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_freq</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="mi">0</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_nac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if nac_frequencies are present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nac_frequencies</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_eigendisplacements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if eigendisplacements are present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="PhononBandStructure.get_nac_frequencies_along_dir"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_frequencies_along_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_nac_frequencies_along_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the nac_frequencies for the given direction (not necessarily a versor).</span>
+<span class="sd">        None if the direction is not present or nac_frequencies has not been calculated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            direction: the direction as a list of 3 elements</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            the frequencies as a numpy array o(3*len(structure), len(qpoints)).</span>
+<span class="sd">            None if not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">versor</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">direction</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_frequencies</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">versor</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">f</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PhononBandStructure.get_nac_eigendisplacements_along_dir"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.get_nac_eigendisplacements_along_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_nac_eigendisplacements_along_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the nac_eigendisplacements for the given direction (not necessarily a versor).</span>
+<span class="sd">        None if the direction is not present or nac_eigendisplacements has not been calculated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            direction: the direction as a list of 3 elements</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            the eigendisplacements as a numpy array of complex numbers with shape</span>
+<span class="sd">            (3*len(structure), len(structure), 3). None if not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">versor</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">direction</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_eigendisplacements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">versor</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">e</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PhononBandStructure.asr_breaking"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.asr_breaking">[docs]</a>    <span class="k">def</span> <span class="nf">asr_breaking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol_eigendisplacements</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the breaking of the acoustic sum rule for the three acoustic modes,</span>
+<span class="sd">        if Gamma is present. None otherwise.</span>
+<span class="sd">        If eigendisplacements are available they are used to determine the acoustic</span>
+<span class="sd">        modes: selects the bands corresponding  to the eigendisplacements that</span>
+<span class="sd">        represent to a translation within tol_eigendisplacements. If these are not</span>
+<span class="sd">        identified or eigendisplacements are missing the first 3 modes will be used</span>
+<span class="sd">        (indices [0:3]).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_qpoints</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_eigendisplacements</span><span class="p">:</span>
+                    <span class="n">acoustic_modes_index</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">):</span>
+                        <span class="n">eig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">eig</span><span class="p">[:</span><span class="mi">1</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="n">tol_eigendisplacements</span><span class="p">:</span>
+                            <span class="n">acoustic_modes_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                    <span class="c1"># if acoustic modes are not correctly identified return use</span>
+                    <span class="c1"># the first three modes</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">acoustic_modes_index</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">acoustic_modes_index</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">acoustic_modes_index</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PhononBandStructure.as_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;lattice_rec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+             <span class="s2">&quot;qpoints&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="c1"># qpoints are not Kpoint objects dicts but are frac coords.Tthis makes</span>
+        <span class="c1"># the dict smaller and avoids the repetition of the lattice</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;qpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s2">&quot;fcoords&quot;</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;bands&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_dict</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_dict</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;fcoords&#39;</span><span class="p">]</span>
+        <span class="c1"># split the eigendisplacements to real and imaginary part for serialization</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                       <span class="n">imag</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nac_eigendisplacements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">direction</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">imag</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+                                       <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_eigendisplacements</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nac_frequencies&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">direction</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span> <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nac_frequencies</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="PhononBandStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructure.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PhononBandStructure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">])</span>
+        <span class="n">eigendisplacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;real&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
+        <span class="n">nac_eigendisplacements</span> <span class="o">=</span> <span class="p">[(</span><span class="n">direction</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;real&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nac_eigendisplacements&#39;</span><span class="p">]]</span>
+        <span class="n">nac_frequencies</span> <span class="o">=</span> <span class="p">[(</span><span class="n">direction</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">direction</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nac_frequencies&#39;</span><span class="p">]]</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;structure&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;qpoints&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">]),</span> <span class="n">lattice_rec</span><span class="p">,</span> <span class="n">nac_frequencies</span><span class="p">,</span> <span class="n">eigendisplacements</span><span class="p">,</span>
+                   <span class="n">nac_eigendisplacements</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">],</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">[docs]</a><span class="k">class</span> <span class="nc">PhononBandStructureSymmLine</span><span class="p">(</span><span class="n">PhononBandStructure</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object stores phonon band structures along selected (symmetry) lines in the</span>
+<span class="sd">    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)</span>
+<span class="sd">    &quot;branches&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">has_nac</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eigendisplacements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            qpoints: list of qpoints as numpy arrays, in frac_coords of the</span>
+<span class="sd">                given lattice by default</span>
+<span class="sd">            frequencies: list of phonon frequencies in eV as a numpy array with shape</span>
+<span class="sd">                (3*len(structure), len(qpoints))</span>
+<span class="sd">            lattice: The reciprocal lattice as a pymatgen Lattice object.</span>
+<span class="sd">                Pymatgen uses the physics convention of reciprocal lattice vectors</span>
+<span class="sd">                WITH a 2*pi coefficient</span>
+<span class="sd">            has_nac: specify if the band structure has been produced taking into account</span>
+<span class="sd">                non-analytical corrections at Gamma. If True frequenciens at Gamma from</span>
+<span class="sd">                diffent directions will be stored in naf. Default False.</span>
+<span class="sd">            eigendisplacements: the phonon eigendisplacements associated to the</span>
+<span class="sd">                frequencies in cartesian coordinates. A numpy array of complex</span>
+<span class="sd">                numbers with shape (3*len(structure), len(qpoints), len(structure), 3).</span>
+<span class="sd">                he First index of the array refers to the band, the second to the index</span>
+<span class="sd">                of the qpoint, the third to the atom in the structure and the fourth</span>
+<span class="sd">                to the cartesian coordinates.</span>
+<span class="sd">            labels_dict: (dict) of {} this links a qpoint (in frac coords or</span>
+<span class="sd">                cartesian coordinates depending on the coords) to a label.</span>
+<span class="sd">            coords_are_cartesian: Whether the qpoint coordinates are cartesian.</span>
+<span class="sd">            structure: The crystal structure (as a pymatgen Structure object)</span>
+<span class="sd">                associated with the band structure. This is needed if we</span>
+<span class="sd">                provide projections to the band structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">qpoints</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eigendisplacements</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">one_group</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">branches_tmp</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># get labels and distance for each qpoint</span>
+        <span class="n">previous_qpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">previous_distance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">previous_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_qpoints</span><span class="p">):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">previous_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">previous_distance</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span> <span class="o">-</span>
+                                   <span class="n">previous_qpoint</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="n">previous_distance</span><span class="p">)</span>
+            <span class="n">previous_qpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">previous_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">previous_label</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_group</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">branches_tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">one_group</span><span class="p">)</span>
+                    <span class="n">one_group</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">previous_label</span> <span class="o">=</span> <span class="n">label</span>
+            <span class="n">one_group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_group</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">branches_tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">one_group</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">branches_tmp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;start_index&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;end_index&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span><span class="p">)})</span>
+
+        <span class="c1"># extract the frequencies with non-analytical contribution at gamma</span>
+        <span class="k">if</span> <span class="n">has_nac</span><span class="p">:</span>
+            <span class="n">naf</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">nac_eigendisplacements</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_qpoints</span><span class="p">):</span>
+                <span class="c1"># get directions with nac irrespectively of the label_dict. NB: with labels</span>
+                <span class="c1"># the gamma point is expected to appear twice consecutively.</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+                        <span class="n">q_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">direction</span> <span class="o">=</span> <span class="p">[</span><span class="n">q_dir</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q_dir</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)]</span>
+                        <span class="n">naf</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">direction</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span>
+                        <span class="n">nac_eigendisplacements</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">direction</span><span class="p">,</span> <span class="n">eigendisplacements</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+                        <span class="n">q_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">direction</span> <span class="o">=</span> <span class="p">[</span><span class="n">q_dir</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q_dir</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)]</span>
+                        <span class="n">naf</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">direction</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span>
+                        <span class="n">nac_eigendisplacements</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">direction</span><span class="p">,</span> <span class="n">eigendisplacements</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">nac_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">naf</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nac_eigendisplacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nac_eigendisplacements</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.get_equivalent_qpoints"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_equivalent_qpoints">[docs]</a>    <span class="k">def</span> <span class="nf">get_equivalent_qpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of qpoint indices equivalent (meaning they are the</span>
+<span class="sd">        same frac coords) to the given one.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index: the qpoint index</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a list of equivalent indices</span>
+
+<span class="sd">        TODO: now it uses the label we might want to use coordinates instead</span>
+<span class="sd">        (in case there was a mislabel)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if the qpoint has no label it can&quot;t have a repetition along the band</span>
+        <span class="c1"># structure line object</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="n">list_index_qpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_qpoints</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                <span class="n">list_index_qpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">list_index_qpoints</span></div>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.get_branch"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.get_branch">[docs]</a>    <span class="k">def</span> <span class="nf">get_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns in what branch(es) is the qpoint. There can be several</span>
+<span class="sd">        branches.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index: the qpoint index</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries [{&quot;name&quot;,&quot;start_index&quot;,&quot;end_index&quot;,&quot;index&quot;}]</span>
+<span class="sd">            indicating all branches in which the qpoint is. It takes into</span>
+<span class="sd">            account the fact that one qpoint (e.g., \\Gamma) can be in several</span>
+<span class="sd">            branches</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_return</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_equivalent_qpoints</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="s2">&quot;start_index&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="p">[</span><span class="s2">&quot;end_index&quot;</span><span class="p">]:</span>
+                    <span class="n">to_return</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                                      <span class="s2">&quot;start_index&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="s2">&quot;start_index&quot;</span><span class="p">],</span>
+                                      <span class="s2">&quot;end_index&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="s2">&quot;end_index&quot;</span><span class="p">],</span>
+                                      <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">to_return</span></div>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.write_phononwebsite"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite">[docs]</a>    <span class="k">def</span> <span class="nf">write_phononwebsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a json file for the phononwebsite:</span>
+<span class="sd">        http://henriquemiranda.github.io/phononwebsite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">json</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_phononwebsite</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.as_phononwebsite"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">[docs]</a>    <span class="k">def</span> <span class="nf">as_phononwebsite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a dictionary with the phononwebsite format:</span>
+<span class="sd">        http://henriquemiranda.github.io/phononwebsite</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># define the lattice</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">_matrix</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># define atoms</span>
+        <span class="n">atom_pos_car</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atom_pos_red</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atom_types</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">:</span>
+            <span class="n">atom_pos_car</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">atom_pos_red</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">atom_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">)</span>
+
+        <span class="c1"># default for now</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;repetitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_reasonable_repetitions</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atom_pos_car</span><span class="p">))</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;natoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atom_pos_car</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;atom_pos_car&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_pos_car</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;atom_pos_red&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_pos_red</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;atom_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_types</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;atom_numbers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">atomic_numbers</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">formula</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">formula</span>
+
+        <span class="c1"># get qpoints</span>
+        <span class="n">qpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">:</span>
+            <span class="n">qpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;qpoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qpoints</span>
+
+        <span class="c1"># get labels</span>
+        <span class="n">hsq_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">nq</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpoints</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">q</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">hsq_dict</span><span class="p">[</span><span class="n">nq</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">label</span>
+
+        <span class="c1"># get distances</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nqstart</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">dist</span><span class="p">]</span>
+        <span class="n">line_breaks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nq</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">qpoints</span><span class="p">)):</span>
+            <span class="n">q1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">qpoints</span><span class="p">[</span><span class="n">nq</span><span class="p">])</span>
+            <span class="n">q2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">qpoints</span><span class="p">[</span><span class="n">nq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="c1"># detect jumps</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">nq</span> <span class="ow">in</span> <span class="n">hsq_dict</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">nq</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">in</span> <span class="n">hsq_dict</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">hsq_dict</span><span class="p">[</span><span class="n">nq</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hsq_dict</span><span class="p">[</span><span class="n">nq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]):</span>
+                    <span class="n">hsq_dict</span><span class="p">[</span><span class="n">nq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;|&quot;</span> <span class="o">+</span> <span class="n">hsq_dict</span><span class="p">[</span><span class="n">nq</span><span class="p">]</span>
+                <span class="k">del</span> <span class="n">hsq_dict</span><span class="p">[</span><span class="n">nq</span><span class="p">]</span>
+                <span class="n">line_breaks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nqstart</span><span class="p">,</span> <span class="n">nq</span><span class="p">))</span>
+                <span class="n">nqstart</span> <span class="o">=</span> <span class="n">nq</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dist</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q1</span> <span class="o">-</span> <span class="n">q2</span><span class="p">)</span>
+            <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+        <span class="n">line_breaks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nqstart</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">qpoints</span><span class="p">)))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">distances</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;line_breaks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line_breaks</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;highsym_qpts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hsq_dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+        <span class="c1"># eigenvalues</span>
+        <span class="n">thz2cm1</span> <span class="o">=</span> <span class="mf">33.35641</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">thz2cm1</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bands</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># eigenvectors</span>
+        <span class="n">eigenvectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">eigenvectors</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">eigenvectors</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">eigenvectors</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">eigenvectors</span><span class="o">.</span><span class="n">imag</span><span class="p">])</span>
+        <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">eigenvectors</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;vectors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eigenvectors</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.band_reorder"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder">[docs]</a>    <span class="k">def</span> <span class="nf">band_reorder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Re-order the eigenvalues according to the similarity of the eigenvectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eiv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigendisplacements</span>
+        <span class="n">eig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span>
+
+        <span class="n">nphonons</span><span class="p">,</span> <span class="n">nqpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nqpoints</span><span class="p">,</span> <span class="n">nphonons</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nphonons</span><span class="p">))</span>
+
+        <span class="c1"># get the atomic masses</span>
+        <span class="n">atomic_masses</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span>
+
+        <span class="c1"># get order</span>
+        <span class="k">for</span> <span class="n">nq</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nqpoints</span><span class="p">):</span>
+            <span class="n">old_eiv</span> <span class="o">=</span> <span class="n">eigenvectors_from_displacements</span><span class="p">(</span><span class="n">eiv</span><span class="p">[:,</span> <span class="n">nq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">atomic_masses</span><span class="p">)</span>
+            <span class="n">new_eiv</span> <span class="o">=</span> <span class="n">eigenvectors_from_displacements</span><span class="p">(</span><span class="n">eiv</span><span class="p">[:,</span> <span class="n">nq</span><span class="p">],</span> <span class="n">atomic_masses</span><span class="p">)</span>
+            <span class="n">order</span><span class="p">[</span><span class="n">nq</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimate_band_connection</span><span class="p">(</span><span class="n">old_eiv</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">nphonons</span><span class="p">,</span> <span class="n">nphonons</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                                 <span class="n">new_eiv</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">nphonons</span><span class="p">,</span> <span class="n">nphonons</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                                 <span class="n">order</span><span class="p">[</span><span class="n">nq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># reorder</span>
+        <span class="k">for</span> <span class="n">nq</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nqpoints</span><span class="p">):</span>
+            <span class="n">eivq</span> <span class="o">=</span> <span class="n">eiv</span><span class="p">[:,</span> <span class="n">nq</span><span class="p">]</span>
+            <span class="n">eigq</span> <span class="o">=</span> <span class="n">eig</span><span class="p">[:,</span> <span class="n">nq</span><span class="p">]</span>
+            <span class="n">eiv</span><span class="p">[:,</span> <span class="n">nq</span><span class="p">]</span> <span class="o">=</span> <span class="n">eivq</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">nq</span><span class="p">]]</span>
+            <span class="n">eig</span><span class="p">[:,</span> <span class="n">nq</span><span class="p">]</span> <span class="o">=</span> <span class="n">eigq</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">nq</span><span class="p">]]</span></div>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.as_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="c1"># remove nac_frequencies and nac_eigendisplacements as they are reconstructed</span>
+        <span class="c1"># in the __init__ when the dict is deserialized</span>
+        <span class="n">nac_frequencies</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;nac_frequencies&#39;</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;nac_eigendisplacements&#39;</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;has_nac&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nac_frequencies</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="PhononBandStructureSymmLine.from_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: PhononBandStructureSummLine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">])</span>
+        <span class="n">eigendisplacements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;real&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;eigendisplacements&#39;</span><span class="p">][</span><span class="s1">&#39;imag&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;structure&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;qpoints&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">]),</span> <span class="n">lattice_rec</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;has_nac&#39;</span><span class="p">],</span> <span class="n">eigendisplacements</span><span class="p">,</span>
+                   <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">],</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.phonon.bandstructure</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

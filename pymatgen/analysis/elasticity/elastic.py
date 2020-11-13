@@ -3,27 +3,28 @@
 # Distributed under the terms of the MIT License.
 
 
-from pymatgen.core.tensors import Tensor, \
-    TensorCollection, get_uvec, SquareTensor, DEFAULT_QUAD
-from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.analysis.elasticity.strain import Strain
-from pymatgen.core.units import Unit
-from scipy.special import factorial
-from scipy.integrate import quad
-from scipy.optimize import root
-from collections import OrderedDict
-from monty.dev import deprecated
-import numpy as np
-import warnings
-import itertools
-
-import sympy as sp
-
 """
 This module provides a class used to describe the elastic tensor,
 including methods used to fit the elastic tensor from linear response
 stress-strain data
 """
+
+import itertools
+import warnings
+from collections import OrderedDict
+
+import numpy as np
+import sympy as sp
+from scipy.integrate import quad
+from scipy.optimize import root
+from scipy.special import factorial
+
+from monty.dev import deprecated
+
+from pymatgen.analysis.elasticity.strain import Strain
+from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.core.tensors import Tensor, TensorCollection, get_uvec, SquareTensor, DEFAULT_QUAD
+from pymatgen.core.units import Unit
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -45,6 +46,12 @@ class NthOrderElasticTensor(Tensor):
     symbol = "C"
 
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
+        """
+        Args:
+            input_array ():
+            check_rank ():
+            tol ():
+        """
         obj = super().__new__(
             cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
@@ -88,6 +95,18 @@ class NthOrderElasticTensor(Tensor):
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None,
                       order=2, tol=1e-10):
+        """
+
+        Args:
+            strains ():
+            stresses ():
+            eq_stress ():
+            order ():
+            tol ():
+
+        Returns:
+
+        """
         return cls(diff_fit(strains, stresses, eq_stress, order, tol)[order - 2])
 
 
@@ -98,6 +117,15 @@ def raise_error_if_unphysical(f):
     """
 
     def wrapper(self, *args, **kwargs):
+        """
+        Args:
+            self ():
+            *args ():
+            **kwargs ():
+
+        Returns:
+
+        """
         if self.k_vrh < 0 or self.g_vrh < 0:
             raise ValueError("Bulk or shear modulus is negative, property "
                              "cannot be determined")
@@ -500,6 +528,10 @@ class ComplianceTensor(Tensor):
     """
 
     def __new__(cls, s_array):
+        """
+        Args:
+            s_array ():
+        """
         vscale = np.ones((6, 6))
         vscale[3:] *= 2
         vscale[:, 3:] *= 2
@@ -722,6 +754,7 @@ class ElasticTensorExpansion(TensorCollection):
                                 ce_exp[-1], ce_exp[-1]))
         if self.order == 4:
             # Four terms in the Fourth-Order compliance tensor
+            # pylint: disable=E1130
             einstring_1 = "pqab,cdij,efkl,ghmn,abcdefgh"
             tensors_1 = [ce_exp[0]] * 4 + [self[-1]]
             temp = -np.einsum(einstring_1, *tensors_1)
@@ -937,8 +970,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
     vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])
     vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])
     # Collect independent strain states:
-    independent = set([tuple(np.nonzero(vstrain)[0].tolist())
-                       for vstrain in vstrains])
+    independent = {tuple(np.nonzero(vstrain)[0].tolist()) for vstrain in vstrains}
     strain_state_dict = OrderedDict()
     if add_eq:
         if eq_stress is not None:

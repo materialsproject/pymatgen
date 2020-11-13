@@ -6,21 +6,25 @@
 Parsers for Qchem output files.
 """
 
-import re
-import logging
-import os
-import numpy as np
-import math
 import copy
+import logging
+import math
+import os
+import re
+import warnings
+from typing import List
+
+import numpy as np
+
+import networkx as nx
 
 from monty.io import zopen
-from monty.json import jsanitize
 from monty.json import MSONable
-from pymatgen.core import Molecule
+from monty.json import jsanitize
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
-import networkx as nx
+from pymatgen.core import Molecule
 
 try:
     from openbabel import openbabel as ob
@@ -63,15 +67,12 @@ class QCOutput(MSONable):
                 "key": r"Job\s+\d+\s+of\s+(\d+)\s+"
             },
             terminate_on_match=True).get('key')
-        if not (self.data.get('multiple_outputs') is None
-                or self.data.get('multiple_outputs') == [['1']]):
-            print(
+        if not (self.data.get('multiple_outputs') is None or self.data.get('multiple_outputs') == [['1']]):
+            raise ValueError(
                 "ERROR: multiple calculation outputs found in file " +
                 filename +
                 ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
                 + filename + "')")
-            print("Exiting...")
-            exit()
 
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
@@ -274,15 +275,9 @@ class QCOutput(MSONable):
                 self.data["opt_constraint"] = temp_constraint[0]
                 if float(self.data.get('opt_constraint')[5]) != float(
                         self.data.get('opt_constraint')[6]):
-                    if abs(float(self.data.get('opt_constraint')[5])) != abs(
-                            float(self.data.get('opt_constraint')[6])):
-                        raise ValueError(
-                            "ERROR: Opt section value and constraint should be the same!"
-                        )
-                    elif abs(float(
-                            self.data.get('opt_constraint')[5])) not in [
-                        0.0, 180.0
-                    ]:
+                    if abs(float(self.data.get('opt_constraint')[5])) != abs(float(self.data.get('opt_constraint')[6])):
+                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
+                    if abs(float(self.data.get('opt_constraint')[5])) not in [0.0, 180.0]:
                         raise ValueError(
                             "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
                         )
@@ -834,7 +829,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
             self._read_geometries()
             if have_babel:
-                self.data["structure_change"] = _check_for_structure_changes(
+                self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"])
             self._read_gradients()
@@ -860,6 +855,14 @@ class QCOutput(MSONable):
         """
         Parses frequencies, enthalpy, entropy, and mode vectors.
         """
+        raman = False
+        if read_pattern(
+                self.text, {
+                    "key": r"doraman\s*(?:=)*\s*true"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            raman = True
+
         temp_dict = read_pattern(
             self.text, {
                 "frequencies":
@@ -872,6 +875,12 @@ class QCOutput(MSONable):
                     r"\s*IR Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "IR_active":
                     r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
+                "raman_intens":
+                    r"\s*Raman Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
+                "depolar":
+                    r"\s*Depolar:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
+                "raman_active":
+                    r"\s*Raman Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
                 "ZPE":
                     r"\s*Zero point vibrational energy:\s+([\d\-\.]+)\s+kcal/mol",
                 "trans_enthalpy":
@@ -907,17 +916,20 @@ class QCOutput(MSONable):
             self.data['frequencies'] = None
             self.data['IR_intens'] = None
             self.data['IR_active'] = None
+            self.data['raman_intens'] = None
+            self.data['raman_active'] = None
+            self.data['depolar'] = None
             self.data['trans_dip'] = None
         else:
             temp_freqs = [
                 value for entry in temp_dict.get('frequencies')
                 for value in entry
             ]
-            temp_intens = [
+            temp_IR_intens = [
                 value for entry in temp_dict.get('IR_intens')
                 for value in entry
             ]
-            active = [
+            IR_active = [
                 value for entry in temp_dict.get('IR_active')
                 for value in entry
             ]
@@ -925,7 +937,42 @@ class QCOutput(MSONable):
                 value for entry in temp_dict.get('trans_dip')
                 for value in entry
             ]
-            self.data['IR_active'] = active
+            self.data['IR_active'] = IR_active
+
+            if raman:
+                raman_active = [
+                    value for entry in temp_dict.get('raman_active')
+                    for value in entry
+                ]
+                temp_raman_intens = [
+                    value for entry in temp_dict.get('raman_intens')
+                    for value in entry
+                ]
+                temp_depolar = [
+                    value for entry in temp_dict.get('depolar')
+                    for value in entry
+                ]
+                self.data['raman_active'] = raman_active
+                raman_intens = np.zeros(len(temp_raman_intens) - temp_raman_intens.count('None'))
+                for ii, entry in enumerate(temp_raman_intens):
+                    if entry != 'None':
+                        if "*" in entry:
+                            raman_intens[ii] = float("inf")
+                        else:
+                            raman_intens[ii] = float(entry)
+                self.data['raman_intens'] = raman_intens
+                depolar = np.zeros(len(temp_depolar) - temp_depolar.count('None'))
+                for ii, entry in enumerate(temp_depolar):
+                    if entry != 'None':
+                        if "*" in entry:
+                            depolar[ii] = float("inf")
+                        else:
+                            depolar[ii] = float(entry)
+                self.data['depolar'] = depolar
+            else:
+                self.data['raman_intens'] = None
+                self.data['raman_active'] = None
+                self.data['depolar'] = None
 
             trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count('None')) / 3), 3))
             for ii, entry in enumerate(temp_trans_dip):
@@ -962,16 +1009,19 @@ class QCOutput(MSONable):
                         freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
 
-            intens = np.zeros(len(temp_intens) - temp_intens.count('None'))
-            for ii, entry in enumerate(temp_intens):
+            IR_intens = np.zeros(len(temp_IR_intens) - temp_IR_intens.count('None'))
+            for ii, entry in enumerate(temp_IR_intens):
                 if entry != 'None':
                     if "*" in entry:
-                        intens[ii] = float("inf")
+                        IR_intens[ii] = float("inf")
                     else:
-                        intens[ii] = float(entry)
-            self.data['IR_intens'] = intens
+                        IR_intens[ii] = float(entry)
+            self.data['IR_intens'] = IR_intens
 
-            header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
+            if not raman:
+                header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
+            else:
+                header_pattern = r"\s*Depolar:\s*\-?[\d\.\*]+\s+(?:\-?[\d\.\*]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
             table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*" \
                             r"([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
             footer_pattern = r"TransDip\s+\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*(?:\-?[\d\.\*]+\s*\-?" \
@@ -1166,7 +1216,27 @@ class QCOutput(MSONable):
         return jsanitize(d, strict=True)
 
 
-def _check_for_structure_changes(mol1, mol2):
+def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
+    """
+    Compares connectivity of two molecules (using MoleculeGraph w/ OpenBabelNN).
+    This function will work with two molecules with different atom orderings,
+        but for proper treatment, atoms should be listed in the same order.
+    Possible outputs include:
+    - no_change: the bonding in the two molecules is identical
+    - unconnected_fragments: the MoleculeGraph of mol1 is connected, but the
+      MoleculeGraph is mol2 is not connected
+    - fewer_bonds: the MoleculeGraph of mol1 has more bonds (edges) than the
+      MoleculeGraph of mol2
+    - more_bonds: the MoleculeGraph of mol2 has more bonds (edges) than the
+      MoleculeGraph of mol1
+    - bond_change: this case catches any other non-identical MoleculeGraphs
+    Args:
+        mol1: Pymatgen Molecule object to be compared.
+        mol2: Pymatgen Molecule object to be compared.
+    Returns:
+        One of ["unconnected_fragments", "fewer_bonds", "more_bonds",
+        "bond_change", "no_change"]
+    """
     special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
     mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
 
@@ -1175,16 +1245,18 @@ def _check_for_structure_changes(mol1, mol2):
 
     for ii, site in enumerate(mol1):
         if site.specie.symbol != mol2[ii].specie.symbol:
-            print(
-                "WARNING: Comparing molecules with different atom ordering! Turning off special treatment for "
-                "coordinating metals.")
+            warnings.warn(
+                "Comparing molecules with different atom ordering! "
+                "Turning off special treatment for coordinating metals."
+            )
             special_elements = []
 
-    special_sites = [[], []]
+    special_sites: List[List] = [[], []]
     for ii, mol in enumerate(mol_list):
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
-                distances = [[kk, site.distance(other_site)] for kk, other_site in enumerate(mol)]
+                distances = [[kk, site.distance(other_site)]
+                             for kk, other_site in enumerate(mol)]
                 special_sites[ii].append([jj, site, distances])
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
@@ -1200,12 +1272,11 @@ def _check_for_structure_changes(mol1, mol2):
     last_graph = last_mol_graph.graph
     if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"
-    else:
-        if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
-            return "unconnected_fragments"
-        elif last_graph.number_of_edges() < initial_graph.number_of_edges():
-            return "fewer_bonds"
-        elif last_graph.number_of_edges() > initial_graph.number_of_edges():
-            return "more_bonds"
-        else:
-            return "bond_change"
+
+    if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
+        return "unconnected_fragments"
+    if last_graph.number_of_edges() < initial_graph.number_of_edges():
+        return "fewer_bonds"
+    if last_graph.number_of_edges() > initial_graph.number_of_edges():
+        return "more_bonds"
+    return "bond_change"

@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.quasiharmonic &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.quasiharmonic</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.quasiharmonic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements the Quasi-harmonic Debye approximation that can</span>
+<span class="sd">be used to compute thermal properties.</span>
+
+<span class="sd">See the following papers for more info:</span>
+
+<span class="sd">    http://doi.org/10.1016/j.comphy.2003.12.001 (2004)</span>
+<span class="sd">    http://doi.org/10.1103/PhysRevB.90.174107 (2014)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="kn">import</span> <span class="n">physical_constants</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quadrature</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">derivative</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.eos</span> <span class="kn">import</span> <span class="n">EOS</span><span class="p">,</span> <span class="n">PolynomialEOS</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew, Brandon Bocklund&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Cormac Toher&quot;</span>
+
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox">[docs]</a><span class="k">class</span> <span class="nc">QuasiharmonicDebyeApprox</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quasiharmonic approximation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">t_min</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span> <span class="n">t_step</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">t_max</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span> <span class="n">eos</span><span class="o">=</span><span class="s2">&quot;vinet&quot;</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">poisson</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                 <span class="n">use_mie_gruneisen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">anharmonic_contribution</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            energies (list): list of DFT energies in eV</span>
+<span class="sd">            volumes (list): list of volumes in Ang^3</span>
+<span class="sd">            structure (Structure):</span>
+<span class="sd">            t_min (float): min temperature</span>
+<span class="sd">            t_step (float): temperature step</span>
+<span class="sd">            t_max (float): max temperature</span>
+<span class="sd">            eos (str): equation of state used for fitting the energies and the</span>
+<span class="sd">                volumes.</span>
+<span class="sd">                options supported by pymatgen: &quot;quadratic&quot;, &quot;murnaghan&quot;, &quot;birch&quot;,</span>
+<span class="sd">                    &quot;birch_murnaghan&quot;, &quot;pourier_tarantola&quot;, &quot;vinet&quot;,</span>
+<span class="sd">                    &quot;deltafactor&quot;, &quot;numerical_eos&quot;</span>
+<span class="sd">            pressure (float): in GPa, optional.</span>
+<span class="sd">            poisson (float): poisson ratio.</span>
+<span class="sd">            use_mie_gruneisen (bool): whether or not to use the mie-gruneisen</span>
+<span class="sd">                formulation to compute the gruneisen parameter.</span>
+<span class="sd">                The default is the slater-gamma formulation.</span>
+<span class="sd">            anharmonic_contribution (bool): whether or not to consider the anharmonic</span>
+<span class="sd">                contribution to the Debye temperature. Cannot be used with</span>
+<span class="sd">                use_mie_gruneisen. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">=</span> <span class="n">volumes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature_min</span> <span class="o">=</span> <span class="n">t_min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature_max</span> <span class="o">=</span> <span class="n">t_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature_step</span> <span class="o">=</span> <span class="n">t_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eos_name</span> <span class="o">=</span> <span class="n">eos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pressure</span> <span class="o">=</span> <span class="n">pressure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span> <span class="o">=</span> <span class="n">poisson</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_mie_gruneisen</span> <span class="o">=</span> <span class="n">use_mie_gruneisen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anharmonic_contribution</span> <span class="o">=</span> <span class="n">anharmonic_contribution</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mie_gruneisen</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">anharmonic_contribution</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The Mie-Gruneisen formulation and anharmonic contribution are circular referenced and &#39;</span>
+                             <span class="s1">&#39;cannot be used together.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_mass</span> <span class="o">=</span> <span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;atomic mass constant&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>  <span class="c1"># kg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kb</span> <span class="o">=</span> <span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Boltzmann constant in eV/K&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbar</span> <span class="o">=</span> <span class="n">physical_constants</span><span class="p">[</span><span class="s2">&quot;Planck constant over 2 pi in eV s&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpa_to_ev_ang</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="mf">160.21766208</span>  <span class="c1"># 1 GPa in ev/Ang^3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gibbs_free_energy</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># optimized values, eV</span>
+        <span class="c1"># list of temperatures for which the optimized values are available, K</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimum_volumes</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># in Ang^3</span>
+        <span class="c1"># fit E and V and get the bulk modulus(used to compute the Debye</span>
+        <span class="c1"># temperature)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fitting E and V&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eos</span> <span class="o">=</span> <span class="n">EOS</span><span class="p">(</span><span class="n">eos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eos</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bulk_modulus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">b0_GPa</span>  <span class="c1"># in GPa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_gibbs_free_energy</span><span class="p">()</span>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.optimize_gibbs_free_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimize_gibbs_free_energy">[docs]</a>    <span class="k">def</span> <span class="nf">optimize_gibbs_free_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the gibbs free energy as a function of V, T and P i.e</span>
+<span class="sd">        G(V, T, P), minimize G(V, T, P) wrt V for each T and store the</span>
+<span class="sd">        optimum values.</span>
+
+<span class="sd">        Note: The data points for which the equation of state fitting fails</span>
+<span class="sd">            are skipped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperature_min</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">temperature_max</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature_max</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature_min</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature_step</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperatures</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">G_opt</span><span class="p">,</span> <span class="n">V_opt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EOS fitting failed, so skipping this data point, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gibbs_free_energy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">G_opt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimum_volumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">V_opt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.optimizer"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer">[docs]</a>    <span class="k">def</span> <span class="nf">optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate G(V, T, P) at the given temperature(and pressure) and</span>
+<span class="sd">        minimize it wrt V.</span>
+
+<span class="sd">        1. Compute the  vibrational helmholtz free energy, A_vib.</span>
+<span class="sd">        2. Compute the gibbs free energy as a function of volume, temperature</span>
+<span class="sd">            and pressure, G(V,T,P).</span>
+<span class="sd">        3. Preform an equation of state fit to get the functional form of</span>
+<span class="sd">            gibbs free energy:G(V, T, P).</span>
+<span class="sd">        4. Finally G(V, P, T) is minimized with respect to V.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature (float): temperature in K</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float, float: G_opt(V_opt, T, P) in eV and V_opt in Ang^3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">G_V</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># G for each volume</span>
+        <span class="c1"># G = E(V) + PV + A_vib(V, T)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">):</span>
+            <span class="n">G_V</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">pressure</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpa_to_ev_ang</span> <span class="o">+</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">vibrational_free_energy</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+        <span class="c1"># fit equation of state, G(V, T, P)</span>
+        <span class="n">eos_fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eos</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">,</span> <span class="n">G_V</span><span class="p">)</span>
+        <span class="c1"># minimize the fit eos wrt volume</span>
+        <span class="c1"># Note: the ref energy and the ref volume(E0 and V0) not necessarily</span>
+        <span class="c1"># the same as minimum energy and min volume.</span>
+        <span class="n">volume_guess</span> <span class="o">=</span> <span class="n">eos_fit</span><span class="o">.</span><span class="n">volumes</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">eos_fit</span><span class="o">.</span><span class="n">energies</span><span class="p">)]</span>
+        <span class="n">min_wrt_vol</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">eos_fit</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">volume_guess</span><span class="p">)</span>
+        <span class="c1"># G_opt=G(V_opt, T, P), V_opt</span>
+        <span class="k">return</span> <span class="n">min_wrt_vol</span><span class="o">.</span><span class="n">fun</span><span class="p">,</span> <span class="n">min_wrt_vol</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.vibrational_free_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy">[docs]</a>    <span class="k">def</span> <span class="nf">vibrational_free_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Vibrational Helmholtz free energy, A_vib(V, T).</span>
+<span class="sd">        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature (float): temperature in K</span>
+<span class="sd">            volume (float)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: vibrational free energy in eV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debye_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span> <span class="o">/</span> <span class="n">temperature</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kb</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">temperature</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">9.</span><span class="o">/</span><span class="mf">8.</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">debye_integral</span><span class="p">(</span><span class="n">y</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.vibrational_internal_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy">[docs]</a>    <span class="k">def</span> <span class="nf">vibrational_internal_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Vibrational internal energy, U_vib(V, T).</span>
+<span class="sd">        Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature (float): temperature in K</span>
+<span class="sd">            volume (float): in Ang^3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: vibrational internal energy in eV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debye_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span> <span class="o">/</span> <span class="n">temperature</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kb</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">temperature</span> <span class="o">*</span> <span class="p">(</span><span class="mf">9.</span><span class="o">/</span><span class="mf">8.</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span>
+                                                      <span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">debye_integral</span><span class="p">(</span><span class="n">y</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.debye_temperature"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">debye_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the debye temperature.</span>
+<span class="sd">        Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.</span>
+
+<span class="sd">        Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790</span>
+<span class="sd">        which does not consider anharmonic effects. Eq(20) in the same paper</span>
+<span class="sd">        and Eq(18) in doi.org/10.1016/j.commatsci.2009.12.006 both consider</span>
+<span class="sd">        anharmonic contributions to the Debye temperature through the Gruneisen</span>
+<span class="sd">        parameter at 0K (Gruneisen constant).</span>
+
+<span class="sd">        The anharmonic contribution is toggled by setting the anharmonic_contribution</span>
+<span class="sd">        to True or False in the QuasiharmonicDebyeApprox constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            volume (float): in Ang^3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: debye temperature in K</span>
+<span class="sd">         &quot;&quot;&quot;</span>
+        <span class="n">term1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">2.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span>
+        <span class="n">term2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+        <span class="n">debye</span> <span class="o">=</span> <span class="mf">2.9772e-11</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">6.</span><span class="p">)</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_modulus</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_mass</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">anharmonic_contribution</span><span class="p">:</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gruneisen_parameter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">v0</span><span class="p">)</span>  <span class="c1"># 0K equilibrium Gruneisen parameter</span>
+            <span class="k">return</span> <span class="n">debye</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">v0</span> <span class="o">/</span> <span class="n">volume</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">debye</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.debye_integral"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">debye_integral</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            y (float): debye temperature/T, upper limit</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: unitless</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># floating point limit is reached around y=155, so values beyond that</span>
+        <span class="c1"># are set to the limiting value(T--&gt;0, y --&gt; \infty) of</span>
+        <span class="c1"># 6.4939394 (from wolfram alpha).</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">/</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">155</span><span class="p">:</span>
+            <span class="n">integral</span> <span class="o">=</span> <span class="n">quadrature</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">integral</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">factor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">6.493939</span> <span class="o">*</span> <span class="n">factor</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.gruneisen_parameter"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">gruneisen_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slater-gamma formulation(the default):</span>
+<span class="sd">            gruneisen paramter = - d log(theta)/ d log(V)</span>
+<span class="sd">                               = - ( 1/6 + 0.5 d log(B)/ d log(V) )</span>
+<span class="sd">                               = - (1/6 + 0.5 V/B dB/dV),</span>
+<span class="sd">                                    where dB/dV = d^2E/dV^2 + V * d^3E/dV^3</span>
+
+<span class="sd">        Mie-gruneisen formulation:</span>
+<span class="sd">            Eq(31) in doi.org/10.1016/j.comphy.2003.12.001</span>
+<span class="sd">            Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)</span>
+<span class="sd">                368 (1996) 245-255</span>
+<span class="sd">            Also se J.P. Poirier, Introduction to the Physics of the Earth’s</span>
+<span class="sd">                Interior, 2nd ed. (Cambridge University Press, Cambridge,</span>
+<span class="sd">                2000) Eq(3.53)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature (float): temperature in K</span>
+<span class="sd">            volume (float): in Ang^3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: unitless</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eos</span><span class="p">,</span> <span class="n">PolynomialEOS</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eos</span><span class="o">.</span><span class="n">eos_params</span><span class="p">)</span>
+            <span class="c1"># first derivative of energy at 0K wrt volume evaluated at the</span>
+            <span class="c1"># given volume, in eV/Ang^3</span>
+            <span class="n">dEdV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyder</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">)(</span><span class="n">volume</span><span class="p">)</span>
+            <span class="c1"># second derivative of energy at 0K wrt volume evaluated at the</span>
+            <span class="c1"># given volume, in eV/Ang^6</span>
+            <span class="n">d2EdV2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyder</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">2</span><span class="p">)(</span><span class="n">volume</span><span class="p">)</span>
+            <span class="c1"># third derivative of energy at 0K wrt volume evaluated at the</span>
+            <span class="c1"># given volume, in eV/Ang^9</span>
+            <span class="n">d3EdV3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyder</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">3</span><span class="p">)(</span><span class="n">volume</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">func</span>
+            <span class="n">dEdV</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+            <span class="n">d2EdV2</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">d3EdV3</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+        <span class="c1"># Mie-gruneisen formulation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mie_gruneisen</span><span class="p">:</span>
+            <span class="n">p0</span> <span class="o">=</span> <span class="n">dEdV</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpa_to_ev_ang</span> <span class="o">*</span> <span class="n">volume</span> <span class="o">*</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pressure</span> <span class="o">+</span> <span class="n">p0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpa_to_ev_ang</span><span class="p">)</span> <span class="o">/</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vibrational_internal_energy</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">volume</span><span class="p">))</span>
+
+        <span class="c1"># Slater-gamma formulation</span>
+        <span class="c1"># first derivative of bulk modulus wrt volume, eV/Ang^6</span>
+        <span class="n">dBdV</span> <span class="o">=</span> <span class="n">d2EdV2</span> <span class="o">+</span> <span class="n">d3EdV3</span> <span class="o">*</span> <span class="n">volume</span>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">volume</span> <span class="o">*</span> <span class="n">dBdV</span> <span class="o">/</span>
+                 <span class="n">FloatWithUnit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ev_eos_fit</span><span class="o">.</span><span class="n">b0_GPa</span><span class="p">,</span> <span class="s2">&quot;GPa&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV ang^-3&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.thermal_conductivity"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity">[docs]</a>    <span class="k">def</span> <span class="nf">thermal_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Eq(17) in 10.1103/PhysRevB.90.174107</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature (float): temperature in K</span>
+<span class="sd">            volume (float): in Ang^3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: thermal conductivity in W/K/m</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gruneisen_parameter</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span>
+        <span class="n">theta_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debye_temperature</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>  <span class="c1"># K</span>
+        <span class="n">theta_a</span> <span class="o">=</span> <span class="n">theta_d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>  <span class="c1"># K</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.849</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">4</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">20.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># kg/K^3/s^3</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="n">prefactor</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kb</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">hbar</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_mass</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="n">prefactor</span> <span class="o">/</span> <span class="p">(</span><span class="n">gamma</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.514</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">+</span> <span class="mf">0.228</span><span class="p">)</span>
+        <span class="c1"># kg/K/s^3 * Ang = (kg m/s^2)/(Ks)*1e-10</span>
+        <span class="c1"># = N/(Ks)*1e-10 = Nm/(Kms)*1e-10 = W/K/m*1e-10</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">theta_a</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">volume</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-10</span>
+        <span class="k">return</span> <span class="n">kappa</span></div>
+
+<div class="viewcode-block" id="QuasiharmonicDebyeApprox.get_summary_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.quasiharmonic.html#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.get_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dict with a summary of the computed properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;poisson&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">poisson</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;natoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;bulk_modulus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_modulus</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;gibbs_free_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gibbs_free_energy</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;temperatures&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;optimum_volumes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimum_volumes</span>
+        <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimum_volumes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;debye_temperature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">debye_temperature</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;gruneisen_parameter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gruneisen_parameter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;thermal_conductivity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thermal_conductivity</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">d</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.quasiharmonic</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

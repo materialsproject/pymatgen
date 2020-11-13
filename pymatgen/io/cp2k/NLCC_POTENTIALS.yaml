@@ -1,0 +1,289 @@
+PBE:
+  Al:
+    GTH-NLCC-PBE-q3:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 1
+      r_loc: 0.35
+      nexp_ppl: 2
+      cexp_ppl:
+      - -1.20404111
+      - -2.14848844
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.487749457320947
+        n_core: 1.0
+        c_core: 26.6661157296629
+      nprj: 2
+      r:
+      - 0.46845918
+      - 0.54697362
+      nprj_ppnl:
+      - 2
+      - 1
+      hprj_ppnl:
+      - 2.69261923
+      - 0.0
+      - 2.15425102
+      - 2.1380386
+  B:
+    GTH-NLCC-PBE-q3:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 1
+      r_loc: 0.4324996
+      nexp_ppl: 2
+      cexp_ppl:
+      - -4.26853158
+      - 0.59951279
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.333523099251602
+        n_core: 1.0
+        c_core: 18.6519880515354
+      nprj: 1
+      r:
+      - 0.3714715
+      nprj_ppnl:
+      - 1
+      hprj_ppnl:
+      - 6.30164101
+  C:
+    GTH-NLCC-PBE-q4:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 2
+      r_loc: 0.31478662
+      nexp_ppl: 2
+      cexp_ppl:
+      - -6.9237702
+      - 0.9635969
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.274399357915869
+        n_core: 1.0
+        c_core: 58.705834984236
+      nprj: 2
+      r:
+      - 0.30228391
+      - 0.36878252
+      nprj_ppnl:
+      - 1
+      - 1
+      hprj_ppnl:
+      - 9.57595383
+      - -0.00996437
+  Cl:
+    GTH-NLCC-PBE-q7:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 5
+      r_loc: 0.32
+      nexp_ppl: 1
+      cexp_ppl:
+      - -0.2744829
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.42147846
+        n_core: 1.0
+        c_core: 31.2490172184
+      nprj: 2
+      r:
+      - 0.3265911
+      - 0.36756872
+      nprj_ppnl:
+      - 2
+      - 1
+      hprj_ppnl:
+      - 4.20335702
+      - 0.0
+      - 4.5565171
+      - 4.22907835
+  F:
+    GTH-NLCC-PBE-q7:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 5
+      r_loc: 0.20610323
+      nexp_ppl: 2
+      cexp_ppl:
+      - -19.867165
+      - 2.79308907
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.171542709683482
+        n_core: 1.0
+        c_core: 193.635582221771
+      nprj: 1
+      r:
+      - 0.19518097
+      nprj_ppnl:
+      - 1
+      hprj_ppnl:
+      - 23.47047311
+  H:
+    GTH-NLCC-PBE-q1:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 1
+      r_loc: 0.2
+      nexp_ppl: 2
+      cexp_ppl:
+      - -4.07311634
+      - 0.68070153
+      nprj: 0
+      r: []
+      nprj_ppnl: []
+      hprj_ppnl: []
+  N:
+    GTH-NLCC-PBE-q5:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 3
+      r_loc: 0.24179589
+      nexp_ppl: 2
+      cexp_ppl:
+      - -10.043285
+      - 1.3971902
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.246115465086927
+        n_core: 1.0
+        c_core: 70.6868378070653
+      nprj: 2
+      r:
+      - 0.25696561
+      - 0.15685548
+      nprj_ppnl:
+      - 1
+      - 1
+      hprj_ppnl:
+      - 12.96801666
+      - -0.73452991
+  O:
+    GTH-NLCC-PBE-q6:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 4
+      r_loc: 0.26099935
+      nexp_ppl: 2
+      cexp_ppl:
+      - -14.151806
+      - 1.9782951
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.252338420313492
+        n_core: 1.0
+        c_core: 44.0109866619909
+      nprj: 2
+      r:
+      - 0.22308282
+      - 0.26844098
+      nprj_ppnl:
+      - 1
+      - 1
+      hprj_ppnl:
+      - 18.37181432
+      - 0.10003633
+  P:
+    GTH-NLCC-PBE-q5:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 3
+      r_loc: 0.34
+      nexp_ppl: 2
+      cexp_ppl:
+      - -1.6225831
+      - -0.72412131
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.39867635802143
+        n_core: 1.0
+        c_core: 57.5022588665043
+      nprj: 2
+      r:
+      - 0.38208906
+      - 0.43410975
+      nprj_ppnl:
+      - 2
+      - 1
+      hprj_ppnl:
+      - 3.47753509
+      - -0.01266608
+      - 3.47461367
+      - 3.37859278
+  S:
+    GTH-NLCC-PBE-q6:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 4
+      r_loc: 0.33
+      nexp_ppl: 2
+      cexp_ppl:
+      - 1.4904282
+      - -0.73313881
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.386218088400348
+        n_core: 1.0
+        c_core: 79.6359982164901
+      nprj: 2
+      r:
+      - 0.37045712
+      - 0.39772434
+      nprj_ppnl:
+      - 2
+      - 1
+      hprj_ppnl:
+      - 6.1860481
+      - 0.0
+      - 2.57760787
+      - 3.89113272
+  Si:
+    GTH-NLCC-PBE-q4:
+      alias:
+      - GTH-NLCC-PBE
+      nelect:
+      - 2
+      - 2
+      r_loc: 0.33
+      nexp_ppl: 2
+      cexp_ppl:
+      - -0.07845999
+      - -0.79378214
+      NLCC:
+        n_nlcc: 1
+        r_core: 0.442792079831528
+        n_core: 1.0
+        c_core: 38.1776559763904
+      nprj: 2
+      r:
+      - 0.42179461
+      - 0.48800255
+      nprj_ppnl:
+      - 2
+      - 1
+      hprj_ppnl:
+      - 2.87392223
+      - 0.02558827
+      - 2.59458148
+      - 2.47962806

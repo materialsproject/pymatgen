@@ -1,0 +1,607 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.libxcfunc &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.libxcfunc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.core.libxcfunc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Enumerator with the libxc identifiers.</span>
+<span class="sd">This is a low level object, client code should not interact with LibxcFunc directly</span>
+<span class="sd">but use the API provided by the Xcfunc object defined in core.xcfunc.py.</span>
+<span class="sd">Part of this module is automatically generated so be careful when refactoring stuff.</span>
+<span class="sd">Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum values.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyEncoder</span>
+
+<span class="c1"># The libxc version used to generate this file!</span>
+<span class="n">libxc_version</span> <span class="o">=</span> <span class="s2">&quot;3.0.0&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">libxc_version</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gmatteo@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;May 16, 2016&quot;</span>
+
+<span class="c1"># Loads libxc info from json file</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;libxc_docs.json&quot;</span><span class="p">),</span>
+          <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">_all_xcfuncs</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+
+<span class="c1"># @unique</span>
+<div class="viewcode-block" id="LibxcFunc"><a class="viewcode-back" href="../../../pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc">[docs]</a><span class="k">class</span> <span class="nc">LibxcFunc</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumerator with the identifiers. This object is used by Xcfunc</span>
+<span class="sd">    declared in xcfunc.py to create an internal representation of the XC functional.</span>
+<span class="sd">    This is a low level object, client code should not interact with LibxcFunc directly</span>
+<span class="sd">    but use the API provided by Xcfunc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># begin_include_dont_touch</span>
+    <span class="n">LDA_C_1D_CSC</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">LDA_C_1D_LOOS</span> <span class="o">=</span> <span class="mi">26</span>
+    <span class="n">LDA_C_2D_AMGB</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">LDA_C_2D_PRM</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">LDA_C_GOMBAS</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">LDA_C_HL</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">LDA_C_GL</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">LDA_C_vBH</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">LDA_C_ML1</span> <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">LDA_C_ML2</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">LDA_C_PW</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">LDA_C_PW_MOD</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">LDA_C_OB_PW</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">LDA_C_PW_RPA</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">LDA_C_PZ</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">LDA_C_PZ_MOD</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">LDA_C_OB_PZ</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">LDA_C_RC04</span> <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">LDA_C_RPA</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">LDA_C_VWN</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">LDA_C_VWN_1</span> <span class="o">=</span> <span class="mi">28</span>
+    <span class="n">LDA_C_VWN_2</span> <span class="o">=</span> <span class="mi">29</span>
+    <span class="n">LDA_C_VWN_3</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">LDA_C_VWN_4</span> <span class="o">=</span> <span class="mi">31</span>
+    <span class="n">LDA_C_VWN_RPA</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">LDA_C_WIGNER</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">LDA_K_TF</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">LDA_K_LP</span> <span class="o">=</span> <span class="mi">51</span>
+    <span class="n">LDA_X</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">LDA_C_XALPHA</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">LDA_X_1D</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">LDA_X_2D</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">LDA_XC_KSDT</span> <span class="o">=</span> <span class="mi">259</span>
+    <span class="n">LDA_XC_TETER93</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">LDA_XC_ZLP</span> <span class="o">=</span> <span class="mi">43</span>
+    <span class="n">GGA_C_AM05</span> <span class="o">=</span> <span class="mi">135</span>
+    <span class="n">GGA_C_FT97</span> <span class="o">=</span> <span class="mi">88</span>
+    <span class="n">GGA_C_LM</span> <span class="o">=</span> <span class="mi">137</span>
+    <span class="n">GGA_C_LYP</span> <span class="o">=</span> <span class="mi">131</span>
+    <span class="n">GGA_C_OP_B88</span> <span class="o">=</span> <span class="mi">87</span>
+    <span class="n">GGA_C_OP_PBE</span> <span class="o">=</span> <span class="mi">86</span>
+    <span class="n">GGA_C_OP_G96</span> <span class="o">=</span> <span class="mi">85</span>
+    <span class="n">GGA_C_OP_PW91</span> <span class="o">=</span> <span class="mi">262</span>
+    <span class="n">GGA_C_OP_XALPHA</span> <span class="o">=</span> <span class="mi">84</span>
+    <span class="n">GGA_C_OPTC</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">GGA_C_P86</span> <span class="o">=</span> <span class="mi">132</span>
+    <span class="n">GGA_C_PBE</span> <span class="o">=</span> <span class="mi">130</span>
+    <span class="n">GGA_C_PBE_SOL</span> <span class="o">=</span> <span class="mi">133</span>
+    <span class="n">GGA_C_XPBE</span> <span class="o">=</span> <span class="mi">136</span>
+    <span class="n">GGA_C_PBE_JRGX</span> <span class="o">=</span> <span class="mi">138</span>
+    <span class="n">GGA_C_RGE2</span> <span class="o">=</span> <span class="mi">143</span>
+    <span class="n">GGA_C_APBE</span> <span class="o">=</span> <span class="mi">186</span>
+    <span class="n">GGA_C_SPBE</span> <span class="o">=</span> <span class="mi">89</span>
+    <span class="n">GGA_C_REGTPSS</span> <span class="o">=</span> <span class="mi">83</span>
+    <span class="n">GGA_C_ZPBESOL</span> <span class="o">=</span> <span class="mi">63</span>
+    <span class="n">GGA_C_PBEINT</span> <span class="o">=</span> <span class="mi">62</span>
+    <span class="n">GGA_C_ZPBEINT</span> <span class="o">=</span> <span class="mi">61</span>
+    <span class="n">GGA_C_PBELOC</span> <span class="o">=</span> <span class="mi">246</span>
+    <span class="n">GGA_C_BGCP</span> <span class="o">=</span> <span class="mi">39</span>
+    <span class="n">GGA_C_PBEFE</span> <span class="o">=</span> <span class="mi">258</span>
+    <span class="n">GGA_C_PW91</span> <span class="o">=</span> <span class="mi">134</span>
+    <span class="n">GGA_C_Q2D</span> <span class="o">=</span> <span class="mi">47</span>
+    <span class="n">GGA_C_SOGGA11</span> <span class="o">=</span> <span class="mi">152</span>
+    <span class="n">GGA_C_SOGGA11_X</span> <span class="o">=</span> <span class="mi">159</span>
+    <span class="n">GGA_C_TCA</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">GGA_C_REVTCA</span> <span class="o">=</span> <span class="mi">99</span>
+    <span class="n">GGA_C_WI0</span> <span class="o">=</span> <span class="mi">153</span>
+    <span class="n">GGA_C_WI</span> <span class="o">=</span> <span class="mi">148</span>
+    <span class="n">GGA_C_WL</span> <span class="o">=</span> <span class="mi">147</span>
+    <span class="n">GGA_K_DK</span> <span class="o">=</span> <span class="mi">516</span>
+    <span class="n">GGA_K_PERDEW</span> <span class="o">=</span> <span class="mi">517</span>
+    <span class="n">GGA_K_VSK</span> <span class="o">=</span> <span class="mi">518</span>
+    <span class="n">GGA_K_VJKS</span> <span class="o">=</span> <span class="mi">519</span>
+    <span class="n">GGA_K_ERNZERHOF</span> <span class="o">=</span> <span class="mi">520</span>
+    <span class="n">GGA_K_MEYER</span> <span class="o">=</span> <span class="mi">57</span>
+    <span class="n">GGA_K_OL1</span> <span class="o">=</span> <span class="mi">512</span>
+    <span class="n">GGA_X_OL2</span> <span class="o">=</span> <span class="mi">183</span>
+    <span class="n">GGA_K_OL2</span> <span class="o">=</span> <span class="mi">513</span>
+    <span class="n">GGA_K_PEARSON</span> <span class="o">=</span> <span class="mi">511</span>
+    <span class="n">GGA_K_TFVW</span> <span class="o">=</span> <span class="mi">52</span>
+    <span class="n">GGA_K_VW</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="n">GGA_K_GE2</span> <span class="o">=</span> <span class="mi">501</span>
+    <span class="n">GGA_K_GOLDEN</span> <span class="o">=</span> <span class="mi">502</span>
+    <span class="n">GGA_K_YT65</span> <span class="o">=</span> <span class="mi">503</span>
+    <span class="n">GGA_K_BALTIN</span> <span class="o">=</span> <span class="mi">504</span>
+    <span class="n">GGA_K_LIEB</span> <span class="o">=</span> <span class="mi">505</span>
+    <span class="n">GGA_K_ABSP1</span> <span class="o">=</span> <span class="mi">506</span>
+    <span class="n">GGA_K_ABSP2</span> <span class="o">=</span> <span class="mi">507</span>
+    <span class="n">GGA_K_GR</span> <span class="o">=</span> <span class="mi">508</span>
+    <span class="n">GGA_K_LUDENA</span> <span class="o">=</span> <span class="mi">509</span>
+    <span class="n">GGA_K_GP85</span> <span class="o">=</span> <span class="mi">510</span>
+    <span class="n">GGA_X_2D_B86</span> <span class="o">=</span> <span class="mi">128</span>
+    <span class="n">GGA_X_2D_B86_MGC</span> <span class="o">=</span> <span class="mi">124</span>
+    <span class="n">GGA_X_2D_B88</span> <span class="o">=</span> <span class="mi">127</span>
+    <span class="n">GGA_X_2D_PBE</span> <span class="o">=</span> <span class="mi">129</span>
+    <span class="n">GGA_X_AIRY</span> <span class="o">=</span> <span class="mi">192</span>
+    <span class="n">GGA_X_LAG</span> <span class="o">=</span> <span class="mi">193</span>
+    <span class="n">GGA_X_AK13</span> <span class="o">=</span> <span class="mi">56</span>
+    <span class="n">GGA_X_AM05</span> <span class="o">=</span> <span class="mi">120</span>
+    <span class="n">GGA_X_B86</span> <span class="o">=</span> <span class="mi">103</span>
+    <span class="n">GGA_X_B86_MGC</span> <span class="o">=</span> <span class="mi">105</span>
+    <span class="n">GGA_X_B86_R</span> <span class="o">=</span> <span class="mi">41</span>
+    <span class="n">GGA_X_B88</span> <span class="o">=</span> <span class="mi">106</span>
+    <span class="n">GGA_X_OPTB88_VDW</span> <span class="o">=</span> <span class="mi">139</span>
+    <span class="n">GGA_X_MB88</span> <span class="o">=</span> <span class="mi">149</span>
+    <span class="n">GGA_K_LLP</span> <span class="o">=</span> <span class="mi">522</span>
+    <span class="n">GGA_K_FR_B88</span> <span class="o">=</span> <span class="mi">514</span>
+    <span class="n">GGA_K_THAKKAR</span> <span class="o">=</span> <span class="mi">523</span>
+    <span class="n">GGA_X_BAYESIAN</span> <span class="o">=</span> <span class="mi">125</span>
+    <span class="n">GGA_X_BPCCAC</span> <span class="o">=</span> <span class="mi">98</span>
+    <span class="n">GGA_X_C09X</span> <span class="o">=</span> <span class="mi">158</span>
+    <span class="n">GGA_X_CAP</span> <span class="o">=</span> <span class="mi">270</span>
+    <span class="n">GGA_X_DK87_R1</span> <span class="o">=</span> <span class="mi">111</span>
+    <span class="n">GGA_X_DK87_R2</span> <span class="o">=</span> <span class="mi">112</span>
+    <span class="n">GGA_X_EV93</span> <span class="o">=</span> <span class="mi">35</span>
+    <span class="n">GGA_X_FT97_A</span> <span class="o">=</span> <span class="mi">114</span>
+    <span class="n">GGA_X_FT97_B</span> <span class="o">=</span> <span class="mi">115</span>
+    <span class="n">GGA_X_G96</span> <span class="o">=</span> <span class="mi">107</span>
+    <span class="n">GGA_X_HCTH_A</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">GGA_X_HERMAN</span> <span class="o">=</span> <span class="mi">104</span>
+    <span class="n">GGA_X_HJS_PBE</span> <span class="o">=</span> <span class="mi">525</span>
+    <span class="n">GGA_X_HJS_PBE_SOL</span> <span class="o">=</span> <span class="mi">526</span>
+    <span class="n">GGA_X_HJS_B88</span> <span class="o">=</span> <span class="mi">527</span>
+    <span class="n">GGA_X_HJS_B97X</span> <span class="o">=</span> <span class="mi">528</span>
+    <span class="n">GGA_X_HJS_B88_V2</span> <span class="o">=</span> <span class="mi">46</span>
+    <span class="n">GGA_X_HTBS</span> <span class="o">=</span> <span class="mi">191</span>
+    <span class="n">GGA_X_ITYH</span> <span class="o">=</span> <span class="mi">529</span>
+    <span class="n">GGA_X_KT1</span> <span class="o">=</span> <span class="mi">145</span>
+    <span class="n">GGA_XC_KT2</span> <span class="o">=</span> <span class="mi">146</span>
+    <span class="n">GGA_X_LB</span> <span class="o">=</span> <span class="mi">160</span>
+    <span class="n">GGA_X_LBM</span> <span class="o">=</span> <span class="mi">182</span>
+    <span class="n">GGA_X_LG93</span> <span class="o">=</span> <span class="mi">113</span>
+    <span class="n">GGA_X_LV_RPW86</span> <span class="o">=</span> <span class="mi">58</span>
+    <span class="n">GGA_X_MPBE</span> <span class="o">=</span> <span class="mi">122</span>
+    <span class="n">GGA_X_N12</span> <span class="o">=</span> <span class="mi">82</span>
+    <span class="n">GGA_X_GAM</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">GGA_X_OPTX</span> <span class="o">=</span> <span class="mi">110</span>
+    <span class="n">GGA_X_PBE</span> <span class="o">=</span> <span class="mi">101</span>
+    <span class="n">GGA_X_PBE_R</span> <span class="o">=</span> <span class="mi">102</span>
+    <span class="n">GGA_X_PBE_SOL</span> <span class="o">=</span> <span class="mi">116</span>
+    <span class="n">GGA_X_XPBE</span> <span class="o">=</span> <span class="mi">123</span>
+    <span class="n">GGA_X_PBE_JSJR</span> <span class="o">=</span> <span class="mi">126</span>
+    <span class="n">GGA_X_PBEK1_VDW</span> <span class="o">=</span> <span class="mi">140</span>
+    <span class="n">GGA_X_RGE2</span> <span class="o">=</span> <span class="mi">142</span>
+    <span class="n">GGA_X_APBE</span> <span class="o">=</span> <span class="mi">184</span>
+    <span class="n">GGA_X_PBEINT</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">GGA_X_PBE_TCA</span> <span class="o">=</span> <span class="mi">59</span>
+    <span class="n">GGA_X_LAMBDA_LO_N</span> <span class="o">=</span> <span class="mi">45</span>
+    <span class="n">GGA_X_LAMBDA_CH_N</span> <span class="o">=</span> <span class="mi">44</span>
+    <span class="n">GGA_X_LAMBDA_OC2_N</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="n">GGA_X_PBE_MOL</span> <span class="o">=</span> <span class="mi">49</span>
+    <span class="n">GGA_X_BGCP</span> <span class="o">=</span> <span class="mi">38</span>
+    <span class="n">GGA_X_PBEFE</span> <span class="o">=</span> <span class="mi">265</span>
+    <span class="n">GGA_K_APBE</span> <span class="o">=</span> <span class="mi">185</span>
+    <span class="n">GGA_K_REVAPBE</span> <span class="o">=</span> <span class="mi">55</span>
+    <span class="n">GGA_K_TW1</span> <span class="o">=</span> <span class="mi">187</span>
+    <span class="n">GGA_K_TW2</span> <span class="o">=</span> <span class="mi">188</span>
+    <span class="n">GGA_K_TW3</span> <span class="o">=</span> <span class="mi">189</span>
+    <span class="n">GGA_K_TW4</span> <span class="o">=</span> <span class="mi">190</span>
+    <span class="n">GGA_K_APBEINT</span> <span class="o">=</span> <span class="mi">54</span>
+    <span class="n">GGA_K_REVAPBEINT</span> <span class="o">=</span> <span class="mi">53</span>
+    <span class="n">GGA_X_PBEA</span> <span class="o">=</span> <span class="mi">121</span>
+    <span class="n">GGA_X_PW86</span> <span class="o">=</span> <span class="mi">108</span>
+    <span class="n">GGA_X_RPW86</span> <span class="o">=</span> <span class="mi">144</span>
+    <span class="n">GGA_K_FR_PW86</span> <span class="o">=</span> <span class="mi">515</span>
+    <span class="n">GGA_X_PW91</span> <span class="o">=</span> <span class="mi">109</span>
+    <span class="n">GGA_X_MPW91</span> <span class="o">=</span> <span class="mi">119</span>
+    <span class="n">GGA_K_LC94</span> <span class="o">=</span> <span class="mi">521</span>
+    <span class="n">GGA_X_Q2D</span> <span class="o">=</span> <span class="mi">48</span>
+    <span class="n">GGA_X_RPBE</span> <span class="o">=</span> <span class="mi">117</span>
+    <span class="n">GGA_X_SFAT</span> <span class="o">=</span> <span class="mi">530</span>
+    <span class="n">GGA_X_SOGGA11</span> <span class="o">=</span> <span class="mi">151</span>
+    <span class="n">GGA_X_SSB_SW</span> <span class="o">=</span> <span class="mi">90</span>
+    <span class="n">GGA_X_SSB</span> <span class="o">=</span> <span class="mi">91</span>
+    <span class="n">GGA_X_SSB_D</span> <span class="o">=</span> <span class="mi">92</span>
+    <span class="n">GGA_X_VMT_PBE</span> <span class="o">=</span> <span class="mi">71</span>
+    <span class="n">GGA_X_VMT_GE</span> <span class="o">=</span> <span class="mi">70</span>
+    <span class="n">GGA_X_VMT84_PBE</span> <span class="o">=</span> <span class="mi">69</span>
+    <span class="n">GGA_X_VMT84_GE</span> <span class="o">=</span> <span class="mi">68</span>
+    <span class="n">GGA_X_WC</span> <span class="o">=</span> <span class="mi">118</span>
+    <span class="n">GGA_X_WPBEH</span> <span class="o">=</span> <span class="mi">524</span>
+    <span class="n">GGA_XC_XLYP</span> <span class="o">=</span> <span class="mi">166</span>
+    <span class="n">GGA_XC_PBE1W</span> <span class="o">=</span> <span class="mi">173</span>
+    <span class="n">GGA_XC_MPWLYP1W</span> <span class="o">=</span> <span class="mi">174</span>
+    <span class="n">GGA_XC_PBELYP1W</span> <span class="o">=</span> <span class="mi">175</span>
+    <span class="n">GGA_XC_B97_D</span> <span class="o">=</span> <span class="mi">170</span>
+    <span class="n">GGA_XC_HCTH_93</span> <span class="o">=</span> <span class="mi">161</span>
+    <span class="n">GGA_XC_HCTH_120</span> <span class="o">=</span> <span class="mi">162</span>
+    <span class="n">GGA_XC_HCTH_147</span> <span class="o">=</span> <span class="mi">163</span>
+    <span class="n">GGA_XC_HCTH_407</span> <span class="o">=</span> <span class="mi">164</span>
+    <span class="n">GGA_C_HCTH_A</span> <span class="o">=</span> <span class="mi">97</span>
+    <span class="n">GGA_XC_B97_GGA1</span> <span class="o">=</span> <span class="mi">96</span>
+    <span class="n">GGA_XC_HCTH_P14</span> <span class="o">=</span> <span class="mi">95</span>
+    <span class="n">GGA_XC_HCTH_P76</span> <span class="o">=</span> <span class="mi">94</span>
+    <span class="n">GGA_XC_HCTH_407P</span> <span class="o">=</span> <span class="mi">93</span>
+    <span class="n">GGA_C_N12</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="n">GGA_C_N12_SX</span> <span class="o">=</span> <span class="mi">79</span>
+    <span class="n">GGA_C_GAM</span> <span class="o">=</span> <span class="mi">33</span>
+    <span class="n">GGA_XC_EDF1</span> <span class="o">=</span> <span class="mi">165</span>
+    <span class="n">GGA_X_OPTPBE_VDW</span> <span class="o">=</span> <span class="mi">141</span>
+    <span class="n">GGA_XC_MOHLYP</span> <span class="o">=</span> <span class="mi">194</span>
+    <span class="n">GGA_XC_MOHLYP2</span> <span class="o">=</span> <span class="mi">195</span>
+    <span class="n">GGA_X_SOGGA</span> <span class="o">=</span> <span class="mi">150</span>
+    <span class="n">GGA_XC_OBLYP_D</span> <span class="o">=</span> <span class="mi">67</span>
+    <span class="n">GGA_XC_OPWLYP_D</span> <span class="o">=</span> <span class="mi">66</span>
+    <span class="n">GGA_XC_OPBE_D</span> <span class="o">=</span> <span class="mi">65</span>
+    <span class="n">GGA_XC_TH_FL</span> <span class="o">=</span> <span class="mi">196</span>
+    <span class="n">GGA_XC_TH_FC</span> <span class="o">=</span> <span class="mi">197</span>
+    <span class="n">GGA_XC_TH_FCFO</span> <span class="o">=</span> <span class="mi">198</span>
+    <span class="n">GGA_XC_TH_FCO</span> <span class="o">=</span> <span class="mi">199</span>
+    <span class="n">GGA_XC_TH1</span> <span class="o">=</span> <span class="mi">154</span>
+    <span class="n">GGA_XC_TH2</span> <span class="o">=</span> <span class="mi">155</span>
+    <span class="n">GGA_XC_TH3</span> <span class="o">=</span> <span class="mi">156</span>
+    <span class="n">GGA_XC_TH4</span> <span class="o">=</span> <span class="mi">157</span>
+    <span class="n">GGA_XC_VV10</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">HYB_GGA_XC_CAP0</span> <span class="o">=</span> <span class="mi">477</span>
+    <span class="n">HYB_GGA_X_N12_SX</span> <span class="o">=</span> <span class="mi">81</span>
+    <span class="n">HYB_GGA_X_SOGGA11_X</span> <span class="o">=</span> <span class="mi">426</span>
+    <span class="n">HYB_GGA_XC_B97</span> <span class="o">=</span> <span class="mi">407</span>
+    <span class="n">HYB_GGA_XC_B97_1</span> <span class="o">=</span> <span class="mi">408</span>
+    <span class="n">HYB_GGA_XC_B97_2</span> <span class="o">=</span> <span class="mi">410</span>
+    <span class="n">HYB_GGA_XC_B97_K</span> <span class="o">=</span> <span class="mi">413</span>
+    <span class="n">HYB_GGA_XC_B97_3</span> <span class="o">=</span> <span class="mi">414</span>
+    <span class="n">HYB_GGA_XC_SB98_1a</span> <span class="o">=</span> <span class="mi">420</span>
+    <span class="n">HYB_GGA_XC_SB98_1b</span> <span class="o">=</span> <span class="mi">421</span>
+    <span class="n">HYB_GGA_XC_SB98_1c</span> <span class="o">=</span> <span class="mi">422</span>
+    <span class="n">HYB_GGA_XC_SB98_2a</span> <span class="o">=</span> <span class="mi">423</span>
+    <span class="n">HYB_GGA_XC_SB98_2b</span> <span class="o">=</span> <span class="mi">424</span>
+    <span class="n">HYB_GGA_XC_SB98_2c</span> <span class="o">=</span> <span class="mi">425</span>
+    <span class="n">HYB_GGA_XC_WB97</span> <span class="o">=</span> <span class="mi">463</span>
+    <span class="n">HYB_GGA_XC_WB97X</span> <span class="o">=</span> <span class="mi">464</span>
+    <span class="n">HYB_GGA_XC_WB97X_V</span> <span class="o">=</span> <span class="mi">466</span>
+    <span class="n">HYB_GGA_XC_WB97X_D</span> <span class="o">=</span> <span class="mi">471</span>
+    <span class="n">HYB_GGA_XC_B97_1p</span> <span class="o">=</span> <span class="mi">266</span>
+    <span class="n">HYB_GGA_XC_LC_VV10</span> <span class="o">=</span> <span class="mi">469</span>
+    <span class="n">HYB_GGA_XC_B1WC</span> <span class="o">=</span> <span class="mi">412</span>
+    <span class="n">HYB_GGA_XC_B1LYP</span> <span class="o">=</span> <span class="mi">416</span>
+    <span class="n">HYB_GGA_XC_B1PW91</span> <span class="o">=</span> <span class="mi">417</span>
+    <span class="n">HYB_GGA_XC_mPW1PW</span> <span class="o">=</span> <span class="mi">418</span>
+    <span class="n">HYB_GGA_XC_mPW1K</span> <span class="o">=</span> <span class="mi">405</span>
+    <span class="n">HYB_GGA_XC_BHANDH</span> <span class="o">=</span> <span class="mi">435</span>
+    <span class="n">HYB_GGA_XC_BHANDHLYP</span> <span class="o">=</span> <span class="mi">436</span>
+    <span class="n">HYB_GGA_XC_MPWLYP1M</span> <span class="o">=</span> <span class="mi">453</span>
+    <span class="n">HYB_GGA_XC_B3PW91</span> <span class="o">=</span> <span class="mi">401</span>
+    <span class="n">HYB_GGA_XC_B3LYP</span> <span class="o">=</span> <span class="mi">402</span>
+    <span class="n">HYB_GGA_XC_B3LYP5</span> <span class="o">=</span> <span class="mi">475</span>
+    <span class="n">HYB_GGA_XC_B3P86</span> <span class="o">=</span> <span class="mi">403</span>
+    <span class="n">HYB_GGA_XC_MPW3PW</span> <span class="o">=</span> <span class="mi">415</span>
+    <span class="n">HYB_GGA_XC_MPW3LYP</span> <span class="o">=</span> <span class="mi">419</span>
+    <span class="n">HYB_GGA_XC_MB3LYP_RC04</span> <span class="o">=</span> <span class="mi">437</span>
+    <span class="n">HYB_GGA_XC_REVB3LYP</span> <span class="o">=</span> <span class="mi">454</span>
+    <span class="n">HYB_GGA_XC_B3LYPs</span> <span class="o">=</span> <span class="mi">459</span>
+    <span class="n">HYB_GGA_XC_CAM_B3LYP</span> <span class="o">=</span> <span class="mi">433</span>
+    <span class="n">HYB_GGA_XC_TUNED_CAM_B3LYP</span> <span class="o">=</span> <span class="mi">434</span>
+    <span class="n">HYB_GGA_XC_CAMY_B3LYP</span> <span class="o">=</span> <span class="mi">470</span>
+    <span class="n">HYB_GGA_XC_CAMY_BLYP</span> <span class="o">=</span> <span class="mi">455</span>
+    <span class="n">HYB_GGA_XC_EDF2</span> <span class="o">=</span> <span class="mi">476</span>
+    <span class="n">HYB_GGA_XC_HSE03</span> <span class="o">=</span> <span class="mi">427</span>
+    <span class="n">HYB_GGA_XC_HSE06</span> <span class="o">=</span> <span class="mi">428</span>
+    <span class="n">HYB_GGA_XC_LRC_WPBEH</span> <span class="o">=</span> <span class="mi">465</span>
+    <span class="n">HYB_GGA_XC_LRC_WPBE</span> <span class="o">=</span> <span class="mi">473</span>
+    <span class="n">HYB_GGA_XC_HJS_PBE</span> <span class="o">=</span> <span class="mi">429</span>
+    <span class="n">HYB_GGA_XC_HJS_PBE_SOL</span> <span class="o">=</span> <span class="mi">430</span>
+    <span class="n">HYB_GGA_XC_HJS_B88</span> <span class="o">=</span> <span class="mi">431</span>
+    <span class="n">HYB_GGA_XC_HJS_B97X</span> <span class="o">=</span> <span class="mi">432</span>
+    <span class="n">HYB_GGA_XC_LCY_BLYP</span> <span class="o">=</span> <span class="mi">468</span>
+    <span class="n">HYB_GGA_XC_LCY_PBE</span> <span class="o">=</span> <span class="mi">467</span>
+    <span class="n">HYB_GGA_XC_O3LYP</span> <span class="o">=</span> <span class="mi">404</span>
+    <span class="n">HYB_GGA_XC_X3LYP</span> <span class="o">=</span> <span class="mi">411</span>
+    <span class="n">HYB_GGA_XC_PBEH</span> <span class="o">=</span> <span class="mi">406</span>
+    <span class="n">HYB_GGA_XC_PBE0_13</span> <span class="o">=</span> <span class="mi">456</span>
+    <span class="n">HYB_GGA_XC_HPBEINT</span> <span class="o">=</span> <span class="mi">472</span>
+    <span class="n">MGGA_XC_TPSSLYP1W</span> <span class="o">=</span> <span class="mi">242</span>
+    <span class="n">MGGA_C_BC95</span> <span class="o">=</span> <span class="mi">240</span>
+    <span class="n">MGGA_C_CC06</span> <span class="o">=</span> <span class="mi">229</span>
+    <span class="n">MGGA_C_CS</span> <span class="o">=</span> <span class="mi">72</span>
+    <span class="n">MGGA_C_M08_HX</span> <span class="o">=</span> <span class="mi">78</span>
+    <span class="n">MGGA_C_M08_SO</span> <span class="o">=</span> <span class="mi">77</span>
+    <span class="n">MGGA_C_M11</span> <span class="o">=</span> <span class="mi">76</span>
+    <span class="n">MGGA_C_M11_L</span> <span class="o">=</span> <span class="mi">75</span>
+    <span class="n">MGGA_C_MN12_L</span> <span class="o">=</span> <span class="mi">74</span>
+    <span class="n">MGGA_C_MN12_SX</span> <span class="o">=</span> <span class="mi">73</span>
+    <span class="n">MGGA_C_MN15_L</span> <span class="o">=</span> <span class="mi">261</span>
+    <span class="n">MGGA_C_MN15</span> <span class="o">=</span> <span class="mi">269</span>
+    <span class="n">MGGA_C_PKZB</span> <span class="o">=</span> <span class="mi">239</span>
+    <span class="n">MGGA_C_TPSS</span> <span class="o">=</span> <span class="mi">231</span>
+    <span class="n">MGGA_C_REVTPSS</span> <span class="o">=</span> <span class="mi">241</span>
+    <span class="n">MGGA_C_TPSSLOC</span> <span class="o">=</span> <span class="mi">247</span>
+    <span class="n">MGGA_C_SCAN</span> <span class="o">=</span> <span class="mi">267</span>
+    <span class="n">MGGA_C_M05</span> <span class="o">=</span> <span class="mi">237</span>
+    <span class="n">MGGA_C_M05_2X</span> <span class="o">=</span> <span class="mi">238</span>
+    <span class="n">MGGA_C_VSXC</span> <span class="o">=</span> <span class="mi">232</span>
+    <span class="n">MGGA_C_M06_L</span> <span class="o">=</span> <span class="mi">233</span>
+    <span class="n">MGGA_C_M06_HF</span> <span class="o">=</span> <span class="mi">234</span>
+    <span class="n">MGGA_C_M06</span> <span class="o">=</span> <span class="mi">235</span>
+    <span class="n">MGGA_C_M06_2X</span> <span class="o">=</span> <span class="mi">236</span>
+    <span class="n">MGGA_C_DLDF</span> <span class="o">=</span> <span class="mi">37</span>
+    <span class="n">MGGA_X_2D_PRHG07</span> <span class="o">=</span> <span class="mi">210</span>
+    <span class="n">MGGA_X_2D_PRHG07_PRP10</span> <span class="o">=</span> <span class="mi">211</span>
+    <span class="n">MGGA_X_BR89</span> <span class="o">=</span> <span class="mi">206</span>
+    <span class="n">MGGA_X_BJ06</span> <span class="o">=</span> <span class="mi">207</span>
+    <span class="n">MGGA_X_TB09</span> <span class="o">=</span> <span class="mi">208</span>
+    <span class="n">MGGA_X_RPP09</span> <span class="o">=</span> <span class="mi">209</span>
+    <span class="n">MGGA_X_GVT4</span> <span class="o">=</span> <span class="mi">204</span>
+    <span class="n">MGGA_X_LTA</span> <span class="o">=</span> <span class="mi">201</span>
+    <span class="n">MGGA_X_M05</span> <span class="o">=</span> <span class="mi">214</span>
+    <span class="n">MGGA_X_M05_2X</span> <span class="o">=</span> <span class="mi">215</span>
+    <span class="n">MGGA_X_M06_2X</span> <span class="o">=</span> <span class="mi">218</span>
+    <span class="n">MGGA_X_M06_L</span> <span class="o">=</span> <span class="mi">203</span>
+    <span class="n">MGGA_X_M06_HF</span> <span class="o">=</span> <span class="mi">216</span>
+    <span class="n">MGGA_X_M06</span> <span class="o">=</span> <span class="mi">217</span>
+    <span class="n">MGGA_X_M08_HX</span> <span class="o">=</span> <span class="mi">219</span>
+    <span class="n">MGGA_X_M08_SO</span> <span class="o">=</span> <span class="mi">220</span>
+    <span class="n">MGGA_X_M11</span> <span class="o">=</span> <span class="mi">225</span>
+    <span class="n">MGGA_X_M11_L</span> <span class="o">=</span> <span class="mi">226</span>
+    <span class="n">MGGA_X_MBEEF</span> <span class="o">=</span> <span class="mi">249</span>
+    <span class="n">MGGA_X_MBEEFVDW</span> <span class="o">=</span> <span class="mi">250</span>
+    <span class="n">MGGA_X_MK00</span> <span class="o">=</span> <span class="mi">230</span>
+    <span class="n">MGGA_X_MK00B</span> <span class="o">=</span> <span class="mi">243</span>
+    <span class="n">MGGA_X_MN12_L</span> <span class="o">=</span> <span class="mi">227</span>
+    <span class="n">MGGA_X_MN15_L</span> <span class="o">=</span> <span class="mi">260</span>
+    <span class="n">MGGA_X_MS0</span> <span class="o">=</span> <span class="mi">221</span>
+    <span class="n">MGGA_X_MS1</span> <span class="o">=</span> <span class="mi">222</span>
+    <span class="n">MGGA_X_MS2</span> <span class="o">=</span> <span class="mi">223</span>
+    <span class="n">MGGA_X_MVS</span> <span class="o">=</span> <span class="mi">257</span>
+    <span class="n">MGGA_X_PKZB</span> <span class="o">=</span> <span class="mi">213</span>
+    <span class="n">MGGA_X_SCAN</span> <span class="o">=</span> <span class="mi">263</span>
+    <span class="n">MGGA_X_TAU_HCTH</span> <span class="o">=</span> <span class="mi">205</span>
+    <span class="n">MGGA_X_TPSS</span> <span class="o">=</span> <span class="mi">202</span>
+    <span class="n">MGGA_X_MODTPSS</span> <span class="o">=</span> <span class="mi">245</span>
+    <span class="n">MGGA_X_REVTPSS</span> <span class="o">=</span> <span class="mi">212</span>
+    <span class="n">MGGA_X_BLOC</span> <span class="o">=</span> <span class="mi">244</span>
+    <span class="n">MGGA_XC_B97M_V</span> <span class="o">=</span> <span class="mi">254</span>
+    <span class="n">MGGA_XC_OTPSS_D</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">MGGA_XC_ZLP</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">HYB_MGGA_X_MVSH</span> <span class="o">=</span> <span class="mi">474</span>
+    <span class="n">HYB_MGGA_XC_M05</span> <span class="o">=</span> <span class="mi">438</span>
+    <span class="n">HYB_MGGA_XC_M05_2X</span> <span class="o">=</span> <span class="mi">439</span>
+    <span class="n">HYB_MGGA_XC_B88B95</span> <span class="o">=</span> <span class="mi">440</span>
+    <span class="n">HYB_MGGA_XC_B86B95</span> <span class="o">=</span> <span class="mi">441</span>
+    <span class="n">HYB_MGGA_XC_PW86B95</span> <span class="o">=</span> <span class="mi">442</span>
+    <span class="n">HYB_MGGA_XC_BB1K</span> <span class="o">=</span> <span class="mi">443</span>
+    <span class="n">HYB_MGGA_XC_MPW1B95</span> <span class="o">=</span> <span class="mi">445</span>
+    <span class="n">HYB_MGGA_XC_MPWB1K</span> <span class="o">=</span> <span class="mi">446</span>
+    <span class="n">HYB_MGGA_XC_X1B95</span> <span class="o">=</span> <span class="mi">447</span>
+    <span class="n">HYB_MGGA_XC_XB1K</span> <span class="o">=</span> <span class="mi">448</span>
+    <span class="n">HYB_MGGA_XC_M06_HF</span> <span class="o">=</span> <span class="mi">444</span>
+    <span class="n">HYB_MGGA_XC_M06</span> <span class="o">=</span> <span class="mi">449</span>
+    <span class="n">HYB_MGGA_XC_M06_2X</span> <span class="o">=</span> <span class="mi">450</span>
+    <span class="n">HYB_MGGA_XC_PW6B95</span> <span class="o">=</span> <span class="mi">451</span>
+    <span class="n">HYB_MGGA_XC_PWB6K</span> <span class="o">=</span> <span class="mi">452</span>
+    <span class="n">HYB_MGGA_XC_TPSSH</span> <span class="o">=</span> <span class="mi">457</span>
+    <span class="n">HYB_MGGA_XC_REVTPSSH</span> <span class="o">=</span> <span class="mi">458</span>
+    <span class="n">HYB_MGGA_X_DLDF</span> <span class="o">=</span> <span class="mi">36</span>
+    <span class="n">HYB_MGGA_XC_M08_HX</span> <span class="o">=</span> <span class="mi">460</span>
+    <span class="n">HYB_MGGA_XC_M08_SO</span> <span class="o">=</span> <span class="mi">461</span>
+    <span class="n">HYB_MGGA_XC_M11</span> <span class="o">=</span> <span class="mi">462</span>
+    <span class="n">HYB_MGGA_X_MN12_SX</span> <span class="o">=</span> <span class="mi">248</span>
+    <span class="n">HYB_MGGA_X_MN15</span> <span class="o">=</span> <span class="mi">268</span>
+    <span class="n">HYB_MGGA_X_MS2H</span> <span class="o">=</span> <span class="mi">224</span>
+    <span class="n">HYB_MGGA_X_SCAN0</span> <span class="o">=</span> <span class="mi">264</span>
+    <span class="n">HYB_MGGA_XC_WB97M_V</span> <span class="o">=</span> <span class="mi">531</span>
+
+    <span class="c1"># end_include_dont_touch</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init.</span>
+
+<span class="sd">        :param num: Number for the xc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">_all_xcfuncs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;Kind&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;Family&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;name=</span><span class="si">%s</span><span class="s2">, kind=</span><span class="si">%s</span><span class="s2">, family=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LibxcFunc.all_families"><a class="viewcode-back" href="../../../pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.all_families">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">all_families</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List of strings with the libxc families.</span>
+<span class="sd">        Note that XC_FAMILY if removed from the string e.g. XC_FAMILY_LDA becomes LDA</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;Family&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">_all_xcfuncs</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="LibxcFunc.all_kinds"><a class="viewcode-back" href="../../../pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.all_kinds">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">all_kinds</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List of strings with the libxc kinds.</span>
+<span class="sd">        Also in this case, the string is obtained by remove the XC_ prefix.</span>
+<span class="sd">        XC_CORRELATION --&gt; CORRELATION</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;Kind&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">_all_xcfuncs</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary with metadata. see libxc_docs.json&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_all_xcfuncs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_x_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this is an exchange-only functional&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;EXCHANGE&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_c_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this is a correlation-only functional&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;CORRELATION&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_k_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this is a kinetic functional&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;KINETIC&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_xc_kind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this is a exchange+correlation functional&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;EXCHANGE_CORRELATION&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_lda_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this functional belongs to the LDA family.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;LDA&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_gga_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this functional belongs to the GGA family.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;GGA&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_mgga_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this functional belongs to the meta-GGA family.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;MGGA&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_hyb_gga_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this functional belongs to the hybrid + GGA family.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;HYB_GGA&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_hyb_mgga_family</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this functional belongs to the hybrid + meta-GGA family.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;HYB_MGGA&quot;</span>
+
+<div class="viewcode-block" id="LibxcFunc.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes LibxcFunc obey the general json interface used in pymatgen for</span>
+<span class="sd">        easier serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="LibxcFunc.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes LibxcFunc obey the general json interface used in pymatgen for</span>
+<span class="sd">        easier serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">LibxcFunc</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span></div>
+
+<div class="viewcode-block" id="LibxcFunc.to_json"><a class="viewcode-back" href="../../../pymatgen.core.libxcfunc.html#pymatgen.core.libxcfunc.LibxcFunc.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a json string representation of the MSONable object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">xc</span> <span class="ow">in</span> <span class="n">LibxcFunc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">xc</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.libxcfunc</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

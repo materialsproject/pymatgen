@@ -1,0 +1,1349 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.composition &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.composition</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.core.composition</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements a Composition class to represent compositions,</span>
+<span class="sd">and a ChemicalPotential class to represent potentials.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations_with_replacement</span><span class="p">,</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">total_ordering</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="kn">import</span> <span class="n">gcd</span><span class="p">,</span> <span class="n">gcd_float</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">formula_double_format</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Mass</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 10, 2012&quot;</span>
+
+
+<div class="viewcode-block" id="Composition"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition">[docs]</a><span class="nd">@total_ordering</span>
+<span class="k">class</span> <span class="nc">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a Composition, which is essentially a {element:amount} mapping</span>
+<span class="sd">    type. Composition is written to be immutable and hashable,</span>
+<span class="sd">    unlike a standard Python dict.</span>
+
+<span class="sd">    Note that the key can be either an Element or a Specie. Elements and Specie</span>
+<span class="sd">    are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and</span>
+<span class="sd">    would be put in separate keys. This differentiation is deliberate to</span>
+<span class="sd">    support using Composition to determine the fraction of a particular Specie.</span>
+
+<span class="sd">    Works almost completely like a standard python dictionary, except that</span>
+<span class="sd">    __getitem__ is overridden to return 0 when an element is not found.</span>
+<span class="sd">    (somewhat like a defaultdict, except it is immutable).</span>
+
+<span class="sd">    Also adds more convenience methods relevant to compositions, e.g.,</span>
+<span class="sd">    get_fraction.</span>
+
+<span class="sd">    It should also be noted that many Composition related functionality takes</span>
+<span class="sd">    in a standard string as a convenient input. For example,</span>
+<span class="sd">    even though the internal representation of a Fe2O3 composition is</span>
+<span class="sd">    {Element(&quot;Fe&quot;): 2, Element(&quot;O&quot;): 3}, you can obtain the amount of Fe</span>
+<span class="sd">    simply by comp[&quot;Fe&quot;] instead of the more verbose comp[Element(&quot;Fe&quot;)].</span>
+
+<span class="sd">    &gt;&gt;&gt; comp = Composition(&quot;LiFePO4&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; comp.get_atomic_fraction(Element(&quot;Li&quot;))</span>
+<span class="sd">    0.14285714285714285</span>
+<span class="sd">    &gt;&gt;&gt; comp.num_atoms</span>
+<span class="sd">    7.0</span>
+<span class="sd">    &gt;&gt;&gt; comp.reduced_formula</span>
+<span class="sd">    &#39;LiFePO4&#39;</span>
+<span class="sd">    &gt;&gt;&gt; comp.formula</span>
+<span class="sd">    &#39;Li1 Fe1 P1 O4&#39;</span>
+<span class="sd">    &gt;&gt;&gt; comp.get_wt_fraction(Element(&quot;Li&quot;))</span>
+<span class="sd">    0.04399794666951898</span>
+<span class="sd">    &gt;&gt;&gt; comp.num_atoms</span>
+<span class="sd">    7.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Tolerance in distinguishing different composition amounts.</span>
+    <span class="c1"># 1e-8 is fairly tight, but should cut out most floating point arithmetic</span>
+    <span class="c1"># errors.</span>
+    <span class="n">amount_tolerance</span> <span class="o">=</span> <span class="mf">1e-8</span>
+
+    <span class="c1"># Special formula handling for peroxides and certain elements. This is so</span>
+    <span class="c1"># that formula output does not write LiO instead of Li2O2 for example.</span>
+    <span class="n">special_formulas</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;LiO&quot;</span><span class="p">:</span> <span class="s2">&quot;Li2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;NaO&quot;</span><span class="p">:</span> <span class="s2">&quot;Na2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;KO&quot;</span><span class="p">:</span> <span class="s2">&quot;K2O2&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;HO&quot;</span><span class="p">:</span> <span class="s2">&quot;H2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;CsO&quot;</span><span class="p">:</span> <span class="s2">&quot;Cs2O2&quot;</span><span class="p">,</span> <span class="s2">&quot;RbO&quot;</span><span class="p">:</span> <span class="s2">&quot;Rb2O2&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;O2&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;N2&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="s2">&quot;F2&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">:</span> <span class="s2">&quot;Cl2&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="s2">&quot;H2&quot;</span><span class="p">}</span>
+
+    <span class="n">oxi_prob</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># prior probability of oxidation used by oxi_state_guesses</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># allow_negative=False</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Very flexible Composition construction, similar to the built-in Python</span>
+<span class="sd">        dict(). Also extended to allow simple string init.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            Any form supported by the Python built-in dict() function.</span>
+
+<span class="sd">            1. A dict of either {Element/Specie: amount},</span>
+
+<span class="sd">               {string symbol:amount}, or {atomic number:amount} or any mixture</span>
+<span class="sd">               of these. E.g., {Element(&quot;Li&quot;):2 ,Element(&quot;O&quot;):1},</span>
+<span class="sd">               {&quot;Li&quot;:2, &quot;O&quot;:1}, {3:2, 8:1} all result in a Li2O composition.</span>
+<span class="sd">            2. Keyword arg initialization, similar to a dict, e.g.,</span>
+
+<span class="sd">               Composition(Li = 2, O = 1)</span>
+
+<span class="sd">            In addition, the Composition constructor also allows a single</span>
+<span class="sd">            string as an input formula. E.g., Composition(&quot;Li2O&quot;).</span>
+
+<span class="sd">            strict: Only allow valid Elements and Species in the Composition.</span>
+
+<span class="sd">            allow_negative: Whether to allow negative compositions. This</span>
+<span class="sd">                argument must be popped from the **kwargs due to *args</span>
+<span class="sd">                ambiguity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;allow_negative&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># it&#39;s much faster to recognize a composition and use the elmap than</span>
+        <span class="c1"># to pass the composition to dict()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Composition</span><span class="p">):</span>
+            <span class="n">elmap</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">elmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_formula</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elmap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">elamt</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">elmap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CompositionError</span><span class="p">(</span><span class="s2">&quot;Amounts in Composition cannot be &quot;</span>
+                                       <span class="s2">&quot;negative!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="n">elamt</span><span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">elamt</span>
+        <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Composition is not valid, contains: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">))))</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid key </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> for Composition</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot;ValueError exception:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">,</span>
+                                                               <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">ex</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid key </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> for Composition</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot;ValueError exception:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">,</span>
+                                                               <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">ex</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1">#  elements with amounts &lt; Composition.amount_tolerance don&#39;t show up</span>
+        <span class="c1">#  in the elmap, so checking len enables us to only check one</span>
+        <span class="c1">#  compositions elements</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">other</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines &gt;= for Compositions. Should ONLY be used for defining a sort</span>
+<span class="sd">        order (the behavior is probably not what you&#39;d expect)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">other</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">-</span> <span class="n">other</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds two compositions. For example, an Fe2O3 composition + an FeO</span>
+<span class="sd">        composition gives a Fe3O4 composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_el_map</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">new_el_map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">new_el_map</span><span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">new_el_map</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subtracts two compositions. For example, an Fe2O3 composition - an FeO</span>
+<span class="sd">        composition gives an FeO2 composition.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompositionError if the subtracted composition is greater than the</span>
+<span class="sd">            original composition in any of its elements, unless allow_negative</span>
+<span class="sd">            is True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_el_map</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">new_el_map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">new_el_map</span><span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">-=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">new_el_map</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply a Composition by an integer or a float.</span>
+<span class="sd">        Fe2O3 * 4 -&gt; Fe8O12</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">({</span><span class="n">el</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">*</span> <span class="n">other</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">},</span>
+                           <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span>
+
+    <span class="fm">__rmul__</span> <span class="o">=</span> <span class="fm">__mul__</span>
+
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">({</span><span class="n">el</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">other</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">},</span>
+                           <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span>
+
+    <span class="n">__div__</span> <span class="o">=</span> <span class="fm">__truediv__</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimally effective hash function that just distinguishes between</span>
+<span class="sd">        Compositions with different elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hashcode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="n">hashcode</span> <span class="o">+=</span> <span class="n">el</span><span class="o">.</span><span class="n">Z</span>
+        <span class="k">return</span> <span class="n">hashcode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">average_electroneg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Average electronegativity of the composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="n">el</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_atoms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_electrons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Total number of electrons in composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="n">el</span><span class="o">.</span><span class="n">Z</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+<div class="viewcode-block" id="Composition.almost_equals"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.almost_equals">[docs]</a>    <span class="k">def</span> <span class="nf">almost_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns true if compositions are equal within a tolerance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Composition): Other composition to check</span>
+<span class="sd">            rtol (float): Relative tolerance</span>
+<span class="sd">            atol (float): Absolute tolerance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">sps</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+            <span class="n">tol</span> <span class="o">=</span> <span class="n">atol</span> <span class="o">+</span> <span class="n">rtol</span> <span class="o">*</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_element</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if composition is for an element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="Composition.copy"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: A copy of the composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a formula string, with elements sorted by electronegativity,</span>
+<span class="sd">        e.g., Li4 Fe4 P4 O16.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sym_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">sym</span><span class="p">:</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="o">+</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">alphabetical_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a formula string, with elements sorted by alphabetically</span>
+<span class="sd">        e.g., Fe4 Li4 O16 P4.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sym_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="o">+</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">iupac_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a formula string, with elements sorted by the iupac</span>
+<span class="sd">        electronegativity ordering defined in Table VI of &quot;Nomenclature of</span>
+<span class="sd">        Inorganic Chemistry (IUPAC Recommendations 2005)&quot;. This ordering</span>
+<span class="sd">        effectively follows the groups and rows of the periodic table, except</span>
+<span class="sd">        the Lanthanides, Actanides and hydrogen. Polyanions are still determined</span>
+<span class="sd">        based on the true electronegativity of the elements.</span>
+<span class="sd">        e.g. CH2(SO4)2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sym_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">iupac_ordering</span><span class="p">)</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="o">+</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">element_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Composition&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the composition replacing any species by the corresponding</span>
+<span class="sd">        element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">(),</span>
+                           <span class="n">allow_negative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_negative</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fractional_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Composition&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the normalized composition which the number of species sum to</span>
+<span class="sd">        1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Normalized composition which the number of species sum to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reduced_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Composition&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the reduced composition,i.e. amounts normalized by greatest</span>
+<span class="sd">        common denominator. e.g., Composition(&quot;FePO4&quot;) for</span>
+<span class="sd">        Composition(&quot;Fe4P4O16&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Composition.get_reduced_composition_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_composition_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_composition_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s1">&#39;Composition&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates a reduced composition and factor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A normalized composition and a multiplicative factor, i.e.,</span>
+<span class="sd">            Li4Fe4P4O16 returns (Composition(&quot;LiFePO4&quot;), 4).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">factor</span><span class="p">,</span> <span class="n">factor</span></div>
+
+<div class="viewcode-block" id="Composition.get_reduced_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_reduced_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_reduced_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates a reduced formula and factor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            iupac_ordering (bool, optional): Whether to order the</span>
+<span class="sd">                formula by the iupac &quot;electronegativity&quot; series, defined in</span>
+<span class="sd">                Table VI of &quot;Nomenclature of Inorganic Chemistry (IUPAC</span>
+<span class="sd">                Recommendations 2005)&quot;. This ordering effectively follows</span>
+<span class="sd">                the groups and rows of the periodic table, except the</span>
+<span class="sd">                Lanthanides, Actanides and hydrogen. Note that polyanions</span>
+<span class="sd">                will still be determined based on the true electronegativity of</span>
+<span class="sd">                the elements.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A pretty normalized formula and a multiplicative factor, i.e.,</span>
+<span class="sd">            Li4Fe4P4O16 returns (LiFePO4, 4).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_int</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span>
+                      <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_int</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="mi">1</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="n">iupac_ordering</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">formula</span> <span class="ow">in</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">:</span>
+            <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">[</span><span class="n">formula</span><span class="p">]</span>
+            <span class="n">factor</span> <span class="o">/=</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="n">formula</span><span class="p">,</span> <span class="n">factor</span></div>
+
+<div class="viewcode-block" id="Composition.get_integer_formula_and_factor"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_integer_formula_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">get_integer_formula_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_denominator</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+                                       <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates an integer formula and factor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_denominator (int): all amounts in the el:amt dict are</span>
+<span class="sd">                first converted to a Fraction with this maximum denominator</span>
+<span class="sd">            iupac_ordering (bool, optional): Whether to order the</span>
+<span class="sd">                formula by the iupac &quot;electronegativity&quot; series, defined in</span>
+<span class="sd">                Table VI of &quot;Nomenclature of Inorganic Chemistry (IUPAC</span>
+<span class="sd">                Recommendations 2005)&quot;. This ordering effectively follows</span>
+<span class="sd">                the groups and rows of the periodic table, except the</span>
+<span class="sd">                Lanthanides, Actanides and hydrogen. Note that polyanions</span>
+<span class="sd">                will still be determined based on the true electronegativity of</span>
+<span class="sd">                the elements.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A pretty normalized formula and a multiplicative factor, i.e.,</span>
+<span class="sd">            Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">el_amt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">gcd_float</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">el_amt</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">max_denominator</span><span class="p">)</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">el_amt</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="n">iupac_ordering</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">formula</span> <span class="ow">in</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">:</span>
+            <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">special_formulas</span><span class="p">[</span><span class="n">formula</span><span class="p">]</span>
+            <span class="n">factor</span> <span class="o">/=</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">formula</span><span class="p">,</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">g</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reduced_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a pretty normalized formula, i.e., LiFePO4 instead of</span>
+<span class="sd">        Li4Fe4P4O16.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hill_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Hill formula. The Hill system (or Hill notation) is a system</span>
+<span class="sd">        of writing empirical chemical formulas, molecular chemical formulas and</span>
+<span class="sd">        components of a condensed formula such that the number of carbon atoms</span>
+<span class="sd">        in a molecule is indicated first, the number of hydrogen atoms next,</span>
+<span class="sd">        and then the number of all other chemical elements subsequently, in</span>
+<span class="sd">        alphabetical order of the chemical symbols. When the formula contains</span>
+<span class="sd">        no carbon, all the elements, including hydrogen, are listed</span>
+<span class="sd">        alphabetically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_composition</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="k">if</span> <span class="s2">&quot;C&quot;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span> <span class="k">if</span> <span class="n">el</span> <span class="o">!=</span> <span class="s2">&quot;C&quot;</span><span class="p">]</span>
+
+        <span class="n">formula</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Element</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns view of elements in Composition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+            <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">formula_double_format</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ignore_ones</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total number of atoms in Composition. For negative amounts, sum</span>
+<span class="sd">        of absolute values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total molecular weight of Composition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Mass</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">amount</span> <span class="o">*</span> <span class="n">el</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()]),</span> <span class="s2">&quot;amu&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Composition.get_atomic_fraction"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_atomic_fraction">[docs]</a>    <span class="k">def</span> <span class="nf">get_atomic_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate atomic fraction of an Element or Specie.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            el (Element/Specie): Element or Specie to get fraction for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Atomic fraction for element el in Composition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span></div>
+
+<div class="viewcode-block" id="Composition.get_wt_fraction"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_wt_fraction">[docs]</a>    <span class="k">def</span> <span class="nf">get_wt_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate weight fraction of an Element or Specie.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            el (Element/Specie): Element or Specie to get fraction for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Weight fraction for element el in Composition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">el</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span></div>
+
+<div class="viewcode-block" id="Composition.contains_element_type"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.contains_element_type">[docs]</a>    <span class="k">def</span> <span class="nf">contains_element_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if Composition contains any elements matching a given category.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            category (str): one of &quot;noble_gas&quot;, &quot;transition_metal&quot;,</span>
+<span class="sd">            &quot;post_transition_metal&quot;, &quot;rare_earth_metal&quot;, &quot;metal&quot;, &quot;metalloid&quot;,</span>
+<span class="sd">            &quot;alkali&quot;, &quot;alkaline&quot;, &quot;halogen&quot;, &quot;chalcogen&quot;, &quot;lanthanoid&quot;,</span>
+<span class="sd">            &quot;actinoid&quot;, &quot;quadrupolar&quot;, &quot;s-block&quot;, &quot;p-block&quot;, &quot;d-block&quot;, &quot;f-block&quot;</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if any elements in Composition match category, otherwise False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">allowed_categories</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;noble_gas&quot;</span><span class="p">,</span> <span class="s2">&quot;transition_metal&quot;</span><span class="p">,</span> <span class="s2">&quot;post_transition_metal&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;rare_earth_metal&quot;</span><span class="p">,</span> <span class="s2">&quot;metal&quot;</span><span class="p">,</span> <span class="s2">&quot;metalloid&quot;</span><span class="p">,</span> <span class="s2">&quot;alkali&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;alkaline&quot;</span><span class="p">,</span> <span class="s2">&quot;halogen&quot;</span><span class="p">,</span> <span class="s2">&quot;chalcogen&quot;</span><span class="p">,</span> <span class="s2">&quot;lanthanoid&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;actinoid&quot;</span><span class="p">,</span> <span class="s2">&quot;quadrupolar&quot;</span><span class="p">,</span> <span class="s2">&quot;s-block&quot;</span><span class="p">,</span> <span class="s2">&quot;p-block&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;d-block&quot;</span><span class="p">,</span> <span class="s2">&quot;f-block&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_categories</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please pick a category from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">allowed_categories</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">category</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">category</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">block</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="s2">&quot;is_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">category</span><span class="p">))</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formula</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Composition with that formula.</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">            In the case of Metallofullerene formula (e.g. Y3N@C80),</span>
+<span class="sd">            the @ mark will be dropped and passed to parser.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># for Metallofullerene like &quot;Y3N@C80&quot;</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="n">formula</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_sym_dict</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+            <span class="n">sym_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z][a-z]*)\s*([-*\.e\d]*)&quot;</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                <span class="n">el</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">amt</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">amt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                <span class="n">sym_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amt</span> <span class="o">*</span> <span class="n">factor</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">CompositionError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is an invalid formula!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">sym_dict</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(([^\(\)]+)\)\s*([\.e\d]*)&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">unit_sym_dict</span> <span class="o">=</span> <span class="n">get_sym_dict</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">factor</span><span class="p">)</span>
+            <span class="n">expanded_sym</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">amt</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">unit_sym_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="n">expanded_formula</span> <span class="o">=</span> <span class="n">formula</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="n">expanded_sym</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_formula</span><span class="p">(</span><span class="n">expanded_formula</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_sym_dict</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">anonymized_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An anonymized formula. Unique species are arranged in ordering of</span>
+<span class="sd">        increasing amounts and assigned ascending alphabets. Useful for</span>
+<span class="sd">        prototyping formulas. For example, all stoichiometric perovskites have</span>
+<span class="sd">        anonymized_formula ABC3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">reduced</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_composition</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="n">reduced</span> <span class="o">/=</span> <span class="n">gcd</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="n">anon</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reduced</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+            <span class="k">if</span> <span class="n">amt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">amt_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">amt</span> <span class="o">%</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+                <span class="n">amt_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">amt</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">amt_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span>
+            <span class="n">anon</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">amt_str</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">anon</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chemical_system</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the chemical system of a Composition, for example &quot;O-Si&quot; for</span>
+<span class="sd">        SiO2. Chemical system is a string of a list of elements</span>
+<span class="sd">        sorted alphabetically and joined by dashes, by convention for use</span>
+<span class="sd">        in database keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if Composition contains valid elements or species and</span>
+<span class="sd">        False if the Composition contains any dummy species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Comp: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula</span>
+
+<div class="viewcode-block" id="Composition.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a composition from a dict generated by as_dict(). Strictly not</span>
+<span class="sd">        necessary given that the standard constructor already takes in such an</span>
+<span class="sd">        input, but this method preserves the standard pymatgen API of having</span>
+<span class="sd">        from_dict methods to reconstitute objects generated by as_dict(). Allows</span>
+<span class="sd">        for easier introspection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): {symbol: amount} dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Composition.get_el_amt_dict"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.get_el_amt_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_el_amt_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict with element symbol and (unreduced) amount e.g.,</span>
+<span class="sd">            {&quot;Fe&quot;: 4.0, &quot;O&quot;:6.0} or {&quot;Fe3+&quot;: 4.0, &quot;O2-&quot;:6.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">+=</span> <span class="n">a</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="Composition.as_dict"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict with species symbol and (unreduced) amount e.g.,</span>
+<span class="sd">            {&quot;Fe&quot;: 4.0, &quot;O&quot;:6.0} or {&quot;Fe3+&quot;: 4.0, &quot;O2-&quot;:6.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">d</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">a</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_reduced_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict with element symbol and reduced amount e.g.,</span>
+<span class="sd">            {&quot;Fe&quot;: 2.0, &quot;O&quot;:3.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_data_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A dict with many keys and values relating to Composition/Formula,</span>
+<span class="sd">            including reduced_cell_composition, unit_cell_composition,</span>
+<span class="sd">            reduced_cell_formula, elements and nelements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;reduced_cell_composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;unit_cell_composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+            <span class="s2">&quot;reduced_cell_formula&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
+            <span class="s2">&quot;elements&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="s2">&quot;nelements&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="Composition.oxi_state_guesses"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.oxi_state_guesses">[docs]</a>    <span class="k">def</span> <span class="nf">oxi_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">all_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the composition is charge-balanced and returns back all</span>
+<span class="sd">        charge-balanced oxidation state combinations. Composition must have</span>
+<span class="sd">        integer values. Note that more num_atoms in the composition gives</span>
+<span class="sd">        more degrees of freedom. e.g., if possible oxidation states of</span>
+<span class="sd">        element X are [2,4] and Y are [-3], then XY is not charge balanced</span>
+<span class="sd">        but X2Y2 is. Results are returned from most to least probable based</span>
+<span class="sd">        on ICSD statistics. Use max_sites to improve performance if needed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
+<span class="sd">                element&#39;s common oxidation states, e.g. {&quot;V&quot;: [2,3,4,5]}</span>
+<span class="sd">            target_charge (int): the desired total charge on the structure.</span>
+<span class="sd">                Default is 0 signifying charge balance.</span>
+<span class="sd">            all_oxi_states (bool): if True, an element defaults to</span>
+<span class="sd">                all oxidation states in pymatgen Element.icsd_oxidation_states.</span>
+<span class="sd">                Otherwise, default is Element.common_oxidation_states. Note</span>
+<span class="sd">                that the full oxidation state list is *very* inclusive and</span>
+<span class="sd">                can produce nonsensical results.</span>
+<span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
+<span class="sd">                this many sites to speed up oxidation state guesses. If the</span>
+<span class="sd">                composition cannot be reduced to this many sites a ValueError</span>
+<span class="sd">                will be raised. Set to -1 to just reduce fully. If set to a</span>
+<span class="sd">                number less than -1, the formula will be fully reduced but a</span>
+<span class="sd">                ValueError will be thrown if the number of atoms in the reduced</span>
+<span class="sd">                formula is greater than abs(max_sites).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dicts - each dict reports an element symbol and average</span>
+<span class="sd">                oxidation state across all sites in that composition. If the</span>
+<span class="sd">                composition is not charge balanced, an empty list is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_oxid_state_guesses</span><span class="p">(</span><span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Composition.add_charges_from_oxi_state_guesses"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses">[docs]</a>    <span class="k">def</span> <span class="nf">add_charges_from_oxi_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                           <span class="n">oxi_states_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                           <span class="n">target_charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                           <span class="n">all_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                           <span class="n">max_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign oxidation states basedon guessed oxidation states.</span>
+
+<span class="sd">        See `oxi_state_guesses` for an explanation of how oxidation states are</span>
+<span class="sd">        guessed. This operation uses the set of oxidation states for each site</span>
+<span class="sd">        that were determined to be most likley from the oxidation state guessing</span>
+<span class="sd">        routine.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
+<span class="sd">                element&#39;s common oxidation states, e.g. {&quot;V&quot;: [2,3,4,5]}</span>
+<span class="sd">            target_charge (int): the desired total charge on the structure.</span>
+<span class="sd">                Default is 0 signifying charge balance.</span>
+<span class="sd">            all_oxi_states (bool): if True, an element defaults to</span>
+<span class="sd">                all oxidation states in pymatgen Element.icsd_oxidation_states.</span>
+<span class="sd">                Otherwise, default is Element.common_oxidation_states. Note</span>
+<span class="sd">                that the full oxidation state list is *very* inclusive and</span>
+<span class="sd">                can produce nonsensical results.</span>
+<span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
+<span class="sd">                this many sites to speed up oxidation state guesses. If the</span>
+<span class="sd">                composition cannot be reduced to this many sites a ValueError</span>
+<span class="sd">                will be raised. Set to -1 to just reduce fully. If set to a</span>
+<span class="sd">                number less than -1, the formula will be fully reduced but a</span>
+<span class="sd">                ValueError will be thrown if the number of atoms in the reduced</span>
+<span class="sd">                formula is greater than abs(max_sites).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Composition, where the elements are assigned oxidation states based</span>
+<span class="sd">            on the results form guessing oxidation states. If no oxidation state</span>
+<span class="sd">            is possible, returns a Composition where all oxidation states are 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">oxidation_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_oxid_state_guesses</span><span class="p">(</span>
+            <span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span> <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">)</span>
+
+        <span class="c1"># Special case: No charged compound is possible</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">oxidation_states</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="nb">dict</span><span class="p">((</span><span class="n">Specie</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+        <span class="c1"># Generate the species</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">charges</span> <span class="ow">in</span> <span class="n">oxidation_states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">species</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">charges</span><span class="p">])</span>
+
+        <span class="c1"># Return the new object</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">species</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Composition.remove_charges"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.remove_charges">[docs]</a>    <span class="k">def</span> <span class="nf">remove_charges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the charges from any species in a Composition object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Composition object without charge decoration, for example</span>
+<span class="sd">            {&quot;Fe3+&quot;: 2.0, &quot;O2-&quot;:3.0} becomes {&quot;Fe&quot;: 2.0, &quot;O&quot;:3.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[A-z]+&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">f</span>
+
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_oxid_state_guesses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_oxi_states</span><span class="p">,</span> <span class="n">max_sites</span><span class="p">,</span>
+                                <span class="n">oxi_states_override</span><span class="p">,</span> <span class="n">target_charge</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Utility operation for guessing oxidation states.</span>
+
+<span class="sd">        See `oxi_state_guesses` for full details. This operation does the</span>
+<span class="sd">        calculation of the most likely oxidation states</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            oxi_states_override (dict): dict of str-&gt;list to override an</span>
+<span class="sd">                element&#39;s common oxidation states, e.g. {&quot;V&quot;: [2,3,4,5]}</span>
+<span class="sd">            target_charge (int): the desired total charge on the structure.</span>
+<span class="sd">                Default is 0 signifying charge balance.</span>
+<span class="sd">            all_oxi_states (bool): if True, an element defaults to</span>
+<span class="sd">                all oxidation states in pymatgen Element.icsd_oxidation_states.</span>
+<span class="sd">                Otherwise, default is Element.common_oxidation_states. Note</span>
+<span class="sd">                that the full oxidation state list is *very* inclusive and</span>
+<span class="sd">                can produce nonsensical results.</span>
+<span class="sd">            max_sites (int): if possible, will reduce Compositions to at most</span>
+<span class="sd">                this many sites to speed up oxidation state guesses. If the</span>
+<span class="sd">                composition cannot be reduced to this many sites a ValueError</span>
+<span class="sd">                will be raised. Set to -1 to just reduce fully. If set to a</span>
+<span class="sd">                number less than -1, the formula will be fully reduced but a</span>
+<span class="sd">                ValueError will be thrown if the number of atoms in the reduced</span>
+<span class="sd">                formula is greater than abs(max_sites).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dicts - each dict reports an element symbol and average</span>
+<span class="sd">                oxidation state across all sites in that composition. If the</span>
+<span class="sd">                composition is not charge balanced, an empty list is returned.</span>
+<span class="sd">            A list of dicts - each dict maps the element symbol to a list of</span>
+<span class="sd">                oxidation states for each site of that element. For example, Fe3O4 could</span>
+<span class="sd">                return a list of [2,2,2,3,3,3] for the oxidation states of If the composition</span>
+<span class="sd">                is</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># reduce Composition if necessary</span>
+        <span class="k">if</span> <span class="n">max_sites</span> <span class="ow">and</span> <span class="n">max_sites</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_composition</span>
+
+            <span class="k">if</span> <span class="n">max_sites</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">max_sites</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Composition </span><span class="si">{}</span><span class="s2"> cannot accommodate max_sites &quot;</span>
+                    <span class="s2">&quot;setting!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">max_sites</span> <span class="ow">and</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="n">max_sites</span><span class="p">:</span>
+            <span class="n">reduced_comp</span><span class="p">,</span> <span class="n">reduced_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span> \
+                <span class="n">get_reduced_composition_and_factor</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">reduced_factor</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">reduced_comp</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_sites</span> <span class="o">/</span> <span class="n">reduced_comp</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">))</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="n">reduced_comp</span>  <span class="c1"># as close to max_sites as possible</span>
+            <span class="k">if</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">&gt;</span> <span class="n">max_sites</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Composition </span><span class="si">{}</span><span class="s2"> cannot accommodate max_sites &quot;</span>
+                                 <span class="s2">&quot;setting!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
+
+        <span class="c1"># Load prior probabilities of oxidation states, used to rank solutions</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span><span class="p">:</span>
+            <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span>
+                                      <span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+            <span class="n">all_data</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span>
+                                           <span class="s2">&quot;analysis&quot;</span><span class="p">,</span> <span class="s2">&quot;icsd_bv.yaml&quot;</span><span class="p">))</span>
+            <span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span> <span class="o">=</span> <span class="p">{</span><span class="n">Specie</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span> <span class="n">data</span>
+                                    <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span>
+                                    <span class="n">all_data</span><span class="p">[</span><span class="s2">&quot;occurrence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">oxi_states_override</span> <span class="o">=</span> <span class="n">oxi_states_override</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="c1"># assert: Composition only has integer amounts</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">amt</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Charge balance analysis requires integer &quot;</span>
+                             <span class="s2">&quot;values in Composition!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># for each element, determine all possible sum of oxidations</span>
+        <span class="c1"># (taking into account nsites for that particular element)</span>
+        <span class="n">el_amt</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_el_amt_dict</span><span class="p">()</span>
+        <span class="n">els</span> <span class="o">=</span> <span class="n">el_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">el_sums</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># matrix: dim1= el_idx, dim2=possible sums</span>
+        <span class="n">el_sum_scores</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># dict of el_idx, sum -&gt; score</span>
+        <span class="n">el_best_oxid_combo</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># dict of el_idx, sum -&gt; oxid combo with best score</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">els</span><span class="p">):</span>
+            <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">el_best_oxid_combo</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">el_sums</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">if</span> <span class="n">oxi_states_override</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
+                <span class="n">oxids</span> <span class="o">=</span> <span class="n">oxi_states_override</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">all_oxi_states</span><span class="p">:</span>
+                <span class="n">oxids</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">oxidation_states</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">oxids</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">icsd_oxidation_states</span> <span class="ow">or</span> \
+                        <span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span><span class="o">.</span><span class="n">oxidation_states</span>
+
+            <span class="c1"># get all possible combinations of oxidation states</span>
+            <span class="c1"># and sum each combination</span>
+            <span class="k">for</span> <span class="n">oxid_combo</span> <span class="ow">in</span> <span class="n">combinations_with_replacement</span><span class="p">(</span><span class="n">oxids</span><span class="p">,</span>
+                                                            <span class="nb">int</span><span class="p">(</span><span class="n">el_amt</span><span class="p">[</span><span class="n">el</span><span class="p">])):</span>
+
+                <span class="c1"># List this sum as a possible option</span>
+                <span class="n">oxid_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">oxid_combo</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">oxid_sum</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">el_sums</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="n">el_sums</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oxid_sum</span><span class="p">)</span>
+
+                <span class="c1"># Determine how probable is this combo?</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">Composition</span><span class="o">.</span><span class="n">oxi_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">o</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span>
+                             <span class="n">o</span> <span class="ow">in</span> <span class="n">oxid_combo</span><span class="p">])</span>
+
+                <span class="c1"># If it is the most probable combo for a certain sum,</span>
+                <span class="c1">#   store the combination</span>
+                <span class="k">if</span> <span class="n">oxid_sum</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="ow">or</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">oxid_sum</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">oxid_sum</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+                    <span class="n">el_best_oxid_combo</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">oxid_sum</span><span class="p">]</span> <span class="o">=</span> <span class="n">oxid_combo</span>
+
+        <span class="c1"># Determine which combination of oxidation states for each element</span>
+        <span class="c1">#    is the most probable</span>
+        <span class="n">all_sols</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># will contain all solutions</span>
+        <span class="n">all_oxid_combo</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># will contain the best combination of oxidation states for each site</span>
+        <span class="n">all_scores</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># will contain a score for each solution</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">el_sums</span><span class="p">):</span>
+            <span class="c1"># each x is a trial of one possible oxidation sum for each element</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_charge</span><span class="p">:</span>  <span class="c1"># charge balance condition</span>
+                <span class="n">el_sum_sol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">els</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>  <span class="c1"># element-&gt;oxid_sum</span>
+                <span class="c1"># normalize oxid_sum by amount to get avg oxid state</span>
+                <span class="n">sol</span> <span class="o">=</span> <span class="p">{</span><span class="n">el</span><span class="p">:</span> <span class="n">v</span> <span class="o">/</span> <span class="n">el_amt</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">el_sum_sol</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="c1"># add the solution to the list of solutions</span>
+                <span class="n">all_sols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
+
+                <span class="c1"># determine the score for this solution</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                    <span class="n">score</span> <span class="o">+=</span> <span class="n">el_sum_scores</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">v</span><span class="p">]</span>
+                <span class="n">all_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+                <span class="c1"># collect the combination of oxidation states for each site</span>
+                <span class="n">all_oxid_combo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="nb">dict</span><span class="p">((</span><span class="n">e</span><span class="p">,</span> <span class="n">el_best_oxid_combo</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">v</span><span class="p">])</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">els</span><span class="p">,</span> <span class="n">x</span><span class="p">))))</span>
+
+        <span class="c1"># sort the solutions by highest to lowest score</span>
+        <span class="k">if</span> <span class="n">all_scores</span><span class="p">:</span>
+            <span class="n">all_sols</span><span class="p">,</span> <span class="n">all_oxid_combo</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_scores</span><span class="p">,</span> <span class="n">all_sols</span><span class="p">,</span> <span class="n">all_oxid_combo</span><span class="p">),</span>
+                                                                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">pair</span><span class="p">:</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                            <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">all_sols</span><span class="p">,</span> <span class="n">all_oxid_combo</span>
+
+<div class="viewcode-block" id="Composition.ranked_compositions_from_indeterminate_formula"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.Composition.ranked_compositions_from_indeterminate_formula">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ranked_compositions_from_indeterminate_formula</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">,</span>
+                                                       <span class="n">lock_if_strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes in a formula where capitilization might not be correctly entered,</span>
+<span class="sd">        and suggests a ranked list of potential Composition matches.</span>
+<span class="sd">        Author: Anubhav Jain</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fuzzy_formula (str): A formula string, such as &quot;co2o3&quot; or &quot;MN&quot;,</span>
+<span class="sd">                that may or may not have multiple interpretations</span>
+<span class="sd">            lock_if_strict (bool): If true, a properly entered formula will</span>
+<span class="sd">                only return the one correct interpretation. For example,</span>
+<span class="sd">                &quot;Co1&quot; will only return &quot;Co1&quot; if true, but will return both</span>
+<span class="sd">                &quot;Co1&quot; and &quot;C1 O1&quot; if false.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ranked list of potential Composition matches</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if we have an exact match and the user specifies lock_if_strict, just</span>
+        <span class="c1"># return the exact match!</span>
+        <span class="k">if</span> <span class="n">lock_if_strict</span><span class="p">:</span>
+            <span class="c1"># the strict composition parsing might throw an error, we can ignore</span>
+            <span class="c1"># it and just get on with fuzzy matching</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">comp</span><span class="p">]</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">CompositionError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+        <span class="n">all_matches</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">_comps_from_fuzzy_formula</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">)</span>
+        <span class="c1"># remove duplicates</span>
+        <span class="n">all_matches</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_matches</span><span class="p">))</span>
+        <span class="c1"># sort matches by rank descending</span>
+        <span class="n">all_matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_matches</span><span class="p">,</span>
+                             <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">match</span><span class="p">:</span> <span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">all_matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">all_matches</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">all_matches</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_comps_from_fuzzy_formula</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">,</span> <span class="n">m_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">m_points</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                  <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A recursive helper method for formula parsing that helps in</span>
+<span class="sd">        interpreting and ranking indeterminate formulas.</span>
+<span class="sd">        Author: Anubhav Jain</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fuzzy_formula (str): A formula string, such as &quot;co2o3&quot; or &quot;MN&quot;,</span>
+<span class="sd">                that may or may not have multiple interpretations.</span>
+<span class="sd">            m_dict (dict): A symbol:amt dictionary from the previously parsed</span>
+<span class="sd">                formula.</span>
+<span class="sd">            m_points: Number of points gained from the previously parsed</span>
+<span class="sd">                formula.</span>
+<span class="sd">            factor: Coefficient for this parse, e.g. (PO4)2 will feed in PO4</span>
+<span class="sd">                as the fuzzy_formula with a coefficient of 2.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of tuples, with the first element being a Composition and</span>
+<span class="sd">            the second element being the number of points awarded that</span>
+<span class="sd">            Composition intepretation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m_dict</span> <span class="o">=</span> <span class="n">m_dict</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">def</span> <span class="nf">_parse_chomp_and_rank</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">m_dict</span><span class="p">,</span> <span class="n">m_points</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            A helper method for formula parsing that helps in interpreting and</span>
+<span class="sd">            ranking indeterminate formulas</span>
+<span class="sd">            Author: Anubhav Jain</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                m: A regex match, with the first group being the element and</span>
+<span class="sd">                    the second group being the amount</span>
+<span class="sd">                f: The formula part containing the match</span>
+<span class="sd">                m_dict: A symbol:amt dictionary from the previously parsed</span>
+<span class="sd">                    formula</span>
+<span class="sd">                m_points: Number of points gained from the previously parsed</span>
+<span class="sd">                    formula</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                A tuple of (f, m_dict, points) where m_dict now contains data</span>
+<span class="sd">                from the match and the match has been removed (chomped) from</span>
+<span class="sd">                the formula f. The &quot;goodness&quot; of the match determines the</span>
+<span class="sd">                number of points returned for chomping. Returns</span>
+<span class="sd">                (None, None, None) if no element could be found...</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">points</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># Points awarded if the first element of the element is correctly</span>
+            <span class="c1"># specified as a capital</span>
+            <span class="n">points_first_capital</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="c1"># Points awarded if the second letter of the element is correctly</span>
+            <span class="c1"># specified as lowercase</span>
+            <span class="n">points_second_lowercase</span> <span class="o">=</span> <span class="mi">100</span>
+
+            <span class="c1"># get element and amount from regex match</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CompositionError</span><span class="p">(</span><span class="s2">&quot;Invalid element symbol entered!&quot;</span><span class="p">)</span>
+            <span class="n">amt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="mi">1</span>
+
+            <span class="c1"># convert the element string to proper [uppercase,lowercase] format</span>
+            <span class="c1"># and award points if it is already in that format</span>
+            <span class="n">char1</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">char2</span> <span class="o">=</span> <span class="n">el</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">char1</span> <span class="o">==</span> <span class="n">char1</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+                <span class="n">points</span> <span class="o">+=</span> <span class="n">points_first_capital</span>
+            <span class="k">if</span> <span class="n">char2</span> <span class="ow">and</span> <span class="n">char2</span> <span class="o">==</span> <span class="n">char2</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">points</span> <span class="o">+=</span> <span class="n">points_second_lowercase</span>
+
+            <span class="n">el</span> <span class="o">=</span> <span class="n">char1</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">char2</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="c1"># if it&#39;s a valid element, chomp and add to the points</span>
+            <span class="k">if</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">m_dict</span><span class="p">:</span>
+                    <span class="n">m_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amt</span> <span class="o">*</span> <span class="n">factor</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">m_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">amt</span> <span class="o">*</span> <span class="n">factor</span>
+                <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">m_dict</span><span class="p">,</span> <span class="n">m_points</span> <span class="o">+</span> <span class="n">points</span>
+
+            <span class="c1"># else return None</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">fuzzy_formula</span> <span class="o">=</span> <span class="n">fuzzy_formula</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fuzzy_formula</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># The entire formula has been parsed into m_dict. Return the</span>
+            <span class="c1"># corresponding Composition and number of points</span>
+            <span class="k">if</span> <span class="n">m_dict</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="p">(</span><span class="n">Composition</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">m_dict</span><span class="p">),</span> <span class="n">m_points</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if there is a parenthesis, remove it and match the remaining stuff</span>
+            <span class="c1"># with the appropriate factor</span>
+            <span class="k">for</span> <span class="n">mp</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(([^\(\)]+)\)([\.\d]*)&quot;</span><span class="p">,</span> <span class="n">fuzzy_formula</span><span class="p">):</span>
+                <span class="n">mp_points</span> <span class="o">=</span> <span class="n">m_points</span>
+                <span class="n">mp_form</span> <span class="o">=</span> <span class="n">fuzzy_formula</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">mp_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">m_dict</span><span class="p">)</span>
+                <span class="n">mp_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">mp</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                <span class="c1"># Match the stuff inside the parenthesis with the appropriate</span>
+                <span class="c1"># factor</span>
+                <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> \
+                        <span class="n">Composition</span><span class="o">.</span><span class="n">_comps_from_fuzzy_formula</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                                                              <span class="n">mp_dict</span><span class="p">,</span>
+                                                              <span class="n">mp_points</span><span class="p">,</span>
+                                                              <span class="n">factor</span><span class="o">=</span><span class="n">mp_factor</span><span class="p">):</span>
+                    <span class="n">only_me</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="c1"># Match the stuff outside the parentheses and return the</span>
+                    <span class="c1"># sum.</span>
+
+                    <span class="k">for</span> <span class="n">match2</span> <span class="ow">in</span> \
+                            <span class="n">Composition</span><span class="o">.</span><span class="n">_comps_from_fuzzy_formula</span><span class="p">(</span><span class="n">mp_form</span><span class="p">,</span>
+                                                                  <span class="n">mp_dict</span><span class="p">,</span>
+                                                                  <span class="n">mp_points</span><span class="p">,</span>
+                                                                  <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">only_me</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">yield</span> <span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">match2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">match2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="c1"># if the stuff inside the parenthesis is nothing, then just</span>
+                    <span class="c1"># return the stuff inside the parentheses</span>
+                    <span class="k">if</span> <span class="n">only_me</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">match</span>
+                <span class="k">return</span>
+
+            <span class="c1"># try to match the single-letter elements</span>
+            <span class="n">m1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-z])([\.\d]*)&quot;</span><span class="p">,</span> <span class="n">fuzzy_formula</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m1</span><span class="p">:</span>
+                <span class="n">m_points1</span> <span class="o">=</span> <span class="n">m_points</span>
+                <span class="n">m_form1</span> <span class="o">=</span> <span class="n">fuzzy_formula</span>
+                <span class="n">m_dict1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">m_dict</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">m_form1</span><span class="p">,</span> <span class="n">m_dict1</span><span class="p">,</span> <span class="n">m_points1</span><span class="p">)</span> <span class="o">=</span> \
+                    <span class="n">_parse_chomp_and_rank</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m_form1</span><span class="p">,</span> <span class="n">m_dict1</span><span class="p">,</span> <span class="n">m_points1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m_dict1</span><span class="p">:</span>
+                    <span class="c1"># there was a real match</span>
+                    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> \
+                            <span class="n">Composition</span><span class="o">.</span><span class="n">_comps_from_fuzzy_formula</span><span class="p">(</span><span class="n">m_form1</span><span class="p">,</span>
+                                                                  <span class="n">m_dict1</span><span class="p">,</span>
+                                                                  <span class="n">m_points1</span><span class="p">,</span>
+                                                                  <span class="n">factor</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="n">match</span>
+
+            <span class="c1"># try to match two-letter elements</span>
+            <span class="n">m2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-z]</span><span class="si">{2}</span><span class="s2">)([\.\d]*)&quot;</span><span class="p">,</span> <span class="n">fuzzy_formula</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m2</span><span class="p">:</span>
+                <span class="n">m_points2</span> <span class="o">=</span> <span class="n">m_points</span>
+                <span class="n">m_form2</span> <span class="o">=</span> <span class="n">fuzzy_formula</span>
+                <span class="n">m_dict2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">m_dict</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">m_form2</span><span class="p">,</span> <span class="n">m_dict2</span><span class="p">,</span> <span class="n">m_points2</span><span class="p">)</span> <span class="o">=</span> \
+                    <span class="n">_parse_chomp_and_rank</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">m_form2</span><span class="p">,</span> <span class="n">m_dict2</span><span class="p">,</span> <span class="n">m_points2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m_dict2</span><span class="p">:</span>
+                    <span class="c1"># there was a real match</span>
+                    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> \
+                            <span class="n">Composition</span><span class="o">.</span><span class="n">_comps_from_fuzzy_formula</span><span class="p">(</span><span class="n">m_form2</span><span class="p">,</span> <span class="n">m_dict2</span><span class="p">,</span>
+                                                                  <span class="n">m_points2</span><span class="p">,</span>
+                                                                  <span class="n">factor</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="n">match</span></div>
+
+
+<div class="viewcode-block" id="reduce_formula"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.reduce_formula">[docs]</a><span class="k">def</span> <span class="nf">reduce_formula</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper method to reduce a sym_amt dict to a reduced formula and factor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sym_amt (dict): {symbol: amount}.</span>
+<span class="sd">        iupac_ordering (bool, optional): Whether to order the</span>
+<span class="sd">            formula by the iupac &quot;electronegativity&quot; series, defined in</span>
+<span class="sd">            Table VI of &quot;Nomenclature of Inorganic Chemistry (IUPAC</span>
+<span class="sd">            Recommendations 2005)&quot;. This ordering effectively follows</span>
+<span class="sd">            the groups and rows of the periodic table, except the</span>
+<span class="sd">            Lanthanides, Actanides and hydrogen. Note that polyanions</span>
+<span class="sd">            will still be determined based on the true electronegativity of</span>
+<span class="sd">            the elements.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (reduced_formula, factor).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sym_amt</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+
+    <span class="n">syms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">,</span> <span class="n">syms</span><span class="p">))</span>
+
+    <span class="n">factor</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># Enforce integers for doing gcd.</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sym_amt</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">gcd</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sym_amt</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+
+    <span class="n">polyanion</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># if the composition contains a poly anion</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">syms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">syms</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="mf">1.65</span><span class="p">:</span>
+        <span class="n">poly_sym_amt</span> <span class="o">=</span> <span class="p">{</span><span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">sym_amt</span><span class="p">[</span><span class="n">syms</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">/</span> <span class="n">factor</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
+        <span class="p">(</span><span class="n">poly_form</span><span class="p">,</span> <span class="n">poly_factor</span><span class="p">)</span> <span class="o">=</span> <span class="n">reduce_formula</span><span class="p">(</span>
+            <span class="n">poly_sym_amt</span><span class="p">,</span> <span class="n">iupac_ordering</span><span class="o">=</span><span class="n">iupac_ordering</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">poly_factor</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">polyanion</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">{}</span><span class="s2">)</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">poly_form</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">poly_factor</span><span class="p">)))</span>
+
+    <span class="n">syms</span> <span class="o">=</span> <span class="n">syms</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">polyanion</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">syms</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="n">iupac_ordering</span><span class="p">:</span>
+        <span class="n">syms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">syms</span><span class="p">,</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">iupac_ordering</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
+
+    <span class="n">reduced_form</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">syms</span><span class="p">:</span>
+        <span class="n">normamt</span> <span class="o">=</span> <span class="n">sym_amt</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">factor</span>
+        <span class="n">reduced_form</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">reduced_form</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formula_double_format</span><span class="p">(</span><span class="n">normamt</span><span class="p">))</span>
+
+    <span class="n">reduced_form</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reduced_form</span> <span class="o">+</span> <span class="n">polyanion</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reduced_form</span><span class="p">,</span> <span class="n">factor</span></div>
+
+
+<div class="viewcode-block" id="CompositionError"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.CompositionError">[docs]</a><span class="k">class</span> <span class="nc">CompositionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception class for composition errors&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ChemicalPotential"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.ChemicalPotential">[docs]</a><span class="k">class</span> <span class="nc">ChemicalPotential</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to represent set of chemical potentials. Can be:</span>
+<span class="sd">    multiplied/divided by a Number</span>
+<span class="sd">    multiplied by a Composition (returns an energy)</span>
+<span class="sd">    added/subtracted with other ChemicalPotentials.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            *args, **kwargs: any valid dict init arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">((</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duplicate potential specified&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ChemicalPotential</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">*</span> <span class="n">other</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="fm">__rmul__</span> <span class="o">=</span> <span class="fm">__mul__</span>
+
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ChemicalPotential</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">/</span> <span class="n">other</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="n">__div__</span> <span class="o">=</span> <span class="fm">__truediv__</span>
+
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ChemicalPotential</span><span class="p">):</span>
+            <span class="n">els</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">ChemicalPotential</span><span class="p">({</span><span class="n">e</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                                      <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">els</span><span class="p">})</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ChemicalPotential</span><span class="p">):</span>
+            <span class="n">els</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">ChemicalPotential</span><span class="p">({</span><span class="n">e</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                                      <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">els</span><span class="p">})</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ChemicalPotential.get_energy"><a class="viewcode-back" href="../../../pymatgen.core.composition.html#pymatgen.core.composition.ChemicalPotential.get_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the energy of a composition.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            composition (Composition): input composition</span>
+<span class="sd">            strict (bool): Whether all potentials must be specified</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Potentials not specified for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">composition</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;ChemPots: &quot;</span> <span class="o">+</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.composition</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

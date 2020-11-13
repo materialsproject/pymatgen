@@ -3,6 +3,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Implementation for `pmg plot` CLI.
+"""
 
 from collections import OrderedDict
 from pymatgen import Structure
@@ -13,6 +16,12 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
 
 def get_dos_plot(args):
+    """
+    Plot DOS.
+
+    Args:
+        args (dict): Args from argparse.
+    """
     v = Vasprun(args.dos_file)
     dos = v.complete_dos
 
@@ -22,10 +31,8 @@ def get_dos_plot(args):
     structure = v.final_structure
 
     if args.site:
-        for i in range(len(structure)):
-            site = structure[i]
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = \
-                dos.get_site_dos(site)
+        for i, site in enumerate(structure):
+            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
@@ -42,6 +49,12 @@ def get_dos_plot(args):
 
 
 def get_chgint_plot(args):
+    """
+    Plot integrated charge.
+
+    Args:
+        args (dict): args from argparse.
+    """
     chgcar = Chgcar.from_file(args.chgcar_file)
     s = chgcar.structure
 
@@ -67,12 +80,24 @@ def get_chgint_plot(args):
 
 
 def get_xrd_plot(args):
+    """
+    Plot XRD
+
+    Args:
+        args (dict): Args from argparse
+    """
     s = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
     return c.get_plot(s)
 
 
 def plot(args):
+    """
+    Master control method calling other plot methods based on args.
+
+    Args:
+        args (dict): Args from argparse.
+    """
     plt = None
     if args.chgcar_file:
         plt = get_chgint_plot(args)

@@ -10,10 +10,10 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
 """
 
-from copy import deepcopy
-from abc import ABCMeta, abstractmethod
 import logging
 import warnings
+from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 
 import numpy as np
 from scipy.optimize import leastsq, minimize
@@ -114,6 +114,13 @@ class EOSBase(metaclass=ABCMeta):
         return self._func(np.array(volume), self.eos_params)
 
     def __call__(self, volume):
+        """
+        Args:
+            volume (): Volume
+
+        Returns:
+            Compute EOS with this volume.
+        """
         return self.func(volume)
 
     @property
@@ -181,6 +188,7 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             Matplotlib plot object.
         """
+        # pylint: disable=E1307
         plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
 
         color = kwargs.get("color", "r")
@@ -230,6 +238,7 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             Matplotlib figure object.
         """
+        # pylint: disable=E1307
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         color = kwargs.get("color", "r")
@@ -265,6 +274,9 @@ class EOSBase(metaclass=ABCMeta):
 
 
 class Murnaghan(EOSBase):
+    """
+    Murnaghan EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -277,6 +289,9 @@ class Murnaghan(EOSBase):
 
 
 class Birch(EOSBase):
+    """
+    Birch EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -293,6 +308,9 @@ class Birch(EOSBase):
 
 
 class BirchMurnaghan(EOSBase):
+    """
+    BirchMurnaghan EOS
+    """
 
     def _func(self, volume, params):
         """
@@ -306,6 +324,9 @@ class BirchMurnaghan(EOSBase):
 
 
 class PourierTarantola(EOSBase):
+    """
+    PourierTarantola EOS
+    """
 
     def _func(self, volume, params):
         """
@@ -318,6 +339,9 @@ class PourierTarantola(EOSBase):
 
 
 class Vinet(EOSBase):
+    """
+    Vinet EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -371,6 +395,9 @@ class PolynomialEOS(EOSBase):
 
 
 class DeltaFactor(PolynomialEOS):
+    """
+    Fitting a polynomial EOS using delta factor.
+    """
 
     def _func(self, volume, params):
         x = volume ** (-2. / 3.)
@@ -412,6 +439,9 @@ class DeltaFactor(PolynomialEOS):
 
 
 class NumericalEOS(PolynomialEOS):
+    """
+    A numerical EOS.
+    """
 
     def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
         """
@@ -439,7 +469,7 @@ class NumericalEOS(PolynomialEOS):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
 
         # list of (energy, volume) tuples
-        e_v = [(i, j) for i, j in zip(self.energies, self.volumes)]
+        e_v = list(zip(self.energies, self.volumes))
         ndata = len(e_v)
         # minimum number of data points used for fitting
         ndata_min = max(ndata - 2 * min_ndata_factor, min_poly_order + 1)
@@ -560,6 +590,10 @@ class EOS:
     }
 
     def __init__(self, eos_name='murnaghan'):
+        """
+        Args:
+            eos_name (str): Type of EOS to fit.
+        """
         if eos_name not in self.MODELS:
             raise EOSError("The equation of state '{}' is not supported. "
                            "Please choose one from the following list: {}".
@@ -584,4 +618,7 @@ class EOS:
 
 
 class EOSError(Exception):
+    """
+    Error class for EOS fitting.
+    """
     pass

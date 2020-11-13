@@ -1,0 +1,1228 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.transformations.standard_transformations &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.transformations.standard_transformations</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.transformations.standard_transformations</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines standard transformations which transforms a structure into</span>
+<span class="sd">another structure. Standard transformations operate in a structure-wide manner,</span>
+<span class="sd">rather than site-specific manner.</span>
+<span class="sd">All transformations should inherit the AbstractTransformation ABC.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">around</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="kn">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.ewald</span> <span class="kn">import</span> <span class="n">EwaldSummation</span><span class="p">,</span> <span class="n">EwaldMinimizer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.strain</span> <span class="kn">import</span> <span class="n">Deformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.site_transformations</span> <span class="kn">import</span> \
+    <span class="n">PartialRemoveSitesTransformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="kn">import</span> <span class="n">AbstractTransformation</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Will Richards&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.2&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Sep 23, 2011&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RotationTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation">[docs]</a><span class="k">class</span> <span class="nc">RotationTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The RotationTransformation applies a rotation to a structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">angle_in_radians</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            axis (3x1 array): Axis of rotation, e.g., [1, 0, 0]</span>
+<span class="sd">            angle (float): Angle to rotate</span>
+<span class="sd">            angle_in_radians (bool): Set to True if angle is supplied in radians.</span>
+<span class="sd">                Else degrees are assumed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="n">angle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_in_radians</span> <span class="o">=</span> <span class="n">angle_in_radians</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_symmop</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_axis_angle_and_translation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_in_radians</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RotationTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Rotated Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_symmop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Rotation Transformation about axis &quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> with angle = </span><span class="si">{:.4f}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span>
+                   <span class="s2">&quot;radians&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_in_radians</span> <span class="k">else</span> <span class="s2">&quot;degrees&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Inverse Transformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RotationTransformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">angle_in_radians</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns: False&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="OxidationStateDecorationTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation">[docs]</a><span class="k">class</span> <span class="nc">OxidationStateDecorationTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation decorates a structure with oxidation states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            oxidation_states (dict): Oxidation states supplied as a dict,</span>
+<span class="sd">            e.g., {&quot;Li&quot;:1, &quot;O&quot;:-2}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oxidation_states</span> <span class="o">=</span> <span class="n">oxidation_states</span>
+
+<div class="viewcode-block" id="OxidationStateDecorationTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Oxidation state decorated Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add_oxidation_state_by_element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oxidation_states</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="AutoOxiStateDecorationTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation">[docs]</a><span class="k">class</span> <span class="nc">AutoOxiStateDecorationTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation automatically decorates a structure with oxidation</span>
+<span class="sd">    states using a bond valence approach.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symm_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_radius</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_permutations</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
+                 <span class="n">distance_scale_factor</span><span class="o">=</span><span class="mf">1.015</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            symm_tol (float): Symmetry tolerance used to determine which sites are</span>
+<span class="sd">                symmetrically equivalent. Set to 0 to turn off symmetry.</span>
+<span class="sd">            max_radius (float): Maximum radius in Angstrom used to find nearest</span>
+<span class="sd">                neighbors.</span>
+<span class="sd">            max_permutations (int): Maximum number of permutations of oxidation</span>
+<span class="sd">                states to test.</span>
+<span class="sd">            distance_scale_factor (float): A scale factor to be applied. This is</span>
+<span class="sd">                useful for scaling distances, esp in the case of</span>
+<span class="sd">                calculation-relaxed structures, which may tend to under (GGA) or</span>
+<span class="sd">                over bind (LDA). The default of 1.015 works for GGA. For</span>
+<span class="sd">                experimental structure, set this to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symm_tol</span> <span class="o">=</span> <span class="n">symm_tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_radius</span> <span class="o">=</span> <span class="n">max_radius</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_permutations</span> <span class="o">=</span> <span class="n">max_permutations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_scale_factor</span> <span class="o">=</span> <span class="n">distance_scale_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analyzer</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">(</span><span class="n">symm_tol</span><span class="p">,</span> <span class="n">max_radius</span><span class="p">,</span> <span class="n">max_permutations</span><span class="p">,</span>
+                                   <span class="n">distance_scale_factor</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AutoOxiStateDecorationTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Oxidation state decorated Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyzer</span><span class="o">.</span><span class="n">get_oxi_state_decorated_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="OxidationStateRemovalTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation">[docs]</a><span class="k">class</span> <span class="nc">OxidationStateRemovalTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation removes oxidation states from a structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        No arg needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="OxidationStateRemovalTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Non-oxidation state decorated Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">remove_oxidation_states</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="SupercellTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation">[docs]</a><span class="k">class</span> <span class="nc">SupercellTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The RotationTransformation applies a rotation to a structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            scaling_matrix: A matrix of transforming the lattice vectors.</span>
+<span class="sd">                Defaults to the identity matrix. Has to be all integers. e.g.,</span>
+<span class="sd">                [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with</span>
+<span class="sd">                lattice vectors a&quot; = 2a + b, b&quot; = 3b, c&quot; = c where a, b, and c</span>
+<span class="sd">                are the lattice vectors of the original structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scaling_matrix</span> <span class="o">=</span> <span class="n">scaling_matrix</span>
+
+<div class="viewcode-block" id="SupercellTransformation.from_scaling_factors"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_scaling_factors</span><span class="p">(</span><span class="n">scale_a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale_b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale_c</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to get a SupercellTransformation from a simple</span>
+<span class="sd">        series of three numbers for scaling each lattice vector. Equivalent to</span>
+<span class="sd">        calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],</span>
+<span class="sd">        [0, 0, scale_c]]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scale_a: Scaling factor for lattice direction a. Defaults to 1.</span>
+<span class="sd">            scale_b: Scaling factor for lattice direction b. Defaults to 1.</span>
+<span class="sd">            scale_c: Scaling factor for lattice direction c. Defaults to 1.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SupercellTransformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">SupercellTransformation</span><span class="p">([[</span><span class="n">scale_a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale_b</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scale_c</span><span class="p">]])</span></div>
+
+<div class="viewcode-block" id="SupercellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Supercell Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">structure</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling_matrix</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Supercell Transformation with scaling matrix &quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaling_matrix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raises: NotImplementedError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="SubstitutionTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation">[docs]</a><span class="k">class</span> <span class="nc">SubstitutionTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation substitutes species for one another.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_map</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            species_map: A dict or list of tuples containing the species mapping in</span>
+<span class="sd">                string-string pairs. E.g., {&quot;Li&quot;:&quot;Na&quot;} or [(&quot;Fe2+&quot;,&quot;Mn2+&quot;)].</span>
+<span class="sd">                Multiple substitutions can be done. Overloaded to accept</span>
+<span class="sd">                sp_and_occu dictionary E.g. {&quot;Si: {&quot;Ge&quot;:0.75, &quot;C&quot;:0.25}},</span>
+<span class="sd">                which substitutes a single species with multiple species to</span>
+<span class="sd">                generate a disordered structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span> <span class="o">=</span> <span class="n">species_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">species_map</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SubstitutionTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Substituted Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">species_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="n">y</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">species_map</span><span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">replace_species</span><span class="p">(</span><span class="n">species_map</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Substitution Transformation :&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Inverse Transformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inverse_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">SubstitutionTransformation</span><span class="p">(</span><span class="n">inverse_map</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="RemoveSpeciesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation">[docs]</a><span class="k">class</span> <span class="nc">RemoveSpeciesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove all occurrences of some species from a structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species_to_remove</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            species_to_remove: List of species to remove. E.g., [&quot;Li&quot;, &quot;Mn&quot;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_to_remove</span> <span class="o">=</span> <span class="n">species_to_remove</span>
+
+<div class="viewcode-block" id="RemoveSpeciesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Structure with species removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_to_remove</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">remove_species</span><span class="p">([</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">sp</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Remove Species Transformation :&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_to_remove</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PartialRemoveSpecieTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation">[docs]</a><span class="k">class</span> <span class="nc">PartialRemoveSpecieTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove fraction of specie from a structure.</span>
+
+<span class="sd">    Requires an oxidation state decorated structure for ewald sum to be</span>
+<span class="sd">    computed.</span>
+
+<span class="sd">    Given that the solution to selecting the right removals is NP-hard, there</span>
+<span class="sd">    are several algorithms provided with varying degrees of accuracy and speed.</span>
+<span class="sd">    Please see</span>
+<span class="sd">    :class:`pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ALGO_FAST</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ALGO_COMPLETE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ALGO_BEST_FIRST</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ALGO_ENUMERATE</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie_to_remove</span><span class="p">,</span> <span class="n">fraction_to_remove</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="n">ALGO_FAST</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            specie_to_remove: Specie to remove. Must have oxidation state E.g.,</span>
+<span class="sd">                &quot;Li+&quot;</span>
+<span class="sd">            fraction_to_remove: Fraction of specie to remove. E.g., 0.5</span>
+<span class="sd">            algo: This parameter allows you to choose the algorithm to perform</span>
+<span class="sd">                ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*</span>
+<span class="sd">                variables to set the algo.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specie_to_remove</span> <span class="o">=</span> <span class="n">specie_to_remove</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fraction_to_remove</span> <span class="o">=</span> <span class="n">fraction_to_remove</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">=</span> <span class="n">algo</span>
+
+<div class="viewcode-block" id="PartialRemoveSpecieTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: input structure</span>
+<span class="sd">            return_ranked_list (bool/int): Boolean stating whether or not</span>
+<span class="sd">                multiple structures are returned. If return_ranked_list is</span>
+<span class="sd">                an int, that number of structures is returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Depending on returned_ranked list, either a transformed structure</span>
+<span class="sd">            or a list of dictionaries, where each dictionary is of the form</span>
+<span class="sd">            {&quot;structure&quot; = .... , &quot;other_arguments&quot;}</span>
+<span class="sd">            the key &quot;transformation&quot; is reserved for the transformation that</span>
+<span class="sd">            was actually applied to the structure.</span>
+<span class="sd">            This transformation is parsed by the alchemy classes for generating</span>
+<span class="sd">            a more specific transformation history. Any other information will</span>
+<span class="sd">            be stored in the transformation_parameters dictionary in the</span>
+<span class="sd">            transmuted structure class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specie_to_remove</span><span class="p">)</span>
+        <span class="n">specie_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span>
+                          <span class="k">if</span> <span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species</span> <span class="o">==</span>
+                          <span class="n">Composition</span><span class="p">({</span><span class="n">sp</span><span class="p">:</span> <span class="mi">1</span><span class="p">})]</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">PartialRemoveSitesTransformation</span><span class="p">([</span><span class="n">specie_indices</span><span class="p">],</span>
+                                                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fraction_to_remove</span><span class="p">],</span>
+                                                 <span class="n">algo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">spec_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Species = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specie_to_remove</span><span class="p">),</span>
+                    <span class="s2">&quot;Fraction to remove = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fraction_to_remove</span><span class="p">),</span>
+                    <span class="s2">&quot;ALGO = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="s2">&quot;PartialRemoveSpecieTransformation : &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spec_str</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="OrderDisorderedStructureTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation">[docs]</a><span class="k">class</span> <span class="nc">OrderDisorderedStructureTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Order a disordered structure. The disordered structure must be oxidation</span>
+<span class="sd">    state decorated for ewald sum to be computed. No attempt is made to perform</span>
+<span class="sd">    symmetry determination to reduce the number of combinations.</span>
+
+<span class="sd">    Hence, attempting to performing ordering on a large number of disordered</span>
+<span class="sd">    sites may be extremely expensive. The time scales approximately with the</span>
+<span class="sd">    number of possible combinations. The algorithm can currently compute</span>
+<span class="sd">    approximately 5,000,000 permutations per minute.</span>
+
+<span class="sd">    Also, simple rounding of the occupancies are performed, with no attempt</span>
+<span class="sd">    made to achieve a target composition.  This is usually not a problem for</span>
+<span class="sd">    most ordering problems, but there can be times where rounding errors may</span>
+<span class="sd">    result in structures that do not have the desired composition.</span>
+<span class="sd">    This second step will be implemented in the next iteration of the code.</span>
+
+<span class="sd">    If multiple fractions for a single species are found for different sites,</span>
+<span class="sd">    these will be treated separately if the difference is above a threshold</span>
+<span class="sd">    tolerance. currently this is .1</span>
+
+<span class="sd">    For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites</span>
+<span class="sd">    4, 5, 6, 7 then 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]</span>
+<span class="sd">    will be filled, even though a lower energy combination might be found by</span>
+<span class="sd">    putting all lithium in sites [4,5,6,7].</span>
+
+<span class="sd">    USE WITH CARE.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ALGO_FAST</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ALGO_COMPLETE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ALGO_BEST_FIRST</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="n">ALGO_FAST</span><span class="p">,</span> <span class="n">symmetrized_structures</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">no_oxi_states</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            algo (int): Algorithm to use.</span>
+<span class="sd">            symmetrized_structures (bool): Whether the input structures are</span>
+<span class="sd">                instances of SymmetrizedStructure, and that their symmetry</span>
+<span class="sd">                should be used for the grouping of sites.</span>
+<span class="sd">            no_oxi_states (bool): Whether to remove oxidation states prior to</span>
+<span class="sd">                ordering.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">=</span> <span class="n">algo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_oxi_states</span> <span class="o">=</span> <span class="n">no_oxi_states</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structures</span> <span class="o">=</span> <span class="n">symmetrized_structures</span>
+
+<div class="viewcode-block" id="OrderDisorderedStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For this transformation, the apply_transformation method will return</span>
+<span class="sd">        only the ordered structure with the lowest Ewald energy, to be</span>
+<span class="sd">        consistent with the method signature of the other transformations.</span>
+<span class="sd">        However, all structures are stored in the  all_structures attribute in</span>
+<span class="sd">        the transformation object for easy access.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Oxidation state decorated disordered structure to order</span>
+<span class="sd">            return_ranked_list (bool): Whether or not multiple structures are</span>
+<span class="sd">                returned. If return_ranked_list is a number, that number of</span>
+<span class="sd">                structures is returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Depending on returned_ranked list, either a transformed structure</span>
+<span class="sd">            or a list of dictionaries, where each dictionary is of the form</span>
+<span class="sd">            {&quot;structure&quot; = .... , &quot;other_arguments&quot;}</span>
+<span class="sd">            the key &quot;transformation&quot; is reserved for the transformation that</span>
+<span class="sd">            was actually applied to the structure.</span>
+<span class="sd">            This transformation is parsed by the alchemy classes for generating</span>
+<span class="sd">            a more specific transformation history. Any other information will</span>
+<span class="sd">            be stored in the transformation_parameters dictionary in the</span>
+<span class="sd">            transmuted structure class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">num_to_return</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">return_ranked_list</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">num_to_return</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">num_to_return</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_to_return</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_oxi_states</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+                <span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">0+&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span> <span class="n">v</span>
+                                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">equivalent_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">exemplars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># generate list of equivalent sites to order</span>
+        <span class="c1"># equivalency is determined by sp_and_occu and symmetry</span>
+        <span class="c1"># if symmetrized structure is true</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">exemplars</span><span class="p">):</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">species</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">almost_equals</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structures</span><span class="p">:</span>
+                    <span class="n">sym_equiv</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">find_equivalent_sites</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                    <span class="n">sym_test</span> <span class="o">=</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sym_equiv</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sym_test</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">sym_test</span><span class="p">:</span>
+                    <span class="n">equivalent_sites</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">equivalent_sites</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">exemplars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+
+        <span class="c1"># generate the list of manipulations and input structure</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="n">m_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">equivalent_sites</span><span class="p">:</span>
+            <span class="n">total_occupancy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">g</span><span class="p">],</span>
+                                  <span class="n">Composition</span><span class="p">())</span>
+            <span class="n">total_occupancy</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">total_occupancy</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="c1"># round total occupancy to possible values</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">total_occupancy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.25</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Occupancy fractions not consistent &quot;</span>
+                                     <span class="s2">&quot;with size of unit cell&quot;</span><span class="p">)</span>
+                <span class="n">total_occupancy</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="c1"># start with an ordered structure</span>
+            <span class="n">initial_sp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">total_occupancy</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                             <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">initial_sp</span>
+            <span class="c1"># determine the manipulations</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">total_occupancy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">initial_sp</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">/</span> <span class="n">initial_sp</span><span class="o">.</span><span class="n">oxi_state</span> <span class="k">if</span> <span class="n">initial_sp</span><span class="o">.</span><span class="n">oxi_state</span>
+                     <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="n">k</span><span class="p">]</span>
+                <span class="n">m_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="c1"># determine the number of empty sites</span>
+            <span class="n">empty</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">total_occupancy</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">empty</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">m_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">empty</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">total_energy_matrix</span>
+        <span class="n">ewald_m</span> <span class="o">=</span> <span class="n">EwaldMinimizer</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">num_to_return</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">lowest_energy</span> <span class="o">=</span> <span class="n">ewald_m</span><span class="o">.</span><span class="n">output_lists</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">ewald_m</span><span class="o">.</span><span class="n">output_lists</span><span class="p">:</span>
+            <span class="n">s_copy</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># do deletions afterwards because they screw up the indices of the</span>
+            <span class="c1"># structure</span>
+            <span class="n">del_indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">manipulation</span> <span class="ow">in</span> <span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">manipulation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">del_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">manipulation</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s_copy</span><span class="p">[</span><span class="n">manipulation</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">manipulation</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">s_copy</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">del_indices</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_oxi_states</span><span class="p">:</span>
+                <span class="n">s_copy</span><span class="o">.</span><span class="n">remove_oxidation_states</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                 <span class="s2">&quot;energy_above_minimum&quot;</span><span class="p">:</span>
+                     <span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lowest_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_atoms</span><span class="p">,</span>
+                 <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s_copy</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()})</span>
+
+        <span class="k">if</span> <span class="n">return_ranked_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[:</span><span class="n">num_to_return</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Order disordered structure transformation&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lowest_energy_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Lowest energy structure found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="PrimitiveCellTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation">[docs]</a><span class="k">class</span> <span class="nc">PrimitiveCellTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class finds the primitive cell of the input structure.</span>
+<span class="sd">    It returns a structure that is not necessarily orthogonalized</span>
+<span class="sd">    Author: Will Richards</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tolerance (float): Tolerance for each coordinate of a particular</span>
+<span class="sd">                site. For example, [0.5, 0, 0.5] in cartesian coordinates will be</span>
+<span class="sd">                considered to be on the same coordinates as [0, 0, 0] for a</span>
+<span class="sd">                tolerance of 0.5. Defaults to 0.5.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+
+<div class="viewcode-block" id="PrimitiveCellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns most primitive cell for structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: A structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The most primitive structure found. The returned structure is</span>
+<span class="sd">            guaranteed to have len(new structure) &lt;= len(structure).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">(</span><span class="n">tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Primitive cell transformation&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ConventionalCellTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation">[docs]</a><span class="k">class</span> <span class="nc">ConventionalCellTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class finds the conventional cell of the input structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">international_monoclinic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            symprec (float): tolerance as in SpacegroupAnalyzer</span>
+<span class="sd">            angle_tolerance (float): angle tolerance as in SpacegroupAnalyzer</span>
+<span class="sd">            international_monoclinic (bool): whether to use beta (True) or alpha (False)</span>
+<span class="sd">        as the non-right-angle in the unit cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_tolerance</span> <span class="o">=</span> <span class="n">angle_tolerance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">international_monoclinic</span> <span class="o">=</span> <span class="n">international_monoclinic</span>
+
+<div class="viewcode-block" id="ConventionalCellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ConventionalCellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns most primitive cell for structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: A structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The same structure in a conventional standard setting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">,</span>
+                                 <span class="n">angle_tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_tolerance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_conventional_standard_structure</span><span class="p">(</span><span class="n">international_monoclinic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">international_monoclinic</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Conventional cell transformation&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="PerturbStructureTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation">[docs]</a><span class="k">class</span> <span class="nc">PerturbStructureTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation perturbs a structure by a specified distance in random</span>
+<span class="sd">    directions. Used for breaking symmetries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">min_distance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            distance: Distance of perturbation in angstroms. All sites</span>
+<span class="sd">                will be perturbed by exactly that distance in a random</span>
+<span class="sd">                direction.</span>
+<span class="sd">            min_distance: if None, all displacements will be equidistant. If int</span>
+<span class="sd">                or float, perturb each site a distance drawn from the uniform</span>
+<span class="sd">                distribution between &#39;min_distance&#39; and &#39;distance&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span> <span class="o">=</span> <span class="n">min_distance</span>
+
+<div class="viewcode-block" id="PerturbStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Structure with sites perturbed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">perturb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">min_distance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;PerturbStructureTransformation : &quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;Amplitude = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amplitude</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="DeformStructureTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation">[docs]</a><span class="k">class</span> <span class="nc">DeformStructureTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This transformation deforms a structure by a deformation gradient matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deformation</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            deformation (array): deformation gradient for the transformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_deform</span> <span class="o">=</span> <span class="n">Deformation</span><span class="p">(</span><span class="n">deformation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deform</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DeformStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DeformStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Deformed Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deform</span><span class="o">.</span><span class="n">apply_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;DeformStructureTransformation : &quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;Deformation = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformation</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Inverse Transformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DeformStructureTransformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_deform</span><span class="o">.</span><span class="n">inv</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="DiscretizeOccupanciesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation">[docs]</a><span class="k">class</span> <span class="nc">DiscretizeOccupanciesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Discretizes the site occupancies in a disordered structure; useful for</span>
+<span class="sd">    grouping similar structures or as a pre-processing step for order-disorder</span>
+<span class="sd">    transformations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_denominator</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_denominator</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            max_denominator:</span>
+<span class="sd">                An integer maximum denominator for discretization. A higher</span>
+<span class="sd">                denominator allows for finer resolution in the site occupancies.</span>
+<span class="sd">            tol:</span>
+<span class="sd">                A float that sets the maximum difference between the original and</span>
+<span class="sd">                discretized occupancies before throwing an error. If None, it is</span>
+<span class="sd">                set to 1 / (4 * max_denominator).</span>
+<span class="sd">            fix_denominator(bool):</span>
+<span class="sd">                If True, will enforce a common denominator for all species.</span>
+<span class="sd">                This prevents a mix of denominators (for example, 1/3, 1/4)</span>
+<span class="sd">                that might require large cell sizes to perform an enumeration.</span>
+<span class="sd">                &#39;tol&#39; needs to be &gt; 1.0 in some cases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span> <span class="o">=</span> <span class="n">max_denominator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span> <span class="k">if</span> <span class="n">tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">max_denominator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_denominator</span> <span class="o">=</span> <span class="n">fix_denominator</span>
+
+<div class="viewcode-block" id="DiscretizeOccupanciesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Discretizes the site occupancies in the structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: disordered Structure to discretize occupancies</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new disordered Structure with occupancies discretized</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">structure</span>
+
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">old_occ</span> <span class="o">=</span> <span class="n">sp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">new_occ</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="n">Fraction</span><span class="p">(</span><span class="n">old_occ</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_denominator</span><span class="p">:</span>
+                    <span class="n">new_occ</span> <span class="o">=</span> <span class="n">around</span><span class="p">(</span><span class="n">old_occ</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span><span class="p">)</span> \
+                              <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_denominator</span>
+                <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">old_occ</span> <span class="o">-</span> <span class="n">new_occ</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Cannot discretize structure within tolerance!&quot;</span><span class="p">)</span>
+                <span class="n">sp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_occ</span>
+
+        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;DiscretizeOccupanciesTransformation&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ChargedCellTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation">[docs]</a><span class="k">class</span> <span class="nc">ChargedCellTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The ChargedCellTransformation applies a charge to a structure (or defect</span>
+<span class="sd">    object).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            charge: A integer charge to apply to the structure.</span>
+<span class="sd">                Defaults to zero. Has to be a single integer. e.g. 2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span>
+
+<div class="viewcode-block" id="ChargedCellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Input Structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Charged Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Structure with charge &quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raises: NotImplementedError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ScaleToRelaxedTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation">[docs]</a><span class="k">class</span> <span class="nc">ScaleToRelaxedTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes the unrelaxed and relaxed structure and applies its site and volume</span>
+<span class="sd">    relaxation to a structurally similar structures (e.g. bulk: NaCl and PbTe</span>
+<span class="sd">    (rock-salt), slab: Sc(10-10) and Mg(10-10) (hcp), GB: Mo(001) sigma 5 GB,</span>
+<span class="sd">    Fe(001) sigma 5). Useful for finding an initial guess of a set of similar</span>
+<span class="sd">    structures closer to its most relaxed state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unrelaxed_structure</span><span class="p">,</span> <span class="n">relaxed_structure</span><span class="p">,</span> <span class="n">species_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            unrelaxed_structure (Structure): Initial, unrelaxed structure</span>
+<span class="sd">            relaxed_structure (Structure): Relaxed structure</span>
+<span class="sd">            species_map (dict): A dict or list of tuples containing the species mapping in</span>
+<span class="sd">                string-string pairs. The first species corresponds to the relaxed</span>
+<span class="sd">                structure while the second corresponds to the species in the</span>
+<span class="sd">                structure to be scaled. E.g., {&quot;Li&quot;:&quot;Na&quot;} or [(&quot;Fe2+&quot;,&quot;Mn2+&quot;)].</span>
+<span class="sd">                Multiple substitutions can be done. Overloaded to accept</span>
+<span class="sd">                sp_and_occu dictionary E.g. {&quot;Si: {&quot;Ge&quot;:0.75, &quot;C&quot;:0.25}},</span>
+<span class="sd">                which substitutes a single species with multiple species to</span>
+<span class="sd">                generate a disordered structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the ratio matrix for lattice relaxation which can be</span>
+        <span class="c1"># applied to any similar structure to simulate volumetric relaxation</span>
+        <span class="n">relax_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">relaxed_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
+        <span class="n">relax_params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">relaxed_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">)</span>
+        <span class="n">unrelax_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">unrelaxed_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
+        <span class="n">unrelax_params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unrelaxed_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">relax_params</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relax_params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">unrelax_params</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unrelaxed_structure</span> <span class="o">=</span> <span class="n">unrelaxed_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxed_structure</span> <span class="o">=</span> <span class="n">relaxed_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span> <span class="o">=</span> <span class="n">species_map</span>
+
+<div class="viewcode-block" id="ScaleToRelaxedTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ScaleToRelaxedTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a copy of structure with lattice parameters</span>
+<span class="sd">        and sites scaled to the same degree as the relaxed_structure.</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            structure (Structure): A structurally similar structure in</span>
+<span class="sd">                regards to crystal and site positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
+            <span class="n">s_map</span> <span class="o">=</span> \
+                <span class="n">match</span><span class="o">.</span><span class="n">get_best_electronegativity_anonymous_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unrelaxed_structure</span><span class="p">,</span>
+                                                                   <span class="n">structure</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_map</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">)</span>
+        <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">p</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_percent_change</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                                                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="p">)])</span>
+        <span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxed_structure</span><span class="p">:</span>
+            <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s_map</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">])</span>
+            <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">new_lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;ScaleToRelaxedTransformation&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.transformations.standard_transformations</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

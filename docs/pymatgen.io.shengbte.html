@@ -1,19 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.shengbte module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.io.shengbte module &mdash; pymatgen 2020.11.11 documentation</title>
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -21,27 +23,24 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.io.xcrysden module" href="pymatgen.io.xcrysden.html" />
+    <link rel="next" title="pymatgen.io.wannier90 module" href="pymatgen.io.wannier90.html" />
     <link rel="prev" title="pymatgen.io.pwscf module" href="pymatgen.io.pwscf.html" />
  
 <script type="text/javascript">
@@ -63,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -73,7 +72,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.11.11
               </div>
             
           
@@ -90,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -119,6 +119,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -136,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -174,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -205,33 +207,33 @@
             
   <div class="section" id="module-pymatgen.io.shengbte">
 <span id="pymatgen-io-shengbte-module"></span><h1>pymatgen.io.shengbte module<a class="headerlink" href="#module-pymatgen.io.shengbte" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>This module implements reading and writing of ShengBTE CONTROL files.</p>
+<dl class="py class">
 <dt id="pymatgen.io.shengbte.Control">
-<em class="property">class </em><code class="sig-name descname">Control</code><span class="sig-paren">(</span><em class="sig-param">ngrid=None</em>, <em class="sig-param">lfactor=0.1</em>, <em class="sig-param">scalebroad=0.5</em>, <em class="sig-param">t=300</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py#L26-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property">class </em><code class="sig-name descname">Control</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ngrid</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">temperature</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">300</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py#L31-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 <p>Class for reading, updating, and writing ShengBTE CONTROL files.
 See  <a class="reference external" href="https://bitbucket.org/sousaw/shengbte/src/master/">https://bitbucket.org/sousaw/shengbte/src/master/</a> for more
 detailed description and default values of CONTROL arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ngrid</strong> (<em>size 3 list</em>) – number of grid planes along each axis in
-reciprocal space</p></li>
-<li><p><strong>lfactor</strong> (<em>float</em>) – unit of measurement for lattice vectors (nm)</p></li>
-<li><p><strong>scalebroad</strong> (<em>float</em>) – scale parameter for Gaussian smearing. A value
-of 1.0 is theoretically guaranteed to work, but significant
-speedups can sometimes be achieved by reducing it with
-negligible loss of precision.</p></li>
-<li><p><strong>t</strong> (<em>int</em><em> or </em><em>float</em>) – temperature (Kelvin)</p></li>
+<li><p><strong>ngrid</strong> – Reciprocal space grid density as a list of 3 ints.</p></li>
+<li><p><strong>temperature</strong> – The temperature to calculate the lattice thermal
+conductivity for. Can be given as a single float, or a dictionary
+with the keys “min”, “max”, “step”.</p></li>
 <li><p><strong>**kwargs</strong> – <p>Other ShengBTE parameters. Several parameters are required
-for ShengBTE to run - we have listed these parameters below:
-- nelements (int): number of different elements in the compound
-- natoms (int): number of atoms in the unit cell
-- lattvec (size 3x3 array): real-space lattice vectors, in units</p>
-<blockquote>
-<div><p>of lfactor</p>
-</div></blockquote>
+for ShengBTE to run - we have listed these parameters below:</p>
 <ul>
+<li><p>nelements (int): number of different elements in the compound</p></li>
+<li><p>natoms (int): number of atoms in the unit cell</p></li>
+<li><p>lattvec (size 3x3 array): real-space lattice vectors, in units
+of lfactor</p></li>
+<li><dl class="simple">
+<dt>lfactor (float): unit of measurement for lattice vectors (nm).</dt><dd><p>I.e., set to 0.1 if lattvec given in Angstrom.</p>
+</dd>
+</dl>
+</li>
 <li><p>types (size natom list): a vector of natom integers, ranging
 from 1 to nelements, assigning an element to each atom in the
 system</p></li>
@@ -245,49 +247,49 @@ used for the 2nd-order force constant calculation</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pymatgen.io.shengbte.Control.allocations_keys">
-<code class="sig-name descname">allocations_keys</code><em class="property"> = ['nelements', 'natoms', 'ngrid', 'norientations']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.allocations_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">allocations_keys</code><em class="property"> = ['nelements', 'natoms', 'ngrid', 'norientations']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.allocations_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.shengbte.Control.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py#L151-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py#L293-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: MSONAble dict</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pymatgen.io.shengbte.Control.crystal_keys">
-<code class="sig-name descname">crystal_keys</code><em class="property"> = ['lfactor', 'lattvec', 'types', 'elements', 'positions', 'masses', 'gfactors', 'epsilon', 'born', 'scell', 'orientations']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.crystal_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">crystal_keys</code><em class="property"> = ['lfactor', 'lattvec', 'types', 'elements', 'positions', 'masses', 'gfactors', 'epsilon', 'born', 'scell', 'orientations']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.crystal_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pymatgen.io.shengbte.Control.flags_keys">
-<code class="sig-name descname">flags_keys</code><em class="property"> = ['nonanalytic', 'convergence', 'isotopes', 'autoisotopes', 'nanowires', 'onlyharmonic', 'espresso']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.flags_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">flags_keys</code><em class="property"> = ['nonanalytic', 'convergence', 'isotopes', 'autoisotopes', 'nanowires', 'onlyharmonic', 'espresso']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.flags_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.shengbte.Control.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">sdict</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py#L104-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write a CONTROL file from a Python dictionary.
-Description and default parameters can be found at
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">control_dict</span><span class="p">:</span> <span class="n">Dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py#L164-L176"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a CONTROL file from a Python dictionary. Description and default
+parameters can be found at
 <a class="reference external" href="https://bitbucket.org/sousaw/shengbte/src/master/">https://bitbucket.org/sousaw/shengbte/src/master/</a>.
-Note some parameters are mandatory. Optional parameters
-default here to None and will not be written to file.</p>
+Note some parameters are mandatory. Optional parameters default here to
+None and will not be written to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dict</strong> – A Python dictionary of ShengBTE input parameters.</p>
+<dd class="field-odd"><p><strong>control_dict</strong> – A Python dictionary of ShengBTE input parameters.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.shengbte.Control.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filepath</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py#L82-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/../../monty/monty/dev.py#L136-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a CONTROL namelist file and output a ‘Control’ object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filepath</strong> (<em>String</em>) – Path of the CONTROL file.</p>
+<dd class="field-odd"><p><strong>filepath</strong> – Path of the CONTROL file.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>‘Control’ object with parameters instantiated.</p>
@@ -295,20 +297,58 @@ default here to None and will not be written to file.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
+<dt id="pymatgen.io.shengbte.Control.from_structure">
+<em class="property">classmethod </em><code class="sig-name descname">from_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">reciprocal_density</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">50000</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py#L216-L260"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.from_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a ShengBTE control object from a structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – A structure object.</p></li>
+<li><p><strong>reciprocal_density</strong> – If not None, the q-point grid (“ngrid”) will be
+set using this density.</p></li>
+<li><p><strong>kwargs</strong> – Additional options to be passed to the Control constructor.
+See the docstring of the __init__ method for more details</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A ShengBTE control object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.shengbte.Control.get_structure">
+<code class="sig-name descname">get_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py#L262-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.get_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a pymatgen Structure from a ShengBTE control object.</p>
+<p>The control object must have the “lattvec”, “types”, “elements”, and
+“positions” settings otherwise an error will be thrown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt id="pymatgen.io.shengbte.Control.params_keys">
-<code class="sig-name descname">params_keys</code><em class="property"> = ['t', 't_min', 't_max', 't_step', 'omega_max', 'scalebroad', 'rmin', 'rmax', 'dr', 'maxiter', 'nticks', 'eps']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.params_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">params_keys</code><em class="property"> = ['t', 't_min', 't_max', 't_step', 'omega_max', 'scalebroad', 'rmin', 'rmax', 'dr', 'maxiter', 'nticks', 'eps']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.params_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pymatgen.io.shengbte.Control.required_params">
-<code class="sig-name descname">required_params</code><em class="property"> = ['nelements', 'natoms', 'ngrid', 'lattvec', 'types', 'elements', 'positions', 'scell']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.required_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">required_params</code><em class="property"> = ['nelements', 'natoms', 'ngrid', 'lattvec', 'types', 'elements', 'positions', 'scell']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/shengbte.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.required_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.shengbte.Control.to_file">
-<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><em class="sig-param">filename='CONTROL'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/shengbte.py#L118-L149"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.to_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'CONTROL'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/../../monty/monty/dev.py#L178-L214"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.shengbte.Control.to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes ShengBTE CONTROL file from ‘Control’ object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – A file name.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -326,11 +366,19 @@ default here to None and will not be written to file.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -341,7 +389,6 @@ default here to None and will not be written to file.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

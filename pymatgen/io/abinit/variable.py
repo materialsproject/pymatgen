@@ -1,5 +1,5 @@
+"""Support for Abinit input variables."""
 import string
-import warnings
 import collections
 import numpy as np
 
@@ -25,12 +25,18 @@ _UNITS = {
 }
 
 
-class InputVariable(object):
+class InputVariable:
     """
     An Abinit input variable.
     """
     def __init__(self, name, value, units='', valperline=3):
-
+        """
+        Args:
+            name: Name of the variable.
+            value: Value of the variable.
+            units: String specifying one of the units supported by Abinit. Default: atomic units.
+            valperline: Number of items printed per line.
+        """
         self._name = name
         self.value = value
         self._units = units
@@ -48,11 +54,11 @@ class InputVariable(object):
         """Return the value."""
         if self.units:
             return list(self.value) + [self.units]
-        else:
-            return self.value
+        return self.value
 
     @property
     def name(self):
+        """Name of the variable."""
         return self._name
 
     @property
@@ -118,7 +124,8 @@ class InputVariable(object):
 
         return line
 
-    def format_scalar(self, val, floatdecimal=0):
+    @staticmethod
+    def format_scalar(val, floatdecimal=0):
         """
         Format a single numerical value into a string
         with the appropriate number of decimal.
@@ -148,7 +155,8 @@ class InputVariable(object):
 
         return sval
 
-    def format_list2d(self, values, floatdecimal=0):
+    @staticmethod
+    def format_list2d(values, floatdecimal=0):
         """Format a list of lists."""
         lvals = flatten(values)
 

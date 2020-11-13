@@ -12,24 +12,16 @@ import os
 import re
 import json
 import datetime
+from warnings import warn
 
 from monty.json import MontyDecoder, jsanitize
+from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
-from monty.json import MSONable
-
 from pymatgen.io.vasp.sets import MPRelaxSet
 
-from warnings import warn
-
-__author__ = "Shyue Ping Ong, Will Richards"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 2, 2012"
 
 dec = MontyDecoder()
 
@@ -150,13 +142,14 @@ class TransformedStructure(MSONable):
             self.history.append(hdict)
             self.final_structure = s
             return alts
-        else:
-            s = transformation.apply_transformation(self.final_structure)
-            hdict = transformation.as_dict()
-            hdict["input_structure"] = self.final_structure.as_dict()
-            hdict["output_parameters"] = {}
-            self.history.append(hdict)
-            self.final_structure = s
+
+        s = transformation.apply_transformation(self.final_structure)
+        hdict = transformation.as_dict()
+        hdict["input_structure"] = self.final_structure.as_dict()
+        hdict["output_parameters"] = {}
+        self.history.append(hdict)
+        self.final_structure = s
+        return None
 
     def append_filter(self, structure_filter):
         """
@@ -329,7 +322,6 @@ class TransformedStructure(MSONable):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["history"] = jsanitize(self.history)
-        d["version"] = __version__
         d["last_modified"] = str(datetime.datetime.utcnow())
         d["other_parameters"] = jsanitize(self.other_parameters)
         return d

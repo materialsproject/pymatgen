@@ -1,0 +1,568 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.abinit.netcdf &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.abinit.netcdf</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.abinit.netcdf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+<span class="sd">&quot;&quot;&quot;Wrapper for netCDF readers.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.collections</span> <span class="kn">import</span> <span class="n">AttrDict</span>
+<span class="kn">from</span> <span class="nn">monty.functools</span> <span class="kn">import</span> <span class="n">lazy_property</span>
+<span class="kn">from</span> <span class="nn">monty.string</span> <span class="kn">import</span> <span class="n">marquee</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">ArrayWithUnit</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.xcfunc</span> <span class="kn">import</span> <span class="n">XcFunc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2013, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gmatteo at gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;$Feb 21, 2013M$&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;as_ncreader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;as_etsfreader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NetcdfReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ETSF_Reader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NO_DEFAULT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;structure_from_ncdata&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">netCDF4</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="n">netCDF4</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">`import netCDF4` failed with the following error:</span>
+
+<span class="si">%s</span><span class="s2"></span>
+
+<span class="s2">Please install netcdf4 with `conda install netcdf4`</span>
+<span class="s2">If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`</span>
+<span class="s2">and use `pip install netcdf4`&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_asreader</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+    <span class="n">closeit</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+        <span class="n">file</span><span class="p">,</span> <span class="n">closeit</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">file</span><span class="p">,</span> <span class="n">closeit</span>
+
+
+<div class="viewcode-block" id="as_ncreader"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.as_ncreader">[docs]</a><span class="k">def</span> <span class="nf">as_ncreader</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert file into a NetcdfReader instance.</span>
+<span class="sd">    Returns reader, closeit where closeit is set to True</span>
+<span class="sd">    if we have to close the file before leaving the procedure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_asreader</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">NetcdfReader</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="as_etsfreader"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.as_etsfreader">[docs]</a><span class="k">def</span> <span class="nf">as_etsfreader</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an ETSF_Reader. Accepts filename or ETSF_Reader.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_asreader</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">ETSF_Reader</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">NetcdfReaderError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base error class for NetcdfReader&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="NO_DEFAULT"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NO_DEFAULT">[docs]</a><span class="k">class</span> <span class="nc">NO_DEFAULT</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Signal that read_value should raise an Error&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="NetcdfReader"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader">[docs]</a><span class="k">class</span> <span class="nc">NetcdfReader</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.</span>
+
+<span class="sd">    Additional documentation available at:</span>
+<span class="sd">        http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">NetcdfReaderError</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">netCDF4</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;netCDF4 must be installed to use this class&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the Netcdf file specified by path (read mode).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;In file </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ngroups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">walk_tree</span><span class="p">()))</span>
+
+        <span class="c1"># Always return non-masked numpy arrays.</span>
+        <span class="c1"># Slicing a ncvar returns a MaskedArrray and this is really annoying</span>
+        <span class="c1"># because it can lead to unexpected behaviour in e.g. calls to np.matmul!</span>
+        <span class="c1"># See also https://github.com/Unidata/netcdf4-python/issues/785</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">set_auto_mask</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Activated when used in the with statement.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Activated at the end of the with statement. It automatically closes the file.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="NetcdfReader.close"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the file.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Exception </span><span class="si">%s</span><span class="s2"> while trying to close </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="NetcdfReader.walk_tree"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree">[docs]</a>    <span class="k">def</span> <span class="nf">walk_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Navigate all the groups in the file starting from top.</span>
+<span class="sd">        If top is None, the root group is used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">top</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">yield</span> <span class="n">values</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">top</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">children</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">walk_tree</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">children</span></div>
+
+<div class="viewcode-block" id="NetcdfReader.print_tree"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree">[docs]</a>    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print all the groups in the file.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">children</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">walk_tree</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">child</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetcdfReader.read_dimvalue"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue">[docs]</a>    <span class="k">def</span> <span class="nf">read_dimvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">NO_DEFAULT</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the value of a dimension.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dimname: Name of the variable</span>
+<span class="sd">            path: path to the group.</span>
+<span class="sd">            default: return `default` if `dimname` is not present and</span>
+<span class="sd">                `default` is not `NO_DEFAULT` else raise self.Error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_dimensions</span><span class="p">(</span><span class="n">dimname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+        <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">NO_DEFAULT</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="NetcdfReader.read_varnames"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames">[docs]</a>    <span class="k">def</span> <span class="nf">read_varnames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of variable names stored in the group specified by path.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2group</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="NetcdfReader.read_value"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_value">[docs]</a>    <span class="k">def</span> <span class="nf">read_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">cmode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">NO_DEFAULT</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the values of variable with name varname in the group specified by path.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            varname: Name of the variable</span>
+<span class="sd">            path: path to the group.</span>
+<span class="sd">            cmode: if cmode==&quot;c&quot;, a complex ndarrays is constructed and returned</span>
+<span class="sd">                (netcdf does not provide native support from complex datatype).</span>
+<span class="sd">            default: returns default if varname is not present.</span>
+<span class="sd">                self.Error is raised if default is default is NO_DEFAULT</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy array if varname represents an array, scalar otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_variable</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">NO_DEFAULT</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="n">default</span>
+
+        <span class="k">if</span> <span class="n">cmode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># scalar or array</span>
+            <span class="c1"># getValue is not portable!</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">var</span><span class="o">.</span><span class="n">getValue</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">var</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">var</span><span class="p">[:]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">var</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">var</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">var</span><span class="p">[:]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">var</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">cmode</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">var</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value for cmode </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cmode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetcdfReader.read_variable"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable">[docs]</a>    <span class="k">def</span> <span class="nf">read_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the variable with name varname in the group specified by path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_variables</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_read_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">dimnames</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">dimnames</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2group</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">group</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">dname</span><span class="p">]</span> <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">dimnames</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;In file </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">Error while reading dimensions: `</span><span class="si">%s</span><span class="s2">` with kwargs: `</span><span class="si">%s</span><span class="s2">`&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dimnames</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_read_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">varnames</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">varnames</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path2group</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">group</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">vname</span><span class="p">]</span> <span class="k">for</span> <span class="n">vname</span> <span class="ow">in</span> <span class="n">varnames</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;In file </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">Error while reading variables: `</span><span class="si">%s</span><span class="s2">` with kwargs `</span><span class="si">%s</span><span class="s2">`.&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">varnames</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+
+<div class="viewcode-block" id="NetcdfReader.read_keys"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys">[docs]</a>    <span class="k">def</span> <span class="nf">read_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">dict_cls</span><span class="o">=</span><span class="n">AttrDict</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a list of variables/dimensions from file. If a key is not present the corresponding</span>
+<span class="sd">        entry in the output dictionary is set to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">od</span> <span class="o">=</span> <span class="n">dict_cls</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Try to read a variable.</span>
+                <span class="n">od</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Try to read a dimension.</span>
+                    <span class="n">od</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                    <span class="n">od</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">od</span></div></div>
+
+
+<div class="viewcode-block" id="ETSF_Reader"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader">[docs]</a><span class="k">class</span> <span class="nc">ETSF_Reader</span><span class="p">(</span><span class="n">NetcdfReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object reads data from a file written according to the ETSF-IO specifications.</span>
+
+<span class="sd">    We assume that the netcdf file contains at least the crystallographic section.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ETSF_Reader.chemical_symbols"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">chemical_symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Chemical symbols char [number of atom species][symbol length].&quot;&quot;&quot;</span>
+        <span class="n">charr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;chemical_symbols&quot;</span><span class="p">)</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">charr</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span><span class="p">)</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">symbols</span></div>
+
+<div class="viewcode-block" id="ETSF_Reader.typeidx_from_symbol"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">typeidx_from_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the type index from the chemical symbol. Note python convention.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chemical_symbols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ETSF_Reader.read_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure">[docs]</a>    <span class="k">def</span> <span class="nf">read_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">Structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the crystalline structure.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ngroups</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;In file </span><span class="si">%s</span><span class="s2">: ngroups != 1&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">structure_from_ncdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ETSF_Reader.read_abinit_xcfunc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc">[docs]</a>    <span class="k">def</span> <span class="nf">read_abinit_xcfunc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read ixc from an Abinit file. Return :class:`XcFunc` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ixc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;ixc&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">XcFunc</span><span class="o">.</span><span class="n">from_abinit_ixc</span><span class="p">(</span><span class="n">ixc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ETSF_Reader.read_abinit_hdr"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr">[docs]</a>    <span class="k">def</span> <span class="nf">read_abinit_hdr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the variables associated to the Abinit header.</span>
+
+<span class="sd">        Return :class:`AbinitHeader`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">hvar</span> <span class="ow">in</span> <span class="n">_HDR_VARIABLES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">ncname</span> <span class="o">=</span> <span class="n">hvar</span><span class="o">.</span><span class="n">etsf_name</span> <span class="k">if</span> <span class="n">hvar</span><span class="o">.</span><span class="n">etsf_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hvar</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="n">ncname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="n">ncname</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ncname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootgrp</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="n">ncname</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find `</span><span class="si">%s</span><span class="s2">` in `</span><span class="si">%s</span><span class="s2">`&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ncname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+            <span class="c1"># Convert scalars to (well) scalars.</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="s2">&quot;shape&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">hvar</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;md5_pseudos&quot;</span><span class="p">,</span> <span class="s2">&quot;codvsn&quot;</span><span class="p">):</span>
+                <span class="c1"># Convert array of numpy bytes to list of strings</span>
+                <span class="k">if</span> <span class="n">hvar</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;codvsn&quot;</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">astr</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                                    <span class="k">for</span> <span class="n">astr</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="n">hvar</span><span class="o">.</span><span class="n">name</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">AbinitHeader</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="structure_from_ncdata"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.netcdf.html#pymatgen.io.abinit.netcdf.structure_from_ncdata">[docs]</a><span class="k">def</span> <span class="nf">structure_from_ncdata</span><span class="p">(</span><span class="n">ncdata</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads and returns a pymatgen structure from a NetCDF file</span>
+<span class="sd">    containing crystallographic data in the ETSF-IO format.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ncdata: filename or NetcdfReader instance.</span>
+<span class="sd">        site_properties: Dictionary with site properties.</span>
+<span class="sd">        cls: The Structure class to instanciate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ncdata</span><span class="p">,</span> <span class="n">closeit</span> <span class="o">=</span> <span class="n">as_ncreader</span><span class="p">(</span><span class="n">ncdata</span><span class="p">)</span>
+
+    <span class="c1"># TODO check whether atomic units are used</span>
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;primitive_vectors&quot;</span><span class="p">),</span> <span class="s2">&quot;bohr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;ang&quot;</span><span class="p">)</span>
+
+    <span class="n">red_coords</span> <span class="o">=</span> <span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;reduced_atom_positions&quot;</span><span class="p">)</span>
+    <span class="n">natom</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">red_coords</span><span class="p">)</span>
+
+    <span class="n">znucl_type</span> <span class="o">=</span> <span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;atomic_numbers&quot;</span><span class="p">)</span>
+
+    <span class="c1"># type_atom[0:natom] --&gt; index Between 1 and number of atom species</span>
+    <span class="n">type_atom</span> <span class="o">=</span> <span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;atom_species&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Fortran to C index and float --&gt; int conversion.</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="n">natom</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">natom</span><span class="p">):</span>
+        <span class="n">type_idx</span> <span class="o">=</span> <span class="n">type_atom</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">species</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">znucl_type</span><span class="p">[</span><span class="n">type_idx</span><span class="p">])</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">site_properties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">site_properties</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+
+    <span class="n">structure</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">red_coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="c1"># Quick and dirty hack.</span>
+    <span class="c1"># I need an abipy structure since I need to_abivars and other methods.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">abipy.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span> <span class="k">as</span> <span class="n">AbipyStructure</span>
+        <span class="n">structure</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">=</span> <span class="n">AbipyStructure</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">closeit</span><span class="p">:</span>
+        <span class="n">ncdata</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">structure</span></div>
+
+
+<span class="k">class</span> <span class="nc">_H</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;doc&quot;</span><span class="p">,</span> <span class="s2">&quot;etsf_name&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">etsf_name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">etsf_name</span>
+
+
+<span class="n">_HDR_VARIABLES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># Scalars</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;bantot&quot;</span><span class="p">,</span> <span class="s2">&quot;total number of bands (sum of nband on all kpts and spins)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;starting date&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;headform&quot;</span><span class="p">,</span> <span class="s2">&quot;format of the header&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;intxc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ixc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;mband&quot;</span><span class="p">,</span> <span class="s2">&quot;maxval(hdr%nband)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;max_number_of_states&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;natom&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_atoms&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nkpt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_kpoints&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;npsp&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nspden&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_components&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nspinor&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_spinor_components&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nsppol&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_spins&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nsym&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_symmetry_operations&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ntypat&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_atom_species&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;occopt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pertcase&quot;</span><span class="p">,</span> <span class="s2">&quot;the index of the perturbation, 0 if GS calculation&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;usepaw&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (0=norm-conserving psps, 1=paw)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;usewvl&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (0=plane-waves, 1=wavelets)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptopt&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (defines symmetries used for k-point sampling)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pawcpxocc&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nshiftk_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;original number of shifts given in input (changed in inkpts, the actual value is nshiftk)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nshiftk&quot;</span><span class="p">,</span> <span class="s2">&quot;number of shifts after inkpts.&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;icoulomb&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable.&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecut&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;kinetic_energy_cutoff&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecutdg&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable (ecut for NC psps, pawecutdg for paw)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecutsm&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;ecut_eff&quot;</span><span class="p">,</span> <span class="s2">&quot;ecut*dilatmx**2 (dilatmx is an input variable)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;etot&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;fermie&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;fermi_energy&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;residm&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;stmbias&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tphysel&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tsmear&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nelect&quot;</span><span class="p">,</span> <span class="s2">&quot;number of electrons (computed from pseudos and charge)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;charge&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable&quot;</span><span class="p">),</span>
+    <span class="c1"># Arrays</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;qptn&quot;</span><span class="p">,</span> <span class="s2">&quot;qptn(3) the wavevector, in case of a perturbation&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(&quot;rprimd&quot;, &quot;rprimd(3,3) EVOLVING variables&quot;, etsf_name=&quot;primitive_vectors&quot;),</span>
+    <span class="c1"># _H(ngfft, &quot;ngfft(3) input variable&quot;,  number_of_grid_points_vector1&quot;</span>
+    <span class="c1"># _H(&quot;nwvlarr&quot;, &quot;nwvlarr(2) the number of wavelets for each resolution.&quot;, etsf_name=&quot;number_of_wavelets&quot;),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptrlatt_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;kptrlatt_orig(3,3) Original kptrlatt&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptrlatt&quot;</span><span class="p">,</span> <span class="s2">&quot;kptrlatt(3,3) kptrlatt after inkpts.&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;istwfk&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable istwfk(nkpt)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;lmn_size&quot;</span><span class="p">,</span> <span class="s2">&quot;lmn_size(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;nband&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable nband(nkpt*nsppol)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_states&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;npwarr&quot;</span><span class="p">,</span> <span class="s2">&quot;npwarr(nkpt) array holding npw for each k point&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;number_of_coefficients&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspcod&quot;</span><span class="p">,</span> <span class="s2">&quot;pscod(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspdat&quot;</span><span class="p">,</span> <span class="s2">&quot;psdat(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspso&quot;</span><span class="p">,</span> <span class="s2">&quot;pspso(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;pspxc&quot;</span><span class="p">,</span> <span class="s2">&quot;pspxc(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;so_psp&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable so_psp(npsp)&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;symafm&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable symafm(nsym)&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(symrel=&quot;input variable symrel(3,3,nsym)&quot;,  etsf_name=&quot;reduced_symmetry_matrices&quot;),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;typat&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable typat(natom)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;atom_species&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;kptns&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable kptns(nkpt, 3)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;reduced_coordinates_of_kpoints&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;occ&quot;</span><span class="p">,</span> <span class="s2">&quot;EVOLVING variable occ(mband, nkpt, nsppol)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;occupations&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;tnons&quot;</span><span class="p">,</span> <span class="s2">&quot;input variable tnons(nsym, 3)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;reduced_symmetry_translations&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;wtk&quot;</span><span class="p">,</span> <span class="s2">&quot;weight of kpoints wtk(nkpt)&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;kpoint_weights&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;shiftk_orig&quot;</span><span class="p">,</span> <span class="s2">&quot;original shifts given in input (changed in inkpts).&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;shiftk&quot;</span><span class="p">,</span> <span class="s2">&quot;shiftk(3,nshiftk), shiftks after inkpts&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;amu&quot;</span><span class="p">,</span> <span class="s2">&quot;amu(ntypat) ! EVOLVING variable&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(&quot;xred&quot;, &quot;EVOLVING variable xred(3,natom)&quot;, etsf_name=&quot;reduced_atom_positions&quot;),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;zionpsp&quot;</span><span class="p">,</span> <span class="s2">&quot;zionpsp(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;znuclpsp&quot;</span><span class="p">,</span> <span class="s2">&quot;znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;znucltypat&quot;</span><span class="p">,</span> <span class="s2">&quot;znucltypat(ntypat) from alchemy&quot;</span><span class="p">,</span> <span class="n">etsf_name</span><span class="o">=</span><span class="s2">&quot;atomic_numbers&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;codvsn&quot;</span><span class="p">,</span> <span class="s2">&quot;version of the code&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;title(npsp) from psps&quot;</span><span class="p">),</span>
+    <span class="n">_H</span><span class="p">(</span><span class="s2">&quot;md5_pseudos&quot;</span><span class="p">,</span> <span class="s2">&quot;md5pseudos(npsp), md5 checksums associated to pseudos (read from file)&quot;</span><span class="p">),</span>
+    <span class="c1"># _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw</span>
+<span class="p">)</span>
+<span class="n">_HDR_VARIABLES</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">h</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">_HDR_VARIABLES</span><span class="p">])</span>
+
+
+<span class="k">class</span> <span class="nc">AbinitHeader</span><span class="p">(</span><span class="n">AttrDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Stores the values reported in the Abinit header.&quot;&quot;&quot;</span>
+
+    <span class="c1"># def __init__(self, *args, **kwargs):</span>
+    <span class="c1">#    super().__init__(*args, **kwargs)</span>
+    <span class="c1">#    for k, v in self.items():</span>
+    <span class="c1">#        v.__doc__ = _HDR_VARIABLES[k].doc</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation. kwargs are passed to `pprint.pformat`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verbose: Verbosity level</span>
+<span class="sd">            title: Title string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pformat</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">marquee</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">mark</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">),</span> <span class="n">s</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">s</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.abinit.netcdf</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

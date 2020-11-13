@@ -9,18 +9,18 @@ SpaceGroup data as published in his textbook "Structure of Materials".
 """
 
 import os
-from itertools import product
-from fractions import Fraction
+import re
+import warnings
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
+from fractions import Fraction
+from itertools import product
+
 import numpy as np
-import warnings
-import re
+from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
-from monty.design_patterns import cached_class
-
 
 SYMM_DATA = None
 
@@ -118,8 +118,8 @@ class PointGroup(SymmetryGroup):
         self.symbol = int_symbol
         self.generators = [_get_symm_data("generator_matrices")[c]
                            for c in _get_symm_data("point_group_encoding")[int_symbol]]
-        self._symmetry_ops = set([SymmOp.from_rotation_and_translation(m)
-                                  for m in self._generate_full_symmetry_ops()])
+        self._symmetry_ops = {SymmOp.from_rotation_and_translation(m)
+                              for m in self._generate_full_symmetry_ops()}
         self.order = len(self._symmetry_ops)
 
     @property
@@ -381,7 +381,7 @@ class SpaceGroup(SymmetryGroup):
         if crys_system == "cubic":
             a = abc[0]
             return check(abc, [a, a, a], tol) and check(angles, [90, 90, 90], angle_tol)
-        elif crys_system == "hexagonal" or (
+        if crys_system == "hexagonal" or (
                 crys_system == "trigonal" and (
                 self.symbol.endswith("H") or
                 self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
@@ -389,16 +389,16 @@ class SpaceGroup(SymmetryGroup):
                                     164, 165])):
             a = abc[0]
             return check(abc, [a, a, None], tol) and check(angles, [90, 90, 120], angle_tol)
-        elif crys_system == "trigonal":
+        if crys_system == "trigonal":
             a = abc[0]
             alpha = angles[0]
             return check(abc, [a, a, a], tol) and check(angles, [alpha, alpha, alpha], angle_tol)
-        elif crys_system == "tetragonal":
+        if crys_system == "tetragonal":
             a = abc[0]
             return check(abc, [a, a, None], tol) and check(angles, [90, 90, 90], angle_tol)
-        elif crys_system == "orthorhombic":
+        if crys_system == "orthorhombic":
             return check(angles, [90, 90, 90], angle_tol)
-        elif crys_system == "monoclinic":
+        if crys_system == "monoclinic":
             return check(angles, [90, None, 90], angle_tol)
         return True
 
@@ -410,18 +410,17 @@ class SpaceGroup(SymmetryGroup):
         i = self.int_number
         if i <= 2:
             return "triclinic"
-        elif i <= 15:
+        if i <= 15:
             return "monoclinic"
-        elif i <= 74:
+        if i <= 74:
             return "orthorhombic"
-        elif i <= 142:
+        if i <= 142:
             return "tetragonal"
-        elif i <= 167:
+        if i <= 167:
             return "trigonal"
-        elif i <= 194:
+        if i <= 194:
             return "hexagonal"
-        else:
-            return "cubic"
+        return "cubic"
 
     def is_subgroup(self, supergroup):
         """
@@ -447,11 +446,12 @@ class SpaceGroup(SymmetryGroup):
                                        not in all_groups])
             if self.int_number in new_sub_groups:
                 return True
-            elif len(new_sub_groups) == 0:
+
+            if len(new_sub_groups) == 0:
                 break
-            else:
-                groups.append(new_sub_groups)
-                all_groups.extend(new_sub_groups)
+
+            groups.append(new_sub_groups)
+            all_groups.extend(new_sub_groups)
         return False
 
     def is_supergroup(self, subgroup):
@@ -479,8 +479,10 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             (SpaceGroup)
         """
-        return SpaceGroup(sg_symbol_from_int_number(int_number,
-                                                    hexagonal=hexagonal))
+        sym = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
+        if not hexagonal and int_number in [146, 148, 155, 160, 161, 166, 167]:
+            sym += ':R'
+        return SpaceGroup(sym)
 
     def __str__(self):
         return "Spacegroup %s with international number %d and order %d" % (
@@ -536,5 +538,4 @@ def in_array_list(array_list, a, tol=1e-5):
     axes = tuple(range(1, a.ndim + 1))
     if not tol:
         return np.any(np.all(np.equal(array_list, a[None, :]), axes))
-    else:
-        return np.any(np.sum(np.abs(array_list - a[None, :]), axes) < tol)
+    return np.any(np.sum(np.abs(array_list - a[None, :]), axes) < tol)

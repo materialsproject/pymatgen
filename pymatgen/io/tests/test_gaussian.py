@@ -327,6 +327,39 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(d["coords"]), 1)
         self.assertEqual(len(d["energies"]), len(gau.energies))
         self.assertEqual(len(d["energies"]), 21)
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log"))
+        self.assertEqual(21, len(gau.opt_structures))
+        d = gau.read_scan()
+        self.assertAlmostEqual(-548.02336, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 2)
+        self.assertEqual(len(d["energies"]), 21)
+        self.assertAlmostEqual(1.60000, d["coords"]["DSO"][6])
+        self.assertAlmostEqual(124.01095, d["coords"]["ASO"][2])
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_scan_G16.out"))
+        self.assertEqual(21, len(gau.opt_structures))
+        coords = [[0.000000,  0.000000,  0.094168],
+                  [0.000000,  0.815522, -0.376673],
+                  [0.000000, -0.815522, -0.376673]]
+        self.assertAlmostEqual(gau.opt_structures[-1].cart_coords.tolist(), coords)
+        d = gau.read_scan()
+        self.assertAlmostEqual(-0.00523, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 3)
+        self.assertEqual(len(d["energies"]), 21)
+        self.assertAlmostEqual(0.94710, d["coords"]["R1"][6])
+        self.assertAlmostEqual(0.94277, d["coords"]["R2"][17])
+
+    def test_geo_opt(self):
+        """
+        Test an optimization where no "input orientation" is outputted
+        """
+        gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out"))
+        self.assertAlmostEqual(-1812.58399675, gau.energies[-1])
+        self.assertEqual(len(gau.structures), 6)
+        # Test the first 3 atom coordinates
+        coords = [[-13.642932,  0.715060,  0.000444],
+                  [-13.642932, -0.715060,  0.000444],
+                  [-12.444202,  1.416837,  0.000325]]
+        self.assertAlmostEqual(gau.opt_structures[-1].cart_coords[:3].tolist(), coords)
 
     def test_td(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))
@@ -334,7 +367,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(transitions), 4)
         self.assertAlmostEqual(transitions[0], (3.9281, 315.64, 0.0054))
 
-    def test_multiple_paramaters(self):
+    def test_multiple_parameters(self):
         """
         This test makes sure that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.

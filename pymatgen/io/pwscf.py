@@ -2,28 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
-
-from monty.io import zopen
-
-from monty.re import regrep
-from collections import defaultdict
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.util.io_utils import clean_lines
 
 """
 This module implements input and output processing from PWSCF.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "3/27/15"
+import re
+from collections import defaultdict
+
+from monty.io import zopen
+from monty.re import regrep
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.util.io_utils import clean_lines
 
 
 class PWInput:
@@ -107,13 +100,12 @@ class PWInput:
         def to_str(v):
             if isinstance(v, str):
                 return "'%s'" % v
-            elif isinstance(v, float):
+            if isinstance(v, float):
                 return "%s" % str(v).replace("e", "d")
-            elif isinstance(v, bool):
+            if isinstance(v, bool):
                 if v:
                     return ".TRUE."
-                else:
-                    return ".FALSE."
+                return ".FALSE."
             return v
 
         for k1 in ["control", "system", "electrons", "ions", "cell"]:
@@ -248,16 +240,15 @@ class PWInput:
         def input_mode(line):
             if line[0] == "&":
                 return ("sections", line[1:].lower())
-            elif "ATOMIC_SPECIES" in line:
+            if "ATOMIC_SPECIES" in line:
                 return ("pseudo",)
-            elif "K_POINTS" in line:
-                return ("kpoints", line.split("{")[1][:-1])
-            elif "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
-                return ("structure", line.split("{")[1][:-1])
-            elif line == "/":
+            if "K_POINTS" in line:
+                return "kpoints", line.split("{")[1][:-1]
+            if "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
+                return "structure", line.split("{")[1][:-1]
+            if line == "/":
                 return None
-            else:
-                return mode
+            return mode
 
         sections = {"control": {}, "system": {}, "electrons": {},
                     "ions": {}, "cell": {}}
@@ -332,6 +323,7 @@ class PWInput:
                        ions=sections["ions"], cell=sections["cell"], kpoints_mode=kpoints_mode,
                        kpoints_grid=kpoints_grid, kpoints_shift=kpoints_shift)
 
+    @staticmethod
     def proc_val(key, val):
         """
         Static helper method to convert PWINPUT parameters to proper type, e.g.,
@@ -361,17 +353,15 @@ class PWInput:
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
-            else:
-                return int(numstr)
+            return int(numstr)
 
         try:
             if key in bool_keys:
                 if val.lower() == ".true.":
                     return True
-                elif val.lower() == ".false.":
+                if val.lower() == ".false.":
                     return False
-                else:
-                    raise ValueError(key + " should be a boolean type!")
+                raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower()).group(0).replace("d", "e"))
@@ -399,10 +389,16 @@ class PWInput:
 
 
 class PWInputError(BaseException):
+    """
+    Error for PWInput
+    """
     pass
 
 
 class PWOutput:
+    """
+    Parser for PWSCF output file.
+    """
     patterns = {
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
         "ecut": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
@@ -417,6 +413,10 @@ class PWOutput:
     }
 
     def __init__(self, filename):
+        """
+        Args:
+            filename (str): Filename
+        """
         self.filename = filename
         self.data = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
@@ -430,7 +430,7 @@ class PWOutput:
 
     def read_pattern(self, patterns, reverse=False,
                      terminate_on_match=False, postprocess=str):
-        """
+        r"""
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.
 
@@ -459,12 +459,25 @@ class PWOutput:
         self.data.update(matches)
 
     def get_celldm(self, i):
+        """
+        Args:
+            i (int): index
+
+        Returns:
+            Cell dimension along index
+        """
         return self.data["celldm%d" % i]
 
     @property
     def final_energy(self):
+        """
+        Returns: Final energy
+        """
         return self.data["energies"][-1]
 
     @property
     def lattice_type(self):
+        """
+        Returns: Lattice type.
+        """
         return self.data["lattice_type"]

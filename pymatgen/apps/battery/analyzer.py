@@ -2,12 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Analysis classes for batteries
+"""
+
 from collections import defaultdict
 import math
 
 import scipy.constants as const
 
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Composition
 
 __author__ = "Anubhav Jain"
@@ -22,7 +26,7 @@ EV_PER_ATOM_TO_J_PER_MOL = const.e * const.N_A
 ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
 
-class BatteryAnalyzer():
+class BatteryAnalyzer:
     """
     A suite of methods for starting with an oxidized structure and determining its potential as a battery
     """
@@ -65,7 +69,7 @@ class BatteryAnalyzer():
         oxid_limit = oxid_pot / self.cation_charge
 
         # the number of A that exist in the structure for removal
-        num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
+        num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
 
         return min(oxid_limit, num_cation)
 
@@ -161,8 +165,8 @@ class BatteryAnalyzer():
             numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
 
         # convert from num A in structure to num A removed
-        num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
-        return set([num_cation - a for a in numa])
+        num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
+        return {num_cation - a for a in numa}
 
     def _get_int_removals_helper(self, spec_amts_oxi, oxid_el, oxid_els, numa):
         """
@@ -186,8 +190,8 @@ class BatteryAnalyzer():
             return numa
 
         # update the spec_amts_oxi map to reflect that the oxidation took place
-        spec_old = Specie(oxid_el.symbol, oxid_old)
-        spec_new = Specie(oxid_el.symbol, oxid_new)
+        spec_old = Species(oxid_el.symbol, oxid_old)
+        spec_new = Species(oxid_el.symbol, oxid_new)
         specamt = spec_amts_oxi[spec_old]
         spec_amts_oxi = {sp: amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
         spec_amts_oxi[spec_new] = specamt
@@ -202,11 +206,10 @@ class BatteryAnalyzer():
         # recursively try the other oxidation states
         if a == 0:
             return numa
-        else:
-            for oxid_el in oxid_els:
-                numa = numa.union(
-                    self._get_int_removals_helper(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
-            return numa
+        for ox in oxid_els:
+            numa = numa.union(
+                self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa))
+        return numa
 
 
 def is_redox_active_intercalation(element):

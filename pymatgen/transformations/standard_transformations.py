@@ -10,8 +10,9 @@ All transformations should inherit the AbstractTransformation ABC.
 """
 
 import logging
-
 from fractions import Fraction
+from typing import Optional, Union
+
 from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -23,16 +24,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure, Lattice
-from pymatgen.transformations.site_transformations import \
-    PartialRemoveSitesTransformation
+from pymatgen.transformations.site_transformations import PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
-__author__ = "Shyue Ping Ong, Will Richards"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Sep 23, 2011"
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +47,7 @@ class RotationTransformation(AbstractTransformation):
         self.axis = axis
         self.angle = angle
         self.angle_in_radians = angle_in_radians
-        self._symmop = SymmOp.from_axis_angle_and_translation(
-            self.axis, self.angle, self.angle_in_radians)
+        self._symmop = SymmOp.from_axis_angle_and_translation(self.axis, self.angle, self.angle_in_radians)
 
     def apply_transformation(self, structure):
         """
@@ -438,7 +431,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     def __init__(self, specie_to_remove, fraction_to_remove, algo=ALGO_FAST):
         """
         Args:
-            specie_to_remove: Specie to remove. Must have oxidation state E.g.,
+            specie_to_remove: Species to remove. Must have oxidation state E.g.,
                 "Li+"
             fraction_to_remove: Fraction of specie to remove. E.g., 0.5
             algo: This parameter allows you to choose the algorithm to perform
@@ -677,8 +670,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         if return_ranked_list:
             return self._all_structures[:num_to_return]
-        else:
-            return self._all_structures[0]["structure"]
+        return self._all_structures[0]["structure"]
 
     def __str__(self):
         return "Order disordered structure transformation"
@@ -818,25 +810,30 @@ class PerturbStructureTransformation(AbstractTransformation):
     directions. Used for breaking symmetries.
     """
 
-    def __init__(self, distance=0.01, min_distance=None):
+    def __init__(
+            self,
+            distance: float = 0.01,
+            min_distance: Optional[Union[int, float]] = None,
+    ):
         """
         Args:
-            distance (float): Distance of perturbation in angstroms. All sites
-                will be perturbed by exactly that distance in a random direction.
-            min_distance (None, int, or float): if None, all displacements will be
-                equidistant. If int or float, perturb each site a
-                distance drawn from the uniform distribution between
-                'min_distance' and 'distance'.
+            distance: Distance of perturbation in angstroms. All sites
+                will be perturbed by exactly that distance in a random
+                direction.
+            min_distance: if None, all displacements will be equidistant. If int
+                or float, perturb each site a distance drawn from the uniform
+                distribution between 'min_distance' and 'distance'.
+
         """
         self.distance = distance
         self.min_distance = min_distance
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure) -> Structure:
         """
         Apply the transformation.
 
         Args:
-            structure (Structure): Input Structure
+            structure: Input Structure
 
         Returns:
             Structure with sites perturbed.
@@ -847,7 +844,7 @@ class PerturbStructureTransformation(AbstractTransformation):
 
     def __str__(self):
         return "PerturbStructureTransformation : " + \
-               "Amplitude = {}".format(self.amplitude)
+               "Min_distance = {}".format(self.min_distance)
 
     def __repr__(self):
         return self.__str__()
@@ -905,7 +902,7 @@ class DeformStructureTransformation(AbstractTransformation):
         Returns:
             Inverse Transformation.
         """
-        return DeformStructureTransformation(self._deform.inv())
+        return DeformStructureTransformation(self._deform.inv)
 
     @property
     def is_one_to_many(self):

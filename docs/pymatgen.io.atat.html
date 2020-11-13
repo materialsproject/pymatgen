@@ -1,19 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.atat module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.io.atat module &mdash; pymatgen 2020.11.11 documentation</title>
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -21,24 +23,21 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.babel module" href="pymatgen.io.babel.html" />
@@ -63,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -73,7 +72,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.11.11
               </div>
             
           
@@ -90,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -119,6 +119,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -136,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -174,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -205,9 +207,10 @@
             
   <div class="section" id="module-pymatgen.io.atat">
 <span id="pymatgen-io-atat-module"></span><h1>pymatgen.io.atat module<a class="headerlink" href="#module-pymatgen.io.atat" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>Classes for reading/writing mcsqs files following the rndstr.in format.</p>
+<dl class="py class">
 <dt id="pymatgen.io.atat.Mcsqs">
-<em class="property">class </em><code class="sig-name descname">Mcsqs</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/atat.py#L20-L128"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.atat.Mcsqs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Mcsqs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/atat.py#L23-L153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.atat.Mcsqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handle input/output for the crystal definition format
 used by mcsqs and other ATAT codes.</p>
@@ -216,14 +219,14 @@ used by mcsqs and other ATAT codes.</p>
 <dd class="field-odd"><p><strong>structure</strong> – input Structure</p>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.atat.Mcsqs.structure_from_string">
-<em class="property">static </em><code class="sig-name descname">structure_from_string</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/atat.py#L64-L128"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.atat.Mcsqs.structure_from_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses a rndstr.in or lat.in file into pymatgen’s
+<em class="property">static </em><code class="sig-name descname">structure_from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/atat.py#L72-L153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.atat.Mcsqs.structure_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen’s
 Structure format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> – contents of a rndstr.in or lat.in file</p>
+<dd class="field-odd"><p><strong>data</strong> – contents of a rndstr.in, lat.in or bestsqs.out file</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Structure object</p>
@@ -231,9 +234,9 @@ Structure format.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.atat.Mcsqs.to_string">
-<code class="sig-name descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/atat.py#L32-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.atat.Mcsqs.to_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/io/atat.py#L36-L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.atat.Mcsqs.to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a structure in mcsqs rndstr.in format.
 :return (str):</p>
 </dd></dl>
@@ -253,11 +256,19 @@ Structure format.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -268,7 +279,6 @@ Structure format.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

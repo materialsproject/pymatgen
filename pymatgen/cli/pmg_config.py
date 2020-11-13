@@ -4,7 +4,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-A master convenience script with many tools for vasp and structure analysis.
+Implementation for `pmg config` CLI.
 """
 
 
@@ -13,10 +13,11 @@ import sys
 import glob
 import shutil
 import subprocess
+from urllib.request import urlretrieve
+
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen import SETTINGS_FILE
-from urllib.request import urlretrieve
 
 
 def setup_potcars(args):

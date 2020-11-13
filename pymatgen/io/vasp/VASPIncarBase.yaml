@@ -2,7 +2,7 @@ INCAR:
   MAGMOM:
     Ce: 5
     Ce3+: 1
-    Co: 5
+    Co: 0.6
     Co3+: 0.6
     Co4+: 1
     Cr: 5

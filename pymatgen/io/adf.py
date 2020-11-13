@@ -1,11 +1,15 @@
+"""
+IO for ADF files.
+"""
 
-from pymatgen.core.structure import Molecule
+import os
+import re
+
+from monty.io import reverse_readline
+from monty.itertools import chunks
 from monty.json import MSONable
 
-import re
-import os
-from monty.itertools import chunks
-from monty.io import reverse_readline
+from pymatgen.core.structure import Molecule
 
 __author__ = 'Xin Chen, chenxin13@mails.tsinghua.edu.cn'
 
@@ -35,7 +39,7 @@ def is_numeric(s):
 
 
 def iterlines(s):
-    """
+    r"""
     A generator form of s.split('\n') for reducing memory overhead.
 
     Parameters
@@ -55,9 +59,8 @@ def iterlines(s):
         if nextnl < 0:
             yield s[(prevnl+1):]
             break
-        else:
-            yield s[(prevnl+1):nextnl]
-            prevnl = nextnl
+        yield s[(prevnl+1):nextnl]
+        prevnl = nextnl
 
 
 class AdfInputError(Exception):
@@ -134,8 +137,7 @@ class AdfKey(MSONable):
                 else:
                     s += "{:s} ".format(str(op))
             return s.strip()
-        else:
-            return ""
+        return ""
 
     def is_block_key(self):
         """
@@ -151,8 +153,7 @@ class AdfKey(MSONable):
         """
         if self.is_block_key():
             return self.name.upper()
-        else:
-            return self.name
+        return self.name
 
     def __str__(self):
         """
@@ -187,8 +188,7 @@ class AdfKey(MSONable):
     def __eq__(self, other):
         if not isinstance(other, AdfKey):
             return False
-        else:
-            return str(self) == str(other)
+        return str(self) == str(other)
 
     def has_subkey(self, subkey):
         """
@@ -396,10 +396,7 @@ class AdfKey(MSONable):
 
         """
         def is_float(s):
-            if '.' in s or 'E' in s or 'e' in s:
-                return True
-            else:
-                return False
+            return '.' in s or 'E' in s or 'e' in s
 
         if string.find("\n") == -1:
             el = string.split()
@@ -501,22 +498,37 @@ class AdfTask(MSONable):
 
     @staticmethod
     def get_default_basis_set():
+        """
+        Returns: Default basis set
+        """
         return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
+        """
+        Returns: ADF using default SCF.
+        """
         return AdfKey.from_string("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
+        """
+        Returns: ADFKey using default geometry.
+        """
         return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
+        """
+        Returns: ADFKey using default XC.
+        """
         return AdfKey.from_string("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
+        """
+        Returns: Default units.
+        """
         return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
@@ -794,8 +806,7 @@ class AdfOutput:
                     self.error = "Internal crash. TAPE13 is generated!"
                     self.is_failed = True
                     return
-                else:
-                    break
+                break
 
         with open(logfile, "r") as f:
             for line in f:

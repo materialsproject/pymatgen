@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to generate point defect structures
+"""
+
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -21,9 +25,7 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
-"""
-This module defines classes to generate point defect structures
-"""
+
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +88,8 @@ class VacancyGenerator(DefectGenerator):
                 charge = -1 * self.struct_valences[site_index]
 
             return Vacancy(self.structure, vac_site[0], charge=charge)
-        else:
-            raise StopIteration
+
+        raise StopIteration
 
 
 class SubstitutionGenerator(DefectGenerator):
@@ -102,7 +104,7 @@ class SubstitutionGenerator(DefectGenerator):
         note: an Antisite is considered a type of substitution
         Args:
             structure(Structure): pymatgen structure object
-            element (str or Element or Specie): element for the substitution
+            element (str or Element or Species): element for the substitution
         """
         self.structure = structure
         self.element = element
@@ -152,7 +154,7 @@ class InterstitialGenerator(DefectGenerator):
         Initializes an Interstitial generator using structure motifs
         Args:
             structure (Structure): pymatgen structure object
-            element (str or Element or Specie): element for the interstitial
+            element (str or Element or Species): element for the interstitial
         """
         self.structure = structure
         self.element = element
@@ -199,7 +201,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         Initializes an Interstitial generator using Voronoi sites
         Args:
             structure (Structure): pymatgen structure object
-            element (str or Element or Specie): element for the interstitial
+            element (str or Element or Species): element for the interstitial
         """
         self.structure = structure
         self.element = element

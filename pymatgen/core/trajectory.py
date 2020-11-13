@@ -15,7 +15,7 @@ from typing import List, Union, Sequence
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-from pymatgen.core.structure import Structure, Lattice, Element, Specie, DummySpecie, Composition
+from pymatgen.core.structure import Structure, Lattice, Element, Species, DummySpecies, Composition
 from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
 
 
@@ -31,7 +31,7 @@ class Trajectory(MSONable):
     """
 
     def __init__(self, lattice: Union[List, np.ndarray, Lattice],
-                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: List[Union[str, Element, Species, DummySpecies, Composition]],
                  frac_coords: List[Sequence[Sequence[float]]],
                  time_step: float = 2,
                  site_properties: dict = None,
@@ -47,9 +47,9 @@ class Trajectory(MSONable):
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species: List of species on each site. Can take in flexible input,
                 including:
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.

@@ -2,35 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import re
-import math
-import subprocess
-import itertools
-import logging
-import glob
-
-import numpy as np
-from monty.fractions import lcm
-import fractions
-
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecie
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
-from threading import Timer
-
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
-http://enum.sourceforge.net/ and follow the instructions in the README to
+https://github.com/msg-byu/enumlib and follow the instructions in the README to
 compile these two executables accordingly.
 
 If you use this module, please cite the following:
@@ -44,18 +22,34 @@ multilattices: Application to hcp alloys," Phys. Rev. B 80 014120 (July 2009)
 Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, "Generating
 derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
+
+Wiley S. Morgan, Gus L. W. Hart, Rodney W. Forcade, "Generating derivative
+superstructures for systems with high configurational freedom," Comp. Mat.
+Sci. 136 144-149 (May 2017)
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 16, 2012"
+import re
+import math
+import subprocess
+import itertools
+import logging
+import glob
+from threading import Timer
+import fractions
 
+import numpy as np
+from monty.fractions import lcm
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import DummySpecies
 
 logger = logging.getLogger(__name__)
-
 
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
@@ -67,8 +61,8 @@ makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
           "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
-          "library at http://enum.sourceforge.net/ and follow the instructions in "
-          "the README to compile these two executables accordingly.")
+          "library at https://github.com/msg-byu/enumlib and follow the instructions "
+          "in the README to compile these two executables accordingly.")
 class EnumlibAdaptor:
     """
     An adaptor for enumlib.
@@ -126,7 +120,6 @@ class EnumlibAdaptor:
         self.symm_prec = symm_prec
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
-        self.structures = None
         self.timeout = timeout
 
     def run(self):
@@ -155,10 +148,12 @@ class EnumlibAdaptor:
         # Using symmetry finder, get the symmetrically distinct sites.
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
-        logger.debug("Spacegroup {} ({}) with {} distinct sites".format(
-            fitter.get_space_group_symbol(),
-            fitter.get_space_group_number(),
-            len(symmetrized_structure.equivalent_sites))
+        logger.debug(
+            "Spacegroup {} ({}) with {} distinct sites".format(
+                fitter.get_space_group_symbol(),
+                fitter.get_space_group_number(),
+                len(symmetrized_structure.equivalent_sites)
+            )
         )
 
         """
@@ -184,11 +179,11 @@ class EnumlibAdaptor:
                 ordered_sites.append(sites)
             else:
                 sp_label = []
-                species = {k: v for k, v in sites[0].species.items()}
+                species = dict(sites[0].species.items())
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
-                    species[DummySpecie("X")] = 1 - sum(species.values())
+                    species[DummySpecies("X")] = 1 - sum(species.values())
                 for sp in species.keys():
                     if sp not in index_species:
                         index_species.append(sp)
@@ -259,8 +254,8 @@ class EnumlibAdaptor:
         output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
-                                     for f in map(fractions.Fraction, index_amounts)]))
+        base = int(ndisordered * lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
+                                       for f in map(fractions.Fraction, index_amounts)]))
 
         # This multiplicative factor of 10 is to prevent having too small bases
         # which can lead to rounding issues in the next step.
@@ -298,7 +293,7 @@ class EnumlibAdaptor:
         if self.timeout:
 
             timed_out = False
-            timer = Timer(self.timeout*60, lambda p: p.kill(), [p])
+            timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
             try:
                 timer.start()
@@ -411,4 +406,7 @@ class EnumlibAdaptor:
 
 
 class EnumError(BaseException):
+    """
+    Error subclass for enumeration errors.
+    """
     pass

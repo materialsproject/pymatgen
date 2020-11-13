@@ -2,6 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides utility classes for io operations.
+"""
+
+
 import re
 import errno
 import os
@@ -9,9 +14,6 @@ import tempfile
 import codecs
 from monty.io import zopen
 
-"""
-This module provides utility classes for io operations.
-"""
 
 __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -23,6 +25,14 @@ __date__ = "Sep 23, 2011"
 
 
 def ask_yesno(question, default=True):
+    """
+    Args:
+        question ():
+        default ():
+
+    Returns:
+
+    """
     try:
         answer = input(question)
         return answer.lower().strip() in ["y", "yes"]
@@ -148,6 +158,13 @@ class AtomicFile:
     """
 
     def __init__(self, name, mode="w+b", createmode=None, encoding=None):
+        """
+        Args:
+            name ():
+            mode ():
+            createmode ():
+            encoding ():
+        """
         self.__name = name  # permanent name
         self._tempname = _maketemp(name, createmode=createmode)
         if encoding:
@@ -168,6 +185,9 @@ class AtomicFile:
         self.close()
 
     def close(self):
+        """
+        Close the file.
+        """
         if not self._fp.closed:
             self._fp.close()
             # This to avoid:
@@ -179,6 +199,9 @@ class AtomicFile:
             os.rename(self._tempname, self.__name)
 
     def discard(self):
+        """
+        Discard the file.
+        """
         if not self._fp.closed:
             try:
                 os.unlink(self._tempname)

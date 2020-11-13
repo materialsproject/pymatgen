@@ -14,6 +14,7 @@ See the following papers for more info:
 """
 
 from collections import defaultdict
+import logging
 
 import numpy as np
 
@@ -29,32 +30,39 @@ __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
 
 
+logger = logging.getLogger(__name__)
+
+
 class QuasiharmonicDebyeApprox:
     """
-    Args:
-        energies (list): list of DFT energies in eV
-        volumes (list): list of volumes in Ang^3
-        structure (Structure):
-        t_min (float): min temperature
-        t_step (float): temperature step
-        t_max (float): max temperature
-        eos (str): equation of state used for fitting the energies and the
-            volumes.
-            options supported by pymatgen: "quadratic", "murnaghan", "birch",
-                "birch_murnaghan", "pourier_tarantola", "vinet",
-                "deltafactor", "numerical_eos"
-        pressure (float): in GPa, optional.
-        poisson (float): poisson ratio.
-        use_mie_gruneisen (bool): whether or not to use the mie-gruneisen
-            formulation to compute the gruneisen parameter.
-            The default is the slater-gamma formulation.
-        anharmonic_contribution (bool): whether or not to consider the anharmonic
-            contribution to the Debye temperature. Cannot be used with
-            use_mie_gruneisen. Defaults to False.
+    Quasiharmonic approximation.
     """
+
     def __init__(self, energies, volumes, structure, t_min=300.0, t_step=100,
                  t_max=300.0, eos="vinet", pressure=0.0, poisson=0.25,
                  use_mie_gruneisen=False, anharmonic_contribution=False):
+        """
+        Args:
+            energies (list): list of DFT energies in eV
+            volumes (list): list of volumes in Ang^3
+            structure (Structure):
+            t_min (float): min temperature
+            t_step (float): temperature step
+            t_max (float): max temperature
+            eos (str): equation of state used for fitting the energies and the
+                volumes.
+                options supported by pymatgen: "quadratic", "murnaghan", "birch",
+                    "birch_murnaghan", "pourier_tarantola", "vinet",
+                    "deltafactor", "numerical_eos"
+            pressure (float): in GPa, optional.
+            poisson (float): poisson ratio.
+            use_mie_gruneisen (bool): whether or not to use the mie-gruneisen
+                formulation to compute the gruneisen parameter.
+                The default is the slater-gamma formulation.
+            anharmonic_contribution (bool): whether or not to consider the anharmonic
+                contribution to the Debye temperature. Cannot be used with
+                use_mie_gruneisen. Defaults to False.
+        """
         self.energies = energies
         self.volumes = volumes
         self.structure = structure
@@ -81,7 +89,7 @@ class QuasiharmonicDebyeApprox:
         self.optimum_volumes = []  # in Ang^3
         # fit E and V and get the bulk modulus(used to compute the Debye
         # temperature)
-        print("Fitting E and V")
+        logger.info("Fitting E and V")
         self.eos = EOS(eos)
         self.ev_eos_fit = self.eos.fit(volumes, energies)
         self.bulk_modulus = self.ev_eos_fit.b0_GPa  # in GPa
@@ -104,11 +112,9 @@ class QuasiharmonicDebyeApprox:
             try:
                 G_opt, V_opt = self.optimizer(t)
             except Exception:
-                if len(temperatures) > 1:
-                    print("EOS fitting failed, so skipping this data point, {}".format(t))
-                    continue
-                else:
+                if len(temperatures) <= 1:
                     raise
+                logger.info("EOS fitting failed, so skipping this data point, {}".format(t))
             self.gibbs_free_energy.append(G_opt)
             self.temperatures.append(t)
             self.optimum_volumes.append(V_opt)
@@ -207,8 +213,7 @@ class QuasiharmonicDebyeApprox:
         if self.anharmonic_contribution:
             gamma = self.gruneisen_parameter(0, self.ev_eos_fit.v0)  # 0K equilibrium Gruneisen parameter
             return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
-        else:
-            return debye
+        return debye
 
     @staticmethod
     def debye_integral(y):
@@ -228,8 +233,7 @@ class QuasiharmonicDebyeApprox:
         if y < 155:
             integral = quadrature(lambda x: x ** 3 / (np.exp(x) - 1.), 0, y)
             return list(integral)[0] * factor
-        else:
-            return 6.493939 * factor
+        return 6.493939 * factor
 
     def gruneisen_parameter(self, temperature, volume):
         """
@@ -255,7 +259,7 @@ class QuasiharmonicDebyeApprox:
             float: unitless
         """
         if isinstance(self.eos, PolynomialEOS):
-            p = np.poly1d(self.eos.eos_params)
+            p = np.poly1d(self.eos.eos_params)  # pylint: disable=E1101
             # first derivative of energy at 0K wrt volume evaluated at the
             # given volume, in eV/Ang^3
             dEdV = np.polyder(p, 1)(volume)

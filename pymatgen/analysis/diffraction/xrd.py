@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements an XRD pattern calculator.
+"""
 
 import os
 import json
@@ -10,20 +13,7 @@ from math import sin, cos, asin, pi, degrees, radians
 import numpy as np
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
-    get_unique_families
-
-"""
-This module implements an XRD pattern calculator.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "5/22/14"
+from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, get_unique_families
 
 
 # XRD wavelengths in angstroms
@@ -60,7 +50,7 @@ with open(os.path.join(os.path.dirname(__file__),
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
-    """
+    r"""
     Computes the XRD pattern of a crystal structure.
 
     This code is implemented by Shyue Ping Ong as part of UCSD's NANO106 -

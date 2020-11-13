@@ -42,7 +42,7 @@ def sort_dict(d, key=None, reverse=False):
     Returns:
         OrderedDict object whose keys are ordered according to their value.
     """
-    kv_items = [kv for kv in d.items()]
+    kv_items = list(d.items())
 
     # Sort kv_items according to key.
     if key is None:
@@ -131,10 +131,7 @@ def monotonic(values, mode="<", atol=1.e-8):
             if abs(vp - v) > atol and vp >= v:
                 return False
 
-    else:
-        raise ValueError("Wrong mode %s" % str(mode))
-
-    return True
+    raise ValueError("Wrong mode %s" % str(mode))
 
 
 def round_to_sigfigs(num, sigfigs):
@@ -142,16 +139,18 @@ def round_to_sigfigs(num, sigfigs):
     Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.
     """
-    if type(sigfigs) != int:
+    if not isinstance(sigfigs, int):
         raise TypeError("Number of significant figures must be integer.")
-    elif sigfigs < 1:
+
+    if sigfigs < 1:
         raise ValueError("Number of significant figures "
                          "must be larger than zero.")
-    elif num == 0:
+
+    if num == 0:
         return num
-    else:
-        prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
-        return round(num, prec)
+
+    prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
+    return round(num, prec)
 
 
 def make_symmetric_matrix_from_upper_tri(val):
@@ -166,11 +165,6 @@ def make_symmetric_matrix_from_upper_tri(val):
     mask = ~np.tri(3, k=-1, dtype=bool)
     out = np.zeros((3, 3), dtype=val.dtype)
     out[mask] = val
+    # pylint: disable=E1137
     out.T[mask] = val
     return out
-
-
-if __name__ == "__main__":
-    import doctest
-
-    doctest.testmod()

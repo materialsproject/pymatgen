@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.elasticity.strain &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.elasticity.strain</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.elasticity.strain</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes and methods used to describe deformations and</span>
+<span class="sd">strains, including applying those deformations to structure objects and</span>
+<span class="sd">generating deformed structure sets for further calculations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="kn">import</span> <span class="n">SquareTensor</span><span class="p">,</span> <span class="n">symmetry_reduce</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Maarten de Jong, Mark Asta, Anubhav Jain&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;montoyjh@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;July 24, 2018&quot;</span>
+
+
+<div class="viewcode-block" id="Deformation"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation">[docs]</a><span class="k">class</span> <span class="nc">Deformation</span><span class="p">(</span><span class="n">SquareTensor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of SquareTensor that describes the deformation gradient tensor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">symbol</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">deformation_gradient</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Deformation object.  Note that the constructor uses __new__</span>
+<span class="sd">        rather than __init__ according to the standard method of subclassing</span>
+<span class="sd">        numpy ndarrays.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            deformation_gradient (3x3 array-like): the 3x3 array-like</span>
+<span class="sd">                representing the deformation gradient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">deformation_gradient</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Deformation.is_independent"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.is_independent">[docs]</a>    <span class="k">def</span> <span class="nf">is_independent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        checks to determine whether the deformation is independent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_perturbed_indices</span><span class="p">(</span><span class="n">tol</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Deformation.get_perturbed_indices"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_perturbed_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets indices of perturbed elements of the deformation gradient,</span>
+<span class="sd">        i. e. those that differ from the identity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">indices</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">green_lagrange_strain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        calculates the euler-lagrange strain from</span>
+<span class="sd">        the deformation gradient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Strain</span><span class="o">.</span><span class="n">from_deformation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Deformation.apply_to_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure">[docs]</a>    <span class="k">def</span> <span class="nf">apply_to_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the deformation gradient to a structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure object): the structure object to</span>
+<span class="sd">                be modified by the deformation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">old_latt</span> <span class="o">=</span> <span class="n">def_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">new_latt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">old_latt</span><span class="p">)))</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">new_latt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">def_struct</span></div>
+
+<div class="viewcode-block" id="Deformation.from_index_amount"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Deformation.from_index_amount">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_index_amount</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">matrixpos</span><span class="p">,</span> <span class="n">amt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Factory method for constructing a Deformation object</span>
+<span class="sd">        from a matrix position and amount</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            matrixpos (tuple): tuple corresponding the matrix position to</span>
+<span class="sd">                have a perturbation added</span>
+<span class="sd">            amt (float): amount to add to the identity matrix at position</span>
+<span class="sd">                matrixpos</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">f</span><span class="p">[</span><span class="n">matrixpos</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amt</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DeformedStructureSet"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.DeformedStructureSet">[docs]</a><span class="k">class</span> <span class="nc">DeformedStructureSet</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    class that generates a set of independently deformed structures that</span>
+<span class="sd">    can be used to calculate linear stress-strain response</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">norm_strains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shear_strains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">symmetry</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        constructs the deformed geometries of a structure.  Generates</span>
+<span class="sd">        m + n deformed structures according to the supplied parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): structure to undergo deformation</span>
+<span class="sd">            norm_strains (list of floats): strain values to apply</span>
+<span class="sd">                to each normal mode.</span>
+<span class="sd">            shear_strains (list of floats): strain values to apply</span>
+<span class="sd">                to each shear mode.</span>
+<span class="sd">            symmetry (bool): whether or not to use symmetry reduction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_strains</span> <span class="o">=</span> <span class="n">norm_strains</span> <span class="ow">or</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+        <span class="n">shear_strains</span> <span class="o">=</span> <span class="n">shear_strains</span> <span class="ow">or</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.06</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">undeformed_structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">def_structs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Generate deformations</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]:</span>
+            <span class="k">for</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">norm_strains</span><span class="p">:</span>
+                <span class="n">strain</span> <span class="o">=</span> <span class="n">Strain</span><span class="o">.</span><span class="n">from_index_amount</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">amount</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">strain</span><span class="o">.</span><span class="n">get_deformation_matrix</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]:</span>
+            <span class="k">for</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">shear_strains</span><span class="p">:</span>
+                <span class="n">strain</span> <span class="o">=</span> <span class="n">Strain</span><span class="o">.</span><span class="n">from_index_amount</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">amount</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">strain</span><span class="o">.</span><span class="n">get_deformation_matrix</span><span class="p">())</span>
+
+        <span class="c1"># Perform symmetry reduction if specified</span>
+        <span class="k">if</span> <span class="n">symmetry</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sym_dict</span> <span class="o">=</span> <span class="n">symmetry_reduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sym_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">defo</span><span class="o">.</span><span class="n">apply_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">defo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformations</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deformed_structures</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Strain"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain">[docs]</a><span class="k">class</span> <span class="nc">Strain</span><span class="p">(</span><span class="n">SquareTensor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of SquareTensor that describes the Green-Lagrange strain tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">symbol</span> <span class="o">=</span> <span class="s2">&quot;e&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strain_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Strain object.  Note that the constructor uses __new__</span>
+<span class="sd">        rather than __init__ according to the standard method of</span>
+<span class="sd">        subclassing numpy ndarrays.  Note also that the default constructor</span>
+<span class="sd">        does not include the deformation gradient</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            strain_matrix (3x3 array-like): the 3x3 array-like</span>
+<span class="sd">                representing the Green-Lagrange strain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vscale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">6</span><span class="p">,))</span>
+        <span class="n">vscale</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strain_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="n">vscale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Strain objects must be initialized &quot;</span>
+                             <span class="s2">&quot;with a symmetric array or a voigt-notation &quot;</span>
+                             <span class="s2">&quot;vector with six entries.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vscale</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_vscale&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Strain.from_deformation"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.from_deformation">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_deformation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">deformation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Factory method that returns a Strain object from a deformation</span>
+<span class="sd">        gradient</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            deformation (3x3 array-like):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dfm</span> <span class="o">=</span> <span class="n">Deformation</span><span class="p">(</span><span class="n">deformation</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dfm</span><span class="o">.</span><span class="n">trans</span><span class="p">,</span> <span class="n">dfm</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Strain.from_index_amount"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.from_index_amount">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_index_amount</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Like Deformation.from_index_amount, except generates</span>
+<span class="sd">        a strain from the zero 3x3 tensor or voigt vector with</span>
+<span class="sd">        the amount specified in the index location.  Ensures</span>
+<span class="sd">        symmetric strain.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idx (tuple or integer): index to be perturbed, can be voigt or</span>
+<span class="sd">                full-tensor notation</span>
+<span class="sd">            amount (float): amount to perturb selected index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+            <span class="n">v</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">amount</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+                <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">amount</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index must either be 2-tuple or integer &quot;</span>
+                             <span class="s2">&quot;corresponding to full-tensor or voigt index&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Strain.get_deformation_matrix"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_deformation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns the deformation matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">convert_strain_to_deformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">von_mises_strain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Equivalent strain to Von Mises Stress</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span> <span class="o">-</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eps</span> <span class="o">*</span> <span class="n">eps</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_strain_to_deformation"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.strain.html#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation">[docs]</a><span class="k">def</span> <span class="nf">convert_strain_to_deformation</span><span class="p">(</span><span class="n">strain</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts a strain to a deformation gradient that will</span>
+<span class="sd">    produce that strain.  Supports three methods:</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strain (3x3 array-like): strain matrix</span>
+<span class="sd">        shape: (string): method for determining deformation, supports</span>
+<span class="sd">            &quot;upper&quot; produces an upper triangular defo</span>
+<span class="sd">            &quot;lower&quot; produces a lower triangular defo</span>
+<span class="sd">            &quot;symmetric&quot; produces a symmetric defo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">strain</span> <span class="o">=</span> <span class="n">SquareTensor</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span>
+    <span class="n">ftdotf</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">strain</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;upper&quot;</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">ftdotf</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;symmetric&quot;</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">ftdotf</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;shape must be </span><span class="se">\&quot;</span><span class="s2">upper</span><span class="se">\&quot;</span><span class="s2"> or </span><span class="se">\&quot;</span><span class="s2">symmetric</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Deformation</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.elasticity.strain</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

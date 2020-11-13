@@ -2,26 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import glob
-
-import numpy as np
-from monty.json import jsanitize
-from monty.json import MSONable
-
-from pymatgen.util.plotting import pretty_plot
-from pymatgen.io.vasp import Poscar, Outcar
-from pymatgen.analysis.structure_matcher import StructureMatcher
-scipy_old_piecewisepolynomial = True
-try:
-    from scipy.interpolate import PiecewisePolynomial
-except ImportError:
-    from scipy.interpolate import CubicSpline
-
-    scipy_old_piecewisepolynomial = False
-
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -30,12 +10,19 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
-__author__ = 'Shyue Ping Ong'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Shyue Ping Ong'
-__email__ = 'ongsp@ucsd.edu'
-__date__ = '6/1/15'
+import os
+import glob
+
+import numpy as np
+
+from scipy.interpolate import CubicSpline
+
+from monty.json import jsanitize
+from monty.json import MSONable
+
+from pymatgen.util.plotting import pretty_plot
+from pymatgen.io.vasp import Poscar, Outcar
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 
 class NEBAnalysis(MSONable):
@@ -84,26 +71,17 @@ class NEBAnalysis(MSONable):
         """
         self.spline_options = spline_options
         relative_energies = self.energies - self.energies[0]
-        if scipy_old_piecewisepolynomial:
-            if self.spline_options:
-                raise RuntimeError('Option for saddle point not available with'
-                                   'old scipy implementation')
-            self.spline = PiecewisePolynomial(
-                self.r, np.array([relative_energies, -self.forces]).T,
-                orders=3)
+        if self.spline_options.get('saddle_point', '') == 'zero_slope':
+            imax = np.argmax(relative_energies)
+            self.spline = CubicSpline(x=self.r[:imax + 1],
+                                      y=relative_energies[:imax + 1],
+                                      bc_type=((1, 0.0), (1, 0.0)))
+            cspline2 = CubicSpline(x=self.r[imax:], y=relative_energies[imax:],
+                                   bc_type=((1, 0.0), (1, 0.0)))
+            self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
         else:
-            # New scipy implementation for scipy > 0.18.0
-            if self.spline_options.get('saddle_point', '') == 'zero_slope':
-                imax = np.argmax(relative_energies)
-                self.spline = CubicSpline(x=self.r[:imax + 1],
-                                          y=relative_energies[:imax + 1],
-                                          bc_type=((1, 0.0), (1, 0.0)))
-                cspline2 = CubicSpline(x=self.r[imax:], y=relative_energies[imax:],
-                                       bc_type=((1, 0.0), (1, 0.0)))
-                self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
-            else:
-                self.spline = CubicSpline(x=self.r, y=relative_energies,
-                                          bc_type=((1, 0.0), (1, 0.0)))
+            self.spline = CubicSpline(x=self.r, y=relative_energies,
+                                      bc_type=((1, 0.0), (1, 0.0)))
 
     @classmethod
     def from_outcars(cls, outcars, structures, **kwargs):
@@ -274,7 +252,7 @@ class NEBAnalysis(MSONable):
             outcar = glob.glob(os.path.join(d, "OUTCAR*"))
             contcar = glob.glob(os.path.join(d, "CONTCAR*"))
             poscar = glob.glob(os.path.join(d, "POSCAR*"))
-            terminal = i == 0 or i == neb_dirs[-1][0]
+            terminal = i in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
@@ -325,16 +303,16 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
     return: a NEBAnalysis object
     """
     x = StructureMatcher()
-    for neb_index in range(len(neb_analyses)):
+    for neb_index, neb in enumerate(neb_analyses):
         if neb_index == 0:
-            neb1 = neb_analyses[neb_index]
+            neb1 = neb
             neb1_energies = list(neb1.energies)
             neb1_structures = neb1.structures
             neb1_forces = neb1.forces
             neb1_r = neb1.r
             continue
 
-        neb2 = neb_analyses[neb_index]
+        neb2 = neb
         neb2_energies = list(neb2.energies)
 
         matching = 0
@@ -377,14 +355,13 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
             neb1_energies = neb2_energies + neb1_energies[1:]
             neb1_structures = neb2.structures + neb1_structures[1:]
             neb1_forces = list(neb2.forces) + list(neb1_forces)[1:]
-            neb1_r = [i for i in list(neb2.r)] + \
-                     [i + list(neb2.r)[-1] for i in list(neb1_r)[1:]]
+            neb1_r = list(neb2.r) + [i + list(neb2.r)[-1] for i in list(neb1_r)[1:]]
 
         elif abs(neb1_end_e - neb2_start_e) == min_e_diff:
             neb1_energies = neb1_energies + neb2_energies[1:]
             neb1_structures = neb1_structures + neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
-            neb1_r = [i for i in list(neb1_r)] + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
+            neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
         else:
             neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]

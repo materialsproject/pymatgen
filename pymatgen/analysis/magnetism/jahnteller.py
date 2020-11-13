@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+JahnTeller distortion analysis.
+"""
+
 
 import os
 import numpy as np
@@ -12,7 +16,7 @@ from pymatgen.analysis.local_env import (
     get_neighbors_of_site_with_index,
 )
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie, get_el_sp
+from pymatgen.core.periodic_table import Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import warnings
 
@@ -22,13 +26,17 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class JahnTellerAnalyzer:
+    """
+    Will attempt to classify if structure *may* be Jahn-Teller active.
+    Class currently uses datafile of hard-coded common Jahn-Teller
+    active ions.
+    If structure is annotated with magnetic moments, will estimate
+    if structure may be high-spin or low-spin.
+    Class aims for more false-positives than false-negatives.
+    """
     def __init__(self):
-        """Will attempt to classify if structure *may* be Jahn-Teller active.
-        Class currently uses datafile of hard-coded common Jahn-Teller
-        active ions.
-        If structure is annotated with magnetic moments, will estimate
-        if structure may be high-spin or low-spin.
-        Class aims for more false-positives than false-negatives.
+        """
+        Init for JahnTellerAnalyzer.
         """
 
         self.spin_configs = {
@@ -130,7 +138,7 @@ class JahnTellerAnalyzer:
 
             # only interested in sites with oxidation states
             if (
-                isinstance(site.specie, Specie)
+                isinstance(site.specie, Species)
                 and site.specie.element.is_transition_metal
             ):
 
@@ -373,12 +381,12 @@ class JahnTellerAnalyzer:
             return structure
 
     @staticmethod
-    def _get_number_of_d_electrons(species: Specie) -> float:
+    def _get_number_of_d_electrons(species: Species) -> float:
         """
         Get number of d electrons of a species.
 
         Args:
-          species: Specie object
+          species: Species object
 
         Returns: Number of d electrons.
         """
@@ -404,7 +412,7 @@ class JahnTellerAnalyzer:
         return nelectrons
 
     def get_magnitude_of_effect_from_species(
-        self, species: Union[str, Specie], spin_state: str, motif: str
+        self, species: Union[str, Species], spin_state: str, motif: str
     ) -> str:
         """
         Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
@@ -422,8 +430,8 @@ class JahnTellerAnalyzer:
 
         sp = get_el_sp(species)
 
-        # has to be Specie; we need to know the oxidation state
-        if isinstance(sp, Specie) and sp.element.is_transition_metal:
+        # has to be Species; we need to know the oxidation state
+        if isinstance(sp, Species) and sp.element.is_transition_metal:
 
             d_electrons = self._get_number_of_d_electrons(sp)
 
@@ -474,7 +482,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def _estimate_spin_state(
-        species: Union[str, Specie], motif: str, known_magmom: float
+        species: Union[str, Species], motif: str, known_magmom: float
     ) -> str:
         """Simple heuristic to estimate spin state. If magnetic moment
         is sufficiently close to that predicted for a given spin state,
@@ -517,7 +525,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(
-        species: Union[str, Specie], motif: str, spin_state: str
+        species: Union[str, Species], motif: str, spin_state: str
     ) -> Optional[float]:
         """Calculates the spin-only magnetic moment for a
         given species. Only supports transition metals.

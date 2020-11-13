@@ -1,11 +1,8 @@
 Change log
 ==========
 
-v2020.1.28
-----------
-* Plugin architecture for pymatgen.
-* Improvements to pymatgen.analysis.xas.spectrum.XAS class. (@yiming)
-* Fixes for ISYM uniform bug and auto-NEDSO (@fraricci) 
-* Improvements to ReactionDiagram.
-* Chemenv improvements (@davidwaroquiers)
-* Misc bug fixes.
+v2020.11.11
+-----------
+* Bug fix for PhononBandStructureSymmLine. (@gpetretto)
+* Improved robustness in ABINIT input generation. (@gpetretto)
+* Other minor bug fixes.

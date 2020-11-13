@@ -1,0 +1,586 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.ferroelectricity.polarization &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.ferroelectricity.polarization</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.ferroelectricity.polarization</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains classes useful for analyzing ferroelectric candidates.</span>
+<span class="sd">The Polarization class can recover the spontaneous polarization using</span>
+<span class="sd">multiple calculations along a nonpolar to polar ferroelectric distortion.</span>
+<span class="sd">The EnergyTrend class is useful for assessing the trend in energy across</span>
+<span class="sd">the distortion.</span>
+
+<span class="sd">See Nicola Spaldin&#39;s &quot;A beginner&#39;s guide to the modern theory of polarization&quot;</span>
+<span class="sd">(https://arxiv.org/abs/1202.1831) for an introduction to crystal polarization.</span>
+
+<span class="sd">VASP reports dipole moment values (used to derive polarization) along Cartesian</span>
+<span class="sd">directions (see pead.F around line 970 in the VASP source to confirm this).</span>
+<span class="sd">However, it is most convenient to perform the adjustments necessary to recover</span>
+<span class="sd">a same branch polarization by expressing the polarization along lattice directions.</span>
+<span class="sd">For this reason, calc_ionic calculates ionic contributions to the polarization</span>
+<span class="sd">along lattice directions. We provide the means to convert Cartesian direction</span>
+<span class="sd">polarizations to lattice direction polarizations in the Polarization class.</span>
+
+<span class="sd">We recommend using our calc_ionic function for calculating the ionic</span>
+<span class="sd">polarization rather than the values from OUTCAR. We find that the ionic</span>
+<span class="sd">dipole moment reported in OUTCAR differ from the naive calculation of</span>
+<span class="sd">\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the</span>
+<span class="sd">pseudopotential file, and r is the distance in Angstroms along the lattice vectors.</span>
+<span class="sd">Note, this difference is not simply due to VASP using Cartesian directions and</span>
+<span class="sd">calc_ionic using lattice direction but rather how the ionic polarization is</span>
+<span class="sd">computed. Compare calc_ionic to VASP SUBROUTINE POINT_CHARGE_DIPOL in dipol.F in</span>
+<span class="sd">the VASP source to see the differences. We are able to recover a smooth same</span>
+<span class="sd">branch polarization more frequently using the naive calculation in calc_ionic</span>
+<span class="sd">than using the ionic dipole moment reported in the OUTCAR.</span>
+
+<span class="sd">Some defintions of terms used in the comments below:</span>
+
+<span class="sd">A polar structure belongs to a polar space group. A polar space group has a</span>
+<span class="sd">one of the 10 polar point group:</span>
+<span class="sd">        (1, 2, m, mm2, 4, 4mm, 3, 3m, 6, 6m)</span>
+
+<span class="sd">Being nonpolar is not equivalent to being centrosymmetric (having inversion</span>
+<span class="sd">symmetry). For example, any space group with point group 222 is nonpolar but</span>
+<span class="sd">not centrosymmetric.</span>
+
+<span class="sd">By symmetry the polarization of a nonpolar material modulo the quantum</span>
+<span class="sd">of polarization can only be zero or 1/2. We use a nonpolar structure to help</span>
+<span class="sd">determine the spontaneous polarization because it serves as a reference point.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Tess Smidt&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;tsmidt@berkeley.edu&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 15, 2017&quot;</span>
+
+
+<div class="viewcode-block" id="zval_dict_from_potcar"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar">[docs]</a><span class="k">def</span> <span class="nf">zval_dict_from_potcar</span><span class="p">(</span><span class="n">potcar</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates zval_dictionary for calculating the ionic polarization from</span>
+<span class="sd">    Potcar object</span>
+
+<span class="sd">    potcar: Potcar object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zval_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">potcar</span><span class="p">:</span>
+        <span class="n">zval_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">element</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">ZVAL</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">zval_dict</span></div>
+
+
+<div class="viewcode-block" id="calc_ionic"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.calc_ionic">[docs]</a><span class="k">def</span> <span class="nf">calc_ionic</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">zval</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the ionic dipole moment using ZVAL from pseudopotential</span>
+
+<span class="sd">    site: PeriodicSite</span>
+<span class="sd">    structure: Structure</span>
+<span class="sd">    zval: Charge value for ion (ZVAL for VASP pseudopotential)</span>
+
+<span class="sd">    Returns polarization in electron Angstroms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">norms</span><span class="p">,</span> <span class="o">-</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">*</span> <span class="n">zval</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_total_ionic_dipole"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole">[docs]</a><span class="k">def</span> <span class="nf">get_total_ionic_dipole</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">zval_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the total ionic dipole moment for a structure.</span>
+
+<span class="sd">    structure: pymatgen Structure</span>
+<span class="sd">    zval_dict: specie, zval dictionary pairs</span>
+<span class="sd">    center (np.array with shape [3,1]) : dipole center used by VASP</span>
+<span class="sd">    tiny (float) : tolerance for determining boundary of calculation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tot_ionic</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+        <span class="n">zval</span> <span class="o">=</span> <span class="n">zval_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span>
+        <span class="n">tot_ionic</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">calc_ionic</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">zval</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tot_ionic</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PolarizationLattice"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice">[docs]</a><span class="k">class</span> <span class="nc">PolarizationLattice</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Why is a Lattice inheriting a structure? This is ridiculous.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PolarizationLattice.get_nearest_site"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_nearest_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given coords and a site, find closet site to coords.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            coords (3x1 array): cartesian coords of center of sphere</span>
+<span class="sd">            site: site to find closest to coords</span>
+<span class="sd">            r: radius of sphere. Defaults to diagonal of unit cell</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Closest site and distance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Get sites with identical index to site</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ns</span> <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">]</span>
+        <span class="c1"># Sort by distance to coords</span>
+        <span class="n">ns</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Return PeriodicSite and distance of closest image</span>
+        <span class="k">return</span> <span class="n">ns</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="Polarization"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization">[docs]</a><span class="k">class</span> <span class="nc">Polarization</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for recovering the same branch polarization for a set of</span>
+<span class="sd">    polarization calculations along the nonpolar - polar distortion</span>
+<span class="sd">    path of a ferroelectric.</span>
+
+<span class="sd">    p_elecs, p_ions, and structures lists should be given in order</span>
+<span class="sd">    of nonpolar to polar! For example, the structures returned from:</span>
+<span class="sd">        nonpolar.interpolate(polar,interpolate_lattices=True)</span>
+<span class="sd">    if nonpolar is the nonpolar Structure and polar is the polar structure.</span>
+
+<span class="sd">    It is assumed that the electronic and ionic dipole moment values</span>
+<span class="sd">    are given in electron Angstroms along the three lattice directions</span>
+<span class="sd">    (a,b,c).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">p_elecs_in_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">p_ions_in_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]</span>
+<span class="sd">        p_ions: np.array of ionic contribution to the polarization with shape [N, 3]</span>
+<span class="sd">        p_elecs_in_cartesian: whether p_elecs is along Cartesian directions (rather than lattice directions).</span>
+<span class="sd">            Default is True because that is the convention for VASP.</span>
+<span class="sd">        p_ions_in_cartesian: whether p_ions is along Cartesian directions (rather than lattice directions).</span>
+<span class="sd">            Default is False because calc_ionic (which we recommend using for calculating the ionic</span>
+<span class="sd">            contribution to the polarization) uses lattice directions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_ions</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The number of electronic polarization and ionic polarization values must be equal.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p_elecs_in_cartesian</span><span class="p">:</span>
+            <span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_vector_along_lattice_directions</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">struct</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">p_ions_in_cartesian</span><span class="p">:</span>
+            <span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_vector_along_lattice_directions</span><span class="p">(</span><span class="n">p_ions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">struct</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_ions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
+
+<div class="viewcode-block" id="Polarization.from_outcars_and_structures"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_outcars_and_structures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">outcars</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span>
+                                    <span class="n">calc_ionic_from_zval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create Polarization object from list of Outcars and Structures in order</span>
+<span class="sd">        of nonpolar to polar.</span>
+
+<span class="sd">        Note, we recommend calculating the ionic dipole moment using calc_ionic</span>
+<span class="sd">        than using the values in Outcar (see module comments). To do this set</span>
+<span class="sd">        calc_ionic_from_zval = True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p_elecs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">p_ions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">outcars</span><span class="p">):</span>
+            <span class="n">p_elecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">p_elec</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">calc_ionic_from_zval</span><span class="p">:</span>
+                <span class="n">p_ions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">get_total_ionic_dipole</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">o</span><span class="o">.</span><span class="n">zval_dict</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p_ions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">p_ion</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">,</span> <span class="n">structures</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Polarization.get_pelecs_and_pions"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions">[docs]</a>    <span class="k">def</span> <span class="nf">get_pelecs_and_pions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the electronic and ionic dipole moments / polarizations.</span>
+
+<span class="sd">        convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb</span>
+<span class="sd">            per centimeter**2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">convert_to_muC_per_cm2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span>
+
+        <span class="k">if</span> <span class="n">convert_to_muC_per_cm2</span><span class="p">:</span>
+            <span class="n">p_elecs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">p_ions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="n">volumes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
+            <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>
+            <span class="n">cm2_to_A2</span> <span class="o">=</span> <span class="mf">1e16</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">*=</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>
+
+            <span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">p_elecs</span><span class="p">)</span>
+            <span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">)</span>
+
+            <span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span> <span class="o">=</span> <span class="n">p_elecs</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">p_ions</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="k">return</span> <span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span></div>
+
+<div class="viewcode-block" id="Polarization.get_same_branch_polarization_data"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_same_branch_polarization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get same branch dipole moment (convert_to_muC_per_cm2=False)</span>
+<span class="sd">        or polarization for given polarization data (convert_to_muC_per_cm2=True).</span>
+
+<span class="sd">        Polarization is a lattice vector, meaning it is only defined modulo the</span>
+<span class="sd">        quantum of polarization:</span>
+
+<span class="sd">            P = P_0 + \\sum_i \\frac{n_i e R_i}{\\Omega}</span>
+
+<span class="sd">        where n_i is an integer, e is the charge of the electron in microCoulombs,</span>
+<span class="sd">        R_i is a lattice vector, and \\Omega is the unit cell volume in cm**3</span>
+<span class="sd">        (giving polarization units of microCoulomb per centimeter**2).</span>
+
+<span class="sd">        The quantum of the dipole moment in electron Angstroms (as given by VASP) is:</span>
+
+<span class="sd">            \\sum_i n_i e R_i</span>
+
+<span class="sd">        where e, the electron charge, is 1 and R_i is a lattice vector, and n_i is an integer.</span>
+
+<span class="sd">        Given N polarization calculations in order from nonpolar to polar, this algorithm</span>
+<span class="sd">        minimizes the distance between adjacent polarization images. To do this, it</span>
+<span class="sd">        constructs a polarization lattice for each polarization calculation using the</span>
+<span class="sd">        pymatgen.core.structure class and calls the get_nearest_site method to find the</span>
+<span class="sd">        image of a given polarization lattice vector that is closest to the previous polarization</span>
+<span class="sd">        lattice vector image.</span>
+
+<span class="sd">        Note, using convert_to_muC_per_cm2=True and all_in_polar=True calculates the &quot;proper</span>
+<span class="sd">        polarization&quot; (meaning the change in polarization does not depend on the choice of</span>
+<span class="sd">        polarization branch) while convert_to_muC_per_cm2=True and all_in_polar=False calculates</span>
+<span class="sd">        the &quot;improper polarization&quot; (meaning the change in polarization does depend on the choice</span>
+<span class="sd">        of branch). As one might guess from the names. We recommend calculating the &quot;proper</span>
+<span class="sd">        polarization&quot;.</span>
+
+<span class="sd">        convert_to_muC_per_cm2: convert polarization from electron * Angstroms to</span>
+<span class="sd">            microCoulomb per centimeter**2</span>
+<span class="sd">        all_in_polar: convert polarization to be in polar (final structure) polarization lattice</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">p_elec</span><span class="p">,</span> <span class="n">p_ion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pelecs_and_pions</span><span class="p">()</span>
+        <span class="n">p_tot</span> <span class="o">=</span> <span class="n">p_elec</span> <span class="o">+</span> <span class="n">p_ion</span>
+        <span class="n">p_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">p_tot</span><span class="p">)</span>
+
+        <span class="n">lattices</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">])</span>
+
+        <span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_elec</span><span class="p">)</span>
+
+        <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>
+        <span class="n">cm2_to_A2</span> <span class="o">=</span> <span class="mf">1e16</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">*=</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>
+
+        <span class="c1"># convert polarizations and lattice lengths prior to adjustment</span>
+        <span class="k">if</span> <span class="n">convert_to_muC_per_cm2</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">all_in_polar</span><span class="p">:</span>
+            <span class="c1"># Convert the total polarization</span>
+            <span class="n">p_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">p_tot</span><span class="p">)</span>
+            <span class="c1"># adjust lattices</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+                <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">i</span><span class="p">]),</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span>
+        <span class="c1">#  convert polarizations to polar lattice</span>
+        <span class="k">elif</span> <span class="n">convert_to_muC_per_cm2</span> <span class="ow">and</span> <span class="n">all_in_polar</span><span class="p">:</span>
+            <span class="n">abc</span> <span class="o">=</span> <span class="p">[</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span> <span class="k">for</span> <span class="n">lattice</span> <span class="ow">in</span> <span class="n">lattices</span><span class="p">]</span>
+            <span class="n">abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">abc</span><span class="p">)</span>  <span class="c1"># [N, 3]</span>
+            <span class="n">p_tot</span> <span class="o">/=</span> <span class="n">abc</span>  <span class="c1"># e * Angstroms to e</span>
+            <span class="n">p_tot</span> <span class="o">*=</span> <span class="n">abc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">volumes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>  <span class="c1"># to muC / cm^2</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Use polar lattice</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+                <span class="c1"># Use polar units (volume)</span>
+                <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="n">d_structs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">frac_coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">p_tot</span><span class="p">[</span><span class="n">i</span><span class="p">]]),</span>
+                                   <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">]))</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">PolarizationLattice</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span>
+            <span class="n">d_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Adjust nonpolar polarization to be closest to zero.</span>
+                <span class="c1"># This is compatible with both a polarization of zero or a half quantum.</span>
+                <span class="n">prev_site</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prev_site</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
+            <span class="n">new_site</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get_nearest_site</span><span class="p">(</span><span class="n">prev_site</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span>
+            <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_site</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">adjust_pol</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">d_structs</span><span class="p">):</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">lattice</span>
+            <span class="n">adjust_pol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">c</span><span class="p">]))</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="n">adjust_pol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">adjust_pol</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">adjust_pol</span></div>
+
+<div class="viewcode-block" id="Polarization.get_lattice_quanta"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta">[docs]</a>    <span class="k">def</span> <span class="nf">get_lattice_quanta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the dipole / polarization quanta along a, b, and c for</span>
+<span class="sd">        all structures.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattices</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">])</span>
+
+        <span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
+
+        <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>
+        <span class="n">cm2_to_A2</span> <span class="o">=</span> <span class="mf">1e16</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">*=</span> <span class="n">e_to_muC</span> <span class="o">*</span> <span class="n">cm2_to_A2</span>
+
+        <span class="c1"># convert polarizations and lattice lengths prior to adjustment</span>
+        <span class="k">if</span> <span class="n">convert_to_muC_per_cm2</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">all_in_polar</span><span class="p">:</span>
+            <span class="c1"># adjust lattices</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+                <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">i</span><span class="p">]),</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">convert_to_muC_per_cm2</span> <span class="ow">and</span> <span class="n">all_in_polar</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">angles</span>
+                <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">units</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="n">quanta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">lengths</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lattices</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">quanta</span></div>
+
+<div class="viewcode-block" id="Polarization.get_polarization_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_polarization_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get difference between nonpolar and polar same branch polarization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_same_branch_polarization_data</span><span class="p">(</span>
+            <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
+        <span class="c1"># reshape to preserve backwards compatibility due to changes</span>
+        <span class="c1"># when switching from np.matrix to np.array</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tot</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Polarization.get_polarization_change_norm"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_polarization_change_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get magnitude of difference between nonpolar and polar same branch</span>
+<span class="sd">        polarization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">polar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">polar</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+            <span class="n">b</span><span class="p">),</span> <span class="n">c</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_polarization_change</span><span class="p">(</span><span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span>
+                                         <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">P_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">P</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">P_norm</span></div>
+
+<div class="viewcode-block" id="Polarization.same_branch_splines"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines">[docs]</a>    <span class="k">def</span> <span class="nf">same_branch_splines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit splines to same branch polarization. This is used to assess any jumps</span>
+<span class="sd">        in the same branch polarizaiton.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">UnivariateSpline</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_same_branch_polarization_data</span><span class="p">(</span>
+            <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">tot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp_a</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">sp_a</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp_b</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">sp_b</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp_c</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">tot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">sp_c</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">sp_a</span><span class="p">,</span> <span class="n">sp_b</span><span class="p">,</span> <span class="n">sp_c</span></div>
+
+<div class="viewcode-block" id="Polarization.max_spline_jumps"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps">[docs]</a>    <span class="k">def</span> <span class="nf">max_spline_jumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get maximum difference between spline and same branch polarization data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_same_branch_polarization_data</span><span class="p">(</span>
+            <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
+        <span class="n">sps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">same_branch_splines</span><span class="p">(</span><span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span>
+                                       <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
+        <span class="n">max_jumps</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">max_jumps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">-</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))))</span>
+        <span class="k">return</span> <span class="n">max_jumps</span></div>
+
+<div class="viewcode-block" id="Polarization.smoothness"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness">[docs]</a>    <span class="k">def</span> <span class="nf">smoothness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get rms average difference between spline and same branch polarization data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_same_branch_polarization_data</span><span class="p">(</span>
+            <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">tot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">same_branch_splines</span><span class="p">(</span><span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span>
+                                          <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Something went wrong.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">sp_latt</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp_latt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tot</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">rms</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">/</span> <span class="n">L</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">rms</span></div></div>
+
+
+<div class="viewcode-block" id="EnergyTrend"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend">[docs]</a><span class="k">class</span> <span class="nc">EnergyTrend</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for fitting trends to energies.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param energies: Energies</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span>
+
+<div class="viewcode-block" id="EnergyTrend.spline"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline">[docs]</a>    <span class="k">def</span> <span class="nf">spline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit spline to energy trend data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">UnivariateSpline</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sp</span></div>
+
+<div class="viewcode-block" id="EnergyTrend.smoothness"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness">[docs]</a>    <span class="k">def</span> <span class="nf">smoothness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get rms average difference between spline and energy trend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Energy spline failed.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">spline_energies</span> <span class="o">=</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)))</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">spline_energies</span> <span class="o">-</span> <span class="n">energies</span>
+        <span class="n">rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">diff</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">rms</span></div>
+
+<div class="viewcode-block" id="EnergyTrend.max_spline_jump"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump">[docs]</a>    <span class="k">def</span> <span class="nf">max_spline_jump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get maximum difference between spline and energy trend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">sp</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">))))</span></div>
+
+<div class="viewcode-block" id="EnergyTrend.endpoints_minima"><a class="viewcode-back" href="../../../../pymatgen.analysis.ferroelectricity.polarization.html#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima">[docs]</a>    <span class="k">def</span> <span class="nf">endpoints_minima</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slope_cutoff</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test if spline endpoints are at minima for a given slope cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Energy spline failed.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">der</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">derivative</span><span class="p">()</span>
+        <span class="n">der_energies</span> <span class="o">=</span> <span class="n">der</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;polar&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">der_energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">slope_cutoff</span><span class="p">,</span>
+                <span class="s2">&quot;nonpolar&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">der_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">slope_cutoff</span><span class="p">}</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.ferroelectricity.polarization</a></li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

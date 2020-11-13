@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes for predicting new structures from existing ones.
+"""
+
 import itertools
 import logging
 from operator import mul
@@ -9,18 +13,12 @@ import functools
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.analysis.structure_prediction.substitution_probability \
-    import SubstitutionProbability
-from pymatgen.transformations.standard_transformations \
-    import SubstitutionTransformation
+from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionProbability
+from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.alchemy.filters import RemoveDuplicatesFilter, \
-    RemoveExistingFilter
+from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 
-"""
-This module provides classes for predicting new structures from existing ones.
-"""
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -86,7 +84,7 @@ class Substitutor(MSONable):
         Args:
             target_species:
                 a list of species with oxidation states
-                e.g., [Specie('Li',1),Specie('Ni',2), Specie('O',-2)]
+                e.g., [Species('Li',1),Species('Ni',2), Species('O',-2)]
 
             structures_list:
                 a list of dictionnary of the form {'structure':Structure object
@@ -147,11 +145,11 @@ class Substitutor(MSONable):
         if remove_existing:
             # Make the list of structures from structures_list that corresponds to the
             # target species
-            chemsys = list(set([sp.symbol for sp in target_species]))
-            structures_list_target = [st['structure'] for st in structures_list
-                                      if Substitutor._is_from_chemical_system(
-                    chemsys,
-                    st['structure'])]
+            chemsys = {sp.symbol for sp in target_species}
+            structures_list_target = [
+                st['structure'] for st in structures_list
+                if Substitutor._is_from_chemical_system(chemsys, st['structure'])
+            ]
             transmuter.apply_filter(RemoveExistingFilter(structures_list_target,
                                                          symprec=self._symprec))
         return transmuter.transformed_structures
@@ -161,23 +159,14 @@ class Substitutor(MSONable):
         """
         checks if the structure object is charge balanced
         """
-        if sum([s.specie.oxi_state for s in struct.sites]) == 0.0:
-            return True
-        else:
-            return False
+        return sum([s.specie.oxi_state for s in struct.sites]) == 0.0
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
         """
         checks if the structure object is from the given chemical system
         """
-        chemsys = list(set([sp.symbol for sp in struct.composition]))
-        if len(chemsys) != len(chemical_system):
-            return False
-        for el in chemsys:
-            if el not in chemical_system:
-                return False
-        return True
+        return {sp.symbol for sp in struct.composition} == set(chemical_system)
 
     def pred_from_list(self, species_list):
         """
@@ -254,6 +243,9 @@ class Substitutor(MSONable):
         return output
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {"name": self.__class__.__name__, "version": __version__,
                 "kwargs": self._kwargs, "threshold": self._threshold,
                 "@module": self.__class__.__module__,
@@ -261,6 +253,13 @@ class Substitutor(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Class
+        """
         t = d['threshold']
         kwargs = d['kwargs']
         return cls(threshold=t, **kwargs)

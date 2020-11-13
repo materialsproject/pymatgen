@@ -23,6 +23,9 @@ from pymatgen.util.plotting import pretty_plot
 
 
 def main():
+    """
+    Main function.
+    """
     parser = argparse.ArgumentParser(description='''
     Convenient DOS Plotter for Feff runs.
     Author: Alan Dozier
@@ -40,7 +43,7 @@ def main():
     args = parser.parse_args()
     xmu = Xmu.from_file(args.filename[0], args.filename1[0])
 
-    data = xmu.to_dict
+    data = xmu.as_dict()
 
     plt.title(data['calc'] + ' Feff9.6 Calculation for ' + data['atom'] + ' in ' +
               data['formula'] + ' unit cell')

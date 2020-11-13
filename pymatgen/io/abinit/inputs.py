@@ -8,21 +8,22 @@ import os
 import copy
 import abc
 import json
-import numpy as np
-
 from enum import Enum
 from collections import OrderedDict, namedtuple
 from collections.abc import MutableMapping, Mapping
-from monty.collections import dict2namedtuple, AttrDict
+import logging
+import numpy as np
+
+from monty.collections import AttrDict
 from monty.string import list_strings, is_string
-from monty.json import MontyDecoder, MSONable
+from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.util.serialization import pmg_serialize
 from pymatgen.io.abinit.pseudos import PseudoTable, Pseudo
 from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.variable import InputVariable
 
-import logging
+
 logger = logging.getLogger(__file__)
 
 
@@ -128,8 +129,7 @@ def as_structure(obj):
     if isinstance(obj, Mapping):
         if "@module" in obj:
             return Structure.from_dict(obj)
-        else:
-            return aobj.structure_from_abivars(cls=None, **obj)
+        return aobj.structure_from_abivars(cls=None, **obj)
 
     raise TypeError("Don't know how to convert %s into a structure" % type(obj))
 
@@ -158,10 +158,9 @@ class ShiftMode(Enum):
         """
         if isinstance(obj, cls):
             return obj
-        elif is_string(obj):
+        if is_string(obj):
             return cls(obj[0].upper())
-        else:
-            raise TypeError('The object provided is not handled: type %s' % type(obj))
+        raise TypeError('The object provided is not handled: type %s' % type(obj))
 
 
 def _stopping_criterion(runlevel, accuracy):
@@ -237,19 +236,18 @@ def _get_shifts(shift_mode, structure):
         ``chksymbreak`` condition (Abinit input variable).
     """
     if shift_mode == ShiftMode.GammaCentered:
-        return ((0, 0, 0))
-    elif shift_mode == ShiftMode.MonkhorstPack:
-        return ((0.5, 0.5, 0.5))
-    elif shift_mode == ShiftMode.Symmetric:
+        return ((0, 0, 0), )
+    if shift_mode == ShiftMode.MonkhorstPack:
+        return ((0.5, 0.5, 0.5), )
+    if shift_mode == ShiftMode.Symmetric:
         return calc_shiftk(structure)
-    elif shift_mode == ShiftMode.OneSymmetric:
+    if shift_mode == ShiftMode.OneSymmetric:
         shifts = calc_shiftk(structure)
         if len(shifts) == 1:
             return shifts
-        else:
-            return ((0, 0, 0))
-    else:
-        raise ValueError("invalid shift_mode: `%s`" % str(shift_mode))
+        return ((0, 0, 0), )
+
+    raise ValueError("invalid shift_mode: `%s`" % str(shift_mode))
 
 
 def gs_input(structure, pseudos,
@@ -345,8 +343,8 @@ def ebands_input(structure, pseudos,
 
     # DOS calculation with different values of kppa.
     if dos_kppa is not None:
-        for i, kppa in enumerate(dos_kppa):
-            dos_ksampling = aobj.KSampling.automatic_density(structure, kppa, chksymbreak=0)
+        for i, kppa_ in enumerate(dos_kppa):
+            dos_ksampling = aobj.KSampling.automatic_density(structure, kppa_, chksymbreak=0)
             # dos_ksampling = aobj.KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
             dos_electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm={"iscf": -2},
                                            charge=charge, nband=nscf_nband)
@@ -719,6 +717,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     @property
     def vars(self):
+        """Dictionary with variables."""
         return self._vars
 
     @classmethod
@@ -941,7 +940,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self.remove_vars(_IRDVARS, strict=False)
 
 
-class BasicMultiDataset(object):
+class BasicMultiDataset:
     """
     This object is essentially a list of BasicAbinitInput objects.
     that provides an easy-to-use interface to apply global changes to the
@@ -1001,7 +1000,7 @@ class BasicMultiDataset(object):
         multi = cls(input.structure, input.pseudos, ndtset=ndtset)
 
         for inp in multi:
-            inp.set_vars({k: v for k, v in input.items()})
+            inp.set_vars(**input)
 
         return multi
 
@@ -1106,12 +1105,12 @@ class BasicMultiDataset(object):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.append(other)
             return new_mds
-        elif isinstance(other, BasicMultiDataset):
+        if isinstance(other, BasicMultiDataset):
             new_mds = BasicMultiDataset.from_inputs(self)
             new_mds.extend(other)
             return new_mds
-        else:
-            raise NotImplementedError("Operation not supported")
+
+        raise NotImplementedError("Operation not supported")
 
     def __radd__(self, other):
         if isinstance(other, BasicAbinitInput):
@@ -1221,13 +1220,12 @@ class BasicMultiDataset(object):
 
             return "\n".join(lines)
 
-        else:
-            # single datasets ==> don't append the dataset index to the variables.
-            # this trick is needed because Abinit complains if ndtset is not specified
-            # and we have variables that end with the dataset index e.g. acell1
-            # We don't want to specify ndtset here since abinit will start to add DS# to
-            # the input and output files thus complicating the algorithms we have to use to locate the files.
-            return self[0].to_string(with_pseudos=with_pseudos)
+        # single datasets ==> don't append the dataset index to the variables.
+        # this trick is needed because Abinit complains if ndtset is not specified
+        # and we have variables that end with the dataset index e.g. acell1
+        # We don't want to specify ndtset here since abinit will start to add DS# to
+        # the input and output files thus complicating the algorithms we have to use to locate the files.
+        return self[0].to_string(with_pseudos=with_pseudos)
 
     def write(self, filepath="run.abi"):
         """
