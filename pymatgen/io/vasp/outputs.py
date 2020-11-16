@@ -646,7 +646,8 @@ class Vasprun(MSONable):
                      "BO": "optB88", "MK": "optB86b", "--": "GGA"}
 
         METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
-                         "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
+                         "SCAN": "SCAN", "R2SCAN": "R2SCAN", "RSCAN": "RSCAN",
+                         "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
 
         if self.parameters.get("AEXX", 1.00) == 1.00:
             rt = "HF"
