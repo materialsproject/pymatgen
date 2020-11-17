@@ -13,8 +13,8 @@ import operator
 from collections import defaultdict
 from copy import deepcopy
 
-import numpy as np
 import pandas as pd
+import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
 from numpy.linalg import norm
@@ -350,7 +350,7 @@ class StructureMotifInterstitial:
                     allsites = [
                         neighs_images_weigths_sorted[i]["site"] for i in range(nsite)
                     ]
-                    indices_neighs = [i for i in range(len(allsites))]
+                    indices_neighs = list(range(len(allsites)))
                     allsites.append(struct_w_inter.sites[natoms - 1])
                     for mot, ops in self.cn_motif_lostop[nsite].items():
                         opvals = ops.get_order_parameters(
@@ -396,7 +396,7 @@ class StructureMotifInterstitial:
                 dist, image = struct_w_inter.lattice.get_distance_and_image(
                     trialsites[i]["fracs"], trialsites[j]["fracs"]
                 )
-                connected[i].append(True if dist < (maxdl * facmaxdl) else False)
+                connected[i].append(bool(dist < (maxdl * facmaxdl)))
         include = []
         for motif in unique_motifs:
             labels[motif] = []
@@ -636,8 +636,8 @@ class TopographyAnalyzer:
 
         """
         self.structure = structure
-        self.framework_ions = set([get_el_sp(sp) for sp in framework_ions])
-        self.cations = set([get_el_sp(sp) for sp in cations])
+        self.framework_ions = {get_el_sp(sp) for sp in framework_ions}
+        self.cations = {get_el_sp(sp) for sp in cations}
 
         # Let us first map all sites to the standard unit cell, i.e.,
         # 0 ≤ coordinates < 1.
@@ -840,7 +840,7 @@ class TopographyAnalyzer:
             all_dist = [dist[i, j] for i in range(n) for j in range(i + 1, n)]
             return min(all_dist)
 
-        voro = [s[1] for s in self.vertices]
+        voro = [s[1] for s in self.vnodes]
         print("Min dist between voronoi vertices centers = %.4f" % get_min_dist(voro))
 
         def get_non_framework_dist(fcoords):
@@ -1007,8 +1007,7 @@ class ChargeDensityAnalyzer(MSONable):
         """
         if self._charge_distribution_df is None:
             return self._get_charge_distribution_df()
-        else:
-            return self._charge_distribution_df
+        return self._charge_distribution_df
 
     @property
     def extrema_df(self):
@@ -1180,7 +1179,7 @@ class ChargeDensityAnalyzer(MSONable):
                 logger.warning(
                     "Please run ChargeDensityAnalyzer.get_local_extrema first!"
                 )
-                return
+                return None
             new_f_coords = []
             self._update_extrema(new_f_coords, self.extrema_type)
             return new_f_coords
@@ -1216,6 +1215,7 @@ class ChargeDensityAnalyzer(MSONable):
         # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
         logger.debug("{} vertices after combination.".format(len(self.extrema_coords)))
+        return None
 
     def remove_collisions(self, min_dist=0.5):
         """
@@ -1234,7 +1234,7 @@ class ChargeDensityAnalyzer(MSONable):
                 logger.warning(
                     "Please run ChargeDensityAnalyzer.get_local_extrema first!"
                 )
-                return
+                return None
             new_f_coords = []
             self._update_extrema(new_f_coords, self.extrema_type)
             return new_f_coords
@@ -1476,15 +1476,15 @@ def calculate_vol(coords):
         coords_affine = np.ones((4, 4))
         coords_affine[:, 0:3] = np.array(coords)
         return abs(np.linalg.det(coords_affine)) / 6
-    else:
-        simplices = get_facets(coords, joggle=True)
-        center = np.average(coords, axis=0)
-        vol = 0
-        for s in simplices:
-            c = list(coords[i] for i in s)
-            c.append(center)
-            vol += calculate_vol(c)
-        return vol
+
+    simplices = get_facets(coords, joggle=True)
+    center = np.average(coords, axis=0)
+    vol = 0
+    for s in simplices:
+        c = list(coords[i] for i in s)
+        c.append(center)
+        vol += calculate_vol(c)
+    return vol
 
 
 def converge(f, step, tol, max_h):
@@ -1556,7 +1556,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
     lattice: Lattice object of supercell in question
 
     """
-    if type(prec_set) != list:
+    if isinstance(prec_set, list):
         prec_set = [prec_set]
 
     [a1, a2, a3] = lattice.matrix  # Angstrom
