@@ -303,6 +303,7 @@ class TopographyAnalyzerTest(unittest.TestCase):
                 else:
                     continue
             self.assertTrue(is_site_matched)
+        vor_feo4.print_stats()
 
     def test_calculate_vol(self):
         s = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))

@@ -840,7 +840,7 @@ class TopographyAnalyzer:
             all_dist = [dist[i, j] for i in range(n) for j in range(i + 1, n)]
             return min(all_dist)
 
-        voro = [s[1] for s in self.vnodes]
+        voro = [s.frac_coords for s in self.vnodes]
         print("Min dist between voronoi vertices centers = %.4f" % get_min_dist(voro))
 
         def get_non_framework_dist(fcoords):
