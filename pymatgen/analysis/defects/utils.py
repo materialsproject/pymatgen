@@ -1556,7 +1556,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
     lattice: Lattice object of supercell in question
 
     """
-    if isinstance(prec_set, list):
+    if not isinstance(prec_set, list):
         prec_set = [prec_set]
 
     [a1, a2, a3] = lattice.matrix  # Angstrom

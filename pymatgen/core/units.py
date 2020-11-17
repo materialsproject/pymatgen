@@ -38,7 +38,7 @@ bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
 ang_to_bohr = 1 / bohr_to_ang
 kCal_to_kJ = const.calorie
-kb = const.physical_constants["Boltzmann constant in eV/K"]
+kb = const.physical_constants["Boltzmann constant in eV/K"][0]
 
 """
 Definitions of supported units. Values below are essentially scaling and
