@@ -681,6 +681,9 @@ class Vasprun(MSONable):
             rt = GGA_TYPES.get(incar_tag, incar_tag)
         elif self.potcar_symbols[0].split()[0] == 'PAW':
             rt = "LDA"
+        else:
+            rt = "unknown"
+            warnings.warn("Unknown run type!")
 
         if self.is_hubbard or self.parameters.get("LDAU", True):
             rt += "+U"
