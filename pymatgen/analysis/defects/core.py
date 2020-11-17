@@ -8,16 +8,16 @@ Base classes representing defects.
 
 
 import logging
+from abc import ABCMeta, abstractmethod
+from functools import lru_cache
 import numpy as np
 
-from abc import ABCMeta, abstractmethod
 from monty.json import MSONable, MontyDecoder
-from functools import lru_cache
-
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.composition import Composition
 from pymatgen.core.units import kb
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -205,11 +205,10 @@ class Vacancy(Defect):
                     self.site
                 )
             )
-        else:
-            defindex = poss_deflist[0][2]
-            defect_site = self.bulk_structure[defindex]
-            equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
-            return len(equivalent_sites)
+        defindex = poss_deflist[0][2]
+        defect_site = self.bulk_structure[defindex]
+        equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
+        return len(equivalent_sites)
 
     @property
     def name(self):
@@ -310,11 +309,10 @@ class Substitution(Defect):
                     self.site
                 )
             )
-        else:
-            defindex = poss_deflist[0][2]
-            defect_site = self.bulk_structure[defindex]
-            equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
-            return len(equivalent_sites)
+        defindex = poss_deflist[0][2]
+        defect_site = self.bulk_structure[defindex]
+        equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
+        return len(equivalent_sites)
 
     @property  # type: ignore
     @lru_cache(1)
@@ -456,8 +454,7 @@ class Interstitial(Defect):
             return "Int_{}_{}_mult{}".format(
                 self.site.specie, self.site_name, self.multiplicity
             )
-        else:
-            return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
+        return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
 def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
