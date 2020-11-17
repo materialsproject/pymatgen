@@ -1353,6 +1353,10 @@ class ChargeInsertionAnalyzer(ChargeDensityAnalyzer):
     The similar inserterd structures are given the same uniqueness label.
     This works best with AECCAR data since CHGCAR data often contains spurious local minima in the core.
     However you can still use CHGCAR with an appropriate max_avg_charge value.
+
+    Application of this for Li can be found at:
+    J.-X. Shen et al.: npj Comput. Mater. 6, 1 (2020)
+    https://www.nature.com/articles/s41524-020-00422-3
     """
 
     def __init__(
