@@ -56,7 +56,6 @@ logger = logging.getLogger(__name__)
 hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
-kb = 8.6173324e-5  # eV / K
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}

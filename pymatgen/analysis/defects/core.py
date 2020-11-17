@@ -16,6 +16,7 @@ from functools import lru_cache
 
 from pymatgen.core.structure import Structure, PeriodicSite
 from pymatgen.core.composition import Composition
+from pymatgen.core.units import kb
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -27,8 +28,6 @@ __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
 logger = logging.getLogger(__name__)
-
-kb = 8.6173324e-5  # eV / K
 
 
 class Defect(MSONable, metaclass=ABCMeta):
