@@ -884,6 +884,8 @@ class Vasprun(MSONable):
         # inside a band
         fermi_crosses_band = False
         for spin_eigenvalues in self.eigenvalues.values():
+            # drop weights and set shape nbands, nkpoints
+            spin_eigenvalues = spin_eigenvalues[:, :, 0].transpose(1, 0)
             eigs_below = np.any(spin_eigenvalues < self.efermi, axis=1)
             eigs_above = np.any(spin_eigenvalues > self.efermi, axis=1)
             if np.any(eigs_above & eigs_below):

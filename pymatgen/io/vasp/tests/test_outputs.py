@@ -1624,7 +1624,7 @@ class EigenvalTest(PymatgenTest):
 
     def test_smart_efermi(self):
         vrun = Vasprun(self.TEST_FILES_DIR / 'vasprun.xml.smart_efermi')
-        self.assertAlmostEqual(vrun.smart_efermi(), 3.09465, places=4)
+        self.assertAlmostEqual(vrun.smart_efermi(), -1.2313, places=4)
         # TODO - more tests
 
 
