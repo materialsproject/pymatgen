@@ -874,6 +874,35 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
+    def smart_efermi(self):
+        """
+        Check whether the Fermi level reported by VASP crosses a band. If it does,
+        and if the bandgap is nonzero, place the Fermi level in the middle of the
+        bandgap.
+        """
+        # finding the Fermi level is quite painful, as VASP can sometimes put it slightly
+        # inside a band
+        fermi_crosses_band = False
+        for spin_eigenvalues in eigenvalues.values():
+            eigs_below = np.any(spin_eigenvalues < self.efermi, axis=1)
+            eigs_above = np.any(spin_eigenvalues > self.efermi, axis=1)
+            if np.any(eigs_above & eigs_below):
+                fermi_crosses_band = True
+        # if the Fermi level crosses a band, the eigenvalue band properties is a more
+        # reliable way to check whether this is a real effect
+        bandgap, cbm, vbm, _ = self..eigenvalue_band_properties
+        if not fermi_crosses_band:
+            # safe to use VASP fermi level
+            efermi = vasprun.efermi
+        elif fermi_crosses_band and bandgap == 0:
+            # it is actually a metal
+            efermi = vasprun.efermi
+        else:
+            # Set Fermi level half way between valence and conduction bands
+            efermi = (cbm + vbm) / 2
+
+        return efermi
+    
     def get_potcars(self, path):
         """
         :param path: Path to search for POTCARs

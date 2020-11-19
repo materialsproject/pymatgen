@@ -1622,6 +1622,10 @@ class EigenvalTest(PymatgenTest):
         self.assertAlmostEqual(props[2], 1.1434, places=4)
         self.assertEqual(props[3], False)
 
+    def test_smart_efermi(self):
+        # TODO
+        pass
+
 
 class WavederTest(PymatgenTest):
     _multiprocess_shared_ = True
