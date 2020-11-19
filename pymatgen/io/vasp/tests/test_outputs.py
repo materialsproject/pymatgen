@@ -1623,8 +1623,9 @@ class EigenvalTest(PymatgenTest):
         self.assertEqual(props[3], False)
 
     def test_smart_efermi(self):
-        # TODO
-        pass
+        vrun = Vasprun(self.TEST_FILES_DIR / 'vasprun.xml.smart_efermi')
+        self.assertAlmostEqual(vrun.smart_efermi(), 3.09465, places=4)
+        # TODO - more tests
 
 
 class WavederTest(PymatgenTest):
