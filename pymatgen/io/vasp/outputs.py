@@ -780,8 +780,8 @@ class Vasprun(MSONable):
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
 
-        p_eigenvals = defaultdict(list)
-        eigenvals = defaultdict(list)
+        p_eigenvals: DefaultDict[Spin, list] = defaultdict(list)
+        eigenvals: DefaultDict[Spin, list] = defaultdict(list)
 
         nkpts = len(kpoints)
 
@@ -1329,22 +1329,25 @@ class BSVasprun(Vasprun):
     etc. are ignored.
     """
 
-    def __init__(self, filename, parse_projected_eigen=False,
-                 parse_potcar_file=False, occu_tol=1e-8):
+    def __init__(self,
+                 filename: str,
+                 parse_projected_eigen: Union[bool, str] = False,
+                 parse_potcar_file: Union[bool, str] = False,
+                 occu_tol: float = 1e-8):
         """
         Args:
-            filename (str): Filename to parse
-            parse_projected_eigen (bool): Whether to parse the projected
+            filename: Filename to parse
+            parse_projected_eigen: Whether to parse the projected
                 eigenvalues. Defaults to False. Set to True to obtain projected
                 eigenvalues. **Note that this can take an extreme amount of time
                 and memory.** So use this wisely.
-            parse_potcar_file (bool/str): Whether to parse the potcar file to read
+            parse_potcar_file: Whether to parse the potcar file to read
                 the potcar hashes for the potcar_spec attribute. Defaults to True,
                 where no hashes will be determined and the potcar_spec dictionaries
                 will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
                 the same directory as the vasprun.xml, with same extensions as
                  Vasprun.xml. If a string is provided, looks at that filepath.
-            occu_tol (float): Sets the minimum tol for the determination of the
+            occu_tol: Sets the minimum tol for the determination of the
                 vbm and cbm. Usually the default of 1e-8 works well enough,
                 but there may be pathological cases.
         """
