@@ -19,7 +19,7 @@ import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
 import collections
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List, Union, DefaultDict
 
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
@@ -722,7 +722,7 @@ class Vasprun(MSONable):
         return ComputedEntry(self.final_structure.composition, self.final_energy, parameters=params, data=data)
 
     def get_band_structure(self,
-                           kpoints_filename: str = None,
+                           kpoints_filename: Optional[str] = None,
                            efermi: Union[str, float, None] = "smart",
                            line_mode: bool = False,
                            force_hybrid_mode: bool = False
@@ -773,7 +773,7 @@ class Vasprun(MSONable):
             efermi = self.efermi
 
         kpoint_file = None
-        if os.path.exists(kpoints_filename):
+        if kpoints_filename and os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
 
