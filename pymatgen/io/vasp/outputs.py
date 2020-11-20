@@ -19,7 +19,7 @@ import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
 import collections
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
@@ -721,25 +721,31 @@ class Vasprun(MSONable):
             return ComputedStructureEntry(self.final_structure, self.final_energy, parameters=params, data=data)
         return ComputedEntry(self.final_structure.composition, self.final_energy, parameters=params, data=data)
 
-    def get_band_structure(self, kpoints_filename=None, efermi=None,
-                           line_mode=False, force_hybrid_mode=False):
+    def get_band_structure(self,
+                           kpoints_filename: str = None,
+                           efermi: Union[str, float, None] = "smart",
+                           line_mode: bool = False,
+                           force_hybrid_mode: bool = False
+                           ):
         """
         Returns the band structure as a BandStructure object
 
         Args:
-            kpoints_filename (str): Full path of the KPOINTS file from which
+            kpoints_filename: Full path of the KPOINTS file from which
                 the band structure is generated.
                 If none is provided, the code will try to intelligently
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
-            efermi (float): If you want to specify manually the fermi energy
-                this is where you should do it. By default, the None value
-                means the code will get it from the vasprun.
-            line_mode (bool): Force the band structure to be considered as
-                a run along symmetry lines.
-            force_hybrid_mode (bool): Makes it possible to read in self-consistent band structure calculations for
-                every type of functional
+            efermi: The Fermi energy associated with the bandstructure, in eV. By default,
+                uses the 'smart_efermi' attribute of the Vasprun, which in some cases
+                may differ from (but be more accurate than) the value in vasprun.xml.
+                To directly use the value in vasprun.xml, pass None. To manually set the
+                Fermi energy, pass a float.
+            line_mode: Force the band structure to be considered as
+                a run along symmetry lines. (Default: False)
+            force_hybrid_mode: Makes it possible to read in self-consistent band structure calculations for
+                every type of functional. (Default: False)
 
         Returns:
             a BandStructure object (or more specifically a
@@ -761,7 +767,9 @@ class Vasprun(MSONable):
             raise VaspParserError('KPOINTS needed to obtain band structure '
                                   'along symmetry lines.')
 
-        if efermi is None:
+        if efermi == "smart":
+            efermi = self.smart_efermi
+        elif efermi is None:
             efermi = self.efermi
 
         kpoint_file = None
