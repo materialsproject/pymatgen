@@ -874,6 +874,7 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
+    @property
     def smart_efermi(self):
         """
         Check whether the Fermi level reported by VASP crosses a band. If it does,
