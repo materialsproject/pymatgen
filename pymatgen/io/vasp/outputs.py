@@ -763,7 +763,7 @@ class Vasprun(MSONable):
         if not kpoints_filename:
             kpoints_filename = zpath(
                 os.path.join(os.path.dirname(self.filename), 'KPOINTS'))
-        if not os.path.exists(kpoints_filename) and line_mode is True:
+        if kpoints_filename and not os.path.exists(kpoints_filename) and line_mode is True:
             raise VaspParserError('KPOINTS needed to obtain band structure '
                                   'along symmetry lines.')
 
@@ -839,13 +839,14 @@ class Vasprun(MSONable):
                 if self.is_spin:
                     down_eigen = [eigenvals[Spin.down][i][start_bs_index:nkpts]
                                   for i in range(nbands)]
-                    eigenvals = {Spin.up: up_eigen, Spin.down: down_eigen}
+                    eigenvals[Spin.up] = up_eigen
+                    eigenvals[Spin.down] = down_eigen
                     if self.projected_eigenvalues:
                         p_eigenvals[Spin.down] = [p_eigenvals[Spin.down][i][
                                                   start_bs_index:nkpts]
                                                   for i in range(nbands)]
                 else:
-                    eigenvals = {Spin.up: up_eigen}
+                    eigenvals[Spin.up] = up_eigen
             else:
                 if '' in kpoint_file.labels:
                     raise Exception("A band structure along symmetry lines "
