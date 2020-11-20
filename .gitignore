@@ -29,4 +29,3 @@ gulptmp_4_1
 .*_cache
 # VS Code
 .vscode/*
-.pre-commit-config.yaml
