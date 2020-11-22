@@ -21,6 +21,7 @@ from pymatgen.analysis.phase_diagram import (
     PhaseDiagram,
     GrandPotentialPhaseDiagram,
     CompoundPhaseDiagram,
+    PatchedPhaseDiagram,
     PhaseDiagramError,
     ReactionDiagram,
     PDPlotter,
@@ -621,6 +622,38 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
+
+
+class PatchedPhaseDiagramTest(unittest.TestCase):
+    def setUp(self):
+        self.entries = EntrySet.from_csv(str(module_dir / "reaction_entries_test.csv"))
+        self.pd = PhaseDiagram(entries=self.entries)
+        self.ppd = PatchedPhaseDiagram(entries=self.entries)
+
+        # novel entries not in any of the patches
+        self.novel_comps = [Composition("H5C2OP"), Composition("V2PH4C")]
+        for c in self.novel_comps:
+            self.assertTrue(c.chemical_system not in self.ppd.spaces)
+
+        self.novel_entries = [PDEntry(c, -39.8) for c in self.novel_comps]
+
+    # NOTE fails due to duplicates resulting for memory location based hash.
+    def test_get_stable_entries(self):
+        self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
+
+    # NOTE  unittest doesn't have an assert almost equal for dictionaries.
+    # def test_get_decomposition(self):
+    #     for c in self.novel_comps:
+    #         pd_decomp = self.pd.get_decomposition(c)
+    #         ppd_decomp = self.ppd.get_decomposition(c)
+    #         for e in pd_decomp:
+    #             self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
+
+    def test_get_quasi_e_to_hull(self):
+        for e in self.novel_entries:
+            self.assertAlmostEqual(
+                self.pd.get_quasi_e_to_hull(e), self.ppd.get_quasi_e_to_hull(e), 7
+            )
 
 
 class ReactionDiagramTest(unittest.TestCase):

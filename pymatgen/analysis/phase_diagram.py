@@ -1438,11 +1438,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 Uses multiprocessing.Pool. Default is None, which implies
                 serial.
         """
+
         if elements is None:
-            elements = set()
-            for entry in entries:
-                elements.update(entry.composition.elements)
-            elements = sorted(list(elements))
+            elements = set().union(
+                [els for e in entries for els in e.composition.elements]
+            )
 
         elements = sorted(list(elements))
 
@@ -1469,14 +1469,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
         pds = {}
 
         # NOTE there might be problems if ncore is zero/negative/more than cores
-        if ncores in (1, None):
+        if (ncores in (1, None)) and (not use_multiprocessing):
             for space in spaces:
                 pds[space] = _get_pd_for_space(space, all_entries)
         else:
             with Pool(ncores) as p:
                 # NOTE imap might be slower than alternatives for parallelisation
                 results = p.imap(
-                    func=partial(_get_pd_for_space, **{"all_entries": all_entries}),
+                    func=partial(_get_pd_for_space, **{"entries": all_entries}),
                     iterable=spaces
                 )
                 pds = dict(zip(spaces, results))
@@ -1487,6 +1487,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.min_entries = min_entries
         self.el_refs = el_refs
         self.elements = elements
+
+        # TODO de-duplicate these as they use hash equality.
         self.qhull_entries = set().union(*[pd.qhull_entries for pd in pds.values()])
         self._stable_entries = set().union(*[pd.stable_entries for pd in pds.values()])
 
