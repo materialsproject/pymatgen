@@ -541,7 +541,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
     def test_deprecation_warning(self):
         # test that initializing compatibility causes deprecation warning
-        with self.assertWarns(DeprecationWarning):
+        with self.assertWarns(FutureWarning):
             MaterialsProjectCompatibility(check_potcar_hash=False)
 
 

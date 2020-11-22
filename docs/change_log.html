@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.11.11 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Usage" href="usage.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +72,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.11.11
               </div>
             
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,6 +101,9 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-11-11">v2020.11.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-10-20">v2020.10.20</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-10-9">v2020.10.9</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-9-14">v2020.9.14</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-8-13">v2020.8.13</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-8-3">v2020.8.3</a></li>
@@ -367,6 +372,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -405,7 +411,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Change log</li>
     
@@ -430,6 +436,38 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2020-11-11">
+<h2>v2020.11.11<a class="headerlink" href="#v2020-11-11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix for PhononBandStructureSymmLine. (&#64;gpetretto)</p></li>
+<li><p>Improved robustness in ABINIT input generation. (&#64;gpetretto)</p></li>
+<li><p>Other minor bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-10-20">
+<h2>v2020.10.20<a class="headerlink" href="#v2020-10-20" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Cp2K support (&#64;nwinner)</p></li>
+<li><p>Better BSPlotter (&#64;fraricci)</p></li>
+<li><p>Better deprecation warnings.</p></li>
+<li><p>Bug fix for Py3.9 support.</p></li>
+<li><p>Bug fix for neutron diffraction get_plot.</p></li>
+</ol>
+</div>
+<div class="section" id="v2020-10-9">
+<h2>v2020.10.9<a class="headerlink" href="#v2020-10-9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Cube parsing and Cube integration to Bader (&#64;nwinner, #1967)</p></li>
+<li><p>Improvements to PhaseDiagram (&#64;CompRhys, #1899)</p></li>
+<li><p>Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (&#64;jmmshn, #1959)</p></li>
+<li><p>Changes to MPRelaxSet, default to low spin for Co (&#64;shyuep, #1976)</p></li>
+<li><p>Changes to MPScanSet (&#64;rkingsbury, #1952)</p></li>
+<li><p>Rename of <cite>Specie</cite> to <cite>Species</cite>, <cite>Specie</cite> will be retained for backwards compatibility (&#64;shyuep, #1963)</p></li>
+<li><p>Bug fix for VASP sets (&#64;utf, #1979)</p></li>
+<li><p>Bug fix for PDPlotter (&#64;mattmcdermott, #1973)</p></li>
+<li><p>Bug fix for EnergyAdjustment (&#64;rkingsbury, #1960)</p></li>
+</ul>
+</div>
 <div class="section" id="v2020-9-14">
 <h2>v2020.9.14<a class="headerlink" href="#v2020-9-14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -2910,11 +2948,19 @@ environment variable.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -2925,7 +2971,6 @@ environment variable.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
