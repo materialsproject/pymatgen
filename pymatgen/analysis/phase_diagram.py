@@ -16,7 +16,7 @@ import json
 import warnings
 from multiprocessing import Pool
 from functools import lru_cache, partial
-from monty.json import MSONable, MontyDecoder
+from monty.json import MSONable, MontyDecoder, MontyEncoder
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -104,7 +104,8 @@ class PDEntry(Entry):
     def __hash__(self):
         # NOTE This hashing operation means that equivalent entries
         # hash to different values. This has implications on set membership.
-        return id(self)
+        # return id(self)
+        return hash(json.dumps(self.as_dict(), sort_keys=True, cls=MontyEncoder))
 
     def as_dict(self):
         """
@@ -1468,20 +1469,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         spaces.sort(key=len)
 
-        pds = {}
-
         # NOTE there might be problems if ncore is zero/negative/more than cores
-        if (ncores in (1, None)) and (not use_multiprocessing):
-            for space in spaces:
-                pds[space] = _get_pd_for_space(space, all_entries)
+        if (not use_multiprocessing):
+            results = [_get_pd_for_space(space, all_entries) for space in spaces]
         else:
             with Pool(ncores) as p:
                 # NOTE imap might be slower than alternatives for parallelisation
-                results = p.imap(
+                results = p.map(
                     func=partial(_get_pd_for_space, **{"entries": all_entries}),
                     iterable=spaces
                 )
-                pds = dict(zip(spaces, results))
+
+        pds = dict(results)
 
         self.spaces = spaces
         self.pds = pds
@@ -2166,7 +2165,8 @@ def _get_pd_for_space(space, entries):
             e.composition.chemical_system.split("-")
         )
     ]
-    return PhaseDiagram(space_entries)
+
+    return space, PhaseDiagram(space_entries)
 
 
 class PDPlotter:

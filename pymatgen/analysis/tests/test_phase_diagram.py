@@ -89,7 +89,7 @@ class PDEntryTest(unittest.TestCase):
     def test_read_csv(self):
         entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
         self.assertEqual(entries.chemsys, {"Li", "Fe", "O"}, "Wrong elements!")
-        self.assertEqual(len(entries), 492, "Wrong number of entries!")
+        self.assertEqual(len(entries), 490, "Wrong number of entries!")
 
 
 class TransformedPDEntryTest(unittest.TestCase):
@@ -221,7 +221,7 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(energy, stable_formation_energies[formula], 7)
 
     def test_all_entries_hulldata(self):
-        self.assertEqual(len(self.pd.all_entries_hulldata), 492)
+        self.assertEqual(len(self.pd.all_entries_hulldata), 490)
 
     def test_planar_inputs(self):
         e1 = PDEntry("H", 0)
@@ -637,17 +637,16 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
 
         self.novel_entries = [PDEntry(c, -39.8) for c in self.novel_comps]
 
-    # NOTE fails due to duplicates resulting for memory location based hash.
     def test_get_stable_entries(self):
         self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
 
-    # NOTE  unittest doesn't have an assert almost equal for dictionaries.
-    # def test_get_decomposition(self):
-    #     for c in self.novel_comps:
-    #         pd_decomp = self.pd.get_decomposition(c)
-    #         ppd_decomp = self.ppd.get_decomposition(c)
-    #         for e in pd_decomp:
-    #             self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
+    # NOTE unittest doesn't have an assert almost equal for dictionaries.
+    def test_get_decomposition(self):
+        for c in self.novel_comps:
+            pd_decomp = self.pd.get_decomposition(c)
+            ppd_decomp = self.ppd.get_decomposition(c)
+            for e in pd_decomp:
+                self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
 
     def test_get_quasi_e_to_hull(self):
         for e in self.novel_entries:
