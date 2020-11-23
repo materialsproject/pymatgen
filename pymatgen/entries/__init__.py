@@ -35,9 +35,12 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     """
 
-    def __init__(self,
-                 composition: Composition,
-                 energy: float):
+    def __init__(
+        self,
+        composition: Composition,
+        energy: float,
+        per_atom: bool = False,
+    ):
         """
         Initializes an Entry.
 
@@ -47,9 +50,13 @@ class Entry(MSONable, metaclass=ABCMeta):
                 taken by a Composition, including a {symbol: amt} dict,
                 a string formula, and others.
             energy (float): Energy of the entry.
+            per_atom (bool): Whether the energy given is per atom.
         """
-        self._energy = energy
         self.composition = Composition(composition)
+        if per_atom:
+            self._energy = energy * self.composition.num_atoms
+        else:
+            self._energy = energy
 
     @property
     def is_element(self) -> bool:

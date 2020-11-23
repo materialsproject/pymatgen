@@ -69,6 +69,7 @@ class PDEntry(Entry):
         energy: float,
         name: str = None,
         attribute: object = None,
+        per_atom: bool = False,
     ):
         """
         Args:
@@ -77,15 +78,17 @@ class PDEntry(Entry):
             name (str): Optional parameter to name the entry. Defaults
                 to the reduced chemical formula.
             attribute: Optional attribute of the entry. Must be MSONable.
+            per_atom (bool): Whether the energy given is per atom.
         """
-        super().__init__(composition, energy)
+        super().__init__(composition, energy, per_atom)
         self.name = name if name else self.composition.reduced_formula
         self.attribute = attribute
 
     @property
     def energy(self) -> float:
         """
-        :return: the energy of the entry.
+        Returns:
+            the energy of the entry.
         """
         return self._energy
 
