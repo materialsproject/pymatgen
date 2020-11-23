@@ -16,7 +16,6 @@ import json
 import warnings
 from multiprocessing import Pool
 from functools import lru_cache, partial
-from typing import Set, List, Tuple
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
@@ -2117,7 +2116,7 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
         raise ValueError("No valid decomp found for {}!".format(comp))
 
 
-def _get_useful_entries(entries: List[PDEntry]) -> Tuple[Set["PDEntry"], List["PDEntry"], List["PDEntry"]]:
+def _get_useful_entries(entries):
     """
     Given a list of entries return the elemental references, minimum energy entries
     and a list of all entries.
