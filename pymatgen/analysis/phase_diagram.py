@@ -2294,18 +2294,21 @@ class PDPlotter:
         label_uncertainties=False,
     ):
         """
-        :param label_stable: Whether to label stable compounds.
-        :param label_unstable: Whether to label unstable compounds.
-        :param ordering: Ordering of vertices (matplotlib backend only).
-        :param energy_colormap: Colormap for coloring energy (matplotlib backend only).
-        :param process_attributes: Whether to process the attributes (matplotlib
-            backend only).
-        :param plt: Existing plt object if plotting multiple phase diagrams (
-            matplotlib backend only).
-        :param label_uncertainties: Whether to add error bars to the hull (plotly
-            backend only). For binaries, this also shades the hull with the
-            uncertainty window.
-        :return: go.Figure (plotly) or matplotlib.pyplot (matplotlib)
+        Args:
+            label_stable: Whether to label stable compounds.
+            label_unstable: Whether to label unstable compounds.
+            ordering: Ordering of vertices (matplotlib backend only).
+            energy_colormap: Colormap for coloring energy (matplotlib backend only).
+            process_attributes: Whether to process the attributes (matplotlib
+                backend only).
+            plt: Existing plt object if plotting multiple phase diagrams (
+                matplotlib backend only).
+            label_uncertainties: Whether to add error bars to the hull (plotly
+                backend only). For binaries, this also shades the hull with the
+                uncertainty window.
+
+        Returns:
+            go.Figure (plotly) or matplotlib.pyplot (matplotlib)
         """
         fig = None
 
@@ -2871,7 +2874,8 @@ class PDPlotter:
         """
         Creates Plotly scatter (line) plots for all phase diagram facets.
 
-        :return: go.Scatter (or go.Scatter3d) plot
+        Returns:
+            go.Scatter (or go.Scatter3d) plot
         """
         line_plot = None
         x, y, z, energies = [], [], [], []
@@ -2920,7 +2924,8 @@ class PDPlotter:
         Creates a (hidable) scatter trace containing labels of stable phases.
         Contains some functionality for creating sensible label positions.
 
-        :return: go.Scatter (or go.Scatter3d) plot
+        Returns:
+            go.Scatter (or go.Scatter3d) plot
         """
         x, y, z, text, textpositions = [], [], [], [], []
         stable_labels_plot = None
@@ -3006,7 +3011,8 @@ class PDPlotter:
         """
         Creates terminal element annotations for Plotly phase diagrams.
 
-        :return: list of annotation dicts.
+        Returns:
+            list of annotation dicts.
         """
         annotations_list = []
         x, y, z = None, None, None
@@ -3065,7 +3071,8 @@ class PDPlotter:
         Creates layout for plotly phase diagram figure and updates with
         figure annotations.
 
-        :return: Dictionary with Plotly figure layout settings.
+        Returns:
+            Dictionary with Plotly figure layout settings.
         """
         annotations_list = None
         layout = dict()
@@ -3089,7 +3096,8 @@ class PDPlotter:
         """
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
-        :return: Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order: (
+        Returns:
+            Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order: (
             stable markers, unstable markers)
         """
 
@@ -3303,9 +3311,12 @@ class PDPlotter:
         Creates shaded uncertainty region for stable entries. Currently only works
         for binary (dim=2) phase diagrams.
 
-        :param stable_marker_plot: go.Scatter object with stable markers and their
+        Args:
+            stable_marker_plot: go.Scatter object with stable markers and their
             error bars.
-        :return: Plotly go.Scatter object with uncertainty window shading.
+
+        Returns:
+            Plotly go.Scatter object with uncertainty window shading.
         """
 
         uncertainty_plot = None
@@ -3355,7 +3366,8 @@ class PDPlotter:
         Creates support lines which aid in seeing the ternary hull in three
         dimensions.
 
-        :return: go.Scatter3d plot of support lines for ternary phase diagram.
+        Returns:
+            go.Scatter3d plot of support lines for ternary phase diagram.
         """
         stable_entry_coords = dict(map(reversed, self.pd_plot_data[1].items()))
 
@@ -3388,7 +3400,8 @@ class PDPlotter:
         """
         Creates shaded mesh plot for coloring the ternary hull by formation energy.
 
-        :return: go.Mesh3d plot
+        Returns:
+            go.Mesh3d plot
         """
         facets = np.array(self._pd.facets)
         coords = np.array(
@@ -3424,8 +3437,11 @@ class PDPlotter:
         """
         Adds HTML tags for displaying chemical formula in Plotly figure annotations.
 
-        :param formula: chemical formula
-        :return: clean chemical formula with necessary HTML tags
+        Args:
+            formula: chemical formula
+
+        Returns:
+            clean chemical formula with necessary HTML tags
         """
         s = []
         for char in formula:
