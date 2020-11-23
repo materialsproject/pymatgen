@@ -567,8 +567,6 @@ class Lattice(MSONable):
             max_index = selling_vector.argmax()
             selling_vector = np.dot(reduction_matrices[max_index], selling_vector)
             
-        selling_vector = selling_vector.reshape((1, 6))
-        
         return selling_vector
 
 
