@@ -435,22 +435,24 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     @property
     def reduced_formula(self) -> str:
         """
-        Returns a pretty normalized formula, i.e., LiFePO4 instead of
-        Li4Fe4P4O16.
+        Returns:
+            a pretty normalized formula, i.e., LiFePO4 instead of
+            Li4Fe4P4O16.
         """
         return self.get_reduced_formula_and_factor()[0]
 
     @property
     def hill_formula(self) -> str:
         """
-        :return: Hill formula. The Hill system (or Hill notation) is a system
-        of writing empirical chemical formulas, molecular chemical formulas and
-        components of a condensed formula such that the number of carbon atoms
-        in a molecule is indicated first, the number of hydrogen atoms next,
-        and then the number of all other chemical elements subsequently, in
-        alphabetical order of the chemical symbols. When the formula contains
-        no carbon, all the elements, including hydrogen, are listed
-        alphabetically.
+        Returns:
+            Hill formula. The Hill system (or Hill notation) is a system
+            of writing empirical chemical formulas, molecular chemical formulas and
+            components of a condensed formula such that the number of carbon atoms
+            in a molecule is indicated first, the number of hydrogen atoms next,
+            and then the number of all other chemical elements subsequently, in
+            alphabetical order of the chemical symbols. When the formula contains
+            no carbon, all the elements, including hydrogen, are listed
+            alphabetically.
         """
         c = self.element_composition
         elements = sorted([el.symbol for el in c.keys()])
@@ -521,7 +523,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
             "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
             "actinoid", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
-
 
         Returns:
             True if any elements in Composition match category, otherwise False
@@ -1172,8 +1173,7 @@ def reduce_formula(sym_amt, iupac_ordering=False):
     syms = syms[:len(syms) - 2 if polyanion else len(syms)]
 
     if iupac_ordering:
-        syms = sorted(syms,
-                      key=lambda x: [get_el_sp(x).iupac_ordering, x])
+        syms = sorted(syms, key=lambda x: [get_el_sp(x).iupac_ordering, x])
 
     reduced_form = []
     for s in syms:
