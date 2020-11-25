@@ -52,7 +52,7 @@ class Entry(MSONable, metaclass=ABCMeta):
             energy (float): Energy of the entry.
             per_atom (bool): Whether the energy given is per atom.
         """
-        self.composition = Composition(composition)
+        self._composition = Composition(composition)
         if per_atom:
             self._energy = energy * self.composition.num_atoms
         else:
@@ -64,6 +64,13 @@ class Entry(MSONable, metaclass=ABCMeta):
         :return: Whether composition of entry is an element.
         """
         return self.composition.is_element
+
+    @property
+    def composition(self) -> Composition:
+        """
+        :return: the composition of the entry.
+        """
+        return self._composition
 
     @property
     @abstractmethod
@@ -95,13 +102,13 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         if inplace:
             factor = self._normalization_factor(mode)
-            self.composition /= factor
+            self._composition /= factor
             self._energy /= factor
             return None
         else:
             entry = copy.deepcopy(self)
             factor = entry._normalization_factor(mode)
-            entry.composition /= factor
+            entry._composition /= factor
             entry._energy /= factor
             return entry
 
@@ -109,7 +116,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         if mode == "atom":
             factor = self.composition.num_atoms
         else:
-            comp, factor = self.composition.get_reduced_composition_and_factor()
+            factor = self.composition.get_reduced_composition_and_factor()[1]
         return factor
 
     def as_dict(self) -> dict:
