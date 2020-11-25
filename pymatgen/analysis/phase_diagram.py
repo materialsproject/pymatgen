@@ -14,9 +14,10 @@ import logging
 import os
 import json
 import warnings
+import hashlib
 from multiprocessing import Pool
 from functools import lru_cache, partial
-from monty.json import MSONable, MontyDecoder, MontyEncoder
+from monty.json import MSONable, MontyDecoder
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -1422,7 +1423,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements=None,
         keep_all_spaces=False,
         use_multiprocessing=True,
-        ncores=None
+        ncores=None,
     ):
         """
         Args:
@@ -1460,7 +1461,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 "There are no entries associated with a terminal element!."
             )
 
-        spaces = list(set([e.composition.chemical_system for e in entries if not e.is_element]))
+        spaces = list({e.composition.chemical_system for e in entries if not e.is_element})
 
         if not keep_all_spaces:
             spaces = [s for s in spaces if not any(
@@ -1469,12 +1470,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         spaces.sort(key=len)
 
-        # NOTE there might be problems if ncore is zero/negative/more than cores
-        if (not use_multiprocessing):
+        if not use_multiprocessing:
             results = [_get_pd_for_space(space, all_entries) for space in spaces]
         else:
             with Pool(ncores) as p:
-                # NOTE imap might be slower than alternatives for parallelisation
                 results = p.map(
                     func=partial(_get_pd_for_space, **{"entries": all_entries}),
                     iterable=spaces
@@ -1584,7 +1583,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             pd = self.get_smallest_pd_for_entry(comp)
             return pd.get_decomposition(comp)
         except ValueError as e:
-            # NOTE just warn for the time being to show stitching is working
+            # NOTE warn when stitching across pds is being used
             warnings.warn(str(e) + " Using SLSQP to find decomposition")
             competing_entries = [
                 c for c in self.stable_entries
@@ -1611,217 +1610,97 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
-    def _get_facet_and_simplex(self, comp):
+    def _get_facet_and_simplex(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            comp (Composition): A composition
-
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`_get_facet_and_simplex` not implemented for PatchedPhaseDiagram"
         )
 
-    def _get_all_facets_and_simplexes(self, comp):
+    def _get_all_facets_and_simplexes(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            comp (Composition): A composition
-
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`_get_facet_and_simplex` not implemented for PatchedPhaseDiagram"
         )
 
-    def _get_facet_chempots(self, facet):
+    def _get_facet_chempots(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            facet: Facet of the phase diagram.
-
-        Returns:
-            {element: chempot} for all elements in the phase diagram.
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`_get_facet_chempots` not implemented for PatchedPhaseDiagram"
         )
 
-    def _get_simplex_intersections(self, c1, c2):
+    def _get_simplex_intersections(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            c1: Reduced dimension co-ordinates of first composition
-            c2: Reduced dimension co-ordinates of second composition
-
-        Returns:
-            Array of the intersections between the tie line and the simplexes of
-            the PhaseDiagram
+        Not Implemented - See PhaseDiagram
         """
-
         raise NotImplementedError(
             "`_get_simplex_intersections` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_composition_chempots(self, comp):
+    def get_composition_chempots(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            comp (PDEntry): Composition
-
-        Returns:
-            Dict of chemical potentials.
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_composition_chempots` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_all_chempots(self, comp):
+    def get_all_chempots(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            comp (PDEntry): Composition
-
-        Returns:
-            Chemical potentials.
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_all_chempots` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_transition_chempots(self, element):
+    def get_transition_chempots(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            element: An element. Has to be in the PD in the first place.
-
-        Returns:
-            A sorted sequence of critical chemical potentials, from less
-            negative to more negative.
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_transition_chempots` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_critical_compositions(self, comp1, comp2):
+    def get_critical_compositions(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            comp1, comp2 (Composition): compositions that define the tieline
-
-        Returns:
-            [(Composition)]: list of critical compositions. All are of
-                the form x * comp1 + (1-x) * comp2
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_critical_compositions` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_element_profile(self, element, comp, comp_tol=1e-5):
+    def get_element_profile(self,):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            element: An element. Must be in the phase diagram.
-            comp: A Composition
-            comp_tol: The tolerance to use when calculating decompositions.
-                Phases with amounts less than this tolerance are excluded.
-                Defaults to 1e-5.
-
-        Returns:
-            Evolution data as a list of dictionaries of the following format:
-            [ {'chempot': -10.487582010000001, 'evolution': -2.0,
-            'reaction': Reaction Object], ...]
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_element_profile` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_chempot_range_map(self, elements, referenced=True, joggle=True):
+    def get_chempot_range_map(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges
-                of all Li-Co-O phases wrt to uLi and uO, you will supply
-                [Element("Li"), Element("O")]
-            referenced: If True, gives the results with a reference being the
-                energy of the elemental phase. If False, gives absolute values.
-            joggle (boolean): Whether to joggle the input to avoid precision
-                errors.
-
-        Returns:
-            Returns a dict of the form {entry: [simplices]}. The list of
-            simplices are the sides of the N-1 dim polytope bounding the
-            allowable chemical potential range of each entry.
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_chempot_range_map` not implemented for PatchedPhaseDiagram"
         )
 
-    def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
+    def getmu_vertices_stability_phase(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            target_comp: A Composition object
-            dep_elt: the element for which the chemical potential is computed
-                from the energy of
-            the stable phase at the target composition
-            tol_en: a tolerance on the energy to set
-
-        Returns:
-             [{Element: mu}]: An array of conditions on simplex vertices for
-             which each element has a chemical potential set to a given
-             value. "absolute" values (i.e., not referenced to element energies)
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`getmu_vertices_stability_phase` not implemented for PatchedPhaseDiagram"
         )
 
-    def get_chempot_range_stability_phase(self, target_comp, open_elt):
+    def get_chempot_range_stability_phase(self):
         """
-        Not Implemented
-
-        See PhaseDiagram
-
-        Args:
-            target_comp: A Composition object
-            open_elt: Element that you want to constrain to be max or min
-
-        Returns:
-             {Element: (mu_min,mu_max)}: Chemical potentials are given in
-             "absolute" values (i.e., not referenced to 0)
+        Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
             "`get_chempot_range_stability_phase` not implemented for PatchedPhaseDiagram"
