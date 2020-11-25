@@ -508,7 +508,7 @@ class Lattice(MSONable):
         """
         return np.linalg.inv(self.lll_mapping)
 
-@property
+    @property
     def selling_vector(self) -> np.ndarray:
         """
         Returns the (1,6) array of Selling Scalars.
