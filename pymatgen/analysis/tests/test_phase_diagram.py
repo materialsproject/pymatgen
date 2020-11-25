@@ -640,11 +640,12 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
     def test_get_stable_entries(self):
         self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
 
-    # NOTE unittest doesn't have an assert almost equal for dictionaries.
     def test_get_decomposition(self):
         for c in self.novel_comps:
             pd_decomp = self.pd.get_decomposition(c)
             ppd_decomp = self.ppd.get_decomposition(c)
+
+            # NOTE unittest doesn't have an assert almost equal for dictionaries.
             for e in pd_decomp:
                 self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
 
@@ -652,6 +653,13 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         for e in self.novel_entries:
             self.assertAlmostEqual(
                 self.pd.get_quasi_e_to_hull(e), self.ppd.get_quasi_e_to_hull(e), 7
+            )
+
+    def test_get_equilibrium_reaction_energy(self):
+        for e in self.pd.stable_entries:
+            self.assertAlmostEqual(
+                self.pd.get_equilibrium_reaction_energy(e),
+                self.ppd.get_equilibrium_reaction_energy(e), 7
             )
 
 
