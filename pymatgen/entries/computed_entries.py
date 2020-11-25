@@ -14,6 +14,7 @@ import os
 import abc
 import json
 import copy
+import hashlib
 from itertools import combinations
 from typing import List, Optional
 
@@ -550,6 +551,33 @@ class ComputedEntry(Entry):
         )
         return return_dict
 
+    def __eq__(self, other):
+        # NOTE Scaled duplicates are not equal unless normalized separately
+        if id(self) == id(other):
+            return True
+
+        if isinstance(other, self.__class__):
+            if self.entry_id != other.entry_id:
+                return False
+            if not Entry.__eq__(self, other):
+                return False
+            # NOTE this is not performant and should be preceeded
+            # if faster rigorous checks are available.
+            return self.as_dict() == other.as_dict()
+        return False
+
+    def __hash__(self):
+        # NOTE there is a trade-off between having correction in hash or not.
+        # if already calculated it is cheap otherwise cost unknown.
+        data_md5 = hashlib.md5((
+            f"{self.__class__.__name__}"
+            f"{self.entry_id}"
+            f"{self._composition.reduced_iupac_formula}"
+            f"{self._energy}"
+            f"{self.correction}").encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)
+
 
 class ComputedStructureEntry(ComputedEntry):
     """
@@ -938,3 +966,14 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             "Gibbs Free Energy (Formation) = {:.4f}".format(self.energy),
         ]
         return "\n".join(output)
+
+    def __hash__(self):
+        # NOTE hash choice of @mattmcdermott
+        data_md5 = hashlib.md5(
+            f"{self.__class__.__name__}"
+            f"{self.entry_id}"
+            f"{self.composition}"
+            f"{self.formation_enthalpy}"
+            f"{self.temp}".encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)

@@ -96,18 +96,6 @@ class PDEntry(Entry):
     def __repr__(self):
         return "PDEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
 
-    def __eq__(self, other):
-        # NOTE Scaled duplicates are not equal unless normalized separately
-        if isinstance(other, self.__class__):
-            return self.as_dict() == other.as_dict()
-        return False
-
-    def __hash__(self):
-        # NOTE This hashing operation means that equivalent entries
-        # hash to different values. This has implications on set membership.
-        # return id(self)
-        return hash(json.dumps(self.as_dict(), sort_keys=True, cls=MontyEncoder))
-
     def as_dict(self):
         """
         Returns:
@@ -149,6 +137,7 @@ class GrandPotPDEntry(PDEntry):
             name: Optional parameter to name the entry. Defaults to the reduced
                 chemical formula of the original entry.
         """
+        # TODO refactor so _energy is unchanged and define energy = _energy - chem_energy
         comp = entry.composition
         self.original_entry = entry
         self.original_comp = comp
@@ -274,6 +263,14 @@ class TransformedPDEntry(PDEntry):
         """
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(d["composition"], entry)
+
+    def __hash__(self):
+        data_md5 = hashlib.md5((
+            f"{self.__class__.__name__}"
+            f"{self.composition}"
+            f"{self._energy}").encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)
 
 
 class PhaseDiagram(MSONable):

@@ -11,6 +11,7 @@ and PDEntry inherit from this class.
 """
 
 import copy
+import hashlib
 from abc import ABCMeta, abstractmethod
 from typing import Optional
 from monty.json import MSONable
@@ -127,3 +128,22 @@ class Entry(MSONable, metaclass=ABCMeta):
                 "@class": self.__class__.__name__,
                 "energy": self._energy,
                 "composition": self.composition.as_dict()}
+
+    def __eq__(self, other):
+        # NOTE Scaled duplicates are not equal unless normalized separately
+        if id(self) == id(other):
+            return True
+
+        if isinstance(other, self.__class__):
+            # NOTE this is not performant and should be overwritten or
+            # preceeded if faster rigorous checks are available.
+            return self.as_dict() == other.as_dict()
+        return False
+
+    def __hash__(self):
+        data_md5 = hashlib.md5((
+            f"{self.__class__.__name__}"
+            f"{self._composition.reduced_iupac_formula}"
+            f"{self._energy}").encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)
