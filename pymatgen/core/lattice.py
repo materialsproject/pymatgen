@@ -906,8 +906,8 @@ class Lattice(MSONable):
             ),
         ]
 
-        selling1 = selling_vector(self)
-        selling2 = selling_vector(other)
+        selling1 = self.selling_vector
+        selling2 = other.selling_vector
 
         vcps = np.dot(selling1, vcp_matrices)[0]
 
