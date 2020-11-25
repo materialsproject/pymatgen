@@ -442,6 +442,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return self.get_reduced_formula_and_factor()[0]
 
     @property
+    def reduced_iupac_formula(self) -> str:
+        """
+        Returns:
+            a pretty normalized formula with elements sorted by the iupac
+            electronegativity ordering defined in Table VI of "Nomenclature
+            of Inorganic Chemistry (IUPAC Recommendations 2005)"
+        """
+        return self.get_reduced_formula_and_factor(iupac_ordering=True)[0]
+
+    @property
     def hill_formula(self) -> str:
         """
         Returns:
