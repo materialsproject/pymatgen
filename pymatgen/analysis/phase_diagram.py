@@ -683,7 +683,7 @@ class PhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
+        if entry not in self.stable_entries:
             raise ValueError(
                 "{} is unstable, the equilibrium reaction energy is"
                 "available only for stable entries.".format(entry)
@@ -692,7 +692,7 @@ class PhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        entries = [e for e in self.stable_entries if e.normalize(inplace=False) != entry.normalize(inplace=False)]
+        entries = [e for e in self.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
@@ -1034,7 +1034,7 @@ class PhaseDiagram(MSONable):
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self.elements)))]
 
-        # TODO explain what this step does
+        # TODO add explanation of what this step does
         if len(all_chempots) > len(self.elements):
             vertices = get_facets(all_chempots, joggle=joggle)
 
@@ -1071,7 +1071,7 @@ class PhaseDiagram(MSONable):
             tol_en: a tolerance on the energy to set
 
         Returns:
-             [{Element:mu}]: An array of conditions on simplex vertices for
+             [{Element: mu}]: An array of conditions on simplex vertices for
              which each element has a chemical potential set to a given
              value. "absolute" values (i.e., not referenced to element energies)
         """
@@ -1134,7 +1134,7 @@ class PhaseDiagram(MSONable):
             open_elt: Element that you want to constrain to be max or min
 
         Returns:
-             {Element:(mu_min,mu_max)}: Chemical potentials are given in
+             {Element: (mu_min,mu_max)}: Chemical potentials are given in
              "absolute" values (i.e., not referenced to 0)
         """
         muref = np.array(
@@ -1611,7 +1611,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
-    @lru_cache(1)
     def _get_facet_and_simplex(self, comp):
         """
         Not Implemented
@@ -1802,7 +1801,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             tol_en: a tolerance on the energy to set
 
         Returns:
-             [{Element:mu}]: An array of conditions on simplex vertices for
+             [{Element: mu}]: An array of conditions on simplex vertices for
              which each element has a chemical potential set to a given
              value. "absolute" values (i.e., not referenced to element energies)
         """
@@ -1821,7 +1820,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             open_elt: Element that you want to constrain to be max or min
 
         Returns:
-             {Element:(mu_min,mu_max)}: Chemical potentials are given in
+             {Element: (mu_min,mu_max)}: Chemical potentials are given in
              "absolute" values (i.e., not referenced to 0)
         """
         raise NotImplementedError(
@@ -2146,7 +2145,7 @@ def _get_useful_entries(entries):
         min_entries.append(min_entry)
         all_entries.extend(g)
 
-    # NOTE all_entries is just entries? can we remove it?
+    # NOTE all_entries is just entries reordered? can we remove it?
     return el_refs, min_entries, all_entries
 
 
