@@ -740,6 +740,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             self.interpolated = True
 
         if gibbs_model.lower() == "sisso":
+            # TODO can this be made into a property such that we can still normalize it?
             self.gibbs_correction = self.gf_sisso()
         else:
             raise ValueError(
@@ -751,7 +752,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     @property
     def formation_enthalpy(self) -> float:
         """
-        :return: the *corrected* energy of the entry.
+        :return: the formation enthalpy energy of the entry.
         """
         return self._energy
 
@@ -778,7 +779,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         4168. https://doi.org/10.1038/s41467-018-06682-4
 
         Returns:
-            float: Gibbs free energy of formation (eV)
+            float: the entropic term of the Gibbs free energy of formation (eV)
         """
         comp = self.structure.composition
 
@@ -882,7 +883,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_pd(
-        cls, pd, temp=300, gibbs_model="SISSO"
+        cls, pd, temp: float = 300, gibbs_model: str = "SISSO"
     ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing a list of GibbsComputedStructureEntry
@@ -922,7 +923,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_entries(
-        cls, entries, temp=300, gibbs_model="SISSO"
+        cls, entries: List["ComputedStructureEntry"], temp=300, gibbs_model="SISSO"
     ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing GibbsComputedStructureEntry objects from
@@ -945,7 +946,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         pd = PhaseDiagram(entries)
         return cls.from_pd(pd, temp, gibbs_model)
 
-    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["ComputedEntry"]:
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ) -> Optional["GibbsComputedStructureEntry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -979,7 +982,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "GibbsComputedStructureEntry":
+    def from_dict(cls, d: dict) -> "GibbsComputedStructureEntry":
         """
         :param d: Dict representation.
         :return: GibbsComputedStructureEntry
