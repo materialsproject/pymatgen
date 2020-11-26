@@ -167,7 +167,7 @@ class ComputedEntryTest(unittest.TestCase):
         normed_entry = entry.normalize(inplace=False)
         entry.normalize()
 
-        self.assertEqual(normed_entry.as_dict(), entry.as_dict())
+        self.assertEqual(normed_entry, entry)
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
@@ -468,6 +468,14 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.temp_entries[300]))
+
+    def test_normalize(self):
+        # NOTE this test must be last as it mutates the entries.
+        for entry in self.temp_entries.values():
+            test = entry.normalize(mode="atom", inplace=False)
+            self.assertEqual(entry.gibbs_correction, test.gibbs_correction * 25)
+            entry.normalize(mode="atom")
+            self.assertEqual(entry.gibbs_correction, test.gibbs_correction)
 
 
 if __name__ == "__main__":
