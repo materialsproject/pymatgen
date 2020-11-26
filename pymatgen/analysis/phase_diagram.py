@@ -1989,8 +1989,8 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
             in zip(competing_entries, decomp_amts)
             if amt > PhaseDiagram.numerical_tol
         }
-    else:
-        raise ValueError("No valid decomp found for {}!".format(comp))
+
+    raise ValueError("No valid decomp found for {}!".format(comp))
 
 
 def _get_useful_entries(entries):

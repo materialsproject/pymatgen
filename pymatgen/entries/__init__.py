@@ -106,18 +106,21 @@ class Entry(MSONable, metaclass=ABCMeta):
             self._composition /= factor
             self._energy /= factor
             return None
-        else:
-            entry = copy.deepcopy(self)
-            factor = entry._normalization_factor(mode)
-            entry._composition /= factor
-            entry._energy /= factor
-            return entry
+
+        entry = copy.deepcopy(self)
+        factor = entry._normalization_factor(mode)
+        entry._composition /= factor
+        entry._energy /= factor
+        return entry
 
     def _normalization_factor(self, mode: str = "formula_unit") -> float:
         if mode == "atom":
             factor = self.composition.num_atoms
-        else:
+        elif mode == "formula_unit":
             factor = self.composition.get_reduced_composition_and_factor()[1]
+        else:
+            raise ValueError("`{}` is not an allowed option for normalization".format(mode))
+
         return factor
 
     def as_dict(self) -> dict:
@@ -130,7 +133,8 @@ class Entry(MSONable, metaclass=ABCMeta):
                 "composition": self.composition.as_dict()}
 
     def __eq__(self, other):
-        # NOTE Scaled duplicates are not equal unless normalized separately
+        # NOTE Scaled duplicates i.e. physically equivalent materials
+        # are not equal unless normalized separately
         if id(self) == id(other):
             return True
 
