@@ -573,14 +573,14 @@ class ComputedEntry(Entry):
         return False
 
     def __hash__(self) -> int:
-        # NOTE there is a trade-off between having correction in hash or not,
-        # it's discriminative but its cost unknown.
+        # NOTE there is a trade-off between using `_energy` and `energy`
+        # as `energy` requires the calculation of the corrections. It is
+        # more discriminative but also more expensive.
         data_md5 = hashlib.md5((
             f"{self.__class__.__name__}"
             f"{self.entry_id}"
-            f"{self._composition.reduced_formula}"
-            f"{self._energy}"
-            f"{self.correction}").encode('utf-8')
+            f"{self.composition.reduced_formula}"
+            f"{self._energy}").encode('utf-8')
         ).hexdigest()
         return int(data_md5, 16)
 
@@ -741,7 +741,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         if gibbs_model.lower() == "sisso":
             # TODO can this be made into a property such that we can still normalize it?
-            self.gibbs_correction = self.gf_sisso()
+            self.gibbs_correction_fn = self.gf_sisso
         else:
             raise ValueError(
                 f"{gibbs_model} not a valid model. Please select from [" f"'SISSO']"
@@ -755,6 +755,13 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         :return: the formation enthalpy energy of the entry.
         """
         return self._energy
+
+    @property
+    def gibbs_correction(self) -> float:
+        """
+        :return: the formation enthalpy energy of the entry.
+        """
+        return self.gibbs_correction_fn()
 
     @property
     def uncorrected_energy(self) -> float:
@@ -781,7 +788,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: the entropic term of the Gibbs free energy of formation (eV)
         """
-        comp = self.structure.composition
+        comp = self.composition
 
         if comp.is_element:
             return self.formation_enthalpy
@@ -801,7 +808,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         reduced_mass = self._reduced_mass()
 
         return (
-            num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp)
+            comp.num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp)
             - self._sum_g_i()
         )
 
@@ -813,7 +820,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
              float: sum of weighted chemical potentials [eV]
         """
-        elems = self.structure.composition.get_el_amt_dict()
+        elems = self.composition.get_el_amt_dict()
 
         if self.interpolated:
             sum_g_i = 0
@@ -837,7 +844,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: reduced mass (amu)
         """
-        reduced_comp = self.structure.composition.reduced_composition
+        reduced_comp = self.composition.reduced_composition
         num_elems = len(reduced_comp.elements)
         elem_dict = reduced_comp.get_el_amt_dict()
 
@@ -946,28 +953,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         pd = PhaseDiagram(entries)
         return cls.from_pd(pd, temp, gibbs_model)
 
-    def normalize(
-        self, mode: str = "formula_unit", inplace: bool = True
-    ) -> Optional["GibbsComputedStructureEntry"]:
-        """
-        Normalize the entry's composition and energy.
-
-        Args:
-            mode: "formula_unit" is the default, which normalizes to
-                composition.reduced_formula. The other option is "atom", which
-                normalizes such that the composition amounts sum to 1.
-            inplace: "True" is the default which normalises the current Entry object.
-                Setting inplace to "False" returns a normalized copy of the Entry object.
-        """
-        if inplace:
-            self.gibbs_correction /= self._normalization_factor(mode)
-            super().normalize(mode, inplace)
-            return None
-
-        entry = copy.deepcopy(self)
-        entry.gibbs_correction /= entry._normalization_factor(mode)
-        return super(GibbsComputedStructureEntry, entry).normalize(mode, inplace)
-
     def as_dict(self) -> dict:
         """
         :return: MSONAble dict.
@@ -1018,9 +1003,8 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         data_md5 = hashlib.md5(
             f"{self.__class__.__name__}"
             f"{self.entry_id}"
-            f"{self._composition.reduced_formula}"
+            f"{self.composition.reduced_formula}"
             f"{self._energy}"
-            f"{self.correction}"
             f"{self.temp}".encode('utf-8')
         ).hexdigest()
         return int(data_md5, 16)
