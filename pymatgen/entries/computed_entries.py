@@ -15,6 +15,7 @@ import abc
 import json
 import copy
 import hashlib
+import warnings
 from itertools import combinations
 from typing import List, Optional
 
@@ -683,6 +684,28 @@ class ComputedStructureEntry(ComputedEntry):
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),
         )
+
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ):
+        """
+        Normalize the entry's composition and energy. The structure remains
+        unchanged.
+
+        Args:
+            mode: "formula_unit" is the default, which normalizes to
+                composition.reduced_formula. The other option is "atom",
+                which normalizes such that the composition amounts sum to 1.
+            inplace: "True" is the default which normalises the current
+                Entry object. Setting inplace to "False" returns a normalized
+                copy of the Entry object.
+        """
+        warnings.warn((
+            f"Normalization of a `{self.__class__.__name__}` makes "
+            "`self.composition` and `self.structure.composition` inconsistent"
+            " - please use self.composition for all further calculations."
+        ))
+        return super().normalize(mode, inplace)
 
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
