@@ -147,7 +147,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __hash__(self):
         data_md5 = hashlib.md5((
             f"{self.__class__.__name__}"
-            f"{self._composition.reduced_iupac_formula}"
+            f"{self._composition.reduced_formula}"
             f"{self._energy}").encode('utf-8')
         ).hexdigest()
         return int(data_md5, 16)

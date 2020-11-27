@@ -578,7 +578,7 @@ class ComputedEntry(Entry):
         data_md5 = hashlib.md5((
             f"{self.__class__.__name__}"
             f"{self.entry_id}"
-            f"{self._composition.reduced_iupac_formula}"
+            f"{self._composition.reduced_formula}"
             f"{self._energy}"
             f"{self.correction}").encode('utf-8')
         ).hexdigest()
@@ -1018,7 +1018,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         data_md5 = hashlib.md5(
             f"{self.__class__.__name__}"
             f"{self.entry_id}"
-            f"{self._composition.reduced_iupac_formula}"
+            f"{self._composition.reduced_formula}"
             f"{self._energy}"
             f"{self.correction}"
             f"{self.temp}".encode('utf-8')
