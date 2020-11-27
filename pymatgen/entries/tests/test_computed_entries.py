@@ -473,7 +473,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         # NOTE this test must be last as it mutates the entries.
         for entry in self.temp_entries.values():
             test = entry.normalize(mode="atom", inplace=False)
-            self.assertEqual(entry.gibbs_correction, test.gibbs_correction * 25)
+            self.assertAlmostEqual(entry.gibbs_correction, test.gibbs_correction * 25, 11)
             entry.normalize(mode="atom")
             self.assertEqual(entry.gibbs_correction, test.gibbs_correction)
 
