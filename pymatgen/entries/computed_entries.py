@@ -91,6 +91,7 @@ class EnergyAdjustment(MSONable):
         This method is utilized in ComputedEntry.normalize() to scale the energies to a formula unit basis
         (e.g. E_Fe6O9 = 3 x E_Fe2O3).
         """
+
     def __repr__(self):
         output = [
             "{}:".format(self.__class__.__name__),
@@ -455,10 +456,8 @@ class ComputedEntry(Entry):
             return None
 
         entry = copy.deepcopy(self)
-        factor = entry._normalization_factor(mode)
-        for ea in entry.energy_adjustments:
-            ea._normalize(factor)
-        return super(ComputedEntry, entry).normalize(mode, inplace)
+        entry.normalize(mode, inplace=True)
+        return entry
 
     def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
@@ -560,7 +559,7 @@ class ComputedEntry(Entry):
     def __eq__(self, other: object) -> bool:
         # NOTE Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately
-        if id(self) == id(other):
+        if self is other:
             return True
 
         if isinstance(other, self.__class__):

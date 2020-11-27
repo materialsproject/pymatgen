@@ -108,9 +108,7 @@ class Entry(MSONable, metaclass=ABCMeta):
             return None
 
         entry = copy.deepcopy(self)
-        factor = entry._normalization_factor(mode)
-        entry._composition /= factor
-        entry._energy /= factor
+        entry.normalize(mode, inplace=True)
         return entry
 
     def _normalization_factor(self, mode: str = "formula_unit") -> float:
@@ -135,7 +133,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __eq__(self, other):
         # NOTE Scaled duplicates i.e. physically equivalent materials
         # are not equal unless normalized separately
-        if id(self) == id(other):
+        if self is other:
             return True
 
         if isinstance(other, self.__class__):

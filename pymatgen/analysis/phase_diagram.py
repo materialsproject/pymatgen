@@ -14,7 +14,6 @@ import logging
 import os
 import json
 import warnings
-import hashlib
 from multiprocessing import Pool
 from functools import lru_cache, partial
 from monty.json import MSONable, MontyDecoder
@@ -263,14 +262,6 @@ class TransformedPDEntry(PDEntry):
         """
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(d["composition"], entry)
-
-    def __hash__(self):
-        data_md5 = hashlib.md5((
-            f"{self.__class__.__name__}"
-            f"{self.composition}"
-            f"{self._energy}").encode('utf-8')
-        ).hexdigest()
-        return int(data_md5, 16)
 
 
 class PhaseDiagram(MSONable):
