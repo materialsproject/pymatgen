@@ -64,7 +64,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         :return: Whether composition of entry is an element.
         """
-        return self.composition.is_element
+        return self._composition.is_element
 
     @property
     def composition(self) -> Composition:

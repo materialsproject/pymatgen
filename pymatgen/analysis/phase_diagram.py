@@ -136,44 +136,49 @@ class GrandPotPDEntry(PDEntry):
             name: Optional parameter to name the entry. Defaults to the reduced
                 chemical formula of the original entry.
         """
-        # TODO refactor so _energy is unchanged and define energy = _energy - chem_energy
-        comp = entry.composition
+        super().__init__(entry.composition, entry.energy, name if name else entry.name)
         self.original_entry = entry
-        self.original_comp = comp
-        grandpot = entry.energy - sum([comp[el] * pot for el, pot in chempots.items()])
+        self.original_comp = self._composition
         self.chempots = chempots
-        new_comp_map = {el: comp[el] for el in comp.elements if el not in chempots}
-        super().__init__(new_comp_map, grandpot, entry.name)
-        self.name = name if name else entry.name
 
     @property
-    def is_element(self):
+    def composition(self) -> Composition:
+        """The composition after removing free species
+
+        Returns:
+            Composition:
         """
-        True if the entry is an element.
+        return Composition(
+            {el: self._composition[el] for el in self._composition.elements
+             if el not in self.chempots}
+        )
+
+    @property
+    def chemical_energy(self):
+        """ The chemical energy term mu*N in the grand potential
+
+        Returns:
+            The chemical energy term mu*N in the grand potential
         """
-        return self.original_comp.is_element
+        return sum([self._composition[el] * pot for el, pot in self.chempots.items()])
+
+    @property
+    def energy(self):
+        """
+        Returns:
+            The grand potential energy
+        """
+        return self._energy - self.chemical_energy
 
     def __repr__(self):
         chempot_str = " ".join(
             ["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()]
         )
         return (
-            "GrandPotPDEntry with original composition "
-            + "{}, energy = {:.4f}, {}".format(
-                self.original_entry.composition, self.original_entry.energy, chempot_str
+            "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
+                self._composition, self._energy, chempot_str
             )
         )
-
-    def __str__(self):
-        return self.__repr__()
-
-    def __getattr__(self, a):
-        """
-        Delegate attribute to original entry if available.
-        """
-        if hasattr(self.original_entry, a):
-            return getattr(self.original_entry, a)
-        raise AttributeError(a)
 
     def as_dict(self):
         """
@@ -201,6 +206,14 @@ class GrandPotPDEntry(PDEntry):
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(entry, chempots, d["name"])
 
+    def __getattr__(self, a):
+        """
+        Delegate attribute to original entry if available.
+        """
+        if hasattr(self.original_entry, a):
+            return getattr(self.original_entry, a)
+        raise AttributeError(a)
+
 
 class TransformedPDEntry(PDEntry):
     """
@@ -216,9 +229,19 @@ class TransformedPDEntry(PDEntry):
             comp (Composition): Transformed composition as a Composition.
             original_entry (PDEntry): Original entry that this entry arose from.
         """
-        super().__init__(comp, original_entry.energy)
+        super().__init__(original_entry.composition, original_entry.energy, original_entry.name)
         self.original_entry = original_entry
-        self.name = original_entry.name
+        self._transformed_composition = Composition(comp)
+
+    # TODO prevent normalize from being applied to a transformed entry?
+    @property
+    def composition(self) -> Composition:
+        """The composition after removing free species
+
+        Returns:
+            Composition:
+        """
+        return self._transformed_composition
 
     def __getattr__(self, a):
         """
@@ -235,9 +258,6 @@ class TransformedPDEntry(PDEntry):
             ", E = {:.4f}".format(self.original_entry.energy),
         ]
         return "".join(output)
-
-    def __str__(self):
-        return self.__repr__()
 
     def as_dict(self):
         """
@@ -455,9 +475,6 @@ class PhaseDiagram(MSONable):
         return self.get_form_energy(entry) / entry.composition.num_atoms
 
     def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
         symbols = [el.symbol for el in self.elements]
         output = [
             "{} phase diagram".format("-".join(symbols)),
@@ -1207,10 +1224,15 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 diagram. If set to None, the elements are determined from
                 the the entries themselves.
         """
+        # if elements is None:
+        #     elements = set()
+        #     for entry in entries:
+        #         elements.update(entry.composition.elements)
+
         if elements is None:
-            elements = set()
-            for entry in entries:
-                elements.update(entry.composition.elements)
+            elements = set().union(
+                [els for e in entries for els in e.composition.elements]
+            )
 
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
@@ -1222,7 +1244,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
 
         super().__init__(all_entries, elements)
 
-    def __str__(self):
+    def __repr__(self):
+        # TODO tidy this up
         output = []
         chemsys = "-".join([el.symbol for el in self.elements])
         output.append("{} grand potential phase diagram with ".format(chemsys))
@@ -1314,30 +1337,28 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comps = [c.fractional_composition for c in terminal_compositions]
-        else:
-            fractional_comps = terminal_compositions
+            terminal_compositions = [c.fractional_composition for c in terminal_compositions]
 
         # Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
-        for i, comp in enumerate(fractional_comps):
+        for i, comp in enumerate(terminal_compositions):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
         for entry in entries:
             try:
-                rxn = Reaction(fractional_comps, [entry.composition])
+                rxn = Reaction(terminal_compositions, [entry.composition])
                 rxn.normalize_to(entry.composition)
                 # We only allow reactions that have positive amounts of
                 # reactants.
                 if all(
                     [
                         rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
-                        for comp in fractional_comps
+                        for comp in terminal_compositions
                     ]
                 ):
                     newcomp = {
                         sp_mapping[comp]: -rxn.get_coeff(comp)
-                        for comp in fractional_comps
+                        for comp in terminal_compositions
                     }
                     newcomp = {
                         k: v
@@ -1475,12 +1496,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.min_entries = min_entries
         self.el_refs = el_refs
         self.elements = elements
-
-        # TODO de-duplicate these as they use hash equality.
         self.qhull_entries = set().union(*[pd.qhull_entries for pd in pds.values()])
         self._stable_entries = set().union(*[pd.stable_entries for pd in pds.values()])
 
-    def __str__(self):
+    def __repr__(self):
         output = [
             "{}\nSub-Spaces: ".format(self.__class__.__name__),
             ", ".join(list(self.spaces))
@@ -1505,7 +1524,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements, use_multiprocessing, ncores)
 
-    # NOTE the following could be inheretd unchanged from PhaseDiagram:  __repr__,
+    # NOTE the following could be inherited unchanged from PhaseDiagram:  __repr__,
     # as_dict, all_entries_hulldata, unstable_entries, stable_entries,
     # get_stable_entries_normed(), get_form_energy(), get_form_energy_per_atom(),
     # get_hull_energy(), get_e_above_hull(), get_decomp_and_e_above_hull(),
@@ -1533,8 +1552,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 entry_pds[space] = self.pds[space]
 
         if not entry_pds:
-            # NOTE due to the above we may want to keep small phase diagrams as patches
-            # even if they are subsets of larger phase diagrams.
             raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
 
         return entry_pds

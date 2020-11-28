@@ -566,7 +566,8 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         expected_stable = ["Li5FeO4", "Li2FeO3", "LiFeO2", "Fe2O3", "Li2O2"]
         for formula in expected_stable:
             self.assertTrue(
-                formula in stable_formulas, formula + " not in stable entries!"
+                formula in stable_formulas,
+                "{} not in stable entries!".format(formula)
             )
         self.assertEqual(len(self.pd6.stable_entries), 4)
 
@@ -587,7 +588,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                 energy,
                 stable_formation_energies[formula],
                 7,
-                "Calculated formation for " + formula + " is not correct!",
+                "Calculated formation for {} is not correct!".format(formula),
             )
 
     def test_str(self):
