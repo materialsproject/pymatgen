@@ -10,6 +10,7 @@ import numpy as np
 
 from numbers import Number
 from pathlib import Path
+from collections import OrderedDict
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.periodic_table import Element, DummySpecies
 from pymatgen.core.composition import Composition
@@ -94,11 +95,18 @@ class PDEntryTest(unittest.TestCase):
 
 class TransformedPDEntryTest(unittest.TestCase):
     def setUp(self):
+        # NOTE a 1:1 isn't the best test? maybe a tertiary system should be used.
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
-        self.transformed_entry = TransformedPDEntry(
-            {DummySpecies("Xa"): 1, DummySpecies("Xb"): 1}, entry
-        )
+
+        terminal_compositions = ["LiO", "FeO"]
+        terminal_compositions = [Composition(c) for c in terminal_compositions]
+
+        sp_mapping = OrderedDict()
+        for i, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+
+        self.transformed_entry = TransformedPDEntry(entry, sp_mapping)
 
     def test_get_energy(self):
         self.assertEqual(self.transformed_entry.energy, 53, "Wrong energy!")
@@ -112,7 +120,7 @@ class TransformedPDEntryTest(unittest.TestCase):
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
-        expected_comp = Composition({DummySpecies("Xa"): 1, DummySpecies("Xb"): 1})
+        expected_comp = Composition({DummySpecies("Xf"): 1, DummySpecies("Xg"): 1})
         self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_is_element(self):
@@ -126,6 +134,13 @@ class TransformedPDEntryTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.transformed_entry))
+
+    def test_normalize(self):
+        print(self.transformed_entry.composition, self.transformed_entry._composition)
+        norm_entry = self.transformed_entry.normalize(mode="atom", inplace=False)
+        expected_comp = Composition({DummySpecies("Xf"): 0.5, DummySpecies("Xg"): 0.5})
+        print(norm_entry.composition, norm_entry._composition)
+        self.assertEqual(norm_entry.composition, expected_comp, "Wrong composition!")
 
 
 class PhaseDiagramTest(unittest.TestCase):

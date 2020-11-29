@@ -48,6 +48,13 @@ class PhaseDiagramError(Exception):
     pass
 
 
+class TransformedPDEntryError(Exception):
+    """
+    An exception class for TransformedPDEntry.
+    """
+    pass
+
+
 class PDEntry(Entry):
     """
     An object encompassing all relevant data for phase diagrams.
@@ -136,7 +143,12 @@ class GrandPotPDEntry(PDEntry):
             name: Optional parameter to name the entry. Defaults to the reduced
                 chemical formula of the original entry.
         """
-        super().__init__(entry.composition, entry.energy, name if name else entry.name)
+        super().__init__(
+            entry.composition,
+            entry.energy,
+            name if name else entry.name,
+            entry.attribute
+        )
         self.original_entry = entry
         self.original_comp = self._composition
         self.chempots = chempots
@@ -206,14 +218,6 @@ class GrandPotPDEntry(PDEntry):
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(entry, chempots, d["name"])
 
-    def __getattr__(self, a):
-        """
-        Delegate attribute to original entry if available.
-        """
-        if hasattr(self.original_entry, a):
-            return getattr(self.original_entry, a)
-        raise AttributeError(a)
-
 
 class TransformedPDEntry(PDEntry):
     """
@@ -223,33 +227,54 @@ class TransformedPDEntry(PDEntry):
     compositions.
     """
 
-    def __init__(self, comp, original_entry):
+    def __init__(self, entry, sp_mapping, name=None):
         """
         Args:
             comp (Composition): Transformed composition as a Composition.
             original_entry (PDEntry): Original entry that this entry arose from.
         """
-        super().__init__(original_entry.composition, original_entry.energy, original_entry.name)
-        self.original_entry = original_entry
-        self._transformed_composition = Composition(comp)
+        super().__init__(
+            entry.composition,
+            entry.energy,
+            name if name else entry.name,
+            entry.attribute
+        )
+        self.original_entry = entry
+        self.sp_mapping = sp_mapping
 
-    # TODO prevent normalize from being applied to a transformed entry?
+        self.rxn = Reaction(list(self.sp_mapping.keys()), [self._composition])
+        self.rxn.normalize_to(self._composition)
+        # We only allow reactions that have positive amounts of reactants.
+        if not all([
+            self.rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
+            for comp in self.sp_mapping.keys()
+        ]):
+            raise TransformedPDEntryError(
+                "Only reactions with positive amounts of reactants allowed"
+            )
+
     @property
     def composition(self) -> Composition:
-        """The composition after removing free species
+        """The composition in the dummy species space
 
         Returns:
-            Composition:
+            Composition
         """
-        return self._transformed_composition
+        # TODO update composition if _composition has been normalized.
+        factor = self._composition.num_atoms / self.original_entry.composition.num_atoms
 
-    def __getattr__(self, a):
-        """
-        Delegate attribute to original entry if available.
-        """
-        if hasattr(self.original_entry, a):
-            return getattr(self.original_entry, a)
-        raise AttributeError(a)
+        trans_comp = {
+            self.sp_mapping[comp]: -self.rxn.get_coeff(comp)
+            for comp in self.sp_mapping
+        }
+
+        trans_comp = {
+            k: v * factor
+            for k, v in trans_comp.items()
+            if v > CompoundPhaseDiagram.amount_tol
+        }
+
+        return Composition(trans_comp)
 
     def __repr__(self):
         output = [
@@ -268,7 +293,7 @@ class TransformedPDEntry(PDEntry):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "entry": self.original_entry.as_dict(),
-            "composition": self.composition,
+            "sp_mapping": self.sp_mapping,
         }
 
     @classmethod
@@ -281,7 +306,7 @@ class TransformedPDEntry(PDEntry):
             TransformedPDEntry
         """
         entry = MontyDecoder().process_decoded(d["entry"])
-        return cls(d["composition"], entry)
+        return cls(entry, d["sp_mapping"])
 
 
 class PhaseDiagram(MSONable):
@@ -1346,30 +1371,15 @@ class CompoundPhaseDiagram(PhaseDiagram):
 
         for entry in entries:
             try:
-                rxn = Reaction(terminal_compositions, [entry.composition])
-                rxn.normalize_to(entry.composition)
-                # We only allow reactions that have positive amounts of
-                # reactants.
-                if all(
-                    [
-                        rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
-                        for comp in terminal_compositions
-                    ]
-                ):
-                    newcomp = {
-                        sp_mapping[comp]: -rxn.get_coeff(comp)
-                        for comp in terminal_compositions
-                    }
-                    newcomp = {
-                        k: v
-                        for k, v in newcomp.items()
-                        if v > CompoundPhaseDiagram.amount_tol
-                    }
-                    transformed_entry = TransformedPDEntry(Composition(newcomp), entry)
-                    new_entries.append(transformed_entry)
+                transformed_entry = TransformedPDEntry(entry, sp_mapping)
+                new_entries.append(transformed_entry)
             except ReactionError:
                 # If the reaction can't be balanced, the entry does not fall
                 # into the phase space. We ignore them.
+                pass
+            except TransformedPDEntryError:
+                # If the reaction has negative amounts for reactants the entry does
+                # not fall into the phase space.
                 pass
 
         return new_entries, sp_mapping
