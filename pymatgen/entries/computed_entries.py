@@ -565,7 +565,9 @@ class ComputedEntry(Entry):
         if isinstance(other, self.__class__):
             if self.entry_id != other.entry_id:
                 return False
-            if not Entry.__eq__(self, other):
+            if self._energy != other._energy:
+                return False
+            if self._composition != other._composition:
                 return False
             # NOTE this is not performant and should be preceeded
             # if faster rigorous checks are available.

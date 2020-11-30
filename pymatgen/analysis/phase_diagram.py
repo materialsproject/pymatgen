@@ -147,7 +147,7 @@ class GrandPotPDEntry(PDEntry):
             entry.composition,
             entry.energy,
             name if name else entry.name,
-            entry.attribute
+            entry.attribute if hasattr(entry, "attribute") else None
         )
         self.original_entry = entry
         self.original_comp = self._composition
@@ -237,13 +237,13 @@ class TransformedPDEntry(PDEntry):
             entry.composition,
             entry.energy,
             name if name else entry.name,
-            entry.attribute
+            entry.attribute if hasattr(entry, "attribute") else None
         )
         self.original_entry = entry
         self.sp_mapping = sp_mapping
 
         self.rxn = Reaction(list(self.sp_mapping.keys()), [self._composition])
-        self.rxn.normalize_to(self._composition)
+        self.rxn.normalize_to(self.original_entry.composition)
         # We only allow reactions that have positive amounts of reactants.
         if not all([
             self.rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
