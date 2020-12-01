@@ -3232,9 +3232,11 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
         new_struct = structure.copy()
     else:
         new_struct = structure
-
     for isite in new_struct.sites:
-        if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+        if mode == "n":
+            if "magmom" in isite.properties:
+                isite.properties.pop("magmom")
+        elif "magmom" not in isite.properties or isite.properties["magmom"] is None:
             isite.properties["magmom"] = default_values[mode]
 
     if not inplace:
