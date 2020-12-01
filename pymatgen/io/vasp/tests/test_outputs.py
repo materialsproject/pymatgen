@@ -474,7 +474,7 @@ class VasprunTest(PymatgenTest):
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(self.TEST_FILES_DIR / 'vasprun.xml.LiF')
-        smart_fermi = vrun.smart_efermi
+        smart_fermi = vrun.calculate_efermi()
         self.assertAlmostEqual(smart_fermi, vrun.efermi, places=4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi=smart_fermi).get_band_gap()["energy"]
@@ -482,7 +482,7 @@ class VasprunTest(PymatgenTest):
 
         # branch 2 - E_fermi crosses a band but bandgap=0
         vrun = Vasprun(self.TEST_FILES_DIR / 'vasprun.xml.Al')
-        smart_fermi = vrun.smart_efermi
+        smart_fermi = vrun.calculate_efermi()
         self.assertAlmostEqual(smart_fermi, vrun.efermi, places=4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure(efermi=smart_fermi).get_band_gap()["energy"]
@@ -490,7 +490,7 @@ class VasprunTest(PymatgenTest):
 
         # branch 3 - E_fermi crosses a band in an insulator
         vrun = Vasprun(self.TEST_FILES_DIR / 'vasprun.xml.LiH_bad_efermi')
-        smart_fermi = vrun.smart_efermi
+        smart_fermi = vrun.calculate_efermi()
         self.assertNotAlmostEqual(smart_fermi, vrun.efermi, places=4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
         bs_gap = vrun.get_band_structure().get_band_gap()["energy"]

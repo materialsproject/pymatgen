@@ -738,7 +738,7 @@ class Vasprun(MSONable):
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
             efermi: The Fermi energy associated with the bandstructure, in eV. By default,
-                uses the 'smart_efermi' attribute of the Vasprun, which in some cases
+                uses the 'calculate_efermi' method of the Vasprun, which in some cases
                 may differ from (but be more accurate than) the value in vasprun.xml.
                 To directly use the value in vasprun.xml, pass None. To manually set the
                 Fermi energy, pass a float.
@@ -768,7 +768,7 @@ class Vasprun(MSONable):
                                   'along symmetry lines.')
 
         if efermi == "smart":
-            efermi = self.smart_efermi
+            efermi = self.calculate_efermi()
         elif efermi is None:
             efermi = self.efermi
 
@@ -883,10 +883,12 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    @property
-    def smart_efermi(self):
+    def calculate_efermi(self):
         """
-        Check whether the Fermi level reported by VASP crosses a band. If it does,
+        Calculate the Fermi level based on band occupancies, as an alternative to
+        using the Fermi level reported directly by VASP. For a semiconductor,
+        the Fermi level will be put in the center of the gap. This algorithm works
+        by checking whether the Fermi level reported by VASP crosses a band. If it does,
         and if the bandgap is nonzero, place the Fermi level in the middle of the
         bandgap.
         """
