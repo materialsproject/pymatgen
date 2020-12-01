@@ -633,6 +633,48 @@ class DftSet(Cp2kInputSet):
                     "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
                 }
             )
+        elif hybrid_functional == "RSH":
+            """
+            Activates range separated functional using mixing of the truncated
+            coulomb operator and the long range operator using scale_longrange,
+            scale_coulomb, cutoff_radius, and omega.
+            
+            Note that
+            """
+            potential_type = potential_type if potential_type else 'MIX_CL_TRUNC'
+            hf_fraction = 1
+            ip_keywords.update(
+                {
+                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                    "OMEGA": Keyword("OMEGA", omega),
+                    "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
+                    "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange - scale_coulomb),
+                }
+            )
+            xc_functional.insert(
+                Section(
+                    "XWPBE",
+                    subsections={},
+                    keywords={
+                        "SCALE_X0": Keyword("SCALE_X0", 1 - scale_longrange),
+                        "SCALE_X": Keyword("SCALE_X", scale_longrange - scale_coulomb),
+                        "OMEGA": Keyword("OMEGA", omega),
+                    },
+                )
+            )
+            xc_functional.insert(
+                Section(
+                    "PBE_HOLE_T_C_LR",
+                    subsections={},
+                    keywords={
+                        "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                        "SCALE_X": Keyword("SCALE_X", scale_longrange),
+                    },
+                )
+            )
+            xc_functional['pbe']['scale_x'] = Keyword('SCALE_X', 0)
         else:
             ip_keywords.update(
                 {

@@ -21,7 +21,7 @@ from monty.json import jsanitize
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, add_densities, CompleteDos
+from pymatgen.electronic_structure.dos import Dos, CompleteDos
 from pymatgen.io.xyz import XYZ
 
 from pymatgen.io.cp2k.sets import Cp2kInput
@@ -1141,10 +1141,10 @@ class Cp2kOutput:
             if not tdos:
                 tdos = _tdos
             else:
-                if not all([_tdos.densities.keys() == tdos.densities.keys()]):
-                    tdos.densities.update(_tdos.densities)
-                else:
-                    tdos.densities = add_densities(density1=_tdos.densities, density2=tdos.densities)
+                for k, v in _tdos.densities.copy().items():
+                    if k not in tdos.densities:
+                        tdos.densities[Spin(int(k))] = [0]*len(v)
+                    tdos.densities[k] = np.array(tdos.densities[k]) + np.array(_tdos.densities[k])
 
         # parse any site-projected dos
         for ldos_file in ldos_files:
@@ -1426,7 +1426,7 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
 
         data = dat[:, 1:]
         data[:, 0] *= _hartree_to_ev_
-        energies = data[:, 0] * _hartree_to_ev_
+        energies = data[:, 0]
         data = gauss_smear(data, sigma)
 
         pdos = {
