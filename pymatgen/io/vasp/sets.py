@@ -308,6 +308,7 @@ class DictSet(VaspInputSet):
         standardize=False,
         sym_prec=0.1,
         international_monoclinic=True,
+        validate_magmom=True,
     ):
         """
         Args:
@@ -377,6 +378,8 @@ class DictSet(VaspInputSet):
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
             structure = structure.get_sorted_structure()
+        if validate_magmom:
+            get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)
 
         self._structure = structure
         self._config_dict = deepcopy(config_dict)
@@ -510,15 +513,19 @@ class DictSet(VaspInputSet):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if site.specie.symbol == "Co":
-                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
-                                          "not desired, please set the spin on the magmom on the site directly to "
-                                          "ensure correct initialization")
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(str(site.specie)))
                     else:
                         if site.specie.symbol == "Co":
-                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
-                                          "not desired, please set the spin on the magmom on the site directly to "
-                                          "ensure correct initialization")
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
@@ -531,7 +538,7 @@ class DictSet(VaspInputSet):
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
-                            v[most_electroneg], dict
+                        v[most_electroneg], dict
                     ):
                         incar[k] = [
                             v[most_electroneg].get(sym, 0)
@@ -799,7 +806,9 @@ class DictSet(VaspInputSet):
 
 
 # Helper functions to determine valid FFT grids for VASP
-def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
+def next_num_with_prime_factors(
+    n: int, max_prime_factor: int, must_inc_2: bool = True
+) -> int:
     """
     Return the next number greater than or equal to n that only has the desired prime factors
 
@@ -831,7 +840,7 @@ def primes_less_than(max_val: int) -> List[int]:
     Get the primes less than or equal to the max value
     """
     res = []
-    for i in range(2, max_val+1):
+    for i in range(2, max_val + 1):
         for j in range(2, i):
             if i % j == 0:
                 break
@@ -3179,3 +3188,55 @@ _dummy_structure = Structure(
     [[0, 0, 0]],
     site_properties={"magmom": [[0, 0, 1]]},
 )
+
+
+def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
+    """
+    Make sure that the structure is valid magmoms based on the kind of caculation
+    Fill in missing Magmom values
+
+    Args:
+        structure: The input structure
+        inplace: True - edit the magmom of the input structurel; False - return new structure
+        spin_mode: "scalar"/"vector"/"none"/"auto" only first letter (s/v/n) is needed.
+            dictates how the spin configuration will be determined.
+
+            - auto: read the existing magmom values and decide
+            - scalar: use a single scalar value (for spin up/down)
+            - vector: use a vector value for spin-orbit systems
+            - none: Remove all the magmom information
+
+    Returns:
+        New structure if inplace == False
+    """
+    default_values = {"s": 0.0, "v": [0.0, 0.0, 0.0], "n": None}
+    if spin_mode[0].lower() == "a":
+        mode = "n"
+        for isite in structure.sites:
+            if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+                pass
+            elif isinstance(isite.properties["magmom"], float):
+                if mode == "v":
+                    raise TypeError("Magmom type conflict")
+                mode = "s"
+            elif len(isite.properties["magmom"]) == 3:
+                if mode == "s":
+                    raise TypeError("Magmom type conflict")
+                mode = "v"
+            else:
+                raise TypeError("Unrecognized Magmom Value")
+    else:
+        mode = spin_mode[0].lower()
+
+    if not inplace:
+        new_struct = structure.copy()
+    else:
+        new_struct = structure
+
+    for isite in new_struct.sites:
+        if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+            isite.properties["magmom"] = default_values[mode]
+
+    if not inplace:
+        return new_struct
+    return None
