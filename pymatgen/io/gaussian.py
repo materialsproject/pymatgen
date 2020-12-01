@@ -743,6 +743,8 @@ class GaussianOutput:
                                      r"Multiplicity\s+=\s*(\d+)")
         num_basis_func_patt = re.compile(r"([0-9]+)\s+basis functions")
         num_elec_patt = re.compile(r"(\d+)\s+alpha electrons\s+(\d+)\s+beta electrons")
+        mass_patt = re.compile(r"Molecular mass:\s+(\S+)")
+        rot_sym_patt = re.compile(r"Rotational symmetry number\s+(\d+)")
         pcm_patt = re.compile(r"Polarizable Continuum Model")
         stat_type_patt = re.compile(r"imaginary frequencies")
         scf_patt = re.compile(r"E\(.*\)\s*=\s*([-\.\d]+)\s+")
@@ -770,7 +772,8 @@ class GaussianOutput:
 
         freq_on_patt = re.compile(
             r"Harmonic\sfrequencies\s+\(cm\*\*-1\),\sIR\sintensities.*Raman.*")
-
+        rot_temps_patt = re.compile(
+            r"Rotational temperatures \(Kelvin\)\s+(\S+)\s+(\S+)\s+(\S+)")
         normal_mode_patt = re.compile(
             r"\s+(\d+)\s+(\d+)\s+([0-9\.-]{4,5})\s+([0-9\.-]{4,5}).*")
 
@@ -882,6 +885,12 @@ class GaussianOutput:
                             input_structures.append(Molecule(sp, coords))
                         elif geom_orientation == "standard":
                             std_structures.append(Molecule(sp, coords))
+
+                    if mass_patt.search(line):
+                        self.mass = float(mass_patt.search(line).groups()[0])
+
+                    if rot_sym_patt.search(line):
+                        self.rot_sym_num = int(rot_sym_patt.search(line).groups()[0])
 
                     if parse_forces:
                         m = forces_patt.search(line)
@@ -1054,7 +1063,9 @@ class GaussianOutput:
                             jndf += len(vals)
                             line = f.readline()
                             j_indices = [j + 5 for j in j_indices]
-
+                    elif rot_temps_patt.search(line):
+                        rot_temps_match = rot_temps_patt.search(line).groups()
+                        self.rot_temps = [float(t) for t in rot_temps_match]
                     elif parse_bond_order:
                         # parse Wiberg bond order
                         line = f.readline()
