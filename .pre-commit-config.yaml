@@ -1,0 +1,18 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: '36ae6523465f8ba6936f6b63c3df94ab237eda00'  # Use the sha / tag you want to point at
+    hooks:
+    - id: pylint
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: flake8
+        args: ["--max-line-length=120"]
+  - repo: https://github.com/psf/black
+    rev: 20.8b1 # Replace by any tag/version: https://github.com/psf/black/tags
+    hooks:
+    - id: black
+      language_version: python3 # Should be a command that runs python3.6+
