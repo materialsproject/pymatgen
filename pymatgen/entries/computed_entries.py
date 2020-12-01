@@ -764,7 +764,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             self.interpolated = True
 
         if gibbs_model.lower() == "sisso":
-            # TODO can this be made into a property such that we can still normalize it?
             self.gibbs_correction_fn = self.gf_sisso
         else:
             raise ValueError(
@@ -1023,7 +1022,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return "\n".join(output)
 
     def __hash__(self) -> int:
-        # NOTE based on hash choice of @mattmcdermott + class name + correction
+        # NOTE based on hash choice of @mattmcdermott + class name
         data_md5 = hashlib.md5(
             f"{self.__class__.__name__}"
             f"{self.entry_id}"

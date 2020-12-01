@@ -149,6 +149,9 @@ class GrandPotPDEntry(PDEntry):
             name if name else entry.name,
             entry.attribute if hasattr(entry, "attribute") else None
         )
+        # NOTE if we init GrandPotPDEntry from ComputedEntry _energy is the
+        # corrected energy of the ComputedEntry hence the need to keep
+        # the original entry.
         self.original_entry = entry
         self.original_comp = self._composition
         self.chempots = chempots
@@ -158,7 +161,7 @@ class GrandPotPDEntry(PDEntry):
         """The composition after removing free species
 
         Returns:
-            Composition:
+            Composition
         """
         return Composition(
             {el: self._composition[el] for el in self._composition.elements
@@ -227,6 +230,9 @@ class TransformedPDEntry(PDEntry):
     compositions.
     """
 
+    # Tolerance for determining if amount of a composition is positive.
+    amount_tol = 1e-5
+
     def __init__(self, entry, sp_mapping, name=None):
         """
         Args:
@@ -244,9 +250,10 @@ class TransformedPDEntry(PDEntry):
 
         self.rxn = Reaction(list(self.sp_mapping.keys()), [self._composition])
         self.rxn.normalize_to(self.original_entry.composition)
-        # We only allow reactions that have positive amounts of reactants.
+
+        # NOTE We only allow reactions that have positive amounts of reactants.
         if not all([
-            self.rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
+            self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol
             for comp in self.sp_mapping.keys()
         ]):
             raise TransformedPDEntryError(
@@ -260,7 +267,9 @@ class TransformedPDEntry(PDEntry):
         Returns:
             Composition
         """
-        # TODO update composition if _composition has been normalized.
+        # NOTE this is not infallable as the original entry is mutable and an
+        # end user could choose to normalize or change the original entry.
+        # However, the risk of this seems low.
         factor = self._composition.num_atoms / self.original_entry.composition.num_atoms
 
         trans_comp = {
@@ -271,7 +280,7 @@ class TransformedPDEntry(PDEntry):
         trans_comp = {
             k: v * factor
             for k, v in trans_comp.items()
-            if v > CompoundPhaseDiagram.amount_tol
+            if v > TransformedPDEntry.amount_tol
         }
 
         return Composition(trans_comp)
@@ -451,8 +460,6 @@ class PhaseDiagram(MSONable):
             list of Entries that are unstable in the phase diagram.
                 Includes positive formation energy entries.
         """
-        # NOTE this uses hash equality and so duplicates of stable_entries will
-        # end up in the unstable_entries.
         return [e for e in self.all_entries if e not in self.stable_entries]
 
     @property
@@ -714,6 +721,7 @@ class PhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
+        # NOTE scaled duplicates of stable_entries will not be caught.
         if entry not in self.stable_entries:
             raise ValueError(
                 "{} is unstable, the equilibrium reaction energy is"
@@ -797,25 +805,29 @@ class PhaseDiagram(MSONable):
         # and so is not done by default
         if len(competing_entries) > space_limit and not stable_only:
             reduced_space = list(set.intersection(
-                set(competing_entries),  # same chemical space
-                set(self.qhull_entries),  # negative E_f
-                set(self.unstable_entries),  # not already on hull
-            )) + list(self.el_refs.values())
-            inner_hull = PhaseDiagram(reduced_space)  # terminal points
+                set(competing_entries),         # same chemical space
+                set(self.qhull_entries),        # negative E_f
+                set(self.unstable_entries),     # not already on hull
+            )) + list(self.el_refs.values())    # terminal points
+            inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
+            competing_entries = list(
+                self.stable_entries.union(inner_hull.stable_entries)
+            )
             competing_entries = [c for c in competing_entries if c != entry]
 
             if len(competing_entries) > space_limit:
                 warnings.warn((
-                    f"After reduction {len(competing_entries)} competing entries remain - "
-                    "Using SLSQP to find decomposition likely to be very slow"
+                    f"After reduction {len(competing_entries)} competing entries "
+                    "remain - Using SLSQP to find decomposition likely to be slow"
                 ))
 
         decomp = _get_slsqp_decomp(entry, competing_entries, tol, maxiter)
 
         # find the minimum alternative formation energy for the decomposition
-        decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
+        decomp_enthalpy = np.sum(
+            [c.energy_per_atom * amt for c, amt in decomp.items()]
+        )
 
         decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
 
@@ -1249,10 +1261,6 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                 diagram. If set to None, the elements are determined from
                 the the entries themselves.
         """
-        # if elements is None:
-        #     elements = set()
-        #     for entry in entries:
-        #         elements.update(entry.composition.elements)
 
         if elements is None:
             elements = set().union(
@@ -1378,8 +1386,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 # into the phase space. We ignore them.
                 pass
             except TransformedPDEntryError:
-                # If the reaction has negative amounts for reactants the entry does
-                # not fall into the phase space.
+                # If the reaction has negative amounts for reactants the
+                # entry does not fall into the phase space.
                 pass
 
         return new_entries, sp_mapping
@@ -1949,6 +1957,9 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
     Args:
         comp (Composition/PDEntry): A Composition/PDEntry like entry to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
+        tol (float): tolerence for SLSQP convergence. Issues observed for
+            tol > 1e-7 in the fractional composition (default 1e-10)
+        maxiter (int): maximum number of SLSQP iterations
 
     Returns:
         scipy.optimize.minimize result. If sucessful this gives the linear combination of
