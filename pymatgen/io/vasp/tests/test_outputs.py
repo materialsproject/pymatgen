@@ -493,7 +493,7 @@ class VasprunTest(PymatgenTest):
         smart_fermi = vrun.calculate_efermi()
         self.assertNotAlmostEqual(smart_fermi, vrun.efermi, places=4)
         eigen_gap = vrun.eigenvalue_band_properties[0]
-        bs_gap = vrun.get_band_structure().get_band_gap()["energy"]
+        bs_gap = vrun.get_band_structure(efermi='smart').get_band_gap()["energy"]
         self.assertAlmostEqual(bs_gap, eigen_gap, places=3)
         self.assertNotAlmostEqual(vrun.get_band_structure(efermi=None).get_band_gap()["energy"], eigen_gap, places=3)
         self.assertNotEqual(bs_gap, 0)

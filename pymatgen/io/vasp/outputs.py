@@ -723,7 +723,7 @@ class Vasprun(MSONable):
 
     def get_band_structure(self,
                            kpoints_filename: Optional[str] = None,
-                           efermi: Union[str, float, None] = "smart",
+                           efermi: Optional[Union[float, str]] = None,
                            line_mode: bool = False,
                            force_hybrid_mode: bool = False
                            ):
@@ -737,11 +737,13 @@ class Vasprun(MSONable):
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
-            efermi: The Fermi energy associated with the bandstructure, in eV. By default,
-                uses the 'calculate_efermi' method of the Vasprun, which in some cases
-                may differ from (but be more accurate than) the value in vasprun.xml.
-                To directly use the value in vasprun.xml, pass None. To manually set the
-                Fermi energy, pass a float.
+            efermi: The Fermi energy associated with the bandstructure, in eV. By default (None),
+                uses the value reported by VASP in vasprun.xml. To manually set the Fermi energy,
+                pass a float. Pass 'smart' to use the `calculate_efermi()` method, which calculates
+                the Fermi level based on band occupancies. This algorithm works by checking whether
+                the Fermi level reported by VASP crosses a band. If it does, and if the bandgap is
+                nonzero, the Fermi level is placed in the center of the bandgap. Otherwise, the
+                value is identical to the value reported by VASP.
             line_mode: Force the band structure to be considered as
                 a run along symmetry lines. (Default: False)
             force_hybrid_mode: Makes it possible to read in self-consistent band structure calculations for
