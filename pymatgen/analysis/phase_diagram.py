@@ -1371,7 +1371,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         return cls(entries, terminal_compositions, d["normalize_terminal_compositions"])
 
 
-class DBPhaseDiagram(PhaseDiagram, MSONable):
+class DBPhaseDiagram(PhaseDiagram):
     """
     As currently constructed storage of the PhaseDiagram object is cumbersome since
     the __init__ function is doing a great deal of processing.

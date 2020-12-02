@@ -616,11 +616,11 @@ class DBPhaseDiagramTest(PhaseDiagramTest):
     def test_init(self):
         pass
 
-    # def test_as_dict_from_dict(self):
-    #     dd = self.pd.as_dict()
-    #     new_pd = DBPhaseDiagram.from_dict(dd)
-    #     new_dd = new_pd.as_dict()
-    #     self.assertEqual(new_dd, dd)
+    def test_as_dict_from_dict(self):
+        dd = self.pd.as_dict()
+        new_pd = DBPhaseDiagram.from_dict(dd)
+        new_dd = new_pd.as_dict()
+        self.assertEqual(new_dd, dd)
 
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
