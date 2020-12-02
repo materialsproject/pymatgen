@@ -644,7 +644,7 @@ class Vasprun(MSONable):
 
         Hubbard U terms and vdW corrections are detected automatically as well.
         """
-        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE",
+        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBEsol", "RP": "revPBE+Padé",
                      "AM": "AM05", "OR": "optPBE", "BO": "optB88", "MK": "optB86b",
                      "--": "GGA"}
 
@@ -673,7 +673,7 @@ class Vasprun(MSONable):
             rt = "B3LYP"
         elif self.parameters.get("LHFCALC", True):
             rt = "PBEO or other Hybrid Functional"
-        elif self.incar.get("METAGGA") and self.incar.get("METAGGA") != "--":
+        elif self.incar.get("METAGGA") and self.incar.get("METAGGA") not in ["--", "None"]:
             incar_tag = self.incar.get("METAGGA", "").strip().upper()
             rt = METAGGA_TYPES.get(incar_tag, incar_tag)
         elif self.parameters.get("GGA"):
