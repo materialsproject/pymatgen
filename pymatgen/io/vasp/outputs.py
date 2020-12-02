@@ -644,7 +644,7 @@ class Vasprun(MSONable):
 
         Hubbard U terms and vdW corrections are detected automatically as well.
         """
-        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBEsol", "RP": "RevPBE+PADE",
+        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBEsol", "RP": "revPBE+Padé",
                      "AM": "AM05", "OR": "optPBE", "BO": "optB88", "MK": "optB86b",
                      "--": "GGA"}
 
