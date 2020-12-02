@@ -153,7 +153,6 @@ class CRESTOutput(MSONable):
         self.filename = output_filename
         self.cmd_options = dict()
         self.data = dict()
-        self.data = dict()
         self.sorted_structures_energies = []
         self.properly_terminated = False
         self._parse_crest_output()
@@ -189,6 +188,19 @@ class CRESTOutput(MSONable):
                         if '-' not in split_cmd[i + 1]:
                             value = split_cmd[i + 1]
                     self.cmd_options[option] = value
+        chg = 0
+        if self.cmd_options["chrg"]:
+            str_chg = self.cmd_options["chrg"]
+            if '-' in str_chg:
+                chg = int(str_chg)
+            else:
+                chg = int(str_chg[-1])
+        elif self.cmd_options["c"]:
+            str_chg = self.cmd_options["c"]
+            if '-' in str_chg:
+                chg = int(str_chg)
+            else:
+                chg = int(str_chg[-1])
 
         with open(output_filepath, 'rb+') as xtbout_file:
             xtbout_file.seek(-2, 2)
@@ -231,11 +243,15 @@ class CRESTOutput(MSONable):
             rotamers_path = os.path.join(self.path, final_rotamer_filename)
 
             try:
-                self.lowest_energy_structure = Molecule.from_file(crestbest_path)
+                lowest_e_struct = Molecule.from_file(crestbest_path)
+                lowest_e_struct.set_charge_and_spin(charge=chg)
+                self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
                 print('{} not found'.format(crestbest_path))
             try:
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules
+                for r in rotamer_structures:
+                    r.set_charge_and_spin(charge=chg)
                 start = 0
                 for n, d in enumerate(conformer_degeneracies):
                     self.sorted_structures_energies.append([])
@@ -250,7 +266,9 @@ class CRESTOutput(MSONable):
         else:
             crestbest_path = os.path.join(self.path, 'crest_best.xyz')
             try:
-                self.lowest_energy_structure = Molecule.from_file(crestbest_path)
+                lowest_e_struct = Molecule.from_file(crestbest_path)
+                lowest_e_struct.set_charge_and_spin(charge=chg)
+                self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
                 print('{} not found'.format(crestbest_path))
 
