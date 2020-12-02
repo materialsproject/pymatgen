@@ -1,5 +1,5 @@
-pybtex==0.22.2
-tqdm==4.48.2
+pybtex==0.23.0
+tqdm==4.53.0
 ase==3.19.0
 chemview==0.6
 netCDF4==1.5.3

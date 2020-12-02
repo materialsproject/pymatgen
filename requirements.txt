@@ -1,16 +1,16 @@
-numpy==1.19.1
+numpy==1.19.2
 sympy==1.6.2
 requests==2.24.0
-monty==4.0.0
-ruamel.yaml==0.16.10
+monty==4.0.2
+ruamel.yaml==0.16.12
 scipy==1.5.2
 tabulate==0.8.7
-matplotlib==3.3.1
+matplotlib==3.3.2
 palettable==3.3.0
 spglib==1.16.0
-pandas==1.1.1
-networkx==2.4
+pandas==1.1.3
+networkx==2.5
 dataclasses>=0.6; python_version < '3.7'
-plotly==4.9.0
+plotly==4.10.0
 beautifulsoup4==4.9.1
 uncertainties==3.1.4

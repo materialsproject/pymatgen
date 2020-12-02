@@ -638,15 +638,30 @@ class Vasprun(MSONable):
     @property
     def run_type(self):
         """
-        Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.
+        Returns the run type. Currently detects GGA, metaGGA, HF, HSE, B3LYP,
+        and hybrid functionals based on relevant INCAR tags. LDA is assigned if
+        PAW POTCARs are used and no other functional is detected.
 
-        TODO: Fix for other functional types like PW91, other vdW types, etc.
+        Hubbard U terms and vdW corrections are detected automatically as well.
         """
-        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE", "AM": "AM05", "OR": "optPBE",
-                     "BO": "optB88", "MK": "optB86b", "--": "GGA"}
+        GGA_TYPES = {"RE": "revPBE", "PE": "PBE", "PS": "PBESol", "RP": "RevPBE+PADE",
+                     "AM": "AM05", "OR": "optPBE", "BO": "optB88", "MK": "optB86b",
+                     "--": "GGA"}
 
-        METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
-                         "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
+        METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L",
+                         "MBJ": "modified Becke-Johnson", "SCAN": "SCAN", "R2SCAN": "R2SCAN",
+                         "RSCAN": "RSCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1",
+                         "MS2": "MadeSimple2"}
+
+        IVDW_TYPES = {1: 'DFT-D2',
+                      10: 'DFT-D2',
+                      11: 'DFT-D3',
+                      12: 'DFT-D3-BJ',
+                      2: 'TS',
+                      20: 'TS',
+                      21: 'TS-H',
+                      202: 'MBD',
+                      4: 'dDsC'}
 
         if self.parameters.get("AEXX", 1.00) == 1.00:
             rt = "HF"
@@ -658,21 +673,28 @@ class Vasprun(MSONable):
             rt = "B3LYP"
         elif self.parameters.get("LHFCALC", True):
             rt = "PBEO or other Hybrid Functional"
-        elif self.parameters.get("LUSE_VDW", False):
-            if self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-                rt = METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()] + "+rVV10"
-            else:
-                rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()] + "+rVV10"
-        elif self.incar.get("METAGGA", "").strip().upper() in METAGGA_TYPES:
-            rt = METAGGA_TYPES[self.incar.get("METAGGA", "").strip().upper()]
-            if self.is_hubbard or self.parameters.get("LDAU", True):
-                rt += "+U"
+        elif self.incar.get("METAGGA") and self.incar.get("METAGGA") != "--":
+            incar_tag = self.incar.get("METAGGA", "").strip().upper()
+            rt = METAGGA_TYPES.get(incar_tag, incar_tag)
+        elif self.parameters.get("GGA"):
+            incar_tag = self.parameters.get("GGA", "").strip().upper()
+            rt = GGA_TYPES.get(incar_tag, incar_tag)
         elif self.potcar_symbols[0].split()[0] == 'PAW':
             rt = "LDA"
-        elif self.parameters.get("GGA", "").strip().upper() in GGA_TYPES:
-            rt = GGA_TYPES[self.parameters.get("GGA", "").strip().upper()]
-            if self.is_hubbard or self.parameters.get("LDAU", True):
-                rt += "+U"
+        else:
+            rt = "unknown"
+            warnings.warn("Unknown run type!")
+
+        if self.is_hubbard or self.parameters.get("LDAU", True):
+            rt += "+U"
+
+        if self.parameters.get("LUSE_VDW", False):
+            rt += "+rVV10"
+        elif self.incar.get("IVDW", "").strip().upper() in IVDW_TYPES:
+            rt += "vdW-" + IVDW_TYPES[self.incar.get("IVDW", "").strip().upper()]
+        elif self.incar.get("IVDW"):
+            rt += "vdW-unknown"
+
         return rt
 
     @property
@@ -1722,6 +1744,9 @@ class Outcar:
             self.read_pseudo_zval()
 
         # Read electrostatic potential
+        self.electrostatic_potential = None
+        self.ngf = None
+        self.sampling_radii = None
         self.read_pattern({
             'electrostatic': r"average \(electrostatic\) potential at core"})
         if self.data.get('electrostatic', []):

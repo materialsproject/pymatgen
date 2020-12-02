@@ -2,7 +2,7 @@
 
 
 MODIFIED_FILES=""
-for f in `git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.9.14 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+for f in `git diff --diff-filter=ACMRTUXB --name-only HEAD 2020.10.9 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
 do
     if [ -e $f ]; then
         MODIFIED_FILES="$MODIFIED_FILES $f"

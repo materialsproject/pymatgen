@@ -19,7 +19,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2020.9.14"
+__version__ = "2020.11.11"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -47,7 +47,7 @@ SETTINGS = _load_pmg_settings()
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
 # Note that these have to come after the SETTINGS have been loaded. Otherwise, import does not work.
-from .core.periodic_table import Element, Species, DummySpecies
+from .core.periodic_table import Element, Species, DummySpecies, Specie, DummySpecie
 from .core.composition import Composition
 from .core.structure import Structure, IStructure, Molecule, IMolecule
 from .core.lattice import Lattice

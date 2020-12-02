@@ -39,15 +39,14 @@ class SetChangeCheckTest(PymatgenTest):
             with open(input_set, "r") as f:
                 hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
         known_hashes = {
-            "MVLGWSet.yaml": "f4df9516cf7dd923b37281172c662a70fa32bebc",
-            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
-            "MPHSERelaxSet.yaml": "2bb969e64b57ff049077c8ec10e64f94c9c97f42",
-            "VASPIncarBase.yaml": "dbdbfe7d5c055a3f1e87223a031ae3ad58631395",
-            "MPSCANRelaxSet.yaml": "2604952d387f6531bfc37641ac3b1ffcce9f1bc1",
-            "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
-            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
-        }
+            'MVLGWSet.yaml': 'f4df9516cf7dd923b37281172c662a70fa32bebc',
+            'MVLRelax52Set.yaml': 'eb538ffb45c0cd13f13df48afc1e71c44d2e34b2',
+            'MPHSERelaxSet.yaml': '2bb969e64b57ff049077c8ec10e64f94c9c97f42',
+            'VASPIncarBase.yaml': '19762515f8deefb970f2968fca48a0d67f7964d4',
+            'MPSCANRelaxSet.yaml': '2604952d387f6531bfc37641ac3b1ffcce9f1bc1',
+            'MPRelaxSet.yaml': '4ea97d776fbdc7e168036f73e9176012a56c0a45',
+            'MITRelaxSet.yaml': '1a0970f8cad9417ec810f7ab349dc854eaa67010',
+            'vdW_parameters.yaml': '66541f58b221c8966109156f4f651b2ca8aa76da'}
 
         self.assertDictEqual(
             hashes,
@@ -331,6 +330,23 @@ class MITMPRelaxSetTest(PymatgenTest):
             "NELECT" in mpr.incar.keys(),
             "NELECT should not be set when " "use_structure_charge is False",
         )
+
+        struct = Structure(latt, ["Co", "O"], coords)
+        mpr = MPRelaxSet(struct)
+        self.assertEqual(mpr.incar["MAGMOM"], [0.6, 0.6])
+        struct = Structure(latt, ["Co4+", "O"], coords)
+        mpr = MPRelaxSet(struct)
+        self.assertEqual(mpr.incar["MAGMOM"], [1, 0.6])
+
+        # test passing user_incar_settings and user_kpoint_settings of None
+        sets = [
+            MPRelaxSet(struct, user_incar_settings=None, user_kpoints_settings=None),
+            MPStaticSet(struct, user_incar_settings=None, user_kpoints_settings=None),
+            MPNonSCFSet(struct, user_incar_settings=None, user_kpoints_settings=None)
+        ]
+        for mp_set in sets:
+            self.assertNotEqual(mp_set.kpoints, None)
+            self.assertNotEqual(mp_set.incar, None)
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
@@ -1507,7 +1523,7 @@ class MVLRelax52SetTest(PymatgenTest):
         )
 
     def test_potcar_functional_warning(self):
-        with pytest.warns(DeprecationWarning, match="argument is deprecated"):
+        with pytest.warns(FutureWarning, match="argument is deprecated"):
             test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
 
     def test_as_from_dict(self):

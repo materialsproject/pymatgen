@@ -14,6 +14,7 @@ See the following papers for more info:
 """
 
 from collections import defaultdict
+import logging
 
 import numpy as np
 
@@ -27,6 +28,9 @@ from pymatgen.analysis.eos import EOS, PolynomialEOS
 
 __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"
+
+
+logger = logging.getLogger(__name__)
 
 
 class QuasiharmonicDebyeApprox:
@@ -85,7 +89,7 @@ class QuasiharmonicDebyeApprox:
         self.optimum_volumes = []  # in Ang^3
         # fit E and V and get the bulk modulus(used to compute the Debye
         # temperature)
-        print("Fitting E and V")
+        logger.info("Fitting E and V")
         self.eos = EOS(eos)
         self.ev_eos_fit = self.eos.fit(volumes, energies)
         self.bulk_modulus = self.ev_eos_fit.b0_GPa  # in GPa
@@ -108,11 +112,9 @@ class QuasiharmonicDebyeApprox:
             try:
                 G_opt, V_opt = self.optimizer(t)
             except Exception:
-                if len(temperatures) > 1:
-                    print("EOS fitting failed, so skipping this data point, {}".format(t))
-                    continue
-                else:
+                if len(temperatures) <= 1:
                     raise
+                logger.info("EOS fitting failed, so skipping this data point, {}".format(t))
             self.gibbs_free_energy.append(G_opt)
             self.temperatures.append(t)
             self.optimum_volumes.append(V_opt)
@@ -211,8 +213,7 @@ class QuasiharmonicDebyeApprox:
         if self.anharmonic_contribution:
             gamma = self.gruneisen_parameter(0, self.ev_eos_fit.v0)  # 0K equilibrium Gruneisen parameter
             return debye * (self.ev_eos_fit.v0 / volume) ** (gamma)
-        else:
-            return debye
+        return debye
 
     @staticmethod
     def debye_integral(y):
@@ -232,8 +233,7 @@ class QuasiharmonicDebyeApprox:
         if y < 155:
             integral = quadrature(lambda x: x ** 3 / (np.exp(x) - 1.), 0, y)
             return list(integral)[0] * factor
-        else:
-            return 6.493939 * factor
+        return 6.493939 * factor
 
     def gruneisen_parameter(self, temperature, volume):
         """
@@ -259,7 +259,7 @@ class QuasiharmonicDebyeApprox:
             float: unitless
         """
         if isinstance(self.eos, PolynomialEOS):
-            p = np.poly1d(self.eos.eos_params)
+            p = np.poly1d(self.eos.eos_params)  # pylint: disable=E1101
             # first derivative of energy at 0K wrt volume evaluated at the
             # given volume, in eV/Ang^3
             dEdV = np.polyder(p, 1)(volume)

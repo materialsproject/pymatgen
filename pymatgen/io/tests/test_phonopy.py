@@ -49,11 +49,11 @@ class PhonopyParserTest(PymatgenTest):
         self.assertTrue(ph_bs.has_nac)
         self.assertAlmostEqual(
             ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143)
-        self.assertIsNone(ph_bs.get_nac_frequencies_along_dir([1, 1, 1]))
+        self.assertIsNone(ph_bs.get_nac_frequencies_along_dir([1, 0, 1]))
         self.assertArrayAlmostEqual(
             ph_bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
             [(0.1063906409128248 + 0j), 0j, 0j])
-        self.assertIsNone(ph_bs.get_nac_eigendisplacements_along_dir([1, 1, 1]))
+        self.assertIsNone(ph_bs.get_nac_eigendisplacements_along_dir([1, 0, 1]))
 
     def test_get_ph_dos(self):
         dos = get_ph_dos(os.path.join(test_dir, 'NaCl_total_dos.dat'))

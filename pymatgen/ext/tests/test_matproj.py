@@ -5,7 +5,6 @@ import re
 import unittest
 import warnings
 import random
-import sys
 import ruamel.yaml as yaml
 from pymatgen import SETTINGS, __version__ as pmg_version, SETTINGS_FILE
 from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
@@ -13,10 +12,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine,
-    BandStructure,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, BandStructure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
@@ -535,24 +531,13 @@ class MPResterTest(PymatgenTest):
         headers = self.rester.session.headers
         self.assertIn("user-agent", headers, msg="Include user-agent header by default")
         m = re.match(
-            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
         self.assertIsNotNone(
             m, msg="Unexpected user-agent value {}".format(headers["user-agent"])
         )
         self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
-        self.assertEqual(
-            m.groups()[3:6],
-            tuple(
-                str(n)
-                for n in (
-                    sys.version_info.major,
-                    sys.version_info.minor,
-                    sys.version_info.micro,
-                )
-            ),
-        )
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn(
             "user-agent", self.rester.session.headers, msg="user-agent header unwanted"

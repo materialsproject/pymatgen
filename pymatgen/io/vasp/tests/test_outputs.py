@@ -4,6 +4,7 @@
 
 
 import unittest
+import pytest
 import os
 from pathlib import Path
 import json
@@ -96,6 +97,22 @@ class VasprunTest(PymatgenTest):
 
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.dfpt")
         self.assertIn(v.run_type, "GGA+U")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.r2scan")
+        self.assertIn(v.run_type, "R2SCAN")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.scan")
+        self.assertIn(v.run_type, "SCAN")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.rscan")
+        self.assertIn(v.run_type, "RSCAN")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.random")
+        self.assertIn(v.run_type, "RANDOMFUNCTIONAL")
+
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.unknown")
+        with pytest.warns(UserWarning, match="Unknown run type!"):
+            self.assertIn(v.run_type, "unknown")
 
     def test_vdw(self):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.vdw")
@@ -830,8 +847,12 @@ class OutcarTest(PymatgenTest):
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
         filepath = self.TEST_FILES_DIR / "OUTCAR.icorelevel"
-        cl = Outcar(filepath).read_core_state_eigen()
+        outcar = Outcar(filepath)
+        cl = outcar.read_core_state_eigen()
         self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
+
+        # test serialization
+        outcar.as_dict()
 
     def test_avg_core_poten(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon"
