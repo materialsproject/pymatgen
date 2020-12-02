@@ -434,7 +434,6 @@ class Lobsterin(dict, MSONable):
             MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"
         ),
     ):
-
         """
 
         Args:

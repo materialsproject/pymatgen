@@ -332,7 +332,6 @@ class PhononBSPlotter:
         return plt
 
     def bs_plot_data(self):
-
         """
         Get the data nicely formatted for a plot
 

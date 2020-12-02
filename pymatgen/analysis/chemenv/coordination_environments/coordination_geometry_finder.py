@@ -1672,7 +1672,6 @@ class LocalGeometryFinder:
         tested_permutations=False,
         points_perfect=None,
     ):
-
         """
         Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...

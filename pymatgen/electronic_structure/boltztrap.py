@@ -589,7 +589,7 @@ class BoltztrapRunner(MSONable):
                     for k in kpath.get_kpoints(coords_are_cartesian=False)[0]
                 ]
                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
-            elif type(self.kpt_line[0]) == Kpoint:
+            elif isinstance(self.kpt_line[0], Kpoint):
                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
 
             with open(output_file, "w") as fout:
@@ -1045,7 +1045,7 @@ class BoltztrapAnalyzer:
                     if l
                 }
                 kpt_line = [kp.frac_coords for kp in kpt_line]
-            elif type(kpt_line[0]) == Kpoint:
+            elif isinstance(kpt_line[0], Kpoint):
                 kpt_line = [kp.frac_coords for kp in kpt_line]
                 labels_dict = {k: labels_dict[k].frac_coords for k in labels_dict}
 
@@ -1715,7 +1715,6 @@ class BoltztrapAnalyzer:
         isotropy_tolerance=0.05,
         use_average=True,
     ):
-
         """
         This method takes in eigenvalues over a range of carriers,
         temperatures, and doping levels, and tells you what is the "best"
@@ -2029,7 +2028,6 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
-
         """
         Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
         Args:
@@ -2660,7 +2658,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
         ]
     )
 
-    if type(nb) == int:
+    if isinstance(nb, int):
         nb = [nb]
 
     bcheck = {}

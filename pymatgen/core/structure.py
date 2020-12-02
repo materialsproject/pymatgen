@@ -1417,7 +1417,6 @@ class IStructure(SiteCollection, MSONable):
         sites: List[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
     ) -> List[List[PeriodicNeighbor]]:
-
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.
@@ -1509,7 +1508,6 @@ class IStructure(SiteCollection, MSONable):
         sites: List[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
     ) -> List[List[PeriodicNeighbor]]:
-
         """
         Get neighbors for each atom in the unit cell, out to a distance r
         Returns a list of list of neighbors for each site in structure.

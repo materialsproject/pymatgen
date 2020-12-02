@@ -495,7 +495,6 @@ class DftSet(Cp2kInputSet):
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
     ):
-
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
@@ -824,7 +823,6 @@ class RelaxSet(DftSet):
         override_default_params: Dict = {},
         **kwargs
     ):
-
         """
         Args:
             structure:
@@ -892,7 +890,6 @@ class CellOptSet(DftSet):
         override_default_params: Dict = {},
         **kwargs
     ):
-
         """
         Args:
             structure: Pymatgen structure object

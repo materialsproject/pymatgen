@@ -5631,7 +5631,7 @@ class Waveder:
                 """ Read records from Fortran binary file and convert to
                 np.array of given dtype. """
                 data = b""
-                while 1:
+                while True:
                     prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
                     data += fp.read(abs(prefix))
                     suffix = np.fromfile(fp, dtype=np.int32, count=1)[0]

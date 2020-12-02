@@ -106,7 +106,6 @@ class SlabEntry(ComputedStructureEntry):
         marker=None,
         color=None,
     ):
-
         """
         Make a SlabEntry containing all relevant surface thermodynamics data.
 
@@ -716,7 +715,6 @@ class SurfaceEnergyPlotter:
         return plt
 
     def get_surface_equilibrium(self, slab_entries, delu_dict=None):
-
         """
         Takes in a list of SlabEntries and calculates the chemical potentials
             at which all slabs in the list coexists simultaneously. Useful for
@@ -1194,7 +1192,6 @@ class SurfaceEnergyPlotter:
     def chempot_plot_addons(
         self, plt, xrange, ref_el, axes, pad=2.4, rect=[-0.047, 0, 0.84, 1], ylim=[]
     ):
-
         """
         Helper function to a chempot plot look nicer.
 
@@ -1859,7 +1856,6 @@ class NanoscaleStability:
     """
 
     def __init__(self, se_analyzers, symprec=1e-5):
-
         """
         Analyzes the nanoscale stability of different polymorphs.
         """

@@ -868,7 +868,6 @@ class SpacegroupAnalyzer:
         return [w / sum(weights) for w in weights]
 
     def is_laue(self):
-
         """
         Check if the point group of the structure
             has Laue symmetry (centrosymmetry)

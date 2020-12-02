@@ -2095,7 +2095,6 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_max_neighbor_distance(struc, shell):
-
         """
         Calculate maximum nearest neighbor distance
         Args:
@@ -2121,7 +2120,6 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_disordered_substructure(struc_disordered):
-
         """
         Converts disordered structure into a substructure consisting of only disordered sites
         Args:

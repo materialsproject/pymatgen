@@ -551,7 +551,6 @@ class ForceConstantMatrix:
         return D
 
     def get_stable_FCM(self, fcm, fcmasum=10):
-
         """
         Generate a symmeterized force constant matrix that obeys the objects symmetry
         constraints, has no unstable modes and also obeys the acoustic sum rule through an

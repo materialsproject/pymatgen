@@ -984,9 +984,9 @@ class HeisenbergModel(MSONable):
 
         for k, v in d["unique_site_ids"].items():
             key = literal_eval(k)
-            if type(key) == int:
+            if isinstance(key, int):
                 usids[tuple([key])] = v
-            elif type(key) == tuple:
+            elif isinstance(key, tuple):
                 usids[key] = v
 
         for k, v in d["wyckoff_ids"].items():

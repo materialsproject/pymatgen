@@ -60,7 +60,6 @@ class VampireCaller:
         avg=True,
         user_input_settings=None,
     ):
-
         """
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.

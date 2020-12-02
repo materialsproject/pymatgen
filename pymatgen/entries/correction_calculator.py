@@ -81,7 +81,6 @@ class CorrectionCalculator:
             "TiO4",
         ],
     ) -> None:
-
         """
         Initializes a CorrectionCalculator.
 
@@ -124,7 +123,6 @@ class CorrectionCalculator:
             self.sulfides: List[str] = []
 
     def compute_from_files(self, exp_gz: str, comp_gz: str):
-
         """
         Args:
             exp_gz: name of .json.gz file that contains experimental data
@@ -141,7 +139,6 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-
         """
         Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
@@ -207,7 +204,7 @@ class CorrectionCalculator:
                     break
 
             # filter out compounds that are unstable
-            if type(self.allow_unstable) == float:
+            if isinstance(self.allow_unstable, float):
                 try:
                     eah = compound.data["e_above_hull"]
                 except KeyError:
@@ -319,7 +316,6 @@ class CorrectionCalculator:
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-
         """
         Graphs the residual errors for all compounds after applying computed corrections.
         """
@@ -365,7 +361,6 @@ class CorrectionCalculator:
         return fig
 
     def graph_residual_error_per_species(self, specie: str) -> go.Figure:
-
         """
         Graphs the residual errors for each compound that contains specie after applying computed corrections.
 

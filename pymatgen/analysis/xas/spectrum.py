@@ -111,7 +111,6 @@ class XAS(Spectrum):
         )
 
     def stitch(self, other: "XAS", num_samples: int = 500, mode: str = "XAFS") -> "XAS":
-
         """
         Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
         spectrum depending on the mode.

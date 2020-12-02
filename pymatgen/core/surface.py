@@ -686,7 +686,6 @@ class Slab(Structure):
         return site2
 
     def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
-
         """
         Class method for adding a site at a specified point in a slab.
             Will add the corresponding site on the other side of the
@@ -711,7 +710,6 @@ class Slab(Structure):
         self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
 
     def symmetrically_remove_atoms(self, indices):
-
         """
         Class method for removing sites corresponding to a list of indices.
             Will remove the corresponding site on the other side of the
@@ -1351,7 +1349,6 @@ class SlabGenerator:
         )
 
     def nonstoichiometric_symmetrized_slab(self, init_slab, tol=1e-3):
-
         """
         This method checks whether or not the two surfaces of the slab are
         equivalent. If the point group of the slab has an inversion symmetry (
@@ -1448,7 +1445,6 @@ class ReconstructionGenerator:
     def __init__(
         self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name
     ):
-
         """
         Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
@@ -1641,7 +1637,6 @@ class ReconstructionGenerator:
         return recon_slabs
 
     def get_unreconstructed_slabs(self):
-
         """
         Generates the unreconstructed or pristine super slab.
         """

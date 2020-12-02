@@ -563,8 +563,7 @@ class InterfaceBuilder:
         sub_slabs = self.sub_sg.get_slabs()
         for i, sub_slab in enumerate(sub_slabs):
             sub_slab = get_shear_reduced_slab(sub_slab)
-            sub_slab = align_x(sub_slab)
-            sub_slab.sort()
+            sub_slab = sorted(align_x(sub_slab))
             sub_slabs[i] = sub_slab
 
         self.substrate_structures = sub_slabs
@@ -598,8 +597,7 @@ class InterfaceBuilder:
         film_slabs = self.film_sg.get_slabs()
         for i, film_slab in enumerate(film_slabs):
             film_slab = get_shear_reduced_slab(film_slab)
-            film_slab = align_x(film_slab)
-            film_slab.sort()
+            film_slab = sorted(align_x(film_slab))
             film_slabs[i] = film_slab
 
         self.film_structures = film_slabs
@@ -834,8 +832,7 @@ class InterfaceBuilder:
             offset = (2.5, 0.0, 0.0)
 
         _structure = merge_slabs(matched_slab_substrate, matched_slab_film, *offset)
-        orthogonal_structure = _structure.get_orthogonal_c_slab()
-        orthogonal_structure.sort()
+        orthogonal_structure = sorted(_structure.get_orthogonal_c_slab())
 
         if not orthogonal_structure.is_valid(tol=1):
             warnings.warn(

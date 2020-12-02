@@ -656,8 +656,7 @@ class DefectPhaseDiagram(MSONable):
         for defnom, def_tl in self.transition_level_map.items():
             xy[defnom] = [[], []]
             if def_tl:
-                org_x = list(def_tl.keys())  # list of transition levels
-                org_x.sort()  # sorted with lowest first
+                org_x = sorted(def_tl.keys())  # list of transition levels
 
                 # establish lower x-bound
                 first_charge = max(def_tl[org_x[0]])

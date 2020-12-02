@@ -923,12 +923,13 @@ class PhaseDiagram(MSONable):
         proj = np.dot(intersections - c1, l)
 
         # only take compositions between endpoints
-        proj = proj[
-            np.logical_and(
-                proj > -self.numerical_tol, proj < proj[1] + self.numerical_tol
-            )
-        ]
-        proj.sort()
+        proj = sorted(
+            proj[
+                np.logical_and(
+                    proj > -self.numerical_tol, proj < proj[1] + self.numerical_tol
+                )
+            ]
+        )
 
         # only unique compositions
         valid = np.ones(len(proj), dtype=np.bool)
