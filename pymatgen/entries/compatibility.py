@@ -10,11 +10,10 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import List, Optional, Sequence, Union
+from typing import Optional, Sequence, Union, List, Type
 
 import numpy as np
 from monty.design_patterns import cached_class
-from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 from uncertainties import ufloat
@@ -176,7 +175,7 @@ class GasCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    For old MaterialsProjectCompatibility and MITCompatibility.
+    Used by legacy MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file):
@@ -215,7 +214,7 @@ class AnionCorrection(Correction):
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
-    For old MaterialsProjectCompatibility and MITCompatibility.
+    Used by legacy MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file, correct_peroxide=True):
@@ -306,6 +305,8 @@ class AqueousCorrection(Correction):
     """
     This class implements aqueous phase compound corrections for elements
     and H2O.
+
+    Used only by MITAqueousCompatibility.
     """
 
     def __init__(self, config_file, error_file=None):
@@ -318,9 +319,7 @@ class AqueousCorrection(Correction):
         self.cpd_energies = c["AqueousCompoundEnergies"]
         # there will either be a CompositionCorrections OR an OxideCorrections key,
         # but not both, depending on the compatibility scheme we are using.
-        # TODO - the two lines below are specific to MaterialsProjectCompatibility
-        # and MaterialsProject2020Compatibility. Could be changed to be more general
-        # and/or streamlined if MaterialsProjectCompatibility is retired.
+        # MITCompatibility only uses OxideCorrections, and hence self.comp_correction is none.
         self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
         self.oxide_correction = c.get("OxideCorrections", defaultdict(float))
         self.name = c["Name"]
@@ -768,14 +767,9 @@ class MaterialsProjectCompatibility(CorrectionsList):
     Using this compatibility scheme on runs with different parameters is not
     valid.
     """
-
-    @deprecated(
-        message=(
-            "MaterialsProjectCompatibility will be updated with new correction classes "
-            "as well as new values of corrections and uncertainties in 2020"
-        )
-    )
-    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -1156,13 +1150,11 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(
-        self,
-        solid_compat: Optional[Compatibility] = MaterialsProjectCompatibility,
-        o2_energy: Optional[float] = None,
-        h2o_energy: Optional[float] = None,
-        h2o_adjustments: Optional[float] = None,
-    ):
+    def __init__(self,
+                 solid_compat: Optional[Type[Compatibility]] = MaterialsProject2020Compatibility,
+                 o2_energy: Optional[float] = None,
+                 h2o_energy: Optional[float] = None,
+                 h2o_adjustments: Optional[float] = None):
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
 
@@ -1173,9 +1165,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Args:
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
-                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
-                Default: MaterialsProjectCompatibility
+                energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
+                (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProject2020Compatibility
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
                 If not set, this value will be determined from any O2 entries passed to process_entries.
                 Default: None
@@ -1186,10 +1178,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 If not set, this value will be determined from any H2O entries passed to process_entries.
                 Default: None
         """
-        self.solid_compat = solid_compat
-        if self.solid_compat:
-            if not isinstance(self.solid_compat, Compatibility):  # check whether solid_compat has been instantiated
-                self.solid_compat = solid_compat()
+        self.solid_compat = None
+        # check whether solid_compat has been instantiated
+        if solid_compat and not isinstance(solid_compat, Compatibility):
+            self.solid_compat = solid_compat()
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy

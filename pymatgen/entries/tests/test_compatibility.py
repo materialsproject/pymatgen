@@ -536,11 +536,6 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         temp_compat = decoder.process_decoded(compat_dict)
         self.assertIsInstance(temp_compat, MaterialsProjectCompatibility)
 
-    def test_deprecation_warning(self):
-        # test that initializing compatibility causes deprecation warning
-        with self.assertWarns(FutureWarning):
-            MaterialsProjectCompatibility(check_potcar_hash=False)
-
 
 class MaterialsProject2020CompatibilityTest(unittest.TestCase):
     def setUp(self):
