@@ -7,8 +7,9 @@ Modules for working with wannier90 input and output.
 """
 
 from typing import Sequence
+
 import numpy as np
-from scipy.io import FortranFile, FortranEOFError
+from scipy.io import FortranEOFError, FortranFile
 
 __author__ = "Mark Turiansky"
 __copyright__ = "Copyright 2011, The Materials Project"

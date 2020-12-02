@@ -6,28 +6,29 @@
 import os
 import unittest
 import warnings
-import numpy as np
-
 from numbers import Number
 from pathlib import Path
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.core.periodic_table import Element, DummySpecies
-from pymatgen.core.composition import Composition
-from pymatgen.entries.entry_tools import EntrySet
+
+import numpy as np
+
 from pymatgen.analysis.phase_diagram import (
-    PDEntry,
-    GrandPotPDEntry,
-    TransformedPDEntry,
-    PhaseDiagram,
-    GrandPotentialPhaseDiagram,
     CompoundPhaseDiagram,
+    GrandPotentialPhaseDiagram,
+    GrandPotPDEntry,
+    PDEntry,
+    PDPlotter,
+    PhaseDiagram,
     PhaseDiagramError,
     ReactionDiagram,
-    PDPlotter,
-    uniquelines,
-    triangular_coord,
+    TransformedPDEntry,
     tet_coord,
+    triangular_coord,
+    uniquelines,
 )
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import DummySpecies, Element
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.entry_tools import EntrySet
 
 module_dir = Path(__file__).absolute().parent
 

@@ -2,13 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import numpy as np
 import os
+import unittest
+
+import numpy as np
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.lmto import LMTOCtrl, LMTOCopl
+from pymatgen.io.lmto import LMTOCopl, LMTOCtrl
 from pymatgen.util.num import round_to_sigfigs
 from pymatgen.util.testing import PymatgenTest
 

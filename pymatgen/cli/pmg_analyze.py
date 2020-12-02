@@ -7,19 +7,19 @@
 Implementation for `pmg analyze` CLI.
 """
 
-import os
-import re
 import logging
 import multiprocessing
+import os
+import re
 
 from tabulate import tabulate
 
-from pymatgen.io.vasp import Outcar
 from pymatgen.apps.borg.hive import (
     SimpleVaspToComputedEntryDrone,
     VaspToComputedEntryDrone,
 )
 from pymatgen.apps.borg.queen import BorgQueen
+from pymatgen.io.vasp import Outcar
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -6,9 +6,11 @@
 Perform fragmentation of molecules.
 """
 
-import logging
 import copy
+import logging
+
 from monty.json import MSONable
+
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.io.babel import BabelMolAdaptor

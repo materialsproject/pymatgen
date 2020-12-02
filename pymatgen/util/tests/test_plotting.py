@@ -1,7 +1,9 @@
 import unittest
+
+import matplotlib
+
 from pymatgen.util.plotting import periodic_table_heatmap, van_arkel_triangle
 from pymatgen.util.testing import PymatgenTest
-import matplotlib
 
 
 class FuncTestCase(PymatgenTest):

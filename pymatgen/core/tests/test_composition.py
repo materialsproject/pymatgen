@@ -9,7 +9,6 @@ Created on Nov 10, 2012
 
 from pymatgen.util.testing import PymatgenTest
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
@@ -18,12 +17,11 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
+import random
 import unittest
 
+from pymatgen.core.composition import ChemicalPotential, Composition, CompositionError
 from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.composition import Composition, CompositionError, ChemicalPotential
-
-import random
 
 
 class CompositionTest(PymatgenTest):

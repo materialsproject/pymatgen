@@ -10,6 +10,7 @@ This module provides input and output from the CSSR file format.
 import re
 
 from monty.io import zopen
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 

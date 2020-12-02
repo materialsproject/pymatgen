@@ -2,12 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 
 from pymatgen import Molecule
-from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 
 """
 Created on Apr 17, 2012

@@ -3,12 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
-from pymatgen.analysis.diffraction.neutron import NDCalculator
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.util.testing import PymatgenTest
+
 import matplotlib as mpl
 
+from pymatgen.analysis.diffraction.neutron import NDCalculator
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 """
 These calculated values were verified with VESTA and FullProf.

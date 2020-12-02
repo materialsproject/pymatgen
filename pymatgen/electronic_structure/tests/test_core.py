@@ -5,9 +5,10 @@
 
 import unittest
 
-from pymatgen.core import Lattice
-from pymatgen.electronic_structure.core import Orbital, Spin, Magmom
 import numpy as np
+
+from pymatgen.core import Lattice
+from pymatgen.electronic_structure.core import Magmom, Orbital, Spin
 
 
 class SpinTest(unittest.TestCase):

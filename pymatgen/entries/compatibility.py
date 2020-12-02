@@ -10,7 +10,7 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import Optional, Sequence, Union, List
+from typing import List, Optional, Sequence, Union
 
 import numpy as np
 from monty.design_patterns import cached_class

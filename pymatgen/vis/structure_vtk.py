@@ -7,9 +7,9 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-import os
 import itertools
 import math
+import os
 import subprocess
 import time
 
@@ -23,13 +23,13 @@ except ImportError:
     vtk = None
     vtkInteractorStyleTrackballCamera = object
 
-from monty.serialization import loadfn
 from monty.dev import requires
+from monty.serialization import loadfn
 
-from pymatgen.util.coord import in_coord_list
 from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.util.coord import in_coord_list
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))

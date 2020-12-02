@@ -11,6 +11,7 @@ implementations. Basically, an EnergyModel is any model that returns an
 import abc
 
 from monty.json import MSONable
+
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

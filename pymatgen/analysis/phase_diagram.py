@@ -6,29 +6,28 @@
 This module defines tools to generate and analyze phase diagrams.
 """
 
-import re
 import collections
 import itertools
-import math
-import logging
-import os
 import json
+import logging
+import math
+import os
+import re
 from functools import lru_cache
-from monty.json import MSONable, MontyDecoder
 
 import numpy as np
-from scipy.spatial import ConvexHull
-from scipy.optimize import minimize
-
 import plotly.graph_objs as go
+from monty.json import MontyDecoder, MSONable
+from scipy.optimize import minimize
+from scipy.spatial import ConvexHull
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, DummySpecies, get_el_sp
-from pymatgen.util.coord import Simplex, in_coord_list
-from pymatgen.util.string import latexify
-from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
+from pymatgen.util.coord import Simplex, in_coord_list
+from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.string import latexify
 
 logger = logging.getLogger(__name__)
 
@@ -1960,8 +1959,8 @@ class PDPlotter:
                 for x, y in lines:
                     plt.plot(x, y, "ko-", **self.plotkwargs)
         else:
-            from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
+            from matplotlib.colors import LinearSegmentedColormap, Normalize
 
             for x, y in lines:
                 plt.plot(x, y, "k-", markeredgecolor="k")
@@ -2329,8 +2328,8 @@ class PDPlotter:
         Returns:
             A matplotlib plot object.
         """
-        from scipy import interpolate
         from matplotlib import cm
+        from scipy import interpolate
 
         pd = self._pd
         entries = pd.qhull_entries

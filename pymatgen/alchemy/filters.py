@@ -11,8 +11,8 @@ from collections import defaultdict
 
 from monty.json import MSONable
 
+from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 

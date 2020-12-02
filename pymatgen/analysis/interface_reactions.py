@@ -7,8 +7,9 @@ This module provides class to generate and analyze interfacial reactions.
 """
 
 import warnings
-import numpy as np
+
 import matplotlib.pylab as plt
+import numpy as np
 
 from pymatgen import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram

@@ -5,15 +5,17 @@
 
 import unittest
 import warnings
-import numpy as np
 from collections import defaultdict
 from math import isnan
+
+import numpy as np
+
 from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import (
-    Reaction,
     BalancedReaction,
-    ReactionError,
     ComputedReaction,
+    Reaction,
+    ReactionError,
 )
 from pymatgen.entries.computed_entries import ComputedEntry
 

@@ -11,15 +11,15 @@ from abc import ABCMeta, abstractmethod
 
 from monty.json import MSONable
 
-from pymatgen.core import PeriodicSite
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
 from pymatgen.analysis.defects.utils import (
     StructureMotifInterstitial,
     TopographyAnalyzer,
 )
 from pymatgen.analysis.structure_matcher import PointDefectComparator
+from pymatgen.core import PeriodicSite
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

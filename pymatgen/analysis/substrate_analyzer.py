@@ -7,6 +7,7 @@ This module provides classes to identify optimal substrates for film growth
 """
 
 from itertools import product
+
 import numpy as np
 
 from pymatgen.analysis.elasticity.strain import Deformation

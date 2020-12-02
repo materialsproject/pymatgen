@@ -38,7 +38,7 @@ class VaspDoc:
             tag (str): Tag used in VASP.
         """
         help = self.get_help(tag, "html")
-        from IPython.core.display import display, HTML
+        from IPython.core.display import HTML, display
 
         display(HTML(help))
 

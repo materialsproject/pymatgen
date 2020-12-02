@@ -7,19 +7,16 @@ This module implements classes to perform bond valence analyses.
 """
 
 import collections
+import functools
 import operator
 import os
-import functools
 from math import exp, sqrt
 
 import numpy as np
-
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.periodic_table import Element, Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import get_el_sp
-
 
 # Let's initialize some module level properties.
 

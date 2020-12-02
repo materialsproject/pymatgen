@@ -13,18 +13,17 @@ See the following papers for more info:
     http://doi.org/10.1103/PhysRevB.90.174107 (2014)
 """
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 import numpy as np
-
 from scipy.constants import physical_constants
 from scipy.integrate import quadrature
 from scipy.misc import derivative
 from scipy.optimize import minimize
 
-from pymatgen.core.units import FloatWithUnit
 from pymatgen.analysis.eos import EOS, PolynomialEOS
+from pymatgen.core.units import FloatWithUnit
 
 __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"

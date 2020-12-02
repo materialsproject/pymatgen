@@ -13,7 +13,7 @@ import numpy as np
 import scipy.constants as cst
 from monty.io import zopen
 
-from pymatgen import Element, Molecule, Composition
+from pymatgen import Composition, Element, Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
@@ -1458,8 +1458,9 @@ class GaussianOutput:
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """
-        from pymatgen.util.plotting import pretty_plot
         from scipy.stats import norm
+
+        from pymatgen.util.plotting import pretty_plot
 
         plt = pretty_plot(12, 8)
 

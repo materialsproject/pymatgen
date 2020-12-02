@@ -13,16 +13,18 @@ A quick overview of the module:
 -- The rest of the classes are children of Section intended to make initialization of common sections easier.
 """
 
-import re
-import os
 import copy
+import os
+import re
 import textwrap
 import warnings
-from typing import Dict, List, Tuple, Union, Sequence
-from monty.json import MSONable
+from typing import Dict, List, Sequence, Tuple, Union
+
 from monty.io import zopen
+from monty.json import MSONable
+
+from pymatgen import Lattice, Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
-from pymatgen import Lattice, Structure, Molecule
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"

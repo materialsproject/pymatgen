@@ -15,8 +15,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Mar 18, 2012"
 
-import unittest
 import os
+import unittest
 import warnings
 
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone

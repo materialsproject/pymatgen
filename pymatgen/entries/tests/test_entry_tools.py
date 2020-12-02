@@ -3,12 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 
+import os
 import unittest
 from pathlib import Path
-from monty.serialization import loadfn, dumpfn
-import os
+
+from monty.serialization import dumpfn, loadfn
+
 from pymatgen.core.periodic_table import Element
-from pymatgen.entries.entry_tools import group_entries_by_structure, EntrySet
+from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
 
 test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
 

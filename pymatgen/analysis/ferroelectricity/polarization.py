@@ -48,9 +48,10 @@ determine the spontaneous polarization because it serves as a reference point.
 """
 
 
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 import numpy as np
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 __author__ = "Tess Smidt"
 __copyright__ = "Copyright 2017, The Materials Project"

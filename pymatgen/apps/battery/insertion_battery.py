@@ -20,12 +20,11 @@ import itertools
 
 from scipy.constants import N_A
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.units import Charge, Time
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
+from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.units import Charge, Time
 
 
 class InsertionElectrode(AbstractElectrode):

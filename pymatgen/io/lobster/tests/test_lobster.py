@@ -11,17 +11,17 @@ import warnings
 import numpy as np
 
 from pymatgen import Structure
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
-    Cohpcar,
-    Icohplist,
-    Doscar,
-    Charge,
-    Lobsterout,
-    Fatband,
-    Lobsterin,
     Bandoverlaps,
+    Charge,
+    Cohpcar,
+    Doscar,
+    Fatband,
     Grosspop,
+    Icohplist,
+    Lobsterin,
+    Lobsterout,
 )
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun

@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 import unittest
+
 import numpy as np
+
 from pymatgen.core.lattice import Lattice
-from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.groups import SpaceGroup
+from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Matthew Horton"

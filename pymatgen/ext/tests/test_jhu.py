@@ -2,13 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.ext.jhu import get_kpoints
 from pymatgen.io.vasp.inputs import Incar
 from pymatgen.io.vasp.sets import MPRelaxSet
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2017, The Materials Project"

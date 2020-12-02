@@ -4,10 +4,11 @@
 import os
 import unittest
 
-from pymatgen.analysis.path_finder import NEBPathfinder, ChgcarPotential
-from pymatgen.io.vasp import Poscar, Chgcar
-from pymatgen.core.periodic_table import Element
 from numpy import mean
+
+from pymatgen.analysis.path_finder import ChgcarPotential, NEBPathfinder
+from pymatgen.core.periodic_table import Element
+from pymatgen.io.vasp import Chgcar, Poscar
 
 __author__ = "Ziqin (Shaun) Rong"
 __version__ = "0.1"

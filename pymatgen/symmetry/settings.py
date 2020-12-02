@@ -8,7 +8,7 @@ This module provides classes for non-standard space-group settings
 
 import re
 from fractions import Fraction
-from typing import Union, List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 

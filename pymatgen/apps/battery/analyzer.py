@@ -6,8 +6,8 @@
 Analysis classes for batteries
 """
 
-from collections import defaultdict
 import math
+from collections import defaultdict
 
 import scipy.constants as const
 

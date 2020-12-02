@@ -8,18 +8,16 @@ files (log and dump).
 """
 
 
-import re
 import glob
+import re
 from io import StringIO
 
 import numpy as np
 import pandas as pd
-
-from monty.json import MSONable
 from monty.io import zopen
+from monty.json import MSONable
 
 from pymatgen.io.lammps.data import LammpsBox
-
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"

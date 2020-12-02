@@ -8,12 +8,11 @@ This module defines classes to represent the phonon density of states, etc.
 
 import numpy as np
 import scipy.constants as const
+from monty.functools import lazy_property
+from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
-from monty.json import MSONable
-from monty.functools import lazy_property
-
 
 BOLTZ_THZ_PER_K = (
     const.value("Boltzmann constant in Hz/K") / const.tera

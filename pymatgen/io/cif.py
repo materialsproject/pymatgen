@@ -24,15 +24,14 @@ from monty.string import remove_non_ascii
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.operations import MagSymmOp
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Species, get_el_sp, DummySpecies
+from pymatgen.core.operations import MagSymmOp, SymmOp
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA
+from pymatgen.symmetry.groups import SYMM_DATA, SpaceGroup
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
-from pymatgen.util.coord import in_coord_list_pbc, find_in_coord_list_pbc
+from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"

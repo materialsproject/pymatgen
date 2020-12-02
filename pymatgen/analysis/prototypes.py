@@ -18,6 +18,7 @@ http://doi.org/10.1016/j.commatsci.2017.01.017
 import os
 
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 module_dir = os.path.dirname(os.path.abspath(__file__))

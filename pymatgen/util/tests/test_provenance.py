@@ -4,10 +4,11 @@
 
 import datetime
 import unittest
+
 import numpy as np
 
-from pymatgen import Structure, Molecule
-from pymatgen.util.provenance import StructureNL, HistoryNode, Author
+from pymatgen import Molecule, Structure
+from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 
 """
 Unit tests for StructureNL (SNL) format

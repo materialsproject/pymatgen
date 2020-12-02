@@ -7,9 +7,9 @@ This module creates an interface to the JHU kpoints servlet,
 see http://muellergroup.jhu.edu/K-Points.html.
 """
 
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
 
 import requests
 

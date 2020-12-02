@@ -6,10 +6,12 @@
 import logging
 import os
 import unittest
-from pymatgen import Molecule
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem.inputs import QCInput
+
 from monty.serialization import loadfn
+
+from pymatgen import Molecule
+from pymatgen.io.qchem.inputs import QCInput
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"

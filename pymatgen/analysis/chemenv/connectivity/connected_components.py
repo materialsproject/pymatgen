@@ -2,23 +2,20 @@
 Connected components.
 """
 
-import logging
 import itertools
-
-import numpy as np
-from matplotlib.patches import FancyArrowPatch, Circle
+import logging
 
 import networkx as nx
-from networkx.algorithms.traversal import bfs_tree
+import numpy as np
+from matplotlib.patches import Circle, FancyArrowPatch
+from monty.json import MSONable, jsanitize
 from networkx.algorithms.components import is_connected
+from networkx.algorithms.traversal import bfs_tree
 
-from monty.json import MSONable
-from monty.json import jsanitize
-
-from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
-from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
-from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_vectors
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
+from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
+from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
+from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_vectors
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):

@@ -1,20 +1,22 @@
 import os
-import networkx as nx
+import unittest
 import warnings
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.local_env import CrystalNN
+
+import networkx as nx
+from monty.serialization import loadfn
+
 from pymatgen.analysis.dimensionality import (
-    get_dimensionality_gorai,
-    get_dimensionality_cheon,
-    get_dimensionality_larsen,
     calculate_dimensionality_of_site,
+    get_dimensionality_cheon,
+    get_dimensionality_gorai,
+    get_dimensionality_larsen,
     get_structure_components,
     zero_d_graph_to_molecule_graph,
 )
+from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.analysis.local_env import CrystalNN
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
-import unittest
-from monty.serialization import loadfn
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

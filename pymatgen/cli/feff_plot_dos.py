@@ -20,8 +20,8 @@ __date__ = "April 7, 2012"
 import argparse
 from collections import OrderedDict
 
-from pymatgen.io.feff.outputs import LDos
 from pymatgen.electronic_structure.plotter import DosPlotter
+from pymatgen.io.feff.outputs import LDos
 
 
 def main():

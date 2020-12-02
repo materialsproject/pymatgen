@@ -3,28 +3,24 @@
 
 __author__ = "waroquiers"
 
-import unittest
-import os
 import json
-import numpy as np
+import os
 import shutil
+import unittest
 
+import numpy as np
 from monty.tempfile import ScratchDir
-from pymatgen.util.testing import PymatgenTest
 
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    StructureEnvironments,
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    MultiWeightsChemenvStrategy,
+    SimplestChemenvStrategy,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
+    StructureEnvironments,
 )
 from pymatgen.core.periodic_table import Species
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    MultiWeightsChemenvStrategy,
-)
+from pymatgen.util.testing import PymatgenTest
 
 se_files_dir = os.path.join(
     os.path.dirname(__file__),

@@ -3,10 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
 from monty.serialization import loadfn
+
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
 try:

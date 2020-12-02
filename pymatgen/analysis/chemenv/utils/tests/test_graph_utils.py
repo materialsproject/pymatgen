@@ -1,11 +1,14 @@
 __author__ = "waroquiers"
 
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
-from pymatgen.analysis.chemenv.utils.graph_utils import SimpleGraphCycle
-from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle
-from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 import numpy as np
+
+from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
+from pymatgen.analysis.chemenv.utils.graph_utils import (
+    MultiGraphCycle,
+    SimpleGraphCycle,
+    get_delta,
+)
+from pymatgen.util.testing import PymatgenTest
 
 
 class FakeNode(object):

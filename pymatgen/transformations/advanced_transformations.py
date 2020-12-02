@@ -5,45 +5,44 @@
 """
 This module implements more advanced transformations.
 """
-from typing import Optional, Dict
-from fractions import Fraction
-from math import gcd
-from itertools import groupby, product
-from string import ascii_lowercase
-import warnings
 import logging
 import math
+import warnings
+from fractions import Fraction
+from itertools import groupby, product
+from math import gcd
+from string import ascii_lowercase
+from typing import Dict, Optional
 
 import numpy as np
-
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
 
-from pymatgen.core.periodic_table import Element, Species, get_el_sp, DummySpecies
-from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.transformations.standard_transformations import (
-    SubstitutionTransformation,
-    OrderDisorderedStructureTransformation,
-    SupercellTransformation,
-)
-from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
+from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
 )
-from pymatgen.analysis.structure_matcher import StructureMatcher, SpinComparator
-from pymatgen.analysis.energy_models import SymmetryModel
-from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
+from pymatgen.command_line.mcsqs_caller import run_mcsqs
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from pymatgen.command_line.mcsqs_caller import run_mcsqs
-from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.standard_transformations import (
+    OrderDisorderedStructureTransformation,
+    SubstitutionTransformation,
+    SupercellTransformation,
+)
+from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 try:
     import hiphive  # type: ignore
@@ -2366,9 +2365,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         Returns:
             Structure with sites perturbed.
         """
-        from hiphive.structure_generation.rattle import (  # type: ignore
-            mc_rattle,
-        )
+        from hiphive.structure_generation.rattle import mc_rattle  # type: ignore
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
         seed = self.random_state.randint(1, 1000000000)

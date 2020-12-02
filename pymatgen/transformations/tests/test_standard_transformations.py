@@ -2,18 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import functools
+import json
 import os
 import random
 import unittest
-import json
 import warnings
-import functools
-from monty.os.path import which
-from pymatgen import Lattice, PeriodicSite, Element
+
 from monty.json import MontyDecoder
+from monty.os.path import which
+
+from pymatgen import Element, Lattice, PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
+from pymatgen.transformations.standard_transformations import *
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

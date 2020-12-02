@@ -4,15 +4,15 @@
 Implementation for get_environment CLI.
 """
 
-from argparse import ArgumentParser
 import logging
+from argparse import ArgumentParser
 
+from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 from pymatgen.analysis.chemenv.utils.scripts_utils import (
     compute_environments,
-    welcome,
     thankyou,
+    welcome,
 )
-from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 
 __author__ = "waroquiers"
 

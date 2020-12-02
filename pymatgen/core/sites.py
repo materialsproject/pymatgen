@@ -7,19 +7,17 @@ This module defines classes representing non-periodic and periodic sites.
 """
 
 import collections
-from typing import Union, Dict, Tuple, List
 import json
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
-
-from monty.json import MSONable
-from monty.json import MontyDecoder, MontyEncoder
 from monty.dev import deprecated
+from monty.json import MontyDecoder, MontyEncoder, MSONable
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Species, DummySpecies, get_el_sp
-from pymatgen.util.coord import pbc_diff
 from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.util.coord import pbc_diff
 
 
 class Site(collections.abc.Hashable, MSONable):

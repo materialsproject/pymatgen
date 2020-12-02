@@ -3,23 +3,24 @@
 # Distributed under the terms of the MIT License.
 
 
-import numpy as np
-import unittest
 import os
+import unittest
 
+import numpy as np
+
+from pymatgen import Element, Lattice, Structure
 from pymatgen.analysis.structure_analyzer import (
-    solid_angle,
-    contains_peroxide,
     RelaxationAnalyzer,
-    VoronoiConnectivity,
-    oxide_type,
-    sulfide_type,
-    average_coordination_number,
     VoronoiAnalyzer,
+    VoronoiConnectivity,
+    average_coordination_number,
+    contains_peroxide,
+    oxide_type,
+    solid_angle,
+    sulfide_type,
 )
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")

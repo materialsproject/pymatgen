@@ -8,20 +8,19 @@ A master convenience script with many tools for vasp and structure analysis.
 """
 
 import argparse
-import sys
 import itertools
+import sys
 
 from tabulate import tabulate, tabulate_formats
-from pymatgen import Structure, SETTINGS
-from pymatgen.io.vasp import Incar, Potcar
 
+from pymatgen import SETTINGS, Structure, __version__
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
-from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_plot import plot
-from pymatgen.cli.pmg_structure import analyze_structures
+from pymatgen.cli.pmg_potcar import generate_potcar
 from pymatgen.cli.pmg_query import do_query
-from pymatgen import __version__
+from pymatgen.cli.pmg_structure import analyze_structures
+from pymatgen.io.vasp import Incar, Potcar
 
 
 def parse_view(args):

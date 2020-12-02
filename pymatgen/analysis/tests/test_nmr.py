@@ -1,7 +1,9 @@
 import unittest
+
 import numpy as np
-from pymatgen.util.testing import PymatgenTest
+
 from pymatgen.analysis.nmr import ChemicalShielding, ElectricFieldGradient
+from pymatgen.util.testing import PymatgenTest
 
 
 class TestChemicalShieldingNotation(PymatgenTest):

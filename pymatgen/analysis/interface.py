@@ -6,19 +6,20 @@
 This module provides classes to store, generate, and manipulate material interfaces.
 """
 
-from pymatgen.core.surface import SlabGenerator
-from pymatgen import Lattice, Structure
-from pymatgen.core.surface import Slab
-from itertools import product
-import numpy as np
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from matplotlib import pyplot as plt
-from pymatgen.core.operations import SymmOp
-from matplotlib.lines import Line2D
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, reduce_vectors
 import warnings
+from itertools import product
+
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.lines import Line2D
+
+from pymatgen import Lattice, Structure
+from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, reduce_vectors
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.surface import Slab, SlabGenerator
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, and Kyle Bystrom"
 __copyright__ = "Copyright 2019, The Materials Project"

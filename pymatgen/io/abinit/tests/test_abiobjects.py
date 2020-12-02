@@ -3,13 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 import os
+import warnings
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.abinit.abiobjects import *
-
-import warnings
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

@@ -1,16 +1,16 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import unittest
+import filecmp
 import os
 import re
-import filecmp
 import shutil
+import unittest
 
 import pandas as pd
+
 from pymatgen import Lattice, Structure
 from pymatgen.io.lammps.data import LammpsData
-
 from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 
 test_dir = os.path.join(

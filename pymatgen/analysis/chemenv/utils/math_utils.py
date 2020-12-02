@@ -15,12 +15,11 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
+from functools import reduce
 from math import sqrt
 
 import numpy as np
 from scipy.special import erf
-from functools import reduce
-
 
 ##############################################################
 # cartesian product of lists ##################################

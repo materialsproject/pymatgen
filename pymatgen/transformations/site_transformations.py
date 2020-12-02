@@ -9,18 +9,17 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
-import math
 import itertools
 import logging
+import math
 import time
 
 import numpy as np
-
 from monty.json import MSONable
 
+from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 
 
 class InsertSitesTransformation(AbstractTransformation):

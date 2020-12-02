@@ -3,24 +3,24 @@
 # Distributed under the terms of the MIT License.
 
 
-from pymatgen.alchemy.filters import (
-    ContainsSpecieFilter,
-    SpecieProximityFilter,
-    RemoveDuplicatesFilter,
-    RemoveExistingFilter,
-)
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Species
-from pymatgen.alchemy.transmuters import StandardTransmuter
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.util.testing import PymatgenTest
+import json
+import os
+import unittest
 
 from monty.json import MontyDecoder
 
-import os
-import json
-import unittest
+from pymatgen.alchemy.filters import (
+    ContainsSpecieFilter,
+    RemoveDuplicatesFilter,
+    RemoveExistingFilter,
+    SpecieProximityFilter,
+)
+from pymatgen.alchemy.transmuters import StandardTransmuter
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Species
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

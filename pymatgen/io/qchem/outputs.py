@@ -14,13 +14,10 @@ import re
 import warnings
 from typing import List
 
-import numpy as np
-
 import networkx as nx
-
+import numpy as np
 from monty.io import zopen
-from monty.json import MSONable
-from monty.json import jsanitize
+from monty.json import MSONable, jsanitize
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -34,7 +31,7 @@ except ImportError:
     ob = None
     have_babel = False
 
-from .utils import read_table_pattern, read_pattern, process_parsed_coords
+from .utils import process_parsed_coords, read_pattern, read_table_pattern
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

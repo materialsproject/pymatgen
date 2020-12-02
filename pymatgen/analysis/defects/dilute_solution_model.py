@@ -11,15 +11,13 @@ C. Woodward, M. Asta, G. Kresse and J. Hafner.
 Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015
 """
 
-import math
 import copy
+import math
+
 import numpy as np
-
-from monty.fractions import gcd
-from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve
-
 from monty.dev import deprecated
-
+from monty.fractions import gcd
+from sympy import Float, Integer, Matrix, Symbol, exp, nsolve, solve
 
 __author__ = "Bharat Medasani"
 __version__ = "0.2"

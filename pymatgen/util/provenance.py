@@ -6,21 +6,19 @@
 Classes and methods related to the Structure Notation Language (SNL)
 """
 
-import sys
-import re
 import datetime
-from collections import namedtuple
 import json
+import re
+import sys
+from collections import namedtuple
 from io import StringIO
-
-from pybtex.database.input import bibtex
-from pybtex import errors
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
+from pybtex import errors
+from pybtex.database.input import bibtex
 
-from pymatgen.core.structure import Structure, Molecule
-
+from pymatgen.core.structure import Molecule, Structure
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"

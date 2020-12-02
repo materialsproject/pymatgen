@@ -2,13 +2,14 @@
 
 
 import os
-import unittest
 import time
-from pymatgen.core.structure import Molecule
+import unittest
+
+from pymatgen.analysis.fragmenter import Fragmenter, metal_edge_extender
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.fragmenter import Fragmenter, metal_edge_extender
 
 try:
     from openbabel import openbabel as ob

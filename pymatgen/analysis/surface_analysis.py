@@ -36,21 +36,22 @@ TODO:
         user does not need to generate a dict
 """
 
-import numpy as np
-import itertools
-import warnings
-import random
 import copy
+import itertools
+import random
+import warnings
+
+import numpy as np
 from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
+from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core.composition import Composition
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.io.vasp.outputs import Locpot, Outcar, Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.wulff import WulffShape
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.io.vasp.outputs import Outcar, Locpot, Poscar
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 

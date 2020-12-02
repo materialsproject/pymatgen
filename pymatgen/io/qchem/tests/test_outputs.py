@@ -6,8 +6,8 @@
 import os
 import unittest
 
-from monty.serialization import loadfn, dumpfn
 from monty.os.path import which
+from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes

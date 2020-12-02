@@ -5,19 +5,20 @@
 
 import os
 import unittest
+
 import numpy as np
 
-from pymatgen.core import Lattice
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.vasp import Vasprun, Poscar, Outcar
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
 from pymatgen.analysis.defects.corrections import (
-    FreysoldtCorrection,
-    BandFillingCorrection,
     BandEdgeShiftingCorrection,
+    BandFillingCorrection,
+    FreysoldtCorrection,
     KumagaiCorrection,
 )
 from pymatgen.analysis.defects.utils import generate_R_and_G_vecs
+from pymatgen.core import Lattice
+from pymatgen.io.vasp import Outcar, Poscar, Vasprun
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

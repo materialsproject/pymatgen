@@ -7,16 +7,15 @@ This module provides classes that operate on points or vectors in 3D space.
 """
 
 import re
-from math import sin, cos, pi, sqrt
 import string
 import warnings
+from math import cos, pi, sin, sqrt
 
 import numpy as np
+from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
-
-from monty.json import MSONable
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"

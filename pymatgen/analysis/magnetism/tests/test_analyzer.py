@@ -2,14 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.core import Species, Element, Lattice, Structure
-from pymatgen.io.cif import CifParser
-from pymatgen.analysis.magnetism import *
+import os
+import unittest
 
 from monty.os.path import which
 
-import os
-import unittest
+from pymatgen.analysis.magnetism import *
+from pymatgen.core import Element, Lattice, Species, Structure
+from pymatgen.io.cif import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

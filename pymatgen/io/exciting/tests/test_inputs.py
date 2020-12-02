@@ -2,11 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 import xml.etree.cElementTree as ET
+
+from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
-from pymatgen.core import Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 """

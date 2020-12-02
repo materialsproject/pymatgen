@@ -6,21 +6,21 @@
 This module provides classes for predicting new structures from existing ones.
 """
 
+import functools
 import itertools
 import logging
 from operator import mul
-import functools
+
 from monty.json import MSONable
 
-from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
+from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionProbability,
 )
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-from pymatgen.alchemy.transmuters import StandardTransmuter
-from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
-
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"

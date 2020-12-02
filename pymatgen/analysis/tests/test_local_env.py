@@ -1,38 +1,37 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+import os
+import unittest
 import warnings
+from math import pi
 
 import numpy as np
-from math import pi
-import unittest
-import os
-
 from monty.os.path import which
 
+from pymatgen import Element, Lattice, Molecule, Structure
 from pymatgen.analysis.local_env import (
-    ValenceIonicRadiusEvaluator,
-    VoronoiNN,
-    JmolNN,
-    MinimumDistanceNN,
-    OpenBabelNN,
-    CovalentBondNN,
-    MinimumOKeeffeNN,
-    MinimumVIRENN,
-    get_neighbors_of_site_with_index,
-    site_is_of_motif_type,
-    NearNeighbors,
-    LocalStructOrderParams,
-    BrunnerNN_reciprocal,
     BrunnerNN_real,
+    BrunnerNN_reciprocal,
     BrunnerNN_relative,
-    EconNN,
+    CovalentBondNN,
+    Critic2NN,
     CrystalNN,
     CutOffDictNN,
-    Critic2NN,
+    EconNN,
+    JmolNN,
+    LocalStructOrderParams,
+    MinimumDistanceNN,
+    MinimumOKeeffeNN,
+    MinimumVIRENN,
+    NearNeighbors,
+    OpenBabelNN,
+    ValenceIonicRadiusEvaluator,
+    VoronoiNN,
+    get_neighbors_of_site_with_index,
+    site_is_of_motif_type,
     solid_angle,
 )
-from pymatgen import Element, Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 try:

@@ -2,21 +2,22 @@
 Structure connectivity class.
 """
 
+import collections
+import logging
+
 import networkx as nx
 import numpy as np
-import collections
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    LightStructureEnvironments,
+from monty.json import MSONable, jsanitize
+
+from pymatgen.analysis.chemenv.connectivity.connected_components import (
+    ConnectedComponent,
 )
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import (
     get_environment_node,
 )
-from pymatgen.analysis.chemenv.connectivity.connected_components import (
-    ConnectedComponent,
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
+    LightStructureEnvironments,
 )
-from monty.json import MSONable
-from monty.json import jsanitize
-import logging
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -5,19 +5,18 @@
 
 import unittest
 
+from pymatgen.core import Structure
 from pymatgen.util.string import (
+    disordered_formula,
     formula_double_format,
+    htmlify,
     latexify,
     latexify_spacegroup,
     transformation_to_string,
-    htmlify,
     unicodeify,
-    disordered_formula,
     unicodeify_spacegroup,
     unicodeify_species,
 )
-
-from pymatgen.core import Structure
 
 
 class FuncTest(unittest.TestCase):

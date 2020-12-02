@@ -3,11 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 
-import os.path
 import collections
+import os.path
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
+from pymatgen.util.testing import PymatgenTest
 
 _test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"

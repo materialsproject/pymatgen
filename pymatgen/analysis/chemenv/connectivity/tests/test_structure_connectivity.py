@@ -13,10 +13,8 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SimplestChemenvStrategy,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    StructureEnvironments,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
+    StructureEnvironments,
 )
 from pymatgen.util.testing import PymatgenTest
 

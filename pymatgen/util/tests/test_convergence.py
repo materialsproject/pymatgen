@@ -1,8 +1,9 @@
 __author__ = "setten"
 
 import numpy
-from pymatgen.util.testing import PymatgenTest
+
 from pymatgen.util.convergence import determine_convergence
+from pymatgen.util.testing import PymatgenTest
 
 
 class ConvergenceTest(PymatgenTest):

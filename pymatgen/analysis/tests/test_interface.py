@@ -9,14 +9,16 @@ __maintainer__ = "Kyle Bystrom"
 __email__ = "kylebystrom@gmail.com"
 __date__ = "5/29/2019"
 
+import random
 import unittest
+
+import numpy as np
+
 from pymatgen.analysis.interface import Interface, InterfaceBuilder
 from pymatgen.analysis.substrate_analyzer import ZSLGenerator
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure
-import random
-import numpy as np
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.testing import PymatgenTest
 
 
 class InterfaceTest(PymatgenTest):

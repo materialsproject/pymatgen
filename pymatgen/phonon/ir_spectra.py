@@ -9,12 +9,12 @@ where it was originally done by Guido Petretto and Matteo Giantomassi
 """
 
 import numpy as np
-
-from pymatgen.core.structure import Structure
-from pymatgen.core.spectrum import Spectrum
-from pymatgen.vis.plotters import SpectrumPlotter
-from pymatgen.util.plotting import add_fig_kwargs
 from monty.json import MSONable
+
+from pymatgen.core.spectrum import Spectrum
+from pymatgen.core.structure import Structure
+from pymatgen.util.plotting import add_fig_kwargs
+from pymatgen.vis.plotters import SpectrumPlotter
 
 __author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"

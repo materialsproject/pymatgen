@@ -8,21 +8,20 @@ populations (COHP) and integrated COHP (ICOHP), but can also be used
 for crystal orbital overlap populations (COOP).
 """
 
-import warnings
 import re
 import sys
+import warnings
 
 import numpy as np
-
 from monty.json import MSONable
 
-from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lmto import LMTOCopl
 from pymatgen.io.lobster import Cohpcar
-from pymatgen.util.num import round_to_sigfigs
 from pymatgen.util.coord import get_linear_interpolated_value
+from pymatgen.util.num import round_to_sigfigs
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"

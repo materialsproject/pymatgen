@@ -5,10 +5,12 @@
 This module provides
 """
 
-from collections import namedtuple, OrderedDict
-from monty.string import is_string
-from monty.json import MSONable  # , MontyEncoder
+from collections import OrderedDict, namedtuple
+
 from monty.functools import lazy_property
+from monty.json import MSONable  # , MontyEncoder
+from monty.string import is_string
+
 from pymatgen.core.libxcfunc import LibxcFunc
 
 __author__ = "Matteo Giantomassi"

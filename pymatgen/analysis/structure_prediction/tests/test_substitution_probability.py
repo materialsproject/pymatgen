@@ -3,16 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import json
 import os
+import unittest
 
-from pymatgen.core.periodic_table import Species
 from pymatgen import Composition
 from pymatgen.analysis.structure_prediction.substitution_probability import (
-    SubstitutionProbability,
     SubstitutionPredictor,
+    SubstitutionProbability,
 )
+from pymatgen.core.periodic_table import Species
 
 
 def get_table():

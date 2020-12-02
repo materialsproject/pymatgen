@@ -5,19 +5,19 @@
 import unittest
 from pathlib import Path
 
-from pymatgen.util.testing import PymatgenTest
+from pymatgen import Molecule, Structure
+from pymatgen.io.cp2k.inputs import Cp2kInput
 from pymatgen.io.cp2k.sets import (
+    CellOptSet,
     Cp2kInputSet,
     DftSet,
-    StaticSet,
+    HybridCellOptSet,
+    HybridRelaxSet,
     HybridStaticSet,
     RelaxSet,
-    HybridRelaxSet,
-    CellOptSet,
-    HybridCellOptSet,
+    StaticSet,
 )
-from pymatgen.io.cp2k.inputs import Cp2kInput
-from pymatgen import Structure, Molecule
+from pymatgen.util.testing import PymatgenTest
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],

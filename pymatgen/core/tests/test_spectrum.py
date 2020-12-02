@@ -2,10 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import unittest
+
+import numpy as np
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.testing import PymatgenTest
-import unittest
-import numpy as np
 
 
 class SpectrumTest(PymatgenTest):

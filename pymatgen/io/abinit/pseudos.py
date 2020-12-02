@@ -11,21 +11,23 @@ import collections
 import logging
 import os
 import sys
-import numpy as np
 from collections import OrderedDict, defaultdict, namedtuple
+
+import numpy as np
 from monty.collections import AttrDict, Namespace
-from tabulate import tabulate
 
 # from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
-from monty.json import MSONable, MontyDecoder
+from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
-from monty.string import list_strings, is_string
+from monty.string import is_string, list_strings
+from tabulate import tabulate
+
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.util.serialization import pmg_serialize
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.serialization import pmg_serialize
 
 logger = logging.getLogger(__name__)
 
@@ -291,8 +293,8 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             tmpdir: If None, a new temporary directory is created and files are copied here
                 else tmpdir is used.
         """
-        import tempfile
         import shutil
+        import tempfile
 
         tmpdir = tempfile.mkdtemp() if tmpdir is None else tmpdir
         new_path = os.path.join(tmpdir, self.basename)
@@ -367,10 +369,10 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             ecut: Cutoff energy in Hartree.
             pawecutdg: Cutoff energy for the PAW double grid.
         """
-        from abipy.flowtk import AbinitTask
-        from abipy.core.structure import Structure
         from abipy.abio.factories import gs_input
+        from abipy.core.structure import Structure
         from abipy.electrons.psps import PspsFile
+        from abipy.flowtk import AbinitTask
 
         # Build fake structure.
         lattice = 10 * np.eye(3)

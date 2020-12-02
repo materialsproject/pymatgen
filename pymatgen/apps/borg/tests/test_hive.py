@@ -3,14 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 import warnings
 
 from pymatgen.apps.borg.hive import (
-    VaspToComputedEntryDrone,
-    SimpleVaspToComputedEntryDrone,
     GaussianToComputedEntryDrone,
+    SimpleVaspToComputedEntryDrone,
+    VaspToComputedEntryDrone,
 )
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 

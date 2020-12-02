@@ -47,19 +47,19 @@ b) Go to pymatgen/analysis/defects/tests and run
 import os
 import re
 
-from monty.io import zopen
 from monty.dev import requires
+from monty.io import zopen
 from monty.tempfile import ScratchDir
 
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.io.xyz import XYZ
 
 try:
-    from zeo.netstorage import AtomNetwork
-    from zeo.area_volume import volume, surface_area
+    from zeo.area_volume import surface_area, volume
     from zeo.cluster import prune_voronoi_network_close_node
+    from zeo.netstorage import AtomNetwork
 
     zeo_found = True
 except ImportError:

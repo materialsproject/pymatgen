@@ -10,18 +10,16 @@ tests in a single location, so that test scripts can just import it and work
 right away.
 """
 
-import unittest
+import json
 import tempfile
+import unittest
 from io import open
 from pathlib import Path
-import json
 
 import numpy.testing as nptu
-
-from monty.json import MontyDecoder
-from monty.serialization import loadfn
-from monty.json import MSONable
 from monty.dev import requires
+from monty.json import MontyDecoder, MSONable
+from monty.serialization import loadfn
 
 from pymatgen import SETTINGS, MPRester
 
@@ -145,7 +143,8 @@ class PymatgenTest(unittest.TestCase):
         """
         # Use the python version so that we get the traceback in case of errors
         import pickle
-        from pymatgen.util.serialization import pmg_pickle_load, pmg_pickle_dump
+
+        from pymatgen.util.serialization import pmg_pickle_dump, pmg_pickle_load
 
         # Build a list even when we receive a single object.
         got_single_object = False

@@ -3,8 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.prototypes import AflowPrototypeMatcher
+from pymatgen.util.testing import PymatgenTest
 
 
 class AflowPrototypeMatcherTest(PymatgenTest):

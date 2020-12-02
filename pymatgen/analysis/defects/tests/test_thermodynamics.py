@@ -2,17 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
+import os
+import unittest
 
 from monty.serialization import loadfn
 
-from pymatgen.core import Element
 from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.defects.thermodynamics import DefectPhaseDiagram
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.core import Element
 from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

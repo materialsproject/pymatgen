@@ -9,18 +9,18 @@ following work::
     Ceder, The Journal of Chemical Physics 145 (7), 074112
 """
 
-from abc import ABCMeta
-import math
 import logging
-from scipy.interpolate import interp1d
-import scipy.signal
-import scipy.stats
+import math
+from abc import ABCMeta
+
 import numpy as np
 import numpy.linalg as la
+import scipy.signal
+import scipy.stats
+from scipy.interpolate import interp1d
 
-
-from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 
 __author__ = "Daniil Kitchaev"

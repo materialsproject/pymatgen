@@ -10,12 +10,12 @@ and
 -Localised Basis set reader
 """
 
-import re
 import os
+import re
 import shutil
 import subprocess
-
 from string import Template
+
 from monty.io import zopen
 from monty.json import MSONable
 

@@ -8,12 +8,12 @@ import warnings
 
 import numpy as np
 
-from pymatgen.io.cif import CifParser, CifWriter, CifBlock
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen import Element, Species, Lattice, Structure, Composition, DummySpecies
+from pymatgen import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.cif import CifBlock, CifParser, CifWriter
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import pybtex

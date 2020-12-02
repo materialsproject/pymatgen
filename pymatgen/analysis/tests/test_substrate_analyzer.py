@@ -15,17 +15,18 @@ __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
 import unittest
+
+from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.substrate_analyzer import (
     SubstrateAnalyzer,
     ZSLGenerator,
     fast_norm,
+    get_factors,
     reduce_vectors,
     vec_area,
-    get_factors,
 )
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.elasticity.elastic import ElasticTensor
+from pymatgen.util.testing import PymatgenTest
 
 
 class ZSLGenTest(PymatgenTest):

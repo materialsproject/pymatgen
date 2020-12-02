@@ -1,11 +1,10 @@
-import unittest
 import os
-
-from pymatgen.apps.battery.analyzer import BatteryAnalyzer
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Structure
+import unittest
 
 import pymatgen
+from pymatgen.apps.battery.analyzer import BatteryAnalyzer
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 module_dir = os.path.join(os.path.dirname(pymatgen.__file__), "..", "test_files")
 

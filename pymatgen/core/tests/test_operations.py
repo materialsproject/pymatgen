@@ -3,10 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.operations import SymmOp, MagSymmOp
-from pymatgen.electronic_structure.core import Magmom
 import numpy as np
+
+from pymatgen.core.operations import MagSymmOp, SymmOp
+from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.testing import PymatgenTest
 
 
 class SymmOpTestCase(PymatgenTest):

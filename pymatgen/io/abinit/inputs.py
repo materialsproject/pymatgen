@@ -4,25 +4,25 @@ Note that not all the features of Abinit are supported by BasicAbinitInput.
 For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.
 """
 
-import os
-import copy
 import abc
+import copy
 import json
-from enum import Enum
-from collections import OrderedDict, namedtuple
-from collections.abc import MutableMapping, Mapping
 import logging
+import os
+from collections import OrderedDict, namedtuple
+from collections.abc import Mapping, MutableMapping
+from enum import Enum
+
 import numpy as np
-
 from monty.collections import AttrDict
-from monty.string import list_strings, is_string
 from monty.json import MSONable
-from pymatgen.core.structure import Structure
-from pymatgen.util.serialization import pmg_serialize
-from pymatgen.io.abinit.pseudos import PseudoTable, Pseudo
-from pymatgen.io.abinit import abiobjects as aobj
-from pymatgen.io.abinit.variable import InputVariable
+from monty.string import is_string, list_strings
 
+from pymatgen.core.structure import Structure
+from pymatgen.io.abinit import abiobjects as aobj
+from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
+from pymatgen.io.abinit.variable import InputVariable
+from pymatgen.util.serialization import pmg_serialize
 
 logger = logging.getLogger(__file__)
 

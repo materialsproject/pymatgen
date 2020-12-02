@@ -19,21 +19,22 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-import numpy as np
 from collections import OrderedDict
-from pymatgen.core.sites import PeriodicSite
-from monty.json import MSONable, MontyDecoder
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.structure import Structure
-from monty.json import jsanitize
+
+import numpy as np
+from monty.json import MontyDecoder, MSONable, jsanitize
+
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 
 allcg = AllCoordinationGeometries()
 symbol_cn_mapping = allcg.get_symbol_cn_mapping()

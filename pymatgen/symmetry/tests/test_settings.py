@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+
 import numpy as np
 
 from pymatgen.symmetry.settings import *

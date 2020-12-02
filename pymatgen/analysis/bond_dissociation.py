@@ -9,15 +9,13 @@ Module for BondDissociationEnergies.
 import logging
 
 import networkx as nx
-
 from monty.json import MSONable
 
-from pymatgen.core.structure import Molecule
+from pymatgen.analysis.fragmenter import open_ring
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
-from pymatgen.analysis.fragmenter import open_ring
+from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
-
 
 __author__ = "Samuel Blau"
 __copyright__ = "Copyright 2018, The Materials Project"

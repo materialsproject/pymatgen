@@ -7,21 +7,21 @@ Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 """
 
 import numpy as np
-from pymatgen.core import Structure, Lattice
-from pymatgen.phonon.bandstructure import (
-    PhononBandStructureSymmLine,
-    PhononBandStructure,
-)
-from pymatgen.phonon.dos import PhononDos, CompletePhononDos
-from monty.serialization import loadfn
 from monty.dev import requires
+from monty.serialization import loadfn
 
+from pymatgen.core import Lattice, Structure
+from pymatgen.phonon.bandstructure import (
+    PhononBandStructure,
+    PhononBandStructureSymmLine,
+)
+from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 try:
     from phonopy import Phonopy
-    from phonopy.structure.atoms import PhonopyAtoms
     from phonopy.file_IO import write_disp_yaml
+    from phonopy.structure.atoms import PhonopyAtoms
 except ImportError:
     Phonopy = None
 

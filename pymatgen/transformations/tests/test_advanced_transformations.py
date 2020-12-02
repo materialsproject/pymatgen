@@ -2,49 +2,49 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
+import os
+import unittest
 import warnings
+
 import numpy as np
-
-from pymatgen import Lattice, Structure, Species, Molecule
-from pymatgen.transformations.standard_transformations import (
-    OxidationStateDecorationTransformation,
-    SubstitutionTransformation,
-    OrderDisorderedStructureTransformation,
-    AutoOxiStateDecorationTransformation,
-)
-from pymatgen.transformations.advanced_transformations import (
-    SuperTransformation,
-    EnumerateStructureTransformation,
-    MultipleSubstitutionTransformation,
-    ChargeBalanceTransformation,
-    SubstitutionPredictorTransformation,
-    MagOrderingTransformation,
-    DopingTransformation,
-    _find_codopant,
-    SlabTransformation,
-    MagOrderParameterConstraint,
-    DisorderOrderedTransformation,
-    GrainBoundaryTransformation,
-    CubicSupercellTransformation,
-    AddAdsorbateTransformation,
-    SubstituteSurfaceSiteTransformation,
-    SQSTransformation,
-    MonteCarloRattleTransformation,
-)
-
-from monty.serialization import loadfn
 from monty.os.path import which
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.io.cif import CifParser
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from monty.serialization import loadfn
+
+from pymatgen import Lattice, Molecule, Species, Structure
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io import atat
+from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.advanced_transformations import (
+    AddAdsorbateTransformation,
+    ChargeBalanceTransformation,
+    CubicSupercellTransformation,
+    DisorderOrderedTransformation,
+    DopingTransformation,
+    EnumerateStructureTransformation,
+    GrainBoundaryTransformation,
+    MagOrderingTransformation,
+    MagOrderParameterConstraint,
+    MonteCarloRattleTransformation,
+    MultipleSubstitutionTransformation,
+    SlabTransformation,
+    SQSTransformation,
+    SubstituteSurfaceSiteTransformation,
+    SubstitutionPredictorTransformation,
+    SuperTransformation,
+    _find_codopant,
+)
+from pymatgen.transformations.standard_transformations import (
+    AutoOxiStateDecorationTransformation,
+    OrderDisorderedStructureTransformation,
+    OxidationStateDecorationTransformation,
+    SubstitutionTransformation,
+)
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import hiphive  # type: ignore

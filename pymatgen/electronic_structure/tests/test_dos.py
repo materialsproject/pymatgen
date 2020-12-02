@@ -3,19 +3,19 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
-import numpy as np
+import os
+import unittest
 
+import numpy as np
 from monty.serialization import loadfn
 
 from pymatgen import Structure
-from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.core.periodic_table import Element
+from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import (
-    CompleteDos,
     DOS,
+    CompleteDos,
     FermiDos,
     LobsterCompleteDos,
 )

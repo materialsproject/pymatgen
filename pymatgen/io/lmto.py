@@ -11,15 +11,15 @@ Structure object in the pymatgen.electronic_structure.cohp.py module.
 
 
 import re
-import numpy as np
 
+import numpy as np
 from monty.io import zopen
-from pymatgen.core.units import bohr_to_angstrom, Ry_to_eV
+
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import round_to_sigfigs
-
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"

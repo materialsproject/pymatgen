@@ -6,16 +6,16 @@ This module provides objects for extracting timing data from the ABINIT output f
 It also provides tools to analye and to visualize the parallel efficiency.
 """
 
-import sys
-import os
 import collections
-import numpy as np
+import logging
+import os
+import sys
 
+import numpy as np
 from monty.string import is_string, list_strings
+
 from pymatgen.util.num import minloc
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
-
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -20,8 +20,8 @@ import warnings
 from monty.dev import requires
 
 try:
-    from aiida.orm import DataFactory
     from aiida.common.exceptions import MissingPluginError
+    from aiida.orm import DataFactory
 
     try:
         StructureData = DataFactory("structure")

@@ -3,15 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-
 import os
+import unittest
 
 import numpy as np
 
 from pymatgen import Structure
-from pymatgen.io.feff.inputs import Atoms, Header, Tags, Potential, Paths
 from pymatgen.io.cif import CifParser
+from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

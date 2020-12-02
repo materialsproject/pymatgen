@@ -13,26 +13,22 @@ v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
        as an interface to spglib for pymatgen Structures.
 """
 
+import copy
 import itertools
 import logging
-from collections import defaultdict
-import copy
 import math
-from math import cos
-from math import sin
+from collections import defaultdict
 from fractions import Fraction
+from math import cos, sin
 
 import numpy as np
-
 import spglib
 
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Molecule, PeriodicSite, Structure
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
-
 
 logger = logging.getLogger(__name__)
 

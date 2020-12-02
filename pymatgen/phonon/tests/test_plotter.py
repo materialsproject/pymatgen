@@ -1,12 +1,13 @@
-import unittest
-import os
 import json
-import scipy
+import os
+import unittest
 from io import open
 
-from pymatgen.phonon.dos import CompletePhononDos
-from pymatgen.phonon.plotter import PhononDosPlotter, PhononBSPlotter, ThermoPlotter
+import scipy
+
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.dos import CompletePhononDos
+from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

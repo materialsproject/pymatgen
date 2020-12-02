@@ -6,18 +6,17 @@
 This module defines classes to represent the density of states, etc.
 """
 
-import warnings
 import functools
+import warnings
 
 import numpy as np
+from monty.json import MSONable
 from scipy.constants.codata import value as _cd
 
-from monty.json import MSONable
-
-from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
+from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
 

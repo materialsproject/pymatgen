@@ -5,22 +5,22 @@
 
 import collections
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.units import (
+    ArrayWithUnit,
     Energy,
-    Time,
+    EnergyArray,
+    FloatWithUnit,
     Length,
-    unitized,
+    LengthArray,
     Mass,
     Memory,
-    EnergyArray,
+    Time,
     TimeArray,
-    LengthArray,
     Unit,
-    FloatWithUnit,
-    ArrayWithUnit,
     UnitError,
+    unitized,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 class UnitTest(PymatgenTest):

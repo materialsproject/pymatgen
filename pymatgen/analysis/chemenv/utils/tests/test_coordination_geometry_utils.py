@@ -3,12 +3,14 @@
 
 __author__ = "waroquiers"
 
-import unittest
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
-import numpy as np
 import itertools
-from pymatgen.util.testing import PymatgenTest
 import random
+import unittest
+
+import numpy as np
+
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
+from pymatgen.util.testing import PymatgenTest
 
 
 class PlanesUtilsTest(PymatgenTest):

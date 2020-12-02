@@ -13,6 +13,7 @@ and PDEntry inherit from this class.
 import copy
 from abc import ABCMeta, abstractmethod
 from typing import Optional
+
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition

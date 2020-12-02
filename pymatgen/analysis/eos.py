@@ -19,7 +19,7 @@ import numpy as np
 from scipy.optimize import leastsq, minimize
 
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt, pretty_plot
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"

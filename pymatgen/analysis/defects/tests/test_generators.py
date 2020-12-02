@@ -5,14 +5,14 @@
 
 import unittest
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.defects.generators import (
-    VacancyGenerator,
-    SubstitutionGenerator,
     InterstitialGenerator,
-    VoronoiInterstitialGenerator,
     SimpleChargeGenerator,
+    SubstitutionGenerator,
+    VacancyGenerator,
+    VoronoiInterstitialGenerator,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 class VacancyGeneratorTest(PymatgenTest):

@@ -2,8 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest

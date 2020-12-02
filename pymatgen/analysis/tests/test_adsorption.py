@@ -1,10 +1,10 @@
 import unittest
 
-from pymatgen.util.testing import PymatgenTest
+from pymatgen import Lattice, Molecule, Structure
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen import Structure, Lattice, Molecule
 from pymatgen.util.coord import in_coord_list
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

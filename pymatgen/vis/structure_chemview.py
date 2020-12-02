@@ -3,9 +3,10 @@ Visualization for structures using chemview.
 """
 
 import numpy as np
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from monty.dev import requires
+
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
     from chemview import MolecularViewer

@@ -17,17 +17,17 @@ __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "$Jun 22, 2013M$"
 
-import subprocess
 import os
 import re
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.bond_valence import BVAnalyzer
+import subprocess
 
 from monty.tempfile import ScratchDir
+
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(

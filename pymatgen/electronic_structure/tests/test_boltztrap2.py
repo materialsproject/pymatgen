@@ -2,24 +2,24 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 import warnings
-
-from pymatgen.io.vasp import Vasprun
-from pymatgen.electronic_structure.core import Spin, OrbitalType
 
 import numpy as np
 from monty.serialization import loadfn
 
+from pymatgen.electronic_structure.core import OrbitalType, Spin
+from pymatgen.io.vasp import Vasprun
+
 try:
     from pymatgen.electronic_structure.boltztrap2 import (
-        VasprunBSLoader,
         BandstructureLoader,
-        VasprunLoader,
         BztInterpolator,
-        BztTransportProperties,
         BztPlotter,
+        BztTransportProperties,
+        VasprunBSLoader,
+        VasprunLoader,
     )
 
     BOLTZTRAP2_PRESENT = True

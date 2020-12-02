@@ -3,45 +3,43 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import pytest
-import os
-from pathlib import Path
-import json
 import gzip
-import numpy as np
+import json
+import os
+import unittest
 import warnings
-
+import xml.etree.cElementTree as ET
+from pathlib import Path
 from shutil import copyfile, copyfileobj
+
+import numpy as np
+import pytest
 from monty.tempfile import ScratchDir
 
-import xml.etree.cElementTree as ET
-
-from pymatgen.electronic_structure.core import OrbitalType
-from pymatgen.io.wannier90 import Unk
+from pymatgen import Lattice, Orbital, Spin, Structure
+from pymatgen.core import Element
+from pymatgen.electronic_structure.core import Magmom, OrbitalType
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import (
+    BSVasprun,
     Chgcar,
+    Dynmat,
+    Eigenval,
+    Elfcar,
     Locpot,
     Oszicar,
     Outcar,
-    Vasprun,
     Procar,
-    Xdatcar,
-    Dynmat,
-    BSVasprun,
     UnconvergedVASPWarning,
     VaspParserError,
+    Vasprun,
     Wavecar,
     Waveder,
-    Elfcar,
-    Eigenval,
+    Xdatcar,
 )
-from pymatgen import Spin, Orbital, Lattice, Structure
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core import Element
 
 
 class VasprunTest(PymatgenTest):

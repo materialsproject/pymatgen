@@ -33,9 +33,7 @@ from monty.json import MSONable
 
 from pymatgen.analysis.excitation import ExcitationSpectrum
 from pymatgen.core.structure import Molecule, Structure
-from pymatgen.core.units import Energy
-from pymatgen.core.units import FloatWithUnit
-
+from pymatgen.core.units import Energy, FloatWithUnit
 
 NWCHEM_BASIS_LIBRARY = None
 if os.environ.get("NWCHEM_BASIS_LIBRARY"):

@@ -7,20 +7,19 @@ This module define the various drones used to assimilate data.
 """
 
 import abc
-import os
 import glob
-import logging
 import json
+import logging
+import os
 import warnings
 
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
-from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
-from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-
+from pymatgen.io.gaussian import GaussianOutput
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar
+from pymatgen.io.vasp.outputs import Dynmat, Oszicar, Vasprun
 
 logger = logging.getLogger(__name__)
 

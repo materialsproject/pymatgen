@@ -7,31 +7,29 @@ This module provides some useful functions for dealing with magnetic Structures
 (e.g. Structures with associated magmom tags).
 """
 
-import warnings
-import numpy as np
-import os
 import logging
-
-from enum import Enum, unique
+import os
+import warnings
 from collections import namedtuple
+from enum import Enum, unique
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from scipy.stats import gaussian_kde
+import numpy as np
+from monty.serialization import loadfn
 from scipy.signal import argrelextrema
+from scipy.stats import gaussian_kde
 
-from pymatgen.core.structure import Species, Structure, Element, DummySpecies
+from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.transformations.standard_transformations import (
-    AutoOxiStateDecorationTransformation,
-)
+from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.transformations.advanced_transformations import (
     MagOrderingTransformation,
     MagOrderParameterConstraint,
 )
-from pymatgen.symmetry.groups import SpaceGroup
-from monty.serialization import loadfn
-
-from typing import Union, List, Dict, Tuple, Optional, Any
+from pymatgen.transformations.standard_transformations import (
+    AutoOxiStateDecorationTransformation,
+)
 from pymatgen.util.typing import Vector3Like
 
 """

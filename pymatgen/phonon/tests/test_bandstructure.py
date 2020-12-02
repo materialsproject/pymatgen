@@ -1,6 +1,6 @@
-import unittest
-import os
 import json
+import os
+import unittest
 from io import open
 
 from pymatgen.phonon.bandstructure import (

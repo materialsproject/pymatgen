@@ -12,35 +12,36 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-import sys
 import itertools
 import json
+import logging
 import platform
 import re
+import sys
 import warnings
-from time import sleep
-from enum import Enum, unique
 from collections import defaultdict
-import logging
+from enum import Enum, unique
+from time import sleep
+
 import requests
 import ruamel.yaml as yaml
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, SETTINGS_FILE, __version__ as pmg_version
+from pymatgen import SETTINGS, SETTINGS_FILE
+from pymatgen import __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.compatibility import (
-    MaterialsProjectCompatibility,
     MaterialsProjectAqueousCompatibility,
+    MaterialsProjectCompatibility,
 )
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import get_chunks, PBar
-
+from pymatgen.util.sequence import PBar, get_chunks
 
 logger = logging.getLogger(__name__)
 
@@ -601,8 +602,8 @@ class MPRester:
                 (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProjectCompatibility
         """
-        from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
+        from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
 
         pbx_entries = []
@@ -1472,8 +1473,8 @@ class MPRester:
         Returns:
             pymatgen.analysis.wulff.WulffShape
         """
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         from pymatgen.analysis.wulff import WulffShape
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]

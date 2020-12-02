@@ -14,8 +14,10 @@ in Chemistry of Materials (2013).
 """
 
 import os
+
 from monty.design_patterns import singleton
-from pymatgen import Element, Composition
+
+from pymatgen import Composition, Element
 
 __author__ = "Anubhav Jain"
 __copyright__ = "Copyright 2014, The Materials Project"

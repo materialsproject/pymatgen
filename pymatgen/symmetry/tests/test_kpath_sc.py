@@ -3,13 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
+from pymatgen.util.testing import PymatgenTest
 
 test_dir_structs = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "space_group_structs"

@@ -2,13 +2,14 @@
 Piezo sensitivity analysis module.
 """
 
-from pymatgen.core.tensors import Tensor
-import pymatgen.io.phonopy
+import warnings
 
 import numpy as np
-import warnings
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 from monty.dev import requires
+
+import pymatgen.io.phonopy
+from pymatgen.core.tensors import Tensor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
 try:
     from phonopy import Phonopy

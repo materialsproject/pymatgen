@@ -4,10 +4,14 @@
 __author__ = "waroquiers"
 
 import unittest
-from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
-from pymatgen.analysis.chemenv.utils.func_utils import CSMInfiniteRatioFunction
-from pymatgen.analysis.chemenv.utils.func_utils import DeltaCSMRatioFunction
+
 import numpy as np
+
+from pymatgen.analysis.chemenv.utils.func_utils import (
+    CSMFiniteRatioFunction,
+    CSMInfiniteRatioFunction,
+    DeltaCSMRatioFunction,
+)
 
 
 class FuncUtilsTest(unittest.TestCase):

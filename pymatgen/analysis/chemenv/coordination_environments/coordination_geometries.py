@@ -20,13 +20,14 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-import numpy as np
-from scipy.special import factorial
-import itertools
 import abc
-from monty.json import MSONable, MontyDecoder
+import itertools
 import json
 import os
+
+import numpy as np
+from monty.json import MontyDecoder, MSONable
+from scipy.special import factorial
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 

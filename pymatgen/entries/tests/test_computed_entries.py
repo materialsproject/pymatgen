@@ -3,26 +3,26 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import pytest
-import os
 import json
-
+import os
+import unittest
 from collections import defaultdict
-from pymatgen.io.vasp.outputs import Vasprun
+
+import pytest
+from monty.json import MontyDecoder
+
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
-    GibbsComputedStructureEntry,
-    EnergyAdjustment,
     ConstantEnergyAdjustment,
-    CompositionEnergyAdjustment,
-    TemperatureEnergyAdjustment,
+    EnergyAdjustment,
+    GibbsComputedStructureEntry,
     ManualEnergyAdjustment,
+    TemperatureEnergyAdjustment,
 )
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-
-from monty.json import MontyDecoder
+from pymatgen.io.vasp.outputs import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

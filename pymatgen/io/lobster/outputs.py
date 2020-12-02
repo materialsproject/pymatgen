@@ -13,14 +13,14 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun

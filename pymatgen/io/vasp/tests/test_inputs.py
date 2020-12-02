@@ -2,30 +2,31 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import pytest  # type: ignore
-import pickle
 import os
-import numpy as np
+import pickle
+import unittest
 import warnings
-import scipy.constants as const
 from pathlib import Path
 
+import numpy as np
+import pytest  # type: ignore
+import scipy.constants as const
+from monty.io import zopen
 from monty.tempfile import ScratchDir
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.vasp.inputs import (
-    Incar,
-    Poscar,
-    Kpoints,
-    Potcar,
-    PotcarSingle,
-    VaspInput,
-    BadIncarWarning,
-    UnknownPotcarWarning,
-)
+
 from pymatgen import Composition, Structure
 from pymatgen.electronic_structure.core import Magmom
-from monty.io import zopen
+from pymatgen.io.vasp.inputs import (
+    BadIncarWarning,
+    Incar,
+    Kpoints,
+    Poscar,
+    Potcar,
+    PotcarSingle,
+    UnknownPotcarWarning,
+    VaspInput,
+)
+from pymatgen.util.testing import PymatgenTest
 
 
 class PoscarTest(PymatgenTest):

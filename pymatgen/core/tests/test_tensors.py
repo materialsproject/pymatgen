@@ -1,9 +1,10 @@
-import unittest
 import math
+import unittest
 
 from monty.serialization import MontyDecoder
-from pymatgen.core.tensors import *
+
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.tensors import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 

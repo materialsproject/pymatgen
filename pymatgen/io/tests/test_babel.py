@@ -15,15 +15,16 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
-import unittest
-import os
 import copy
+import os
+import unittest
 import warnings
-from pymatgen.core.structure import Molecule
-from pymatgen.io.xyz import XYZ
-from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+
 from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.xyz import XYZ
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

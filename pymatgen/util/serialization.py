@@ -7,8 +7,8 @@ Most features of this module has been moved to monty. Please refer to
 monty.json and monty.serialization documentation.
 """
 
-import json
 import functools
+import json
 import pickle
 
 from pymatgen.core.periodic_table import Element

@@ -6,19 +6,18 @@
 import unittest
 
 import numpy as np
+from monty.os.path import which
 
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.site_transformations import (
-    InsertSitesTransformation,
-    TranslateSitesTransformation,
-    ReplaceSiteSpeciesTransformation,
-    RemoveSitesTransformation,
-    PartialRemoveSitesTransformation,
     AddSitePropertyTransformation,
+    InsertSitesTransformation,
+    PartialRemoveSitesTransformation,
+    RemoveSitesTransformation,
+    ReplaceSiteSpeciesTransformation,
+    TranslateSitesTransformation,
 )
 from pymatgen.util.testing import PymatgenTest
-
-from monty.os.path import which
 
 enumlib_present = which("multienum.x") and which("makestr.x")
 

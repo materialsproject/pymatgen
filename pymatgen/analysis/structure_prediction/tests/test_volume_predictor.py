@@ -2,15 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
+import warnings
+
 from pymatgen.analysis.structure_prediction.volume_predictor import (
     DLSVolumePredictor,
     RLSVolumePredictor,
 )
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core import Structure
-import warnings
+from pymatgen.util.testing import PymatgenTest
 
 dir_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 

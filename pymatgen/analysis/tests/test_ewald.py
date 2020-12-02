@@ -3,13 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 import warnings
 
-from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.io.vasp.inputs import Poscar
 import numpy as np
+
+from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
+from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

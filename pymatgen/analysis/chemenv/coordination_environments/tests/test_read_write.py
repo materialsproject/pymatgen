@@ -3,48 +3,34 @@
 
 __author__ = "waroquiers"
 
-import unittest
-import os
 import json
+import os
 import shutil
+import unittest
+
+import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AngleNbSetWeight,
+    CNBiasNbSetWeight,
+    DeltaCSMNbSetWeight,
+    DistanceAngleAreaNbSetWeight,
+    MultiWeightsChemenvStrategy,
+    NormalizedAngleDistanceNbSetWeight,
+    SelfCSMNbSetWeight,
+    SimplestChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     LocalGeometryFinder,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    StructureEnvironments,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    MultiWeightsChemenvStrategy,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    AngleNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    CNBiasNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    DeltaCSMNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    DistanceAngleAreaNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    NormalizedAngleDistanceNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SelfCSMNbSetWeight,
+    StructureEnvironments,
 )
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
 from pymatgen.core.structure import Structure
-import numpy as np
 
 json_files_dir = os.path.join(
     os.path.dirname(__file__),

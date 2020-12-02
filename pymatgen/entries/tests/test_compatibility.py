@@ -18,29 +18,29 @@ __date__ = "Mar 19, 2012"
 
 import os
 import unittest
-import pytest
-
-from math import sqrt
 from collections import defaultdict
+from math import sqrt
 
+import pytest
 from monty.json import MontyDecoder
+
+from pymatgen import Composition, Element, Lattice, Structure
 from pymatgen.entries.compatibility import (
+    MU_H2O,
+    AqueousCorrection,
     Compatibility,
     CompatibilityError,
-    MaterialsProjectCompatibility,
-    MITCompatibility,
-    AqueousCorrection,
-    MITAqueousCompatibility,
     MaterialsProject2020Compatibility,
     MaterialsProjectAqueousCompatibility,
-    MU_H2O,
+    MaterialsProjectCompatibility,
+    MITAqueousCompatibility,
+    MITCompatibility,
 )
 from pymatgen.entries.computed_entries import (
     ComputedEntry,
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
-from pymatgen import Composition, Lattice, Structure, Element
 
 
 # abstract Compatibility tests

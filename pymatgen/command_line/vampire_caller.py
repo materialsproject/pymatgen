@@ -17,16 +17,15 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
-import subprocess
 import logging
-import pandas as pd
+import subprocess
 
+import pandas as pd
 from monty.dev import requires
-from monty.os.path import which
 from monty.json import MSONable
+from monty.os.path import which
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"

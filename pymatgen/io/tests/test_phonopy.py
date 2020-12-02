@@ -1,19 +1,19 @@
 import os
-import unittest
 import sys
+import unittest
 from pathlib import Path
 
-from pymatgen.core.periodic_table import Element
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.phonopy import *
-
 from monty.tempfile import ScratchDir
+
+from pymatgen.core.periodic_table import Element
+from pymatgen.io.phonopy import *
+from pymatgen.util.testing import PymatgenTest
 
 if sys.version_info >= (3, 0):
     try:
         from phonopy import Phonopy
+        from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
         from phonopy.structure.atoms import PhonopyAtoms
-        from phonopy.file_IO import write_disp_yaml, parse_FORCE_CONSTANTS
     except ImportError:
         Phonopy = None
 else:

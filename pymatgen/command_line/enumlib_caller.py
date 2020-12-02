@@ -28,26 +28,26 @@ superstructures for systems with high configurational freedom," Comp. Mat.
 Sci. 136 144-149 (May 2017)
 """
 
-import re
-import math
-import subprocess
+import fractions
+import glob
 import itertools
 import logging
-import glob
+import math
+import re
+import subprocess
 from threading import Timer
-import fractions
 
 import numpy as np
+from monty.dev import requires
 from monty.fractions import lcm
 from monty.os.path import which
-from monty.dev import requires
 from monty.tempfile import ScratchDir
 
-from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecies
 
 logger = logging.getLogger(__name__)
 

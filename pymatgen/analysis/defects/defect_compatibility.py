@@ -9,16 +9,17 @@ defects
 """
 
 import logging
+
 from monty.json import MSONable
-from pymatgen.core import Structure
+
+from pymatgen.analysis.defects.core import Vacancy
 from pymatgen.analysis.defects.corrections import (
+    BandEdgeShiftingCorrection,
+    BandFillingCorrection,
     FreysoldtCorrection,
     KumagaiCorrection,
-    BandFillingCorrection,
-    BandEdgeShiftingCorrection,
 )
-from pymatgen.analysis.defects.core import Vacancy
-
+from pymatgen.core import Structure
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

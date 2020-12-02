@@ -3,12 +3,14 @@
 
 __author__ = "waroquiers"
 
-import networkx as nx
 import os
 import shutil
+
+import networkx as nx
+
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import (
-    get_environment_node,
     EnvironmentNode,
+    get_environment_node,
 )
 from pymatgen.util.testing import PymatgenTest
 

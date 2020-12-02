@@ -5,8 +5,8 @@
 
 import unittest
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.molecular_orbitals import MolecularOrbitals
+from pymatgen.util.testing import PymatgenTest
 
 test_case = MolecularOrbitals("NaCl")
 

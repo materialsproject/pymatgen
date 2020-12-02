@@ -3,13 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
-import numpy as np
 from pathlib import Path
 from typing import Sequence
 
+import numpy as np
+
+from pymatgen import Molecule, Structure
+from pymatgen.io.cp2k.inputs import Coord, Cp2kInput, Keyword, KeywordList, Kind
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.cp2k.inputs import Keyword, KeywordList, Cp2kInput, Coord, Kind
-from pymatgen import Structure, Molecule
 
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],

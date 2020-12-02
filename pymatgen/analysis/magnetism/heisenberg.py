@@ -8,23 +8,21 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+import copy
 import logging
 import sys
 from ast import literal_eval
-import copy
 
 import numpy as np
 import pandas as pd
-
-from monty.serialization import dumpfn
 from monty.json import MSONable, jsanitize
+from monty.serialization import dumpfn
 
-from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen import Structure
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen import Structure
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"

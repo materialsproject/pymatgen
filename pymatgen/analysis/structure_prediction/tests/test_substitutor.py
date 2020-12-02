@@ -3,13 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
+import os
+import unittest
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Species
 from pymatgen.util.testing import PymatgenTest
 
 

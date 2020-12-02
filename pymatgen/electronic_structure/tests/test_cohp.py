@@ -2,17 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import json
 import os
+import unittest
 
 from pymatgen.electronic_structure.cohp import (
-    CompleteCohp,
     Cohp,
-    IcohpValue,
+    CompleteCohp,
     IcohpCollection,
+    IcohpValue,
 )
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(

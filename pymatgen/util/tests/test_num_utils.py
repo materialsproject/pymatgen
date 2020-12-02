@@ -2,8 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import random
+import unittest
+
 from pymatgen.util.num import abs_cap, min_max_indexes, round_to_sigfigs
 
 __author__ = "Shyue Ping Ong"

@@ -3,24 +3,25 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
-from monty.serialization import loadfn
-import warnings
-import numpy as np
-import multiprocessing
 import logging
+import multiprocessing
+import os
+import unittest
+import warnings
 
+import numpy as np
+from monty.serialization import loadfn
+
+from pymatgen import SETTINGS
 from pymatgen.analysis.pourbaix_diagram import (
+    IonEntry,
+    MultiEntry,
     PourbaixDiagram,
     PourbaixEntry,
     PourbaixPlotter,
-    IonEntry,
-    MultiEntry,
 )
-from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.ion import Ion
-from pymatgen import SETTINGS
+from pymatgen.entries.computed_entries import ComputedEntry
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 logger = logging.getLogger(__name__)

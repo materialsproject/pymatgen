@@ -2,15 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core import Element
-from monty.json import MontyDecoder
-import numpy as np
-import unittest
-import warnings
 import json
 import os
+import unittest
+import warnings
+
+import numpy as np
+from monty.json import MontyDecoder
+
+from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
+from pymatgen.core import Element
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files/spectrum_test"

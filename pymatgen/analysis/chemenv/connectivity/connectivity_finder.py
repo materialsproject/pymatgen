@@ -1,8 +1,10 @@
+import logging
+
+import numpy as np
+
 from pymatgen.analysis.chemenv.connectivity.structure_connectivity import (
     StructureConnectivity,
 )
-import logging
-import numpy as np
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"

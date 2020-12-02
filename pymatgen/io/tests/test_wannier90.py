@@ -8,8 +8,9 @@ Tests for pymatgen.io.wannier90
 
 import numpy as np
 from monty.tempfile import ScratchDir
-from pymatgen.util.testing import PymatgenTest
+
 from pymatgen.io.wannier90 import Unk
+from pymatgen.util.testing import PymatgenTest
 
 
 class UnkTest(PymatgenTest):

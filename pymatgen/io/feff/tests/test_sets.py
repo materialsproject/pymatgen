@@ -3,16 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 
+import os
+import shutil
 import unittest
 
-import os
+import numpy as np
 
 from pymatgen import Structure
-from pymatgen.io.feff.sets import MPXANESSet, MPELNESSet, FEFFDictSet, MPEXAFSSet
-from pymatgen.io.feff.inputs import Potential, Tags, Atoms, Header
-from pymatgen.io.cif import CifParser, CifFile
-import shutil
-import numpy as np
+from pymatgen.io.cif import CifFile, CifParser
+from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
+from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

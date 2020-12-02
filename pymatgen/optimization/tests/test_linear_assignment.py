@@ -5,8 +5,9 @@
 
 import unittest
 
-from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
 import numpy as np
+
+from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
 
 
 class LinearAssignmentTest(unittest.TestCase):

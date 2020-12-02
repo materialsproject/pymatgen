@@ -3,9 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-
 import os
+import unittest
 
 from pymatgen.io.feff.outputs import LDos, Xmu
 

@@ -2,32 +2,32 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
+import os
+import unittest
 import warnings
 from io import open
 
 import scipy
-
 from monty.os.path import which
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.cohp import CompleteCohp
-from pymatgen.electronic_structure.dos import CompleteDos
+
+from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
+from pymatgen.electronic_structure.cohp import CompleteCohp
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import (
-    DosPlotter,
+    BoltztrapPlotter,
+    BSDOSPlotter,
     BSPlotter,
-    plot_ellipsoid,
+    BSPlotterProjected,
+    CohpPlotter,
+    DosPlotter,
     fold_point,
     plot_brillouin_zone,
-    BSPlotterProjected,
-    BSDOSPlotter,
-    CohpPlotter,
-    BoltztrapPlotter,
+    plot_ellipsoid,
 )
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 

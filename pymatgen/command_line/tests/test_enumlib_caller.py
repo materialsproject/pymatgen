@@ -2,17 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 import warnings
-from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
-from pymatgen import Element, Structure
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-from monty.os.path import which
-from pymatgen.transformations.site_transformations import RemoveSitesTransformation
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+from monty.os.path import which
+
+from pymatgen import Element, Structure
+from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.site_transformations import RemoveSitesTransformation
+from pymatgen.transformations.standard_transformations import SubstitutionTransformation
+from pymatgen.util.testing import PymatgenTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")

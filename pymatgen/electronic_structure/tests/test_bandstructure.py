@@ -3,25 +3,25 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
-from io import open
+import os
+import unittest
 import warnings
-
-from pymatgen.electronic_structure.bandstructure import Kpoint
-from pymatgen.electronic_structure.plotter import BSPlotterProjected
-from pymatgen import Lattice
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.io.vasp import BSVasprun
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine,
-    get_reconstructed_band_structure,
-    LobsterBandStructureSymmLine,
-)
-from pymatgen.util.testing import PymatgenTest
+from io import open
 
 from monty.serialization import loadfn
+
+from pymatgen import Lattice
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructureSymmLine,
+    Kpoint,
+    LobsterBandStructureSymmLine,
+    get_reconstructed_band_structure,
+)
+from pymatgen.electronic_structure.core import Orbital, Spin
+from pymatgen.electronic_structure.plotter import BSPlotterProjected
+from pymatgen.io.vasp import BSVasprun
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

@@ -7,18 +7,18 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 """
 
 import logging
-import numpy as np
-from monty.json import MSONable
-from scipy.spatial import HalfspaceIntersection
-from scipy.optimize import bisect
 from itertools import chain
 
-from pymatgen.electronic_structure.dos import FermiDos
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+import numpy as np
+from monty.json import MSONable
+from scipy.optimize import bisect
+from scipy.spatial import HalfspaceIntersection
+
 from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.structure_matcher import PointDefectComparator
-
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+from pymatgen.electronic_structure.dos import FermiDos
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

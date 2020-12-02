@@ -1,10 +1,10 @@
 import unittest
-
-import numpy as np
 import warnings
 
-from pymatgen.analysis.elasticity.stress import Stress
+import numpy as np
+
 from pymatgen.analysis.elasticity.strain import Deformation
+from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
 
 

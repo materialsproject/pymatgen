@@ -4,6 +4,7 @@
 
 
 import random
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord import *
 from pymatgen.util.testing import PymatgenTest

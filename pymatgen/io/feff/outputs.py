@@ -10,16 +10,15 @@ Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
 """
 
 
-from collections import defaultdict, OrderedDict
 import re
+from collections import OrderedDict, defaultdict
 
 import numpy as np
-
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen import Orbital, Spin, Element
-from pymatgen.electronic_structure.dos import Dos, CompleteDos
+from pymatgen import Element, Orbital, Spin
+from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.feff import Header, Potential, Tags
 
 __author__ = "Alan Dozier, Kiran Mathew, Chen Zheng"

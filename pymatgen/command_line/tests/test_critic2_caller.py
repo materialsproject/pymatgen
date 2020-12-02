@@ -4,9 +4,10 @@
 
 import unittest
 
-from pymatgen.core.structure import Structure
-from pymatgen.command_line.critic2_caller import *
 from monty.os.path import which
+
+from pymatgen.command_line.critic2_caller import *
+from pymatgen.core.structure import Structure
 
 __author__ = "Matthew Horton"
 __version__ = "0.1"

@@ -1,13 +1,14 @@
-import warnings
 import unittest as unittest
-import numpy as np
+import warnings
 
+import numpy as np
 from scipy.spatial import ConvexHull
+
 from pymatgen import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.analysis.phase_diagram import PhaseDiagram, GrandPotentialPhaseDiagram
-from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.analysis.interface_reactions import InterfacialReactivity
+from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
+from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class InterfaceReactionTest(unittest.TestCase):

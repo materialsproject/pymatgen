@@ -12,21 +12,18 @@ import itertools
 import os
 
 import numpy as np
-from scipy.spatial import Delaunay
-
 from matplotlib import patches
 from matplotlib.path import Path
-
 from monty.serialization import loadfn
+from scipy.spatial import Delaunay
 
 from pymatgen import Structure, vis
+from pymatgen.analysis.local_env import VoronoiNN
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
-from pymatgen.analysis.local_env import VoronoiNN
-from pymatgen.core.surface import generate_all_slabs
-from pymatgen.analysis.structure_matcher import StructureMatcher
-
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"

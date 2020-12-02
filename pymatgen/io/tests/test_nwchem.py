@@ -3,12 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
+import os
+import unittest
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
+from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "nwchem"

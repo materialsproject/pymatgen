@@ -13,9 +13,8 @@ import sys
 from tabulate import tabulate
 
 from pymatgen import Structure
-
+from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

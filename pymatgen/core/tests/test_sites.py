@@ -3,16 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 
-import numpy as np
 import pickle
 import timeit
 
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.electronic_structure.core import Magmom
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.sites import Site, PeriodicSite
-from pymatgen.core.lattice import Lattice
+import numpy as np
+
 from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.sites import PeriodicSite, Site
+from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.testing import PymatgenTest
 
 
 class SiteTest(PymatgenTest):

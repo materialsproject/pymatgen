@@ -9,15 +9,15 @@ by extracting information from the main output file (text format).
 """
 
 import os
-from collections.abc import Mapping, Iterable, Iterator
 from collections import OrderedDict
+from collections.abc import Iterable, Iterator, Mapping
 
 import numpy as np
 import ruamel.yaml as yaml
-
-from tabulate import tabulate
-from monty.functools import lazy_property
 from monty.collections import AttrDict
+from monty.functools import lazy_property
+from tabulate import tabulate
+
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 

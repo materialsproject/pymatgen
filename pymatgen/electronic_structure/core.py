@@ -10,7 +10,6 @@ such as the Spin, Orbital, etc.
 from enum import Enum, unique
 
 import numpy as np
-
 from monty.json import MSONable
 
 

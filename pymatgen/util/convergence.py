@@ -19,10 +19,10 @@ returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true 
 for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value
 """
 
-import string
 import random
-import numpy as np
+import string
 
+import numpy as np
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

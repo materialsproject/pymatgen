@@ -3,9 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
+import os
+import unittest
 
 from monty.json import MontyDecoder
 

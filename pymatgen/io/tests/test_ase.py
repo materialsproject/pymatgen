@@ -3,12 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
+import pymatgen.io.ase as aio
 from pymatgen import Composition, Molecule
 from pymatgen.io.vasp.inputs import Poscar
-import pymatgen.io.ase as aio
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

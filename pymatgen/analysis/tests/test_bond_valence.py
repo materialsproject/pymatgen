@@ -3,17 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Species
 from pymatgen.analysis.bond_valence import (
     BVAnalyzer,
     calculate_bv_sum,
     calculate_bv_sum_unordered,
 )
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Species
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")

@@ -6,9 +6,11 @@
 This module implements core classes for calculation of diffraction patterns.
 """
 
-import collections
 import abc
+import collections
+
 import numpy as np
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs
 

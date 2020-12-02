@@ -7,19 +7,20 @@
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
 
-import collections
 import abc
-from pprint import pformat
+import collections
 from enum import Enum
+from pprint import pformat
 
 import numpy as np
-from monty.design_patterns import singleton
 from monty.collections import AttrDict
-from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.design_patterns import singleton
+from monty.json import MontyDecoder, MontyEncoder, MSONable
+
 import pymatgen.core.units as units
-from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.util.serialization import pmg_serialize
 
 

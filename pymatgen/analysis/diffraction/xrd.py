@@ -6,19 +6,19 @@
 This module implements an XRD pattern calculator.
 """
 
-import os
 import json
-from math import sin, cos, asin, pi, degrees, radians
+import os
+from math import asin, cos, degrees, pi, radians, sin
 
 import numpy as np
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 from .core import (
-    DiffractionPattern,
     AbstractDiffractionPatternCalculator,
+    DiffractionPattern,
     get_unique_families,
 )
-
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {

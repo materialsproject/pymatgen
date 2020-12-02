@@ -6,20 +6,19 @@
 This module provides classes for calculating the ewald sum of a structure.
 """
 
-from math import pi, sqrt, log
-from datetime import datetime
-from copy import deepcopy, copy
-from warnings import warn
 import bisect
+from copy import copy, deepcopy
+from datetime import datetime
+from math import log, pi, sqrt
 from typing import Dict
+from warnings import warn
 
 import numpy as np
-from scipy.special import erfc, comb
 import scipy.constants as constants
-
 from monty.json import MSONable
-from pymatgen.core.structure import Structure
+from scipy.special import comb, erfc
 
+from pymatgen.core.structure import Structure
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"

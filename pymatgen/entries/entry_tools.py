@@ -15,23 +15,23 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 24, 2012"
 
-import logging
-import json
-import datetime
 import collections
-import itertools
 import csv
+import datetime
+import itertools
+import json
+import logging
 import re
+from typing import Iterable, List, Set, Union
 
-from typing import List, Union, Iterable, Set
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition
-from pymatgen.analysis.phase_diagram import PDEntry
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-from monty.json import MontyEncoder, MontyDecoder, MSONable
+from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
 
-from pymatgen.analysis.structure_matcher import StructureMatcher, SpeciesComparator
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
 

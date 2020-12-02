@@ -3,14 +3,13 @@ Predicting potential dopants
 """
 
 import warnings
-import numpy as np
 
+import numpy as np
 
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
 )
-
-from pymatgen.core.periodic_table import Species, Element
+from pymatgen.core.periodic_table import Element, Species
 
 
 def get_dopants_from_substitution_probabilities(

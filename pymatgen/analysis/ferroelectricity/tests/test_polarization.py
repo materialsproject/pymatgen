@@ -1,12 +1,13 @@
+import os
 import unittest
 
-import os
+import numpy as np
+
 from pymatgen.analysis.ferroelectricity.polarization import *
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.io.vasp.inputs import Potcar
+from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import PymatgenTest
-import numpy as np
 
 test_dir = os.path.join(
     os.path.dirname(__file__),

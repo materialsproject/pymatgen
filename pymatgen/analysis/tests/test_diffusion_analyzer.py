@@ -3,22 +3,23 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
-import json
-import random
-import numpy as np
 import csv
+import json
+import os
+import random
+import unittest
+
+import numpy as np
 import scipy.constants as const
+from monty.tempfile import ScratchDir
 
 from pymatgen.analysis.diffusion_analyzer import (
     DiffusionAnalyzer,
-    get_conversion_factor,
     fit_arrhenius,
+    get_conversion_factor,
 )
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
-from monty.tempfile import ScratchDir
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
@@ -474,7 +475,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             os.remove("test.csv")
 
     def test_from_structure_NPT(self):
-        from pymatgen import Structure, Lattice
+        from pymatgen import Lattice, Structure
 
         coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
         coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]])

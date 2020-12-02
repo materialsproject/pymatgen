@@ -10,21 +10,21 @@ import itertools
 import os
 import warnings
 from fnmatch import fnmatch
-from typing import List, Union, Sequence
+from typing import List, Sequence, Union
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-from pymatgen.core.structure import (
-    Structure,
-    Lattice,
-    Element,
-    Species,
-    DummySpecies,
-    Composition,
-)
-from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
 
+from pymatgen.core.structure import (
+    Composition,
+    DummySpecies,
+    Element,
+    Lattice,
+    Species,
+    Structure,
+)
+from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath"
 __version__ = "0.0"

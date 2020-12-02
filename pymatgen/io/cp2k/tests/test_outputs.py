@@ -5,8 +5,8 @@
 import unittest
 from pathlib import Path
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cp2k.outputs import Cp2kOutput
+from pymatgen.util.testing import PymatgenTest
 
 
 class SetTest(PymatgenTest):

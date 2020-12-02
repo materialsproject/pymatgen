@@ -6,13 +6,12 @@
 This module implements symmetry-related structure forms.
 """
 
-from typing import Sequence, List
+from typing import List, Sequence
 
 import numpy as np
-
 from tabulate import tabulate
 
-from pymatgen.core.structure import Structure, PeriodicSite
+from pymatgen.core.structure import PeriodicSite, Structure
 
 
 class SymmetrizedStructure(Structure):

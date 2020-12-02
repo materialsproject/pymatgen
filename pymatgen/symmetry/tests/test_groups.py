@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import unittest
-import numpy as np
 import warnings
+
+import numpy as np
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import PointGroup, SpaceGroup, _get_symm_data

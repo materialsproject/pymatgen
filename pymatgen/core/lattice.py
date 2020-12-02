@@ -6,26 +6,23 @@
 Defines the classes relating to 3D lattices.
 """
 
-import math
-import itertools
-import warnings
-from functools import reduce
 import collections
-
+import itertools
+import math
+import warnings
 from fractions import Fraction
-from typing import List, Union, Dict, Tuple, Iterator, Optional, Sequence
+from functools import reduce
+from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from numpy.linalg import inv
-from numpy import pi, dot, transpose
-
-from monty.json import MSONable
 from monty.dev import deprecated
+from monty.json import MSONable
+from numpy import dot, pi, transpose
+from numpy.linalg import inv
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
 from pymatgen.util.typing import Vector3Like
-
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1105,7 +1102,9 @@ class Lattice(MSONable):
         """
         try:
             # pylint: disable=C0415
-            from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+            from pymatgen.optimization.neighbors import (
+                find_points_in_spheres,  # type: ignore
+            )
         except ImportError:
             return self.get_points_in_sphere_py(
                 frac_points=frac_points, center=center, r=r, zip_results=zip_results

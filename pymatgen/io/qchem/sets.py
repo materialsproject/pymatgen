@@ -8,10 +8,11 @@ Input sets for Qchem
 
 import logging
 import os
+
 from monty.io import zopen
+
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
-
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

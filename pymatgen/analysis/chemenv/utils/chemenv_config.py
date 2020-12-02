@@ -2,12 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
-from os.path import expanduser, exists
-from os import makedirs
 import json
+from os import makedirs
+from os.path import exists, expanduser
 
 from pymatgen import SETTINGS
+from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 
 """
 This module contains the classes for configuration of the chemenv package.

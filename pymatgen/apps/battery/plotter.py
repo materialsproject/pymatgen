@@ -17,6 +17,7 @@ __date__ = "Jul 12, 2012"
 
 
 from collections import OrderedDict
+
 from pymatgen.util.plotting import pretty_plot
 
 

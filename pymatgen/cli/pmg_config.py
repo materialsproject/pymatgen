@@ -8,14 +8,14 @@ Implementation for `pmg config` CLI.
 """
 
 
-import os
-import sys
 import glob
+import os
 import shutil
 import subprocess
+import sys
 from urllib.request import urlretrieve
 
-from monty.serialization import loadfn, dumpfn
+from monty.serialization import dumpfn, loadfn
 
 from pymatgen import SETTINGS_FILE
 

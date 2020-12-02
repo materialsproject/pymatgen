@@ -19,23 +19,21 @@ citing the following papers::
 """
 
 
-import warnings
 import multiprocessing
+import warnings
 
 import numpy as np
 import scipy.constants as const
-
 from monty.json import MSONable
 
 from pymatgen.analysis.structure_matcher import (
-    StructureMatcher,
     OrderDisorderElementComparator,
+    StructureMatcher,
 )
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord import pbc_diff
-
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"

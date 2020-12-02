@@ -27,27 +27,27 @@ TODO:
 - handle magnetic moments (magmom)
 """
 import warnings
-import numpy as np
+
 import matplotlib.pyplot as plt
-from tqdm import tqdm
+import numpy as np
 from monty.serialization import dumpfn, loadfn
-from pymatgen.symmetry.bandstructure import HighSymmKpath
+from tqdm import tqdm
+
 from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine,
     BandStructure,
+    BandStructureSymmLine,
     Spin,
 )
-from pymatgen.io.vasp import Vasprun
-from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.electronic_structure.dos import Dos, CompleteDos, Orbital
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
+from pymatgen.electronic_structure.dos import CompleteDos, Dos, Orbital
 from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.io.vasp import Vasprun
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 try:
-    from BoltzTraP2 import sphere
-    from BoltzTraP2 import fite
     from BoltzTraP2 import bandlib as BL
-    from BoltzTraP2 import units
+    from BoltzTraP2 import fite, sphere, units
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
 

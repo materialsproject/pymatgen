@@ -30,11 +30,10 @@ stipulated by the COD developers)::
     Structure Database". American Mineralogist 88, 247-250.
 """
 
-import subprocess
 import re
+import subprocess
 
 import requests
-
 from monty.dev import requires
 from monty.os.path import which
 

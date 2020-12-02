@@ -7,13 +7,13 @@ This module provides utility classes for io operations.
 """
 
 
-import re
+import codecs
 import errno
 import os
+import re
 import tempfile
-import codecs
-from monty.io import zopen
 
+from monty.io import zopen
 
 __author__ = (
     "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"

@@ -1,26 +1,29 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+import random
 import re
 import unittest
 import warnings
-import random
+
 import ruamel.yaml as yaml
-from pymatgen import SETTINGS, __version__ as pmg_version, SETTINGS_FILE
-from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure, Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine,
-    BandStructure,
-)
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+
+from pymatgen import SETTINGS, SETTINGS_FILE
+from pymatgen import __version__ as pmg_version
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
-from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Composition, Structure
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructure,
+    BandStructureSymmLine,
+)
+from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos

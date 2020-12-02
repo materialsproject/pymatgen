@@ -7,5 +7,5 @@ Package for analyzing elastic tensors and properties.
 """
 
 from .elastic import *
-from .stress import *
 from .strain import *
+from .stress import *

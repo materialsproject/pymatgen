@@ -10,22 +10,21 @@ structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
 """
 
-import os
 import abc
-import json
 import copy
+import json
+import os
 from itertools import combinations
 from typing import List, Optional
 
 import numpy as np
-from scipy.interpolate import interp1d
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+from scipy.interpolate import interp1d
 from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
-
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"

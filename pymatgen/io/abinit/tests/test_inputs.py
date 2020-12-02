@@ -3,22 +3,23 @@
 # Distributed under the terms of the MIT License.
 
 import os
-import unittest
 import tempfile
+import unittest
+
 import numpy as np
 
 from pymatgen import Structure
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.inputs import (
     BasicAbinitInput,
     BasicMultiDataset,
-    calc_shiftk,
-    num_valence_electrons,
     ShiftMode,
-    gs_input,
+    calc_shiftk,
     ebands_input,
+    gs_input,
     ion_ioncell_relax_input,
+    num_valence_electrons,
 )
+from pymatgen.util.testing import PymatgenTest
 
 _test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"

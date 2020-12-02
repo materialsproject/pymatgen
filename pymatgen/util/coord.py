@@ -9,8 +9,8 @@ boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
 
-import math
 import itertools
+import math
 
 import numpy as np
 

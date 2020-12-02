@@ -8,6 +8,7 @@ This module defines generic plotters.
 
 import collections
 import importlib
+
 from pymatgen.util.plotting import pretty_plot
 
 

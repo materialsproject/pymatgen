@@ -9,20 +9,20 @@ and a ChemicalPotential class to represent potentials.
 
 import collections
 import numbers
-import string
-from itertools import combinations_with_replacement, product
 import os
 import re
-from typing import Tuple, List
+import string
 from functools import total_ordering
+from itertools import combinations_with_replacement, product
+from typing import List, Tuple
 
-from monty.serialization import loadfn
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
+from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import get_el_sp, Element, Species, DummySpecies
-from pymatgen.util.string import formula_double_format
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.units import Mass
+from pymatgen.util.string import formula_double_format
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

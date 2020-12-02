@@ -11,12 +11,12 @@ import logging
 import warnings
 from fractions import Fraction
 from functools import reduce
-from math import gcd, floor, cos
+from math import cos, floor, gcd
 
 import numpy as np
 from monty.fractions import lcm
 
-from pymatgen import Structure, Lattice
+from pymatgen import Lattice, Structure
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

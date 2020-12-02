@@ -1,11 +1,13 @@
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.vasp.outputs import Xdatcar
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.trajectory import Trajectory
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-import numpy as np
 import os
+
+import numpy as np
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.trajectory import Trajectory
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.vasp.outputs import Xdatcar
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

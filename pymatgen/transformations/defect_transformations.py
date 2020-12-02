@@ -8,7 +8,6 @@ This module defines classes for point defect transformations on structures
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
-
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"

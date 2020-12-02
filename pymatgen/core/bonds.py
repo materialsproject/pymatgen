@@ -7,9 +7,9 @@ This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
 """
 
-import os
-import json
 import collections
+import json
+import os
 import warnings
 
 from pymatgen.core.periodic_table import Element

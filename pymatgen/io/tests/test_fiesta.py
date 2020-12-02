@@ -1,7 +1,7 @@
 # coding: utf-8
 
-import unittest
 import os
+import unittest
 
 from pymatgen import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput

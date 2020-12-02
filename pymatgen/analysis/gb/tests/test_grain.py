@@ -3,13 +3,15 @@ __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __email__ = "xil110@eng.ucsd.edu"
 __date__ = "07/30/18"
 
-from pymatgen.util.testing import PymatgenTest
 import os
 import unittest
-import numpy as np
 import warnings
+
+import numpy as np
+
 from pymatgen import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "grain_boundary"

@@ -4,8 +4,9 @@
 
 
 import os
-from unittest import TestCase
 import unittest
+from unittest import TestCase
+
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
 

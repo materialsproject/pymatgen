@@ -11,12 +11,11 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
-from collections.abc import Sequence
 import abc
-
-from scipy.constants import N_A
+from collections.abc import Sequence
 
 from monty.json import MSONable
+from scipy.constants import N_A
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

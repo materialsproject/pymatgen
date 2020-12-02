@@ -6,16 +6,15 @@
 This module contains the classes to build a ConversionElectrode.
 """
 
+from monty.json import MontyDecoder
 from scipy.constants import N_A
 
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.reaction_calculator import BalancedReaction
+from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
+from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.units import Charge, Time
-
-from pymatgen.analysis.reaction_calculator import BalancedReaction
-from pymatgen.core.composition import Composition
-from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-from monty.json import MontyDecoder
 
 
 class ConversionElectrode(AbstractElectrode):

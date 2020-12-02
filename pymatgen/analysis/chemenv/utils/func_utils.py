@@ -18,12 +18,14 @@ __date__ = "Feb 20, 2016"
 from typing import Dict
 
 import numpy as np
+
 from pymatgen.analysis.chemenv.utils.math_utils import (
-    power2_inverse_decreasing,
     power2_decreasing_exp,
+    power2_inverse_decreasing,
+    power2_inverse_power2_decreasing,
+    smootherstep,
+    smoothstep,
 )
-from pymatgen.analysis.chemenv.utils.math_utils import smoothstep, smootherstep
-from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_power2_decreasing
 
 
 class AbstractRatioFunction:

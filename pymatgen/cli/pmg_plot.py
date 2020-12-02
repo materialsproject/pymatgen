@@ -8,11 +8,12 @@ Implementation for `pmg plot` CLI.
 """
 
 from collections import OrderedDict
+
 from pymatgen import Structure
-from pymatgen.electronic_structure.plotter import DosPlotter
-from pymatgen.io.vasp import Vasprun, Chgcar
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
+from pymatgen.electronic_structure.plotter import DosPlotter
+from pymatgen.io.vasp import Chgcar, Vasprun
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 def get_dos_plot(args):

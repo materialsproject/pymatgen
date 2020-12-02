@@ -10,19 +10,16 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
-import os
 import glob
+import os
 
 import numpy as np
-
+from monty.json import MSONable, jsanitize
 from scipy.interpolate import CubicSpline
 
-from monty.json import jsanitize
-from monty.json import MSONable
-
-from pymatgen.util.plotting import pretty_plot
-from pymatgen.io.vasp import Poscar, Outcar
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.io.vasp import Outcar, Poscar
+from pymatgen.util.plotting import pretty_plot
 
 
 class NEBAnalysis(MSONable):

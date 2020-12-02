@@ -3,8 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 
-import numpy as np
 import unittest
+
+import numpy as np
 
 from pymatgen.analysis.eos import EOS, NumericalEOS
 from pymatgen.util.testing import PymatgenTest

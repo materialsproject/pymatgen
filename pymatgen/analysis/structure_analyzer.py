@@ -11,16 +11,15 @@ __copyright__ = "Copyright 2011, The Materials Project"
 
 import collections
 import itertools
-from math import pi, acos
+from math import acos, pi
 from warnings import warn
 
 import numpy as np
-from scipy.spatial import Voronoi
 from monty.dev import deprecated
+from scipy.spatial import Voronoi
 
-from pymatgen import Element, Species, Composition
-from pymatgen import PeriodicSite
-from pymatgen.analysis.local_env import VoronoiNN, JmolNN
+from pymatgen import Composition, Element, PeriodicSite, Species
+from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap

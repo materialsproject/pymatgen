@@ -2,27 +2,28 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-from pathlib import Path
-import warnings
-import random
 import os
-import numpy as np
+import random
+import unittest
+import warnings
+from pathlib import Path
 
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.composition import Composition
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import (
-    IStructure,
-    Structure,
-    IMolecule,
-    StructureError,
-    Molecule,
-)
-from pymatgen.core.lattice import Lattice
-from pymatgen.electronic_structure.core import Magmom
+import numpy as np
 from monty.os.path import which
+
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.structure import (
+    IMolecule,
+    IStructure,
+    Molecule,
+    Structure,
+    StructureError,
+)
+from pymatgen.electronic_structure.core import Magmom
+from pymatgen.util.testing import PymatgenTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 mcsqs_cmd = which("mcsqs")

@@ -14,34 +14,35 @@ Fast computation of many-element Pourbaix diagrams:
     Patel et al., https://arxiv.org/abs/1909.00035 (submitted)
 """
 
-import logging
 import itertools
+import logging
 import re
-from copy import deepcopy
 import warnings
+from copy import deepcopy
+from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
 
-from functools import cmp_to_key, partial, lru_cache
 import numpy as np
-from monty.json import MSONable, MontyDecoder
+from monty.json import MontyDecoder, MSONable
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 try:
     from scipy.special import comb
 except ImportError:
     from scipy.misc import comb
+
 from tqdm import tqdm
 
-from pymatgen.util.coord import Simplex
-from pymatgen.util.string import latexify
-from pymatgen.util.plotting import pretty_plot
-from pymatgen.core.periodic_table import Element
+from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
+from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.core.periodic_table import Element
 from pymatgen.entries.compatibility import MU_H2O
-from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
-from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.util.coord import Simplex
+from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.string import latexify
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"

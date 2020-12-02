@@ -7,11 +7,13 @@ Classes for reading/manipulating/writing QChem input files.
 """
 
 import logging
-from monty.json import MSONable
-from monty.io import zopen
-from pymatgen.core import Molecule
-from .utils import read_table_pattern, read_pattern, lower_and_check_unique
 
+from monty.io import zopen
+from monty.json import MSONable
+
+from pymatgen.core import Molecule
+
+from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"

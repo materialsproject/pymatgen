@@ -3,15 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
+import os
+import unittest
 import warnings
+
+from monty.os.path import which
+from monty.serialization import loadfn
+
 from pymatgen.electronic_structure.bandstructure import BandStructure
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
-from pymatgen.electronic_structure.core import Spin, OrbitalType
-from monty.serialization import loadfn
-from monty.os.path import which
+from pymatgen.electronic_structure.core import OrbitalType, Spin
 
 try:
     from ase.io.cube import read_cube

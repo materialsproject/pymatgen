@@ -15,20 +15,19 @@ from collections import OrderedDict
 
 import numpy as np
 import sympy as sp
+from monty.dev import deprecated
 from scipy.integrate import quad
 from scipy.optimize import root
 from scipy.special import factorial
 
-from monty.dev import deprecated
-
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.core.tensors import (
+    DEFAULT_QUAD,
+    SquareTensor,
     Tensor,
     TensorCollection,
     get_uvec,
-    SquareTensor,
-    DEFAULT_QUAD,
 )
 from pymatgen.core.units import Unit
 

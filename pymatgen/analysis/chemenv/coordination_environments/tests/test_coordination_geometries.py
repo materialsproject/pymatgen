@@ -4,21 +4,16 @@
 __author__ = "waroquiers"
 
 import unittest
+
 import numpy as np
-from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+    CoordinationGeometry,
     ExplicitPermutationsAlgorithm,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     SeparationPlane,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    CoordinationGeometry,
-)
+from pymatgen.util.testing import PymatgenTest
 
 allcg = AllCoordinationGeometries()
 

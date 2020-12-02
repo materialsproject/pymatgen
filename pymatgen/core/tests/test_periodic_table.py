@@ -3,16 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import pickle
-import warnings
 import math
+import pickle
+import unittest
+import warnings
+from copy import deepcopy
+
 import numpy as np
 
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Species, DummySpecies, get_el_sp
 from pymatgen.core.composition import Composition
-from copy import deepcopy
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.util.testing import PymatgenTest
 
 
 class ElementTestCase(PymatgenTest):

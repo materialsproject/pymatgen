@@ -1,30 +1,30 @@
 #!/usr/bin/python
 
 
-import unittest
+import json
 import os
 import random
-import json
+import unittest
 
 import numpy as np
 
-from pymatgen.core.structure import Structure
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import (
+    ReconstructionGenerator,
     Slab,
     SlabGenerator,
     generate_all_slabs,
-    get_symmetrically_distinct_miller_indices,
-    get_symmetrically_equivalent_miller_indices,
-    ReconstructionGenerator,
-    miller_index_from_sites,
     get_d,
     get_slab_regions,
+    get_symmetrically_distinct_miller_indices,
+    get_symmetrically_equivalent_miller_indices,
+    miller_index_from_sites,
 )
-from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.structure_matcher import StructureMatcher
 
 
 def get_path(path_str):

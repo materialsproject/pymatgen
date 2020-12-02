@@ -2,14 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import warnings
-
 import os
 import unittest
+import warnings
+
 import pandas as pd
 
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen import Structure
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
 test_dir = os.path.join(
     os.path.dirname(__file__),

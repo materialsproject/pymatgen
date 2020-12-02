@@ -1,18 +1,19 @@
-import unittest
-import os
-import warnings
 import json
+import os
+import unittest
+import warnings
+
 from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import (
+    NanoscaleStability,
     SlabEntry,
     SurfaceEnergyPlotter,
-    NanoscaleStability,
     WorkFunctionAnalyzer,
 )
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.analysis.wulff import WulffShape
+from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"

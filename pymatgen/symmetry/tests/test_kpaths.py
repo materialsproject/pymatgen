@@ -3,16 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
-from pymatgen.util.testing import PymatgenTest
+from monty.serialization import loadfn
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-
-from monty.serialization import loadfn
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

@@ -1,27 +1,28 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import unittest
-import os
-import random
-from collections import OrderedDict
 import gzip
 import json
+import os
+import random
+import unittest
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
 from ruamel.yaml import YAML
-from pymatgen import Molecule, Element, Lattice, Structure
-from pymatgen.util.testing import PymatgenTest
+
+from pymatgen import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import (
+    CombinedData,
+    ForceField,
     LammpsBox,
     LammpsData,
     Topology,
-    ForceField,
     lattice_2_lmpbox,
     structure_2_lmpdata,
-    CombinedData,
 )
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"

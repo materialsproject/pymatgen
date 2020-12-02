@@ -4,23 +4,28 @@
 
 import os
 import unittest
+
 import numpy as np
 
 try:
     import openbabel as ob
-    from pymatgen.analysis.molecule_matcher import MoleculeMatcher
-    from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
-    from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
+
+    from pymatgen.analysis.molecule_matcher import (
+        InchiMolAtomMapper,
+        IsomorphismMolAtomMapper,
+        MoleculeMatcher,
+    )
 except (ImportError, RuntimeError):
     ob = None
 
+from pymatgen.analysis.molecule_matcher import (
+    BruteForceOrderMatcher,
+    GeneticOrderMatcher,
+    HungarianOrderMatcher,
+    KabschMatcher,
+)
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Lattice, Structure, Molecule
-
-from pymatgen.analysis.molecule_matcher import KabschMatcher
-from pymatgen.analysis.molecule_matcher import BruteForceOrderMatcher
-from pymatgen.analysis.molecule_matcher import HungarianOrderMatcher
-from pymatgen.analysis.molecule_matcher import GeneticOrderMatcher
+from pymatgen.core.structure import Lattice, Molecule, Structure
 
 test_dir = os.path.join(
     os.path.dirname(__file__),

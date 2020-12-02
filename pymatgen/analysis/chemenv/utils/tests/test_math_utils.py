@@ -4,22 +4,22 @@
 __author__ = "waroquiers"
 
 import unittest
+
+import numpy as np
+
 from pymatgen.analysis.chemenv.utils.math_utils import (
-    prime_factors,
+    _cartesian_product,
+    cosinus_step,
     divisors,
     get_center_of_arc,
     get_linearly_independent_vectors,
-)
-from pymatgen.analysis.chemenv.utils.math_utils import (
-    scale_and_clamp,
-    smoothstep,
-    smootherstep,
-    cosinus_step,
     power3_step,
+    powern_parts_step,
+    prime_factors,
+    scale_and_clamp,
+    smootherstep,
+    smoothstep,
 )
-from pymatgen.analysis.chemenv.utils.math_utils import powern_parts_step
-from pymatgen.analysis.chemenv.utils.math_utils import _cartesian_product
-import numpy as np
 
 
 class MathUtilsTest(unittest.TestCase):

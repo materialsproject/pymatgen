@@ -18,7 +18,6 @@ __date__ = "Jun 10, 2012"
 
 from pymatgen.core.composition import Composition
 
-
 STANDARD_TEMP = 298.0
 
 

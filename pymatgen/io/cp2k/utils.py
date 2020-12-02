@@ -4,11 +4,12 @@ Utility functions for assisting with cp2k IO
 
 import os
 import re
-import numpy as np
-from ruamel import yaml
-from monty.serialization import loadfn
-from monty.io import zopen
 from pathlib import Path
+
+import numpy as np
+from monty.io import zopen
+from monty.serialization import loadfn
+from ruamel import yaml
 
 from pymatgen import SETTINGS
 

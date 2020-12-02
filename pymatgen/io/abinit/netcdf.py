@@ -5,20 +5,20 @@
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
+import logging
 import os.path
 import warnings
-import logging
 from collections import OrderedDict
-import numpy as np
 
-from monty.dev import requires
+import numpy as np
 from monty.collections import AttrDict
+from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
+
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.core.structure import Structure
-
 
 logger = logging.getLogger(__name__)
 

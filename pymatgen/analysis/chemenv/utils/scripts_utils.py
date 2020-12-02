@@ -15,31 +15,29 @@ except ImportError:
     no_vis = True
 
 
-from pymatgen.core.sites import PeriodicSite
 import re
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
+from collections import OrderedDict
+
+import numpy as np
+
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    SimplestChemenvStrategy,
 )
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     UNCLEAR_ENVIRONMENT_SYMBOL,
+    AllCoordinationGeometries,
 )
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    AbstractGeometry,
     LocalGeometryFinder,
 )
 from pymatgen.analysis.chemenv.utils.chemenv_errors import (
     NeighborsNotComputedChemenvError,
 )
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    AbstractGeometry,
-)
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SimplestChemenvStrategy,
-)
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
-from collections import OrderedDict
-import numpy as np
 
 """
 This module contains some utils for the main script of the chemenv package.

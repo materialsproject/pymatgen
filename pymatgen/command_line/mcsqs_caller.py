@@ -4,11 +4,11 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 """
 
 import os
-import warnings
 import tempfile
-from subprocess import Popen, TimeoutExpired
-from typing import Dict, Union, List, NamedTuple, Optional
+import warnings
 from pathlib import Path
+from subprocess import Popen, TimeoutExpired
+from typing import Dict, List, NamedTuple, Optional, Union
 
 from monty.dev import requires
 from monty.os.path import which

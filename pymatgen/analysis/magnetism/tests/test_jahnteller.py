@@ -2,10 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.io.cif import CifParser
-from pymatgen.analysis.magnetism.jahnteller import *
-
 import unittest
+
+from pymatgen.analysis.magnetism.jahnteller import *
+from pymatgen.io.cif import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

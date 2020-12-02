@@ -1,9 +1,9 @@
-from pymatgen.io.adf import AdfKey, AdfTask, AdfOutput, AdfInput
-from pymatgen.core.structure import Molecule
-
-import unittest
 import os
+import unittest
 from os.path import join
+
+from pymatgen.core.structure import Molecule
+from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 

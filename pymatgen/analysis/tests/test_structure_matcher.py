@@ -3,25 +3,26 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
-import json
-import numpy as np
 import itertools
+import json
+import os
+import unittest
 
+import numpy as np
+from monty.json import MontyDecoder
+
+from pymatgen import Element, Lattice, Structure
+from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
 from pymatgen.analysis.structure_matcher import (
-    StructureMatcher,
     ElementComparator,
     FrameworkComparator,
-    OrderDisorderElementComparator,
     OccupancyComparator,
+    OrderDisorderElementComparator,
     PointDefectComparator,
+    StructureMatcher,
 )
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
-from monty.json import MontyDecoder
 from pymatgen.core import PeriodicSite
 from pymatgen.core.operations import SymmOp
-from pymatgen import Structure, Element, Lattice
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 

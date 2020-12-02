@@ -4,23 +4,15 @@
 __author__ = "waroquiers"
 
 import unittest
-from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    DistanceCutoffFloat,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    AngleCutoffFloat,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    CSMFloat,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AdditionalConditionInt,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AngleCutoffFloat,
+    CSMFloat,
+    DistanceCutoffFloat,
     SimplestChemenvStrategy,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 class StrategyOptionsTest(PymatgenTest):

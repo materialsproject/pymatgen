@@ -14,14 +14,12 @@ import re
 import warnings
 from operator import itemgetter
 
-from tabulate import tabulate
-
 import numpy as np
-
 from monty.io import zopen
 from monty.json import MSONable
+from tabulate import tabulate
 
-from pymatgen import Structure, Lattice, Element, Molecule
+from pymatgen import Element, Lattice, Molecule, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines

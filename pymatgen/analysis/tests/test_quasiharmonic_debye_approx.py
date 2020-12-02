@@ -1,8 +1,9 @@
 import unittest
+
 import numpy as np
+
 from pymatgen import Structure
 from pymatgen.analysis.eos import EOS
-
 from pymatgen.analysis.quasiharmonic import QuasiharmonicDebyeApprox
 
 __author__ = "Kiran Mathew"

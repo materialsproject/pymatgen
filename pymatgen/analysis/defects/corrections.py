@@ -7,23 +7,24 @@ Implementation of defect correction methods.
 """
 
 import logging
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from scipy import stats
+
 from pymatgen.analysis.defects.core import DefectCorrection
 from pymatgen.analysis.defects.utils import (
-    ang_to_bohr,
-    hart_to_ev,
-    eV_to_k,
-    generate_reciprocal_vectors_squared,
     QModel,
+    ang_to_bohr,
     converge,
-    tune_for_gamma,
+    eV_to_k,
     generate_R_and_G_vecs,
+    generate_reciprocal_vectors_squared,
+    hart_to_ev,
     kumagai_to_V,
+    tune_for_gamma,
 )
-
-import matplotlib.pyplot as plt
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

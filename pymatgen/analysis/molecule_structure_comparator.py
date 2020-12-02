@@ -14,8 +14,8 @@ comparisons without the atom order correspondence prerequisite.
 """
 
 import itertools
-from monty.json import MSONable
 
+from monty.json import MSONable
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"

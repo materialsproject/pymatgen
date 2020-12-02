@@ -10,23 +10,23 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
-import unittest
 import os
 import re
+import unittest
 
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.zeopp import (
     ZeoCssr,
     ZeoVoronoiXYZ,
-    get_voronoi_nodes,
+    get_free_sphere_params,
     get_high_accuracy_voronoi_nodes,
     get_void_volume_surfarea,
-    get_free_sphere_params,
+    get_voronoi_nodes,
 )
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.analysis.bond_valence import BVAnalyzer
 
 try:
     import zeo

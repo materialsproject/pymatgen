@@ -11,21 +11,20 @@ import glob
 import logging
 import os
 import re
-import numpy as np
-import pandas as pd
 import warnings
 
+import numpy as np
+import pandas as pd
 from monty.io import zopen
-from monty.re import regrep
 from monty.json import jsanitize
+from monty.re import regrep
 
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, add_densities, CompleteDos
-from pymatgen.io.xyz import XYZ
-
+from pymatgen.electronic_structure.core import Orbital, Spin
+from pymatgen.electronic_structure.dos import CompleteDos, Dos, add_densities
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
+from pymatgen.io.xyz import XYZ
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"

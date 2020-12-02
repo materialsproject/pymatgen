@@ -3,38 +3,24 @@
 
 __author__ = "waroquiers"
 
-import unittest
-import os
 import json
-from pymatgen.util.testing import PymatgenTest
+import os
+import unittest
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    NormalizedAngleDistanceNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     CNBiasNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    SelfCSMNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     DeltaCSMNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    DistanceAngleAreaNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    DistanceNbSetWeight,
-)
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     DeltaDistanceNbSetWeight,
+    DistanceAngleAreaNbSetWeight,
+    DistanceNbSetWeight,
+    NormalizedAngleDistanceNbSetWeight,
+    SelfCSMNbSetWeight,
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     StructureEnvironments,
 )
+from pymatgen.util.testing import PymatgenTest
 
 se_files_dir = os.path.join(
     os.path.dirname(__file__),

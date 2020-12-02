@@ -37,27 +37,25 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
 (http://dx.doi.org/10.1016/j.cpc.2008.07.018)
 """
 
+import logging
 import os
 import subprocess
 import warnings
 from enum import Enum
-import logging
 
 import numpy as np
-from scipy.spatial import KDTree
-
-from monty.os.path import which
 from monty.dev import requires
 from monty.json import MSONable
+from monty.os.path import which
 from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
+from scipy.spatial import KDTree
 
-from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
-from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.command_line.bader_caller import get_filepath
-
+from pymatgen.core.periodic_table import DummySpecies
+from pymatgen.io.vasp.inputs import Potcar
+from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

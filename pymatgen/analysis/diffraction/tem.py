@@ -11,16 +11,18 @@ import json
 import os
 from collections import namedtuple
 from fractions import Fraction
-from typing import List, Dict, Tuple, cast
 from functools import lru_cache
+from typing import Dict, List, Tuple, cast
+
 import numpy as np
-import scipy.constants as sc
 import pandas as pd
 import plotly.graph_objs as go
-from pymatgen.core.structure import Structure
+import scipy.constants as sc
+
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup
+from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
 
 with open(
     os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")

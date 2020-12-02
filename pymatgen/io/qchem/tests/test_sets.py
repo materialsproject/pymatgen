@@ -3,12 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
+from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.sets import *
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem.inputs import QCInput
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

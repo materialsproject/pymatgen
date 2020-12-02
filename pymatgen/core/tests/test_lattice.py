@@ -4,10 +4,12 @@
 
 
 import itertools
-from pymatgen.core.lattice import Lattice, get_points_in_spheres
+
 import numpy as np
-from pymatgen.util.testing import PymatgenTest
+
+from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
+from pymatgen.util.testing import PymatgenTest
 
 
 class LatticeTestCase(PymatgenTest):

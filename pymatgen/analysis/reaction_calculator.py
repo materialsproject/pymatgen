@@ -8,12 +8,11 @@ This module provides classes that define a chemical reaction.
 
 import logging
 import re
-from itertools import combinations, chain
+from itertools import chain, combinations
 
 import numpy as np
 from monty.fractions import gcd_float
-from monty.json import MSONable
-from monty.json import MontyDecoder
+from monty.json import MontyDecoder, MSONable
 from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition

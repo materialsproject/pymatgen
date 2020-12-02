@@ -3,13 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
+import os
+import unittest
 
-from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen import MontyDecoder, MontyEncoder
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
-from pymatgen import MontyEncoder, MontyDecoder
+from pymatgen.entries.computed_entries import ComputedEntry
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

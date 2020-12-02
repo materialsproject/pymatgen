@@ -9,8 +9,8 @@ solids. Usefull for predicting PDOS character from structural information.
 
 from itertools import chain, combinations
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 
 
 class MolecularOrbitals:

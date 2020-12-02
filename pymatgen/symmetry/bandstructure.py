@@ -7,13 +7,15 @@ generate high-symmetry k-paths using different conventions.
 """
 
 import itertools
-import numpy as np
+
 import networkx as nx
+import numpy as np
+
 from pymatgen.symmetry.kpath import (
     KPathBase,
-    KPathSetyawanCurtarolo,
     KPathLatimerMunro,
     KPathSeek,
+    KPathSetyawanCurtarolo,
 )
 
 __author__ = "Jason Munro"

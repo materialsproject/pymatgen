@@ -5,18 +5,18 @@
 This module implements plotter for DOS and band structure.
 """
 
+import copy
+import itertools
 import logging
 import math
-import itertools
 import warnings
-from collections import OrderedDict, Counter
-import copy
+from collections import Counter, OrderedDict
 
-import numpy as np
-from monty.json import jsanitize
-from monty.dev import requires
 import matplotlib.lines as mlines
+import numpy as np
 import scipy.interpolate as scint
+from monty.dev import requires
+from monty.json import jsanitize
 
 try:
     from mayavi import mlab
@@ -24,10 +24,10 @@ except ImportError:
     mlab = None
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax3d_fig_plt
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
+from pymatgen.electronic_structure.core import OrbitalType, Spin
+from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -2160,8 +2160,9 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core.periodic_table import Element
         from collections import Counter
+
+        from pymatgen.core.periodic_table import Element
 
         if not isinstance(dictpa, dict):
             raise TypeError(
@@ -2661,8 +2662,8 @@ class BSDOSPlotter:
             and savefig()
         """
         import matplotlib.lines as mlines
-        from matplotlib.gridspec import GridSpec
         import matplotlib.pyplot as mplt
+        from matplotlib.gridspec import GridSpec
 
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection

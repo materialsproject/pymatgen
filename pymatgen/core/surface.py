@@ -17,30 +17,28 @@ as well as::
     Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
 """
 
+import copy
+import itertools
+import json
+import logging
+import math
+import os
+import warnings
 from functools import reduce
 from math import gcd
-import math
-import itertools
-import logging
-import warnings
-import copy
-import os
-import json
 
 import numpy as np
-from scipy.spatial.distance import squareform
-from scipy.cluster.hierarchy import linkage, fcluster
-
 from monty.fractions import lcm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
 
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.sites import PeriodicSite
-
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"

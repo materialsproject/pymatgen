@@ -22,25 +22,26 @@ __status__ = "Development"
 __date__ = "Aug 21, 2020"
 
 
-import re
-import math
 import abc
-import itertools
 import copy
+import itertools
 import logging
-import numpy as np
+import math
+import re
 
-from monty.json import MSONable
+import numpy as np
 from monty.dev import requires
+from monty.json import MSONable
 
 try:
     from openbabel import openbabel as ob
+
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     ob = None
 
-from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
 
 from pymatgen import Molecule  # pylint: disable=ungrouped-imports
 

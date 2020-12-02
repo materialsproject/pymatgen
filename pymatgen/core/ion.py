@@ -10,7 +10,6 @@ import re
 from copy import deepcopy
 
 import numpy as np
-
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition

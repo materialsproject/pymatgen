@@ -5,6 +5,7 @@
 Utilities for generating nicer plots.
 """
 import math
+
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
@@ -37,8 +38,9 @@ def pretty_plot(
         height = int(width * golden_ratio)
 
     if plt is None:
-        import matplotlib.pyplot as plt
         import importlib
+
+        import matplotlib.pyplot as plt
 
         mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
         colors = getattr(mod, color_cycle[1]).mpl_colors

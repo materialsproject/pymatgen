@@ -3,6 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
+
 from pymatgen.ext.crystalsai import CrystalAIRester
 from pymatgen.util.testing import PymatgenTest
 

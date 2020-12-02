@@ -3,22 +3,23 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 import warnings
-from pymatgen.core.structure import Molecule
+
+from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
-from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
+from pymatgen.core.structure import Molecule
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "functional_groups"
 )
 
 try:
+    import networkx as nx
     from openbabel import openbabel as ob
     from openbabel import pybel as pb
-    import networkx as nx
 except ImportError:
     pb = None
     ob = None

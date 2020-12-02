@@ -16,22 +16,21 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 import logging
-import numpy as np
 import time
-from pymatgen.core.structure import Structure
-from pymatgen.core.sites import PeriodicSite
+
+import numpy as np
 from monty.json import MSONable
 from scipy.spatial import Voronoi
 
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
     get_lower_and_upper_f,
-)
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
+    my_solid_angle,
     rectangle_surface_intersection,
 )
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 
 
 def from_bson_voronoi_list2(bson_nb_voro_list2, structure):

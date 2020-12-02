@@ -3,12 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
+import random
 import unittest
 
+from pymatgen.core.composition import Composition, CompositionError
 from pymatgen.core.ion import Ion
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition, CompositionError
-import random
 
 
 class IonTest(unittest.TestCase):

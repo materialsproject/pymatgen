@@ -3,23 +3,20 @@
 
 __author__ = "waroquiers"
 
-import unittest
 import os
-import numpy as np
-from pymatgen.util.testing import PymatgenTest
+import unittest
 
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
+import numpy as np
+
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     AllCoordinationGeometries,
 )
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
-)
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    LocalGeometryFinder,
     symmetry_measure,
 )
+from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(
     os.path.dirname(__file__),

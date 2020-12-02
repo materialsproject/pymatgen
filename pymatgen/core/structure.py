@@ -7,34 +7,33 @@ This module provides classes used to define a non-periodic molecule and a
 periodic structure.
 """
 
+import collections
+import functools
+import itertools
+import json
 import math
 import os
-import json
-import collections
-import itertools
-from abc import ABCMeta, abstractmethod
 import random
-import warnings
-from fnmatch import fnmatch
 import re
-import functools
-from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, Iterable
+import warnings
+from abc import ABCMeta, abstractmethod
+from fnmatch import fnmatch
+from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union
+
 import numpy as np
-
-from tabulate import tabulate
-
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+from tabulate import tabulate
 
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.lattice import Lattice, get_points_in_spheres
-from pymatgen.core.periodic_table import Element, Species, get_el_sp, DummySpecies
-from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord import get_angle, all_distances, lattice_points_in_supercell
-from pymatgen.core.units import Mass, Length
+from pymatgen.core.lattice import Lattice, get_points_in_spheres
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.sites import PeriodicSite, Site
+from pymatgen.core.units import Length, Mass
+from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
 
 
 class Neighbor(Site):
@@ -1373,7 +1372,9 @@ class IStructure(SiteCollection, MSONable):
 
         """
         try:
-            from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+            from pymatgen.optimization.neighbors import (
+                find_points_in_spheres,  # type: ignore
+            )
         except ImportError:
             return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)
         else:
@@ -2442,11 +2443,11 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             IStructure / Structure
         """
-        from pymatgen.io.cif import CifParser
-        from pymatgen.io.vasp import Poscar
-        from pymatgen.io.cssr import Cssr
-        from pymatgen.io.xcrysden import XSF
         from pymatgen.io.atat import Mcsqs
+        from pymatgen.io.cif import CifParser
+        from pymatgen.io.cssr import Cssr
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.xcrysden import XSF
 
         fmt = fmt.lower()
         if fmt == "cif":
@@ -2508,9 +2509,9 @@ class IStructure(SiteCollection, MSONable):
                 s = s.get_sorted_structure()
             return s
 
-        from pymatgen.io.lmto import LMTOCtrl
-        from pymatgen.io.vasp import Vasprun, Chgcar
         from pymatgen.io.exciting import ExcitingInput
+        from pymatgen.io.lmto import LMTOCtrl
+        from pymatgen.io.vasp import Chgcar, Vasprun
 
         fname = os.path.basename(filename)
         with zopen(filename, "rt") as f:
@@ -3120,9 +3121,9 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.xyz import XYZ
-        from pymatgen.io.gaussian import GaussianInput
         from pymatgen.io.babel import BabelMolAdaptor
+        from pymatgen.io.gaussian import GaussianInput
+        from pymatgen.io.xyz import XYZ
 
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename or "")
@@ -3177,8 +3178,8 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             IMolecule or Molecule.
         """
-        from pymatgen.io.xyz import XYZ
         from pymatgen.io.gaussian import GaussianInput
+        from pymatgen.io.xyz import XYZ
 
         if fmt.lower() == "xyz":
             m = XYZ.from_string(input_string).molecule
@@ -3778,8 +3779,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 cell
         """
 
-        from numpy.linalg import norm
         from numpy import cross, eye
+        from numpy.linalg import norm
         from scipy.linalg import expm
 
         if indices is None:
@@ -3889,8 +3890,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         """
         mode = mode.lower()[0]
-        from scipy.spatial.distance import squareform
         from scipy.cluster.hierarchy import fcluster, linkage
+        from scipy.spatial.distance import squareform
 
         d = self.distance_matrix
         np.fill_diagonal(d, 0)
@@ -4170,8 +4171,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             anchor (3x1 array): Point of rotation.
         """
 
-        from numpy.linalg import norm
         from numpy import cross, eye
+        from numpy.linalg import norm
         from scipy.linalg import expm
 
         if indices is None:

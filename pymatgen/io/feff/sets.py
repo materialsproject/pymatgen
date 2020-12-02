@@ -21,7 +21,7 @@ from monty.json import MSONable
 from monty.os.path import zpath
 from monty.serialization import loadfn
 
-from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
+from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"

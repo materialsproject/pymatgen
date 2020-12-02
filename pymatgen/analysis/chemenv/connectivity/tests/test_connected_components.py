@@ -4,6 +4,7 @@
 __author__ = "waroquiers"
 
 import networkx as nx
+
 from pymatgen.analysis.chemenv.connectivity.connected_components import (
     ConnectedComponent,
 )
@@ -11,20 +12,18 @@ from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
     ConnectivityFinder,
 )
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
-    LocalGeometryFinder,
-)
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
+    LocalGeometryFinder,
+)
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     StructureEnvironments,
 )
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
@@ -32,11 +31,12 @@ try:
     import bson  # type: ignore  # Ignore bson import for mypy
 except ModuleNotFoundError:
     bson = None
-import json
-import pytest  # type: ignore  # Ignore pytest import for mypy
-import numpy as np
 import copy
+import json
 import os
+
+import numpy as np
+import pytest  # type: ignore  # Ignore pytest import for mypy
 
 
 class ConnectedComponentTest(PymatgenTest):

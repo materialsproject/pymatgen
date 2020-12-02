@@ -1,8 +1,9 @@
+import itertools
+import operator
+
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
-import itertools
-import operator
 
 __author__ = "waroquiers"
 

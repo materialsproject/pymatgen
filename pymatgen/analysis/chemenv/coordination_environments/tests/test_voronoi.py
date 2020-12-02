@@ -3,18 +3,19 @@
 
 __author__ = "waroquiers"
 
+import os
+import random
+import shutil
 import unittest
 
+import numpy as np
 from monty.tempfile import ScratchDir
+
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import (
     DetailedVoronoiContainer,
 )
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-import os
-import shutil
-import random
-import numpy as np
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 json_files_dir = os.path.join(

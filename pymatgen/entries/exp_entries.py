@@ -15,10 +15,11 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jun 27, 2012"
 
 
-from pymatgen.analysis.phase_diagram import PDEntry
-from pymatgen.core.composition import Composition
 from monty.json import MSONable
+
+from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.thermochemistry import ThermoData
+from pymatgen.core.composition import Composition
 
 
 class ExpEntry(PDEntry, MSONable):

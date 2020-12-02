@@ -2,15 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import json
 import os
 import unittest
-import json
 
-from monty.json import MontyDecoder
 import numpy as np
+from monty.json import MontyDecoder
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.xas.spectrum import XAS
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.vis.plotters import SpectrumPlotter
 
 test_dir = os.path.join(

@@ -4,9 +4,10 @@
 
 import unittest
 
-from pymatgen.command_line.bader_caller import *
-from monty.os.path import which
 import numpy as np
+from monty.os.path import which
+
+from pymatgen.command_line.bader_caller import *
 
 
 @unittest.skipIf(not which("bader"), "bader executable not present.")

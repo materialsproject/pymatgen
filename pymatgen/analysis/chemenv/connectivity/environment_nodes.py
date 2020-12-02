@@ -1,6 +1,7 @@
 __author__ = "waroquiers"
 
 import abc
+
 from monty.json import MSONable
 
 

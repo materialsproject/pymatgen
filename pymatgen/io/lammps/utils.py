@@ -10,7 +10,7 @@ This module defines utility classes and functions.
 import os
 import tempfile
 from io import open
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 import numpy as np
 
@@ -24,9 +24,8 @@ from monty.tempfile import ScratchDir
 
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
-from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
-
+from pymatgen.util.coord import get_angle
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"

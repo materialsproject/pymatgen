@@ -7,7 +7,7 @@ This module implements reading and writing of ShengBTE CONTROL files.
 """
 
 import warnings
-from typing import Dict, List, Optional, Union, Any
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from monty.dev import requires

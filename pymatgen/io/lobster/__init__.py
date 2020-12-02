@@ -12,12 +12,12 @@ backwards compatibility.
 
 from .inputs import Lobsterin
 from .outputs import (
-    Cohpcar,
-    Icohplist,
-    Doscar,
-    Charge,
-    Lobsterout,
-    Fatband,
     Bandoverlaps,
+    Charge,
+    Cohpcar,
+    Doscar,
+    Fatband,
     Grosspop,
+    Icohplist,
+    Lobsterout,
 )

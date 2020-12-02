@@ -3,11 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
-from pymatgen.io.vasp.inputs import Poscar
 import pymatgen.io.jarvis as jio
+from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

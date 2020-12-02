@@ -7,11 +7,12 @@ This module provides classes to define a phonon band structure.
 """
 
 import collections
-import numpy as np
 
+import numpy as np
 from monty.json import MSONable
-from pymatgen.core.structure import Structure
+
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import Kpoint
 
 

@@ -6,14 +6,15 @@
 This module defines classes to represent all xas and stitching methods
 """
 import math
-from typing import List
 import warnings
-from scipy.interpolate import interp1d
+from typing import List
+
 import numpy as np
+from scipy.interpolate import interp1d
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -16,20 +16,21 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
-import os
-import subprocess
-import shutil
-import warnings
 import glob
-import numpy as np
+import os
+import shutil
+import subprocess
+import warnings
 
-from pymatgen.io.cube import Cube
-from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.io.vasp.inputs import Potcar
+import numpy as np
 from monty.dev import requires
+from monty.io import zopen
 from monty.os.path import which
 from monty.tempfile import ScratchDir
-from monty.io import zopen
+
+from pymatgen.io.cube import Cube
+from pymatgen.io.vasp.inputs import Potcar
+from pymatgen.io.vasp.outputs import Chgcar
 
 __author__ = "shyuepingong"
 __version__ = "0.1"

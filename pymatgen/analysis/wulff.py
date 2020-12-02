@@ -23,8 +23,8 @@ import logging
 import warnings
 
 import numpy as np
-from scipy.spatial import ConvexHull
 import plotly.graph_objs as go
+from scipy.spatial import ConvexHull
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle

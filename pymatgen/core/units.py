@@ -16,7 +16,6 @@ import numbers
 from functools import partial
 
 import numpy as np
-
 import scipy.constants as const
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"

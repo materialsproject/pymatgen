@@ -5,8 +5,8 @@ import os
 import unittest
 
 from pymatgen import Molecule
-from pymatgen.io.lammps.utils import Polymer
 from pymatgen.io.lammps.data import Topology
+from pymatgen.io.lammps.utils import Polymer
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"

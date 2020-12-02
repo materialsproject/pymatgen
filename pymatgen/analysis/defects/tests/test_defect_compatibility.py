@@ -3,15 +3,15 @@
 # Distributed under the terms of the MIT License.
 
 
+import os
 import unittest
 
-import os
 import numpy as np
 
-from pymatgen.core import PeriodicSite
-from pymatgen.io.vasp import Vasprun, Poscar, Outcar
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, DefectEntry
+from pymatgen.analysis.defects.core import DefectEntry, Interstitial, Vacancy
 from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
+from pymatgen.core import PeriodicSite
+from pymatgen.io.vasp import Outcar, Poscar, Vasprun
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")

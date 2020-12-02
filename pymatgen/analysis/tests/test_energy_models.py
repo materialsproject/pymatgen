@@ -2,17 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.energy_models import (
-    EwaldElectrostaticModel,
-    SymmetryModel,
-    IsingModel,
-)
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-
 import os
 import unittest
 import warnings
+
+from pymatgen.analysis.energy_models import (
+    EwaldElectrostaticModel,
+    IsingModel,
+    SymmetryModel,
+)
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

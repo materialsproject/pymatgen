@@ -4,8 +4,9 @@
 
 import os
 import unittest
+
 import pymatgen
-from pymatgen.analysis.cost import CostDBCSV, CostAnalyzer, CostDBElements
+from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
 
 module_dir = os.path.join(os.path.dirname(pymatgen.__file__), "..", "test_files")
 

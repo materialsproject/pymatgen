@@ -28,7 +28,7 @@ import time
 
 import numpy as np
 from monty.dev import requires
-from monty.json import jsanitize, MSONable
+from monty.json import MSONable, jsanitize
 from monty.os import cd
 from monty.os.path import which
 from scipy import constants
@@ -38,10 +38,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
 from pymatgen.electronic_structure.core import Orbital
-from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
+from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"

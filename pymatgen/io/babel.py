@@ -9,12 +9,12 @@ installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 """
 
-import warnings
 import copy
+import warnings
 
 from monty.dev import requires
 
-from pymatgen.core.structure import Molecule, IMolecule
+from pymatgen.core.structure import IMolecule, Molecule
 
 try:
     from openbabel import openbabel as ob

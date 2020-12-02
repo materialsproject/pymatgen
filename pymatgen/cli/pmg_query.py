@@ -10,9 +10,8 @@ Implementation for `pmg query` CLI.
 import json
 import re
 
-from tabulate import tabulate
-
 from monty.serialization import dumpfn
+from tabulate import tabulate
 
 from pymatgen.ext.matproj import MPRester
 

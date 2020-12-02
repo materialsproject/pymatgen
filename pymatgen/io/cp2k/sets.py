@@ -17,41 +17,42 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
+import warnings
 from pathlib import Path
+from typing import Dict, Union
+
+from pymatgen import Element, Lattice, Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
+    LDOS,
+    PBE,
+    PDOS,
+    QS,
+    XC_FUNCTIONAL,
+    Cell,
+    Coord,
     Cp2kInput,
-    Section,
+    Dft,
+    E_Density_Cube,
+    ForceEval,
+    Global,
     Keyword,
     KeywordList,
-    Global,
-    ForceEval,
+    Kind,
+    Kpoints,
     Mgrid,
     MO_Cubes,
     OrbitalTransformation,
-    XC_FUNCTIONAL,
-    V_Hartree_Cube,
-    Dft,
-    E_Density_Cube,
-    LDOS,
-    PDOS,
-    Coord,
-    Kind,
-    QS,
-    PBE,
-    Cell,
-    Subsys,
     Scf,
-    Kpoints,
+    Section,
     Smear,
+    Subsys,
+    V_Hartree_Cube,
 )
 from pymatgen.io.cp2k.utils import (
-    get_basis_and_potential,
     get_aux_basis,
+    get_basis_and_potential,
     get_unique_site_indices,
 )
-from pymatgen import Element, Structure, Molecule, Lattice
-from typing import Dict, Union
-import warnings
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"

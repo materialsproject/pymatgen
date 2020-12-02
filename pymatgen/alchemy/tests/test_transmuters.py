@@ -3,17 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 
-import warnings
-import unittest
 import os
-from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
+import unittest
+import warnings
+
 from pymatgen.alchemy.filters import ContainsSpecieFilter
-from pymatgen.transformations.standard_transformations import (
-    SubstitutionTransformation,
-    RemoveSpeciesTransformation,
-    OrderDisorderedStructureTransformation,
-)
+from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.transformations.advanced_transformations import SuperTransformation
+from pymatgen.transformations.standard_transformations import (
+    OrderDisorderedStructureTransformation,
+    RemoveSpeciesTransformation,
+    SubstitutionTransformation,
+)
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

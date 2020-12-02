@@ -2,22 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
+import os
+import unittest
 import warnings
 
 from pymatgen import SETTINGS
-
-from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import (
-    SubstitutionTransformation,
-    PartialRemoveSpecieTransformation,
-    SupercellTransformation,
-)
-from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.sets import MPRelaxSet
+from pymatgen.transformations.standard_transformations import (
+    PartialRemoveSpecieTransformation,
+    SubstitutionTransformation,
+    SupercellTransformation,
+)
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import PymatgenTest
 

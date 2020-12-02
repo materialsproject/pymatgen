@@ -3,10 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.xcrysden import XSF
+from pymatgen.util.testing import PymatgenTest
 
 
 class XSFTest(PymatgenTest):

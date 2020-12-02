@@ -8,9 +8,8 @@ x y value pairs.
 """
 
 import numpy as np
-from scipy.ndimage.filters import gaussian_filter1d
-
 from monty.json import MSONable
+from scipy.ndimage.filters import gaussian_filter1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 

@@ -8,20 +8,22 @@ Created on Jan 22, 2013
 
 @author: Bharat Medasani
 """
-import unittest
 import os
+import unittest
+
+from monty.os.path import which
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
-    GulpIO,
-    GulpCaller,
     BuckinghamPotential,
+    GulpCaller,
     GulpError,
-    get_energy_relax_structure_buckingham,
+    GulpIO,
     get_energy_buckingham,
+    get_energy_relax_structure_buckingham,
     get_energy_tersoff,
 )
 from pymatgen.core.structure import Structure
-from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")

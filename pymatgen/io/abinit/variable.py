@@ -1,8 +1,8 @@
 """Support for Abinit input variables."""
-import string
 import collections
-import numpy as np
+import string
 
+import numpy as np
 
 __all__ = [
     "InputVariable",

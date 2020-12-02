@@ -11,9 +11,9 @@ Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum v
 
 import json
 import os
-
-from io import open
 from enum import Enum
+from io import open
+
 from monty.json import MontyEncoder
 
 # The libxc version used to generate this file!

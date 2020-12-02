@@ -8,20 +8,18 @@ TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
 
+import datetime
+import json
 import os
 import re
-import json
-import datetime
 from warnings import warn
 
-from monty.json import MontyDecoder, jsanitize
-from monty.json import MSONable
+from monty.json import MontyDecoder, MSONable, jsanitize
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.sets import MPRelaxSet
-
 
 dec = MontyDecoder()
 

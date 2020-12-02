@@ -9,14 +9,15 @@ A convenience script engine to read Gaussian output in a directory tree.
 
 
 import argparse
-import os
 import logging
-import re
 import multiprocessing
+import os
+import re
+
 from tabulate import tabulate
+
 from pymatgen.apps.borg.hive import GaussianToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
-
 
 save_file = "gau_data.gz"
 

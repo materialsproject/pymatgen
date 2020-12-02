@@ -1,9 +1,9 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import unittest
-import os
 import json
+import os
+import unittest
 
 import numpy as np
 import pandas as pd

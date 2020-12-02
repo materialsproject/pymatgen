@@ -14,8 +14,8 @@ import warnings
 from string import Template
 
 from monty.json import MSONable
-from pymatgen.io.lammps.data import LammpsData
 
+from pymatgen.io.lammps.data import LammpsData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"

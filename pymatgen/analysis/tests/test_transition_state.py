@@ -3,13 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 
+import json
 import os
 import unittest
 import warnings
+
+from pymatgen.analysis.transition_state import NEBAnalysis, combine_neb_plots
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.transition_state import NEBAnalysis
-import json
-from pymatgen.analysis.transition_state import combine_neb_plots
 
 """
 TODO: Modify unittest doc.

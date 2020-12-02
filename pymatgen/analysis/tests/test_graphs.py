@@ -3,23 +3,23 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import copy
+import os
+import unittest
 
 from monty.serialization import loadfn  # , dumpfn
 
-from pymatgen.command_line.critic2_caller import Critic2Analysis
-from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import (
+    CovalentBondNN,
+    CutOffDictNN,
     MinimumDistanceNN,
     MinimumOKeeffeNN,
     OpenBabelNN,
-    CutOffDictNN,
     VoronoiNN,
-    CovalentBondNN,
 )
+from pymatgen.command_line.critic2_caller import Critic2Analysis
+from pymatgen.core.structure import FunctionalGroups, Molecule, Site, Structure
 from pymatgen.util.testing import PymatgenTest
 
 try:

@@ -5,16 +5,16 @@
 
 import unittest
 
+from monty.os.path import which
+
 from pymatgen.command_line.aconvasp_caller import (
-    get_num_division_kpoints,
     get_minkowski_red,
+    get_num_division_kpoints,
     get_vasp_kpoint_file_sym,
 )
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
-from monty.os.path import which
-
+from pymatgen.core.structure import Lattice, Structure
 
 aconvasp_present = which("aconvasp")
 aconvasp_present = False  # disable aconvasp testing for now.

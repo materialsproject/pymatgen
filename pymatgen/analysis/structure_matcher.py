@@ -6,23 +6,24 @@
 This module provides classes to perform fitting of structures.
 """
 
-import itertools
 import abc
+import itertools
 
 import numpy as np
-
 from monty.json import MSONable
+
+from pymatgen.analysis.defects.core import Defect, Interstitial, Substitution, Vacancy
 from pymatgen.core import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
-
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
 from pymatgen.optimization.linear_assignment import LinearAssignment  # type: ignore
-from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc  # type: ignore
 from pymatgen.util.coord import lattice_points_in_supercell
-from pymatgen.analysis.defects.core import Interstitial, Defect, Vacancy, Substitution
-
+from pymatgen.util.coord_cython import (  # type: ignore
+    is_coord_subset_pbc,
+    pbc_shortest_vectors,
+)
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

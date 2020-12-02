@@ -7,26 +7,25 @@ Module for graph representations of crystals.
 """
 
 import copy
-import os.path
 import logging
+import os.path
 import subprocess
 import warnings
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
+from monty.json import MSONable
+from monty.os.path import which
 from networkx.drawing.nx_agraph import write_dot
 from networkx.readwrite import json_graph
 from scipy.spatial import KDTree
 from scipy.stats import describe
 
-from monty.json import MSONable
-from monty.os.path import which
-
-from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
+from pymatgen.core import Lattice, Molecule, PeriodicSite, Structure
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS

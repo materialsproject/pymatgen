@@ -22,14 +22,12 @@ from hashlib import md5
 
 import numpy as np
 import scipy.constants as const
-from tabulate import tabulate
-
 from monty.io import zopen
-from monty.json import MSONable
-from monty.json import MontyDecoder
+from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import loadfn
+from tabulate import tabulate
 
 from pymatgen import SETTINGS, __version__
 from pymatgen.core.lattice import Lattice

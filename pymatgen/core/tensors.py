@@ -8,23 +8,21 @@ basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
 
-import itertools
-import warnings
 import collections
-import string
+import itertools
 import os
+import string
+import warnings
 
 import numpy as np
-
-from scipy.linalg import polar
-
 from monty.json import MSONable
 from monty.serialization import loadfn
+from scipy.linalg import polar
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2017, The Materials Project"

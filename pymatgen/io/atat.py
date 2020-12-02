@@ -7,10 +7,10 @@ Classes for reading/writing mcsqs files following the rndstr.in format.
 """
 
 import numpy as np
-from pymatgen.core.structure import Structure
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
-
+from pymatgen.core.structure import Structure
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"

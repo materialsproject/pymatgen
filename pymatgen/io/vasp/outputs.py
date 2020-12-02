@@ -6,29 +6,28 @@
 Classes for reading/manipulating/writing VASP ouput files.
 """
 
-import json
+import collections
 import glob
 import itertools
+import json
 import logging
 import math
 import os
 import re
 import warnings
-from pathlib import Path
 import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
-import collections
-from typing import Optional, Tuple, List
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
-from monty.io import zopen, reverse_readfile
-from monty.json import MSONable
-from monty.json import jsanitize
-from monty.re import regrep
-from monty.os.path import zpath
 from monty.dev import deprecated
+from monty.io import reverse_readfile, zopen
+from monty.json import MSONable, jsanitize
+from monty.os.path import zpath
+from monty.re import regrep
+from scipy.interpolate import RegularGridInterpolator
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -40,14 +39,13 @@ from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
     get_reconstructed_band_structure,
 )
-from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType, Magmom
+from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-from pymatgen.io.wannier90 import Unk
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
+from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
-
 
 logger = logging.getLogger(__name__)
 

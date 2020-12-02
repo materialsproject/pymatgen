@@ -4,23 +4,23 @@
 
 
 import unittest
-
-import numpy as np
 from pathlib import Path
 
-from pymatgen.core.sites import PeriodicSite
+import numpy as np
+
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import (
-    SpacegroupAnalyzer,
     PointGroupAnalyzer,
+    SpacegroupAnalyzer,
     cluster_sites,
     iterative_symmetrize,
 )
-from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Molecule, Structure
 
 test_dir_mol = Path(__file__).parent / ".." / ".." / ".." / "test_files" / "molecules"
 
