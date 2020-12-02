@@ -2138,9 +2138,7 @@ class PDPlotter:
 
         fig = plt.figure()
         ax = p3.Axes3D(fig)
-        font = FontProperties()
-        font.set_weight("bold")
-        font.set_size(20)
+        font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
         newlabels = list()
@@ -2160,13 +2158,16 @@ class PDPlotter:
             label = entry.name
             if label_stable:
                 if len(entry.composition.elements) == 1:
-                    ax.text(coords[0], coords[1], coords[2], label)
+                    ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
-                    ax.text(coords[0], coords[1], coords[2], str(count))
+                    ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)
                     newlabels.append("{} : {}".format(count, latexify(label)))
                     count += 1
-        plt.figtext(0.01, 0.01, "\n".join(newlabels))
+        plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
+        ax.set_xlim(-0.1, 0.72)
+        ax.set_ylim(0, 0.66)
+        ax.set_zlim(0, 0.56)
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
