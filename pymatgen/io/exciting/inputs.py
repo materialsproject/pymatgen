@@ -166,14 +166,32 @@ class ExcitingInput(MSONable):
             data = f.read().replace('\n', '')
         return ExcitingInput.from_string(data)
 
-    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
+    def write_etree(self, celltype, cartesian=False,
+                    bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
-        :param celltype:
-        :param cartesian:
-        :param bandstr:
-        :param symprec:
-        :param angle_tolerance:
-        :return:
+        Writes the exciting input parameters to an xml object.
+
+        Args:
+            celltype (str): Choice of unit cell. Can be either the unit cell
+            from self.structure ("unchanged"), the conventional cell
+            ("conventional"), or the primitive unit cell ("primitive").
+
+            cartesian (bool): Whether the atomic positions are provided in
+            Cartesian or unit-cell coordinates. Default is False.
+
+            bandstr (bool): Whether the bandstructure path along the
+            HighSymmKpath is included in the input file. Only supported if the
+            celltype is set to "primitive". Default is False.
+
+            symprec (float): Tolerance for the symmetry finding. Default is 0.4.
+
+            angle_tolerance (float): Angle tolerance for the symmetry finding.
+            Default is 5.
+
+            **kwargs: Additional parameters for the input file.
+
+        Returns:
+            ET.Element containing the input XML structure
         """
         root = ET.Element('input')
         root.set('{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation',
@@ -251,51 +269,87 @@ class ExcitingInput(MSONable):
         elif bandstr and celltype != 'primitive':
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
+
+        # write extra parameters from kwargs if provided
+        self._dicttoxml(kwargs, root)
+
         return root
 
-    def write_string(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
+    def write_string(self, celltype, cartesian=False,
+                     bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
-        Writes to a string.
+        Writes exciting input.xml as a string.
 
-        :param celltype:
-        :param cartesian:
-        :param bandstr:
-        :param symprec:
-        :param angle_tolerance:
-        :return:
+        Args:
+            celltype (str): Choice of unit cell. Can be either the unit cell
+            from self.structure ("unchanged"), the conventional cell
+            ("conventional"), or the primitive unit cell ("primitive").
+
+            cartesian (bool): Whether the atomic positions are provided in
+            Cartesian or unit-cell coordinates. Default is False.
+
+            bandstr (bool): Whether the bandstructure path along the
+            HighSymmKpath is included in the input file. Only supported if the
+            celltype is set to "primitive". Default is False.
+
+            symprec (float): Tolerance for the symmetry finding. Default is 0.4.
+
+            angle_tolerance (float): Angle tolerance for the symmetry finding.
+            Default is 5.
+
+            **kwargs: Additional parameters for the input file.
+
+        Returns:
+            String
         """
         try:
-            root = self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance)
-            self.indent(root)
+            root = self.write_etree(celltype, cartesian, bandstr,
+                                    symprec, angle_tolerance, **kwargs)
+            self._indent(root)
             # output should be a string not a bytes object
             string = ET.tostring(root).decode('UTF-8')
         except Exception:
             raise ValueError('Incorrect celltype!')
         return string
 
-    def write_file(self, celltype, filename, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
+    def write_file(self, celltype, filename, cartesian=False, bandstr=False,
+                   symprec=0.4, angle_tolerance=5, **kwargs):
         """
-        Write to a file.
+        Writes exciting input file.
 
-        :param celltype:
-        :param filename:
-        :param cartesian:
-        :param bandstr:
-        :param symprec:
-        :param angle_tolerance:
-        :return:
+        Args:
+            celltype (str): Choice of unit cell. Can be either the unit cell
+            from self.structure ("unchanged"), the conventional cell
+            ("conventional"), or the primitive unit cell ("primitive").
+
+            filename (str): Filename for exciting input.
+
+            cartesian (bool): Whether the atomic positions are provided in
+            Cartesian or unit-cell coordinates. Default is False.
+
+            bandstr (bool): Whether the bandstructure path along the
+            HighSymmKpath is included in the input file. Only supported if the
+            celltype is set to "primitive". Default is False.
+
+            symprec (float): Tolerance for the symmetry finding. Default is 0.4.
+
+            angle_tolerance (float): Angle tolerance for the symmetry finding.
+            Default is 5.
+
+            **kwargs: Additional parameters for the input file.
         """
         try:
-            root = self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance)
-            self.indent(root)
+            root = self.write_etree(celltype, cartesian, bandstr,
+                                    symprec, angle_tolerance, **kwargs)
+            self._indent(root)
             tree = ET.ElementTree(root)
             tree.write(filename)
         except Exception:
             raise ValueError('Incorrect celltype!')
 
-    # Missing PrerryPrint option in the current version of xml.etree.cElementTree
+    # Missing PrettyPrint option in the current version of xml.etree.cElementTree
     @staticmethod
-    def indent(elem, level=0):
+    def _indent(elem, level=0):
         """
         Helper method to indent elements.
 
@@ -310,9 +364,26 @@ class ExcitingInput(MSONable):
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for el in elem:
-                ExcitingInput.indent(el, level + 1)
+                ExcitingInput._indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
+
+    def _dicttoxml(self, paramdict_, element):
+        for key, value in paramdict_.items():
+            if (isinstance(value, str) and key == 'text()'):
+                element.text = value
+            elif isinstance(value, str):
+                element.attrib[key] = value
+            elif isinstance(value, list):
+                for item in value:
+                    self._dicttoxml(item, ET.SubElement(element, key))
+            elif isinstance(value, dict):
+                if element.findall(key) == []:
+                    self._dicttoxml(value, ET.SubElement(element, key))
+                else:
+                    self._dicttoxml(value, element.findall(key)[0])
+            else:
+                print('cannot deal with', key, '=', value)

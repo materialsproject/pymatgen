@@ -29,7 +29,7 @@ class ExcitingInputTest(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
-        filepath = os.path.join(test_dir, 'input1.xml')
+        filepath = os.path.join(test_dir, 'input_exciting1.xml')
         excin = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ['Na', 'Cl']
@@ -101,6 +101,31 @@ class ExcitingInputTest(PymatgenTest):
                 label.append(point.get('label'))
         self.assertEqual(label, label_ref)
         self.assertEqual(coord, coord_ref)
+    
+    def test_paramdict(self):
+        coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
+        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, 
+                                          beta=90, gamma=60)
+        struct = Structure(lattice, ['Si', 'Si'], coords)
+        paradir = {'grst': {'do': 'fromscratch', 'ngridk': '8 8 8', 
+                   'xctype': 'GGA_PBE_SOL', 'gmaxvr': '14.0'}, 
+                   'xs': {'xstype': 'BSE', 'ngridk': '4 4 4', 
+                          'ngridq': '4 4 4', 'nempty': '30', 'gqmax': '3.0', 
+                          'broad': '0.07', 'tevout': 'true', 'energywindow':
+                          {'intv': '0.0 1.0', 'points': '1200'},
+                          'screening': {'screentype': 'full', 'nempty': '100'}, 
+                          'BSE': {'bsetype': 'singlet', 'nstlbse': '1 5 1 4'}}}
+        
+        test_input = ExcitingInput(struct)
+        test_string = test_input.write_string('unchanged', **paradir)
+        
+        # read reference file
+        filepath = os.path.join(test_dir, 'input_exciting2.xml')
+        tree = ET.parse(filepath)
+        root = tree.getroot()
+        ref_string = ET.tostring(root, encoding='unicode')
+
+        self.assertEqual(ref_string.strip(), test_string.strip())
 
 
 if __name__ == "__main__":
