@@ -191,7 +191,9 @@ class MPRester:
 
         if notify_db_version:
             db_version = self.get_database_version()
-            logger.info(f"Connection established to Materials Project database, version {db_version}.")
+            logger.info(
+                f"Connection established to Materials Project database, version {db_version}."
+            )
 
             try:
                 with open(SETTINGS_FILE, "rt") as f:
@@ -585,9 +587,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(
-        self, chemsys, solid_compat=MaterialsProjectCompatibility
-    ):
+    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -608,7 +608,7 @@ class MPRester:
         pbx_entries = []
 
         if isinstance(chemsys, str):
-            chemsys = chemsys.split('-')
+            chemsys = chemsys.split("-")
 
         # Get ion entries first, because certain ions have reference
         # solids that aren't necessarily in the chemsys (Na2SO4)

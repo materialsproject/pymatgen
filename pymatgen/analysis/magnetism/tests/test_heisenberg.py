@@ -90,7 +90,7 @@ class HeisenbergMapperTest(unittest.TestCase):
     def test_heisenberg_model(self):
         for hm in self.hms:
             hmodel = hm.get_heisenberg_model()
-            self.assertEqual(hmodel.formula, 'Mn3Al')
+            self.assertEqual(hmodel.formula, "Mn3Al")
 
 
 if __name__ == "__main__":

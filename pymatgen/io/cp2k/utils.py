@@ -27,7 +27,7 @@ def _postprocessor(s):
         return False
     elif s.lower() == "none":
         return None
-    elif s.lower() == "yes" or s.lower() == 'true':
+    elif s.lower() == "yes" or s.lower() == "true":
         return True
     elif re.match(r"^-?\d+$", s):
         try:
@@ -48,7 +48,7 @@ def _postprocessor(s):
         return s
 
 
-def _preprocessor(s, d='.'):
+def _preprocessor(s, d="."):
     """
     Cp2k contains internal preprocessor flags that are evaluated before
     execution. This helper function recognizes those preprocessor flags
@@ -72,8 +72,8 @@ def _preprocessor(s, d='.'):
     for incl in includes:
         inc = incl.split()
         assert len(inc) == 2  # @include filename
-        inc = inc[1].strip('\'')
-        inc = inc.strip('\"')
+        inc = inc[1].strip("'")
+        inc = inc.strip('"')
         with zopen(os.path.join(d, inc)) as f:
             s = re.sub(r"{}".format(incl), f.read(), s)
     variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
@@ -82,13 +82,15 @@ def _preprocessor(s, d='.'):
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
         s = re.sub(r"{}".format(match), "", s)
-        s = re.sub(r"\${?"+var+"}?", value, s)
+        s = re.sub(r"\${?" + var + "}?", value, s)
 
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError("This cp2k input processer does not currently "
-                                  "support conditional blocks.")
+        raise NotImplementedError(
+            "This cp2k input processer does not currently "
+            "support conditional blocks."
+        )
     return s
 
 
@@ -98,12 +100,14 @@ def natural_keys(text):
     convention,
     Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12]
     """
+
     def atoi(t):
         return int(t) if t.isdigit() else t
-    return [atoi(c) for c in re.split(r'_(\d+)', text)]
+
+    return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
+def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
     """
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
     Generally, the GTH potentials are used with the GTH basis sets.
@@ -123,14 +127,10 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     potential_filename = SETTINGS.get(
         "PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS"
     )
-    basis_filenames = ['BASIS_MOLOPT', 'BASIS_MOLOPT_UCL']
+    basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
 
-    functional = functional or SETTINGS.get(
-        "PMG_DEFAULT_FUNCTIONAL", "PBE"
-    )
-    cardinality = cardinality or SETTINGS.get(
-        "PMG_DEFAULT_BASIS_CARDINALITY", "DZVP"
-    )
+    functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+    cardinality = cardinality or SETTINGS.get("PMG_DEFAULT_BASIS_CARDINALITY", "DZVP")
     basis_and_potential = {
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
@@ -138,47 +138,49 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     for s in species:
         if s not in d:
             d[s] = {}
-        if 'sr' not in d[s]:
-            d[s]['sr'] = True
-        if 'cardinality' not in d[s]:
-            d[s]['cardinality'] = cardinality
+        if "sr" not in d[s]:
+            d[s]["sr"] = True
+        if "cardinality" not in d[s]:
+            d[s]["cardinality"] = cardinality
 
-    with open(os.path.join(MODULE_DIR, 'basis_molopt.yaml'), 'rt') as f:
+    with open(os.path.join(MODULE_DIR, "basis_molopt.yaml"), "rt") as f:
         data_b = yaml.load(f, Loader=yaml.Loader)
-    with open(os.path.join(MODULE_DIR, 'gth_potentials.yaml'), 'rt') as f:
+    with open(os.path.join(MODULE_DIR, "gth_potentials.yaml"), "rt") as f:
         data_p = yaml.load(f, Loader=yaml.Loader)
 
     for s in species:
         basis_and_potential[s] = {}
-        b = [_ for _ in data_b[s] if d[s]['cardinality'] in _.split('-')]
-        if d[s]['sr'] and any(['SR' in _ for _ in b]):
-            b = [_ for _ in b if 'SR' in _]
+        b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
+        if d[s]["sr"] and any(["SR" in _ for _ in b]):
+            b = [_ for _ in b if "SR" in _]
         else:
-            b = [_ for _ in b if 'SR' not in _]
-        if 'q' in d[s]:
-            b = [_ for _ in b if d[s]['q'] in _]
+            b = [_ for _ in b if "SR" not in _]
+        if "q" in d[s]:
+            b = [_ for _ in b if d[s]["q"] in _]
         else:
+
             def srt(x):
-                return int(x.split('q')[-1])
+                return int(x.split("q")[-1])
+
             b = sorted(b, key=srt)[-1:]
         if len(b) == 0:
-            raise LookupError('NO BASIS OF THAT TYPE AVAILABLE')
+            raise LookupError("NO BASIS OF THAT TYPE AVAILABLE")
         elif len(b) > 1:
-            raise LookupError('AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER')
+            raise LookupError("AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER")
 
-        basis_and_potential[s]['basis'] = b[0]
-        p = [_ for _ in data_p[s] if functional in _.split('-')]
+        basis_and_potential[s]["basis"] = b[0]
+        p = [_ for _ in data_p[s] if functional in _.split("-")]
         if len(p) == 0:
-            raise LookupError('NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE')
+            raise LookupError("NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE")
         if len(p) > 1:
-            raise LookupError('AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER')
+            raise LookupError("AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER")
 
-        basis_and_potential[s]['potential'] = p[0]
+        basis_and_potential[s]["potential"] = p[0]
 
     return basis_and_potential
 
 
-def get_aux_basis(basis_type, default_basis_type='cFIT'):
+def get_aux_basis(basis_type, default_basis_type="cFIT"):
     """
     Get auxiliary basis info for a list of species.
 
@@ -198,10 +200,14 @@ def get_aux_basis(basis_type, default_basis_type='cFIT'):
         default_basis_type (str) default basis type if n
 
     """
-    default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
-    basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
+    default_basis_type = default_basis_type or SETTINGS.get(
+        "PMG_CP2K_DEFAULT_AUX_BASIS_TYPE"
+    )
+    basis_type = {
+        k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type
+    }
     basis = {k: {} for k in basis_type}
-    aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
+    aux_bases = loadfn(os.path.join(MODULE_DIR, "aux_basis.yaml"))
     for k in basis_type:
         for i in aux_bases[k]:
             if i.startswith(basis_type[k]):
@@ -243,8 +249,7 @@ def get_unique_site_indices(structure):
             for i, u in enumerate(unique):
                 sites[s + "_" + str(i + 1)] = []
                 for j, site in zip(
-                    s_ids,
-                    [structure.site_properties[_property][ids] for ids in s_ids],
+                    s_ids, [structure.site_properties[_property][ids] for ids in s_ids],
                 ):
                     if site == u:
                         sites[s + "_" + str(i + 1)].append(j)

@@ -38,6 +38,7 @@ class HeisenbergMapper:
     """
     Class to compute exchange parameters from low energy magnetic orderings.
     """
+
     def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
@@ -358,7 +359,7 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 if ex_mat.append(ex_row)[j_columns].equals(
-                        ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
+                    ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
                 ):
                     e_index = self.ordered_structures.index(sgraph.structure)
                     ex_row.at[sgraph_index, "E"] = self.energies[e_index]
@@ -733,6 +734,7 @@ class HeisenbergScreener:
     """
     Class to clean and screen magnetic orderings.
     """
+
     def __init__(self, structures, energies, screen=False):
         """
         This class pre-processes magnetic orderings and energies for

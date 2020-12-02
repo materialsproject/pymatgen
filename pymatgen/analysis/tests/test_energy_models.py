@@ -2,8 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.energy_models import EwaldElectrostaticModel, \
-    SymmetryModel, IsingModel
+from pymatgen.analysis.energy_models import (
+    EwaldElectrostaticModel,
+    SymmetryModel,
+    IsingModel,
+)
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -11,8 +14,7 @@ import os
 import unittest
 import warnings
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class EwaldElectrostaticModelTest(unittest.TestCase):
@@ -23,16 +25,18 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_energy(self):
-        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],
-                  [0.25, 0.25, 0.25]]
-        lattice = Lattice([[3.0, 0.0, 0.0],
-                           [1.0, 3.0, 0.00],
-                           [0.00, -2.0, 3.0]])
-        s = Structure(lattice,
-                      [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-                       {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-                       {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
-                       {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}], coords)
+        coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
+        lattice = Lattice([[3.0, 0.0, 0.0], [1.0, 3.0, 0.00], [0.00, -2.0, 3.0]])
+        s = Structure(
+            lattice,
+            [
+                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+            ],
+            coords,
+        )
 
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
@@ -43,12 +47,12 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
     def test_to_from_dict(self):
         m = EwaldElectrostaticModel()
         d = m.as_dict()
-        self.assertIsInstance(EwaldElectrostaticModel.from_dict(d),
-                              EwaldElectrostaticModel)
+        self.assertIsInstance(
+            EwaldElectrostaticModel.from_dict(d), EwaldElectrostaticModel
+        )
 
 
 class SymmetryModelTest(unittest.TestCase):
-
     def test_get_energy(self):
         m = SymmetryModel()
         s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
@@ -63,10 +67,10 @@ class SymmetryModelTest(unittest.TestCase):
 
 
 class IsingModelTest(unittest.TestCase):
-
     def test_get_energy(self):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Species
+
         s = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
         s.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
         self.assertAlmostEqual(m.get_energy(s), 172.81260515787977)

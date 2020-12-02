@@ -92,6 +92,7 @@ class CollinearMagneticStructureAnalyzer:
     A class which provides a few helpful methods to analyze
     collinear magnetic structures.
     """
+
     def __init__(
         self,
         structure: Structure,
@@ -462,7 +463,9 @@ class CollinearMagneticStructureAnalyzer:
         return np.array(self.structure.site_properties["magmom"])
 
     @property
-    def types_of_magnetic_species(self) -> Tuple[Union[Element, Species, DummySpecies], ...]:
+    def types_of_magnetic_species(
+        self,
+    ) -> Tuple[Union[Element, Species, DummySpecies], ...]:
         """Equivalent to Structure.types_of_specie but only returns
         magnetic species.
 
@@ -476,7 +479,9 @@ class CollinearMagneticStructureAnalyzer:
             return tuple()
 
     @property
-    def types_of_magnetic_specie(self) -> Tuple[Union[Element, Species, DummySpecies], ...]:
+    def types_of_magnetic_specie(
+        self,
+    ) -> Tuple[Union[Element, Species, DummySpecies], ...]:
         """
         Specie->Species rename. Used to maintain backwards compatibility.
         """
@@ -698,7 +703,10 @@ class MagneticStructureEnumerator:
         self,
         structure: Structure,
         default_magmoms: Optional[Dict[str, float]] = None,
-        strategies: Union[List[str], Tuple[str, ...]] = ("ferromagnetic", "antiferromagnetic"),
+        strategies: Union[List[str], Tuple[str, ...]] = (
+            "ferromagnetic",
+            "antiferromagnetic",
+        ),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
         transformation_kwargs: Optional[Dict] = None,

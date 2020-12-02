@@ -11,4 +11,13 @@ backwards compatibility.
 """
 
 from .inputs import Lobsterin
-from .outputs import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Bandoverlaps, Grosspop
+from .outputs import (
+    Cohpcar,
+    Icohplist,
+    Doscar,
+    Charge,
+    Lobsterout,
+    Fatband,
+    Bandoverlaps,
+    Grosspop,
+)

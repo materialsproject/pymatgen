@@ -73,12 +73,13 @@ def get_structure_from_mp(formula):
     m = MPRester()
     entries = m.get_entries(formula, inc_structure="final")
     if len(entries) == 0:
-        raise ValueError("No structure with formula %s in Materials Project!" %
-                         formula)
+        raise ValueError("No structure with formula %s in Materials Project!" % formula)
     if len(entries) > 1:
-        warnings.warn("%d structures with formula %s found in Materials "
-                      "Project. The lowest energy structure will be returned." %
-                      (len(entries), formula))
+        warnings.warn(
+            "%d structures with formula %s found in Materials "
+            "Project. The lowest energy structure will be returned."
+            % (len(entries), formula)
+        )
     return min(entries, key=lambda e: e.energy_per_atom).structure
 
 
@@ -96,13 +97,18 @@ def loadfn(fname):
         (Vasprun) *vasprun*
         (obj) if *json* (passthrough to monty.serialization.loadfn)
     """
-    if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or ".cif" in fname.lower()) or \
-            fnmatch(fname, "*.vasp"):
+    if (
+        fnmatch(fname, "*POSCAR*")
+        or fnmatch(fname, "*CONTCAR*")
+        or ".cif" in fname.lower()
+    ) or fnmatch(fname, "*.vasp"):
         return Structure.from_file(fname)
     if fnmatch(fname, "*vasprun*"):
         from pymatgen.io.vasp import Vasprun
+
         return Vasprun(fname)
     if fnmatch(fname, "*.json*"):
         from monty.serialization import loadfn
+
         return loadfn(fname)
     raise ValueError("Unable to determine how to process %s." % fname)

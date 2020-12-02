@@ -79,7 +79,7 @@ class CorrectionCalculator:
             "SeO3",
             "TiO3",
             "TiO4",
-        ]
+        ],
     ) -> None:
 
         """
@@ -274,7 +274,9 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError("We can't detect this specie: {}".format(specie))
+                            raise ValueError(
+                                "We can't detect this specie: {}".format(specie)
+                            )
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -510,21 +512,40 @@ class CorrectionCalculator:
         contents["Name"] = name
 
         # make CommentedMap so comments can be added
-        contents["Corrections"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o)
-        contents["Corrections"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f)
-        contents["Corrections"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr)
-        contents["Uncertainties"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o_error)
-        contents["Uncertainties"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f_error)
-        contents["Uncertainties"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
+        contents["Corrections"]["GGAUMixingCorrections"][
+            "O"
+        ] = ruamel.yaml.comments.CommentedMap(o)
+        contents["Corrections"]["GGAUMixingCorrections"][
+            "F"
+        ] = ruamel.yaml.comments.CommentedMap(f)
+        contents["Corrections"][
+            "CompositionCorrections"
+        ] = ruamel.yaml.comments.CommentedMap(comp_corr)
+        contents["Uncertainties"]["GGAUMixingCorrections"][
+            "O"
+        ] = ruamel.yaml.comments.CommentedMap(o_error)
+        contents["Uncertainties"]["GGAUMixingCorrections"][
+            "F"
+        ] = ruamel.yaml.comments.CommentedMap(f_error)
+        contents["Uncertainties"][
+            "CompositionCorrections"
+        ] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
 
-        contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
+        contents["Corrections"].yaml_set_start_comment(
+            "Energy corrections in eV/atom", indent=2
+        )
         contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to transition metal oxides\nand fluorides to " +
-            "make GGA and GGA+U energies compatible\nwhen compat_type = \"Advanced\" (default)", indent=4)
+            "Composition-based corrections applied to transition metal oxides\nand fluorides to "
+            + 'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
+            indent=4,
+        )
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to any compound containing\nthese species as anions", indent=4)
+            "Composition-based corrections applied to any compound containing\nthese species as anions",
+            indent=4,
+        )
         contents["Uncertainties"].yaml_set_start_comment(
-            "Uncertainties corresponding to each energy correction (eV/atom)", indent=2)
+            "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
+        )
 
         yaml.dump(contents, file)
         file.close()

@@ -18,9 +18,10 @@ from pymatgen.analysis.local_env import (
     OpenBabelNN,
     CutOffDictNN,
     VoronoiNN,
-    CovalentBondNN
+    CovalentBondNN,
 )
 from pymatgen.util.testing import PymatgenTest
+
 try:
     from openbabel import openbabel as ob
 except ImportError:
@@ -112,9 +113,7 @@ class StructureGraphTest(PymatgenTest):
             )
         )
         c2o = Critic2Analysis(self.structure, reference_stdout)
-        self.mos2_sg = c2o.structure_graph(
-            include_critical_points=False
-        )
+        self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
         latt = Lattice.cubic(4.17)
         species = ["Ni", "O"]
@@ -239,9 +238,12 @@ class StructureGraphTest(PymatgenTest):
         self.assertEqual(square_copy.get_coordination_of_site(1), 1)
 
         # Test that StructureGraph.graph is correctly updated
-        square_copy.insert_node(1, "H", [0.5, 0.5, 0.75], edges=[{"from_index": 1,
-                                                                  "to_index": 2,
-                                                                  "to_jimage": (0, 0, 0)}])
+        square_copy.insert_node(
+            1,
+            "H",
+            [0.5, 0.5, 0.75],
+            edges=[{"from_index": 1, "to_index": 2, "to_jimage": (0, 0, 0)}],
+        )
         square_copy.remove_nodes([1])
         self.assertEqual(square_copy.graph.number_of_nodes(), 2)
         self.assertEqual(square_copy.graph.number_of_edges(), 5)

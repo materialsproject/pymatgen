@@ -34,6 +34,7 @@ class JahnTellerAnalyzer:
     if structure may be high-spin or low-spin.
     Class aims for more false-positives than false-negatives.
     """
+
     def __init__(self):
         """
         Init for JahnTellerAnalyzer.

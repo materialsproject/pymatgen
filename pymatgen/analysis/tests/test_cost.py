@@ -7,11 +7,10 @@ import unittest
 import pymatgen
 from pymatgen.analysis.cost import CostDBCSV, CostAnalyzer, CostDBElements
 
-module_dir = os.path.join(os.path.dirname(pymatgen.__file__), '..', 'test_files')
+module_dir = os.path.join(os.path.dirname(pymatgen.__file__), "..", "test_files")
 
 
 class CostAnalyzerTest(unittest.TestCase):
-
     def setUp(self):
         self.ca1 = CostAnalyzer(CostDBCSV(os.path.join(module_dir, "costdb_1.csv")))
         self.ca2 = CostAnalyzer(CostDBCSV(os.path.join(module_dir, "costdb_2.csv")))
@@ -33,7 +32,6 @@ class CostAnalyzerTest(unittest.TestCase):
 
 
 class CostDBTest(unittest.TestCase):
-
     def test_sanity(self):
         ca = CostAnalyzer(CostDBElements())
         self.assertGreater(ca.get_cost_per_kg("PtO"), ca.get_cost_per_kg("MgO"))

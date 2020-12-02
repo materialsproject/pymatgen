@@ -23,7 +23,6 @@ except ImportError:
 
 
 class HighSymmKpathTest(PymatgenTest):
-
     @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
@@ -40,7 +39,11 @@ class HighSymmKpathTest(PymatgenTest):
             sg_num = i + 1
             if sg_num in triclinic:
                 lattice = Lattice(
-                    [[3.0233057319441246, 1, 0], [0, 7.9850357844548681, 1], [0, 1.2, 8.1136762279561818]]
+                    [
+                        [3.0233057319441246, 1, 0],
+                        [0, 7.9850357844548681, 1],
+                        [0, 1.2, 8.1136762279561818],
+                    ]
                 )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
@@ -65,7 +68,16 @@ class HighSymmKpathTest(PymatgenTest):
         bs = loadfn(os.path.join(test_dir, "Cu2O_361_bandstructure.json"))
         hskp = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
-        distance_map = [(3, False), (5, True), (1, True), (4, True), (3, True), (2, True), (1, True), (0, True)]
+        distance_map = [
+            (3, False),
+            (5, True),
+            (1, True),
+            (4, True),
+            (3, True),
+            (2, True),
+            (1, True),
+            (0, True),
+        ]
         labels = [
             ("\\Gamma", "R"),
             ("R", "M"),

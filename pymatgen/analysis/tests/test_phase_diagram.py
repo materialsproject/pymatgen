@@ -266,44 +266,60 @@ class PhaseDiagramTest(unittest.TestCase):
             # catch duplicated stable entries
             if entry.normalize(inplace=False) in self.pd.get_stable_entries_normed():
                 self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0,
-                    "Duplicated stable entries should have negative decomposition energy!")
+                    self.pd.get_quasi_e_to_hull(entry),
+                    0,
+                    "Duplicated stable entries should have negative decomposition energy!",
+                )
             else:
                 self.assertGreaterEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0,
-                    "Unstable entries should have positive decomposition energy!")
+                    self.pd.get_quasi_e_to_hull(entry),
+                    0,
+                    "Unstable entries should have positive decomposition energy!",
+                )
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
                 self.assertEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0,
-                    "Stable elemental entries should have decomposition energy of zero!")
+                    self.pd.get_quasi_e_to_hull(entry),
+                    0,
+                    "Stable elemental entries should have decomposition energy of zero!",
+                )
             else:
                 self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0,
-                    "Stable entries should have negative decomposition energy!")
+                    self.pd.get_quasi_e_to_hull(entry),
+                    0,
+                    "Stable entries should have negative decomposition energy!",
+                )
 
         novel_stable_entry = PDEntry("Li5FeO4", -999)
         self.assertLess(
-            self.pd.get_quasi_e_to_hull(novel_stable_entry), 0,
-            "Novel stable entries should have negative decomposition energy!")
+            self.pd.get_quasi_e_to_hull(novel_stable_entry),
+            0,
+            "Novel stable entries should have negative decomposition energy!",
+        )
 
         novel_unstable_entry = PDEntry("Li5FeO4", 999)
         self.assertGreater(
-            self.pd.get_quasi_e_to_hull(novel_unstable_entry), 0,
-            "Novel unstable entries should have positive decomposition energy!")
+            self.pd.get_quasi_e_to_hull(novel_unstable_entry),
+            0,
+            "Novel unstable entries should have positive decomposition energy!",
+        )
 
         duplicate_entry = PDEntry("Li2O", -14.31361175)
-        scaled_dup_entry = PDEntry("Li4O2", -14.31361175*2)
+        scaled_dup_entry = PDEntry("Li4O2", -14.31361175 * 2)
         stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
 
         self.assertEqual(
-            self.pd.get_quasi_e_to_hull(duplicate_entry), self.pd.get_quasi_e_to_hull(stable_entry),
-            "Novel duplicates of stable entries should have same decomposition energy!")
+            self.pd.get_quasi_e_to_hull(duplicate_entry),
+            self.pd.get_quasi_e_to_hull(stable_entry),
+            "Novel duplicates of stable entries should have same decomposition energy!",
+        )
 
         self.assertEqual(
-            self.pd.get_quasi_e_to_hull(scaled_dup_entry), self.pd.get_quasi_e_to_hull(stable_entry),
-            "Novel scaled duplicates of stable entries should have same decomposition energy!")
+            self.pd.get_quasi_e_to_hull(scaled_dup_entry),
+            self.pd.get_quasi_e_to_hull(stable_entry),
+            "Novel scaled duplicates of stable entries should have same decomposition energy!",
+        )
 
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:

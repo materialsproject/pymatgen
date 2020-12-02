@@ -29,8 +29,9 @@ class SpectrumPlotter:
         plotter.add_spectra({"dos1": dos1, "dos2": dos2})
     """
 
-    def __init__(self, xshift=0.0, yshift=0.0, stack=False,
-                 color_cycle=("qualitative", "Set1_9")):
+    def __init__(
+        self, xshift=0.0, yshift=0.0, stack=False, color_cycle=("qualitative", "Set1_9")
+    ):
         """
         Args:
             xshift (float): A shift that is applied to the x values. This is
@@ -50,8 +51,7 @@ class SpectrumPlotter:
         self.yshift = yshift
         self.stack = stack
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" %
-                                      color_cycle[0])
+        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
         self.colors_cycle = getattr(mod, color_cycle[1]).mpl_colors
         self.colors = []
         self._spectra = collections.OrderedDict()
@@ -69,8 +69,8 @@ class SpectrumPlotter:
         """
         self._spectra[label] = spectrum
         self.colors.append(
-            color or
-            self.colors_cycle[len(self._spectra) % len(self.colors_cycle)])
+            color or self.colors_cycle[len(self._spectra) % len(self.colors_cycle)]
+        )
 
     def add_spectra(self, spectra_dict, key_sort_func=None):
         """
@@ -103,12 +103,22 @@ class SpectrumPlotter:
         i = 0
         for key, sp in self._spectra.items():
             if not self.stack:
-                plt.plot(sp.x, sp.y + self.yshift * i, color=self.colors[i],
-                         label=str(key), linewidth=3)
+                plt.plot(
+                    sp.x,
+                    sp.y + self.yshift * i,
+                    color=self.colors[i],
+                    label=str(key),
+                    linewidth=3,
+                )
             else:
-                plt.fill_between(sp.x, base, sp.y + self.yshift * i,
-                                 color=self.colors[i],
-                                 label=str(key), linewidth=3)
+                plt.fill_between(
+                    sp.x,
+                    base,
+                    sp.y + self.yshift * i,
+                    color=self.colors[i],
+                    label=str(key),
+                    linewidth=3,
+                )
                 base = sp.y + base
             plt.xlabel(sp.XLABEL)
             plt.ylabel(sp.YLABEL)

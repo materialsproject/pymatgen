@@ -734,9 +734,7 @@ class SQSTransformationTest(PymatgenTest):
 
         # nonsensical example just for testing purposes
         struc = self.get_structure("Pb2TiZrO6").copy()
-        struc.replace_species(
-            {"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}}
-        )
+        struc.replace_species({"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}})
 
         struc_out = trans.apply_transformation(struc)
         struc_out_specie_strings = [site.species_string for site in struc_out]

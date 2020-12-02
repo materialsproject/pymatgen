@@ -128,7 +128,9 @@ def test_overlapping_adjustments():
     assert entry.correction == -5
 
     # in case of a collision between EnergyAdjustment, check for a UserWarning
-    with pytest.warns(UserWarning, match="already has an energy adjustment called Dummy"):
+    with pytest.warns(
+        UserWarning, match="already has an energy adjustment called Dummy"
+    ):
         processed = compat.process_entries(entry, clean=False)
 
     assert len(processed) == 0
@@ -811,9 +813,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
                     "potcar_symbols": ["PBE Ca_sv", "PBE Si"],
                     "oxide_type": "None",
                 },
-                "data": {"oxide_type": "None",
-                         "oxidation_states": {'Ca': 2.0, 'Si': -2.0}
-                         },
+                "data": {
+                    "oxide_type": "None",
+                    "oxidation_states": {"Ca": 2.0, "Si": -2.0},
+                },
                 "entry_id": "mp-1563",
                 "correction": 0.0,
             }
@@ -838,9 +841,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
                     "potcar_symbols": ["PBE Si", "PBE O"],
                     "oxide_type": "oxide",
                 },
-                "data": {"oxide_type": "oxide",
-                         "oxidation_states": {'Si': 4.0, 'O': -2.0}
-                         },
+                "data": {
+                    "oxide_type": "oxide",
+                    "oxidation_states": {"Si": 4.0, "O": -2.0},
+                },
                 "entry_id": "mp-546794",
                 "correction": 0.0,
             }
@@ -1020,28 +1024,40 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
         # Fe 4 Co 2 O 8 (Fe2CoO4)
-        entry = {'@module': 'pymatgen.entries.computed_entries',
-                 '@class': 'ComputedEntry',
-                 'energy': -91.94962744,
-                 'composition': defaultdict(float, {'Fe': 4.0, 'Co': 2.0, 'O': 8.0}),
-                 'energy_adjustments': [],
-                 'parameters': {'run_type': 'GGA+U',
-                                'is_hubbard': True,
-                                'pseudo_potential': {'functional': 'PBE',
-                                                     'labels': ['Fe_pv', 'Co', 'O'],
-                                                     'pot_type': 'paw'},
-                                'hubbards': {'Fe': 5.3, 'Co': 3.32, 'O': 0.0},
-                                'potcar_symbols': ['PBE Fe_pv', 'PBE Co', 'PBE O'],
-                                'oxide_type': 'oxide'},
-                 'data': {'oxide_type': 'oxide'},
-                 'entry_id': 'mp-753222',
-                 'correction': 0}
+        entry = {
+            "@module": "pymatgen.entries.computed_entries",
+            "@class": "ComputedEntry",
+            "energy": -91.94962744,
+            "composition": defaultdict(float, {"Fe": 4.0, "Co": 2.0, "O": 8.0}),
+            "energy_adjustments": [],
+            "parameters": {
+                "run_type": "GGA+U",
+                "is_hubbard": True,
+                "pseudo_potential": {
+                    "functional": "PBE",
+                    "labels": ["Fe_pv", "Co", "O"],
+                    "pot_type": "paw",
+                },
+                "hubbards": {"Fe": 5.3, "Co": 3.32, "O": 0.0},
+                "potcar_symbols": ["PBE Fe_pv", "PBE Co", "PBE O"],
+                "oxide_type": "oxide",
+            },
+            "data": {"oxide_type": "oxide"},
+            "entry_id": "mp-753222",
+            "correction": 0,
+        }
         entry = ComputedEntry.from_dict(entry)
-        
+
         c = compat.process_entry(entry)
-        assert "MP2020 anion correction (oxide)" in [ea.name for ea in c.energy_adjustments]
-        assert "MP2020 GGA/GGA+U mixing correction (Fe)" in [ea.name for ea in c.energy_adjustments]
-        assert "MP2020 GGA/GGA+U mixing correction (Co)" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 anion correction (oxide)" in [
+            ea.name for ea in c.energy_adjustments
+        ]
+        assert "MP2020 GGA/GGA+U mixing correction (Fe)" in [
+            ea.name for ea in c.energy_adjustments
+        ]
+        assert "MP2020 GGA/GGA+U mixing correction (Co)" in [
+            ea.name for ea in c.energy_adjustments
+        ]
 
         for ea in c.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
@@ -1057,7 +1073,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
         c = ggacompat.process_entry(entry)
-        self.assertNotIn("MP2020 GGA/GGA+U mixing correction", [ea.name for ea in c.energy_adjustments])
+        self.assertNotIn(
+            "MP2020 GGA/GGA+U mixing correction",
+            [ea.name for ea in c.energy_adjustments],
+        )
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
@@ -1911,7 +1930,10 @@ class TestMaterialsProjectAqueousCompatibility:
     def test_h_h2o_energy_with_args(self):
 
         compat = MaterialsProjectAqueousCompatibility(
-            o2_energy=-4.9276, h2o_energy=-5.195, h2o_adjustments=-0.234, solid_compat=None
+            o2_energy=-4.9276,
+            h2o_energy=-5.195,
+            h2o_adjustments=-0.234,
+            solid_compat=None,
         )
 
         h2o_entry_1 = ComputedEntry(Composition("H2O"), -16)

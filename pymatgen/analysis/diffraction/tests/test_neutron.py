@@ -29,10 +29,10 @@ class NDCalculatorTest(PymatgenTest):
         nd = c.get_pattern(s, two_theta_range=(0, 90))
         # Check the first two peaks
         self.assertAlmostEqual(nd.x[0], 21.107738329639844)
-        self.assertEqual(nd.hkls[0], [{'hkl': (1, 0, 0), 'multiplicity': 6}])
+        self.assertEqual(nd.hkls[0], [{"hkl": (1, 0, 0), "multiplicity": 6}])
         self.assertAlmostEqual(nd.d_hkls[0], 4.2089999999999996)
         self.assertAlmostEqual(nd.x[1], 30.024695921112777)
-        self.assertEqual(nd.hkls[1], [{'hkl': (1, 1, 0), 'multiplicity': 12}])
+        self.assertEqual(nd.hkls[1], [{"hkl": (1, 1, 0), "multiplicity": 12}])
         self.assertAlmostEqual(nd.d_hkls[1], 2.976212442014178)
 
         s = self.get_structure("LiFePO4")
@@ -63,7 +63,7 @@ class NDCalculatorTest(PymatgenTest):
 
         # Test with Debye-Waller factor
         s = self.get_structure("Graphite")
-        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C': 1})
+        c = NDCalculator(wavelength=1.54184, debye_waller_factors={"C": 1})
         nd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)
@@ -72,9 +72,9 @@ class NDCalculatorTest(PymatgenTest):
 
     def test_get_plot(self):
         s = self.get_structure("Graphite")
-        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C': 1})
+        c = NDCalculator(wavelength=1.54184, debye_waller_factors={"C": 1})
         c.get_plot(s, two_theta_range=(0, 90))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

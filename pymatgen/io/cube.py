@@ -79,18 +79,27 @@ class Cube:
         self.Z = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
 
         self.voxelVolume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
-        self.volume = abs(np.dot(np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)))
+        self.volume = abs(
+            np.dot(
+                np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)
+            )
+        )
 
         # The last section in the header is one line for each atom consisting of 5 numbers,
         # the first is the atom number, second is charge, the last three are the x,y,z coordinates of the atom center.
         self.sites = []
         for i in range(self.natoms):
             line = f.readline().split()
-            self.sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
+            self.sites.append(
+                Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:]))))
+            )
 
-        self.structure = Structure(lattice=[self.X*self.NX, self.Y*self.NY, self.Z*self.NZ],
-                                   species=[s.specie for s in self.sites],
-                                   coords=[s.coords for s in self.sites], coords_are_cartesian=True)
+        self.structure = Structure(
+            lattice=[self.X * self.NX, self.Y * self.NY, self.Z * self.NZ],
+            species=[s.specie for s in self.sites],
+            coords=[s.coords for s in self.sites],
+            coords_are_cartesian=True,
+        )
 
         # Volumetric data
         self.data = np.zeros((self.NX, self.NY, self.NZ))

@@ -36,7 +36,7 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
         :param d: Dict representation
         :return: EnergyModel
         """
-        return cls(**d['init_args'])
+        return cls(**d["init_args"])
 
 
 class EwaldElectrostaticModel(EnergyModel):
@@ -44,8 +44,9 @@ class EwaldElectrostaticModel(EnergyModel):
     Wrapper around EwaldSum to calculate the electrostatic energy.
     """
 
-    def __init__(self, real_space_cut=None, recip_space_cut=None,
-                 eta=None, acc_factor=8.0):
+    def __init__(
+        self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0
+    ):
         """
         Initializes the model. Args have the same definitions as in
         :class:`pymatgen.analysis.ewald.EwaldSummation`.
@@ -73,23 +74,30 @@ class EwaldElectrostaticModel(EnergyModel):
         :param structure: Structure
         :return: Energy value
         """
-        e = EwaldSummation(structure, real_space_cut=self.real_space_cut,
-                           recip_space_cut=self.recip_space_cut,
-                           eta=self.eta,
-                           acc_factor=self.acc_factor)
+        e = EwaldSummation(
+            structure,
+            real_space_cut=self.real_space_cut,
+            recip_space_cut=self.recip_space_cut,
+            eta=self.eta,
+            acc_factor=self.acc_factor,
+        )
         return e.total_energy
 
     def as_dict(self):
         """
         :return: MSONable dict
         """
-        return {"version": __version__,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "init_args": {"real_space_cut": self.real_space_cut,
-                              "recip_space_cut": self.recip_space_cut,
-                              "eta": self.eta,
-                              "acc_factor": self.acc_factor}}
+        return {
+            "version": __version__,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "init_args": {
+                "real_space_cut": self.real_space_cut,
+                "recip_space_cut": self.recip_space_cut,
+                "eta": self.eta,
+                "acc_factor": self.acc_factor,
+            },
+        }
 
 
 class SymmetryModel(EnergyModel):
@@ -115,18 +123,24 @@ class SymmetryModel(EnergyModel):
         :param structure: Structure
         :return: Energy value
         """
-        f = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
+        f = SpacegroupAnalyzer(
+            structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance
+        )
         return -f.get_space_group_number()
 
     def as_dict(self):
         """
         :return: MSONable dict
         """
-        return {"version": __version__,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "init_args": {"symprec": self.symprec,
-                              "angle_tolerance": self.angle_tolerance}}
+        return {
+            "version": __version__,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "init_args": {
+                "symprec": self.symprec,
+                "angle_tolerance": self.angle_tolerance,
+            },
+        }
 
 
 class IsingModel(EnergyModel):
@@ -153,18 +167,21 @@ class IsingModel(EnergyModel):
         for i, nns in enumerate(all_nn):
             s1 = getattr(structure[i].specie, "spin", 0)
             for nn in nns:
-                energy += self.j * s1 * getattr(nn.specie, "spin",
-                                                0) / (nn.nn_distance ** 2)
+                energy += (
+                    self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance ** 2)
+                )
         return energy
 
     def as_dict(self):
         """
         :return: MSONable dict
         """
-        return {"version": __version__,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "init_args": {"j": self.j, "max_radius": self.max_radius}}
+        return {
+            "version": __version__,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "init_args": {"j": self.j, "max_radius": self.max_radius},
+        }
 
 
 class NsitesModel(EnergyModel):
@@ -185,7 +202,9 @@ class NsitesModel(EnergyModel):
         """
         :return: MSONable dict
         """
-        return {"version": __version__,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "init_args": {}}
+        return {
+            "version": __version__,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "init_args": {},
+        }

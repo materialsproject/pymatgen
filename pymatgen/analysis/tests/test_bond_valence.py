@@ -9,16 +9,17 @@ import os
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Species
-from pymatgen.analysis.bond_valence import BVAnalyzer, calculate_bv_sum, \
-    calculate_bv_sum_unordered
+from pymatgen.analysis.bond_valence import (
+    BVAnalyzer,
+    calculate_bv_sum,
+    calculate_bv_sum_unordered,
+)
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class BVAnalyzerTest(PymatgenTest):
-
     def setUp(self):
         self.analyzer = BVAnalyzer()
 
@@ -27,21 +28,144 @@ class BVAnalyzerTest(PymatgenTest):
         ans = [1, 1, 3, 3, 4, 4, -2, -2, -2, -2, -2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
         s = self.get_structure("LiFePO4")
-        ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
-               - 2, -2, -2, -2, -2, -2, -2, -2, -2]
+        ans = [
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            5,
+            5,
+            5,
+            5,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+        ]
         self.assertEqual(self.analyzer.get_valences(s), ans)
         s = self.get_structure("Li3V2(PO4)3")
-        ans = [1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, -2, -2, -2, -2,
-               - 2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
-               - 2, -2, -2, -2]
+        ans = [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            3,
+            3,
+            3,
+            3,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+        ]
         self.assertEqual(self.analyzer.get_valences(s), ans)
         s = Structure.from_file(os.path.join(test_dir, "Li4Fe3Mn1(PO4)4.json"))
-        ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
-               - 2, -2, -2, -2, -2, -2, -2, -2, -2]
+        ans = [
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            5,
+            5,
+            5,
+            5,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+        ]
         self.assertEqual(self.analyzer.get_valences(s), ans)
         s = self.get_structure("NaFePO4")
-        ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
-               - 2, -2, -2, -2, -2, -2, -2, -2, -2]
+        ans = [
+            1,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2,
+            2,
+            5,
+            5,
+            5,
+            5,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+            -2,
+        ]
         self.assertEqual(self.analyzer.get_valences(s), ans)
 
     def test_get_oxi_state_structure(self):
@@ -52,7 +176,6 @@ class BVAnalyzerTest(PymatgenTest):
 
 
 class BondValenceSumTest(PymatgenTest):
-
     def test_calculate_bv_sum(self):
         s = Structure.from_file(os.path.join(test_dir, "LiMn2O4.json"))
         neighbors = s.get_neighbors(s[0], 3.0)

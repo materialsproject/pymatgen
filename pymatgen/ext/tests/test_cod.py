@@ -28,8 +28,7 @@ class CODTest(unittest.TestCase):
     def test_get_structure_by_formula(self):
         data = COD().get_structure_by_formula("Li2O")
         self.assertTrue(len(data) > 15)
-        self.assertEqual(data[0]["structure"].composition.reduced_formula,
-                         "Li2O")
+        self.assertEqual(data[0]["structure"].composition.reduced_formula, "Li2O")
 
     def test_get_structure_by_id(self):
         s = COD().get_structure_by_id(2002926)

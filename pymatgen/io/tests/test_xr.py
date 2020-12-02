@@ -17,14 +17,12 @@ from pymatgen.io.xr import Xr
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class XrTest(unittest.TestCase):
-
     def setUp(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = os.path.join(test_dir, "POSCAR")
         p = Poscar.from_file(filepath)
         self.xr = Xr(p.structure)
 

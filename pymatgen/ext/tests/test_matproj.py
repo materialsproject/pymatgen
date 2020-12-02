@@ -12,7 +12,10 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, BandStructure
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructureSymmLine,
+    BandStructure,
+)
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
@@ -360,17 +363,17 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(entry.energy, -825.5)
 
     # def test_submit_query_delete_snl(self):
-        # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-        # d = self.rester.submit_snl(
-        #     [s, s], remarks=["unittest"],
-        #     authors="Test User <test@materialsproject.com>")
-        # self.assertEqual(len(d), 2)
-        # data = self.rester.query_snl({"about.remarks": "unittest"})
-        # self.assertEqual(len(data), 2)
-        # snlids = [d["_id"] for d in data]
-        # self.rester.delete_snl(snlids)
-        # data = self.rester.query_snl({"about.remarks": "unittest"})
-        # self.assertEqual(len(data), 0)
+    # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+    # d = self.rester.submit_snl(
+    #     [s, s], remarks=["unittest"],
+    #     authors="Test User <test@materialsproject.com>")
+    # self.assertEqual(len(d), 2)
+    # data = self.rester.query_snl({"about.remarks": "unittest"})
+    # self.assertEqual(len(data), 2)
+    # snlids = [d["_id"] for d in data]
+    # self.rester.delete_snl(snlids)
+    # data = self.rester.query_snl({"about.remarks": "unittest"})
+    # self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
         entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
@@ -483,7 +486,9 @@ class MPResterTest(PymatgenTest):
         self.assertDictEqual(
             dict(meta),
             {
-                "mp-23494": [{"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}],
+                "mp-23494": [
+                    {"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}
+                ],
                 "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
             },
         )

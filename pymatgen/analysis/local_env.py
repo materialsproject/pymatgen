@@ -3277,13 +3277,15 @@ class LocalStructOrderParams:
                                                     norms[i][j][kc] += 1.0
                                         elif t in ["cuboct", "cuboct_max"]:
                                             if (
-                                                    thetam < self._params[i]["min_SPP"]
-                                                    and self._params[i][4] < thetak <
-                                                    self._params[i][2]
+                                                thetam < self._params[i]["min_SPP"]
+                                                and self._params[i][4]
+                                                < thetak
+                                                < self._params[i][2]
                                             ):
                                                 if (
-                                                        self._params[i][4] < thetam <
-                                                        self._params[i][2]
+                                                    self._params[i][4]
+                                                    < thetam
+                                                    < self._params[i][2]
                                                 ):
                                                     tmp = cos(phi)
                                                     tmp2 = self._params[i][5] * (
@@ -3467,7 +3469,7 @@ class LocalStructOrderParams:
             dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
-                if t in ('reg_tri', 'sq'):
+                if t in ("reg_tri", "sq"):
                     if nneigh < 3:
                         ops[i] = None
                     else:

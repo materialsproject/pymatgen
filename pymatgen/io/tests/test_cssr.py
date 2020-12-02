@@ -3,9 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 
-'''
+"""
 Created on Jan 24, 2012
-'''
+"""
 
 
 __author__ = "Shyue Ping Ong"
@@ -22,15 +22,13 @@ from pymatgen.io.cssr import Cssr
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class CssrTest(unittest.TestCase):
-
     def setUp(self):
 
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = os.path.join(test_dir, "POSCAR")
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.structure)
 

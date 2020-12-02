@@ -35,9 +35,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     """
 
-    def __init__(self,
-                 composition: Composition,
-                 energy: float):
+    def __init__(self, composition: Composition, energy: float):
         """
         Initializes an Entry.
 
@@ -75,7 +73,9 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["Entry"]:
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ) -> Optional["Entry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -109,7 +109,9 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         :return: MSONable dict.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "energy": self._energy,
-                "composition": self.composition.as_dict()}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "energy": self._energy,
+            "composition": self.composition.as_dict(),
+        }

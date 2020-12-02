@@ -17,7 +17,6 @@ __date__ = "Feb 2017"
 
 
 class MagneticSpaceGroupTest(PymatgenTest):
-
     def setUp(self):
         self.msg_1 = MagneticSpaceGroup([70, 530])
         self.msg_2 = MagneticSpaceGroup([62, 448])
@@ -154,9 +153,7 @@ x+1/2, y, z, -1
 
         labels = ["Fm-3m", "Pnma", "P2/c", "P-1"]
 
-        points = [[0, 0, 0],
-                  [0.5, 0, 0],
-                  [0.11, 0.22, 0.33]]
+        points = [[0, 0, 0], [0.5, 0, 0], [0.11, 0.22, 0.33]]
 
         for label in labels:
             sg = SpaceGroup(label)
@@ -164,8 +161,12 @@ x+1/2, y, z, -1
             self.assertEqual(sg.crystal_system, msg.crystal_system)
             for p in points:
                 pp_sg = np.array(sg.get_orbit(p))
-                pp_msg = np.array(msg.get_orbit(p, 0)[0])  # discarding magnetic moment information
-                pp_sg = pp_sg[np.lexsort(np.transpose(pp_sg)[::-1])]  # sorting arrays so we can compare them
+                pp_msg = np.array(
+                    msg.get_orbit(p, 0)[0]
+                )  # discarding magnetic moment information
+                pp_sg = pp_sg[
+                    np.lexsort(np.transpose(pp_sg)[::-1])
+                ]  # sorting arrays so we can compare them
                 pp_msg = pp_msg[np.lexsort(np.transpose(pp_msg)[::-1])]
                 self.assertTrue(np.allclose(pp_sg, pp_msg))
 
@@ -207,5 +208,5 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
         self.assertStrContentEqual(msg.data_str(), ref_string_all)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -18,6 +18,7 @@ from pymatgen.core.structure import Molecule, Structure
 
 try:
     from ase import Atoms
+
     ase_loaded = True
 except ImportError:
     ase_loaded = False
@@ -43,8 +44,10 @@ class AseAtomsAdaptor:
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
         if not ase_loaded:
-            raise ImportError("AseAtomsAdaptor requires ase package.\n"
-                              "Use `pip install ase` or `conda install ase -c conda-forge`")
+            raise ImportError(
+                "AseAtomsAdaptor requires ase package.\n"
+                "Use `pip install ase` or `conda install ase -c conda-forge`"
+            )
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         if hasattr(structure, "lattice"):
@@ -53,8 +56,7 @@ class AseAtomsAdaptor:
         else:
             cell = None
             pbc = None
-        return Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell,
-                     **kwargs)
+        return Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell, **kwargs)
 
     @staticmethod
     def get_structure(atoms, cls=None):
@@ -73,8 +75,7 @@ class AseAtomsAdaptor:
         lattice = atoms.get_cell()
 
         cls = Structure if cls is None else cls
-        return cls(lattice, symbols, positions,
-                   coords_are_cartesian=True)
+        return cls(lattice, symbols, positions, coords_are_cartesian=True)
 
     @staticmethod
     def get_molecule(atoms, cls=None):

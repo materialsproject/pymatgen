@@ -43,22 +43,23 @@ class VampireCaller:
     Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
     temperature with classical Monte Carlo.
     """
+
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
     def __init__(
-            self,
-            ordered_structures=None,
-            energies=None,
-            mc_box_size=4.0,
-            equil_timesteps=2000,
-            mc_timesteps=4000,
-            save_inputs=False,
-            hm=None,
-            avg=True,
-            user_input_settings=None,
+        self,
+        ordered_structures=None,
+        energies=None,
+        mc_box_size=4.0,
+        equil_timesteps=2000,
+        mc_timesteps=4000,
+        save_inputs=False,
+        hm=None,
+        avg=True,
+        user_input_settings=None,
     ):
 
         """

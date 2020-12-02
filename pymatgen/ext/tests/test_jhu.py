@@ -16,8 +16,7 @@ __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
 __date__ = "June 22, 2017"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class JhuTest(PymatgenTest):
@@ -29,5 +28,5 @@ class JhuTest(PymatgenTest):
         kpoints = get_kpoints(si, incar=input_set.incar)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

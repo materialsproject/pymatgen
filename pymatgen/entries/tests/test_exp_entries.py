@@ -10,12 +10,10 @@ import json
 from pymatgen.entries.exp_entries import ExpEntry
 from monty.json import MontyDecoder
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class ExpEntryTest(unittest.TestCase):
-
     def setUp(self):
         with open(os.path.join(test_dir, "Fe2O3_exp.json"), "r") as f:
             thermodata = json.load(f, cls=MontyDecoder)

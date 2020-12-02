@@ -971,9 +971,7 @@ class BSPlotterProjected(BSPlotter):
             bs = bs[0]
 
         if len(bs.projections) == 0:
-            raise ValueError(
-                "try to plot projections on a band structure without any"
-            )
+            raise ValueError("try to plot projections on a band structure without any")
 
         self._bs = bs
         self._nb_bands = bs.nb_bands
@@ -1055,7 +1053,7 @@ class BSPlotterProjected(BSPlotter):
 
         for el in dictio:
             for o in dictio[el]:
-                plt.subplot(fig_rows+fig_cols+count)
+                plt.subplot(fig_rows + fig_cols + count)
                 self._maketicks(plt)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
@@ -2193,7 +2191,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "You put wrong site numbers in 'dictpa[%s]': %s."
                                 % (elt, str(number))
-                                )
+                            )
                         if isinstance(number, int):
                             if number not in indices:
                                 raise ValueError(
@@ -2806,20 +2804,20 @@ class BSDOSPlotter:
                 for band_idx, band in enumerate(band_energies[spin]):
                     current_pos = 0
                     for x_distances in x_distances_list:
-                        sub_band = band[current_pos:current_pos + len(x_distances)]
+                        sub_band = band[current_pos : current_pos + len(x_distances)]
 
                         self._rgbline(
                             bs_ax,
                             x_distances,
                             sub_band,
                             colordata[spin][band_idx, :, 0][
-                                current_pos:current_pos + len(x_distances)
+                                current_pos : current_pos + len(x_distances)
                             ],
                             colordata[spin][band_idx, :, 1][
-                                current_pos:current_pos + len(x_distances)
+                                current_pos : current_pos + len(x_distances)
                             ],
                             colordata[spin][band_idx, :, 2][
-                                current_pos:current_pos + len(x_distances)
+                                current_pos : current_pos + len(x_distances)
                             ],
                             linestyles=linestyles,
                         )
@@ -2890,7 +2888,7 @@ class BSDOSPlotter:
             dos_xmin = (
                 0
                 if Spin.down not in dos.densities
-                else -max(dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
+                else -max(dos.densities[Spin.down][emin_idx : emax_idx + 1] * 1.05)
             )
             dos_xmax = max(
                 [max(dos.densities[Spin.up][emin_idx:emax_idx]) * 1.05, abs(dos_xmin)]
@@ -4496,8 +4494,8 @@ def plot_fermi_surface(
                             )
 
             for label, coords in kpoints_dict.items():
-                label_coords = (
-                    structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
+                label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(
+                    coords
                 )
                 mlab.points3d(
                     *label_coords,

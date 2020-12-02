@@ -98,8 +98,13 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 supported by the Vasprun object.
         """
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
-                            "potcar_symbols", "run_type"}
+        self._parameters = {
+            "is_hubbard",
+            "hubbards",
+            "potcar_spec",
+            "potcar_symbols",
+            "run_type",
+        }
         if parameters:
             self._parameters.update(parameters)
         self._data = data if data else []
@@ -116,8 +121,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         """
         files = os.listdir(path)
         if "relax1" in files and "relax2" in files:
-            filepath = glob.glob(os.path.join(path, "relax2",
-                                              "vasprun.xml*"))[0]
+            filepath = glob.glob(os.path.join(path, "relax2", "vasprun.xml*"))[0]
         else:
             vasprun_files = glob.glob(os.path.join(path, "vasprun.xml*"))
             filepath = None
@@ -127,8 +131,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 # Since multiple files are ambiguous, we will always read
                 # the one that it the last one alphabetically.
                 filepath = sorted(vasprun_files)[-1]
-                warnings.warn("%d vasprun.xml.* found. %s is being parsed." %
-                              (len(vasprun_files), filepath))
+                warnings.warn(
+                    "%d vasprun.xml.* found. %s is being parsed."
+                    % (len(vasprun_files), filepath)
+                )
 
         try:
             vasprun = Vasprun(filepath)
@@ -136,9 +142,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
             logger.debug("error in {}: {}".format(filepath, ex))
             return None
 
-        entry = vasprun.get_computed_entry(self._inc_structure,
-                                           parameters=self._parameters,
-                                           data=self._data)
+        entry = vasprun.get_computed_entry(
+            self._inc_structure, parameters=self._parameters, data=self._data
+        )
 
         # entry.parameters["history"] = _get_transformation_history(path)
         return entry
@@ -157,11 +163,16 @@ class VaspToComputedEntryDrone(AbstractDrone):
         (parent, subdirs, files) = path
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
-        if (not parent.endswith("/relax1")) and (not parent.endswith("/relax2")) and (
-                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
-                    len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
-                    len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0
+        if (
+            (not parent.endswith("/relax1"))
+            and (not parent.endswith("/relax2"))
+            and (
+                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0
+                or (
+                    len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0
+                    and len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0
                 )
+            )
         ):
             return [parent]
         return []
@@ -173,11 +184,15 @@ class VaspToComputedEntryDrone(AbstractDrone):
         """
         Returns: MSONABle dict
         """
-        return {"init_args": {"inc_structure": self._inc_structure,
-                              "parameters": self._parameters,
-                              "data": self._data},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "init_args": {
+                "inc_structure": self._inc_structure,
+                "parameters": self._parameters,
+                "data": self._data,
+            },
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -207,8 +222,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 ComputedEntries. Structure will be parsed from the CONTCAR.
         """
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
-                            "run_type"}
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "run_type"}
 
     def assimilate(self, path):
         """
@@ -241,15 +255,22 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         # use the first one for POSCAR and the last one
                         # alphabetically for CONTCAR and OSZICAR.
 
-                        files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
+                        files_to_parse[filename] = (
+                            files[0] if filename == "POSCAR" else files[-1]
+                        )
                         warnings.warn(
-                            "%d files found. %s is being parsed." %
-                            (len(files), files_to_parse[filename]))
+                            "%d files found. %s is being parsed."
+                            % (len(files), files_to_parse[filename])
+                        )
 
-            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
-                raise ValueError("Unable to parse %s as not all necessary files are present! "
-                                 "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
-                                 "to be present. Only %s detected" % str(files_to_parse.keys()))
+            if not set(files_to_parse.keys()).issuperset(
+                {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}
+            ):
+                raise ValueError(
+                    "Unable to parse %s as not all necessary files are present! "
+                    "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
+                    "to be present. Only %s detected" % str(files_to_parse.keys())
+                )
 
             poscar = Poscar.from_file(files_to_parse["POSCAR"])
             contcar = Poscar.from_file(files_to_parse["CONTCAR"])
@@ -260,21 +281,27 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             param = {"hubbards": {}}
             if "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
-            param["is_hubbard"] = (incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0)
+            param["is_hubbard"] = (
+                incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
+            )
             param["run_type"] = None
             param["potcar_spec"] = potcar.spec
             energy = oszicar.final_energy
             structure = contcar.structure
             initial_vol = poscar.structure.volume
             final_vol = contcar.structure.volume
-            delta_volume = (final_vol / initial_vol - 1)
+            delta_volume = final_vol / initial_vol - 1
             data = {"filename": path, "delta_volume": delta_volume}
-            if 'DYNMAT' in files_to_parse:
+            if "DYNMAT" in files_to_parse:
                 dynmat = Dynmat(files_to_parse["DYNMAT"])
-                data['phonon_frequencies'] = dynmat.get_phonon_frequencies()
+                data["phonon_frequencies"] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
-                return ComputedStructureEntry(structure, energy, parameters=param, data=data)
-            return ComputedEntry(structure.composition, energy, parameters=param, data=data)
+                return ComputedStructureEntry(
+                    structure, energy, parameters=param, data=data
+                )
+            return ComputedEntry(
+                structure.composition, energy, parameters=param, data=data
+            )
 
         except Exception as ex:
             logger.debug("error in {}: {}".format(path, ex))
@@ -287,9 +314,11 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         """
         Returns: MSONAble dict
         """
-        return {"init_args": {"inc_structure": self._inc_structure},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "init_args": {"inc_structure": self._inc_structure},
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -314,8 +343,9 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         Like the GaussianOutput class, this is still in early beta.
     """
 
-    def __init__(self, inc_structure=False, parameters=None, data=None,
-                 file_extensions=(".log",)):
+    def __init__(
+        self, inc_structure=False, parameters=None, data=None, file_extensions=(".log",)
+    ):
         """
         Args:
             inc_structure (bool): Set to True if you want
@@ -336,8 +366,13 @@ class GaussianToComputedEntryDrone(AbstractDrone):
                 Defaults to just the typical "log" extension.
         """
         self._inc_structure = inc_structure
-        self._parameters = {"functional", "basis_set", "charge",
-                            "spin_multiplicity", "route_parameters"}
+        self._parameters = {
+            "functional",
+            "basis_set",
+            "charge",
+            "spin_multiplicity",
+            "route_parameters",
+        }
 
         if parameters:
             self._parameters.update(parameters)
@@ -370,14 +405,16 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         for d in self._data:
             data[d] = getattr(gaurun, d)
         if self._inc_structure:
-            entry = ComputedStructureEntry(gaurun.final_structure,
-                                           gaurun.final_energy,
-                                           parameters=param,
-                                           data=data)
+            entry = ComputedStructureEntry(
+                gaurun.final_structure, gaurun.final_energy, parameters=param, data=data
+            )
         else:
-            entry = ComputedEntry(gaurun.final_structure.composition,
-                                  gaurun.final_energy, parameters=param,
-                                  data=data)
+            entry = ComputedEntry(
+                gaurun.final_structure.composition,
+                gaurun.final_energy,
+                parameters=param,
+                data=data,
+            )
         return entry
 
     def get_valid_paths(self, path):
@@ -392,8 +429,11 @@ class GaussianToComputedEntryDrone(AbstractDrone):
             List of valid dir/file paths for assimilation
         """
         parent, subdirs, files = path
-        return [os.path.join(parent, f) for f in files
-                if os.path.splitext(f)[1] in self._file_extensions]
+        return [
+            os.path.join(parent, f)
+            for f in files
+            if os.path.splitext(f)[1] in self._file_extensions
+        ]
 
     def __str__(self):
         return " GaussianToComputedEntryDrone"
@@ -402,12 +442,16 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         """
         Returns: MSONable dict
         """
-        return {"init_args": {"inc_structure": self._inc_structure,
-                              "parameters": self._parameters,
-                              "data": self._data,
-                              "file_extensions": self._file_extensions},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "init_args": {
+                "inc_structure": self._inc_structure,
+                "parameters": self._parameters,
+                "data": self._data,
+                "file_extensions": self._file_extensions,
+            },
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_dict(cls, d):

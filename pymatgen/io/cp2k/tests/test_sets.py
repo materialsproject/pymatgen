@@ -6,27 +6,35 @@ import unittest
 from pathlib import Path
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.cp2k.sets import \
-    Cp2kInputSet, DftSet, StaticSet, HybridStaticSet, \
-    RelaxSet, HybridRelaxSet, CellOptSet, \
-    HybridCellOptSet
+from pymatgen.io.cp2k.sets import (
+    Cp2kInputSet,
+    DftSet,
+    StaticSet,
+    HybridStaticSet,
+    RelaxSet,
+    HybridRelaxSet,
+    CellOptSet,
+    HybridCellOptSet,
+)
 from pymatgen.io.cp2k.inputs import Cp2kInput
 from pymatgen import Structure, Molecule
 
-Si_structure = Structure(lattice=[[0, 2.734364, 2.734364],
-                                  [2.734364, 0, 2.734364],
-                                  [2.734364, 2.734364, 0]],
-                         species=['Si', 'Si'],
-                         coords=[[0, 0, 0], [0.25, 0.25, 0.25]])
+Si_structure = Structure(
+    lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
+    species=["Si", "Si"],
+    coords=[[0, 0, 0], [0.25, 0.25, 0.25]],
+)
 
-nonsense_Structure = Structure(lattice=[[-1, -10, -100], [0.1, 0.01, 0.001], [7, 11, 21]],
-                               species=['X'], coords=[[-1, -1, -1]])
+nonsense_Structure = Structure(
+    lattice=[[-1, -10, -100], [0.1, 0.01, 0.001], [7, 11, 21]],
+    species=["X"],
+    coords=[[-1, -1, -1]],
+)
 
-molecule = Molecule(species=['C', 'H'], coords=[[0, 0, 0], [1, 1, 1]])
+molecule = Molecule(species=["C", "H"], coords=[[0, 0, 0], [1, 1, 1]])
 
 
 class SetTest(PymatgenTest):
-
     def setUp(self):
         pass
 
@@ -73,17 +81,17 @@ class SetTest(PymatgenTest):
             cis = HybridCellOptSet.from_string(cis.get_string())
 
     def test_aux_basis(self):
-        Si_aux_bases = ['FIT', 'cFIT', 'pFIT', 'cpFIT']
+        Si_aux_bases = ["FIT", "cFIT", "pFIT", "cpFIT"]
         for s in Si_aux_bases:
-            cis = HybridStaticSet(Si_structure, aux_basis={'Si': s})
+            cis = HybridStaticSet(Si_structure, aux_basis={"Si": s})
             cis = Cp2kInput.from_string(cis.get_string())
 
     def test_prints(self):
         cis = RelaxSet(Si_structure, print_ldos=False, print_pdos=False)
-        self.assertFalse(cis.check('FORCE_EVAL/DFT/PRINT/PRINT/PDOS'))
+        self.assertFalse(cis.check("FORCE_EVAL/DFT/PRINT/PRINT/PDOS"))
         cis = RelaxSet(Si_structure, print_ldos=True, print_hartree_potential=True)
-        self.assertTrue(cis.check('FORCE_EVAL/DFT/PRINT/PDOS/LDOS 1'))
-        self.assertTrue(cis.check('FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE'))
+        self.assertTrue(cis.check("FORCE_EVAL/DFT/PRINT/PDOS/LDOS 1"))
+        self.assertTrue(cis.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"))
 
 
 if __name__ == "__main__":

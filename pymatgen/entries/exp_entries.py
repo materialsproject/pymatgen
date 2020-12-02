@@ -45,19 +45,22 @@ class ExpEntry(PDEntry, MSONable):
         found = False
         enthalpy = float("inf")
         for data in self._thermodata:
-            if data.type == "fH" and data.value < enthalpy and \
-                    (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
+            if (
+                data.type == "fH"
+                and data.value < enthalpy
+                and (data.phaseinfo != "gas" and data.phaseinfo != "liquid")
+            ):
                 enthalpy = data.value
                 found = True
         if not found:
-            raise ValueError("List of Thermodata does not contain enthalpy "
-                             "values.")
+            raise ValueError("List of Thermodata does not contain enthalpy " "values.")
         self.temperature = temperature
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,
-                                                     self.energy)
+        return "ExpEntry {}, Energy = {:.4f}".format(
+            self.composition.formula, self.energy
+        )
 
     def __str__(self):
         return self.__repr__()
@@ -75,8 +78,10 @@ class ExpEntry(PDEntry, MSONable):
         """
         :return: MSONable dict
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "thermodata": [td.as_dict() for td in self._thermodata],
-                "composition": self.composition.as_dict(),
-                "temperature": self.temperature}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "thermodata": [td.as_dict() for td in self._thermodata],
+            "composition": self.composition.as_dict(),
+            "temperature": self.temperature,
+        }

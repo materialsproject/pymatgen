@@ -510,15 +510,19 @@ class DictSet(VaspInputSet):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if site.specie.symbol == "Co":
-                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
-                                          "not desired, please set the spin on the magmom on the site directly to "
-                                          "ensure correct initialization")
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(str(site.specie)))
                     else:
                         if site.specie.symbol == "Co":
-                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
-                                          "not desired, please set the spin on the magmom on the site directly to "
-                                          "ensure correct initialization")
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
@@ -531,7 +535,7 @@ class DictSet(VaspInputSet):
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
-                            v[most_electroneg], dict
+                        v[most_electroneg], dict
                     ):
                         incar[k] = [
                             v[most_electroneg].get(sym, 0)
@@ -799,7 +803,9 @@ class DictSet(VaspInputSet):
 
 
 # Helper functions to determine valid FFT grids for VASP
-def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
+def next_num_with_prime_factors(
+    n: int, max_prime_factor: int, must_inc_2: bool = True
+) -> int:
     """
     Return the next number greater than or equal to n that only has the desired prime factors
 
@@ -831,7 +837,7 @@ def primes_less_than(max_val: int) -> List[int]:
     Get the primes less than or equal to the max value
     """
     res = []
-    for i in range(2, max_val+1):
+    for i in range(2, max_val + 1):
         for j in range(2, i):
             if i % j == 0:
                 break
