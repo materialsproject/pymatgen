@@ -373,6 +373,8 @@ class DictSet(VaspInputSet):
             sym_prec (float): Tolerance for symmetry finding.
             international_monoclinic (bool): Whether to use international convention
                 (vs Curtarolo) for monoclinic. Defaults True.
+            validate_magmom (bool): Ensure that the missing magmom values are filled
+                in with the vasp default value of 1.0
         """
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
@@ -3209,7 +3211,7 @@ def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
     Returns:
         New structure if inplace == False
     """
-    default_values = {"s": 0.0, "v": [0.0, 0.0, 0.0], "n": None}
+    default_values = {"s": 1.0, "v": [1.0, 1.0, 1.0], "n": None}
     if spin_mode[0].lower() == "a":
         mode = "n"
         for isite in structure.sites:
