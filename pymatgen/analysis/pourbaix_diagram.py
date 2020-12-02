@@ -341,7 +341,8 @@ class MultiEntry(PourbaixEntry):
         return " + ".join([e.name for e in self.entry_list])
 
     def __repr__(self):
-        return "Multiple Pourbaix Entry: energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {}, species: {}".format(
+        return "Multiple Pourbaix Entry: energy = {:.4f}, npH = {}, nPhi = {}, " \
+               "nH2O = {}, entry_id = {}, species: {}".format(
             self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id, self.name
         )
 
