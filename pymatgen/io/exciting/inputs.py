@@ -166,16 +166,16 @@ class ExcitingInput(MSONable):
             data = f.read().replace('\n', '')
         return ExcitingInput.from_string(data)
 
-    def write_etree(self, celltype, cartesian=False, 
+    def write_etree(self, celltype, cartesian=False,
                     bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes the exciting input parameters to an xml object.
-        
+
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
             from self.structure ("unchanged"), the conventional cell
             ("conventional"), or the primitive unit cell ("primitive").
-            
+
             cartesian (bool): Whether the atomic positions are provided in
             Cartesian or unit-cell coordinates. Default is False.
 
@@ -187,9 +187,9 @@ class ExcitingInput(MSONable):
 
             angle_tolerance (float): Angle tolerance for the symmetry finding.
             Default is 5.
-            
+
             **kwargs: Additional parameters for the input file.
-        
+
         Returns:
             ET.Element containing the input XML structure
         """
@@ -269,22 +269,22 @@ class ExcitingInput(MSONable):
         elif bandstr and celltype != 'primitive':
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
-        
+
         # write extra parameters from kwargs if provided
         self._dicttoxml(kwargs, root)
 
         return root
 
-    def write_string(self, celltype, cartesian=False, 
+    def write_string(self, celltype, cartesian=False,
                      bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input.xml as a string.
-        
+
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
             from self.structure ("unchanged"), the conventional cell
             ("conventional"), or the primitive unit cell ("primitive").
-            
+
             cartesian (bool): Whether the atomic positions are provided in
             Cartesian or unit-cell coordinates. Default is False.
 
@@ -296,14 +296,14 @@ class ExcitingInput(MSONable):
 
             angle_tolerance (float): Angle tolerance for the symmetry finding.
             Default is 5.
-            
+
             **kwargs: Additional parameters for the input file.
-        
+
         Returns:
             String
         """
         try:
-            root = self.write_etree(celltype, cartesian, bandstr, 
+            root = self.write_etree(celltype, cartesian, bandstr,
                                     symprec, angle_tolerance, **kwargs)
             self._indent(root)
             # output should be a string not a bytes object
@@ -312,16 +312,16 @@ class ExcitingInput(MSONable):
             raise ValueError('Incorrect celltype!')
         return string
 
-    def write_file(self, celltype, filename, cartesian=False, bandstr=False, 
+    def write_file(self, celltype, filename, cartesian=False, bandstr=False,
                    symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input file.
-        
+
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
             from self.structure ("unchanged"), the conventional cell
             ("conventional"), or the primitive unit cell ("primitive").
-            
+
             filename (str): Filename for exciting input.
 
             cartesian (bool): Whether the atomic positions are provided in
@@ -339,7 +339,7 @@ class ExcitingInput(MSONable):
             **kwargs: Additional parameters for the input file.
         """
         try:
-            root = self.write_etree(celltype, cartesian, bandstr, 
+            root = self.write_etree(celltype, cartesian, bandstr,
                                     symprec, angle_tolerance, **kwargs)
             self._indent(root)
             tree = ET.ElementTree(root)
@@ -371,19 +371,19 @@ class ExcitingInput(MSONable):
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
 
-    def _dicttoxml(self, paramdict_, element):         
-        for key, value in paramdict_.items():             
-            if (isinstance(value, str) and key == 'text()'):                 
-                element.text = value             
-            elif (isinstance(value, str)):                 
-                element.attrib[key] = value             
-            elif (isinstance(value, list)):                 
-                for item in value:                     
-                    self._dicttoxml(item, ET.SubElement(element, key))             
-            elif (isinstance(value, dict)):                 
-                if(element.findall(key) == []):                     
-                    self._dicttoxml(value, ET.SubElement(element, key))                 
-                else:                     
-                    self._dicttoxml(value, element.findall(key)[0])             
-            else:                 
+    def _dicttoxml(self, paramdict_, element):
+        for key, value in paramdict_.items():
+            if (isinstance(value, str) and key == 'text()'):
+                element.text = value
+            elif isinstance(value, str):
+                element.attrib[key] = value
+            elif isinstance(value, list):
+                for item in value:
+                    self._dicttoxml(item, ET.SubElement(element, key))
+            elif isinstance(value, dict):
+                if element.findall(key) == []:
+                    self._dicttoxml(value, ET.SubElement(element, key))
+                else:
+                    self._dicttoxml(value, element.findall(key)[0])
+            else:
                 print('cannot deal with', key, '=', value)
