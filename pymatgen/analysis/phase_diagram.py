@@ -671,17 +671,16 @@ class PhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        entries = [e for e in self.stable_entries if e.normalize(inplace=False) != entry.normalize(inplace=False)]
+        entries = [
+            e
+            for e in self.stable_entries
+            if e.normalize(inplace=False) != entry.normalize(inplace=False)
+        ]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_quasi_e_to_hull(
-        self,
-        entry,
-        space_limit=200,
-        stable_only=False,
-        tol=1e-10,
-        maxiter=1000
+        self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000
     ):
         """
         Provides the combination of entries in the PhaseDiagram that gives the
@@ -734,7 +733,9 @@ class PhaseDiagram(MSONable):
 
         # take entries with negative formation enthalpies as competing entries
         competing_entries = [
-            c for c in compare_entries if c.normalize(inplace=False) != entry.normalize(inplace=False)
+            c
+            for c in compare_entries
+            if c.normalize(inplace=False) != entry.normalize(inplace=False)
             if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
@@ -744,25 +745,36 @@ class PhaseDiagram(MSONable):
         # requires computing the convex hull of a second (hopefully smallish) space
         # and so is not done by default
         if len(competing_entries) > space_limit and not stable_only:
-            inner_hull = PhaseDiagram(list(set.intersection(
-                set(competing_entries),  # same chemical space
-                set(self.qhull_entries),  # negative E_f
-                set(self.unstable_entries),  # not already on hull
-            )) + list(self.el_refs.values()))  # terminal points
+            inner_hull = PhaseDiagram(
+                list(
+                    set.intersection(
+                        set(competing_entries),  # same chemical space
+                        set(self.qhull_entries),  # negative E_f
+                        set(self.unstable_entries),  # not already on hull
+                    )
+                )
+                + list(self.el_refs.values())
+            )  # terminal points
 
-            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
+            competing_entries = list(
+                self.stable_entries.union(inner_hull.stable_entries)
+            )
             competing_entries = [c for c in competing_entries if c != entry]
 
         solution = _slsqp_decomp_solution(entry, competing_entries, tol, maxiter)
 
         if solution.success:
             decomp_amts = solution.x
-            decomp = {c: amt for c, amt
-                      in zip(competing_entries, decomp_amts)
-                      if amt > PhaseDiagram.numerical_tol}
+            decomp = {
+                c: amt
+                for c, amt in zip(competing_entries, decomp_amts)
+                if amt > PhaseDiagram.numerical_tol
+            }
 
             # find the minimum alternative formation energy for the decomposition
-            decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
+            decomp_enthalpy = np.sum(
+                [c.energy_per_atom * amt for c, amt in decomp.items()]
+            )
 
             decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
 
@@ -1359,6 +1371,66 @@ class CompoundPhaseDiagram(PhaseDiagram):
         return cls(entries, terminal_compositions, d["normalize_terminal_compositions"])
 
 
+class DBPhaseDiagram(PhaseDiagram, MSONable):
+    """
+    As currently constructed storage of the PhaseDiagram object is cumbersome since
+    the __init__ function is doing a great deal of processing.
+    This object can be to replace the PhaseDiagram object for database production applications
+    We effectively moved the functionality of the original __init__ into a from_entries function
+    and make the __init__ much simpler.
+    """
+
+    as_dict = MSONable.as_dict
+
+    def __init__(
+        self,
+        facets,
+        simplexes,
+        all_entries,
+        qhull_data,
+        dim,
+        el_refs,
+        elements,
+        qhull_entries,
+    ):
+        """
+        CAUTION: This class uses casting to bypass the init. so this constructor should only be
+            called by as_dict and from_dict functions
+        """
+        self.facets = facets
+        self.simplexes = simplexes
+        self.all_entries = all_entries
+        self.qhull_data = qhull_data
+        self.dim = dim
+        self.el_refs = el_refs
+        self.elements = elements
+        self.qhull_entries = qhull_entries
+        self._stable_entries = set(
+            self.qhull_entries[i] for i in set(itertools.chain(*self.facets))
+        )
+
+    @classmethod
+    def from_entries(cls, entries, elements=None):
+        """
+        Construct the PhaseDiagram object and recast it as a DBPhaseDiagram
+        """
+        pd = PhaseDiagram(entries, elements)
+        pd.__class__ = cls
+        return pd
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Use the MSONable from_dict
+        """
+        decoded = {
+            k: MontyDecoder().process_decoded(v)
+            for k, v in d.items()
+            if not k.startswith("@")
+        }
+        return cls(**decoded)
+
+
 class ReactionDiagram:
     """
     Analyzes the possible reactions between a pair of compounds, e.g.,
@@ -1616,30 +1688,29 @@ def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
 
     molar_constraint = {
         "type": "eq",
-        "fun": lambda x: np.dot(A_transpose, x)-b,
-        "jac": lambda x: A_transpose
+        "fun": lambda x: np.dot(A_transpose, x) - b,
+        "jac": lambda x: A_transpose,
     }
 
-    options = {
-        "maxiter": maxiter,
-        "disp": False
-    }
+    options = {"maxiter": maxiter, "disp": False}
 
     max_bound = entry.composition.num_atoms
     bounds = [(0, max_bound)] * len(competing_entries)
-    x0 = [1/len(competing_entries)] * len(competing_entries)
+    x0 = [1 / len(competing_entries)] * len(competing_entries)
 
     # NOTE the tolerence needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
     # tol > 1e-7 in the fractional composition (default 1e-10).
-    solution = minimize(fun=lambda x: np.dot(x, Es),
-                        x0=x0,
-                        method="SLSQP",
-                        jac=lambda x: Es,
-                        bounds=bounds,
-                        constraints=[molar_constraint],
-                        tol=tol,
-                        options=options)
+    solution = minimize(
+        fun=lambda x: np.dot(x, Es),
+        x0=x0,
+        method="SLSQP",
+        jac=lambda x: Es,
+        bounds=bounds,
+        constraints=[molar_constraint],
+        tol=tol,
+        options=options,
+    )
 
     return solution
 
@@ -2406,7 +2477,7 @@ class PDPlotter:
         offset_2d = 0.005  # extra distance to offset label position for clarity
         offset_3d = 0.01
 
-        energy_offset = -0.1*self._min_energy
+        energy_offset = -0.1 * self._min_energy
 
         if self._dim == 2:
             min_energy_x = min(list(self.pd_plot_data[1].keys()), key=lambda c: c[1])[0]
@@ -2526,7 +2597,7 @@ class PDPlotter:
                     if self._dim == 3:
                         annotation.update({"x": y, "y": x})
                         if entry.composition.is_element:
-                            z = 0.9*self._min_energy  # place label 10% above base
+                            z = 0.9 * self._min_energy  # place label 10% above base
 
                 annotation.update({"z": z})
 
@@ -2572,7 +2643,7 @@ class PDPlotter:
         """
 
         def get_marker_props(coords, entries, stable=True):
-            """ Method for getting marker locations, hovertext, and error bars
+            """Method for getting marker locations, hovertext, and error bars
             from pd_plot_data"""
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
@@ -2689,8 +2760,12 @@ class PDPlotter:
                     y=list(stable_props["x"]),
                     z=list(stable_props["z"]),
                     name="Stable",
-                    marker=dict(color="black", size=12, opacity=0.8,
-                                line=dict(color="black", width=3)),
+                    marker=dict(
+                        color="black",
+                        size=12,
+                        opacity=0.8,
+                        line=dict(color="black", width=3),
+                    ),
                     hovertext=stable_props["texts"],
                     error_z=dict(
                         array=list(stable_props["uncertainties"]),
@@ -2792,15 +2867,16 @@ class PDPlotter:
         y = stable_marker_plot.y
 
         transformed = False
-        if hasattr(self._pd, "original_entries") or hasattr(self._pd,
-                                                            "chempots"):
+        if hasattr(self._pd, "original_entries") or hasattr(self._pd, "chempots"):
             transformed = True
 
         if self._dim == 2:
             error = stable_marker_plot.error_y["array"]
 
             points = np.append(x, [y, error]).reshape(3, -1).T
-            points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
+            points = points[
+                points[:, 0].argsort()
+            ]  # sort by composition  # pylint: disable=E1136
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
