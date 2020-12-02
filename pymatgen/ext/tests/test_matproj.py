@@ -20,7 +20,7 @@ from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
 )
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
@@ -376,7 +376,7 @@ class MPResterTest(PymatgenTest):
                 )
         rest_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
-        compat = MaterialsProjectCompatibility()
+        compat = MaterialsProject2020Compatibility()
         all_entries = compat.process_entries(all_entries)
         pd = PhaseDiagram(all_entries)
         for e in all_entries:
