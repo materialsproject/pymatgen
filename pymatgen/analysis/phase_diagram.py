@@ -262,7 +262,7 @@ class DBPhaseDiagram(MSONable):
     """
     As currently constructed storage of the PhaseDiagram object is cumbersome since
     the __init__ function is doing a great deal of processing.
-    This object can be to replace the PhaseDiagram object for database production applications
+    The present object can replace the PhaseDiagram object for database production applications
     We effectively moved the functionality of the original __init__ into a from_entries function
     and make the __init__ much simpler.
 
