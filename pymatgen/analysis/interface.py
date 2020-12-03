@@ -834,7 +834,8 @@ class InterfaceBuilder:
             offset = (2.5, 0.0, 0.0)
 
         _structure = merge_slabs(matched_slab_substrate, matched_slab_film, *offset)
-        orthogonal_structure = sorted(_structure.get_orthogonal_c_slab())
+        orthogonal_structure = _structure.get_orthogonal_c_slab()
+        orthogonal_structure.sort()
 
         if not orthogonal_structure.is_valid(tol=1):
             warnings.warn(
