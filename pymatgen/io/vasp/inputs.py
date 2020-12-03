@@ -22,14 +22,12 @@ from hashlib import md5
 
 import numpy as np
 import scipy.constants as const
-from tabulate import tabulate
-
 from monty.io import zopen
-from monty.json import MSONable
-from monty.json import MontyDecoder
+from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import loadfn
+from tabulate import tabulate
 
 from pymatgen import SETTINGS, __version__
 from pymatgen.core.lattice import Lattice
@@ -383,7 +381,7 @@ class Poscar(MSONable):
             try:
                 # Check if names are appended at the end of the coordinates.
                 atomic_symbols = [
-                    l.split()[ind] for l in lines[ipos + 1: ipos + 1 + nsites]
+                    l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]
                 ]
                 # Ensure symbols are valid elements
                 if not all([Element.is_valid_symbol(sym) for sym in atomic_symbols]):
@@ -675,7 +673,7 @@ class Incar(dict, MSONable):
             ) and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
                 val = []
                 for i in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][i * 3: (i + 1) * 3])
+                    val.append(params["MAGMOM"][i * 3 : (i + 1) * 3])
                 params["MAGMOM"] = val
 
             self.update(params)
@@ -730,7 +728,9 @@ class Incar(dict, MSONable):
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
 
-                if isinstance(self[k][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
+                if isinstance(self[k][0], (list, Magmom)) and (
+                    self.get("LSORBIT") or self.get("LNONCOLLINEAR")
+                ):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
@@ -1242,7 +1242,10 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (__version__, kppa)
+        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (
+            __version__,
+            kppa,
+        )
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1295,7 +1298,10 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (__version__, kppa)
+        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (
+            __version__,
+            kppa,
+        )
 
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
@@ -1830,17 +1836,25 @@ class PotcarSingle:
         self.hash = self.get_potcar_hash()
         self.file_hash = self.get_potcar_file_hash()
 
-        if self.identify_potcar(mode='data')[0] == []:
-            warnings.warn("POTCAR data with symbol {} does not match any VASP\
+        if self.identify_potcar(mode="data")[0] == []:
+            warnings.warn(
+                "POTCAR data with symbol {} does not match any VASP\
                           POTCAR known to pymatgen. We advise verifying the\
-                          integrity of your POTCAR files.".format(self.symbol),
-                          UnknownPotcarWarning)
-        elif self.identify_potcar(mode='file')[0] == []:
-            warnings.warn("POTCAR with symbol {} has metadata that does not match\
+                          integrity of your POTCAR files.".format(
+                    self.symbol
+                ),
+                UnknownPotcarWarning,
+            )
+        elif self.identify_potcar(mode="file")[0] == []:
+            warnings.warn(
+                "POTCAR with symbol {} has metadata that does not match\
                           any VASP POTCAR known to pymatgen. The data in this\
                           POTCAR is known to match the following functionals:\
-                          {}".format(self.symbol, self.identify_potcar(mode='data')[0]),
-                          UnknownPotcarWarning)
+                          {}".format(
+                    self.symbol, self.identify_potcar(mode="data")[0]
+                ),
+                UnknownPotcarWarning,
+            )
 
     def __str__(self):
         return self.data + "\n"
@@ -1998,7 +2012,7 @@ class PotcarSingle:
         """
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
-    def identify_potcar(self, mode: str = 'data'):
+    def identify_potcar(self, mode: str = "data"):
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
@@ -2018,75 +2032,102 @@ class PotcarSingle:
         """
         # Dict to translate the sets in the .json file to the keys used in
         # DictSet
-        mapping_dict = {'potUSPP_GGA': {"pymatgen_key": "PW91_US",
-                                        "vasp_description": "Ultrasoft pseudo potentials\
+        mapping_dict = {
+            "potUSPP_GGA": {
+                "pymatgen_key": "PW91_US",
+                "vasp_description": "Ultrasoft pseudo potentials\
                                          for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
                                          respectively). These files are outdated, not\
-                                         supported and only distributed as is."},
-                        'potUSPP_LDA': {"pymatgen_key": "LDA_US",
-                                        "vasp_description": "Ultrasoft pseudo potentials\
+                                         supported and only distributed as is.",
+            },
+            "potUSPP_LDA": {
+                "pymatgen_key": "LDA_US",
+                "vasp_description": "Ultrasoft pseudo potentials\
                                          for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
                                          respectively). These files are outdated, not\
-                                         supported and only distributed as is."},
-                        'potpaw_GGA': {"pymatgen_key": "PW91",
-                                       "vasp_description": "The LDA, PW91 and PBE PAW datasets\
+                                         supported and only distributed as is.",
+            },
+            "potpaw_GGA": {
+                "pymatgen_key": "PW91",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
                                         (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
                                         respectively). These files are outdated, not\
-                                        supported and only distributed as is."},
-                        'potpaw_LDA': {"pymatgen_key": "Perdew-Zunger81",
-                                       "vasp_description": "The LDA, PW91 and PBE PAW datasets\
+                                        supported and only distributed as is.",
+            },
+            "potpaw_LDA": {
+                "pymatgen_key": "Perdew-Zunger81",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
                                         (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
                                         respectively). These files are outdated, not\
-                                        supported and only distributed as is."},
-                        'potpaw_LDA.52': {"pymatgen_key": "LDA_52",
-                                          "vasp_description": "LDA PAW datasets version 52,\
+                                        supported and only distributed as is.",
+            },
+            "potpaw_LDA.52": {
+                "pymatgen_key": "LDA_52",
+                "vasp_description": "LDA PAW datasets version 52,\
                                            including the early GW variety (snapshot 19-04-2012).\
                                            When read by VASP these files yield identical results\
-                                           as the files distributed in 2012 ('unvie' release)."},
-                        'potpaw_LDA.54': {"pymatgen_key": "LDA_54",
-                                          "vasp_description": "LDA PAW datasets version 54,\
+                                           as the files distributed in 2012 ('unvie' release).",
+            },
+            "potpaw_LDA.54": {
+                "pymatgen_key": "LDA_54",
+                "vasp_description": "LDA PAW datasets version 54,\
                                            including the GW variety (original release 2015-09-04).\
                                            When read by VASP these files yield identical results as\
-                                           the files distributed before."},
-                        'potpaw_PBE': {"pymatgen_key": "PBE",
-                                       "vasp_description": "The LDA, PW91 and PBE PAW datasets\
+                                           the files distributed before.",
+            },
+            "potpaw_PBE": {
+                "pymatgen_key": "PBE",
+                "vasp_description": "The LDA, PW91 and PBE PAW datasets\
                                         (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
                                         respectively). These files are outdated, not\
-                                        supported and only distributed as is."},
-                        'potpaw_PBE.52': {"pymatgen_key": "PBE_52",
-                                          "vasp_description": "PBE PAW datasets version 52,\
+                                        supported and only distributed as is.",
+            },
+            "potpaw_PBE.52": {
+                "pymatgen_key": "PBE_52",
+                "vasp_description": "PBE PAW datasets version 52,\
                                            including early GW variety (snapshot 19-04-2012).\
                                            When read by VASP these files yield identical\
-                                           results as the files distributed in 2012."},
-                        'potpaw_PBE.54': {"pymatgen_key": "PBE_54",
-                                          "vasp_description": "PBE PAW datasets version 54,\
+                                           results as the files distributed in 2012.",
+            },
+            "potpaw_PBE.54": {
+                "pymatgen_key": "PBE_54",
+                "vasp_description": "PBE PAW datasets version 54,\
                                            including the GW variety (original release 2015-09-04).\
                                            When read by VASP these files yield identical results as\
-                                           the files distributed before."},
-                        'unvie_potpaw.52': {"pymatgen_key": "unvie_LDA_52",
-                                            "vasp_description": "files released previously\
+                                           the files distributed before.",
+            },
+            "unvie_potpaw.52": {
+                "pymatgen_key": "unvie_LDA_52",
+                "vasp_description": "files released previously\
                                              for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                             by univie."},
-                        'unvie_potpaw.54': {"pymatgen_key": "unvie_LDA_54",
-                                            "vasp_description": "files released previously\
+                                             by univie.",
+            },
+            "unvie_potpaw.54": {
+                "pymatgen_key": "unvie_LDA_54",
+                "vasp_description": "files released previously\
                                              for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                             by univie."},
-                        'unvie_potpaw_PBE.52': {"pymatgen_key": "unvie_PBE_52",
-                                                "vasp_description": "files released previously\
+                                             by univie.",
+            },
+            "unvie_potpaw_PBE.52": {
+                "pymatgen_key": "unvie_PBE_52",
+                "vasp_description": "files released previously\
                                                 for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                                by univie."},
-                        'unvie_potpaw_PBE.54': {"pymatgen_key": "unvie_PBE_52",
-                                                "vasp_description": "files released previously\
+                                                by univie.",
+            },
+            "unvie_potpaw_PBE.54": {
+                "pymatgen_key": "unvie_PBE_52",
+                "vasp_description": "files released previously\
                                                 for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
-                                                by univie."}
-                        }
+                                                by univie.",
+            },
+        }
 
         cwd = os.path.abspath(os.path.dirname(__file__))
 
-        if mode == 'data':
+        if mode == "data":
             hash_db = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
             potcar_hash = self.hash
-        elif mode == 'file':
+        elif mode == "file":
             hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
             potcar_hash = self.file_hash
         else:

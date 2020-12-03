@@ -6,10 +6,12 @@
 import logging
 import os
 import unittest
-from pymatgen import Molecule
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem.inputs import QCInput
+
 from monty.serialization import loadfn
+
+from pymatgen import Molecule
+from pymatgen.io.qchem.inputs import QCInput
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -19,8 +21,9 @@ __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
 
-test_dir = os.path.join(os.path.dirname(__file__), "..",
-                        "..", "..", "..", "test_files", "qchem")
+test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "qchem"
+)
 
 
 class TestQCInput(PymatgenTest):
@@ -30,8 +33,10 @@ class TestQCInput(PymatgenTest):
 
     def test_molecule_template(self):
         species = ["C", "O"]
-        coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
-                  [-7.5827400000, 0.5127000000, -0.0000000000]]
+        coords = [
+            [-9.5782000000, 0.6241500000, 0.0000000000],
+            [-7.5827400000, 0.5127000000, -0.0000000000],
+        ]
         mol = Molecule(species=species, coords=coords)
         molecule_test = QCInput.molecule_template(mol)
         molecule_actual = """$molecule
@@ -49,11 +54,18 @@ $end"""
             "method": "wb97m-v",
             "basis": "def2-qzvppd",
             "max_scf_cycles": 300,
-            "gen_scfman": "true"
+            "gen_scfman": "true",
         }
         rem_test = QCInput.rem_template(rem_params).split("\n")
-        rem_actual_list = ["$rem", "   job_type = opt", "   method = wb97m-v", "   basis = def2-qzvppd",
-                           "   max_scf_cycles = 300", "   gen_scfman = true", "$end"]
+        rem_actual_list = [
+            "$rem",
+            "   job_type = opt",
+            "   method = wb97m-v",
+            "   basis = def2-qzvppd",
+            "   max_scf_cycles = 300",
+            "   gen_scfman = true",
+            "$end",
+        ]
 
         for i_rem in rem_actual_list:
             self.assertIn(i_rem, rem_test)
@@ -63,14 +75,26 @@ $end"""
             "CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
             "FIXED": ["x y 2 4 5"],
             "DUMMY": ["M 2 3 4 5"],
-            "CONNECT": ["4 3 2 3 5 6"]
+            "CONNECT": ["4 3 2 3 5 6"],
         }
         opt_test = QCInput.opt_template(opt_params).split("\n")
-        opt_actual_list = ["$opt",
-                           "CONSTRAINT", "   tors 2 3 4 5 25.0", "   bend 2 1 4 110.0", "ENDCONSTRAINT",
-                           "FIXED", "   x y 2 4 5", "ENDFIXED",
-                           "DUMMY", "   M 2 3 4 5", "ENDDUMMY",
-                           "CONNECT", "   4 3 2 3 5 6", "ENDCONNECT", "$end"]
+        opt_actual_list = [
+            "$opt",
+            "CONSTRAINT",
+            "   tors 2 3 4 5 25.0",
+            "   bend 2 1 4 110.0",
+            "ENDCONSTRAINT",
+            "FIXED",
+            "   x y 2 4 5",
+            "ENDFIXED",
+            "DUMMY",
+            "   M 2 3 4 5",
+            "ENDDUMMY",
+            "CONNECT",
+            "   4 3 2 3 5 6",
+            "ENDCONNECT",
+            "$end",
+        ]
 
         for i_opt in opt_actual_list:
             self.assertIn(i_opt, opt_test)
@@ -154,8 +178,10 @@ $end
 $end"""
         molecule_test = QCInput.read_molecule(str_molecule)
         species = ["C", "O"]
-        coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
-                  [-7.5827400000, 0.5127000000, -0.0000000000]]
+        coords = [
+            [-9.5782000000, 0.6241500000, 0.0000000000],
+            [-7.5827400000, 0.5127000000, -0.0000000000],
+        ]
         molecule_actual = Molecule(species, coords)
         self.assertEqual(molecule_actual, molecule_test)
 
@@ -175,7 +201,7 @@ $end"""
             "method": "wb97m-v",
             "basis": "def2-qzvppd",
             "max_scf_cycles": "300",
-            "gen_scfman": "true"
+            "gen_scfman": "true",
         }
         self.assertDictEqual(rem_actual, rem_test)
 
@@ -211,7 +237,7 @@ $end
             "method": "wb97m-v",
             "basis": "def2-qzvppd",
             "max_scf_cycles": "300",
-            "gen_scfman": "true"
+            "gen_scfman": "true",
         }
         self.assertDictEqual(rem_actual, rem_test)
 
@@ -239,35 +265,39 @@ $end"""
             "CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
             "FIXED": ["x y 2 4 5"],
             "DUMMY": ["M 2 3 4 5"],
-            "CONNECT": ["4 3 2 3 5 6"]
+            "CONNECT": ["4 3 2 3 5 6"],
         }
         self.assertDictEqual(opt_actual, opt_test)
 
     def test__str__(self):
         species = ["C", "O"]
-        coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
-                  [-7.5827400000, 0.5127000000, -0.0000000000]]
+        coords = [
+            [-9.5782000000, 0.6241500000, 0.0000000000],
+            [-7.5827400000, 0.5127000000, -0.0000000000],
+        ]
         molecule = Molecule(species=species, coords=coords)
         rem = {
             "jobtype": "opt",
             "method": "wb97m-v",
             "basis": "def2-qzvppd",
             "max_scf_cycles": "300",
-            "gen_scfman": "true"
+            "gen_scfman": "true",
         }
         str_test = QCInput(molecule=molecule, rem=rem).__str__().split("\n")
-        str_actual_list = ["$molecule",
-                           " 0 1",
-                           " C     -9.5782000000      0.6241500000      0.0000000000",
-                           " O     -7.5827400000      0.5127000000     -0.0000000000",
-                           "$end",
-                           "$rem",
-                           "   job_type = opt",
-                           "   method = wb97m-v",
-                           "   basis = def2-qzvppd",
-                           "   max_scf_cycles = 300",
-                           "   gen_scfman = true",
-                           "$end"]
+        str_actual_list = [
+            "$molecule",
+            " 0 1",
+            " C     -9.5782000000      0.6241500000      0.0000000000",
+            " O     -7.5827400000      0.5127000000     -0.0000000000",
+            "$end",
+            "$rem",
+            "   job_type = opt",
+            "   method = wb97m-v",
+            "   basis = def2-qzvppd",
+            "   max_scf_cycles = 300",
+            "   gen_scfman = true",
+            "$end",
+        ]
 
         for i_str in str_actual_list:
             self.assertIn(i_str, str_test)
@@ -316,24 +346,42 @@ ENDCONSTRAINT
 $end
 """
         qcinput_test = QCInput.from_string(string)
-        species = ["S", "C", "H", "C", "H", "C", "H",
-                   "C", "C", "C", "H", "C", "H", "C", "H", "S"]
-        coords = [[-0.00250959, -0.05817469, -0.02921636],
-                  [1.70755408, -0.03033788, -0.01382912],
-                  [2.24317221, -0.05215019, 0.92026728],
-                  [2.21976393, 0.01718014, -1.27293235],
-                  [3.27786220, 0.04082146, -1.48539646],
-                  [1.20867399, 0.04478540, -2.27007793],
-                  [1.40292257, 0.10591684, -3.33110912],
-                  [-0.05341046, 0.01577217, -1.74839343],
-                  [-1.32843436, 0.03545064, -2.45531187],
-                  [-1.55195156, 0.08743920, -3.80184635],
-                  [-0.75245172, 0.10267657, -4.52817967],
-                  [-2.93293778, 0.08408786, -4.13352169],
-                  [-3.31125108, 0.11340328, -5.14405819],
-                  [-3.73173288, 0.02741365, -3.03412864],
-                  [-4.80776535, 0.00535688, -2.99564645],
-                  [-2.81590978, -0.00516172, -1.58990580]]
+        species = [
+            "S",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "C",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "H",
+            "S",
+        ]
+        coords = [
+            [-0.00250959, -0.05817469, -0.02921636],
+            [1.70755408, -0.03033788, -0.01382912],
+            [2.24317221, -0.05215019, 0.92026728],
+            [2.21976393, 0.01718014, -1.27293235],
+            [3.27786220, 0.04082146, -1.48539646],
+            [1.20867399, 0.04478540, -2.27007793],
+            [1.40292257, 0.10591684, -3.33110912],
+            [-0.05341046, 0.01577217, -1.74839343],
+            [-1.32843436, 0.03545064, -2.45531187],
+            [-1.55195156, 0.08743920, -3.80184635],
+            [-0.75245172, 0.10267657, -4.52817967],
+            [-2.93293778, 0.08408786, -4.13352169],
+            [-3.31125108, 0.11340328, -5.14405819],
+            [-3.73173288, 0.02741365, -3.03412864],
+            [-4.80776535, 0.00535688, -2.99564645],
+            [-2.81590978, -0.00516172, -1.58990580],
+        ]
         molecule_actual = Molecule(species, coords)
         self.assertEqual(molecule_actual, qcinput_test.molecule)
         rem_actual = {
@@ -347,7 +395,7 @@ $end
             "scf_guess": "sad",
             "sym_ignore": "true",
             "symmetry": "false",
-            "thresh": "14"
+            "thresh": "14",
         }
         self.assertDictEqual(rem_actual, qcinput_test.rem)
         opt_actual = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
@@ -355,24 +403,42 @@ $end
 
     # TODO this test needs an update, the assertion doesn't differentiate between the different rem sections
     def test_multi_job_string(self):
-        species = ["S", "C", "H", "C", "H", "C", "H",
-                   "C", "C", "C", "H", "C", "H", "C", "H", "S"]
-        coords = [[-0.00250959, -0.05817469, -0.02921636],
-                  [1.70755408, -0.03033788, -0.01382912],
-                  [2.24317221, -0.05215019, 0.92026728],
-                  [2.21976393, 0.01718014, -1.27293235],
-                  [3.27786220, 0.04082146, -1.48539646],
-                  [1.20867399, 0.04478540, -2.27007793],
-                  [1.40292257, 0.10591684, -3.33110912],
-                  [-0.05341046, 0.01577217, -1.74839343],
-                  [-1.32843436, 0.03545064, -2.45531187],
-                  [-1.55195156, 0.08743920, -3.80184635],
-                  [-0.75245172, 0.10267657, -4.52817967],
-                  [-2.93293778, 0.08408786, -4.13352169],
-                  [-3.31125108, 0.11340328, -5.14405819],
-                  [-3.73173288, 0.02741365, -3.03412864],
-                  [-4.80776535, 0.00535688, -2.99564645],
-                  [-2.81590978, -0.00516172, -1.58990580]]
+        species = [
+            "S",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "C",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "H",
+            "S",
+        ]
+        coords = [
+            [-0.00250959, -0.05817469, -0.02921636],
+            [1.70755408, -0.03033788, -0.01382912],
+            [2.24317221, -0.05215019, 0.92026728],
+            [2.21976393, 0.01718014, -1.27293235],
+            [3.27786220, 0.04082146, -1.48539646],
+            [1.20867399, 0.04478540, -2.27007793],
+            [1.40292257, 0.10591684, -3.33110912],
+            [-0.05341046, 0.01577217, -1.74839343],
+            [-1.32843436, 0.03545064, -2.45531187],
+            [-1.55195156, 0.08743920, -3.80184635],
+            [-0.75245172, 0.10267657, -4.52817967],
+            [-2.93293778, 0.08408786, -4.13352169],
+            [-3.31125108, 0.11340328, -5.14405819],
+            [-3.73173288, 0.02741365, -3.03412864],
+            [-4.80776535, 0.00535688, -2.99564645],
+            [-2.81590978, -0.00516172, -1.58990580],
+        ]
         molecule_1 = Molecule(species, coords)
         rem_1 = {
             "jobtype": "opt",
@@ -385,7 +451,7 @@ $end
             "scf_guess": "sad",
             "sym_ignore": "true",
             "symmetry": "false",
-            "thresh": "14"
+            "thresh": "14",
         }
         opt_1 = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
         job_1 = QCInput(molecule=molecule_1, rem=rem_1, opt=opt_1)
@@ -401,91 +467,111 @@ $end
             "scf_guess": "read",
             "sym_ignore": "true",
             "symmetry": "false",
-            "thresh": "14"
+            "thresh": "14",
         }
         job_2 = QCInput(molecule=molecule_2, rem=rem_2)
         job_list = [job_1, job_2]
-        multi_job_str_test = QCInput.multi_job_string(
-            job_list=job_list).split("\n")
-        multi_job_str_actual_list = ["$molecule",
-                                     " 0 1",
-                                     " S     -0.0025095900     -0.0581746900     -0.0292163600",
-                                     " C      1.7075540800     -0.0303378800     -0.0138291200",
-                                     " H      2.2431722100     -0.0521501900      0.9202672800",
-                                     " C      2.2197639300      0.0171801400     -1.2729323500",
-                                     " H      3.2778622000      0.0408214600     -1.4853964600",
-                                     " C      1.2086739900      0.0447854000     -2.2700779300",
-                                     " H      1.4029225700      0.1059168400     -3.3311091200",
-                                     " C     -0.0534104600      0.0157721700     -1.7483934300",
-                                     " C     -1.3284343600      0.0354506400     -2.4553118700",
-                                     " C     -1.5519515600      0.0874392000     -3.8018463500",
-                                     " H     -0.7524517200      0.1026765700     -4.5281796700",
-                                     " C     -2.9329377800      0.0840878600     -4.1335216900",
-                                     " H     -3.3112510800      0.1134032800     -5.1440581900",
-                                     " C     -3.7317328800      0.0274136500     -3.0341286400",
-                                     " H     -4.8077653500      0.0053568800     -2.9956464500",
-                                     " S     -2.8159097800     -0.0051617200     -1.5899058000",
-                                     "$end",
-                                     "$rem",
-                                     "   job_type = opt",
-                                     "   method = wb97m-v",
-                                     "   basis = def2-tzvppd",
-                                     "   gen_scfman = true",
-                                     "   geom_opt_max_cycles = 75",
-                                     "   max_scf_cycles = 300",
-                                     "   scf_algorithm = diis",
-                                     "   scf_guess = sad",
-                                     "   sym_ignore = true",
-                                     "   symmetry = false",
-                                     "   thresh = 14",
-                                     "$end",
-                                     "$opt",
-                                     "CONSTRAINT",
-                                     "   tors 6 8 9 10 0.0",
-                                     "ENDCONSTRAINT",
-                                     "$end",
-                                     "@@@",
-                                     "$molecule",
-                                     " read",
-                                     "$end",
-                                     "$rem",
-                                     "   job_type = opt",
-                                     "   method = wb97m-v",
-                                     "   basis = def2-tzvppd",
-                                     "   gen_scfman = true",
-                                     "   geom_opt_max_cycles = 75",
-                                     "   max_scf_cycles = 300",
-                                     "   scf_algorithm = diis",
-                                     "   scf_guess = sad",
-                                     "   sym_ignore = true",
-                                     "   symmetry = false",
-                                     "   thresh = 14",
-                                     "$end"]
+        multi_job_str_test = QCInput.multi_job_string(job_list=job_list).split("\n")
+        multi_job_str_actual_list = [
+            "$molecule",
+            " 0 1",
+            " S     -0.0025095900     -0.0581746900     -0.0292163600",
+            " C      1.7075540800     -0.0303378800     -0.0138291200",
+            " H      2.2431722100     -0.0521501900      0.9202672800",
+            " C      2.2197639300      0.0171801400     -1.2729323500",
+            " H      3.2778622000      0.0408214600     -1.4853964600",
+            " C      1.2086739900      0.0447854000     -2.2700779300",
+            " H      1.4029225700      0.1059168400     -3.3311091200",
+            " C     -0.0534104600      0.0157721700     -1.7483934300",
+            " C     -1.3284343600      0.0354506400     -2.4553118700",
+            " C     -1.5519515600      0.0874392000     -3.8018463500",
+            " H     -0.7524517200      0.1026765700     -4.5281796700",
+            " C     -2.9329377800      0.0840878600     -4.1335216900",
+            " H     -3.3112510800      0.1134032800     -5.1440581900",
+            " C     -3.7317328800      0.0274136500     -3.0341286400",
+            " H     -4.8077653500      0.0053568800     -2.9956464500",
+            " S     -2.8159097800     -0.0051617200     -1.5899058000",
+            "$end",
+            "$rem",
+            "   job_type = opt",
+            "   method = wb97m-v",
+            "   basis = def2-tzvppd",
+            "   gen_scfman = true",
+            "   geom_opt_max_cycles = 75",
+            "   max_scf_cycles = 300",
+            "   scf_algorithm = diis",
+            "   scf_guess = sad",
+            "   sym_ignore = true",
+            "   symmetry = false",
+            "   thresh = 14",
+            "$end",
+            "$opt",
+            "CONSTRAINT",
+            "   tors 6 8 9 10 0.0",
+            "ENDCONSTRAINT",
+            "$end",
+            "@@@",
+            "$molecule",
+            " read",
+            "$end",
+            "$rem",
+            "   job_type = opt",
+            "   method = wb97m-v",
+            "   basis = def2-tzvppd",
+            "   gen_scfman = true",
+            "   geom_opt_max_cycles = 75",
+            "   max_scf_cycles = 300",
+            "   scf_algorithm = diis",
+            "   scf_guess = sad",
+            "   sym_ignore = true",
+            "   symmetry = false",
+            "   thresh = 14",
+            "$end",
+        ]
 
         for i_str in multi_job_str_actual_list:
             self.assertIn(i_str, multi_job_str_test)
 
     def test_from_multi_jobs_file(self):
         job_list_test = QCInput.from_multi_jobs_file(
-            os.path.join(test_dir, "pt_n2_wb97mv_0.0.in"))
-        species = ["S", "C", "H", "C", "H", "C", "H",
-                   "C", "C", "C", "H", "C", "H", "C", "H", "S"]
-        coords = [[-0.00250959, -0.05817469, -0.02921636],
-                  [1.70755408, -0.03033788, -0.01382912],
-                  [2.24317221, -0.05215019, 0.92026728],
-                  [2.21976393, 0.01718014, -1.27293235],
-                  [3.27786220, 0.04082146, -1.48539646],
-                  [1.20867399, 0.04478540, -2.27007793],
-                  [1.40292257, 0.10591684, -3.33110912],
-                  [-0.05341046, 0.01577217, -1.74839343],
-                  [-1.32843436, 0.03545064, -2.45531187],
-                  [-1.55195156, 0.08743920, -3.80184635],
-                  [-0.75245172, 0.10267657, -4.52817967],
-                  [-2.93293778, 0.08408786, -4.13352169],
-                  [-3.31125108, 0.11340328, -5.14405819],
-                  [-3.73173288, 0.02741365, -3.03412864],
-                  [-4.80776535, 0.00535688, -2.99564645],
-                  [-2.81590978, -0.00516172, -1.58990580]]
+            os.path.join(test_dir, "pt_n2_wb97mv_0.0.in")
+        )
+        species = [
+            "S",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "C",
+            "C",
+            "H",
+            "C",
+            "H",
+            "C",
+            "H",
+            "S",
+        ]
+        coords = [
+            [-0.00250959, -0.05817469, -0.02921636],
+            [1.70755408, -0.03033788, -0.01382912],
+            [2.24317221, -0.05215019, 0.92026728],
+            [2.21976393, 0.01718014, -1.27293235],
+            [3.27786220, 0.04082146, -1.48539646],
+            [1.20867399, 0.04478540, -2.27007793],
+            [1.40292257, 0.10591684, -3.33110912],
+            [-0.05341046, 0.01577217, -1.74839343],
+            [-1.32843436, 0.03545064, -2.45531187],
+            [-1.55195156, 0.08743920, -3.80184635],
+            [-0.75245172, 0.10267657, -4.52817967],
+            [-2.93293778, 0.08408786, -4.13352169],
+            [-3.31125108, 0.11340328, -5.14405819],
+            [-3.73173288, 0.02741365, -3.03412864],
+            [-4.80776535, 0.00535688, -2.99564645],
+            [-2.81590978, -0.00516172, -1.58990580],
+        ]
         molecule_1_actual = Molecule(species, coords)
         rem_1_actual = {
             "job_type": "opt",
@@ -498,7 +584,7 @@ $end
             "scf_guess": "sad",
             "sym_ignore": "true",
             "symmetry": "false",
-            "thresh": "14"
+            "thresh": "14",
         }
         opt_1_actual = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
         self.assertEqual(molecule_1_actual, job_list_test[0].molecule)
@@ -517,7 +603,7 @@ $end
             "scf_guess": "read",
             "sym_ignore": "true",
             "symmetry": "false",
-            "thresh": "14"
+            "thresh": "14",
         }
         self.assertEqual(molecule_2_actual, job_list_test[1].molecule)
         self.assertEqual(rem_2_actual, job_list_test[1].rem)
@@ -531,11 +617,7 @@ $pcm
    vdwscale 1.1
 $end"""
         pcm_test = QCInput.read_pcm(str_pcm)
-        pcm_actual = {
-            "theory": "cpcm",
-            "radii": "uff",
-            "vdwscale": "1.1"
-        }
+        pcm_actual = {"theory": "cpcm", "radii": "uff", "vdwscale": "1.1"}
         self.assertDictEqual(pcm_actual, pcm_test)
 
     def test_read_bad_pcm(self):
@@ -629,12 +711,17 @@ $end
 
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet
+
         odd_dict = loadfn(os.path.join(os.path.dirname(__file__), "odd.json"))
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
-        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test.qin")).as_dict()
-        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref.qin")).as_dict()
+        test_dict = QCInput.from_file(
+            os.path.join(os.path.dirname(__file__), "test.qin")
+        ).as_dict()
+        test_ref_dict = QCInput.from_file(
+            os.path.join(os.path.dirname(__file__), "test_ref.qin")
+        ).as_dict()
         for key in test_dict:
             self.assertEqual(test_dict[key], test_ref_dict[key])
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))

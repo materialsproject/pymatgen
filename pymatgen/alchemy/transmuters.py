@@ -22,8 +22,8 @@ __date__ = "Mar 4, 2012"
 
 import os
 import re
-
 from multiprocessing import Pool
+
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet
 
@@ -38,8 +38,13 @@ class StandardTransmuter:
         List of all transformed structures.
     """
 
-    def __init__(self, transformed_structures, transformations=None,
-                 extend_collection=0, ncores=None):
+    def __init__(
+        self,
+        transformed_structures,
+        transformations=None,
+        extend_collection=0,
+        ncores=None,
+    ):
         """
         Initializes a transmuter from an initial list of
         :class:`pymatgen.alchemy.materials.TransformedStructure`.
@@ -62,8 +67,7 @@ class StandardTransmuter:
         self.ncores = ncores
         if transformations is not None:
             for trans in transformations:
-                self.append_transformation(trans,
-                                           extend_collection=extend_collection)
+                self.append_transformation(trans, extend_collection=extend_collection)
 
     def __getitem__(self, index):
         return self.transformed_structures[index]
@@ -94,8 +98,9 @@ class StandardTransmuter:
     def __len__(self):
         return len(self.transformed_structures)
 
-    def append_transformation(self, transformation, extend_collection=False,
-                              clear_redo=True):
+    def append_transformation(
+        self, transformation, extend_collection=False, clear_redo=True
+    ):
         """
         Appends a transformation to all TransformedStructures.
 
@@ -121,7 +126,8 @@ class StandardTransmuter:
             # need to condense arguments into single tuple to use map
             z = map(
                 lambda x: (x, transformation, extend_collection, clear_redo),
-                self.transformed_structures)
+                self.transformed_structures,
+            )
             new_tstructs = p.map(_apply_transformation, z, 1)
             self.transformed_structures = []
             for ts in new_tstructs:
@@ -129,9 +135,9 @@ class StandardTransmuter:
         else:
             new_structures = []
             for x in self.transformed_structures:
-                new = x.append_transformation(transformation,
-                                              extend_collection,
-                                              clear_redo=clear_redo)
+                new = x.append_transformation(
+                    transformation, extend_collection, clear_redo=clear_redo
+                )
                 if new is not None:
                     new_structures.extend(new)
             self.transformed_structures.extend(new_structures)
@@ -158,8 +164,9 @@ class StandardTransmuter:
         def test_transformed_structure(ts):
             return structure_filter.test(ts.final_structure)
 
-        self.transformed_structures = list(filter(test_transformed_structure,
-                                                  self.transformed_structures))
+        self.transformed_structures = list(
+            filter(test_transformed_structure, self.transformed_structures)
+        )
         for ts in self.transformed_structures:
             ts.append_filter(structure_filter)
 
@@ -212,8 +219,9 @@ class StandardTransmuter:
                 transmuter.
         """
         if isinstance(tstructs_or_transmuter, self.__class__):
-            self.transformed_structures.extend(tstructs_or_transmuter
-                                               .transformed_structures)
+            self.transformed_structures.extend(
+                tstructs_or_transmuter.transformed_structures
+            )
         else:
             for ts in tstructs_or_transmuter:
                 assert isinstance(ts, TransformedStructure)
@@ -247,8 +255,9 @@ class CifTransmuter(StandardTransmuter):
     structures.
     """
 
-    def __init__(self, cif_string, transformations=None, primitive=True,
-                 extend_collection=False):
+    def __init__(
+        self, cif_string, transformations=None, primitive=True, extend_collection=False
+    ):
         """
         Generates a Transmuter from a cif string, possibly
         containing multiple structures.
@@ -274,15 +283,16 @@ class CifTransmuter(StandardTransmuter):
             if read_data:
                 structure_data[-1].append(line)
         for data in structure_data:
-            tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
-                                                           primitive)
+            tstruct = TransformedStructure.from_cif_string(
+                "\n".join(data), [], primitive
+            )
             transformed_structures.append(tstruct)
-        super().__init__(transformed_structures, transformations,
-                         extend_collection)
+        super().__init__(transformed_structures, transformations, extend_collection)
 
     @staticmethod
-    def from_filenames(filenames, transformations=None, primitive=True,
-                       extend_collection=False):
+    def from_filenames(
+        filenames, transformations=None, primitive=True, extend_collection=False
+    ):
         """
         Generates a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
@@ -299,9 +309,12 @@ class CifTransmuter(StandardTransmuter):
         for fname in filenames:
             with open(fname, "r") as f:
                 allcifs.append(f.read())
-        return CifTransmuter("\n".join(allcifs), transformations,
-                             primitive=primitive,
-                             extend_collection=extend_collection)
+        return CifTransmuter(
+            "\n".join(allcifs),
+            transformations,
+            primitive=primitive,
+            extend_collection=extend_collection,
+        )
 
 
 class PoscarTransmuter(StandardTransmuter):
@@ -309,8 +322,7 @@ class PoscarTransmuter(StandardTransmuter):
     Generates a transmuter from a sequence of POSCARs.
     """
 
-    def __init__(self, poscar_string, transformations=None,
-                 extend_collection=False):
+    def __init__(self, poscar_string, transformations=None, extend_collection=False):
         """
         Args:
             poscar_string: List of POSCAR strings
@@ -320,12 +332,12 @@ class PoscarTransmuter(StandardTransmuter):
                 from one-to-many transformations.
         """
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        super().__init__([tstruct], transformations,
-                         extend_collection=extend_collection)
+        super().__init__(
+            [tstruct], transformations, extend_collection=extend_collection
+        )
 
     @staticmethod
-    def from_filenames(poscar_filenames, transformations=None,
-                       extend_collection=False):
+    def from_filenames(poscar_filenames, transformations=None, extend_collection=False):
         """
         Convenient constructor to generates a POSCAR transmuter from a list of
         POSCAR filenames.
@@ -340,16 +352,21 @@ class PoscarTransmuter(StandardTransmuter):
         tstructs = []
         for filename in poscar_filenames:
             with open(filename, "r") as f:
-                tstructs.append(TransformedStructure
-                                .from_poscar_string(f.read(), []))
-        return StandardTransmuter(tstructs, transformations,
-                                  extend_collection=extend_collection)
+                tstructs.append(TransformedStructure.from_poscar_string(f.read(), []))
+        return StandardTransmuter(
+            tstructs, transformations, extend_collection=extend_collection
+        )
 
 
-def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
-                           output_dir=".", create_directory=True,
-                           subfolder=None,
-                           include_cif=False, **kwargs):
+def batch_write_vasp_input(
+    transformed_structures,
+    vasp_input_set=MPRelaxSet,
+    output_dir=".",
+    create_directory=True,
+    subfolder=None,
+    include_cif=False,
+    **kwargs
+):
     """
     Batch write vasp input for a sequence of transformed structures to
     output_dir, following the format output_dir/{group}/{formula}_{number}.
@@ -373,12 +390,12 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set=MPRelaxSet,
         formula = re.sub(r"\s+", "", s.final_structure.formula)
         if subfolder is not None:
             subdir = subfolder(s)
-            dirname = os.path.join(output_dir, subdir,
-                                   "{}_{}".format(formula, i))
+            dirname = os.path.join(output_dir, subdir, "{}_{}".format(formula, i))
         else:
             dirname = os.path.join(output_dir, "{}_{}".format(formula, i))
-        s.write_vasp_input(vasp_input_set, dirname,
-                           create_directory=create_directory, **kwargs)
+        s.write_vasp_input(
+            vasp_input_set, dirname, create_directory=create_directory, **kwargs
+        )
         if include_cif:
             from pymatgen.io.cif import CifWriter
 
@@ -401,8 +418,9 @@ def _apply_transformation(inputs):
         any new structures created by a one-to-many transformation)
     """
     ts, transformation, extend_collection, clear_redo = inputs
-    new = ts.append_transformation(transformation, extend_collection,
-                                   clear_redo=clear_redo)
+    new = ts.append_transformation(
+        transformation, extend_collection, clear_redo=clear_redo
+    )
     o = [ts]
     if new:
         o.extend(new)

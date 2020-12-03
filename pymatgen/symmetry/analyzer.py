@@ -13,26 +13,22 @@ v3.0 - pymatgen no longer ships with spglib. Instead, spglib (the python
        as an interface to spglib for pymatgen Structures.
 """
 
+import copy
 import itertools
 import logging
-from collections import defaultdict
-import copy
 import math
-from math import cos
-from math import sin
+from collections import defaultdict
 from fractions import Fraction
+from math import cos, sin
 
 import numpy as np
-
 import spglib
 
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
+from pymatgen.core.structure import Molecule, PeriodicSite, Structure
+from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +61,7 @@ class SpacegroupAnalyzer:
         zs = []
         magmoms = []
 
-        for species, g in itertools.groupby(structure,
-                                            key=lambda s: s.species):
+        for species, g in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
                 zs.extend([ind + 1] * len(tuple(g)))
@@ -75,9 +70,9 @@ class SpacegroupAnalyzer:
                 zs.extend([len(unique_species)] * len(tuple(g)))
 
         for site in structure:
-            if hasattr(site, 'magmom'):
+            if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
-            elif site.is_ordered and hasattr(site.specie, 'spin'):
+            elif site.is_ordered and hasattr(site.specie, "spin"):
                 magmoms.append(site.specie.spin)
             else:
                 magmoms.append(0)
@@ -88,7 +83,8 @@ class SpacegroupAnalyzer:
         self._cell = latt, positions, zs, magmoms
 
         self._space_group_data = spglib.get_symmetry_dataset(
-            self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance)
+            self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
+        )
 
     def get_space_group_symbol(self):
         """
@@ -115,9 +111,11 @@ class SpacegroupAnalyzer:
         Returns:
             SpacgroupOperations object.
         """
-        return SpacegroupOperations(self.get_space_group_symbol(),
-                                    self.get_space_group_number(),
-                                    self.get_symmetry_operations())
+        return SpacegroupOperations(
+            self.get_space_group_symbol(),
+            self.get_space_group_number(),
+            self.get_symmetry_operations(),
+        )
 
     def get_hall(self):
         """
@@ -138,7 +136,7 @@ class SpacegroupAnalyzer:
         rotations = self._space_group_data["rotations"]
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
-            return '1'
+            return "1"
         return spglib.get_pointgroup(rotations)[0].strip()
 
     def get_crystal_system(self):
@@ -154,10 +152,15 @@ class SpacegroupAnalyzer:
         def f(i, j):
             return i <= n <= j
 
-        cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
-              "orthorhombic": (16, 74), "tetragonal": (75, 142),
-              "trigonal": (143, 167), "hexagonal": (168, 194),
-              "cubic": (195, 230)}
+        cs = {
+            "triclinic": (1, 2),
+            "monoclinic": (3, 15),
+            "orthorhombic": (16, 74),
+            "tetragonal": (75, 142),
+            "trigonal": (143, 167),
+            "hexagonal": (168, 194),
+            "cubic": (195, 230),
+        }
 
         crystal_sytem = None
 
@@ -215,16 +218,18 @@ class SpacegroupAnalyzer:
             "translations" gives the numpy float64 array of the translation
             vectors in scaled positions.
         """
-        d = spglib.get_symmetry(self._cell, symprec=self._symprec,
-                                angle_tolerance=self._angle_tol)
+        d = spglib.get_symmetry(
+            self._cell, symprec=self._symprec, angle_tolerance=self._angle_tol
+        )
         # Sometimes spglib returns small translation vectors, e.g.
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
         trans = []
         for t in d["translations"]:
-            trans.append([float(Fraction.from_float(c).limit_denominator(1000))
-                          for c in t])
+            trans.append(
+                [float(Fraction.from_float(c).limit_denominator(1000)) for c in t]
+            )
         trans = np.array(trans)
 
         # fractional translations of 1 are more simply 0
@@ -285,12 +290,14 @@ class SpacegroupAnalyzer:
             :class:`pymatgen.symmetry.structure.SymmetrizedStructure` object.
         """
         ds = self.get_symmetry_dataset()
-        sg = SpacegroupOperations(self.get_space_group_symbol(),
-                                  self.get_space_group_number(),
-                                  self.get_symmetry_operations())
-        return SymmetrizedStructure(self._structure, sg,
-                                    ds["equivalent_atoms"],
-                                    ds["wyckoffs"])
+        sg = SpacegroupOperations(
+            self.get_space_group_symbol(),
+            self.get_space_group_number(),
+            self.get_symmetry_operations(),
+        )
+        return SymmetrizedStructure(
+            self._structure, sg, ds["equivalent_atoms"], ds["wyckoffs"]
+        )
 
     def get_refined_structure(self):
         """
@@ -302,8 +309,9 @@ class SpacegroupAnalyzer:
             Refined structure.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
-        lattice, scaled_positions, numbers \
-            = spglib.refine_cell(self._cell, self._symprec, self._angle_tol)
+        lattice, scaled_positions, numbers = spglib.refine_cell(
+            self._cell, self._symprec, self._angle_tol
+        )
 
         species = [self._unique_species[i - 1] for i in numbers]
         s = Structure(lattice, species, scaled_positions)
@@ -319,12 +327,14 @@ class SpacegroupAnalyzer:
             returned.
         """
         lattice, scaled_positions, numbers = spglib.find_primitive(
-            self._cell, symprec=self._symprec)
+            self._cell, symprec=self._symprec
+        )
 
         species = [self._unique_species[i - 1] for i in numbers]
 
-        return Structure(lattice, species, scaled_positions,
-                         to_unit_cell=True).get_reduced_structure()
+        return Structure(
+            lattice, species, scaled_positions, to_unit_cell=True
+        ).get_reduced_structure()
 
     def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
         """
@@ -345,15 +355,17 @@ class SpacegroupAnalyzer:
         """
         shift = np.array([1 if i else 0 for i in is_shift])
         mapping, grid = spglib.get_ir_reciprocal_mesh(
-            np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
+            np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec
+        )
 
         results = []
         for i, count in zip(*np.unique(mapping, return_counts=True)):
-            results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh,
-                            count))
+            results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
-    def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
+    def get_conventional_to_primitive_transformation_matrix(
+        self, international_monoclinic=True
+    ):
         """
         Gives the transformation matrix to transform a conventional
         unit cell to a primitive cell according to certain standards
@@ -366,7 +378,8 @@ class SpacegroupAnalyzer:
             Transformation matrix to go from conventional to primitive cell
         """
         conv = self.get_conventional_standard_structure(
-            international_monoclinic=international_monoclinic)
+            international_monoclinic=international_monoclinic
+        )
         lattice = self.get_lattice_type()
 
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
@@ -379,22 +392,25 @@ class SpacegroupAnalyzer:
             if abs(lengths[0] - lengths[2]) < 0.0001:
                 transf = np.eye
             else:
-                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]],
-                                  dtype=np.float) / 3
+                transf = (
+                    np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float) / 3
+                )
 
         elif "I" in self.get_space_group_symbol():
-            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]],
-                              dtype=np.float) / 2
+            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float) / 2
         elif "F" in self.get_space_group_symbol():
-            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]],
-                              dtype=np.float) / 2
-        elif "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
+            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float) / 2
+        elif (
+            "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol()
+        ):
             if self.get_crystal_system() == "monoclinic":
-                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
-                                  dtype=np.float) / 2
+                transf = (
+                    np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float) / 2
+                )
             else:
-                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]],
-                                  dtype=np.float) / 2
+                transf = (
+                    np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float) / 2
+                )
         else:
             transf = np.eye(3)
 
@@ -412,22 +428,28 @@ class SpacegroupAnalyzer:
             The structure in a primitive standardized cell
         """
         conv = self.get_conventional_standard_structure(
-            international_monoclinic=international_monoclinic)
+            international_monoclinic=international_monoclinic
+        )
         lattice = self.get_lattice_type()
 
         if "P" in self.get_space_group_symbol() or lattice == "hexagonal":
             return conv
 
         transf = self.get_conventional_to_primitive_transformation_matrix(
-            international_monoclinic=international_monoclinic)
+            international_monoclinic=international_monoclinic
+        )
 
         new_sites = []
         latt = Lattice(np.dot(transf, conv.lattice.matrix))
         for s in conv:
             new_s = PeriodicSite(
-                s.specie, s.coords, latt,
-                to_unit_cell=True, coords_are_cartesian=True,
-                properties=s.properties)
+                s.specie,
+                s.coords,
+                latt,
+                to_unit_cell=True,
+                coords_are_cartesian=True,
+                properties=s.properties,
+            )
             if not any(map(new_s.is_periodic_image, new_sites)):
                 new_sites.append(new_s)
 
@@ -440,22 +462,29 @@ class SpacegroupAnalyzer:
             new_matrix = [
                 [a * cos(alpha / 2), -a * sin(alpha / 2), 0],
                 [a * cos(alpha / 2), a * sin(alpha / 2), 0],
-                [a * cos(alpha) / cos(alpha / 2), 0,
-                 a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2)))]]
+                [
+                    a * cos(alpha) / cos(alpha / 2),
+                    0,
+                    a * math.sqrt(1 - (cos(alpha) ** 2 / (cos(alpha / 2) ** 2))),
+                ],
+            ]
             new_sites = []
             latt = Lattice(new_matrix)
             for s in prim:
                 new_s = PeriodicSite(
-                    s.specie, s.frac_coords, latt,
-                    to_unit_cell=True, properties=s.properties)
+                    s.specie,
+                    s.frac_coords,
+                    latt,
+                    to_unit_cell=True,
+                    properties=s.properties,
+                )
                 if not any(map(new_s.is_periodic_image, new_sites)):
                     new_sites.append(new_s)
             return Structure.from_sites(new_sites)
 
         return Structure.from_sites(new_sites)
 
-    def get_conventional_standard_structure(
-            self, international_monoclinic=True):
+    def get_conventional_standard_structure(self, international_monoclinic=True):
         """
         Gives a structure with a conventional cell according to certain
         standards. The standards are defined in Setyawan, W., & Curtarolo,
@@ -473,10 +502,13 @@ class SpacegroupAnalyzer:
         latt = struct.lattice
         latt_type = self.get_lattice_type()
         sorted_lengths = sorted(latt.abc)
-        sorted_dic = sorted([{'vec': latt.matrix[i],
-                              'length': latt.abc[i],
-                              'orig_index': i} for i in [0, 1, 2]],
-                            key=lambda k: k['length'])
+        sorted_dic = sorted(
+            [
+                {"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i}
+                for i in [0, 1, 2]
+            ],
+            key=lambda k: k["length"],
+        )
 
         if latt_type in ("orthorhombic", "cubic"):
             # you want to keep the c axis where it is
@@ -485,27 +517,34 @@ class SpacegroupAnalyzer:
             if self.get_space_group_symbol().startswith("C"):
                 transf[2] = [0, 0, 1]
                 a, b = sorted(latt.abc[:2])
-                sorted_dic = sorted([{'vec': latt.matrix[i],
-                                      'length': latt.abc[i],
-                                      'orig_index': i} for i in [0, 1]],
-                                    key=lambda k: k['length'])
+                sorted_dic = sorted(
+                    [
+                        {"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i}
+                        for i in [0, 1]
+                    ],
+                    key=lambda k: k["length"],
+                )
                 for i in range(2):
-                    transf[i][sorted_dic[i]['orig_index']] = 1
+                    transf[i][sorted_dic[i]["orig_index"]] = 1
                 c = latt.abc[2]
             elif self.get_space_group_symbol().startswith(
-                    "A"):  # change to C-centering to match Setyawan/Curtarolo convention
+                "A"
+            ):  # change to C-centering to match Setyawan/Curtarolo convention
                 transf[2] = [1, 0, 0]
                 a, b = sorted(latt.abc[1:])
-                sorted_dic = sorted([{'vec': latt.matrix[i],
-                                      'length': latt.abc[i],
-                                      'orig_index': i} for i in [1, 2]],
-                                    key=lambda k: k['length'])
+                sorted_dic = sorted(
+                    [
+                        {"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i}
+                        for i in [1, 2]
+                    ],
+                    key=lambda k: k["length"],
+                )
                 for i in range(2):
-                    transf[i][sorted_dic[i]['orig_index']] = 1
+                    transf[i][sorted_dic[i]["orig_index"]] = 1
                 c = latt.abc[0]
             else:
                 for i, d in enumerate(sorted_dic):
-                    transf[i][d['orig_index']] = 1
+                    transf[i][d["orig_index"]] = 1
                 a, b, c = sorted_lengths
             latt = Lattice.orthorhombic(a, b, c)
 
@@ -515,7 +554,7 @@ class SpacegroupAnalyzer:
             transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
             for i, d in enumerate(sorted_dic):
-                transf[i][d['orig_index']] = 1
+                transf[i][d["orig_index"]] = 1
 
             if abs(b - c) < tol < abs(a - c):
                 a, c = c, a
@@ -535,9 +574,11 @@ class SpacegroupAnalyzer:
 
             if abs(b - c) < 0.001:
                 a, c = c, a
-            new_matrix = [[a / 2, -a * math.sqrt(3) / 2, 0],
-                          [a / 2, a * math.sqrt(3) / 2, 0],
-                          [0, 0, c]]
+            new_matrix = [
+                [a / 2, -a * math.sqrt(3) / 2, 0],
+                [a / 2, a * math.sqrt(3) / 2, 0],
+                [0, 0, c],
+            ]
             latt = Lattice(new_matrix)
             transf = np.eye(3, 3)
 
@@ -547,12 +588,15 @@ class SpacegroupAnalyzer:
             if self.get_space_group_operations().int_symbol.startswith("C"):
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
-                sorted_dic = sorted([{'vec': latt.matrix[i],
-                                      'length': latt.abc[i],
-                                      'orig_index': i} for i in [0, 1]],
-                                    key=lambda k: k['length'])
-                a = sorted_dic[0]['length']
-                b = sorted_dic[1]['length']
+                sorted_dic = sorted(
+                    [
+                        {"vec": latt.matrix[i], "length": latt.abc[i], "orig_index": i}
+                        for i in [0, 1]
+                    ],
+                    key=lambda k: k["length"],
+                )
+                a = sorted_dic[0]["length"]
+                b = sorted_dic[1]["length"]
                 c = latt.abc[2]
                 new_matrix = None
                 for t in itertools.permutations(list(range(2)), 2):
@@ -564,15 +608,18 @@ class SpacegroupAnalyzer:
                         # if the angle is > 90 we invert a and b to get
                         # an angle < 90
                         a, b, c, alpha, beta, gamma = Lattice(
-                            [-m[t[0]], -m[t[1]], m[2]]).parameters
+                            [-m[t[0]], -m[t[1]], m[2]]
+                        ).parameters
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = -1
                         transf[1][t[1]] = -1
                         transf[2][2] = 1
                         alpha = math.pi * alpha / 180
-                        new_matrix = [[a, 0, 0],
-                                      [0, b, 0],
-                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        new_matrix = [
+                            [a, 0, 0],
+                            [0, b, 0],
+                            [0, c * cos(alpha), c * sin(alpha)],
+                        ]
                         continue
 
                     if angles[0] < 90:
@@ -582,20 +629,20 @@ class SpacegroupAnalyzer:
                         transf[2][2] = 1
                         a, b, c = lengths
                         alpha = math.pi * angles[0] / 180
-                        new_matrix = [[a, 0, 0],
-                                      [0, b, 0],
-                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        new_matrix = [
+                            [a, 0, 0],
+                            [0, b, 0],
+                            [0, c * cos(alpha), c * sin(alpha)],
+                        ]
 
                 if new_matrix is None:
                     # this if is to treat the case
                     # where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [[a, 0, 0],
-                                  [0, b, 0],
-                                  [0, 0, c]]
+                    new_matrix = [[a, 0, 0], [0, b, 0], [0, 0, c]]
                     transf = np.zeros(shape=(3, 3))
                     transf[2] = [0, 0, 1]  # see issue #1929
                     for i, d in enumerate(sorted_dic):
-                        transf[i][d['orig_index']] = 1
+                        transf[i][d["orig_index"]] = 1
             # if not C-setting
             else:
                 # try all permutations of the axis
@@ -605,18 +652,22 @@ class SpacegroupAnalyzer:
                 for t in itertools.permutations(list(range(3)), 3):
                     m = latt.matrix
                     a, b, c, alpha, beta, gamma = Lattice(
-                        [m[t[0]], m[t[1]], m[t[2]]]).parameters
+                        [m[t[0]], m[t[1]], m[t[2]]]
+                    ).parameters
                     if alpha > 90 and b < c:
                         a, b, c, alpha, beta, gamma = Lattice(
-                            [-m[t[0]], -m[t[1]], m[t[2]]]).parameters
+                            [-m[t[0]], -m[t[1]], m[t[2]]]
+                        ).parameters
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = -1
                         transf[1][t[1]] = -1
                         transf[2][t[2]] = 1
                         alpha = math.pi * alpha / 180
-                        new_matrix = [[a, 0, 0],
-                                      [0, b, 0],
-                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        new_matrix = [
+                            [a, 0, 0],
+                            [0, b, 0],
+                            [0, c * cos(alpha), c * sin(alpha)],
+                        ]
                         continue
                     if alpha < 90 and b < c:
                         transf = np.zeros(shape=(3, 3))
@@ -624,18 +675,22 @@ class SpacegroupAnalyzer:
                         transf[1][t[1]] = 1
                         transf[2][t[2]] = 1
                         alpha = math.pi * alpha / 180
-                        new_matrix = [[a, 0, 0],
-                                      [0, b, 0],
-                                      [0, c * cos(alpha), c * sin(alpha)]]
+                        new_matrix = [
+                            [a, 0, 0],
+                            [0, b, 0],
+                            [0, c * cos(alpha), c * sin(alpha)],
+                        ]
                 if new_matrix is None:
                     # this if is to treat the case
                     # where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [[sorted_lengths[0], 0, 0],
-                                  [0, sorted_lengths[1], 0],
-                                  [0, 0, sorted_lengths[2]]]
+                    new_matrix = [
+                        [sorted_lengths[0], 0, 0],
+                        [0, sorted_lengths[1], 0],
+                        [0, 0, sorted_lengths[2]],
+                    ]
                     transf = np.zeros(shape=(3, 3))
                     for i, d in enumerate(sorted_dic):
-                        transf[i][d['orig_index']] = 1
+                        transf[i][d["orig_index"]] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.
@@ -659,15 +714,22 @@ class SpacegroupAnalyzer:
             a, b, c = latt.lengths
             alpha, beta, gamma = [math.pi * i / 180 for i in latt.angles]
             new_matrix = None
-            test_matrix = [[a, 0, 0],
-                           [b * cos(gamma), b * sin(gamma), 0.0],
-                           [c * cos(beta),
-                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                            sin(gamma),
-                            c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                          - cos(beta) ** 2
-                                          + 2 * cos(alpha) * cos(beta)
-                                          * cos(gamma)) / sin(gamma)]]
+            test_matrix = [
+                [a, 0, 0],
+                [b * cos(gamma), b * sin(gamma), 0.0],
+                [
+                    c * cos(beta),
+                    c * (cos(alpha) - cos(beta) * cos(gamma)) / sin(gamma),
+                    c
+                    * math.sqrt(
+                        sin(gamma) ** 2
+                        - cos(alpha) ** 2
+                        - cos(beta) ** 2
+                        + 2 * cos(alpha) * cos(beta) * cos(gamma)
+                    )
+                    / sin(gamma),
+                ],
+            ]
 
             def is_all_acute_or_obtuse(m):
                 recp_angles = np.array(Lattice(m).reciprocal_lattice.angles)
@@ -677,59 +739,78 @@ class SpacegroupAnalyzer:
                 transf = np.eye(3)
                 new_matrix = test_matrix
 
-            test_matrix = [[-a, 0, 0],
-                           [b * cos(gamma), b * sin(gamma), 0.0],
-                           [-c * cos(beta),
-                            -c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                            sin(gamma),
-                            -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                           - cos(beta) ** 2
-                                           + 2 * cos(alpha) * cos(beta)
-                                           * cos(gamma)) / sin(gamma)]]
+            test_matrix = [
+                [-a, 0, 0],
+                [b * cos(gamma), b * sin(gamma), 0.0],
+                [
+                    -c * cos(beta),
+                    -c * (cos(alpha) - cos(beta) * cos(gamma)) / sin(gamma),
+                    -c
+                    * math.sqrt(
+                        sin(gamma) ** 2
+                        - cos(alpha) ** 2
+                        - cos(beta) ** 2
+                        + 2 * cos(alpha) * cos(beta) * cos(gamma)
+                    )
+                    / sin(gamma),
+                ],
+            ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0],
-                          [0, 1, 0],
-                          [0, 0, -1]]
+                transf = [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]
                 new_matrix = test_matrix
 
-            test_matrix = [[-a, 0, 0],
-                           [-b * cos(gamma), -b * sin(gamma), 0.0],
-                           [c * cos(beta),
-                            c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                            sin(gamma),
-                            c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                          - cos(beta) ** 2
-                                          + 2 * cos(alpha) * cos(beta)
-                                          * cos(gamma)) / sin(gamma)]]
+            test_matrix = [
+                [-a, 0, 0],
+                [-b * cos(gamma), -b * sin(gamma), 0.0],
+                [
+                    c * cos(beta),
+                    c * (cos(alpha) - cos(beta) * cos(gamma)) / sin(gamma),
+                    c
+                    * math.sqrt(
+                        sin(gamma) ** 2
+                        - cos(alpha) ** 2
+                        - cos(beta) ** 2
+                        + 2 * cos(alpha) * cos(beta) * cos(gamma)
+                    )
+                    / sin(gamma),
+                ],
+            ]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1, 0, 0],
-                          [0, -1, 0],
-                          [0, 0, 1]]
+                transf = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
                 new_matrix = test_matrix
 
-            test_matrix = [[a, 0, 0],
-                           [-b * cos(gamma), -b * sin(gamma), 0.0],
-                           [-c * cos(beta),
-                            -c * (cos(alpha) - cos(beta) * cos(gamma)) /
-                            sin(gamma),
-                            -c * math.sqrt(sin(gamma) ** 2 - cos(alpha) ** 2
-                                           - cos(beta) ** 2
-                                           + 2 * cos(alpha) * cos(beta)
-                                           * cos(gamma)) / sin(gamma)]]
+            test_matrix = [
+                [a, 0, 0],
+                [-b * cos(gamma), -b * sin(gamma), 0.0],
+                [
+                    -c * cos(beta),
+                    -c * (cos(alpha) - cos(beta) * cos(gamma)) / sin(gamma),
+                    -c
+                    * math.sqrt(
+                        sin(gamma) ** 2
+                        - cos(alpha) ** 2
+                        - cos(beta) ** 2
+                        + 2 * cos(alpha) * cos(beta) * cos(gamma)
+                    )
+                    / sin(gamma),
+                ],
+            ]
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1, 0, 0],
-                          [0, -1, 0],
-                          [0, 0, -1]]
+                transf = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
                 new_matrix = test_matrix
 
             latt = Lattice(new_matrix)
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
-        new_struct = Structure(latt, struct.species_and_occu, new_coords,
-                               site_properties=struct.site_properties,
-                               to_unit_cell=True)
+        new_struct = Structure(
+            latt,
+            struct.species_and_occu,
+            new_coords,
+            site_properties=struct.site_properties,
+            to_unit_cell=True,
+        )
         return new_struct.get_sorted_structure()
 
     def get_kpoint_weights(self, kpoints, atol=1e-5):
@@ -765,7 +846,8 @@ class SpacegroupAnalyzer:
                 shift.append(1)
 
         mapping, grid = spglib.get_ir_reciprocal_mesh(
-            np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
+            np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec
+        )
         mapping = list(mapping)
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
@@ -777,20 +859,33 @@ class SpacegroupAnalyzer:
                     weights.append(mapping.count(mapping[i]))
                     break
         if (len(mapped) != len(set(mapping))) or (
-                not all([v == 1 for v in mapped.values()])):
-            raise ValueError("Unable to find 1:1 corresponding between input "
-                             "kpoints and irreducible grid!")
+            not all([v == 1 for v in mapped.values()])
+        ):
+            raise ValueError(
+                "Unable to find 1:1 corresponding between input "
+                "kpoints and irreducible grid!"
+            )
         return [w / sum(weights) for w in weights]
 
     def is_laue(self):
-
         """
         Check if the point group of the structure
             has Laue symmetry (centrosymmetry)
         """
 
-        laue = ["-1", "2/m", "mmm", "4/m", "4/mmm",
-                "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m"]
+        laue = [
+            "-1",
+            "2/m",
+            "mmm",
+            "4/m",
+            "4/mmm",
+            "-3",
+            "-3m",
+            "6/m",
+            "6/mmm",
+            "m-3",
+            "m-3m",
+        ]
 
         return str(self.get_point_group_symbol()) in laue
 
@@ -818,10 +913,10 @@ class PointGroupAnalyzer:
 
         Schoenflies symbol of the detected point group.
     """
+
     inversion_op = SymmOp.inversion()
 
-    def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01,
-                 matrix_tol=0.1):
+    def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01, matrix_tol=0.1):
         """
         The default settings are usually sufficient.
 
@@ -853,8 +948,9 @@ class PointGroupAnalyzer:
                 c = site.coords
                 wt = site.species.weight
                 for i in range(3):
-                    inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
-                                                  + c[(i + 2) % 3] ** 2)
+                    inertia_tensor[i, i] += wt * (
+                        c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2
+                    )
                 for i, j in [(0, 1), (1, 2), (0, 2)]:
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
@@ -869,10 +965,12 @@ class PointGroupAnalyzer:
             self.eigvals = eigvals
             v1, v2, v3 = eigvals
             eig_zero = abs(v1 * v2 * v3) < self.eig_tol
-            eig_all_same = abs(v1 - v2) < self.eig_tol and abs(
-                v1 - v3) < self.eig_tol
-            eig_all_diff = abs(v1 - v2) > self.eig_tol and abs(
-                v1 - v3) > self.eig_tol and abs(v2 - v3) > self.eig_tol
+            eig_all_same = abs(v1 - v2) < self.eig_tol and abs(v1 - v3) < self.eig_tol
+            eig_all_diff = (
+                abs(v1 - v2) > self.eig_tol
+                and abs(v1 - v3) > self.eig_tol
+                and abs(v2 - v3) > self.eig_tol
+            )
 
             self.rot_sym = []
             self.symmops = [SymmOp(np.eye(4))]
@@ -967,8 +1065,7 @@ class PointGroupAnalyzer:
         elif mirror_type == "v":
             self.sch_symbol += "v"
         elif mirror_type == "":
-            if self.is_valid_op(SymmOp.rotoreflection(main_axis,
-                                                      angle=180 / rot)):
+            if self.is_valid_op(SymmOp.rotoreflection(main_axis, angle=180 / rot)):
                 self.sch_symbol = "S{}".format(2 * rot)
 
     def _proc_dihedral(self):
@@ -1141,8 +1238,7 @@ class PointGroupAnalyzer:
                 if not rot_present[2]:
                     test_axis = cc1 + cc2
                     if np.linalg.norm(test_axis) > self.tol:
-                        op = SymmOp.from_axis_angle_and_translation(test_axis,
-                                                                    180)
+                        op = SymmOp.from_axis_angle_and_translation(test_axis, 180)
                         rot_present[2] = self.is_valid_op(op)
                         if rot_present[2]:
                             self.symmops.append(op)
@@ -1152,23 +1248,20 @@ class PointGroupAnalyzer:
             if np.linalg.norm(test_axis) > self.tol:
                 for r in (3, 4, 5):
                     if not rot_present[r]:
-                        op = SymmOp.from_axis_angle_and_translation(
-                            test_axis, 360 / r)
+                        op = SymmOp.from_axis_angle_and_translation(test_axis, 360 / r)
                         rot_present[r] = self.is_valid_op(op)
                         if rot_present[r]:
                             self.symmops.append(op)
                             self.rot_sym.append((test_axis, r))
                             break
-            if rot_present[2] and rot_present[3] and (
-                    rot_present[4] or rot_present[5]):
+            if rot_present[2] and rot_present[3] and (rot_present[4] or rot_present[5]):
                 break
 
     def get_pointgroup(self):
         """
         Returns a PointGroup object for the molecule.
         """
-        return PointGroupOperations(self.sch_symbol, self.symmops,
-                                    self.mat_tol)
+        return PointGroupOperations(self.sch_symbol, self.symmops, self.mat_tol)
 
     def get_symmetry_operations(self):
         """
@@ -1196,9 +1289,9 @@ class PointGroupAnalyzer:
         for site in self.centered_mol:
             coord = symmop.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
-            if not (len(ind) == 1
-                    and self.centered_mol[ind[0]].species
-                    == site.species):
+            if not (
+                len(ind) == 1 and self.centered_mol[ind[0]].species == site.species
+            ):
                 return False
         return True
 
@@ -1224,12 +1317,12 @@ class PointGroupAnalyzer:
         """
         UNIT = np.eye(3)
         eq_sets, operations = defaultdict(set), defaultdict(dict)
-        symm_ops = [op.rotation_matrix
-                    for op in generate_full_symmops(self.symmops, self.tol)]
+        symm_ops = [
+            op.rotation_matrix for op in generate_full_symmops(self.symmops, self.tol)
+        ]
 
         def get_clustered_indices():
-            indices = cluster_sites(self.centered_mol, self.tol,
-                                    give_only_index=True)
+            indices = cluster_sites(self.centered_mol, self.tol, give_only_index=True)
             out = list(indices[1].values())
             if indices[0] is not None:
                 out.append([indices[0]])
@@ -1240,15 +1333,16 @@ class PointGroupAnalyzer:
             for i, reference in zip(index, sites):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
-                    matched_indices = find_in_coord_list(rotated, reference,
-                                                         self.tol)
+                    matched_indices = find_in_coord_list(rotated, reference, self.tol)
                     matched_indices = {
-                        dict(enumerate(index))[i] for i in matched_indices}
+                        dict(enumerate(index))[i] for i in matched_indices
+                    }
                     eq_sets[i] |= matched_indices
 
                     if i not in operations:
-                        operations[i] = {j: op.T if j != i else UNIT
-                                         for j in matched_indices}
+                        operations[i] = {
+                            j: op.T if j != i else UNIT for j in matched_indices
+                        }
                     else:
                         for j in matched_indices:
                             if j not in operations[i]:
@@ -1259,8 +1353,7 @@ class PointGroupAnalyzer:
                         elif i not in operations[j]:
                             operations[j][i] = op if j != i else UNIT
 
-        return {'eq_sets': eq_sets,
-                'sym_ops': operations}
+        return {"eq_sets": eq_sets, "sym_ops": operations}
 
     @staticmethod
     def _combine_eq_sets(eq_sets, operations):
@@ -1300,8 +1393,7 @@ class PointGroupAnalyzer:
                     for k in tmp_eq_sets[j]:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
                         if i not in ops[k]:
-                            ops[k][i] = (np.dot(ops[j][i], ops[k][j])
-                                         if k != i else UNIT)
+                            ops[k][i] = np.dot(ops[j][i], ops[k][j]) if k != i else UNIT
                         ops[i][k] = ops[k][i].T
                 tmp_eq_sets = new_tmp_eq_sets
             return visited, ops
@@ -1317,8 +1409,7 @@ class PointGroupAnalyzer:
 
         for k in to_be_deleted:
             eq_sets.pop(k, None)
-        return {'eq_sets': eq_sets,
-                'sym_ops': ops}
+        return {"eq_sets": eq_sets, "sym_ops": ops}
 
     def get_equivalent_atoms(self):
         """Returns sets of equivalent atoms with symmetry operations
@@ -1340,8 +1431,7 @@ class PointGroupAnalyzer:
             that maps atom ``i`` unto ``j``.
         """
         eq = self._get_eq_sets()
-        return self._combine_eq_sets(eq['eq_sets'],
-                                     eq['sym_ops'])
+        return self._combine_eq_sets(eq["eq_sets"], eq["sym_ops"])
 
     def symmetrize_molecule(self):
         """Returns a symmetrized molecule
@@ -1374,7 +1464,7 @@ class PointGroupAnalyzer:
             that maps atom ``i`` unto ``j``.
         """
         eq = self.get_equivalent_atoms()
-        eq_sets, ops = eq['eq_sets'], eq['sym_ops']
+        eq_sets, ops = eq["eq_sets"], eq["sym_ops"]
         coords = self.centered_mol.cart_coords.copy()
         for i, eq_indices in eq_sets.items():
             for j in eq_indices:
@@ -1385,11 +1475,8 @@ class PointGroupAnalyzer:
                     continue
                 coords[j] = np.dot(ops[i][j], coords[i])
                 coords[j] = np.dot(ops[i][j], coords[i])
-        molecule = Molecule(species=self.centered_mol.species_and_occu,
-                            coords=coords)
-        return {'sym_mol': molecule,
-                'eq_sets': eq_sets,
-                'sym_ops': ops}
+        molecule = Molecule(species=self.centered_mol.species_and_occu, coords=coords)
+        return {"sym_mol": molecule, "eq_sets": eq_sets, "sym_ops": ops}
 
 
 def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
@@ -1437,9 +1524,8 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
         previous = new
         PA = PointGroupAnalyzer(previous, tolerance=tolerance)
         eq = PA.symmetrize_molecule()
-        new = eq['sym_mol']
-        finished = np.allclose(new.cart_coords, previous.cart_coords,
-                               atol=epsilon)
+        new = eq["sym_mol"]
+        finished = np.allclose(new.cart_coords, previous.cart_coords, atol=epsilon)
         n += 1
     return eq
 
@@ -1461,7 +1547,8 @@ def cluster_sites(mol, tol, give_only_index=False):
     # coordinate.
     dists = [[np.linalg.norm(site.coords), 0] for site in mol]
     import scipy.cluster as spcluster
-    f = spcluster.hierarchy.fclusterdata(dists, tol, criterion='distance')
+
+    f = spcluster.hierarchy.fclusterdata(dists, tol, criterion="distance")
     clustered_dists = defaultdict(list)
     for i, site in enumerate(mol):
         clustered_dists[f[i]].append(dists[i])
@@ -1476,11 +1563,9 @@ def cluster_sites(mol, tol, give_only_index=False):
                 origin_site = site
         else:
             if give_only_index:
-                clustered_sites[
-                    (avg_dist[f[i]], site.species)].append(i)
+                clustered_sites[(avg_dist[f[i]], site.species)].append(i)
             else:
-                clustered_sites[
-                    (avg_dist[f[i]], site.species)].append(site)
+                clustered_sites[(avg_dist[f[i]], site.species)].append(site)
     return origin_site, clustered_sites
 
 
@@ -1502,8 +1587,9 @@ def generate_full_symmops(symmops, tol):
     # Gregory Butler. Fundamental Algorithms for Permutation Groups.
     # Lecture Notes in Computer Science (Book 559). Springer, 1991. page 15
     UNIT = np.eye(4)
-    generators = [op.affine_matrix for op in symmops
-                  if not np.allclose(op.affine_matrix, UNIT)]
+    generators = [
+        op.affine_matrix for op in symmops if not np.allclose(op.affine_matrix, UNIT)
+    ]
     if not generators:
         # C1 symmetry breaks assumptions in the algorithm afterwards
         return symmops
@@ -1568,9 +1654,10 @@ class SpacegroupOperations(list):
             return False
 
         for op in self:
-            newsites2 = [PeriodicSite(site.species,
-                                      op.operate(site.frac_coords),
-                                      site.lattice) for site in sites2]
+            newsites2 = [
+                PeriodicSite(site.species, op.operate(site.frac_coords), site.lattice)
+                for site in sites2
+            ]
             for site in newsites2:
                 if not in_sites(site):
                     break
@@ -1603,8 +1690,7 @@ class PointGroupOperations(list):
                 operations.
         """
         self.sch_symbol = sch_symbol
-        super().__init__(
-            generate_full_symmops(operations, tol))
+        super().__init__(generate_full_symmops(operations, tol))
 
     def __str__(self):
         return self.sch_symbol

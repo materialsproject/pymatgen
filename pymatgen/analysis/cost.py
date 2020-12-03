@@ -25,12 +25,12 @@ from pymatgen import Composition, Element
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.util.provenance import is_valid_bibtex
 
-__author__ = 'Anubhav Jain'
-__copyright__ = 'Copyright 2013, The Materials Project'
-__version__ = '0.1'
-__maintainer__ = 'Anubhav Jain'
-__email__ = 'ajain@lbl.gov'
-__date__ = 'Aug 27, 2013'
+__author__ = "Anubhav Jain"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Anubhav Jain"
+__email__ = "ajain@lbl.gov"
+__date__ = "Aug 27, 2013"
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,12 +57,12 @@ class CostEntry(PDEntry):
         super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
             raise ValueError(
-                "Invalid format for cost reference! Should be BibTeX string.")
+                "Invalid format for cost reference! Should be BibTeX string."
+            )
         self.reference = reference
 
     def __repr__(self):
-        return "CostEntry : {} with cost = {:.4f}".format(self.composition,
-                                                          self.energy)
+        return "CostEntry : {} with cost = {:.4f}".format(self.composition, self.energy)
 
 
 class CostDB(metaclass=abc.ABCMeta):
@@ -106,8 +106,9 @@ class CostDBCSV(CostDB):
                 comp = Composition(row[0])
                 cost_per_mol = float(row[1]) * comp.weight.to("kg") * const.N_A
                 pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
-                chemsys = "-".join(sorted([el.symbol
-                                           for el in pde.composition.elements]))
+                chemsys = "-".join(
+                    sorted([el.symbol for el in pde.composition.elements])
+                )
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
@@ -135,8 +136,7 @@ class CostDBElements(CostDBCSV):
         """
         Init
         """
-        CostDBCSV.__init__(
-            self, os.path.join(module_dir, "costdb_elements.csv"))
+        CostDBCSV.__init__(self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
 class CostAnalyzer:
@@ -173,8 +173,9 @@ class CostAnalyzer:
             pd = PhaseDiagram(entries_list)
             return pd.get_decomposition(composition)
         except IndexError:
-            raise ValueError("Error during PD building; most likely, "
-                             "cost data does not exist!")
+            raise ValueError(
+                "Error during PD building; most likely, " "cost data does not exist!"
+            )
 
     def get_cost_per_mol(self, comp):
         """
@@ -189,8 +190,7 @@ class CostAnalyzer:
 
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
-        return sum(k.energy_per_atom * v * comp.num_atoms for k, v in
-                   decomp.items())
+        return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())
 
     def get_cost_per_kg(self, comp):
         """
@@ -203,5 +203,4 @@ class CostAnalyzer:
             float of cost/kg
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
-        return self.get_cost_per_mol(comp) / (
-                comp.weight.to("kg") * const.N_A)
+        return self.get_cost_per_mol(comp) / (comp.weight.to("kg") * const.N_A)

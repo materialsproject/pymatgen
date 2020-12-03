@@ -15,16 +15,16 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
+from functools import reduce
 from math import sqrt
 
 import numpy as np
 from scipy.special import erf
-from functools import reduce
-
 
 ##############################################################
 # cartesian product of lists ##################################
 ##############################################################
+
 
 def _append_es2sequences(sequences, es):
     result = []
@@ -85,7 +85,9 @@ def divisors(n):
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k ** x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
+    listexponents = [
+        [k ** x for x in range(0, factors[k] + 1)] for k in list(factors.keys())
+    ]
     listfactors = _cartesian_product(listexponents)
     for f in listfactors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))
@@ -99,7 +101,9 @@ def get_center_of_arc(p1, p2, radius):
     dd = np.sqrt(dx * dx + dy * dy)
     radical = np.power((radius / dd), 2) - 0.25
     if radical < 0:
-        raise ValueError("Impossible to find center of arc because the arc is ill-defined")
+        raise ValueError(
+            "Impossible to find center of arc because the arc is ill-defined"
+        )
     tt = np.sqrt(radical)
     if radius > 0:
         tt = -tt
@@ -113,11 +117,15 @@ def get_linearly_independent_vectors(vectors_list):
             if len(independent_vectors_list) == 0:
                 independent_vectors_list.append(np.array(vector))
             elif len(independent_vectors_list) == 1:
-                rank = np.linalg.matrix_rank(np.array([independent_vectors_list[0], vector, [0, 0, 0]]))
+                rank = np.linalg.matrix_rank(
+                    np.array([independent_vectors_list[0], vector, [0, 0, 0]])
+                )
                 if rank == 2:
                     independent_vectors_list.append(np.array(vector))
             elif len(independent_vectors_list) == 2:
-                mm = np.array([independent_vectors_list[0], independent_vectors_list[1], vector])
+                mm = np.array(
+                    [independent_vectors_list[0], independent_vectors_list[1], vector]
+                )
                 if np.linalg.det(mm) != 0:
                     independent_vectors_list.append(np.array(vector))
         if len(independent_vectors_list) == 3:
@@ -140,6 +148,7 @@ def normal_cdf_step(xx, mean, scale):
 # (except if edges is given in which case a the values are first scaled and clamped to the interval given by edges)
 # The derivative at x = 0.0 and x = 1.0 have to be 0.0
 
+
 def smoothstep(xx, edges=None, inverse=False):
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -156,9 +165,16 @@ def smootherstep(xx, edges=None, inverse=False):
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if inverse:
-            return 1.0 - xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
+            return 1.0 - xx_clipped * xx_clipped * xx_clipped * (
+                xx_clipped * (xx_clipped * 6 - 15) + 10
+            )
         else:
-            return xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
+            return (
+                xx_clipped
+                * xx_clipped
+                * xx_clipped
+                * (xx_clipped * (xx_clipped * 6 - 15) + 10)
+            )
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return smootherstep(xx_scaled_and_clamped, inverse=inverse)
@@ -186,18 +202,30 @@ def powern_parts_step(xx, edges=None, inverse=False, nn=2):
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if np.mod(nn, 2) == 0:
             if inverse:
-                return 1.0 - np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                      1.0 - aa * np.power(xx_clipped - 1.0, nn))
+                return 1.0 - np.where(
+                    xx_clipped < 0.5,
+                    aa * np.power(xx_clipped, nn),
+                    1.0 - aa * np.power(xx_clipped - 1.0, nn),
+                )
             else:
-                return np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                1.0 - aa * np.power(xx_clipped - 1.0, nn))
+                return np.where(
+                    xx_clipped < 0.5,
+                    aa * np.power(xx_clipped, nn),
+                    1.0 - aa * np.power(xx_clipped - 1.0, nn),
+                )
         else:
             if inverse:
-                return 1.0 - np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                      1.0 + aa * np.power(xx_clipped - 1.0, nn))
+                return 1.0 - np.where(
+                    xx_clipped < 0.5,
+                    aa * np.power(xx_clipped, nn),
+                    1.0 + aa * np.power(xx_clipped - 1.0, nn),
+                )
             else:
-                return np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                1.0 + aa * np.power(xx_clipped - 1.0, nn))
+                return np.where(
+                    xx_clipped < 0.5,
+                    aa * np.power(xx_clipped, nn),
+                    1.0 + aa * np.power(xx_clipped - 1.0, nn),
+                )
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
         return powern_parts_step(xx_scaled_and_clamped, inverse=inverse, nn=nn)
@@ -249,7 +277,9 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
-        return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
+        return np.where(
+            np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx
+        )
         # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
@@ -262,10 +292,16 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
-        return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx ** 2.0)
+        return np.where(
+            np.isclose(xx, 0.0),
+            aa * float("inf"),
+            aa * np.power(xx - 1.0, 2) / xx ** 2.0,
+        )
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
+        return power2_inverse_power2_decreasing(
+            xx_scaled_and_clamped, prefactor=prefactor
+        )
 
 
 def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0):
@@ -277,4 +313,6 @@ def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0)
         return aa * np.power(xx - 1.0, 2) / xx ** powern
     else:
         xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_inverse_powern_decreasing(xx_scaled_and_clamped, prefactor=prefactor, powern=powern)
+        return power2_inverse_powern_decreasing(
+            xx_scaled_and_clamped, prefactor=prefactor, powern=powern
+        )

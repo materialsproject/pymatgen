@@ -17,16 +17,15 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
-import subprocess
 import logging
-import pandas as pd
+import subprocess
 
+import pandas as pd
 from monty.dev import requires
-from monty.os.path import which
 from monty.json import MSONable
+from monty.os.path import which
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -43,24 +42,24 @@ class VampireCaller:
     Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
     temperature with classical Monte Carlo.
     """
+
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
     def __init__(
-            self,
-            ordered_structures=None,
-            energies=None,
-            mc_box_size=4.0,
-            equil_timesteps=2000,
-            mc_timesteps=4000,
-            save_inputs=False,
-            hm=None,
-            avg=True,
-            user_input_settings=None,
+        self,
+        ordered_structures=None,
+        energies=None,
+        mc_box_size=4.0,
+        equil_timesteps=2000,
+        mc_timesteps=4000,
+        save_inputs=False,
+        hm=None,
+        avg=True,
+        user_input_settings=None,
     ):
-
         """
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.

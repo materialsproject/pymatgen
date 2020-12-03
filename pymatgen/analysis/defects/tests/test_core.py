@@ -5,17 +5,18 @@
 
 import os
 import unittest
+
 import numpy as np
 
-from pymatgen.core import Structure
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.defects.core import (
-    Vacancy,
+    DefectEntry,
     Interstitial,
     Substitution,
-    DefectEntry,
+    Vacancy,
     create_saturated_interstitial_structure,
 )
+from pymatgen.core import Structure
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")

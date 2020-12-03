@@ -8,14 +8,14 @@ Implementation for `pmg config` CLI.
 """
 
 
-import os
-import sys
 import glob
+import os
 import shutil
 import subprocess
+import sys
 from urllib.request import urlretrieve
 
-from monty.serialization import loadfn, dumpfn
+from monty.serialization import dumpfn, loadfn
 
 from pymatgen import SETTINGS_FILE
 
@@ -50,7 +50,7 @@ def setup_potcars(args):
         "potpaw_LDA_54": "POT_LDA_PAW_54",
         "potUSPP_LDA": "POT_LDA_US",
         "potpaw_GGA": "POT_GGA_PAW_PW91",
-        "potUSPP_GGA": "POT_GGA_US_PW91"
+        "potUSPP_GGA": "POT_GGA_US_PW91",
     }
 
     for (parent, subdirs, files) in os.walk(pspdir):
@@ -77,14 +77,20 @@ def setup_potcars(args):
                     shutil.move(os.path.join(basedir, "POTCAR"), dest)
                     subprocess.Popen(["gzip", "-f", dest]).communicate()
                 except Exception as ex:
-                    print("An error has occured. Message is %s. Trying to "
-                          "continue... " % str(ex))
+                    print(
+                        "An error has occured. Message is %s. Trying to "
+                        "continue... " % str(ex)
+                    )
 
     print("")
-    print("PSP resources directory generated. It is recommended that you "
-          "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir))
-    print("Start a new terminal to ensure that your environment variables "
-          "are properly set.")
+    print(
+        "PSP resources directory generated. It is recommended that you "
+        "run 'pmg config --add PMG_VASP_PSP_DIR %s'" % os.path.abspath(targetdir)
+    )
+    print(
+        "Start a new terminal to ensure that your environment variables "
+        "are properly set."
+    )
 
 
 def build_enum(fortran_command="gfortran"):
@@ -96,8 +102,9 @@ def build_enum(fortran_command="gfortran"):
     currdir = os.getcwd()
     state = True
     try:
-        subprocess.call(["git", "clone", "--recursive",
-                         "https://github.com/msg-byu/enumlib.git"])
+        subprocess.call(
+            ["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib.git"]
+        )
         os.chdir(os.path.join(currdir, "enumlib", "symlib", "src"))
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
@@ -129,8 +136,7 @@ def build_bader(fortran_command="gfortran"):
         urlretrieve(bader_url, "bader.tar.gz")
         subprocess.call(["tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
-        subprocess.call(
-            ["cp", "makefile.osx_" + fortran_command, "makefile"])
+        subprocess.call(["cp", "makefile.osx_" + fortran_command, "makefile"])
         subprocess.call(["make"])
         shutil.copy("bader", os.path.join("..", "bader_exe"))
         os.chdir("..")
@@ -176,9 +182,12 @@ def install_software(args):
         bader = build_bader(fortran_command)
         print("")
     if bader or enum:
-        print("Please add {} to your PATH or move the executables multinum.x, "
-              "makestr.x and/or bader to a location in your PATH."
-              .format(os.path.abspath(".")))
+        print(
+            "Please add {} to your PATH or move the executables multinum.x, "
+            "makestr.x and/or bader to a location in your PATH.".format(
+                os.path.abspath(".")
+            )
+        )
         print("")
 
 
@@ -191,8 +200,7 @@ def add_config_var(args):
     d = {}
     if os.path.exists(SETTINGS_FILE):
         shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
-        print("Existing %s backed up to %s"
-              % (SETTINGS_FILE, SETTINGS_FILE + ".bak"))
+        print("Existing %s backed up to %s" % (SETTINGS_FILE, SETTINGS_FILE + ".bak"))
         d = loadfn(SETTINGS_FILE)
     toks = args.var_spec
     if len(toks) % 2 != 0:

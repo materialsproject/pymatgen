@@ -10,18 +10,16 @@ tests in a single location, so that test scripts can just import it and work
 right away.
 """
 
-import unittest
+import json
 import tempfile
+import unittest
 from io import open
 from pathlib import Path
-import json
 
 import numpy.testing as nptu
-
-from monty.json import MontyDecoder
-from monty.serialization import loadfn
-from monty.json import MSONable
 from monty.dev import requires
+from monty.json import MontyDecoder, MSONable
+from monty.serialization import loadfn
 
 from pymatgen import SETTINGS, MPRester
 
@@ -31,6 +29,7 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
+
     _multiprocess_shared_ = True
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
@@ -65,18 +64,15 @@ class PymatgenTest(unittest.TestCase):
         return m.get_structure_by_material_id(mpid)
 
     @staticmethod
-    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg='',
-                               verbose=True):
+    def assertArrayAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
         """
         Tests if two arrays are almost equal to a tolerance. The CamelCase
         naming is so that it is consistent with standard unittest methods.
         """
-        return nptu.assert_almost_equal(actual, desired, decimal, err_msg,
-                                        verbose)
+        return nptu.assert_almost_equal(actual, desired, decimal, err_msg, verbose)
 
     @staticmethod
-    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg='',
-                               verbose=True):
+    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg="", verbose=True):
         """
         Tests if two arrays are almost equal to a tolerance. The CamelCase
         naming is so that it is consistent with standard unittest methods.
@@ -88,12 +84,12 @@ class PymatgenTest(unittest.TestCase):
             v2 = desired[k]
             if isinstance(v, dict):
                 pass_test = PymatgenTest.assertDictsAlmostEqual(
-                    v, v2, decimal=decimal, err_msg=err_msg, verbose=verbose)
+                    v, v2, decimal=decimal, err_msg=err_msg, verbose=verbose
+                )
                 if not pass_test:
                     return False
             elif isinstance(v, (list, tuple)):
-                pass_test = nptu.assert_almost_equal(v, v2, decimal, err_msg,
-                                                     verbose)
+                pass_test = nptu.assert_almost_equal(v, v2, decimal, err_msg, verbose)
                 if not pass_test:
                     return False
             elif isinstance(v, (int, float)):
@@ -105,16 +101,15 @@ class PymatgenTest(unittest.TestCase):
         return True
 
     @staticmethod
-    def assertArrayEqual(actual, desired, err_msg='', verbose=True):
+    def assertArrayEqual(actual, desired, err_msg="", verbose=True):
         """
         Tests if two arrays are equal. The CamelCase naming is so that it is
          consistent with standard unittest methods.
         """
-        return nptu.assert_equal(actual, desired, err_msg=err_msg,
-                                 verbose=verbose)
+        return nptu.assert_equal(actual, desired, err_msg=err_msg, verbose=verbose)
 
     @staticmethod
-    def assertStrContentEqual(actual, desired, err_msg='', verbose=True):
+    def assertStrContentEqual(actual, desired, err_msg="", verbose=True):
         """
         Tests if two strings are equal, ignoring things like trailing spaces,
         etc.
@@ -148,7 +143,8 @@ class PymatgenTest(unittest.TestCase):
         """
         # Use the python version so that we get the traceback in case of errors
         import pickle
-        from pymatgen.util.serialization import pmg_pickle_load, pmg_pickle_dump
+
+        from pymatgen.util.serialization import pmg_pickle_dump, pmg_pickle_load
 
         # Build a list even when we receive a single object.
         got_single_object = False
@@ -173,16 +169,18 @@ class PymatgenTest(unittest.TestCase):
                 with open(tmpfile, mode) as fh:
                     pmg_pickle_dump(objects, fh, protocol=protocol)
             except Exception as exc:
-                errors.append("pickle.dump with protocol %s raised:\n%s" %
-                              (protocol, str(exc)))
+                errors.append(
+                    "pickle.dump with protocol %s raised:\n%s" % (protocol, str(exc))
+                )
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
                     new_objects = pmg_pickle_load(fh)
             except Exception as exc:
-                errors.append("pickle.load with protocol %s raised:\n%s" %
-                              (protocol, str(exc)))
+                errors.append(
+                    "pickle.load with protocol %s raised:\n%s" % (protocol, str(exc))
+                )
                 continue
 
             # Test for equality
@@ -211,6 +209,7 @@ class PymatgenTest(unittest.TestCase):
         """
         if test_if_subclass:
             self.assertIsInstance(obj, MSONable)
-        self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(
-            obj.as_dict()).as_dict())
+        self.assertDictEqual(
+            obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict()
+        )
         json.loads(obj.to_json(), cls=MontyDecoder)

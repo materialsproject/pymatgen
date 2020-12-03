@@ -5,15 +5,18 @@
 
 import unittest
 
-from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
-    get_minkowski_red, get_vasp_kpoint_file_sym
-from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Lattice, Structure
-from pymatgen.core.periodic_table import Element
 from monty.os.path import which
 
+from pymatgen.command_line.aconvasp_caller import (
+    get_minkowski_red,
+    get_num_division_kpoints,
+    get_vasp_kpoint_file_sym,
+)
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Lattice, Structure
 
-aconvasp_present = which('aconvasp')
+aconvasp_present = which("aconvasp")
 aconvasp_present = False  # disable aconvasp testing for now.
 
 
@@ -26,14 +29,17 @@ class AconvaspCallerTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                                [1.9200989668, 3.3257101909, 0.00],
-                                [0.00, -2.2171384943, 3.1355090603]])
+        self.lattice = Lattice(
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
+        )
         self.struct = Structure(self.lattice, [self.si, self.si], coords)
 
     def test_get_num_division_kpoints(self):
-        self.assertListEqual(get_num_division_kpoints(self.struct, 500),
-                             [6, 7, 6])
+        self.assertListEqual(get_num_division_kpoints(self.struct, 500), [6, 7, 6])
 
     def test_get_minkowski_red(self):
         new_struct = get_minkowski_red(self.struct)
@@ -43,9 +49,11 @@ class AconvaspCallerTest(unittest.TestCase):
         self.assertEqual(new_struct.frac_coords[1][0], 0.25)
 
     def test_get_vasp_kpoint_file_sym(self):
-        self.assertEqual(get_vasp_kpoint_file_sym(self.struct).split("\n")[0],
-                         "FCC (face-centered cubic) G-X-W-K-G-L-U-W-L-K U-X")
+        self.assertEqual(
+            get_vasp_kpoint_file_sym(self.struct).split("\n")[0],
+            "FCC (face-centered cubic) G-X-W-K-G-L-U-W-L-K U-X",
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

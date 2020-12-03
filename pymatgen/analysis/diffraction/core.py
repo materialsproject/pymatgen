@@ -6,9 +6,11 @@
 This module implements core classes for calculation of diffraction patterns.
 """
 
-import collections
 import abc
+import collections
+
 import numpy as np
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs
 
@@ -42,6 +44,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
     """
     Abstract base class for computing the diffraction pattern of a crystal.
     """
+
     # Tolerance in which to treat two peaks as having the same two theta.
     TWO_THETA_TOL = 1e-5
 
@@ -72,9 +75,15 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         """
         pass
 
-    def get_plot(self, structure, two_theta_range=(0, 90),
-                 annotate_peaks=True, ax=None, with_labels=True,
-                 fontsize=16):
+    def get_plot(
+        self,
+        structure,
+        two_theta_range=(0, 90),
+        annotate_peaks=True,
+        ax=None,
+        with_labels=True,
+        fontsize=16,
+    ):
         """
         Returns the diffraction plot as a matplotlib.pyplot.
 
@@ -95,6 +104,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         """
         if ax is None:
             from pymatgen.util.plotting import pretty_plot
+
             plt = pretty_plot(16, 10)
             ax = plt.gca()
         else:
@@ -106,11 +116,16 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         for two_theta, i, hkls, d_hkl in zip(xrd.x, xrd.y, xrd.hkls, xrd.d_hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl["hkl"]) for hkl in hkls])
-                ax.plot([two_theta, two_theta], [0, i], color='k',
-                        linewidth=3, label=label)
+                ax.plot(
+                    [two_theta, two_theta], [0, i], color="k", linewidth=3, label=label
+                )
                 if annotate_peaks:
-                    ax.annotate(label, xy=[two_theta, i],
-                                xytext=[two_theta, i], fontsize=fontsize)
+                    ax.annotate(
+                        label,
+                        xy=[two_theta, i],
+                        xytext=[two_theta, i],
+                        fontsize=fontsize,
+                    )
 
         if with_labels:
             ax.set_xlabel(r"$2\theta$ ($^\circ$)")
@@ -152,17 +167,22 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             fontsize: (int) fontsize for peak labels.
         """
         import matplotlib.pyplot as plt
+
         nrows = len(structures)
-        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True,
-                                 squeeze=False)
+        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_plot(structure,
-                          fontsize=fontsize, ax=ax, with_labels=i == nrows - 1,
-                          **kwargs)
+            self.get_plot(
+                structure,
+                fontsize=fontsize,
+                ax=ax,
+                with_labels=i == nrows - 1,
+                **kwargs
+            )
             spg_symbol, spg_number = structure.get_space_group_info()
-            ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol,
-                                              spg_number))
+            ax.set_title(
+                "{} {} ({}) ".format(structure.formula, spg_symbol, spg_number)
+            )
 
         return fig
 

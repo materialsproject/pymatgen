@@ -7,10 +7,10 @@ Classes for reading/writing mcsqs files following the rndstr.in format.
 """
 
 import numpy as np
-from pymatgen.core.structure import Structure
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp
-
+from pymatgen.core.structure import Structure
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -144,7 +144,9 @@ class Mcsqs:
                     # see to_string() method in this file, since , and = are not valid
                     # species names in AT-AT we replace "," with "__" and "=" with "___",
                     # for pymatgen to parse these back correctly we have to replace them back
-                    species_occ[0] = species_occ[0].replace("___", "=").replace("__", ",")
+                    species_occ[0] = (
+                        species_occ[0].replace("___", "=").replace("__", ",")
+                    )
 
                 species[get_el_sp(species_occ[0])] = float(species_occ[1])
 

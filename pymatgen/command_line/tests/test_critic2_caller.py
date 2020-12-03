@@ -4,9 +4,10 @@
 
 import unittest
 
-from pymatgen.core.structure import Structure
-from pymatgen.command_line.critic2_caller import *
 from monty.os.path import which
+
+from pymatgen.command_line.critic2_caller import *
+from pymatgen.core.structure import Structure
 
 __author__ = "Matthew Horton"
 __version__ = "0.1"
@@ -180,9 +181,10 @@ class Critic2AnalysisTest(unittest.TestCase):
 
         sg = self.c2o.structure_graph()
         self.assertEqual(str(sg.structure[3].specie), "Xbcp")
-        self.assertSetEqual(set(list(sg.graph.edges(data=True))[0][2].keys()),
-                            {"to_jimage", "weight", "field",
-                             "laplacian", "ellipticity", "frac_coords"})
+        self.assertSetEqual(
+            set(list(sg.graph.edges(data=True))[0][2].keys()),
+            {"to_jimage", "weight", "field", "laplacian", "ellipticity", "frac_coords"},
+        )
 
 
 if __name__ == "__main__":

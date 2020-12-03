@@ -9,12 +9,12 @@ installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 """
 
-import warnings
 import copy
+import warnings
 
 from monty.dev import requires
 
-from pymatgen.core.structure import Molecule, IMolecule
+from pymatgen.core.structure import IMolecule, Molecule
 
 try:
     from openbabel import openbabel as ob
@@ -37,10 +37,12 @@ class BabelMolAdaptor:
     Molecule.
     """
 
-    @requires(ob,
-              "BabelMolAdaptor requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org "
-              "(version >=3.0.0).")
+    @requires(
+        ob,
+        "BabelMolAdaptor requires openbabel to be installed with "
+        "Python bindings. Please get it at http://openbabel.org "
+        "(version >=3.0.0).",
+    )
     def __init__(self, mol):
         """
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.
@@ -50,8 +52,9 @@ class BabelMolAdaptor:
         """
         if isinstance(mol, IMolecule):
             if not mol.is_ordered:
-                raise ValueError("OpenBabel Molecule only supports ordered "
-                                 "molecules.")
+                raise ValueError(
+                    "OpenBabel Molecule only supports ordered " "molecules."
+                )
 
             # For some reason, manually adding atoms does not seem to create
             # the correct OBMol representation to do things like force field
@@ -97,7 +100,7 @@ class BabelMolAdaptor:
         """
         return self._obmol
 
-    def localopt(self, forcefield='mmff94', steps=500):
+    def localopt(self, forcefield="mmff94", steps=500):
         """
         A wrapper to pybel's localopt method to optimize a Molecule.
 
@@ -148,12 +151,14 @@ class BabelMolAdaptor:
             idx2: The atom index of the other atom participating in the bond
         """
         for obbond in ob.OBMolBondIter(self._obmol):
-            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (
-                    obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
+            if (
+                obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2
+            ) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
                 self._obmol.DeleteBond(obbond)
 
-    def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
-                        forcefield="mmff94"):
+    def rotor_conformer(
+        self, *rotor_args, algo="WeightedRotorSearch", forcefield="mmff94"
+    ):
         """
         Conformer search based on several Rotor Search algorithms of openbabel.
         If the input molecule is not 3D, make3d will be called (generate 3D
@@ -181,20 +186,24 @@ class BabelMolAdaptor:
 
         ff = ob.OBForceField_FindType(forcefield)
         if ff == 0:
-            warnings.warn("This input forcefield {} is not supported "
-                          "in openbabel. The forcefield will be reset as "
-                          "default 'mmff94' for now.".format(forcefield))
+            warnings.warn(
+                "This input forcefield {} is not supported "
+                "in openbabel. The forcefield will be reset as "
+                "default 'mmff94' for now.".format(forcefield)
+            )
             ff = ob.OBForceField_FindType("mmff94")
 
         try:
             rotor_search = getattr(ff, algo)
         except AttributeError:
-            warnings.warn("This input conformer search algorithm {} is not "
-                          "supported in openbabel. Options are "
-                          "'SystematicRotorSearch', 'RandomRotorSearch' "
-                          "and 'WeightedRotorSearch'. "
-                          "The algorithm will be reset as default "
-                          "'WeightedRotorSearch' for now.".format(algo))
+            warnings.warn(
+                "This input conformer search algorithm {} is not "
+                "supported in openbabel. Options are "
+                "'SystematicRotorSearch', 'RandomRotorSearch' "
+                "and 'WeightedRotorSearch'. "
+                "The algorithm will be reset as default "
+                "'WeightedRotorSearch' for now.".format(algo)
+            )
             rotor_search = ff.WeightedRotorSearch
         rotor_search(*rotor_args)
         ff.GetConformers(self._obmol)
@@ -222,9 +231,15 @@ class BabelMolAdaptor:
         gen3d = ob.OBOp.FindType("Gen3D")
         gen3d.Do(self._obmol)
 
-    def confab_conformers(self, forcefield="mmff94", freeze_atoms=None,
-                          rmsd_cutoff=0.5, energy_cutoff=50.0,
-                          conf_cutoff=100000, verbose=False):
+    def confab_conformers(
+        self,
+        forcefield="mmff94",
+        freeze_atoms=None,
+        rmsd_cutoff=0.5,
+        energy_cutoff=50.0,
+        conf_cutoff=100000,
+        verbose=False,
+    ):
         """
         Conformer generation based on Confab to generate all diverse low-energy
         conformers for molecules. This is different from rotor_conformer or
@@ -253,12 +268,14 @@ class BabelMolAdaptor:
 
         ff = ob.OBForceField_FindType(forcefield)
         if ff == 0:
-            print("Could not find forcefield {} in openbabel, the forcefield "
-                  "will be reset as default 'mmff94'".format(forcefield))
+            print(
+                "Could not find forcefield {} in openbabel, the forcefield "
+                "will be reset as default 'mmff94'".format(forcefield)
+            )
             ff = ob.OBForceField_FindType("mmff94")
 
         if freeze_atoms:
-            print('{} atoms will be freezed'.format(len(freeze_atoms)))
+            print("{} atoms will be freezed".format(len(freeze_atoms)))
             constraints = ob.OBFFConstraints()
 
             for atom in ob.OBMolAtomIter(self._obmol):
@@ -268,8 +285,7 @@ class BabelMolAdaptor:
             ff.SetConstraints(constraints)
 
         # Confab conformer generation
-        ff.DiverseConfGen(rmsd_cutoff, conf_cutoff, energy_cutoff,
-                          verbose)
+        ff.DiverseConfGen(rmsd_cutoff, conf_cutoff, energy_cutoff, verbose)
         ff.GetConformers(self._obmol)
 
         # Number of conformers generated by Confab conformer generation

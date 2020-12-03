@@ -23,7 +23,7 @@ class AbstractChemenvError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ': ' + self.method + '\n' + repr(self.msg)
+        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)
 
 
 class ClassTypeChemenvError(AbstractChemenvError):
@@ -32,7 +32,9 @@ class ClassTypeChemenvError(AbstractChemenvError):
         self.classtype = classtype
 
     def __str__(self):
-        return '"{}" expected, {} found\n'.format(self.classtype.__name__, self.object.__class__.__name__)
+        return '"{}" expected, {} found\n'.format(
+            self.classtype.__name__, self.object.__class__.__name__
+        )
 
 
 class NeighborsNotComputedChemenvError(AbstractChemenvError):
@@ -40,7 +42,9 @@ class NeighborsNotComputedChemenvError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return 'The neighbors were not computed for the following site : \n' + str(self.site)
+        return "The neighbors were not computed for the following site : \n" + str(
+            self.site
+        )
 
 
 class BVAValencesNotFoundChemenvError(AbstractChemenvError):
@@ -48,8 +52,10 @@ class BVAValencesNotFoundChemenvError(AbstractChemenvError):
         self.structure = structure
 
     def __str__(self):
-        return 'The valences were not found for the following structure : \n' + \
-               self.structure.composition.reduced_formula
+        return (
+            "The valences were not found for the following structure : \n"
+            + self.structure.composition.reduced_formula
+        )
 
 
 class ChemenvStrategyError(AbstractChemenvError):
@@ -59,7 +65,7 @@ class ChemenvStrategyError(AbstractChemenvError):
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ': ' + self.method + '\n' + repr(self.msg)
+        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)
 
 
 class InitializationChemenvError(AbstractChemenvError):
@@ -67,7 +73,9 @@ class InitializationChemenvError(AbstractChemenvError):
         self.cls = cls
 
     def __str__(self):
-        return 'There is some missing arguments for the initialization of a {} object'.format(self.cls)
+        return "There is some missing arguments for the initialization of a {} object".format(
+            self.cls
+        )
 
 
 class EquivalentSiteSearchError(AbstractChemenvError):
@@ -75,7 +83,9 @@ class EquivalentSiteSearchError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return 'Equivalent site could not be found for the following site : {}'.format(str(self.site))
+        return "Equivalent site could not be found for the following site : {}".format(
+            str(self.site)
+        )
 
 
 class VoronoiParametersError(AbstractChemenvError):
@@ -83,11 +93,16 @@ class VoronoiParametersError(AbstractChemenvError):
         self.vp = vp
 
     def __str__(self):
-        return 'The list of Voronoi parameters does not contain the following set of parameters :\n' \
-               ' - distfactor : {},\n' \
-               ' - angfactor : {},\n' \
-               ' - only_anion_cation_bond : {}'.format(self.vp.distance_parameter, self.vp.angle_parameter,
-                                                       self.vp.only_anion_cation_bond)
+        return (
+            "The list of Voronoi parameters does not contain the following set of parameters :\n"
+            " - distfactor : {},\n"
+            " - angfactor : {},\n"
+            " - only_anion_cation_bond : {}".format(
+                self.vp.distance_parameter,
+                self.vp.angle_parameter,
+                self.vp.only_anion_cation_bond,
+            )
+        )
 
 
 class SolidAngleError(AbstractChemenvError):
@@ -95,8 +110,10 @@ class SolidAngleError(AbstractChemenvError):
         self.cosinus = cosinus
 
     def __str__(self):
-        return 'Value of cosinus ({}) from which an angle should be retrieved' \
-               'is not between -1.0 and 1.0'.format(self.cosinus)
+        return (
+            "Value of cosinus ({}) from which an angle should be retrieved"
+            "is not between -1.0 and 1.0".format(self.cosinus)
+        )
 
 
 class RatioFunctionError(AbstractChemenvError):
@@ -122,4 +139,4 @@ class ChemenvError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ': ' + self.method + '\n' + repr(self.msg)
+        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)

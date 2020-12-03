@@ -12,35 +12,36 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-import sys
 import itertools
 import json
+import logging
 import platform
 import re
+import sys
 import warnings
-from time import sleep
-from enum import Enum, unique
 from collections import defaultdict
-import logging
+from enum import Enum, unique
+from time import sleep
+
 import requests
 import ruamel.yaml as yaml
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, SETTINGS_FILE, __version__ as pmg_version
+from pymatgen import SETTINGS, SETTINGS_FILE
+from pymatgen import __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.compatibility import (
-    MaterialsProjectCompatibility,
     MaterialsProjectAqueousCompatibility,
+    MaterialsProjectCompatibility,
 )
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import get_chunks, PBar
-
+from pymatgen.util.sequence import PBar, get_chunks
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,9 @@ class MPRester:
 
         if notify_db_version:
             db_version = self.get_database_version()
-            logger.info(f"Connection established to Materials Project database, version {db_version}.")
+            logger.info(
+                f"Connection established to Materials Project database, version {db_version}."
+            )
 
             try:
                 with open(SETTINGS_FILE, "rt") as f:
@@ -585,9 +588,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(
-        self, chemsys, solid_compat=MaterialsProjectCompatibility
-    ):
+    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -601,14 +602,14 @@ class MPRester:
                 (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProjectCompatibility
         """
-        from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
+        from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
 
         pbx_entries = []
 
         if isinstance(chemsys, str):
-            chemsys = chemsys.split('-')
+            chemsys = chemsys.split("-")
 
         # Get ion entries first, because certain ions have reference
         # solids that aren't necessarily in the chemsys (Na2SO4)
@@ -1472,8 +1473,8 @@ class MPRester:
         Returns:
             pymatgen.analysis.wulff.WulffShape
         """
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         from pymatgen.analysis.wulff import WulffShape
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]
