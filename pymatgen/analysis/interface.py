@@ -563,7 +563,8 @@ class InterfaceBuilder:
         sub_slabs = self.sub_sg.get_slabs()
         for i, sub_slab in enumerate(sub_slabs):
             sub_slab = get_shear_reduced_slab(sub_slab)
-            sub_slab = sorted(align_x(sub_slab))
+            sub_slab = align_x(sub_slab)
+            sub_slab.sort()
             sub_slabs[i] = sub_slab
 
         self.substrate_structures = sub_slabs
@@ -597,7 +598,8 @@ class InterfaceBuilder:
         film_slabs = self.film_sg.get_slabs()
         for i, film_slab in enumerate(film_slabs):
             film_slab = get_shear_reduced_slab(film_slab)
-            film_slab = sorted(align_x(film_slab))
+            film_slab = align_x(film_slab)
+            film_slab.sort()
             film_slabs[i] = film_slab
 
         self.film_structures = film_slabs
