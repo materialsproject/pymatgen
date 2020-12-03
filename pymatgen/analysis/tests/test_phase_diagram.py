@@ -140,7 +140,6 @@ class TransformedPDEntryTest(unittest.TestCase):
         print(self.transformed_entry.composition, self.transformed_entry._composition)
         norm_entry = self.transformed_entry.normalize(mode="atom", inplace=False)
         expected_comp = Composition({DummySpecies("Xf"): 0.5, DummySpecies("Xg"): 0.5})
-        print(norm_entry.composition, norm_entry._composition)
         self.assertEqual(norm_entry.composition, expected_comp, "Wrong composition!")
 
 
