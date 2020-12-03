@@ -860,15 +860,15 @@ class Vasprun(MSONable):
             functionals). The explicit KPOINTS file needs to have data on the
             kpoint label as commentary.
         """
-
         if not kpoints_filename:
             kpoints_filename = zpath(
                 os.path.join(os.path.dirname(self.filename), "KPOINTS")
             )
-        if not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError(
-                "KPOINTS needed to obtain band structure " "along symmetry lines."
-            )
+        if kpoints_filename:
+            if not os.path.exists(kpoints_filename) and line_mode is True:
+                raise VaspParserError(
+                    "KPOINTS needed to obtain band structure " "along symmetry lines."
+                )
 
         if efermi == "smart":
             efermi = self.calculate_efermi()
