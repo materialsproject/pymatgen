@@ -2,35 +2,38 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class PWInputTest(PymatgenTest):
-
     def test_init(self):
         s = self.get_structure("Li2O")
         self.assertRaises(
-            PWInputError, PWInput,
+            PWInputError,
+            PWInput,
             s,
-            control={"calculation": "scf", "pseudo_dir": './'},
-            pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"}
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
         )
 
     def test_str(self):
         s = self.get_structure("Li2O")
 
-        pw = PWInput(s,
-                     control={"calculation": "scf", "pseudo_dir": './'},
-                     pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
-                             "O": "O.pbe-n-kjpaw_psl.0.1.UPF"},
-                     system={"ecutwfc": 50})
+        pw = PWInput(
+            s,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+        )
         ans = """&CONTROL
   calculation = 'scf',
   pseudo_dir = './',
@@ -65,7 +68,6 @@ CELL_PARAMETERS angstrom
 
 
 class PWOuputTest(PymatgenTest):
-
     def setUp(self):
         self.pwout = PWOutput(os.path.join(test_dir, "Si.pwscf.out"))
 
@@ -78,5 +80,5 @@ class PWOuputTest(PymatgenTest):
             self.assertAlmostEqual(self.pwout.get_celldm(i), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

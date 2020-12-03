@@ -7,7 +7,7 @@ This module implements reading and writing of ShengBTE CONTROL files.
 """
 
 import warnings
-from typing import Dict, List, Optional, Union, Any
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from monty.dev import requires
@@ -127,9 +127,7 @@ class Control(MSONable, dict):
             self["t_max"] = temperature["max"]
             self["t_step"] = temperature["step"]
         else:
-            raise ValueError(
-                "Unsupported temperature type, must be float or dict"
-            )
+            raise ValueError("Unsupported temperature type, must be float or dict")
 
         self.update(kwargs)
 
@@ -190,9 +188,7 @@ class Control(MSONable, dict):
 
         for param in self.required_params:
             if param not in self.as_dict():
-                warnings.warn(
-                    "Required parameter '{}' not specified!".format(param)
-                )
+                warnings.warn("Required parameter '{}' not specified!".format(param))
 
         alloc_dict = _get_subdict(self, self.allocations_keys)
         alloc_nml = f90nml.Namelist({"allocations": alloc_dict})
@@ -215,10 +211,7 @@ class Control(MSONable, dict):
 
     @classmethod
     def from_structure(
-        cls,
-        structure: Structure,
-        reciprocal_density: Optional[int] = 50000,
-        **kwargs
+        cls, structure: Structure, reciprocal_density: Optional[int] = 50000, **kwargs
     ):
         """
         Get a ShengBTE control object from a structure.
@@ -278,9 +271,7 @@ class Control(MSONable, dict):
 
         unique_elements = self["elements"]
         n_unique_elements = len(unique_elements)
-        element_map = dict(
-            zip(range(1, n_unique_elements + 1), unique_elements)
-        )
+        element_map = dict(zip(range(1, n_unique_elements + 1), unique_elements))
         species = [element_map[i] for i in self["types"]]
 
         cell = np.array(self["lattvec"])

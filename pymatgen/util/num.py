@@ -101,7 +101,7 @@ def non_decreasing(values):
     return all(x <= y for x, y in zip(values, values[1:]))
 
 
-def monotonic(values, mode="<", atol=1.e-8):
+def monotonic(values, mode="<", atol=1.0e-8):
     """
     Returns False if values are not monotonic (decreasing|increasing).
     mode is "<" for a decreasing sequence, ">" for an increasing sequence.
@@ -143,8 +143,7 @@ def round_to_sigfigs(num, sigfigs):
         raise TypeError("Number of significant figures must be integer.")
 
     if sigfigs < 1:
-        raise ValueError("Number of significant figures "
-                         "must be larger than zero.")
+        raise ValueError("Number of significant figures " "must be larger than zero.")
 
     if num == 0:
         return num

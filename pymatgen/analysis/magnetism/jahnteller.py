@@ -8,19 +8,19 @@ JahnTeller distortion analysis.
 
 
 import os
+import warnings
+from typing import Any, Dict, Optional, Tuple, Union
+
 import numpy as np
 
-from pymatgen.core.structure import Structure
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import (
     LocalStructOrderParams,
     get_neighbors_of_site_with_index,
 )
-from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-import warnings
-
-from typing import Dict, Tuple, Union, Optional, Any
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,6 +34,7 @@ class JahnTellerAnalyzer:
     if structure may be high-spin or low-spin.
     Class aims for more false-positives than false-negatives.
     """
+
     def __init__(self):
         """
         Init for JahnTellerAnalyzer.

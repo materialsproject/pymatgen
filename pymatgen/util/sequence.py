@@ -20,8 +20,7 @@ def get_chunks(sequence, size=1):
 
     """
     chunks = int(math.ceil(len(sequence) / float(size)))
-    return [sequence[i * size:(i + 1) * size]
-            for i in range(chunks)]
+    return [sequence[i * size : (i + 1) * size] for i in range(chunks)]
 
 
 class PBarSafe:
@@ -52,13 +51,14 @@ class PBarSafe:
         """
         Print progress.
         """
-        print("{} of {} done {:.1%}".format(
-            self.done, self.total, self.done / self.total))
+        print(
+            "{} of {} done {:.1%}".format(self.done, self.total, self.done / self.total)
+        )
 
 
 try:
     # noinspection PyUnresolvedReferences
-    if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':  # type: ignore
+    if get_ipython().__class__.__name__ == "ZMQInteractiveShell":  # type: ignore
         from tqdm import tqdm_notebook as PBar
     else:  # likely 'TerminalInteractiveShell'
         from tqdm import tqdm as PBar

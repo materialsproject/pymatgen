@@ -41,7 +41,7 @@ class XSF:
         app("PRIMVEC")
         cell = self.structure.lattice.matrix
         for i in range(3):
-            app(' %.14f %.14f %.14f' % tuple(cell[i]))
+            app(" %.14f %.14f %.14f" % tuple(cell[i]))
 
         cart_coords = self.structure.cart_coords
         app("# Cartesian coordinates in Angstrom.")
@@ -53,7 +53,7 @@ class XSF:
                 sp = site.specie.symbol
             else:
                 sp = "%d" % site.specie.Z
-            app(sp + ' %20.14f %20.14f %20.14f' % tuple(coord))
+            app(sp + " %20.14f %20.14f %20.14f" % tuple(coord))
 
         return "\n".join(lines)
 
@@ -92,13 +92,13 @@ class XSF:
 
         for i, line in enumerate(lines):
             if "PRIMVEC" in line:
-                for j in range(i+1, i+4):
+                for j in range(i + 1, i + 4):
                     lattice.append([float(c) for c in lines[j].split()])
 
             if "PRIMCOORD" in line:
-                num_sites = int(lines[i+1].split()[0])
+                num_sites = int(lines[i + 1].split()[0])
 
-                for j in range(i+2, i+2+num_sites):
+                for j in range(i + 2, i + 2 + num_sites):
                     tokens = lines[j].split()
                     if tokens[0].isalpha():
                         Z = Element(tokens[0]).Z
@@ -112,6 +112,7 @@ class XSF:
 
         if cls_ is None:
             from pymatgen.core.structure import Structure
+
             cls_ = Structure
 
         s = cls_(lattice, species, coords, coords_are_cartesian=True)

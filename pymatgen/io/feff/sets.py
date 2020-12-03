@@ -21,7 +21,7 @@ from monty.json import MSONable
 from monty.os.path import zpath
 from monty.serialization import loadfn
 
-from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
+from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -34,7 +34,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s: %(levelname)s: %(name)s: %(message)s')
+formatter = logging.Formatter("%(asctime)s: %(levelname)s: %(name)s: %(message)s")
 sh = logging.StreamHandler(stream=sys.stdout)
 sh.setFormatter(formatter)
 logger.addHandler(sh)
@@ -107,9 +107,11 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
         feff = self.all_input()
 
-        feff_input = "\n\n".join(str(feff[k]) for k in
-                                 ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
-                                 if k in feff)
+        feff_input = "\n\n".join(
+            str(feff[k])
+            for k in ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
+            if k in feff
+        )
 
         for k, v in feff.items():
             with open(os.path.join(output_dir, k), "w") as f:
@@ -120,9 +122,9 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
         # write the structure to cif file
         if "ATOMS" not in feff:
-            self.atoms.struct.to(fmt="cif",
-                                 filename=os.path.join(
-                                     output_dir, feff["PARAMETERS"]["CIF"]))
+            self.atoms.struct.to(
+                fmt="cif", filename=os.path.join(output_dir, feff["PARAMETERS"]["CIF"])
+            )
 
 
 class FEFFDictSet(AbstractFeffInputSet):
@@ -131,9 +133,17 @@ class FEFFDictSet(AbstractFeffInputSet):
     implementations.
     """
 
-    def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 edge="K", spectrum="EXAFS", nkpts=1000,
-                 user_tag_settings=None):
+    def __init__(
+        self,
+        absorbing_atom,
+        structure,
+        radius,
+        config_dict,
+        edge="K",
+        spectrum="EXAFS",
+        nkpts=1000,
+        user_tag_settings=None,
+    ):
         """
 
         Args:
@@ -168,9 +178,9 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = len(self.structure) < 14 and 'EXAFS' not in self.config_dict
+        self.small_system = len(self.structure) < 14 and "EXAFS" not in self.config_dict
 
-    def header(self, source='', comment=''):
+    def header(self, source="", comment=""):
         """
         Creates header string from structure object
 
@@ -196,7 +206,8 @@ class FEFFDictSet(AbstractFeffInputSet):
         if "RECIPROCAL" in self.config_dict:
             if self.small_system:
                 self.config_dict["CIF"] = "{}.cif".format(
-                    self.structure.formula.replace(" ", ""))
+                    self.structure.formula.replace(" ", "")
+                )
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
                 logger.warning("Setting COREHOLE = RPA for K-space calculation")
@@ -205,8 +216,10 @@ class FEFFDictSet(AbstractFeffInputSet):
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
                     self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
             else:
-                logger.warning("Large system(>=14 atoms) or EXAFS calculation, \
-                                removing K-space settings")
+                logger.warning(
+                    "Large system(>=14 atoms) or EXAFS calculation, \
+                                removing K-space settings"
+                )
                 del self.config_dict["RECIPROCAL"]
                 self.config_dict.pop("CIF", None)
                 self.config_dict.pop("TARGET", None)
@@ -237,8 +250,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     def __str__(self):
         output = [self.spectrum]
-        output.extend(["%s = %s" % (k, str(v))
-                       for k, v in self.config_dict.items()])
+        output.extend(["%s = %s" % (k, str(v)) for k, v in self.config_dict.items()])
         output.append("")
         return "\n".join(output)
 
@@ -259,7 +271,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
         absorber_index = []
         radius = None
-        feffinp = zpath(os.path.join(input_dir, 'feff.inp'))
+        feffinp = zpath(os.path.join(input_dir, "feff.inp"))
 
         if "RECIPROCAL" not in sub_d["parameters"]:
             input_atoms = Atoms.cluster_from_file(feffinp)
@@ -271,20 +283,36 @@ class FEFFDictSet(AbstractFeffInputSet):
 
             # Get radius value
             from math import ceil
-            radius = int(ceil(input_atoms.get_distance(input_atoms.index(input_atoms[0]),
-                                                       input_atoms.index(input_atoms[-1]))))
 
-            for site_index, site in enumerate(sub_d['header'].struct):
+            radius = int(
+                ceil(
+                    input_atoms.get_distance(
+                        input_atoms.index(input_atoms[0]),
+                        input_atoms.index(input_atoms[-1]),
+                    )
+                )
+            )
+
+            for site_index, site in enumerate(sub_d["header"].struct):
 
                 if site.specie == input_atoms[0].specie:
-                    site_atoms = Atoms(sub_d['header'].struct, absorbing_atom=site_index,
-                                       radius=radius)
-                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
+                    site_atoms = Atoms(
+                        sub_d["header"].struct, absorbing_atom=site_index, radius=radius
+                    )
+                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(
+                        np.float64
+                    )
                     site_shell_species = np.array(site_atoms.get_lines())[:, 4]
-                    shell_overlap = min(shell_species.shape[0], site_shell_species.shape[0])
+                    shell_overlap = min(
+                        shell_species.shape[0], site_shell_species.shape[0]
+                    )
 
-                    if np.allclose(distance_matrix[:shell_overlap], site_distance[:shell_overlap]) and \
-                            np.all(site_shell_species[:shell_overlap] == shell_species[:shell_overlap]):
+                    if np.allclose(
+                        distance_matrix[:shell_overlap], site_distance[:shell_overlap]
+                    ) and np.all(
+                        site_shell_species[:shell_overlap]
+                        == shell_species[:shell_overlap]
+                    ):
                         absorber_index.append(site_index)
 
         if "RECIPROCAL" in sub_d["parameters"]:
@@ -292,13 +320,19 @@ class FEFFDictSet(AbstractFeffInputSet):
             absorber_index[0] = int(absorber_index[0]) - 1
 
         # Generate the input set
-        if 'XANES' in sub_d["parameters"]:
+        if "XANES" in sub_d["parameters"]:
             CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
             if radius is None:
                 radius = 10
-            return FEFFDictSet(absorber_index[0], sub_d['header'].struct, radius=radius,
-                               config_dict=CONFIG, edge=sub_d["parameters"]["EDGE"],
-                               nkpts=1000, user_tag_settings=sub_d["parameters"])
+            return FEFFDictSet(
+                absorber_index[0],
+                sub_d["header"].struct,
+                radius=radius,
+                config_dict=CONFIG,
+                edge=sub_d["parameters"]["EDGE"],
+                nkpts=1000,
+                user_tag_settings=sub_d["parameters"],
+            )
 
         raise ValueError("Bad input directory.")
 
@@ -310,8 +344,15 @@ class MPXANESSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
-                 nkpts=1000, user_tag_settings=None):
+    def __init__(
+        self,
+        absorbing_atom,
+        structure,
+        edge="K",
+        radius=10.0,
+        nkpts=1000,
+        user_tag_settings=None,
+    ):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -322,10 +363,16 @@ class MPXANESSet(FEFFDictSet):
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
         """
-        super().__init__(absorbing_atom, structure, radius,
-                         MPXANESSet.CONFIG, edge=edge,
-                         spectrum="XANES", nkpts=nkpts,
-                         user_tag_settings=user_tag_settings)
+        super().__init__(
+            absorbing_atom,
+            structure,
+            radius,
+            MPXANESSet.CONFIG,
+            edge=edge,
+            spectrum="XANES",
+            nkpts=nkpts,
+            user_tag_settings=user_tag_settings,
+        )
 
 
 class MPEXAFSSet(FEFFDictSet):
@@ -335,8 +382,15 @@ class MPEXAFSSet(FEFFDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXAFSSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
-                 nkpts=1000, user_tag_settings=None):
+    def __init__(
+        self,
+        absorbing_atom,
+        structure,
+        edge="K",
+        radius=10.0,
+        nkpts=1000,
+        user_tag_settings=None,
+    ):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -347,10 +401,16 @@ class MPEXAFSSet(FEFFDictSet):
                 only when feff is run in the reciprocal space mode.
             user_tag_settings (dict): override default tag settings
         """
-        super().__init__(absorbing_atom, structure, radius,
-                         MPEXAFSSet.CONFIG, edge=edge,
-                         spectrum="EXAFS", nkpts=nkpts,
-                         user_tag_settings=user_tag_settings)
+        super().__init__(
+            absorbing_atom,
+            structure,
+            radius,
+            MPEXAFSSet.CONFIG,
+            edge=edge,
+            spectrum="EXAFS",
+            nkpts=nkpts,
+            user_tag_settings=user_tag_settings,
+        )
 
 
 class MPEELSDictSet(FEFFDictSet):
@@ -358,10 +418,22 @@ class MPEELSDictSet(FEFFDictSet):
     FeffDictSet for ELNES spectroscopy.
     """
 
-    def __init__(self, absorbing_atom, structure, edge, spectrum, radius,
-                 beam_energy, beam_direction, collection_angle,
-                 convergence_angle, config_dict, user_eels_settings=None,
-                 nkpts=1000, user_tag_settings=None):
+    def __init__(
+        self,
+        absorbing_atom,
+        structure,
+        edge,
+        spectrum,
+        radius,
+        beam_energy,
+        beam_direction,
+        collection_angle,
+        convergence_angle,
+        config_dict,
+        user_eels_settings=None,
+        nkpts=1000,
+        user_tag_settings=None,
+    ):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -394,16 +466,21 @@ class MPEELSDictSet(FEFFDictSet):
             beam_energy_list = [beam_energy, 1, 0, 1]
             del eels_config_dict[spectrum]["BEAM_DIRECTION"]
         eels_config_dict[spectrum]["BEAM_ENERGY"] = beam_energy_list
-        eels_config_dict[spectrum]["ANGLES"] = [collection_angle,
-                                                convergence_angle]
+        eels_config_dict[spectrum]["ANGLES"] = [collection_angle, convergence_angle]
 
         if user_eels_settings:
             eels_config_dict[spectrum].update(user_eels_settings)
 
-        super().__init__(absorbing_atom, structure, radius,
-                         eels_config_dict, edge=edge,
-                         spectrum=spectrum, nkpts=nkpts,
-                         user_tag_settings=user_tag_settings)
+        super().__init__(
+            absorbing_atom,
+            structure,
+            radius,
+            eels_config_dict,
+            edge=edge,
+            spectrum=spectrum,
+            nkpts=nkpts,
+            user_tag_settings=user_tag_settings,
+        )
 
 
 class MPELNESSet(MPEELSDictSet):
@@ -413,10 +490,20 @@ class MPELNESSet(MPEELSDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPELNESSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
-                 beam_energy=100, beam_direction=None, collection_angle=1,
-                 convergence_angle=1, user_eels_settings=None, nkpts=1000,
-                 user_tag_settings=None):
+    def __init__(
+        self,
+        absorbing_atom,
+        structure,
+        edge="K",
+        radius=10.0,
+        beam_energy=100,
+        beam_direction=None,
+        collection_angle=1,
+        convergence_angle=1,
+        user_eels_settings=None,
+        nkpts=1000,
+        user_tag_settings=None,
+    ):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -435,12 +522,21 @@ class MPELNESSet(MPEELSDictSet):
             user_tag_settings (dict): override default tag settings
         """
 
-        super().__init__(absorbing_atom, structure, edge,
-                         "ELNES", radius, beam_energy,
-                         beam_direction, collection_angle,
-                         convergence_angle, MPELNESSet.CONFIG,
-                         user_eels_settings=user_eels_settings,
-                         nkpts=nkpts, user_tag_settings=user_tag_settings)
+        super().__init__(
+            absorbing_atom,
+            structure,
+            edge,
+            "ELNES",
+            radius,
+            beam_energy,
+            beam_direction,
+            collection_angle,
+            convergence_angle,
+            MPELNESSet.CONFIG,
+            user_eels_settings=user_eels_settings,
+            nkpts=nkpts,
+            user_tag_settings=user_tag_settings,
+        )
 
 
 class MPEXELFSSet(MPEELSDictSet):
@@ -450,10 +546,20 @@ class MPEXELFSSet(MPEELSDictSet):
 
     CONFIG = loadfn(os.path.join(MODULE_DIR, "MPEXELFSSet.yaml"))
 
-    def __init__(self, absorbing_atom, structure, edge="K", radius=10.,
-                 beam_energy=100, beam_direction=None, collection_angle=1,
-                 convergence_angle=1, user_eels_settings=None, nkpts=1000,
-                 user_tag_settings=None):
+    def __init__(
+        self,
+        absorbing_atom,
+        structure,
+        edge="K",
+        radius=10.0,
+        beam_energy=100,
+        beam_direction=None,
+        collection_angle=1,
+        convergence_angle=1,
+        user_eels_settings=None,
+        nkpts=1000,
+        user_tag_settings=None,
+    ):
         """
         Args:
             absorbing_atom (str/int): absorbing atom symbol or site index
@@ -472,9 +578,18 @@ class MPEXELFSSet(MPEELSDictSet):
             user_tag_settings (dict): override default tag settings
         """
 
-        super().__init__(absorbing_atom, structure, edge,
-                         "EXELFS", radius, beam_energy,
-                         beam_direction, collection_angle,
-                         convergence_angle, MPEXELFSSet.CONFIG,
-                         user_eels_settings=user_eels_settings,
-                         nkpts=nkpts, user_tag_settings=user_tag_settings)
+        super().__init__(
+            absorbing_atom,
+            structure,
+            edge,
+            "EXELFS",
+            radius,
+            beam_energy,
+            beam_direction,
+            collection_angle,
+            convergence_angle,
+            MPEXELFSSet.CONFIG,
+            user_eels_settings=user_eels_settings,
+            nkpts=nkpts,
+            user_tag_settings=user_tag_settings,
+        )
