@@ -5,18 +5,18 @@
 This module implements plotter for DOS and band structure.
 """
 
+import copy
+import itertools
 import logging
 import math
-import itertools
 import warnings
-from collections import OrderedDict, Counter
-import copy
+from collections import Counter, OrderedDict
 
-import numpy as np
-from monty.json import jsanitize
-from monty.dev import requires
 import matplotlib.lines as mlines
+import numpy as np
 import scipy.interpolate as scint
+from monty.dev import requires
+from monty.json import jsanitize
 
 try:
     from mayavi import mlab
@@ -24,10 +24,10 @@ except ImportError:
     mlab = None
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.core import Spin, OrbitalType
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax3d_fig_plt
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
+from pymatgen.electronic_structure.core import OrbitalType, Spin
+from pymatgen.util.plotting import add_fig_kwargs, get_ax3d_fig_plt, pretty_plot
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -971,9 +971,7 @@ class BSPlotterProjected(BSPlotter):
             bs = bs[0]
 
         if len(bs.projections) == 0:
-            raise ValueError(
-                "try to plot projections on a band structure without any"
-            )
+            raise ValueError("try to plot projections on a band structure without any")
 
         self._bs = bs
         self._nb_bands = bs.nb_bands
@@ -1055,7 +1053,7 @@ class BSPlotterProjected(BSPlotter):
 
         for el in dictio:
             for o in dictio[el]:
-                plt.subplot(fig_rows+fig_cols+count)
+                plt.subplot(fig_rows + fig_cols + count)
                 self._maketicks(plt)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
@@ -2162,8 +2160,9 @@ class BSPlotterProjected(BSPlotter):
         return dictio, sum_morbs
 
     def _number_of_subfigures(self, dictio, dictpa, sum_atoms, sum_morbs):
-        from pymatgen.core.periodic_table import Element
         from collections import Counter
+
+        from pymatgen.core.periodic_table import Element
 
         if not isinstance(dictpa, dict):
             raise TypeError(
@@ -2193,7 +2192,7 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(
                                 "You put wrong site numbers in 'dictpa[%s]': %s."
                                 % (elt, str(number))
-                                )
+                            )
                         if isinstance(number, int):
                             if number not in indices:
                                 raise ValueError(
@@ -2663,8 +2662,8 @@ class BSDOSPlotter:
             and savefig()
         """
         import matplotlib.lines as mlines
-        from matplotlib.gridspec import GridSpec
         import matplotlib.pyplot as mplt
+        from matplotlib.gridspec import GridSpec
 
         # make sure the user-specified band structure projection is valid
         bs_projection = self.bs_projection
@@ -2806,20 +2805,20 @@ class BSDOSPlotter:
                 for band_idx, band in enumerate(band_energies[spin]):
                     current_pos = 0
                     for x_distances in x_distances_list:
-                        sub_band = band[current_pos:current_pos + len(x_distances)]
+                        sub_band = band[current_pos : current_pos + len(x_distances)]
 
                         self._rgbline(
                             bs_ax,
                             x_distances,
                             sub_band,
                             colordata[spin][band_idx, :, 0][
-                                current_pos:current_pos + len(x_distances)
+                                current_pos : current_pos + len(x_distances)
                             ],
                             colordata[spin][band_idx, :, 1][
-                                current_pos:current_pos + len(x_distances)
+                                current_pos : current_pos + len(x_distances)
                             ],
                             colordata[spin][band_idx, :, 2][
-                                current_pos:current_pos + len(x_distances)
+                                current_pos : current_pos + len(x_distances)
                             ],
                             linestyles=linestyles,
                         )
@@ -2890,7 +2889,7 @@ class BSDOSPlotter:
             dos_xmin = (
                 0
                 if Spin.down not in dos.densities
-                else -max(dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
+                else -max(dos.densities[Spin.down][emin_idx : emax_idx + 1] * 1.05)
             )
             dos_xmax = max(
                 [max(dos.densities[Spin.up][emin_idx:emax_idx]) * 1.05, abs(dos_xmin)]
@@ -4496,8 +4495,8 @@ def plot_fermi_surface(
                             )
 
             for label, coords in kpoints_dict.items():
-                label_coords = (
-                    structure.lattice.reciprocal_lattice.get_cartesian_coords(coords)
+                label_coords = structure.lattice.reciprocal_lattice.get_cartesian_coords(
+                    coords
                 )
                 mlab.points3d(
                     *label_coords,

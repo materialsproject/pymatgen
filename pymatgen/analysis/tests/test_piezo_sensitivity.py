@@ -16,14 +16,15 @@ __date__ = "4/23/19"
 
 import os
 import unittest
+
 import numpy as np
 
 import pymatgen
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.analysis.piezo_sensitivity import *
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from phonopy import Phonopy

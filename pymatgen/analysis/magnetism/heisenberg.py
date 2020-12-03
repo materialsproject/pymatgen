@@ -8,23 +8,21 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+import copy
 import logging
 import sys
 from ast import literal_eval
-import copy
 
 import numpy as np
 import pandas as pd
-
-from monty.serialization import dumpfn
 from monty.json import MSONable, jsanitize
+from monty.serialization import dumpfn
 
-from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen import Structure
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen import Structure
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -38,6 +36,7 @@ class HeisenbergMapper:
     """
     Class to compute exchange parameters from low energy magnetic orderings.
     """
+
     def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
@@ -358,7 +357,7 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 if ex_mat.append(ex_row)[j_columns].equals(
-                        ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
+                    ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
                 ):
                     e_index = self.ordered_structures.index(sgraph.structure)
                     ex_row.at[sgraph_index, "E"] = self.energies[e_index]
@@ -733,6 +732,7 @@ class HeisenbergScreener:
     """
     Class to clean and screen magnetic orderings.
     """
+
     def __init__(self, structures, energies, screen=False):
         """
         This class pre-processes magnetic orderings and energies for
@@ -984,9 +984,9 @@ class HeisenbergModel(MSONable):
 
         for k, v in d["unique_site_ids"].items():
             key = literal_eval(k)
-            if type(key) == int:
+            if isinstance(key, int):
                 usids[tuple([key])] = v
-            elif type(key) == tuple:
+            elif isinstance(key, tuple):
                 usids[key] = v
 
         for k, v in d["wyckoff_ids"].items():

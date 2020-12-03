@@ -10,24 +10,23 @@ structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
 """
 
-import os
 import abc
-import json
 import copy
 import hashlib
 import warnings
+import json
+import os
 from itertools import combinations
 from typing import List, Optional
 
 import numpy as np
-from scipy.interpolate import interp1d
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+from scipy.interpolate import interp1d
 from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
-
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
@@ -49,7 +48,15 @@ class EnergyAdjustment(MSONable):
     Lightweight class to contain information about an energy adjustment or
     energy correction.
     """
-    def __init__(self, value, uncertainty=np.nan, name="Manual adjustment", cls=None, description=""):
+
+    def __init__(
+        self,
+        value,
+        uncertainty=np.nan,
+        name="Manual adjustment",
+        cls=None,
+        description="",
+    ):
         """
         Args:
             value: float, value of the energy adjustment in eV
@@ -128,7 +135,9 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
                 adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
-        super().__init__(value, uncertainty, name=name, cls=cls, description=description)
+        super().__init__(
+            value, uncertainty, name=name, cls=cls, description=description
+        )
         self._value = value
         self._uncertainty = uncertainty
 
@@ -419,8 +428,12 @@ class ComputedEntry(Entry):
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
-            [ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty)
-                else ufloat(ea.value, 0) for ea in self.energy_adjustments]
+            [
+                ufloat(ea.value, ea.uncertainty)
+                if not np.isnan(ea.uncertainty)
+                else ufloat(ea.value, 0)
+                for ea in self.energy_adjustments
+            ]
         )
 
         if unc.nominal_value != 0 and unc.std_dev == 0:
@@ -437,7 +450,9 @@ class ComputedEntry(Entry):
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
-    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["ComputedEntry"]:
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ) -> Optional["ComputedEntry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -531,8 +546,7 @@ class ComputedEntry(Entry):
                 dec.process_decoded(e) for e in d.get("energy_adjustments", {})
             ],
             parameters={
-                k: dec.process_decoded(v)
-                for k, v in d.get("parameters", {}).items()
+                k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()
             },
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),
@@ -679,8 +693,7 @@ class ComputedStructureEntry(ComputedEntry):
                 dec.process_decoded(e) for e in d.get("energy_adjustments", {})
             ],
             parameters={
-                k: dec.process_decoded(v)
-                for k, v in d.get("parameters", {}).items()
+                k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()
             },
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),

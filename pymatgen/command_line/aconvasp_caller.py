@@ -27,9 +27,9 @@ def run_aconvasp_command(command, structure):
     Helper function for calling aconvasp with different arguments
     """
     poscar = Poscar(structure)
-    p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                         stdin=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+    p = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     output = p.communicate(input=poscar.get_string())
     return output
 
@@ -39,8 +39,7 @@ def get_num_division_kpoints(structure, kppa):
     Get kpoint divisions for a given k-point density (per reciprocal-atom):
     kppa and a given structure
     """
-    output = run_aconvasp_command(["aconvasp", "--kpoints", str(kppa)],
-                                  structure)
+    output = run_aconvasp_command(["aconvasp", "--kpoints", str(kppa)], structure)
     tmp = output[0].rsplit("\n")[6].rsplit(" ")
     return [int(tmp[5]), int(tmp[6]), int(tmp[7])]
 
@@ -72,7 +71,7 @@ def get_conv_struct(structure):
     if "ERROR" in output[1]:
         raise AconvaspError(output[1])
     tmp = Poscar.from_string(output[0])
-    return {'struct': tmp.structure, 'comm': tmp.comment}
+    return {"struct": tmp.structure, "comm": tmp.comment}
 
 
 def get_prim_struct(structure):
@@ -83,7 +82,7 @@ def get_prim_struct(structure):
     if "ERROR" in output[1]:
         raise AconvaspError(output[1])
     tmp = Poscar.from_string(output[0])
-    return {'struct': tmp.structure, 'comm': tmp.comment}
+    return {"struct": tmp.structure, "comm": tmp.comment}
 
 
 def get_vasp_kpoint_file_sym(structure):

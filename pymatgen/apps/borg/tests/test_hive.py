@@ -3,20 +3,23 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 import warnings
 
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, \
-    SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
+from pymatgen.apps.borg.hive import (
+    GaussianToComputedEntryDrone,
+    SimpleVaspToComputedEntryDrone,
+    VaspToComputedEntryDrone,
+)
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 
 class VaspToComputedEntryDroneTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                     "..", "..", 'test_files')
+        self.test_dir = os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "..", "test_files"
+        )
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
 
@@ -51,10 +54,10 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
 
 class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                     "..", "..", 'test_files')
+        self.test_dir = os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "..", "test_files"
+        )
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(True)
         warnings.simplefilter("ignore")
@@ -74,10 +77,10 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
 
 
 class GaussianToComputedEntryDroneTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                     "..", "..", 'test_files', "molecules")
+        self.test_dir = os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "molecules"
+        )
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(True)
         warnings.simplefilter("ignore")
@@ -93,8 +96,13 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
     def test_assimilate(self):
         test_file = os.path.join(self.test_dir, "methane.log")
         entry = self.drone.assimilate(test_file)
-        for p in ["functional", "basis_set", "charge",
-                  "spin_multiplicity", "route_parameters"]:
+        for p in [
+            "functional",
+            "basis_set",
+            "charge",
+            "spin_multiplicity",
+            "route_parameters",
+        ]:
             self.assertIn(p, entry.parameters)
         for p in ["corrections"]:
             self.assertIn(p, entry.data)

@@ -14,19 +14,20 @@ in Chemistry of Materials (2013).
 """
 
 import os
+
 from monty.design_patterns import singleton
-from pymatgen import Element, Composition
 
-__author__ = 'Anubhav Jain'
-__copyright__ = 'Copyright 2014, The Materials Project'
-__version__ = '0.1'
-__maintainer__ = 'Anubhav Jain'
-__email__ = 'ajain@lbl.gov'
-__date__ = 'Oct 27, 2014'
+from pymatgen import Composition, Element
+
+__author__ = "Anubhav Jain"
+__copyright__ = "Copyright 2014, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Anubhav Jain"
+__email__ = "ajain@lbl.gov"
+__date__ = "Oct 27, 2014"
 
 
-csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        'hhi_data.csv')
+csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hhi_data.csv")
 
 
 @singleton
@@ -44,9 +45,11 @@ class HHIModel:
         with open(csv_path) as f:
             for line in f:
                 if line[0] != "#":
-                    symbol, hhi_production, hhi_reserve = line.split(',')
-                    self.symbol_hhip_hhir[symbol] = (float(hhi_production),
-                                                     float(hhi_reserve))
+                    symbol, hhi_production, hhi_reserve = line.split(",")
+                    self.symbol_hhip_hhir[symbol] = (
+                        float(hhi_production),
+                        float(hhi_reserve),
+                    )
 
     def _get_hhi_el(self, el_or_symbol):
         """
@@ -55,8 +58,10 @@ class HHIModel:
         if isinstance(el_or_symbol, Element):
             el_or_symbol = el_or_symbol.symbol
 
-        return (self.symbol_hhip_hhir[el_or_symbol][0],
-                self.symbol_hhip_hhir[el_or_symbol][1])
+        return (
+            self.symbol_hhip_hhir[el_or_symbol][0],
+            self.symbol_hhip_hhir[el_or_symbol][1],
+        )
 
     def get_hhi(self, comp_or_form):
         """
@@ -127,10 +132,10 @@ class HHIModel:
             return None
 
         if 0 <= hhi < 1500:
-            return 'low'
+            return "low"
 
         if 1500 <= hhi <= 2500:
-            return 'medium'
+            return "medium"
 
         if hhi > 2500:
-            return 'high'
+            return "high"

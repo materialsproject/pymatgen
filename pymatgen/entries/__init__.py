@@ -14,6 +14,7 @@ import copy
 import hashlib
 from abc import ABCMeta, abstractmethod
 from typing import Optional
+
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
@@ -90,7 +91,9 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["Entry"]:
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ) -> Optional["Entry"]:
         """
         Normalize the entry's composition and energy.
 

@@ -6,29 +6,27 @@
 Classes and methods related to the Structure Notation Language (SNL)
 """
 
-import sys
-import re
 import datetime
-from collections import namedtuple
 import json
+import re
+import sys
+from collections import namedtuple
 from io import StringIO
-
-from pybtex.database.input import bibtex
-from pybtex import errors
 
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
+from pybtex import errors
+from pybtex.database.input import bibtex
 
-from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.structure import Molecule, Structure
 
-
-__author__ = 'Anubhav Jain, Shyue Ping Ong'
-__credits__ = 'Dan Gunter'
-__copyright__ = 'Copyright 2013, The Materials Project'
-__version__ = '0.1'
-__maintainer__ = 'Anubhav Jain'
-__email__ = 'ajain@lbl.gov'
-__date__ = 'Feb 11, 2013'
+__author__ = "Anubhav Jain, Shyue Ping Ong"
+__credits__ = "Dan Gunter"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Anubhav Jain"
+__email__ = "ajain@lbl.gov"
+__date__ = "Feb 11, 2013"
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
 MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
@@ -55,7 +53,7 @@ def is_valid_bibtex(reference):
     return len(bib_data.entries) > 0
 
 
-class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
+class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
     """
     A HistoryNode represents a step in the chain of events that lead to a
     Structure. HistoryNodes leave 'breadcrumbs' so that you can trace back how
@@ -86,8 +84,7 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         """
         Returns: Dict
         """
-        return {"name": self.name, "url": self.url,
-                "description": self.description}
+        return {"name": self.name, "url": self.url, "description": self.description}
 
     @staticmethod
     def from_dict(h_node):
@@ -98,8 +95,7 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         Returns:
             HistoryNode
         """
-        return HistoryNode(h_node['name'], h_node['url'],
-                           h_node['description'])
+        return HistoryNode(h_node["name"], h_node["url"], h_node["description"])
 
     @staticmethod
     def parse_history_node(h_node):
@@ -117,13 +113,15 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
             return HistoryNode.from_dict(h_node)
 
         if len(h_node) != 3:
-            raise ValueError("Invalid History node, "
-                             "should be dict or (name, version, "
-                             "description) tuple: {}".format(h_node))
+            raise ValueError(
+                "Invalid History node, "
+                "should be dict or (name, version, "
+                "description) tuple: {}".format(h_node)
+            )
         return HistoryNode(h_node[0], h_node[1], h_node[2])
 
 
-class Author(namedtuple('Author', ['name', 'email'])):
+class Author(namedtuple("Author", ["name", "email"])):
     """
     An Author contains two fields:
 
@@ -140,7 +138,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
         """
         String representation of an Author
         """
-        return '{} <{}>'.format(self.name, self.email)
+        return "{} <{}>".format(self.name, self.email)
 
     def as_dict(self):
         """
@@ -157,7 +155,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
         Returns:
             Author
         """
-        return Author(d['name'], d['email'])
+        return Author(d["name"], d["email"])
 
     @staticmethod
     def parse_author(author):
@@ -174,15 +172,17 @@ class Author(namedtuple('Author', ['name', 'email'])):
         if isinstance(author, str):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
-            m = re.match(r'\s*(.*?)\s*<(.*?@.*?)>\s*', author)
+            m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
             if not m or m.start() != 0 or m.end() != len(author):
                 raise ValueError("Invalid author format! {}".format(author))
             return Author(m.groups()[0], m.groups()[1])
         if isinstance(author, dict):
             return Author.from_dict(author)
         if len(author) != 2:
-            raise ValueError("Invalid author, should be String or (name, "
-                             "email) tuple: {}".format(author))
+            raise ValueError(
+                "Invalid author, should be String or (name, "
+                "email) tuple: {}".format(author)
+            )
         return Author(author[0], author[1])
 
 
@@ -205,8 +205,17 @@ class StructureNL:
     - sites
     """
 
-    def __init__(self, struct_or_mol, authors, projects=None, references='',
-                 remarks=None, data=None, history=None, created_at=None):
+    def __init__(
+        self,
+        struct_or_mol,
+        authors,
+        projects=None,
+        references="",
+        remarks=None,
+        data=None,
+        history=None,
+        created_at=None,
+    ):
         """
         Args:
             struct_or_mol: A pymatgen.core.structure Structure/Molecule object
@@ -225,8 +234,7 @@ class StructureNL:
         self.structure = struct_or_mol
 
         # turn authors into list of Author objects
-        authors = authors.split(',') \
-            if isinstance(authors, str) else authors
+        authors = authors.split(",") if isinstance(authors, str) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings
@@ -235,15 +243,19 @@ class StructureNL:
 
         # check that references are valid BibTeX
         if not isinstance(references, str):
-            raise ValueError("Invalid format for SNL reference! Should be "
-                             "empty string or BibTeX string.")
+            raise ValueError(
+                "Invalid format for SNL reference! Should be "
+                "empty string or BibTeX string."
+            )
         if references and not is_valid_bibtex(references):
-            raise ValueError("Invalid format for SNL reference! Should be "
-                             "BibTeX string.")
+            raise ValueError(
+                "Invalid format for SNL reference! Should be " "BibTeX string."
+            )
         if len(references) > MAX_BIBTEX_CHARS:
-            raise ValueError("The BibTeX string must be fewer than {} chars "
-                             ", you have {}"
-                             .format(MAX_BIBTEX_CHARS, len(references)))
+            raise ValueError(
+                "The BibTeX string must be fewer than {} chars "
+                ", you have {}".format(MAX_BIBTEX_CHARS, len(references))
+            )
 
         self.references = references
 
@@ -254,35 +266,43 @@ class StructureNL:
         # check remarks limit
         for r in self.remarks:
             if len(r) > 140:
-                raise ValueError("The remark exceeds the maximum size of"
-                                 "140 characters: {}".format(r))
+                raise ValueError(
+                    "The remark exceeds the maximum size of"
+                    "140 characters: {}".format(r)
+                )
 
         # check data limit
         self.data = data if data else {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
-            raise ValueError("The data dict exceeds the maximum size limit of"
-                             " {} bytes (you have {})"
-                             .format(MAX_DATA_SIZE, sys.getsizeof(data)))
+            raise ValueError(
+                "The data dict exceeds the maximum size limit of"
+                " {} bytes (you have {})".format(MAX_DATA_SIZE, sys.getsizeof(data))
+            )
 
         for k, v in self.data.items():
             if not k.startswith("_"):
-                raise ValueError("data must contain properly namespaced data "
-                                 "with keys starting with an underscore. The "
-                                 "key {} does not start with an underscore.",
-                                 format(k))
+                raise ValueError(
+                    "data must contain properly namespaced data "
+                    "with keys starting with an underscore. The "
+                    "key {} does not start with an underscore.",
+                    format(k),
+                )
 
         # check for valid history nodes
         history = history if history else []  # initialize null fields
         if len(history) > MAX_HNODES:
-            raise ValueError("A maximum of {} History nodes are supported, "
-                             "you have {}!".format(MAX_HNODES, len(history)))
+            raise ValueError(
+                "A maximum of {} History nodes are supported, "
+                "you have {}!".format(MAX_HNODES, len(history))
+            )
         self.history = [HistoryNode.parse_history_node(h) for h in history]
         if not all([sys.getsizeof(h) < MAX_HNODE_SIZE for h in history]):
-            raise ValueError("One or more history nodes exceeds the maximum "
-                             "size limit of {} bytes".format(MAX_HNODE_SIZE))
+            raise ValueError(
+                "One or more history nodes exceeds the maximum "
+                "size limit of {} bytes".format(MAX_HNODE_SIZE)
+            )
 
-        self.created_at = created_at if created_at \
-            else datetime.datetime.utcnow()
+        self.created_at = created_at if created_at else datetime.datetime.utcnow()
 
     def as_dict(self):
         """
@@ -291,15 +311,15 @@ class StructureNL:
         d = self.structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["about"] = {"authors": [a.as_dict() for a in self.authors],
-                      "projects": self.projects,
-                      "references": self.references,
-                      "remarks": self.remarks,
-                      "history": [h.as_dict() for h in self.history],
-                      "created_at": json.loads(json.dumps(self.created_at,
-                                                          cls=MontyEncoder))}
-        d["about"].update(json.loads(json.dumps(self.data,
-                                                cls=MontyEncoder)))
+        d["about"] = {
+            "authors": [a.as_dict() for a in self.authors],
+            "projects": self.projects,
+            "references": self.references,
+            "remarks": self.remarks,
+            "history": [h.as_dict() for h in self.history],
+            "created_at": json.loads(json.dumps(self.created_at, cls=MontyEncoder)),
+        }
+        d["about"].update(json.loads(json.dumps(self.data, cls=MontyEncoder)))
         return d
 
     @classmethod
@@ -315,21 +335,33 @@ class StructureNL:
         dec = MontyDecoder()
 
         created_at = dec.process_decoded(a.get("created_at"))
-        data = {k: v for k, v in d["about"].items()
-                if k.startswith("_")}
+        data = {k: v for k, v in d["about"].items() if k.startswith("_")}
         data = dec.process_decoded(data)
 
-        structure = Structure.from_dict(d) if "lattice" in d \
-            else Molecule.from_dict(d)
-        return cls(structure, a["authors"], projects=a.get("projects", None),
-                   references=a.get("references", ""),
-                   remarks=a.get("remarks", None), data=data,
-                   history=a.get("history", None), created_at=created_at)
+        structure = Structure.from_dict(d) if "lattice" in d else Molecule.from_dict(d)
+        return cls(
+            structure,
+            a["authors"],
+            projects=a.get("projects", None),
+            references=a.get("references", ""),
+            remarks=a.get("remarks", None),
+            data=data,
+            history=a.get("history", None),
+            created_at=created_at,
+        )
 
     @classmethod
-    def from_structures(cls, structures, authors, projects=None,
-                        references='', remarks=None, data=None,
-                        histories=None, created_at=None):
+    def from_structures(
+        cls,
+        structures,
+        authors,
+        projects=None,
+        references="",
+        remarks=None,
+        data=None,
+        histories=None,
+        created_at=None,
+    ):
         """
         A convenience method for getting a list of StructureNL objects by
         specifying structures and metadata separately. Some of the metadata
@@ -355,30 +387,57 @@ class StructureNL:
             created_at: A datetime object
         """
         data = [{}] * len(structures) if data is None else data
-        histories = [[]] * len(structures) if histories is None else \
-            histories
+        histories = [[]] * len(structures) if histories is None else histories
 
         snl_list = []
         for i, struct in enumerate(structures):
-            snl = StructureNL(struct, authors, projects=projects,
-                              references=references,
-                              remarks=remarks, data=data[i],
-                              history=histories[i],
-                              created_at=created_at)
+            snl = StructureNL(
+                struct,
+                authors,
+                projects=projects,
+                references=references,
+                remarks=remarks,
+                data=data[i],
+                history=histories[i],
+                created_at=created_at,
+            )
             snl_list.append(snl)
 
         return snl_list
 
     def __str__(self):
-        return "\n".join(["{}\n{}".format(k, getattr(self, k))
-                          for k in ("structure", "authors", "projects",
-                                    "references", "remarks", "data", "history",
-                                    "created_at")])
+        return "\n".join(
+            [
+                "{}\n{}".format(k, getattr(self, k))
+                for k in (
+                    "structure",
+                    "authors",
+                    "projects",
+                    "references",
+                    "remarks",
+                    "data",
+                    "history",
+                    "created_at",
+                )
+            ]
+        )
 
     def __eq__(self, other):
-        return all(map(lambda n: getattr(self, n) == getattr(other, n),
-                       ("structure", "authors", "projects", "references",
-                        "remarks", "data", "history", "created_at")))
+        return all(
+            map(
+                lambda n: getattr(self, n) == getattr(other, n),
+                (
+                    "structure",
+                    "authors",
+                    "projects",
+                    "references",
+                    "remarks",
+                    "data",
+                    "history",
+                    "created_at",
+                ),
+            )
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)

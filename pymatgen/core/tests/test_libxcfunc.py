@@ -2,8 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.libxcfunc import LibxcFunc
+from pymatgen.util.testing import PymatgenTest
 
 
 class LibxcFuncTest(PymatgenTest):

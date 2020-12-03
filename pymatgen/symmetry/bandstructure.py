@@ -7,9 +7,16 @@ generate high-symmetry k-paths using different conventions.
 """
 
 import itertools
-import numpy as np
+
 import networkx as nx
-from pymatgen.symmetry.kpath import KPathBase, KPathSetyawanCurtarolo, KPathLatimerMunro, KPathSeek
+import numpy as np
+
+from pymatgen.symmetry.kpath import (
+    KPathBase,
+    KPathLatimerMunro,
+    KPathSeek,
+    KPathSetyawanCurtarolo,
+)
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -36,8 +43,15 @@ class HighSymmKpath(KPathBase):
     """
 
     def __init__(
-            self, structure, has_magmoms=False, magmom_axis=None, path_type="sc",
-            symprec=0.01, angle_tolerance=5, atol=1e-5):
+        self,
+        structure,
+        has_magmoms=False,
+        magmom_axis=None,
+        path_type="sc",
+        symprec=0.01,
+        angle_tolerance=5,
+        atol=1e-5,
+    ):
         """
         Args:
             structure (Structure): Structure object
@@ -66,7 +80,9 @@ class HighSymmKpath(KPathBase):
                 equivalence of points and lines on the BZ.
         """
 
-        super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
+        super().__init__(
+            structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol
+        )
 
         self._path_type = path_type
 
@@ -77,11 +93,15 @@ class HighSymmKpath(KPathBase):
         if path_type != "all":
 
             if path_type == "lm":
-                self._kpath = self._get_lm_kpath(has_magmoms, magmom_axis, symprec, angle_tolerance, atol).kpath
+                self._kpath = self._get_lm_kpath(
+                    has_magmoms, magmom_axis, symprec, angle_tolerance, atol
+                ).kpath
             elif path_type == "sc":
                 self._kpath = self._get_sc_kpath(symprec, angle_tolerance, atol).kpath
             elif path_type == "hin":
-                hin_dat = self._get_hin_kpath(symprec, angle_tolerance, atol, not has_magmoms)
+                hin_dat = self._get_hin_kpath(
+                    symprec, angle_tolerance, atol, not has_magmoms
+                )
                 self._kpath = hin_dat.kpath
                 self._hin_tmat = hin_dat._tmat
 
@@ -90,11 +110,15 @@ class HighSymmKpath(KPathBase):
             if has_magmoms:
                 raise ValueError("Cannot select 'all' with non-zero magmoms.")
 
-            lm_bs = self._get_lm_kpath(has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
+            lm_bs = self._get_lm_kpath(
+                has_magmoms, magmom_axis, symprec, angle_tolerance, atol
+            )
             rpg = lm_bs._rpg
 
             sc_bs = self._get_sc_kpath(symprec, angle_tolerance, atol)
-            hin_bs = self._get_hin_kpath(symprec, angle_tolerance, atol, not has_magmoms)
+            hin_bs = self._get_hin_kpath(
+                symprec, angle_tolerance, atol, not has_magmoms
+            )
 
             index = 0
             cat_points = {}
@@ -115,7 +139,10 @@ class HighSymmKpath(KPathBase):
                 for block in bs.kpath["path"]:
                     new_block = []
                     for label in block:
-                        for ind in range(len(label_index) - len(bs.kpath["kpoints"]), len(label_index),):
+                        for ind in range(
+                            len(label_index) - len(bs.kpath["kpoints"]),
+                            len(label_index),
+                        ):
                             if label_index[ind] == label:
                                 new_block.append(ind)
 
@@ -172,7 +199,9 @@ class HighSymmKpath(KPathBase):
         Latimer and Munro k-path with labels.
         """
 
-        return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
+        return KPathLatimerMunro(
+            self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol
+        )
 
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
         """
@@ -218,7 +247,9 @@ class HighSymmKpath(KPathBase):
 
         n_op = len(rpg)
 
-        pairs = itertools.permutations([{"sc": sc_path}, {"lm": lm_path}, {"hin": hin_path}], r=2)
+        pairs = itertools.permutations(
+            [{"sc": sc_path}, {"lm": lm_path}, {"hin": hin_path}], r=2
+        )
         labels = {"sc": {}, "lm": {}, "hin": {}}
 
         for (a, b) in pairs:
