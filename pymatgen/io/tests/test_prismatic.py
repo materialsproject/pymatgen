@@ -3,8 +3,8 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.prismatic import Prismatic

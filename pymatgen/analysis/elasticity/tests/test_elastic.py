@@ -1,72 +1,72 @@
-import unittest
-import os
-import warnings
-import numpy as np
 import json
+import os
 import random
-
-from scipy.misc import central_diff_weights
+import unittest
+import warnings
 from copy import deepcopy
 
-from pymatgen.analysis.elasticity.elastic import ElasticTensor, \
-    ElasticTensorExpansion, NthOrderElasticTensor, ComplianceTensor, \
-    find_eq_stress, generate_pseudo, diff_fit, get_diff_coeff, \
-    get_strain_state_dict
-from pymatgen.analysis.elasticity.strain import Strain, Deformation
+import numpy as np
+from scipy.misc import central_diff_weights
+
+from pymatgen import Lattice, Structure
+from pymatgen.analysis.elasticity.elastic import (
+    ComplianceTensor,
+    ElasticTensor,
+    ElasticTensorExpansion,
+    NthOrderElasticTensor,
+    diff_fit,
+    find_eq_stress,
+    generate_pseudo,
+    get_diff_coeff,
+    get_strain_state_dict,
+)
+from pymatgen.analysis.elasticity.strain import Deformation, Strain
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.core.tensors import Tensor
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.units import FloatWithUnit
-from pymatgen import Structure, Lattice
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class ElasticTensorTest(PymatgenTest):
     def setUp(self):
-        self.voigt_1 = [[59.33, 28.08, 28.08, 0, 0, 0],
-                        [28.08, 59.31, 28.07, 0, 0, 0],
-                        [28.08, 28.07, 59.32, 0, 0, 0],
-                        [0, 0, 0, 26.35, 0, 0],
-                        [0, 0, 0, 0, 26.35, 0],
-                        [0, 0, 0, 0, 0, 26.35]]
+        self.voigt_1 = [
+            [59.33, 28.08, 28.08, 0, 0, 0],
+            [28.08, 59.31, 28.07, 0, 0, 0],
+            [28.08, 28.07, 59.32, 0, 0, 0],
+            [0, 0, 0, 26.35, 0, 0],
+            [0, 0, 0, 0, 26.35, 0],
+            [0, 0, 0, 0, 0, 26.35],
+        ]
         mat = np.random.randn(6, 6)
         mat = mat + np.transpose(mat)
         self.rand_elastic_tensor = ElasticTensor.from_voigt(mat)
-        self.ft = np.array([[[[59.33, 0, 0],
-                              [0, 28.08, 0],
-                              [0, 0, 28.08]],
-                             [[0, 26.35, 0],
-                              [26.35, 0, 0],
-                              [0, 0, 0]],
-                             [[0, 0, 26.35],
-                              [0, 0, 0],
-                              [26.35, 0, 0]]],
-                            [[[0, 26.35, 0],
-                              [26.35, 0, 0],
-                              [0, 0, 0]],
-                             [[28.08, 0, 0],
-                              [0, 59.31, 0],
-                              [0, 0, 28.07]],
-                             [[0, 0, 0],
-                              [0, 0, 26.35],
-                              [0, 26.35, 0]]],
-                            [[[0, 0, 26.35],
-                              [0, 0, 0],
-                              [26.35, 0, 0]],
-                             [[0, 0, 0],
-                              [0, 0, 26.35],
-                              [0, 26.35, 0]],
-                             [[28.08, 0, 0],
-                              [0, 28.07, 0],
-                              [0, 0, 59.32]]]])
+        self.ft = np.array(
+            [
+                [
+                    [[59.33, 0, 0], [0, 28.08, 0], [0, 0, 28.08]],
+                    [[0, 26.35, 0], [26.35, 0, 0], [0, 0, 0]],
+                    [[0, 0, 26.35], [0, 0, 0], [26.35, 0, 0]],
+                ],
+                [
+                    [[0, 26.35, 0], [26.35, 0, 0], [0, 0, 0]],
+                    [[28.08, 0, 0], [0, 59.31, 0], [0, 0, 28.07]],
+                    [[0, 0, 0], [0, 0, 26.35], [0, 26.35, 0]],
+                ],
+                [
+                    [[0, 0, 26.35], [0, 0, 0], [26.35, 0, 0]],
+                    [[0, 0, 0], [0, 0, 26.35], [0, 26.35, 0]],
+                    [[28.08, 0, 0], [0, 28.07, 0], [0, 0, 59.32]],
+                ],
+            ]
+        )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = os.path.join(test_dir, 'Sn_def_stress.json')
+        filepath = os.path.join(test_dir, "Sn_def_stress.json")
         with open(filepath) as f:
             self.def_stress_dict = json.load(f)
-        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+        with open(os.path.join(test_dir, "test_toec_data.json")) as f:
             self.toec_dict = json.load(f)
         self.structure = self.get_structure("Sn")
 
@@ -85,17 +85,17 @@ class ElasticTensorTest(PymatgenTest):
         self.assertAlmostEqual(21.36506650986, self.elastic_tensor_1.g_vrh)
 
         # universal anisotropy
-        self.assertAlmostEqual(0.33553509658699,
-                               self.elastic_tensor_1.universal_anisotropy)
+        self.assertAlmostEqual(
+            0.33553509658699, self.elastic_tensor_1.universal_anisotropy
+        )
         # homogeneous poisson
-        self.assertAlmostEqual(0.26579965576472,
-                               self.elastic_tensor_1.homogeneous_poisson)
+        self.assertAlmostEqual(
+            0.26579965576472, self.elastic_tensor_1.homogeneous_poisson
+        )
         # voigt notation tensor
-        self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt,
-                                    self.voigt_1)
+        self.assertArrayAlmostEqual(self.elastic_tensor_1.voigt, self.voigt_1)
         # young's modulus
-        self.assertAlmostEqual(54087787667.160583,
-                               self.elastic_tensor_1.y_mod)
+        self.assertAlmostEqual(54087787667.160583, self.elastic_tensor_1.y_mod)
 
         # prop dict
         prop_dict = self.elastic_tensor_1.property_dict
@@ -104,10 +104,13 @@ class ElasticTensorTest(PymatgenTest):
             self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
 
     def test_directional_elastic_mod(self):
-        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]),
-                               self.elastic_tensor_1.voigt[0, 0])
-        self.assertAlmostEqual(self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]),
-                               73.624444444)
+        self.assertAlmostEqual(
+            self.elastic_tensor_1.directional_elastic_mod([1, 0, 0]),
+            self.elastic_tensor_1.voigt[0, 0],
+        )
+        self.assertAlmostEqual(
+            self.elastic_tensor_1.directional_elastic_mod([1, 1, 1]), 73.624444444
+        )
 
     def test_compliance_tensor(self):
         stress = self.elastic_tensor_1.calculate_stress([0.01] + [0] * 5)
@@ -121,27 +124,35 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_structure_based_methods(self):
         # trans_velocity
-        self.assertAlmostEqual(1996.35019877,
-                               self.elastic_tensor_1.trans_v(self.structure))
+        self.assertAlmostEqual(
+            1996.35019877, self.elastic_tensor_1.trans_v(self.structure)
+        )
         # long_velocity
-        self.assertAlmostEqual(3534.68123832,
-                               self.elastic_tensor_1.long_v(self.structure))
+        self.assertAlmostEqual(
+            3534.68123832, self.elastic_tensor_1.long_v(self.structure)
+        )
         # Snyder properties
-        self.assertAlmostEqual(18.06127074,
-                               self.elastic_tensor_1.snyder_ac(self.structure))
-        self.assertAlmostEqual(0.18937465,
-                               self.elastic_tensor_1.snyder_opt(self.structure))
-        self.assertAlmostEqual(18.25064540,
-                               self.elastic_tensor_1.snyder_total(self.structure))
+        self.assertAlmostEqual(
+            18.06127074, self.elastic_tensor_1.snyder_ac(self.structure)
+        )
+        self.assertAlmostEqual(
+            0.18937465, self.elastic_tensor_1.snyder_opt(self.structure)
+        )
+        self.assertAlmostEqual(
+            18.25064540, self.elastic_tensor_1.snyder_total(self.structure)
+        )
         # Clarke
-        self.assertAlmostEqual(0.3450307,
-                               self.elastic_tensor_1.clarke_thermalcond(self.structure))
+        self.assertAlmostEqual(
+            0.3450307, self.elastic_tensor_1.clarke_thermalcond(self.structure)
+        )
         # Cahill
-        self.assertAlmostEqual(0.37896275,
-                               self.elastic_tensor_1.cahill_thermalcond(self.structure))
+        self.assertAlmostEqual(
+            0.37896275, self.elastic_tensor_1.cahill_thermalcond(self.structure)
+        )
         # Debye
-        self.assertAlmostEqual(198.8037985019,
-                               self.elastic_tensor_1.debye_temperature(self.structure))
+        self.assertAlmostEqual(
+            198.8037985019, self.elastic_tensor_1.debye_temperature(self.structure)
+        )
 
         # structure-property dict
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
@@ -154,13 +165,16 @@ class ElasticTensorTest(PymatgenTest):
             else:
                 f = getattr(self.elastic_tensor_1, k)
                 if callable(f):
-                    self.assertAlmostEqual(getattr(self.elastic_tensor_1, k)(self.structure), v)
+                    self.assertAlmostEqual(
+                        getattr(self.elastic_tensor_1, k)(self.structure), v
+                    )
                 else:
                     self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
 
         # Test other sprop dict modes
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(
-            self.structure, include_base_props=False)
+            self.structure, include_base_props=False
+        )
         self.assertFalse("k_vrh" in sprop_dict)
 
         # Test ValueError being raised for structure properties
@@ -168,16 +182,20 @@ class ElasticTensorTest(PymatgenTest):
         test_et[0][0][0][0] = -100000
         prop_dict = test_et.property_dict
         for attr_name in sprop_dict:
-            if attr_name not in (list(prop_dict.keys()) + ['structure']):
-                self.assertRaises(ValueError, getattr(test_et, attr_name),
-                                  self.structure)
-        self.assertRaises(ValueError, test_et.get_structure_property_dict, self.structure)
-        noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
-        self.assertIsNone(noval_sprop_dict['snyder_ac'])
+            if attr_name not in (list(prop_dict.keys()) + ["structure"]):
+                self.assertRaises(
+                    ValueError, getattr(test_et, attr_name), self.structure
+                )
+        self.assertRaises(
+            ValueError, test_et.get_structure_property_dict, self.structure
+        )
+        noval_sprop_dict = test_et.get_structure_property_dict(
+            self.structure, ignore_errors=True
+        )
+        self.assertIsNone(noval_sprop_dict["snyder_ac"])
 
     def test_new(self):
-        self.assertArrayAlmostEqual(self.elastic_tensor_1,
-                                    ElasticTensor(self.ft))
+        self.assertArrayAlmostEqual(self.elastic_tensor_1, ElasticTensor(self.ft))
         nonsymm = self.ft
         nonsymm[0, 1, 2, 2] += 1.0
         with warnings.catch_warnings(record=True) as w:
@@ -189,19 +207,26 @@ class ElasticTensorTest(PymatgenTest):
         self.assertRaises(ValueError, ElasticTensor, badtensor2)
 
     def test_from_pseudoinverse(self):
-        strain_list = [Strain.from_deformation(def_matrix)
-                       for def_matrix in self.def_stress_dict['deformations']]
-        stress_list = [stress for stress in self.def_stress_dict['stresses']]
+        strain_list = [
+            Strain.from_deformation(def_matrix)
+            for def_matrix in self.def_stress_dict["deformations"]
+        ]
+        stress_list = [stress for stress in self.def_stress_dict["stresses"]]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list,
-                                                            stress_list).voigt
-            self.assertArrayAlmostEqual(et_fl.round(2),
-                                        [[59.29, 24.36, 22.46, 0, 0, 0],
-                                         [28.06, 56.91, 22.46, 0, 0, 0],
-                                         [28.06, 25.98, 54.67, 0, 0, 0],
-                                         [0, 0, 0, 26.35, 0, 0],
-                                         [0, 0, 0, 0, 26.35, 0],
-                                         [0, 0, 0, 0, 0, 26.35]])
+            et_fl = (
+                -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
+            )
+            self.assertArrayAlmostEqual(
+                et_fl.round(2),
+                [
+                    [59.29, 24.36, 22.46, 0, 0, 0],
+                    [28.06, 56.91, 22.46, 0, 0, 0],
+                    [28.06, 25.98, 54.67, 0, 0, 0],
+                    [0, 0, 0, 26.35, 0, 0],
+                    [0, 0, 0, 0, 26.35, 0],
+                    [0, 0, 0, 0, 0, 26.35],
+                ],
+            )
 
     def test_from_independent_strains(self):
         strains = self.toec_dict["strains"]
@@ -212,46 +237,62 @@ class ElasticTensorTest(PymatgenTest):
 
     def test_energy_density(self):
 
-        film_elac = ElasticTensor.from_voigt([
-            [324.32, 187.3, 170.92, 0., 0., 0.],
-            [187.3, 324.32, 170.92, 0., 0., 0.],
-            [170.92, 170.92, 408.41, 0., 0., 0.],
-            [0., 0., 0., 150.73, 0., 0.],
-            [0., 0., 0., 0., 150.73, 0.],
-            [0., 0., 0., 0., 0., 238.74]])
+        film_elac = ElasticTensor.from_voigt(
+            [
+                [324.32, 187.3, 170.92, 0.0, 0.0, 0.0],
+                [187.3, 324.32, 170.92, 0.0, 0.0, 0.0],
+                [170.92, 170.92, 408.41, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 150.73, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 150.73, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 238.74],
+            ]
+        )
 
-        dfm = Deformation([[-9.86004855e-01, 2.27539582e-01, -4.64426035e-17],
-                           [-2.47802121e-01, -9.91208483e-01, -7.58675185e-17],
-                           [-6.12323400e-17, -6.12323400e-17, 1.00000000e+00]])
+        dfm = Deformation(
+            [
+                [-9.86004855e-01, 2.27539582e-01, -4.64426035e-17],
+                [-2.47802121e-01, -9.91208483e-01, -7.58675185e-17],
+                [-6.12323400e-17, -6.12323400e-17, 1.00000000e00],
+            ]
+        )
 
-        self.assertAlmostEqual(film_elac.energy_density(dfm.green_lagrange_strain),
-                               0.00125664672793)
+        self.assertAlmostEqual(
+            film_elac.energy_density(dfm.green_lagrange_strain), 0.00125664672793
+        )
 
-        film_elac.energy_density(Strain.from_deformation([[0.99774738, 0.11520994, -0.],
-                                                          [-0.11520994, 0.99774738, 0.],
-                                                          [-0., -0., 1., ]]))
+        film_elac.energy_density(
+            Strain.from_deformation(
+                [
+                    [0.99774738, 0.11520994, -0.0],
+                    [-0.11520994, 0.99774738, 0.0],
+                    [-0.0, -0.0, 1.0,],
+                ]
+            )
+        )
 
 
 class ElasticTensorExpansionTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+        with open(os.path.join(test_dir, "test_toec_data.json")) as f:
             self.data_dict = json.load(f)
-        self.strains = [Strain(sm) for sm in self.data_dict['strains']]
-        self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
+        self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
+        self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = self.data_dict["C2_raw"]
         self.c3 = self.data_dict["C3_raw"]
         self.exp = ElasticTensorExpansion.from_voigt([self.c2, self.c3])
-        self.cu = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.623),
-                                            ["Cu"], [[0] * 3])
+        self.cu = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(3.623), ["Cu"], [[0] * 3]
+        )
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [167.8, 113.5, 74.5]
-        cu_c2 = ElasticTensor.from_values_indices(values, indices, structure=self.cu,
-                                                  populate=True)
-        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
-                   (0, 3, 3), (0, 5, 5), (3, 4, 5)]
-        values = [-1507., -965., -71., -7., -901., 45.]
-        cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu,
-                                           populate=True)
+        cu_c2 = ElasticTensor.from_values_indices(
+            values, indices, structure=self.cu, populate=True
+        )
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), (0, 3, 3), (0, 5, 5), (3, 4, 5)]
+        values = [-1507.0, -965.0, -71.0, -7.0, -901.0, 45.0]
+        cu_c3 = Tensor.from_values_indices(
+            values, indices, structure=self.cu, populate=True
+        )
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
         self.exp_cu_4 = ElasticTensorExpansion([cu_c2, cu_c3, cu_c4])
@@ -282,7 +323,8 @@ class ElasticTensorExpansionTest(PymatgenTest):
         # Get GGT
         ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
         self.assertArrayAlmostEqual(
-            np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]), ggt)
+            np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]), ggt
+        )
         # Get TGT
         tgt = self.exp_cu.get_tgt()
         self.assertArrayAlmostEqual(tgt, np.eye(3) * 2.59631832)
@@ -300,10 +342,10 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
     def test_thermal_expansion_coeff(self):
         # TODO get rid of duplicates
-        alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300,
-                                                       mode="dulong-petit")
-        alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300,
-                                                          mode="debye")
+        alpha_dp = self.exp_cu.thermal_expansion_coeff(
+            self.cu, 300, mode="dulong-petit"
+        )
+        alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, mode="debye")
         alpha_comp = 5.9435148e-7 * np.ones((3, 3))
         alpha_comp[np.diag_indices(3)] = 21.4533472e-06
         self.assertArrayAlmostEqual(alpha_comp, alpha_debye)
@@ -342,10 +384,10 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
 class NthOrderElasticTensorTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+        with open(os.path.join(test_dir, "test_toec_data.json")) as f:
             self.data_dict = json.load(f)
-        self.strains = [Strain(sm) for sm in self.data_dict['strains']]
-        self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
+        self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
+        self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
         self.c2 = NthOrderElasticTensor.from_voigt(self.data_dict["C2_raw"])
         self.c3 = NthOrderElasticTensor.from_voigt(self.data_dict["C3_raw"])
 
@@ -358,9 +400,12 @@ class NthOrderElasticTensorTest(PymatgenTest):
         self.assertRaises(ValueError, NthOrderElasticTensor, np.zeros([3] * 5))
 
     def test_from_diff_fit(self):
-        c3 = NthOrderElasticTensor.from_diff_fit(self.strains, self.pk_stresses,
-                                                 eq_stress=self.data_dict["eq_stress"],
-                                                 order=3)
+        c3 = NthOrderElasticTensor.from_diff_fit(
+            self.strains,
+            self.pk_stresses,
+            eq_stress=self.data_dict["eq_stress"],
+            order=3,
+        )
         self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=2)
 
     def test_calculate_stress(self):
@@ -379,10 +424,10 @@ class DiffFitTest(PymatgenTest):
     """
 
     def setUp(self):
-        with open(os.path.join(test_dir, 'test_toec_data.json')) as f:
+        with open(os.path.join(test_dir, "test_toec_data.json")) as f:
             self.data_dict = json.load(f)
-        self.strains = [Strain(sm) for sm in self.data_dict['strains']]
-        self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
+        self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
+        self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
 
     def test_get_strain_state_dict(self):
         strain_inds = [(0,), (1,), (2,), (1, 3), (1, 2, 3)]
@@ -397,11 +442,13 @@ class DiffFitTest(PymatgenTest):
             for i in strain_ind:
                 vec[:, i] = rand_values
             vecs[strain_ind] = vec
-        all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values()
-                       for v in vec]
+        all_strains = [
+            Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec
+        ]
         random.shuffle(all_strains)
-        all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed()
-                        for s in all_strains]
+        all_stresses = [
+            Stress.from_voigt(np.random.random(6)).zeroed() for s in all_strains
+        ]
         strain_dict = {k.tostring(): v for k, v in zip(all_strains, all_stresses)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
@@ -411,8 +458,10 @@ class DiffFitTest(PymatgenTest):
         for strain_state, data in ss_dict.items():
             # Check correspondence of strains/stresses
             for strain, stress in zip(data["strains"], data["stresses"]):
-                self.assertArrayAlmostEqual(Stress.from_voigt(stress),
-                                            strain_dict[Strain.from_voigt(strain).tostring()])
+                self.assertArrayAlmostEqual(
+                    Stress.from_voigt(stress),
+                    strain_dict[Strain.from_voigt(strain).tostring()],
+                )
         # Add test to ensure zero strain state doesn't cause issue
         strains, stresses = [Strain.from_voigt([-0.01] + [0] * 5)], [Stress(np.eye(3))]
         ss_dict = get_strain_state_dict(strains, stresses)
@@ -434,9 +483,19 @@ class DiffFitTest(PymatgenTest):
         backward_26 = get_diff_coeff(np.arange(-6, 1), 2)
         central_29 = get_diff_coeff(np.arange(-4, 5), 2)
         self.assertArrayAlmostEqual(forward_11, [-1, 1])
-        self.assertArrayAlmostEqual(forward_13, [-11. / 6, 3, -3. / 2, 1. / 3])
-        self.assertArrayAlmostEqual(backward_26, [137. / 180, -27. / 5, 33. / 2, -254. / 9,
-                                                  117. / 4, -87. / 5, 203. / 45])
+        self.assertArrayAlmostEqual(forward_13, [-11.0 / 6, 3, -3.0 / 2, 1.0 / 3])
+        self.assertArrayAlmostEqual(
+            backward_26,
+            [
+                137.0 / 180,
+                -27.0 / 5,
+                33.0 / 2,
+                -254.0 / 9,
+                117.0 / 4,
+                -87.0 / 5,
+                203.0 / 45,
+            ],
+        )
         self.assertArrayAlmostEqual(central_29, central_diff_weights(9, 2))
 
     def test_generate_pseudo(self):
@@ -446,29 +505,32 @@ class DiffFitTest(PymatgenTest):
         m4, abs = generate_pseudo(strain_states, order=4)
 
     def test_fit(self):
-        cdf = diff_fit(self.strains, self.pk_stresses,
-                       self.data_dict["eq_stress"])
-        reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses)
-                   if not (abs(abs(e) - 0.05) < 1e-10).any()]
+        cdf = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])
+        reduced = [
+            (e, pk)
+            for e, pk in zip(self.strains, self.pk_stresses)
+            if not (abs(abs(e) - 0.05) < 1e-10).any()
+        ]
         # Get reduced dataset
         r_strains, r_pk_stresses = zip(*reduced)
         with warnings.catch_warnings(record=True):
-            c2 = diff_fit(r_strains, r_pk_stresses,
-                          self.data_dict["eq_stress"], order=2)
-            c2, c3, c4 = diff_fit(r_strains, r_pk_stresses,
-                                  self.data_dict["eq_stress"],
-                                  order=4)
-            c2, c3 = diff_fit(self.strains, self.pk_stresses,
-                              self.data_dict["eq_stress"], order=3)
-            c2_red, c3_red = diff_fit(r_strains, r_pk_stresses,
-                                      self.data_dict["eq_stress"],
-                                      order=3)
+            c2 = diff_fit(
+                r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2
+            )
+            c2, c3, c4 = diff_fit(
+                r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4
+            )
+            c2, c3 = diff_fit(
+                self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3
+            )
+            c2_red, c3_red = diff_fit(
+                r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=3
+            )
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
-            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"],
-                                        decimal=5)
+            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=5)
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

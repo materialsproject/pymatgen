@@ -7,8 +7,9 @@ Modules for working with wannier90 input and output.
 """
 
 from typing import Sequence
+
 import numpy as np
-from scipy.io import FortranFile, FortranEOFError
+from scipy.io import FortranEOFError, FortranFile
 
 __author__ = "Mark Turiansky"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -47,6 +48,7 @@ class Unk:
         given data. The definition is ng = (ngx, ngy, ngz).
 
     """
+
     ik: int
     is_noncollinear: bool
     nbnd: int
@@ -85,16 +87,20 @@ class Unk:
         """
         temp_val = np.array(value, dtype=np.complex128)
         if len(temp_val.shape) not in [4, 5]:
-            raise ValueError('invalid data shape, must be (nbnd, ngx, ngy, ngz'
-                             ') or (nbnd, 2, ngx, ngy, ngz) for noncollinear '
-                             f'data, given {temp_val.shape}')
+            raise ValueError(
+                "invalid data shape, must be (nbnd, ngx, ngy, ngz"
+                ") or (nbnd, 2, ngx, ngy, ngz) for noncollinear "
+                f"data, given {temp_val.shape}"
+            )
         if len(temp_val.shape) == 5 and temp_val.shape[1] != 2:
-            raise ValueError('invalid noncollinear data, shape should be (nbnd'
-                             f', 2, ngx, ngy, ngz), given {temp_val.shape}')
+            raise ValueError(
+                "invalid noncollinear data, shape should be (nbnd"
+                f", 2, ngx, ngy, ngz), given {temp_val.shape}"
+            )
         self._data = temp_val
 
         # derived properties
-        self.is_noncollinear = (len(self.data.shape) == 5)
+        self.is_noncollinear = len(self.data.shape) == 5
         self.nbnd = self.data.shape[0]
         self.ng = self.data.shape[-3:]
 
@@ -110,17 +116,17 @@ class Unk:
             Unk object
         """
         input_data = []
-        with FortranFile(filename, 'r') as f:
+        with FortranFile(filename, "r") as f:
             *ng, ik, nbnd = f.read_ints()
             for _ in range(nbnd):
                 input_data.append(
                     # when reshaping need to specify ordering as fortran
-                    f.read_record(np.complex128).reshape(ng, order='F')
+                    f.read_record(np.complex128).reshape(ng, order="F")
                 )
             try:
                 for _ in range(nbnd):
                     input_data.append(
-                        f.read_record(np.complex128).reshape(ng, order='F')
+                        f.read_record(np.complex128).reshape(ng, order="F")
                     )
                 is_noncollinear = True
             except FortranEOFError:
@@ -146,20 +152,20 @@ class Unk:
                 form 'UNKXXXXX.YY' where XXXXX is the kpoint index (Unk.ik) and
                 YY is 1 or 2 for the spin index or NC if noncollinear
         """
-        with FortranFile(filename, 'w') as f:
-            f.write_record(
-                np.array([*self.ng, self.ik, self.nbnd], dtype=np.int32)
-            )
+        with FortranFile(filename, "w") as f:
+            f.write_record(np.array([*self.ng, self.ik, self.nbnd], dtype=np.int32))
             for ib in range(self.nbnd):
                 if self.is_noncollinear:
-                    f.write_record(self.data[ib, 0].flatten('F'))
-                    f.write_record(self.data[ib, 1].flatten('F'))
+                    f.write_record(self.data[ib, 0].flatten("F"))
+                    f.write_record(self.data[ib, 1].flatten("F"))
                 else:
-                    f.write_record(self.data[ib].flatten('F'))
+                    f.write_record(self.data[ib].flatten("F"))
 
     def __repr__(self) -> str:
-        return f'<UNK ik={self.ik} nbnd={self.nbnd} ncl={self.is_noncollinear}' \
-            + f' ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>'
+        return (
+            f"<UNK ik={self.ik} nbnd={self.nbnd} ncl={self.is_noncollinear}"
+            + f" ngx={self.ng[0]} ngy={self.ng[1]} ngz={self.ng[2]}>"
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Unk):
@@ -179,8 +185,10 @@ class Unk:
 
         for ib in range(self.nbnd):
             if self.is_noncollinear:
-                if not (np.allclose(self.data[ib, 0], other.data[ib, 0], atol=1e-4)
-                        and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)):
+                if not (
+                    np.allclose(self.data[ib, 0], other.data[ib, 0], atol=1e-4)
+                    and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)
+                ):
                     return False
             else:
                 if not np.allclose(self.data[ib], other.data[ib], atol=1e-4):

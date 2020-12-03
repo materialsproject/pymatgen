@@ -1,14 +1,20 @@
-import unittest
-
 import os
-import ruamel.yaml as yaml
-from pymatgen import SETTINGS_FILE, _load_pmg_settings, get_structure_from_mp, \
-    SETTINGS, loadfn
-from pymatgen import Structure
-from pymatgen.io.vasp import Vasprun
+import unittest
 import warnings
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", 'test_files')
+import ruamel.yaml as yaml
+
+from pymatgen import (
+    SETTINGS,
+    SETTINGS_FILE,
+    Structure,
+    _load_pmg_settings,
+    get_structure_from_mp,
+    loadfn,
+)
+from pymatgen.io.vasp import Vasprun
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "test_files")
 
 
 class SettingsTestCase(unittest.TestCase):
@@ -24,8 +30,9 @@ class SettingsTestCase(unittest.TestCase):
     #         for k, v in SETTINGS.items():
     #             self.assertEqual(v, os.environ.get(k))
 
-    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
-                     "PMG_MAPI_KEY environment variable not set.")
+    @unittest.skipIf(
+        not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
+    )
     def test_get_structure_from_mp(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -45,5 +52,5 @@ class SettingsTestCase(unittest.TestCase):
             self.assertIsInstance(obj, Vasprun)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

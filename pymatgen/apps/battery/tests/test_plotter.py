@@ -3,22 +3,20 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import json
 import os
+import unittest
 
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.apps.battery.insertion_battery import InsertionElectrode
+from pymatgen import Composition, MontyDecoder
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode
-from pymatgen import MontyDecoder, Composition
+from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
+from pymatgen.entries.computed_entries import ComputedEntry
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class VoltageProfilePlotterTest(unittest.TestCase):
-
     def testName(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
@@ -26,11 +24,11 @@ class VoltageProfilePlotterTest(unittest.TestCase):
             entries_LTO = json.load(f, cls=MontyDecoder)
             ie_LTO = InsertionElectrode(entries_LTO, entry_Li)
 
-        with open(os.path.join(test_dir, "FeF3_batt.json"), 'r') as fid:
+        with open(os.path.join(test_dir, "FeF3_batt.json"), "r") as fid:
             entries = json.load(fid, cls=MontyDecoder)
             ce_FF = ConversionElectrode.from_composition_and_entries(
-                Composition("FeF3"),
-                entries)
+                Composition("FeF3"), entries
+            )
 
         plotter = VoltageProfilePlotter(xaxis="frac_x")
         plotter.add_electrode(ie_LTO, "LTO insertion")

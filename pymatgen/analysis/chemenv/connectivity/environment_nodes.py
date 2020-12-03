@@ -1,6 +1,7 @@
-__author__ = 'waroquiers'
+__author__ = "waroquiers"
 
 import abc
+
 from monty.json import MSONable
 
 
@@ -15,7 +16,9 @@ class AbstractEnvironmentNode(MSONable):
     NEIGHBORING_COORDINATION_ENVIRONMENTS = 2
     NEIGHBORING_CES = NEIGHBORING_COORDINATION_ENVIRONMENTS
     NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT = 3
-    NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE = NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT
+    NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE = (
+        NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT
+    )
     LIGANDS_ARRANGEMENT = 4
     NEIGHBORS_LIGANDS_ARRANGEMENT = 5
     ATOM = 6
@@ -149,7 +152,9 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return 'Node #{:d} {} ({})'.format(self.isite, self.atom_symbol, self.coordination_environment)
+        return "Node #{:d} {} ({})".format(
+            self.isite, self.atom_symbol, self.coordination_environment
+        )
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
@@ -175,8 +180,10 @@ class EnvironmentNode(AbstractEnvironmentNode):
         return self._ce_symbol
 
     def everything_equal(self, other):
-        return (super().everything_equal(other) and
-                self.coordination_environment == other.coordination_environment)
+        return (
+            super().everything_equal(other)
+            and self.coordination_environment == other.coordination_environment
+        )
 
 
 # Keep these as they might come in handy later on if we decide to implement specific descriptors
@@ -220,4 +227,6 @@ def get_environment_node(central_site, i_central_site, ce_symbol):
     Returns:
         An EnvironmentNode object.
     """
-    return EnvironmentNode(central_site=central_site, i_central_site=i_central_site, ce_symbol=ce_symbol)
+    return EnvironmentNode(
+        central_site=central_site, i_central_site=i_central_site, ce_symbol=ce_symbol
+    )

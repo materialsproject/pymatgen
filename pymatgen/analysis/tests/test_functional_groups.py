@@ -3,21 +3,23 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 import warnings
-from pymatgen.core.structure import Molecule
+
+from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
-from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
+from pymatgen.core.structure import Molecule
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files", "functional_groups")
+test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "test_files", "functional_groups"
+)
 
 try:
+    import networkx as nx
     from openbabel import openbabel as ob
     from openbabel import pybel as pb
-    import networkx as nx
 except ImportError:
     pb = None
     ob = None
@@ -32,9 +34,10 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-@unittest.skipIf(not (pb and ob and nx), "OpenBabel or NetworkX not present. Skipping...")
+@unittest.skipIf(
+    not (pb and ob and nx), "OpenBabel or NetworkX not present. Skipping..."
+)
 class FunctionalGroupExtractorTest(unittest.TestCase):
-
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -115,7 +118,9 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         self.assertEqual(len(basics), 1)
         self.assertEqual(len(basics[0]), 4)
 
-        basics_no_methyl = self.extractor.get_basic_functional_groups(func_groups=["phenyl"])
+        basics_no_methyl = self.extractor.get_basic_functional_groups(
+            func_groups=["phenyl"]
+        )
         self.assertEqual(len(basics_no_methyl), 0)
 
     def test_get_all_functional_groups(self):

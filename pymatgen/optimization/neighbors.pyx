@@ -6,10 +6,12 @@
 # cython: language_level=3
 # distutils: language = c
 from __future__ import print_function
+
 import numpy as np
+
 cimport numpy as np
-from libc.math cimport pi, sqrt, ceil, floor
-from libc.stdlib cimport malloc, free, realloc
+from libc.math cimport ceil, floor, pi, sqrt
+from libc.stdlib cimport free, malloc, realloc
 from libc.string cimport memset
 
 

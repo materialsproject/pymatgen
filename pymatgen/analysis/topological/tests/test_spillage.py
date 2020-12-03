@@ -1,8 +1,9 @@
-from pymatgen.util.testing import PymatgenTest
-import unittest
 import os
+import unittest
 import warnings
+
 from pymatgen.analysis.topological.spillage import SOCSpillage
+from pymatgen.util.testing import PymatgenTest
 
 
 class SolarTest(PymatgenTest):
