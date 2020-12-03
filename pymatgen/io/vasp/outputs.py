@@ -820,13 +820,12 @@ class Vasprun(MSONable):
             data=data,
         )
 
-    def get_band_structure(
-        self,
-        kpoints_filename: Optional[str] = None,
-        efermi: Optional[Union[float, str]] = None,
-        line_mode: bool = False,
-        force_hybrid_mode: bool = False
-    ):
+    def get_band_structure(self,
+                           kpoints_filename: Optional[str] = None,
+                           efermi: Optional[Union[float, str]] = None,
+                           line_mode: bool = False,
+                           force_hybrid_mode: bool = False
+                           ):
         """
         Returns the band structure as a BandStructure object
 
@@ -1493,13 +1492,11 @@ class BSVasprun(Vasprun):
     etc. are ignored.
     """
 
-    def __init__(
-        self,
-        filename: str,
-        parse_projected_eigen: Union[bool, str] = False,
-        parse_potcar_file: Union[bool, str] = False,
-        occu_tol: float = 1e-8
-    ):
+    def __init__(self,
+                 filename: str,
+                 parse_projected_eigen: Union[bool, str] = False,
+                 parse_potcar_file: Union[bool, str] = False,
+                 occu_tol: float = 1e-8):
         """
         Args:
             filename: Filename to parse
