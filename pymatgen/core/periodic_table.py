@@ -10,14 +10,14 @@ import warnings
 from collections import Counter
 from enum import Enum
 from io import open
-from itertools import product, combinations
+from itertools import combinations, product
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core.units import Mass, Length, FloatWithUnit, Unit, SUPPORTED_UNIT_NAMES
+from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
 from pymatgen.util.string import formula_double_format
 
 # Loads element data from json file

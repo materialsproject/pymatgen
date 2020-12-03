@@ -6,9 +6,11 @@
 """
 This module provides classes for the Piezoelectric tensor
 """
-from pymatgen.core.tensors import Tensor
-import numpy as np
 import warnings
+
+import numpy as np
+
+from pymatgen.core.tensors import Tensor
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -38,8 +40,7 @@ class PiezoTensor(Tensor):
         """
         obj = super().__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
-            warnings.warn("Input piezo tensor does "
-                          "not satisfy standard symmetries")
+            warnings.warn("Input piezo tensor does " "not satisfy standard symmetries")
         return obj.view(cls)
 
     @classmethod

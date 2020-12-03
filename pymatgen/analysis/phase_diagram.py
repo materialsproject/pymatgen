@@ -17,12 +17,13 @@ from functools import lru_cache
 
 import numpy as np
 import plotly.graph_objs as go
-from monty.json import MSONable, MontyDecoder
+from monty.json import MontyDecoder, MSONable
 from scipy.optimize import minimize
 from scipy.spatial import ConvexHull
+
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, DummySpecies, get_el_sp
+from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
@@ -2018,8 +2019,8 @@ class PDPlotter:
                 for x, y in lines:
                     plt.plot(x, y, "ko-", **self.plotkwargs)
         else:
-            from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
+            from matplotlib.colors import LinearSegmentedColormap, Normalize
 
             for x, y in lines:
                 plt.plot(x, y, "k-", markeredgecolor="k")
@@ -2207,9 +2208,7 @@ class PDPlotter:
 
         fig = plt.figure()
         ax = p3.Axes3D(fig)
-        font = FontProperties()
-        font.set_weight("bold")
-        font.set_size(20)
+        font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
         newlabels = list()
@@ -2229,13 +2228,16 @@ class PDPlotter:
             label = entry.name
             if label_stable:
                 if len(entry.composition.elements) == 1:
-                    ax.text(coords[0], coords[1], coords[2], label)
+                    ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
-                    ax.text(coords[0], coords[1], coords[2], str(count))
+                    ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)
                     newlabels.append("{} : {}".format(count, latexify(label)))
                     count += 1
-        plt.figtext(0.01, 0.01, "\n".join(newlabels))
+        plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
+        ax.set_xlim(-0.1, 0.72)
+        ax.set_ylim(0, 0.66)
+        ax.set_zlim(0, 0.56)
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
@@ -2386,8 +2388,8 @@ class PDPlotter:
         Returns:
             A matplotlib plot object.
         """
-        from scipy import interpolate
         from matplotlib import cm
+        from scipy import interpolate
 
         pd = self._pd
         entries = pd.qhull_entries

@@ -13,12 +13,12 @@ import operator
 from collections import defaultdict
 from copy import deepcopy
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from monty.dev import requires
 from monty.json import MSONable
 from numpy.linalg import norm
-from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 

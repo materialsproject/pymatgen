@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.apps.borg.queen module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.apps.borg.queen module &mdash; pymatgen 2020.11.11 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.cli package" href="pymatgen.cli.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +72,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.11.11
               </div>
             
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -210,7 +213,7 @@
 data using Python’s multiprocessing.</p>
 <dl class="py class">
 <dt id="pymatgen.apps.borg.queen.BorgQueen">
-<em class="property">class </em><code class="sig-name descname">BorgQueen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">drone</span></em>, <em class="sig-param"><span class="n">rootpath</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">number_of_drones</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L22-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BorgQueen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">drone</span></em>, <em class="sig-param"><span class="n">rootpath</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">number_of_drones</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L22-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The Borg Queen controls the drones to assimilate data in an entire
 directory tree. Uses multiprocessing to speed up things considerably. It
@@ -235,25 +238,25 @@ the speedup will be even greater.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.apps.borg.queen.BorgQueen.get_data">
-<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L96-L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.get_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L96-L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an list of assimilated objects</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.apps.borg.queen.BorgQueen.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L114-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.load_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L114-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.load_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load assimilated data from a file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.apps.borg.queen.BorgQueen.parallel_assimilate">
-<code class="sig-name descname">parallel_assimilate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rootpath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L55-L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.parallel_assimilate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parallel_assimilate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rootpath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L55-L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.parallel_assimilate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assimilate the entire subdirectory structure in rootpath.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.apps.borg.queen.BorgQueen.save_data">
-<code class="sig-name descname">save_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L102-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.save_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L102-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.save_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the assimilated data to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -266,7 +269,7 @@ or bz2 compression will be applied.</p>
 
 <dl class="py method">
 <dt id="pymatgen.apps.borg.queen.BorgQueen.serial_assimilate">
-<code class="sig-name descname">serial_assimilate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rootpath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L76-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.serial_assimilate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">serial_assimilate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rootpath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L76-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.BorgQueen.serial_assimilate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assimilate the entire subdirectory structure in rootpath serially.</p>
 </dd></dl>
 
@@ -274,7 +277,7 @@ or bz2 compression will be applied.</p>
 
 <dl class="py function">
 <dt id="pymatgen.apps.borg.queen.order_assimilation">
-<code class="sig-name descname">order_assimilation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/apps/borg/queen.py#L122-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.order_assimilation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">order_assimilation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.11.11/pymatgen/apps/borg/queen.py#L122-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.queen.order_assimilation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Internal helper method for BorgQueen to process assimilation</p>
 </dd></dl>
 
@@ -291,11 +294,19 @@ or bz2 compression will be applied.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -306,7 +317,6 @@ or bz2 compression will be applied.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

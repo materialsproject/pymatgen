@@ -1,15 +1,15 @@
-
-from pymatgen.io.adf import AdfKey, AdfTask, AdfOutput, AdfInput
-from pymatgen.core.structure import Molecule
-
-import unittest
 import os
+import unittest
 from os.path import join
 
-__author__ = 'Xin Chen, chenxin13@mails.tsinghua.edu.cn'
+from pymatgen.core.structure import Molecule
+from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', 'molecules')
+__author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
+
+test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "test_files", "molecules"
+)
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -94,10 +94,9 @@ def readfile(file_object):
 
 
 class AdfKeyTest(unittest.TestCase):
-
     def test_simple(self):
         unrestricted = AdfKey("unrestricted")
-        self.assertEqual(str(unrestricted).strip(), 'UNRESTRICTED')
+        self.assertEqual(str(unrestricted).strip(), "UNRESTRICTED")
 
     def test_options(self):
         charge = AdfKey("charge", [-1, 0])
@@ -111,10 +110,13 @@ class AdfKeyTest(unittest.TestCase):
         iterations = AdfKey("iterations", [250])
         step = AdfKey("step", [("rad", 0.15), ("angle", 10.0)])
         hessupd = AdfKey("hessupd", ["BFGS"])
-        converge = AdfKey("converge", [("e", 1.0e-3), ("grad", 3.0e-4),
-                                       ("rad", 1.0e-2), ("angle", 0.5)])
-        geo = AdfKey("geometry", subkeys=[smooth, optim, iterations, step,
-                                          hessupd, converge])
+        converge = AdfKey(
+            "converge",
+            [("e", 1.0e-3), ("grad", 3.0e-4), ("rad", 1.0e-2), ("angle", 0.5)],
+        )
+        geo = AdfKey(
+            "geometry", subkeys=[smooth, optim, iterations, step, hessupd, converge]
+        )
         self.assertEqual(str(geo), geometry_string)
         self.assertEqual(str(AdfKey.from_dict(geo.as_dict())), geometry_string)
         self.assertTrue(geo.has_subkey("optim"))
@@ -124,9 +126,9 @@ class AdfKeyTest(unittest.TestCase):
         self.assertEqual(str(geo), "GEOMETRY\nEND\n")
 
     def test_subkeys_subkeys(self):
-        atom_dep_quality = AdfKey("AtomDepQuality",
-                                  subkeys=[AdfKey("10", ["good"]),
-                                           AdfKey("12", ["normal"])])
+        atom_dep_quality = AdfKey(
+            "AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])]
+        )
         zlmfit = AdfKey("zlmfit", subkeys=[atom_dep_quality])
         self.assertEqual(str(zlmfit), zlmfit_string)
         self.assertEqual(str(AdfKey.from_dict(zlmfit.as_dict())), zlmfit_string)
@@ -138,8 +140,8 @@ class AdfKeyTest(unittest.TestCase):
 
         k2 = AdfKey.from_string("step rad=0.15 angle=10.0")
         self.assertEqual(k2.key, "step")
-        self.assertListEqual(k2.options[0], ['rad', 0.15])
-        self.assertListEqual(k2.options[1], ['angle', 10.0])
+        self.assertListEqual(k2.options[0], ["rad", 0.15])
+        self.assertListEqual(k2.options[1], ["angle", 10.0])
 
         k3 = AdfKey.from_string("GEOMETRY\noptim all\niterations 100\nEND\n")
         self.assertEqual(k3.key, "GEOMETRY")
@@ -157,7 +159,7 @@ class AdfKeyTest(unittest.TestCase):
         self.assertEqual(k4.key, "SCF")
         self.assertEqual(k4.subkeys[0].key, "iterations")
         self.assertEqual(k4.subkeys[1].key, "converge")
-        self.assertEqual(k4.subkeys[1].options[0], 1E-7)
+        self.assertEqual(k4.subkeys[1].options[0], 1e-7)
         self.assertEqual(k4.subkeys[2].options[0], 0.2)
 
     def test_option_operations(self):
@@ -208,7 +210,6 @@ END
 
 
 class AdfTaskTest(unittest.TestCase):
-
     def test_energy(self):
         task = AdfTask()
         self.assertEqual(str(task), energy_task)
@@ -225,32 +226,37 @@ class AdfTaskTest(unittest.TestCase):
         self.assertEqual(str(task), str(o))
 
 
-rhb18 = {"title": "RhB18",
-         "basis_set": AdfKey.from_string("BASIS\ntype TZP\ncore small\nEND"),
-         "xc": AdfKey.from_string("XC\nHybrid PBE0\nEND"),
-         "units": AdfKey.from_string("UNITS\nlength angstrom\nEND"),
-         "other_directives": [AdfKey.from_string("SYMMETRY"),
-                              AdfKey.from_string("RELATIVISTIC scalar zora"),
-                              AdfKey.from_string("INTEGRATION 6.0 6.0 6.0"),
-                              AdfKey.from_string("SAVE TAPE21"),
-                              AdfKey.from_string("A1FIT 10.0")],
-         "geo_subkeys": [AdfKey.from_string("optim all"),
-                         AdfKey.from_string("iterations 300"),
-                         AdfKey.from_string("step rad=0.15 angle=10.0"),
-                         AdfKey.from_string("hessupd BFGS")],
-         "scf": AdfKey.from_string(
-             """SCF
+rhb18 = {
+    "title": "RhB18",
+    "basis_set": AdfKey.from_string("BASIS\ntype TZP\ncore small\nEND"),
+    "xc": AdfKey.from_string("XC\nHybrid PBE0\nEND"),
+    "units": AdfKey.from_string("UNITS\nlength angstrom\nEND"),
+    "other_directives": [
+        AdfKey.from_string("SYMMETRY"),
+        AdfKey.from_string("RELATIVISTIC scalar zora"),
+        AdfKey.from_string("INTEGRATION 6.0 6.0 6.0"),
+        AdfKey.from_string("SAVE TAPE21"),
+        AdfKey.from_string("A1FIT 10.0"),
+    ],
+    "geo_subkeys": [
+        AdfKey.from_string("optim all"),
+        AdfKey.from_string("iterations 300"),
+        AdfKey.from_string("step rad=0.15 angle=10.0"),
+        AdfKey.from_string("hessupd BFGS"),
+    ],
+    "scf": AdfKey.from_string(
+        """SCF
              iterations 300
              converge 1.0e-7 1.0e-7
              mixing 0.2
              lshift 0.0
              diis n=100 ok=0.0001 cyc=100 cx=5.0 cxx=10.0
              END"""
-         )}
+    ),
+}
 
 
 class AdfInputTest(unittest.TestCase):
-
     def setUp(self):
         self.tempfile = "./adf.temp"
 
@@ -269,7 +275,6 @@ class AdfInputTest(unittest.TestCase):
 
 
 class AdfOutputTest(unittest.TestCase):
-
     def test_analytical_freq(self):
         filename = join(test_dir, "adf", "analytical_freq", "adf.out")
         o = AdfOutput(filename)
@@ -286,7 +291,7 @@ class AdfOutputTest(unittest.TestCase):
     def test_numerical_freq(self):
         filename = join(test_dir, "adf", "numerical_freq", "adf.out")
         o = AdfOutput(filename)
-        self.assertEqual(o.freq_type, 'Numerical')
+        self.assertEqual(o.freq_type, "Numerical")
         self.assertEqual(o.final_structure.num_sites, 4)
         self.assertEqual(len(o.frequencies), 6)
         self.assertEqual(len(o.normal_modes), 6)

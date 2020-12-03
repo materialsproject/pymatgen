@@ -8,9 +8,8 @@ x y value pairs.
 """
 
 import numpy as np
-from scipy.ndimage.filters import gaussian_filter1d
-
 from monty.json import MSONable
+from scipy.ndimage.filters import gaussian_filter1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 
@@ -27,6 +26,7 @@ class Spectrum(MSONable):
     ALL args and kwargs. That ensures subsequent things like add and mult work
     properly.
     """
+
     XLABEL = "x"
     YLABEL = "y"
 
@@ -91,9 +91,12 @@ class Spectrum(MSONable):
         if len(self.ydim) == 1:
             self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
         else:
-            self.y = np.array([
-                gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
-                for k in range(self.ydim[1])]).T
+            self.y = np.array(
+                [
+                    gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
+                    for k in range(self.ydim[1])
+                ]
+            ).T
 
     def get_interpolated_value(self, x):
         """
@@ -107,8 +110,10 @@ class Spectrum(MSONable):
         """
         if len(self.ydim) == 1:
             return get_linear_interpolated_value(self.x, self.y, x)
-        return [get_linear_interpolated_value(self.x, self.y[:, k], x)
-                for k in range(self.ydim[1])]
+        return [
+            get_linear_interpolated_value(self.x, self.y[:, k], x)
+            for k in range(self.ydim[1])
+        ]
 
     def copy(self):
         """
@@ -130,8 +135,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y + other.y, *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, self.y + other.y, *self._args, **self._kwargs)
 
     def __sub__(self, other):
         """
@@ -147,8 +151,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y - other.y, *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, self.y - other.y, *self._args, **self._kwargs)
 
     def __mul__(self, other):
         """
@@ -159,8 +162,8 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values scaled
         """
-        return self.__class__(self.x, other * self.y, *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, other * self.y, *self._args, **self._kwargs)
+
     __rmul__ = __mul__
 
     def __truediv__(self, other):
@@ -172,8 +175,9 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__truediv__(other), *self._args,
-                              **self._kwargs)
+        return self.__class__(
+            self.x, self.y.__truediv__(other), *self._args, **self._kwargs
+        )
 
     def __floordiv__(self, other):
         """
@@ -184,8 +188,9 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__floordiv__(other), *self._args,
-                              **self._kwargs)
+        return self.__class__(
+            self.x, self.y.__floordiv__(other), *self._args, **self._kwargs
+        )
 
     __div__ = __truediv__
 
@@ -194,9 +199,13 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        return "\n".join([self.__class__.__name__,
-                          "%s: %s" % (self.XLABEL, self.x),
-                          "%s: %s" % (self.YLABEL, self.y)])
+        return "\n".join(
+            [
+                self.__class__.__name__,
+                "%s: %s" % (self.XLABEL, self.x),
+                "%s: %s" % (self.YLABEL, self.y),
+            ]
+        )
 
     def __repr__(self):
         """

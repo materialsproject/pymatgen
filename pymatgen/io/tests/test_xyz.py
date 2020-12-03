@@ -2,31 +2,33 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
-import pandas as pd
+import unittest
+
 import numpy as np
+import pandas as pd
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.xyz import XYZ
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.xyz import XYZ
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class XYZTest(unittest.TestCase):
-
     def setUp(self):
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
         coords2 = [[x + 10.0 for x in atom] for atom in coords]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.multi_mols = [Molecule(["C", "H", "H", "H", "H"], coords)
-                           for coords in [coords, coords2]]
+        self.multi_mols = [
+            Molecule(["C", "H", "H", "H", "H"], coords) for coords in [coords, coords2]
+        ]
         self.xyz = XYZ(self.mol)
         self.multi_xyz = XYZ(self.multi_mols)
 
@@ -125,18 +127,24 @@ C32-C2-1
         self.assertAlmostEqual(mol[3].z, -0.13790)
 
     def test_from_file(self):
-        filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
+        filepath = os.path.join(test_dir, "multiple_frame_xyz.xyz")
         mxyz = XYZ.from_file(filepath)
         self.assertEqual(len(mxyz.all_molecules), 302)
-        self.assertEqual(list(mxyz.all_molecules[0].cart_coords[0]),
-                         [0.20303525080000001, 2.8569761204000002, 0.44737723190000001])
-        self.assertEqual(list(mxyz.all_molecules[-1].cart_coords[-1]),
-                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
-        self.assertEqual(list(mxyz.molecule.cart_coords[-1]),
-                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
+        self.assertEqual(
+            list(mxyz.all_molecules[0].cart_coords[0]),
+            [0.20303525080000001, 2.8569761204000002, 0.44737723190000001],
+        )
+        self.assertEqual(
+            list(mxyz.all_molecules[-1].cart_coords[-1]),
+            [5.5355550720000002, 0.0282305931, -0.30993102189999999],
+        )
+        self.assertEqual(
+            list(mxyz.molecule.cart_coords[-1]),
+            [5.5355550720000002, 0.0282305931, -0.30993102189999999],
+        )
 
     def test_init_from_structure(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = os.path.join(test_dir, "POSCAR")
         poscar = Poscar.from_file(filepath)
         struct = poscar.structure
         xyz = XYZ(struct)
@@ -169,20 +177,24 @@ O 9.960184 1.516793 1.393875"""
         self.assertEqual(str(xyz), ans)
 
     def test_as_dataframe(self):
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
-        test_df = pd.DataFrame(coords, columns=['x', 'y', 'z'])
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
+        test_df = pd.DataFrame(coords, columns=["x", "y", "z"])
         test_df.insert(0, "atom", ["C", "H", "H", "H", "H"])
         test_df.index += 1
-        coords2 = [[0.000000, 0.000000, 0.000000],
-                   [0.000000, 0.000000, 1.089000],
-                   [1.026719, 0.000000, 0.363000],
-                   [0.513360, 0.889165, 0.363000],
-                   [0.513360, 0.889165, 0.363000]]
-        test_df2 = pd.DataFrame(coords2, columns=['x', 'y', 'z'])
+        coords2 = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, 0.363000],
+            [0.513360, 0.889165, 0.363000],
+            [0.513360, 0.889165, 0.363000],
+        ]
+        test_df2 = pd.DataFrame(coords2, columns=["x", "y", "z"])
         test_df2.insert(0, "atom", ["C", "H", "H", "H", "H"])
         test_df2.index += 1
         mol_df = self.xyz.as_dataframe()

@@ -8,16 +8,17 @@ References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
             2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
 """
 
+import os
+from math import pi
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as constants
-from scipy.integrate import simps
-import matplotlib.pyplot as plt
-import os
-from pymatgen.io.vasp.outputs import Vasprun
-from math import pi
 from scipy.constants import physical_constants, speed_of_light
+from scipy.integrate import simps
 from scipy.interpolate import interp1d
 
+from pymatgen.io.vasp.outputs import Vasprun
 
 eV_to_recip_cm = 1.0 / (
     physical_constants["Planck constant in eV s"][0] * speed_of_light * 1e2
