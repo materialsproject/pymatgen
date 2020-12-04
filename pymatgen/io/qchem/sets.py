@@ -8,10 +8,11 @@ Input sets for Qchem
 
 import logging
 import os
+
 from monty.io import zopen
+
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
-
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -25,19 +26,20 @@ class QChemDictSet(QCInput):
     Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
     """
 
-    def __init__(self,
-                 molecule,
-                 job_type,
-                 basis_set,
-                 scf_algorithm,
-                 dft_rung=4,
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 max_scf_cycles=200,
-                 geom_opt_max_cycles=200,
-                 plot_cubes=False,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        job_type,
+        basis_set,
+        scf_algorithm,
+        dft_rung=4,
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        max_scf_cycles=200,
+        geom_opt_max_cycles=200,
+        overwrite_inputs=None,
+    ):
         """
         Args:
             molecule (Pymatgen molecule object)
@@ -75,7 +77,7 @@ class QChemDictSet(QCInput):
             "hpoints": "194",
             "radii": "uff",
             "theory": "cpcm",
-            "vdwscale": "1.1"
+            "vdwscale": "1.1",
         }
 
         plots_defaults = {
@@ -121,7 +123,7 @@ class QChemDictSet(QCInput):
         if self.pcm_dielectric is not None:
             mypcm = pcm_defaults
             mysolvent["dielectric"] = self.pcm_dielectric
-            myrem["solvent_method"] = 'pcm'
+            myrem["solvent_method"] = "pcm"
 
         if self.smd_solvent is not None:
             if self.smd_solvent == "custom":
@@ -133,10 +135,11 @@ class QChemDictSet(QCInput):
             if self.smd_solvent == "custom" or self.smd_solvent == "other":
                 if self.custom_smd is None:
                     raise ValueError(
-                        'A user-defined SMD requires passing custom_smd, a string' +
-                        ' of seven comma separated values in the following order:' +
-                        ' dielectric, refractive index, acidity, basicity, surface' +
-                        ' tension, aromaticity, electronegative halogenicity')
+                        "A user-defined SMD requires passing custom_smd, a string"
+                        + " of seven comma separated values in the following order:"
+                        + " dielectric, refractive index, acidity, basicity, surface"
+                        + " tension, aromaticity, electronegative halogenicity"
+                    )
 
         if self.plot_cubes:
             myplots = plots_defaults
@@ -176,7 +179,9 @@ class QChemDictSet(QCInput):
         """
         self.write_file(input_file)
         if self.smd_solvent == "custom" or self.smd_solvent == "other":
-            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), 'wt') as f:
+            with zopen(
+                os.path.join(os.path.dirname(input_file), "solvent_data"), "wt"
+            ) as f:
                 f.write(self.custom_smd)
 
 

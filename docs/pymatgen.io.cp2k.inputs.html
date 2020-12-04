@@ -1,0 +1,966 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.cp2k.inputs module &mdash; pymatgen 2020.12.3 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.cp2k.inputs.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.cp2k.outputs module" href="pymatgen.io.cp2k.outputs.html" />
+    <link rel="prev" title="pymatgen.io.cp2k package" href="pymatgen.io.cp2k.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.12.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.cp2k.html">pymatgen.io.cp2k package</a> &raquo;</li>
+        
+      <li>pymatgen.io.cp2k.inputs module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.cp2k.inputs.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.cp2k.inputs">
+<span id="pymatgen-io-cp2k-inputs-module"></span><h1>pymatgen.io.cp2k.inputs module<a class="headerlink" href="#module-pymatgen.io.cp2k.inputs" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the building blocks of a CP2K input file. The cp2k input structure is essentially a collection
+of “sections” which are similar to dictionary objects that activate modules of the cp2k executable, and then
+“keywords” which adjust variables inside of those modules. For example, FORCE_EVAL section will activate CP2K’s ability
+to calculate forces, and inside FORCE_EVAL, the Keyword “METHOD can be set to “QS” to set the method of force evaluation
+to be the quickstep (DFT) module.</p>
+<p>A quick overview of the module:</p>
+<p>– Section class defines the basis of Cp2k input and contains methods for manipulating these objects similarly to Dicts.
+– Keyword class defines the keywords used inside of Section objects that changes variables in Cp2k program
+– Cp2kInput class is special instantiation of Section that is used to represent the full cp2k calculation input.
+– The rest of the classes are children of Section intended to make initialization of common sections easier.</p>
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.BrokenSymmetry">
+<em class="property">class </em><code class="sig-name descname">BrokenSymmetry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l_alpha</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">n_alpha</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">nel_alpha</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">l_beta</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">n_beta</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">nel_beta</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1597-L1661"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.BrokenSymmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Define the required atomic orbital occupation assigned in initialization
+of the density matrix, by adding or subtracting electrons from specific
+angular momentum channels. It works only with GUESS ATOMIC</p>
+<p>Initialize the broken symmetry section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l_alpha</strong> – Angular momentum quantum number of the orbitals whose occupation is changed</p></li>
+<li><p><strong>n_alpha</strong> – Principal quantum number of the orbitals whose occupation is changed.
+Default is the first not occupied</p></li>
+<li><p><strong>nel_alpha</strong> – Orbital occupation change per angular momentum quantum number. In
+unrestricted calculations applied to spin alpha</p></li>
+<li><p><strong>l_beta</strong> – Same as L_alpha for beta channel</p></li>
+<li><p><strong>n_beta</strong> – Same as N_alpha for beta channel</p></li>
+<li><p><strong>nel_beta</strong> – Same as NEL_alpha for beta channel</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Cell">
+<em class="property">class </em><code class="sig-name descname">Cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lattice</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice">pymatgen.core.lattice.Lattice</a></span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1183-L1210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Defines the simulation cell (lattice)</p>
+<p>Initialize the cell section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lattice</strong> – pymatgen lattice object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Coord">
+<em class="property">class </em><code class="sig-name descname">Coord</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">aliases</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1342-L1396"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Specifies the coordinates of the atoms using a pymatgen structure object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen structure object</p></li>
+<li><p><strong>alias</strong> (<em>bool</em>) – whether or not to identify the sites by Element + number so you can do things like
+assign unique magnetization do different elements.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Cp2kInput">
+<em class="property">class </em><code class="sig-name descname">Cp2kInput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'CP2K_INPUT'</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L572-L706"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cp2kInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Special instance of ‘Section’ class that is meant to represent the overall cp2k input.
+Distinguishes itself from Section by overriding get_string() to not print this section’s
+title and by implementing the file i/o</p>
+<p>Initialize Cp2kInput by calling the super</p>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Cp2kInput.from_file">
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L623-L630"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cp2kInput.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize from a file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Cp2kInput.from_lines">
+<em class="property">classmethod </em><code class="sig-name descname">from_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lines</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">, </span>tuple<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L643-L650"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cp2kInput.from_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to read lines of file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Cp2kInput.from_string">
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L632-L641"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cp2kInput.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize from a string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Cp2kInput.get_string">
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L598-L605"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cp2kInput.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get string representation of the Cp2kInput</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Cp2kInput.write_file">
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_filename</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'cp2k.inp'</span></em>, <em class="sig-param"><span class="n">output_dir</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'.'</span></em>, <em class="sig-param"><span class="n">make_dir_if_not_present</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L693-L706"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Cp2kInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write input to a file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Davidson">
+<em class="property">class </em><code class="sig-name descname">Davidson</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_prec_each</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">20</span></em>, <em class="sig-param"><span class="n">preconditioner</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'FULL_SINGLE_INVERSE'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1064-L1096"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Davidson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Parameters for davidson diagonalization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_prec_each</strong> (<em>int</em>) – How often to recalculate the preconditioner</p></li>
+<li><p><strong>preconditioner</strong> (<em>str</em>) – Preconditioner to use</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Dft">
+<em class="property">class </em><code class="sig-name descname">Dft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basis_set_filenames</span><span class="o">=</span><span class="default_value">'BASIS_MOLOPT'</span></em>, <em class="sig-param"><span class="n">potential_filename</span><span class="o">=</span><span class="default_value">'GTH_POTENTIALS'</span></em>, <em class="sig-param"><span class="n">uks</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">wfn_restart_file_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L779-L832"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Dft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls the DFT parameters in Cp2k</p>
+<p>Initialize the DFT section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subsections</strong> – Any subsections to initialize with</p></li>
+<li><p><strong>basis_set_filename</strong> – Name of the file that contains the basis set information</p></li>
+<li><p><strong>potential_filename</strong> – Name of the file that contains the pseudopotential information</p></li>
+<li><p><strong>uks</strong> – Whether to run unrestricted Kohn Sham (spin polarized)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.DftPlusU">
+<em class="property">class </em><code class="sig-name descname">DftPlusU</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eps_u_ramping</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">init_u_ramping_each_scf</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">l</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">u_minus_j</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">u_ramping</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1289-L1339"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.DftPlusU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls DFT+U for an atom kind</p>
+<p>Initialize the DftPlusU section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eps_u_ramping</strong> – (float) SCF convergence threshold at which to start ramping the U value</p></li>
+<li><p><strong>init_u_ramping_each_scf</strong> – (bool) Whether or not to do u_ramping each scf cycle</p></li>
+<li><p><strong>l</strong> – (int) angular moment of the orbital to apply the +U correction</p></li>
+<li><p><strong>u_minus_j</strong> – (float) the effective U parameter, Ueff = U-J</p></li>
+<li><p><strong>u_ramping</strong> – (float) stepwise amount to increase during ramping until u_minus_j is reached</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Diagonalization">
+<em class="property">class </em><code class="sig-name descname">Diagonalization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eps_adapt</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">eps_iter</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">eps_jacobi</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">jacobi_threshold</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-07</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1019-L1061"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Diagonalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls diagonalization settings (if using traditional diagonalization).</p>
+<p>Initialize the diagronalization section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.E_Density_Cube">
+<em class="property">class </em><code class="sig-name descname">E_Density_Cube</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1529-L1553"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.E_Density_Cube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls printing of the electron density cube file</p>
+<p>Initialize the E_DENSITY_CUBE Section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.ForceEval">
+<em class="property">class </em><code class="sig-name descname">ForceEval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L746-L776"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.ForceEval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls the calculation of energy and forces in Cp2k</p>
+<p>Initialize the ForceEval section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Global">
+<em class="property">class </em><code class="sig-name descname">Global</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'CP2K'</span></em>, <em class="sig-param"><span class="n">run_type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'ENERGY_FORCE'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L709-L743"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Global" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls ‘global’ settings for cp2k execution such as RUN_TYPE and PROJECT_NAME</p>
+<p>Initialize the global section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Keyword">
+<em class="property">class </em><code class="sig-name descname">Keyword</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">values</span></em>, <em class="sig-param"><span class="n">description</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">units</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">repeats</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L35-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Keyword" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class representing a keyword argument in CP2K. Within CP2K Secitons, which activate features
+of the CP2K code, the keywords are arguments that control the functionality of that feature.
+For example, the section “FORCE_EVAL” activates the evaluation of forces/energies, but within
+“FORCE_EVAL” the keyword “METHOD” controls whether or not this will be done with, say,
+“Quickstep” (DFT) or “EIP” (empirical interatomic potential).</p>
+<p>Initializes a keyword. These Keywords and the value passed to them are sometimes as simple as KEYWORD VALUE,
+but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2, which is why this class exists:
+to handle many values and control easy printing to an input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of this keyword. Must match an acceptable keyword from CP2K</p></li>
+<li><p><strong>args</strong> – All non-keyword arguments after ‘name’ are interpreted as the values to set for
+this keyword. i.e: KEYWORD ARG1 ARG2 would provide two values to the keyword.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – The description for this keyword. This can make readability of
+input files easier for some. Default=None.</p></li>
+<li><p><strong>units</strong> (<em>str</em>) – The units for this keyword. If not specified, CP2K default units will be
+used. Consult manual for default units. Default=None.</p></li>
+<li><p><strong>repeats</strong> (<em>bool</em>) – Whether or not this keyword may be repeated. Default=False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Keyword.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L100-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Keyword.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary representation of the Keyword</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Keyword.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L121-L133"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Keyword.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise from dictonary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Keyword.from_string">
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L135-L150"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Keyword.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise from a string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Keyword.get_string">
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L115-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Keyword.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation of Keyword</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Keyword.verbosity">
+<code class="sig-name descname">verbosity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L152-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Keyword.verbosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the printing of this keyword’s description.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.KeywordList">
+<em class="property">class </em><code class="sig-name descname">KeywordList</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L159-L222"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.KeywordList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Generic</span></code></p>
+<p>Some keywords can be repeated, which makes accessing them via the normal dictionary
+methods a little unnatural. This class deals with this by defining a collection
+of same-named keywords that are accessed by one name.</p>
+<p>Initializes a keyword. These Keywords and the value passed to them are sometimes as simple as KEYWORD VALUE,
+but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2, which is why this class exists:
+to handle many values and control easy printing to an input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>keywords</strong> – A list of keywords. Must all have the same name (case-insensitive)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.KeywordList.append">
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L199-L203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.KeywordList.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>append the keyword list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.KeywordList.extend">
+<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L205-L209"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.KeywordList.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>extend the keyword list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.KeywordList.get_string">
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L211-L215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.KeywordList.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation of Keyword</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.KeywordList.verbosity">
+<code class="sig-name descname">verbosity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbosity</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L217-L222"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.KeywordList.verbosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Silence all keywords in keyword list</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Kind">
+<em class="property">class </em><code class="sig-name descname">Kind</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">specie</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">alias</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magnetization</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'GTH_BASIS'</span></em>, <em class="sig-param"><span class="n">potential</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'GTH_POTENTIALS'</span></em>, <em class="sig-param"><span class="n">ghost</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1213-L1286"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Kind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Specifies the information for the different atom types being simulated.</p>
+<p>Initialize a KIND section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>specie</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><em>Species</em></a><em> or </em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – Object representing the atom.</p></li>
+<li><p><strong>alias</strong> (<em>str</em>) – Alias for the atom, can be used for specifying modifcations
+to certain atoms but not all, e.g. Mg_1 and Mg_2 to force difference
+oxidation states on the two atoms.</p></li>
+<li><p><strong>magnetization</strong> (<em>float</em>) – From the CP2K Manual: The magnetization used
+in the atomic initial guess. Adds magnetization/2 spin-alpha
+electrons and removes magnetization/2 spin-beta electrons.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em>) – Basis set for this atom, accessible from the
+basis set file specified</p></li>
+<li><p><strong>potential</strong> (<em>str</em>) – Pseudopotential for this atom, accessible from the
+potential file</p></li>
+<li><p><strong>kwargs</strong> – Additional kwargs to pass to Section()</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Kpoints">
+<em class="property">class </em><code class="sig-name descname">Kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpts</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Sequence<span class="p">, </span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">weights</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Sequence<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">eps_geo</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">full_grid</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">parallel_group_size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">scheme</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'MONKHORST-PACK'</span></em>, <em class="sig-param"><span class="n">symmetry</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">units</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'B_VECTOR'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">wavefunctions</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'COMPLEX'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1766-L1880"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Description of the k-points to use for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kpts</strong> (<em>list</em><em>, </em><em>tuple</em>) – a 2D array for the kpoints of the form
+[(1,1,1),]. If len(kpts) == 1. Then it is taken as subdivisions
+for automatic kpoint scheme. If it has more entries, it is
+taken as manual entries for kpoints.</p></li>
+<li><p><strong>weights</strong> (<em>list</em><em>, </em><em>tuple</em>) – a weight for each kpoint. Default is to
+weigh each by 1</p></li>
+<li><p><strong>eps_geo</strong> (<em>float</em>) – tolerance for symmetry. Default=1e-6</p></li>
+<li><p><strong>full_grid</strong> (<em>bool</em>) – use full (not reduced) kpoint grid. Default=False.</p></li>
+<li><p><strong>parallel_group_size</strong> (<em>int</em>) – from cp2k manual: Number of processors
+to be used for a single kpoint. This number must divide the
+total number of processes. The number of groups must divide
+the total number of kpoints. Value=-1 (smallest possible
+number of processes per group, satisfying the constraints).
+Value=0 (all processes). Value=n (exactly n processes).
+Default=-1.</p></li>
+<li><p><strong>scheme</strong> (<em>str</em>) – kpoint generation scheme. Default=’Monkhorst-Pack’</p></li>
+<li><p><strong>symmetry</strong> (<em>bool</em>) – Use symmetry to reduce the number of kpoints.
+Default=False.</p></li>
+<li><p><strong>units</strong> (<em>str</em>) – Units for the kpoint coordinates (reciprocal coordinates
+or cartesian). Default=’B_VECTOR’ (reciprocal)</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – verbose output for kpoints. Default=False</p></li>
+<li><p><strong>wavefunctions</strong> (<em>str</em>) – Whether to use complex or real valued wavefunctions
+(if available). Default=’complex’</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Kpoints.from_kpoints">
+<em class="property">classmethod </em><code class="sig-name descname">from_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoints</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1857-L1880"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Kpoints.from_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kpoints</strong> – A pymatgen kpoints object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.LDOS">
+<em class="property">class </em><code class="sig-name descname">LDOS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">alias</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1429-L1458"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.LDOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.</p>
+<p>Initialize the LDOS section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> – Index of the atom to project onto</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.MO_Cubes">
+<em class="property">class </em><code class="sig-name descname">MO_Cubes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">write_cube</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nhomo</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">nlumo</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1490-L1526"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.MO_Cubes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls printing of the molecular orbital eigenvalues</p>
+<p>Initialize the MO_CUBES section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Mgrid">
+<em class="property">class </em><code class="sig-name descname">Mgrid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cutoff</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">1200</span></em>, <em class="sig-param"><span class="n">rel_cutoff</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">80</span></em>, <em class="sig-param"><span class="n">ngrids</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">5</span></em>, <em class="sig-param"><span class="n">progression_factor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L954-L1016"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Mgrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls the multigrid for numerical integration</p>
+<p>Initialize the MGRID section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cutoff</strong> – Cutoff energy (in Rydbergs for historical reasons) defining how find of Gaussians will be used</p></li>
+<li><p><strong>rel_cutoff</strong> – The relative cutoff energy, which defines how to map the Gaussians onto the multigrid. If the
+the value is too low then, even if you have a high cutoff with sharp Gaussians, they will be mapped
+to the course part of the multigrid</p></li>
+<li><p><strong>ngrids</strong> – number of grids to use</p></li>
+<li><p><strong>progression_factor</strong> – divisor that decides how to map Gaussians the multigrid after the highest mapping is
+decided by rel_cutoff</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.OrbitalTransformation">
+<em class="property">class </em><code class="sig-name descname">OrbitalTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'CG'</span></em>, <em class="sig-param"><span class="n">preconditioner</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'FULL_ALL'</span></em>, <em class="sig-param"><span class="n">algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'STRICT'</span></em>, <em class="sig-param"><span class="n">energy_gap</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">linesearch</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'2PNT'</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1099-L1180"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.OrbitalTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Turns on the Orbital Transformation scheme for diagonalizing the Hamiltonian. Much faster and with
+guaranteed convergence compared to normal diagonalization, but requires the system to have a band
+gap.</p>
+<p>NOTE: OT has poor convergence for metallic systems and cannot use SCF mixing or smearing. Therefore,
+you should not use it for metals or systems with ‘small’ band gaps. In that case, use normal
+diagonalization, which will be slower, but will converge properly.</p>
+<p>Initialize the OT section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimizer</strong> (<em>str</em>) – The minimizer to use with the OT method. Default is conjugate gradient method,
+which is more robust, but more well-behaved systems should use DIIS, which can be as much
+as 50% faster.</p></li>
+<li><p><strong>preconditioner</strong> (<em>str</em>) – Preconditionar to use for OT, FULL_ALL tends to be most robust, but is
+not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be more robust,
+and is reasonably efficient with large systems. For huge, but well behaved, systems,
+where construction of the preconditioner can take a very long time, FULL_KINETIC can be a good
+choice.</p></li>
+<li><p><strong>energy_gap</strong> (<em>float</em>) – Guess for the band gap. For FULL_ALL, should be smaller than the actual band gap,
+so simply using 0.01 is a robust value. Choosing a larger value will help if you start with a bad
+initial guess though. For FULL_SINGLE_INVERSE, energy_gap is treated as a lower bound. Values lower
+than 0.05 in this case can lead to stability issues.</p></li>
+<li><p><strong>algorithm</strong> (<em>str</em>) – What algorithm to use for OT. ‘Strict’: Taylor or diagonalization based algorithm.
+IRAC: Orbital Transformation based Iterative Refinement of the Approximative Congruence
+transformation (OT/IR).</p></li>
+<li><p><strong>linesearch</strong> (<em>str</em>) – From the manual: 1D line search algorithm to be used with the OT minimizer,
+in increasing order of robustness and cost. MINIMIZER CG combined with LINESEARCH
+GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK,
+3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.PBE">
+<em class="property">class </em><code class="sig-name descname">PBE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameterization</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'ORIG'</span></em>, <em class="sig-param"><span class="n">scale_c</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">scale_x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1722-L1763"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.PBE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Info about the PBE functional.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameterization</strong> (<em>str</em>) – ORIG: original PBE
+PBESOL: PBE for solids/surfaces
+REVPBE: revised PBE</p></li>
+<li><p><strong>scale_c</strong> (<em>float</em>) – scales the correlation part of the functional.</p></li>
+<li><p><strong>scale_x</strong> (<em>float</em>) – scales the exchange part of the functional.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.PDOS">
+<em class="property">class </em><code class="sig-name descname">PDOS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nlumo</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1399-L1426"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.PDOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls printing of projected density of states onto the different atom KINDS
+(elemental decomposed DOS).</p>
+<p>Initialize the PDOS section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nlumo</strong> – how many unoccupied orbitals to include (-1==ALL)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.QS">
+<em class="property">class </em><code class="sig-name descname">QS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'GPW'</span></em>, <em class="sig-param"><span class="n">eps_default</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-07</span></em>, <em class="sig-param"><span class="n">extrapolation</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'PS'</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L853-L901"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.QS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls the quickstep settings (DFT driver)</p>
+<p>Initialize the QS Section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> – What dft methodology to use. Can be GPW (Gaussian Plane Waves) for DFT with pseudopotentials
+or GAPW (Gaussian Augmented Plane Waves) for all electron calculations</p></li>
+<li><p><strong>eps_default</strong> – The default level of convergence accuracy. NOTE: This is a global value for all the numerical
+value of all EPS_* values in QS module. It is not the same as EPS_SCF, which sets convergence accuracy
+of the SCF cycle alone.</p></li>
+<li><p><strong>extrapolation</strong> – Method use for extrapolation. If using gamma-point-only calculation, then one should use
+PS for relaxations and ASPC for MD. See the manual for other options.</p></li>
+<li><p><strong>subsections</strong> – Subsections to initialize with</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Scf">
+<em class="property">class </em><code class="sig-name descname">Scf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_scf</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">50</span></em>, <em class="sig-param"><span class="n">eps_scf</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">scf_guess</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'RESTART'</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L904-L951"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Scf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls the self consistent field loop</p>
+<p>Initialize the Scf section</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_scf</strong> – maximum number of SCF loops before terminating</p></li>
+<li><p><strong>eps_scf</strong> – convergence criteria for SCF loop</p></li>
+<li><p><strong>scf_guess</strong> – Initial guess for SCF loop (RESTART will switch to ATOMIC when no restart file
+is present)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Section">
+<em class="property">class </em><code class="sig-name descname">Section</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">repeats</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">description</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">keywords</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">section_parameters</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">, </span>Tuple<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">location</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">alias</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L225-L569"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Basic input representation of input to Cp2k. Activates functionality inside of the Cp2k executable.</p>
+<p>Basic object representing a CP2K Section. Sections activate different parts of the calculation.
+For example, FORCE_EVAL section will activate CP2K’s ability to calculate forces. Sections are
+described with the following:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the section (must match name in CP2K)</p></li>
+<li><p><strong>subsections</strong> (<em>dict</em>) – A dictionary of subsections that are nested in this section. Format is
+{‘NAME’: Section(<em>args, **kwargs). The name you chose for ‘NAME’ to index that subsection
+does not *have</em> to be the same as the section’s true name, but we recommend matching
+them. You can specify a blank dictionary if there are no subsections, or if you want to
+insert the subsections later.</p></li>
+<li><p><strong>repeats</strong> (<em>bool</em>) – Whether or not this section can be repeated. Most sections cannot. Default=False.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – Description of this section for easier readability/more descriptiveness</p></li>
+<li><p><strong>keywords</strong> (<em>list</em>) – the keywords to be set for this section. Each element should be a Keyword
+object. This can be more cumbersome than simply using kwargs for building a class in a script,
+but is more convenient for the class instantiations of CP2K sections (see below).</p></li>
+<li><p><strong>section_parameters</strong> (<em>list</em>) – the section parameters for this section. Section parameters are
+specialized keywords that modify the behavior of the section overall. Most
+sections do not have section parameters, but some do. Unlike normal Keywords, these are
+specified as strings and not as Keyword objects.</p></li>
+<li><p><strong>location</strong> (<em>str</em>) – the path to the section in the form ‘SECTION/SUBSECTION1/SUBSECTION3’, example for
+QS module: ‘FORCE_EVAL/DFT/QS’. This location is used to automatically determine if a subsection
+requires a supersection to be activated.</p></li>
+<li><p><strong>verbose</strong> (<em>str</em>) – Controls how much is printed to Cp2k input files (Also see Keyword). If True, then
+a description of the section will be printed with it as a comment (if description is set).
+Default=True.</p></li>
+<li><p><strong>are interpreted as keyword</strong><strong>, </strong><strong>value pairs and added to the keywords array as Keyword objects</strong> (<em>kwargs</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L338-L343"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add another keyword to the current section</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.by_path">
+<code class="sig-name descname">by_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L495-L509"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.by_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access a sub-section using a path. Used by the file parser.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to section of form ‘SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.check">
+<code class="sig-name descname">check</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L477-L493"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if section exists within the current using a path. Can be useful for cross-checking whether or not
+required dependencies have been satisfied, which CP2K does not enforce.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to section of form ‘SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L345-L361"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to get for dictionaries. This will attempt to retrieve the
+section or keyword matching d. Will not raise an error if d does not
+exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> – the key to retrieve, if present</p></li>
+<li><p><strong>default</strong> – what to return if d is not found</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.get_string">
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L511-L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get string representation of Section</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.inc">
+<code class="sig-name descname">inc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L456-L468"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.inc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mongo style dict modification. Include.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.insert">
+<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L470-L475"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a new section as a subsection of the current one</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.cp2k.inputs.Section.required_keywords">
+<code class="sig-name descname">required_keywords</code><em class="property">: tuple</em><em class="property"> = ()</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.required_keywords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.cp2k.inputs.Section.required_sections">
+<code class="sig-name descname">required_sections</code><em class="property">: tuple</em><em class="property"> = ()</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.required_sections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.set">
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L436-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for update. Used by custodian.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.silence">
+<code class="sig-name descname">silence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L561-L569"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.silence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively delete all print sections so that only defaults are printed out.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.unset">
+<code class="sig-name descname">unset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L442-L454"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.unset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict based deletion. Used by custodian.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L395-L411"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the Section according to a dictionary argument. This is most useful
+for providing user-override settings to default parameters. As you pass a
+dictionary the class variables like “description”, “location”, or “repeats”
+are not included. Therefore, it is recommended that this be used to modify
+existing Section objects to a user’s needs, but not used for the creation
+of new Section child-classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – <p>A dictionary containing the update information. Should use nested dictionaries to
+specify the full path of the update. If a section or keyword does not exist, it will be created,
+but only with the values that are provided in “d”, not using default values from a Section object.</p>
+<p>{‘SUBSECTION1’: {‘SUBSEC2’: {‘NEW_KEYWORD’, ‘NEW_VAL’},{‘NEW_SUBSEC’: {‘NEW_KWD’: ‘NEW_VAL’}}}</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.inputs.Section.verbosity">
+<code class="sig-name descname">verbosity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbosity</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L549-L559"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Section.verbosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the section verbossity recursively by turning on/off the printing of descriptions.
+Turning off descriptions may reduce the appealing documentation of input files, but also
+helps de-clutter them.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Smear">
+<em class="property">class </em><code class="sig-name descname">Smear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elec_temp</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">300</span></em>, <em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'FERMI_DIRAC'</span></em>, <em class="sig-param"><span class="n">fixed_magnetic_moment</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">- 100.0</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1556-L1594"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Smear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Control electron smearing</p>
+<p>Initialize the SMEAR section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.Subsys">
+<em class="property">class </em><code class="sig-name descname">Subsys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L835-L850"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.Subsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls the definition of the system to be simulated</p>
+<p>Initialize the subsys section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.V_Hartree_Cube">
+<em class="property">class </em><code class="sig-name descname">V_Hartree_Cube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keywords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1461-L1487"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.V_Hartree_Cube" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Controls printing of the hartree potential as a cube file.</p>
+<p>Initialize the V_HARTREE_CUBE section</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.inputs.XC_FUNCTIONAL">
+<em class="property">class </em><code class="sig-name descname">XC_FUNCTIONAL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">functional</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">subsections</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/inputs.py#L1664-L1719"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.inputs.XC_FUNCTIONAL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.inputs.Section" title="pymatgen.io.cp2k.inputs.Section"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Section</span></code></a></p>
+<p>Defines the XC functional to use</p>
+<p>Initialize the XC_FUNCTIONAL class</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

@@ -1,10 +1,11 @@
 Change log
 ==========
 
-v2020.7.10
+v2020.12.3
 ----------
-* Bug fix: serialization of slabs (@utf)
-* Bug fix: enumlib url (@wsyxbcl)
-* Bug fix: change in tolerance for Lattice comparison (@mbjumar)
-* Bug fix: k-path division by zero (@mfherbst)
-* New: support for openbabel 3.0 (@orioncohen)
+* Site insertion algorithm based on charge density (@jmmshn, #1997)
+* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
+* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
+* Improvement to allow general input for exciting (@vorwerkc, #1975)
+* Improvements to code formatting (@mkhorton, #2008)
+* Bug fix for VASP run type detection (@rkingsbury, #1996)

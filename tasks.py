@@ -178,23 +178,19 @@ def publish(ctx):
 
 @task
 def set_ver(ctx):
-    lines = []
     with open("pymatgen/__init__.py", "rt") as f:
-        for l in f:
-            if "__version__" in l:
-                lines.append('__version__ = "%s"' % NEW_VER)
-            else:
-                lines.append(l.rstrip())
-    with open("pymatgen/__init__.py", "wt") as f:
-        f.write("\n".join(lines))
+        contents = f.read()
+        contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % NEW_VER, contents)
 
-    lines = []
+    with open("pymatgen/__init__.py", "wt") as f:
+        f.write(contents)
+
     with open("setup.py", "rt") as f:
-        for l in f:
-            lines.append(re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER,
-                                l.rstrip()))
+        contents = f.read()
+        contents = re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER, contents)
+
     with open("setup.py", "wt") as f:
-        f.write("\n".join(lines))
+        f.write(contents)
 
 
 @task
@@ -204,9 +200,6 @@ def merge_stable(ctx):
 
     :param ctx:
     """
-    ctx.run("git commit -a -m \"v%s release\"" % (NEW_VER, ), warn=True)
-    ctx.run("git tag -a v%s -m \"v%s release\"" % (NEW_VER, NEW_VER))
-    ctx.run("git push --tags")
     ctx.run("git checkout stable")
     ctx.run("git pull")
     ctx.run("git merge master")
@@ -292,7 +285,7 @@ def update_changelog(ctx):
 
 
 @task
-def release(ctx, notest=False, nodoc=False):
+def release(ctx, nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
@@ -302,18 +295,14 @@ def release(ctx, notest=False, nodoc=False):
     """
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
-    if not notest:
-        ctx.run("pytest pymatgen")
-    publish(ctx)
     if not nodoc:
-        # update_doc(ctx)
         make_doc(ctx)
         ctx.run("git add .")
         ctx.run("git commit -a -m \"Update docs\"")
         ctx.run("git push")
     merge_stable(ctx)
     release_github(ctx)
-    post_discourse(ctx)
+    post_discourse(ctx, warn=True)
 
 
 @task

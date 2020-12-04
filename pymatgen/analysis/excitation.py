@@ -20,8 +20,9 @@ class ExcitationSpectrum(Spectrum):
         The sequence of mu(E)
 
     """
-    XLABEL = 'Energy (eV)'
-    YLABEL = 'Intensity'
+
+    XLABEL = "Energy (eV)"
+    YLABEL = "Intensity"
 
     def __init__(self, x, y):
         """

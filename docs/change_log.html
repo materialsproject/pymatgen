@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.7.10 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.7.10
+                2020.12.3
               </div>
             
           
@@ -99,6 +99,16 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-12-3">v2020.12.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-11-11">v2020.11.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-10-20">v2020.10.20</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-10-9">v2020.10.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-9-14">v2020.9.14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-8-13">v2020.8.13</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-8-3">v2020.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-18">v2020.7.18</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-16">v2020.7.16</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-14">v2020.7.14</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-7-10">v2020.7.10</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-7-3">v2020.7.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-6-8">v2020.6.8</a></li>
@@ -424,6 +434,105 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2020-12-3">
+<h2>v2020.12.3<a class="headerlink" href="#v2020-12-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Site insertion algorithm based on charge density (&#64;jmmshn, #1997)</p></li>
+<li><p>Allow calculation of Fermi level from occupancies in VASP calculation (&#64;rkingsbury, #2000)</p></li>
+<li><p>Improvement to legibility of 3D phase diagram plots (&#64;bayesfactor, #1999)</p></li>
+<li><p>Improvement to allow general input for exciting (&#64;vorwerkc, #1975)</p></li>
+<li><p>Improvements to code formatting (&#64;mkhorton, #2008)</p></li>
+<li><p>Bug fix for VASP run type detection (&#64;rkingsbury, #1996)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-11-11">
+<h2>v2020.11.11<a class="headerlink" href="#v2020-11-11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix for PhononBandStructureSymmLine. (&#64;gpetretto)</p></li>
+<li><p>Improved robustness in ABINIT input generation. (&#64;gpetretto)</p></li>
+<li><p>Other minor bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-10-20">
+<h2>v2020.10.20<a class="headerlink" href="#v2020-10-20" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Cp2K support (&#64;nwinner)</p></li>
+<li><p>Better BSPlotter (&#64;fraricci)</p></li>
+<li><p>Better deprecation warnings.</p></li>
+<li><p>Bug fix for Py3.9 support.</p></li>
+<li><p>Bug fix for neutron diffraction get_plot.</p></li>
+</ol>
+</div>
+<div class="section" id="v2020-10-9">
+<h2>v2020.10.9<a class="headerlink" href="#v2020-10-9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Cube parsing and Cube integration to Bader (&#64;nwinner, #1967)</p></li>
+<li><p>Improvements to PhaseDiagram (&#64;CompRhys, #1899)</p></li>
+<li><p>Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (&#64;jmmshn, #1959)</p></li>
+<li><p>Changes to MPRelaxSet, default to low spin for Co (&#64;shyuep, #1976)</p></li>
+<li><p>Changes to MPScanSet (&#64;rkingsbury, #1952)</p></li>
+<li><p>Rename of <cite>Specie</cite> to <cite>Species</cite>, <cite>Specie</cite> will be retained for backwards compatibility (&#64;shyuep, #1963)</p></li>
+<li><p>Bug fix for VASP sets (&#64;utf, #1979)</p></li>
+<li><p>Bug fix for PDPlotter (&#64;mattmcdermott, #1973)</p></li>
+<li><p>Bug fix for EnergyAdjustment (&#64;rkingsbury, #1960)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-9-14">
+<h2>v2020.9.14<a class="headerlink" href="#v2020-9-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New Plotly backend for PhaseDiagram plotting (&#64;mattmcdermott, #1936)</p></li>
+<li><p>New reporting and logging of Materials Project database version in MPRester (&#64;mkhorton, #1945)</p></li>
+<li><p>Improvements and bug fixes with mcsqs integration (&#64;rwoodsrobinson, #1942)</p></li>
+<li><p>Improvements to PackmolRunner (&#64;rkingsbury, #1947)</p></li>
+<li><p>Improvements to ComputerEntry (&#64;rkingsbury, #1948)</p></li>
+<li><p>Improvements for MPScanSet (&#64;rkingsbury, #1940)</p></li>
+<li><p>Bug fix for Surface and Composition (&#64;gpetretto, #1937)</p></li>
+<li><p>Bug fix for EwaldSummation serialization (&#64;lbluque, #1932)</p></li>
+<li><p>Bug fix for SeeK k-path (&#64;Ian496, #1930)</p></li>
+<li><p>Fix for deprecation warning in MPRester (&#64;rkingsbury, #1951)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-8-13">
+<h2>v2020.8.13<a class="headerlink" href="#v2020-8-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New GibbsComputedStructureEntry (&#64;mattmcdermott, #1921)</p></li>
+<li><p>Changes to MPScanRelaxSet and new MPScanStaticSet (&#64;rkingsbury, #1917)</p></li>
+<li><p>Changes to LobsterSet (&#64;JaGeo, #1928)</p></li>
+<li><p>Bug fix and change for MPRelaxSet (&#64;mkhorton, 9eb3ac2)</p></li>
+<li><p>Bug fix for JMolNN (&#64;utf, #1920)</p></li>
+<li><p>Bug fix for Element valences (&#64;rkurchin, #1926)</p></li>
+<li><p>Bug fix for BabelMolAdaptor (&#64;smheidrich, #1924)</p></li>
+<li><p>Bug fix for Gaussion IO (&#64;eimrek, #1918)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-8-3">
+<h2>v2020.8.3<a class="headerlink" href="#v2020-8-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (&#64;chc273)</p></li>
+<li><p>Add I/O for JARVIS Atoms (&#64;knc6)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-18">
+<h2>v2020.7.18<a class="headerlink" href="#v2020-7-18" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Add validation and extrapolation for stitching XAS (&#64;yimingcheng)</p></li>
+<li><p>Better error handling and possibly verbose warning to get_structure_by_material_id</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-16">
+<h2>v2020.7.16<a class="headerlink" href="#v2020-7-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix for boltztrap2 spin support. (&#64;fraricci)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-14">
+<h2>v2020.7.14<a class="headerlink" href="#v2020-7-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>EwaldSummation is now MSONAble (&#64;lbluque).</p></li>
+<li><p>Fix for QChem freq parsing (&#64;samblau)</p></li>
+<li><p>Much improved linting and workflows.</p></li>
+</ul>
+</div>
 <div class="section" id="v2020-7-10">
 <h2>v2020.7.10<a class="headerlink" href="#v2020-7-10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -2302,7 +2411,7 @@ json and had bad hash function.</p></li>
 <h2>v2.9.1<a class="headerlink" href="#v2-9-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Structure/Molecule now supports Pythonic list-like API for replacing and
-removing sites. See <a class="reference internal" href="introduction.html#quick-start"><span class="std std-ref">Quick start</span></a> for examples.</p></li>
+removing sites. See <span class="xref std std-ref">quick_start</span> for examples.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-0">

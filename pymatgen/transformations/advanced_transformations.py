@@ -5,47 +5,44 @@
 """
 This module implements more advanced transformations.
 """
-from typing import Optional, Dict
-
-import numpy as np
-from fractions import Fraction
-from math import gcd
-from itertools import groupby, product
-from string import ascii_lowercase
-from warnings import warn
 import logging
 import math
-
 import warnings
+from fractions import Fraction
+from itertools import groupby, product
+from math import gcd
+from string import ascii_lowercase
+from typing import Dict, Optional
 
+import numpy as np
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
 
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
-from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.transformations.standard_transformations import (
-    SubstitutionTransformation,
-    OrderDisorderedStructureTransformation,
-    SupercellTransformation,
-)
-from pymatgen.command_line.enumlib_caller import EnumlibAdaptor, EnumError
+from pymatgen.analysis.adsorption import AdsorbateSiteFinder
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
+from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.structure_matcher import SpinComparator, StructureMatcher
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
 )
-from pymatgen.analysis.structure_matcher import StructureMatcher, SpinComparator
-from pymatgen.analysis.energy_models import SymmetryModel
-from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
+from pymatgen.command_line.mcsqs_caller import run_mcsqs
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from pymatgen.command_line.mcsqs_caller import run_mcsqs
-from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.standard_transformations import (
+    OrderDisorderedStructureTransformation,
+    SubstitutionTransformation,
+    SupercellTransformation,
+)
+from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 try:
     import hiphive  # type: ignore
@@ -423,7 +420,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         structures = None
 
         if structure.is_ordered:
-            warn(
+            warnings.warn(
                 "Enumeration skipped for structure with composition {} "
                 "because it is ordered".format(structure.composition)
             )
@@ -458,7 +455,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
             try:
                 adaptor.run()
             except EnumError:
-                warn("Unable to enumerate for max_cell_size = {}".format(max_cell_size))
+                warnings.warn(
+                    "Unable to enumerate for max_cell_size = {}".format(max_cell_size)
+                )
             structures = adaptor.structures
             if structures:
                 break
@@ -501,8 +500,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         if return_ranked_list:
             return self._all_structures[0:num_to_return]
-        else:
-            return self._all_structures[0]["structure"]
+        return self._all_structures[0]["structure"]
 
     def __str__(self):
         return "EnumerateStructureTransformation"
@@ -615,7 +613,7 @@ class MagOrderParameterConstraint(MSONable):
         :param order_parameter (float): any number from 0.0 to 1.0,
             typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
         :param species_constraint (list): str or list of strings
-            of Specie symbols that the constraint should apply to
+            of Species symbols that the constraint should apply to
         :param site_constraint_name (str): name of the site property
             that the constraint should apply to, e.g. "coordination_no"
         :param site_constraints (list): list of values of the site
@@ -625,7 +623,7 @@ class MagOrderParameterConstraint(MSONable):
         # validation
         if site_constraints and site_constraints != [None] and not site_constraint_name:
             raise ValueError("Specify the name of the site constraint.")
-        elif not site_constraints and site_constraint_name:
+        if not site_constraints and site_constraint_name:
             raise ValueError("Please specify some site constraints.")
         if not isinstance(species_constraints, list):
             species_constraints = [species_constraints]
@@ -634,7 +632,7 @@ class MagOrderParameterConstraint(MSONable):
 
         if order_parameter > 1 or order_parameter < 0:
             raise ValueError("Order parameter must lie between 0 and 1")
-        elif order_parameter != 0.5:
+        if order_parameter != 0.5:
             warnings.warn(
                 "Use care when using a non-standard order parameter, "
                 "though it can be useful in some cases it can also "
@@ -653,17 +651,13 @@ class MagOrderParameterConstraint(MSONable):
         if not site.is_ordered:
             return False
 
-        if self.species_constraints and str(site.specie) in self.species_constraints:
-            satisfies_constraints = True
-        else:
-            satisfies_constraints = False
+        satisfies_constraints = (
+            self.species_constraints and str(site.specie) in self.species_constraints
+        )
 
         if self.site_constraint_name and self.site_constraint_name in site.properties:
             prop = site.properties[self.site_constraint_name]
-            if prop in self.site_constraints:
-                satisfies_constraints = True
-            else:
-                satisfies_constraints = False
+            satisfies_constraints = prop in self.site_constraints
 
         return satisfies_constraints
 
@@ -778,7 +772,7 @@ class MagOrderingTransformation(AbstractTransformation):
             retrieve the original site after enumeration is
             performed (this approach is preferred over a simple
             mapping since multiple species may have the same
-            DummySpecie, depending on the constraints specified).
+            DummySpecies, depending on the constraints specified).
             This approach can also preserve site properties even after
             enumeration.
         """
@@ -787,7 +781,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         def generate_dummy_specie():
             """
-            Generator which returns DummySpecie symbols Mma, Mmb, etc.
+            Generator which returns DummySpecies symbols Mma, Mmb, etc.
             """
             subscript_length = 1
             while True:
@@ -803,10 +797,10 @@ class MagOrderingTransformation(AbstractTransformation):
         ]
         dummy_species = [
             {
-                DummySpecie(
+                DummySpecies(
                     symbol, properties={"spin": Spin.up}
                 ): constraint.order_parameter,
-                DummySpecie(symbol, properties={"spin": Spin.down}): 1
+                DummySpecies(symbol, properties={"spin": Spin.down}): 1
                 - constraint.order_parameter,
             }
             for symbol, constraint in zip(dummy_species_symbols, order_parameters)
@@ -824,7 +818,7 @@ class MagOrderingTransformation(AbstractTransformation):
                         str(site.specie), site.properties
                     )
                 )
-            elif any(satisfies_constraints):
+            if any(satisfies_constraints):
                 dummy_specie_idx = satisfies_constraints.index(True)
                 dummy_struct.append(
                     dummy_species[dummy_specie_idx], site.coords, site.lattice
@@ -845,7 +839,7 @@ class MagOrderingTransformation(AbstractTransformation):
         sites_to_remove = []
         logger.debug("Dummy species structure:\n{}".format(str(structure)))
         for idx, site in enumerate(structure):
-            if isinstance(site.specie, DummySpecie):
+            if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
                 spin = site.specie._properties.get("spin", None)
                 neighbors = structure.get_neighbors(
@@ -860,7 +854,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     )
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
-                new_specie = Specie(
+                new_specie = Species(
                     orig_specie.symbol,
                     getattr(orig_specie, "oxi_state", None),
                     properties={"spin": spin},
@@ -894,7 +888,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     new_properties.update(
                         {"spin": sign * self.mag_species_spin.get(sp, 0)}
                     )
-                    new_specie = Specie(
+                    new_specie = Species(
                         site.specie.symbol,
                         getattr(site.specie, "oxi_state", None),
                         new_properties,
@@ -1022,13 +1016,13 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     "oxidation state" and (ii) is closest in ionic radius to the target specie
 
     Args:
-        target: (Specie) provides target ionic radius.
+        target: (Species) provides target ionic radius.
         oxidation_state: (float) codopant oxidation state.
         allowed_elements: ([str]) List of allowed elements. If None,
             all elements are tried.
 
     Returns:
-        (Specie) with oxidation_state that has ionic radius closest to
+        (Species) with oxidation_state that has ionic radius closest to
         target.
     """
     ref_radius = target.ionic_radius
@@ -1038,7 +1032,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                sp = Specie(sym, oxidation_state)
+                sp = Species(sym, oxidation_state)
                 r = sp.ionic_radius
                 if r is not None:
                     candidates.append((r, sp))
@@ -1065,7 +1059,7 @@ class DopingTransformation(AbstractTransformation):
     ):
         r"""
         Args:
-            dopant (Specie-like): E.g., Al3+. Must have oxidation state.
+            dopant (Species-like): E.g., Al3+. Must have oxidation state.
             ionic_radius_tol (float): E.g., Fractional allowable ionic radii
                 mismatch for dopant to fit into a site. Default of inf means
                 that any dopant with the right oxidation state is allowed.
@@ -1402,12 +1396,11 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
         if len(disordered_structures) == 0:
             return None
-        elif not return_ranked_list:
+        if not return_ranked_list:
             return disordered_structures[0]["structure"]
-        else:
-            if len(disordered_structures) > return_ranked_list:
-                disordered_structures = disordered_structures[0:return_ranked_list]
-            return disordered_structures
+        if len(disordered_structures) > return_ranked_list:
+            disordered_structures = disordered_structures[0:return_ranked_list]
+        return disordered_structures
 
     @property
     def inverse(self):
@@ -1437,7 +1430,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
             for smaller in _partition(collection[1:]):
                 # insert `first` in each of the subpartition's subsets
                 for n, subset in enumerate(smaller):
-                    yield smaller[:n] + [[first] + subset] + smaller[n + 1:]
+                    yield smaller[:n] + [[first] + subset] + smaller[n + 1 :]
                 # put `first` in its own subset
                 yield [[first]] + smaller
 
@@ -1738,15 +1731,14 @@ class CubicSupercellTransformation(AbstractTransformation):
                 and self.min_atoms <= num_at <= self.max_atoms
             ):
                 return superstructure
-            else:
-                # Increase threshold until proposed supercell meets requirements
-                target_sc_size += 0.1
-                if num_at > self.max_atoms:
-                    raise AttributeError(
-                        "While trying to solve for the supercell, the max "
-                        "number of atoms was exceeded. Try lowering the number"
-                        "of nearest neighbor distances."
-                    )
+            # Increase threshold until proposed supercell meets requirements
+            target_sc_size += 0.1
+            if num_at > self.max_atoms:
+                raise AttributeError(
+                    "While trying to solve for the supercell, the max "
+                    "number of atoms was exceeded. Try lowering the number"
+                    "of nearest neighbor distances."
+                )
         raise AttributeError("Unable to find cubic supercell")
 
     @property
@@ -1846,11 +1838,9 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
         if not return_ranked_list:
             return structures[0]
-        else:
-            return [
-                {"structure": structure}
-                for structure in structures[:return_ranked_list]
-            ]
+        return [
+            {"structure": structure} for structure in structures[:return_ranked_list]
+        ]
 
     @property
     def inverse(self):
@@ -2017,11 +2007,9 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
         if not return_ranked_list:
             return structures[0]
-        else:
-            return [
-                {"structure": structure}
-                for structure in structures[:return_ranked_list]
-            ]
+        return [
+            {"structure": structure} for structure in structures[:return_ranked_list]
+        ]
 
     @property
     def inverse(self):
@@ -2043,7 +2031,6 @@ def _proj(b, a):
 
 
 class SQSTransformation(AbstractTransformation):
-
     """
     A transformation that creates a special quasirandom structure (SQS) from a structure with partial occupancies.
     """
@@ -2108,7 +2095,6 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_max_neighbor_distance(struc, shell):
-
         """
         Calculate maximum nearest neighbor distance
         Args:
@@ -2134,7 +2120,6 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_disordered_substructure(struc_disordered):
-
         """
         Converts disordered structure into a substructure consisting of only disordered sites
         Args:
@@ -2250,57 +2235,61 @@ class SQSTransformation(AbstractTransformation):
         """
 
         if not return_ranked_list:
+            return_struc = sqs.bestsqs
+
+            # reduce structure
+            if reduction_algo:
+                return_struc = return_struc.get_reduced_structure(
+                    reduction_algo=reduction_algo
+                )
 
             # return just the structure
-            return sqs.bestsqs
+            return return_struc
 
-        else:
+        strucs = []
+        for d in sqs.allsqs:
+            # filter for best structures only if enabled, else use full sqs.all_sqs list
+            if (not best_only) or (
+                best_only and d["objective_function"] == sqs.objective_function
+            ):
+                struc = d["structure"]
+                # add temporary objective_function attribute to access objective_function after grouping
+                struc.objective_function = d["objective_function"]
+                strucs.append(struc)
 
-            strucs = []
-            for d in sqs.allsqs:
-                # filter for best structures only if enabled, else use full sqs.all_sqs list
-                if (not best_only) or (
-                    best_only and d["objective_function"] == sqs.objective_function
-                ):
-                    struc = d["structure"]
-                    # add temporary objective_function attribute to access objective_function after grouping
-                    struc.objective_function = d["objective_function"]
-                    strucs.append(struc)
+        if remove_duplicate_structures:
+            matcher = StructureMatcher()
+            # sort by unique structures ... can take a while for a long list of strucs
+            unique_strucs_grouped = matcher.group_structures(strucs)
+            # get unique structures only
+            strucs = [group[0] for group in unique_strucs_grouped]
 
-            if remove_duplicate_structures:
-                matcher = StructureMatcher()
-                # sort by unique structures ... can take a while for a long list of strucs
-                unique_strucs_grouped = matcher.group_structures(strucs)
-                # get unique structures only
-                strucs = [group[0] for group in unique_strucs_grouped]
+        # sort structures by objective function
+        strucs.sort(
+            key=lambda x: x.objective_function
+            if isinstance(x.objective_function, float)
+            else -np.inf
+        )
 
-            # sort structures by objective function
-            strucs.sort(
-                key=lambda x: x.objective_function
-                if isinstance(x.objective_function, float)
-                else -np.inf
-            )
+        to_return = [
+            {"structure": struc, "objective_function": struc.objective_function}
+            for struc in strucs
+        ]
 
-            to_return = [
-                {"structure": struc, "objective_function": struc.objective_function}
-                for struc in strucs
-            ]
+        for d in to_return:
 
-            for d in to_return:
+            # delete temporary objective_function attribute
+            del d["structure"].objective_function
 
-                # delete temporary objective_function attribute
-                del d["structure"].objective_function
+            # reduce structure
+            if reduction_algo:
+                d["structure"] = d["structure"].get_reduced_structure(
+                    reduction_algo=reduction_algo
+                )
 
-                # reduce structure
-                if reduction_algo:
-                    d["structure"] = d["structure"].get_reduced_structure(
-                        reduction_algo=reduction_algo
-                    )
-
-            if isinstance(return_ranked_list, int):
-                return to_return[:return_ranked_list]
-            else:
-                return to_return
+        if isinstance(return_ranked_list, int):
+            return to_return[:return_ranked_list]
+        return to_return
 
     @property
     def inverse(self):
@@ -2361,7 +2350,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             # we store that the original seed was None
             seed = np.random.randint(1, 1000000000)
 
-        self.random_state = np.random.RandomState(seed)
+        self.random_state = np.random.RandomState(seed)  # pylint: disable=E1101
         self.kwargs = kwargs
 
     def apply_transformation(self, structure: Structure) -> Structure:
@@ -2374,9 +2363,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         Returns:
             Structure with sites perturbed.
         """
-        from hiphive.structure_generation.rattle import (  # type: ignore
-            mc_rattle,
-        )
+        from hiphive.structure_generation.rattle import mc_rattle  # type: ignore
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
         seed = self.random_state.randint(1, 1000000000)

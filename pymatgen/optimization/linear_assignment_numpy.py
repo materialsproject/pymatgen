@@ -69,7 +69,7 @@ class LinearAssignment:
             # is a safer choice. The fill value is not zero to avoid choosing the extra
             # rows in the initial column reduction step
             self.c = np.full((self.n, self.n), np.max(np.min(self.orig_c, axis=1)))
-            self.c[:self.nx] = self.orig_c
+            self.c[: self.nx] = self.orig_c
 
         # initialize solution vectors
         self._x = np.zeros(self.n, dtype=np.int) - 1
@@ -84,7 +84,7 @@ class LinearAssignment:
             while -1 in self._x:
                 self._augment()
 
-        self.solution = self._x[:self.nx]
+        self.solution = self._x[: self.nx]
         self._min_cost = None
 
     @property
