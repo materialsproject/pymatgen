@@ -40,10 +40,7 @@ class JarvisAtomsAdaptor:
         coords = [site.frac_coords for site in structure]
         lattice_mat = structure.lattice.matrix
         return Atoms(
-            lattice_mat=lattice_mat,
-            elements=elements,
-            coords=coords,
-            cartesian=False,
+            lattice_mat=lattice_mat, elements=elements, coords=coords, cartesian=False,
         )
 
     @staticmethod
@@ -61,6 +58,4 @@ class JarvisAtomsAdaptor:
         coords = atoms.frac_coords
         lattice_mat = atoms.lattice_mat
 
-        return Structure(
-            lattice_mat, elements, coords, coords_are_cartesian=False
-        )
+        return Structure(lattice_mat, elements, coords, coords_are_cartesian=False)

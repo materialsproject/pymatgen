@@ -3,18 +3,21 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
+
 import numpy as np
 
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
-from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
+from pymatgen.util.testing import PymatgenTest
 
-test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir_structs = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "test_files"
+)
 
 
 class KPathLatimerMunroTest(PymatgenTest):
@@ -33,7 +36,11 @@ class KPathLatimerMunroTest(PymatgenTest):
             sg_num = i + 1
             if sg_num in triclinic:
                 lattice = Lattice(
-                    [[3.0233057319441246, 1, 0], [0, 7.9850357844548681, 1], [0, 1.2, 8.1136762279561818]]
+                    [
+                        [3.0233057319441246, 1, 0],
+                        [0, 7.9850357844548681, 1],
+                        [0, 1.2, 8.1136762279561818],
+                    ]
                 )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
@@ -49,11 +56,15 @@ class KPathLatimerMunroTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+            kpath = KPathLatimerMunro(
+                struct
+            )  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
         struct = Structure.from_file(struct_file_path)
-        kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
+        kpath = KPathLatimerMunro(
+            struct
+        )  # Throws error if something doesn't work, causing test to fail.
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
@@ -61,14 +72,17 @@ class KPathLatimerMunroTest(PymatgenTest):
         lattice = Lattice.orthorhombic(2, 9, 1)
         struct = Structure.from_spacegroup(38, lattice, species, coords)
         sga = SpacegroupAnalyzer(struct)
-        struct_prim = sga.get_primitive_standard_structure(international_monoclinic=False)
+        struct_prim = sga.get_primitive_standard_structure(
+            international_monoclinic=False
+        )
         kpath = KPathLatimerMunro(struct_prim)
 
         kpoints = kpath._kpath["kpoints"]
         labels = list(kpoints.keys())
 
         self.assertEqual(
-            sorted(labels), sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"]),
+            sorted(labels),
+            sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"]),
         )
 
         self.assertAlmostEqual(kpoints["a"][0], 0.0)
@@ -96,7 +110,9 @@ class KPathLatimerMunroTest(PymatgenTest):
         self.assertAlmostEqual(kpoints["e"][2], 0.5000000000000002)
 
         d = False
-        if np.allclose(kpoints["d_{1}"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5) or np.allclose(
+        if np.allclose(
+            kpoints["d_{1}"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5
+        ) or np.allclose(
             kpoints["d"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5
         ):
             d = True
@@ -104,7 +120,9 @@ class KPathLatimerMunroTest(PymatgenTest):
         self.assertTrue(d)
 
         q = False
-        if np.allclose(kpoints["q_{1}"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5) or np.allclose(
+        if np.allclose(
+            kpoints["q_{1}"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5
+        ) or np.allclose(
             kpoints["q"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5
         ):
             q = True
@@ -118,7 +136,9 @@ class KPathLatimerMunroTest(PymatgenTest):
         col_spin_orig = mga.get_structure_with_spin()
         col_spin_orig.add_spin_by_site([0.0] * 20)
         col_spin_sym = SpacegroupAnalyzer(col_spin_orig)
-        col_spin_prim = col_spin_sym.get_primitive_standard_structure(international_monoclinic=False)
+        col_spin_prim = col_spin_sym.get_primitive_standard_structure(
+            international_monoclinic=False
+        )
 
         magmom_vec_list = [np.zeros(3) for site in col_spin_prim]
         magmom_vec_list[4:8] = [
@@ -135,7 +155,8 @@ class KPathLatimerMunroTest(PymatgenTest):
         labels = list(kpoints.keys())
 
         self.assertEqual(
-            sorted(labels), sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"]),
+            sorted(labels),
+            sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"]),
         )
 
         self.assertAlmostEqual(kpoints["e"][0], -0.4999999999999998)

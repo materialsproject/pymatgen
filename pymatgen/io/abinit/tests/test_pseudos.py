@@ -3,14 +3,15 @@
 # Distributed under the terms of the MIT License.
 
 
-import os.path
 import collections
+import os.path
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.pseudos import *
+from pymatgen.util.testing import PymatgenTest
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                         'test_files', "abinit")
+_test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"
+)
 
 
 def ref_file(filename):
@@ -22,7 +23,6 @@ def ref_files(*filenames):
 
 
 class PseudoTestCase(PymatgenTest):
-
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
         nc_pseudo_fnames["Si"] = ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")
@@ -109,10 +109,11 @@ class PseudoTestCase(PymatgenTest):
         assert isinstance(oxygen.as_dict(), dict)
 
         self.assertTrue(oxygen.ispaw)
-        self.assertTrue(oxygen.symbol == "O" and
-                        (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
-                        oxygen.Z_val == 6,
-                        )
+        self.assertTrue(
+            oxygen.symbol == "O"
+            and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
+            oxygen.Z_val == 6,
+        )
 
         assert oxygen.xc.type == "GGA" and oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
@@ -126,10 +127,9 @@ class PseudoTestCase(PymatgenTest):
 
         for o in new_objs:
             self.assertTrue(o.ispaw)
-            self.assertTrue(o.symbol == "O" and
-                            (o.Z, o.core, o.valence) == (8, 2, 6),
-                            o.Z_val == 6,
-                            )
+            self.assertTrue(
+                o.symbol == "O" and (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6,
+            )
 
             self.assertAlmostEqual(o.paw_radius, 1.4146523028)
 
@@ -180,7 +180,6 @@ class PseudoTestCase(PymatgenTest):
 
 
 class PseudoTableTest(PymatgenTest):
-
     def test_methods(self):
         """Test PseudoTable methods"""
         table = PseudoTable(ref_files("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi"))

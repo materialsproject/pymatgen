@@ -5,20 +5,20 @@
 # pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
+import logging
 import os.path
 import warnings
-import logging
 from collections import OrderedDict
-import numpy as np
 
-from monty.dev import requires
+import numpy as np
 from monty.collections import AttrDict
+from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
+
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.core.structure import Structure
-
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +43,17 @@ try:
     import netCDF4
 except ImportError as exc:
     netCDF4 = None
-    warnings.warn("""\
+    warnings.warn(
+        """\
 `import netCDF4` failed with the following error:
 
 %s
 
 Please install netcdf4 with `conda install netcdf4`
 If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
-and use `pip install netcdf4`""" % str(exc))
+and use `pip install netcdf4`"""
+        % str(exc)
+    )
 
 
 def _asreader(file, cls):
@@ -89,6 +92,7 @@ class NetcdfReader:
     Additional documentation available at:
         http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
     """
+
     Error = NetcdfReaderError
 
     @requires(netCDF4 is not None, "netCDF4 must be installed to use this class")
@@ -217,8 +221,10 @@ class NetcdfReader:
             return [group.dimensions[dname] for dname in dimnames]
 
         except KeyError:
-            raise self.Error("In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" %
-                             (self.path, dimnames, kwargs))
+            raise self.Error(
+                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`"
+                % (self.path, dimnames, kwargs)
+            )
 
     def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
@@ -229,8 +235,10 @@ class NetcdfReader:
             return [group.variables[vname] for vname in varnames]
 
         except KeyError:
-            raise self.Error("In file %s:\nError while reading variables: `%s` with kwargs `%s`." %
-                             (self.path, varnames, kwargs))
+            raise self.Error(
+                "In file %s:\nError while reading variables: `%s` with kwargs `%s`."
+                % (self.path, varnames, kwargs)
+            )
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
@@ -309,10 +317,14 @@ class ETSF_Reader(NetcdfReader):
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
+                    d[hvar.name] = "".join(
+                        bs.decode("utf-8").strip() for bs in d[hvar.name]
+                    )
                 else:
-                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip()
-                                    for astr in d[hvar.name]]
+                    d[hvar.name] = [
+                        "".join(bs.decode("utf-8") for bs in astr).strip()
+                        for astr in d[hvar.name]
+                    ]
 
         return AbinitHeader(d)
 
@@ -357,6 +369,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     # I need an abipy structure since I need to_abivars and other methods.
     try:
         from abipy.core.structure import Structure as AbipyStructure
+
         structure.__class__ = AbipyStructure
     except ImportError:
         pass
@@ -396,7 +409,10 @@ _HDR_VARIABLES = (
     _H("usewvl", "input variable (0=plane-waves, 1=wavelets)"),
     _H("kptopt", "input variable (defines symmetries used for k-point sampling)"),
     _H("pawcpxocc", "input variable"),
-    _H("nshiftk_orig", "original number of shifts given in input (changed in inkpts, the actual value is nshiftk)"),
+    _H(
+        "nshiftk_orig",
+        "original number of shifts given in input (changed in inkpts, the actual value is nshiftk)",
+    ),
     _H("nshiftk", "number of shifts after inkpts."),
     _H("icoulomb", "input variable."),
     _H("ecut", "input variable", etsf_name="kinetic_energy_cutoff"),
@@ -421,7 +437,11 @@ _HDR_VARIABLES = (
     _H("istwfk", "input variable istwfk(nkpt)"),
     _H("lmn_size", "lmn_size(npsp) from psps"),
     _H("nband", "input variable nband(nkpt*nsppol)", etsf_name="number_of_states"),
-    _H("npwarr", "npwarr(nkpt) array holding npw for each k point", etsf_name="number_of_coefficients"),
+    _H(
+        "npwarr",
+        "npwarr(nkpt) array holding npw for each k point",
+        etsf_name="number_of_coefficients",
+    ),
     _H("pspcod", "pscod(npsp) from psps"),
     _H("pspdat", "psdat(npsp) from psps"),
     _H("pspso", "pspso(npsp) from psps"),
@@ -430,20 +450,34 @@ _HDR_VARIABLES = (
     _H("symafm", "input variable symafm(nsym)"),
     # _H(symrel="input variable symrel(3,3,nsym)",  etsf_name="reduced_symmetry_matrices"),
     _H("typat", "input variable typat(natom)", etsf_name="atom_species"),
-    _H("kptns", "input variable kptns(nkpt, 3)", etsf_name="reduced_coordinates_of_kpoints"),
+    _H(
+        "kptns",
+        "input variable kptns(nkpt, 3)",
+        etsf_name="reduced_coordinates_of_kpoints",
+    ),
     _H("occ", "EVOLVING variable occ(mband, nkpt, nsppol)", etsf_name="occupations"),
-    _H("tnons", "input variable tnons(nsym, 3)", etsf_name="reduced_symmetry_translations"),
+    _H(
+        "tnons",
+        "input variable tnons(nsym, 3)",
+        etsf_name="reduced_symmetry_translations",
+    ),
     _H("wtk", "weight of kpoints wtk(nkpt)", etsf_name="kpoint_weights"),
     _H("shiftk_orig", "original shifts given in input (changed in inkpts)."),
     _H("shiftk", "shiftk(3,nshiftk), shiftks after inkpts"),
     _H("amu", "amu(ntypat) ! EVOLVING variable"),
     # _H("xred", "EVOLVING variable xred(3,natom)", etsf_name="reduced_atom_positions"),
     _H("zionpsp", "zionpsp(npsp) from psps"),
-    _H("znuclpsp", "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp"),
+    _H(
+        "znuclpsp",
+        "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp",
+    ),
     _H("znucltypat", "znucltypat(ntypat) from alchemy", etsf_name="atomic_numbers"),
     _H("codvsn", "version of the code"),
     _H("title", "title(npsp) from psps"),
-    _H("md5_pseudos", "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)"),
+    _H(
+        "md5_pseudos",
+        "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)",
+    ),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
 _HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
@@ -469,6 +503,7 @@ class AbinitHeader(AttrDict):
             title: Title string.
         """
         from pprint import pformat
+
         s = pformat(self, **kwargs)
         if title is not None:
             return "\n".join([marquee(title, mark="="), s])

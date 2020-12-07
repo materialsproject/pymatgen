@@ -3,11 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
+
 from pymatgen.analysis.hhi import HHIModel
 
 
 class HHIModelTest(unittest.TestCase):
-
     def test_hhi(self):
         hhi = HHIModel()
         self.assertEqual(hhi.get_hhi("He"), (3200, 3900))

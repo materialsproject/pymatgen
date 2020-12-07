@@ -16,32 +16,37 @@ __date__ = "4/1/16"
 
 import os
 import unittest
+
 import numpy as np
+
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class PiezoTest(PymatgenTest):
     def setUp(self):
-        self.piezo_struc = self.get_structure('BaNiO3')
-        self.voigt_matrix = np.array([[0., 0., 0., 0., 0.03839, 0.],
-                                      [0., 0., 0., 0.03839, 0., 0.],
-                                      [6.89822, 6.89822, 27.46280, 0., 0., 0.]])
-        self.vasp_matrix = np.array([[0., 0., 0., 0., 0., 0.03839],
-                                     [0., 0., 0., 0., 0.03839, 0., 0.],
-                                     [6.89822, 6.89822, 27.46280, 0., 0., 0.]])
-        self.full_tensor_array = [[[0., 0., 0.03839],
-                                   [0., 0., 0.],
-                                   [0.03839, 0., 0.]],
-                                  [[0., 0., 0.],
-                                   [0., 0., 0.03839],
-                                   [0., 0.03839, 0.]],
-                                  [[6.89822, 0., 0.],
-                                   [0., 6.89822, 0.],
-                                   [0., 0., 27.4628]]]
+        self.piezo_struc = self.get_structure("BaNiO3")
+        self.voigt_matrix = np.array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.03839, 0.0],
+                [0.0, 0.0, 0.0, 0.03839, 0.0, 0.0],
+                [6.89822, 6.89822, 27.46280, 0.0, 0.0, 0.0],
+            ]
+        )
+        self.vasp_matrix = np.array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.03839],
+                [0.0, 0.0, 0.0, 0.0, 0.03839, 0.0, 0.0],
+                [6.89822, 6.89822, 27.46280, 0.0, 0.0, 0.0],
+            ]
+        )
+        self.full_tensor_array = [
+            [[0.0, 0.0, 0.03839], [0.0, 0.0, 0.0], [0.03839, 0.0, 0.0]],
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.03839], [0.0, 0.03839, 0.0]],
+            [[6.89822, 0.0, 0.0], [0.0, 6.89822, 0.0], [0.0, 0.0, 27.4628]],
+        ]
 
     def test_new(self):
         pt = PiezoTensor(self.full_tensor_array)
@@ -64,5 +69,5 @@ class PiezoTest(PymatgenTest):
         self.assertArrayEqual(self.voigt_matrix, pt.voigt)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

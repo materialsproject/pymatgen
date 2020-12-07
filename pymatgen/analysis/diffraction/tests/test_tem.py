@@ -7,13 +7,15 @@ Unit tests for TEM calculator.
 """
 
 import unittest
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.tem import TEMCalculator
-from pymatgen.util.testing import PymatgenTest
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+
+from pymatgen.analysis.diffraction.tem import TEMCalculator
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -24,7 +26,6 @@ __date__ = "2/20/20"
 
 
 class TEMCalculatorTest(PymatgenTest):
-
     def test_wavelength_rel(self):
         # Tests that the relativistic wavelength formula (for 200kv electron beam) is correct
         c = TEMCalculator()
@@ -34,33 +35,37 @@ class TEMCalculatorTest(PymatgenTest):
         # Tests that 3d points are properly generated
         c = TEMCalculator()
         actual = c.generate_points(-1, 1)
-        expected = np.array([[-1, -1, -1],
-                             [-1, -1, 0],
-                             [-1, -1, 1],
-                             [0, -1, -1],
-                             [0, -1, 0],
-                             [0, -1, 1],
-                             [1, -1, -1],
-                             [1, -1, 0],
-                             [1, -1, 1],
-                             [-1, 0, -1],
-                             [-1, 0, 0],
-                             [-1, 0, 1],
-                             [0, 0, -1],
-                             [0, 0, 0],
-                             [0, 0, 1],
-                             [1, 0, -1],
-                             [1, 0, 0],
-                             [1, 0, 1],
-                             [-1, 1, -1],
-                             [-1, 1, 0],
-                             [-1, 1, 1],
-                             [0, 1, -1],
-                             [0, 1, 0],
-                             [0, 1, 1],
-                             [1, 1, -1],
-                             [1, 1, 0],
-                             [1, 1, 1]])
+        expected = np.array(
+            [
+                [-1, -1, -1],
+                [-1, -1, 0],
+                [-1, -1, 1],
+                [0, -1, -1],
+                [0, -1, 0],
+                [0, -1, 1],
+                [1, -1, -1],
+                [1, -1, 0],
+                [1, -1, 1],
+                [-1, 0, -1],
+                [-1, 0, 0],
+                [-1, 0, 1],
+                [0, 0, -1],
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, -1],
+                [1, 0, 0],
+                [1, 0, 1],
+                [-1, 1, -1],
+                [-1, 1, 0],
+                [-1, 1, 1],
+                [0, 1, -1],
+                [0, 1, 0],
+                [0, 1, 1],
+                [1, 1, -1],
+                [1, 1, 0],
+                [1, 1, 1],
+            ]
+        )
         self.assertArrayEqual(expected, actual)
 
     def test_zone_axis_filter(self):
@@ -126,8 +131,8 @@ class TEMCalculatorTest(PymatgenTest):
         spacings = c.get_interplanar_spacings(cubic, point)
         angles = c.bragg_angles(spacings)
         x_ray = c.x_ray_factors(cubic, angles)
-        self.assertAlmostEqual(x_ray['Cs'][(-10, 3, 0)], 14.42250869579648)
-        self.assertAlmostEqual(x_ray['Cl'][(-10, 3, 0)], 2.7804915737999103)
+        self.assertAlmostEqual(x_ray["Cs"][(-10, 3, 0)], 14.42250869579648)
+        self.assertAlmostEqual(x_ray["Cl"][(-10, 3, 0)], 2.7804915737999103)
 
     def test_electron_scattering_factors(self):
         # Test the electron atomic scattering factor, values approximate with
@@ -136,8 +141,9 @@ class TEMCalculatorTest(PymatgenTest):
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"],
-                                         [[0, 0, 0], [0.5, 0.5, 0.5]])
+        nacl = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         point = [(2, 1, 3)]
         point_nacl = [(4, 2, 0)]
         spacings = c.get_interplanar_spacings(cubic, point)
@@ -146,16 +152,17 @@ class TEMCalculatorTest(PymatgenTest):
         angles_nacl = c.bragg_angles(spacings_nacl)
         elscatt = c.electron_scattering_factors(cubic, angles)
         elscatt_nacl = c.electron_scattering_factors(nacl, angles_nacl)
-        self.assertAlmostEqual(elscatt['Cs'][(2, 1, 3)], 2.890, places=1)
-        self.assertAlmostEqual(elscatt['Cl'][(2, 1, 3)], 1.138, places=1)
-        self.assertAlmostEqual(elscatt_nacl['Na'][(4, 2, 0)], 0.852, places=1)
-        self.assertAlmostEqual(elscatt_nacl['Cl'][(4, 2, 0)], 1.372, places=1)
+        self.assertAlmostEqual(elscatt["Cs"][(2, 1, 3)], 2.890, places=1)
+        self.assertAlmostEqual(elscatt["Cl"][(2, 1, 3)], 1.138, places=1)
+        self.assertAlmostEqual(elscatt_nacl["Na"][(4, 2, 0)], 0.852, places=1)
+        self.assertAlmostEqual(elscatt_nacl["Cl"][(4, 2, 0)], 1.372, places=1)
 
     def test_cell_scattering_factors(self):
         # Test that fcc structure gives 0 intensity for mixed even, odd hkl.
         c = TEMCalculator()
-        nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"],
-                                         [[0, 0, 0], [0.5, 0.5, 0.5]])
+        nacl = Structure.from_spacegroup(
+            "Fm-3m", Lattice.cubic(5.692), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         point = [(2, 1, 0)]
         spacings = c.get_interplanar_spacings(nacl, point)
         angles = c.bragg_angles(spacings)
@@ -222,7 +229,7 @@ class TEMCalculatorTest(PymatgenTest):
         # Test if x * p1 + y * p2 yields p3.
         c = TEMCalculator()
         coeffs = c.get_plot_coeffs((1, 1, 0), (1, -1, 0), (2, 0, 0))
-        self.assertArrayAlmostEqual(np.array([1., 1.]), coeffs)
+        self.assertArrayAlmostEqual(np.array([1.0, 1.0]), coeffs)
 
     def test_get_positions(self):
         c = TEMCalculator()
@@ -263,6 +270,6 @@ class TEMCalculatorTest(PymatgenTest):
         height = fig.layout.height
         self.assertTrue(width == 121 and height == 121)
 
-        
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
