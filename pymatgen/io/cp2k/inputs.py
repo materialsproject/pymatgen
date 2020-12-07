@@ -156,7 +156,7 @@ class Keyword(MSONable):
         self.verbose = v
 
 
-class KeywordList(MSONable, Sequence):
+class KeywordList(MSONable):
 
     """
     Some keywords can be repeated, which makes accessing them via the normal dictionary
@@ -586,7 +586,7 @@ class Cp2kInput(Section):
         self.kwargs = kwargs
 
         description = "CP2K Input"
-        super(Cp2kInput, self).__init__(
+        super().__init__(
             name,
             repeats=False,
             description=description,
@@ -766,7 +766,7 @@ class ForceEval(Section):
             ),
         }
 
-        super(ForceEval, self).__init__(
+        super().__init__(
             "FORCE_EVAL",
             repeats=True,
             description=description,
@@ -845,7 +845,7 @@ class Subsys(Section):
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
         description = "a subsystem: coordinates, topology, molecules and cell"
-        super(Subsys, self).__init__(
+        super().__init__(
             "SUBSYS", description=description, subsections=subsections, **kwargs
         )
 
@@ -892,7 +892,7 @@ class QS(Section):
             "EXTRAPOLATION": Keyword("EXTRAPOLATION", extrapolation),
         }
 
-        super(QS, self).__init__(
+        super().__init__(
             "QS",
             description=description,
             keywords=keywords,
@@ -942,7 +942,7 @@ class Scf(Section):
             "MAX_ITER_LUMO": Keyword("MAX_ITER_LUMO", kwargs.get("max_iter_lumo", 400)),
         }
 
-        super(Scf, self).__init__(
+        super().__init__(
             "SCF",
             description=description,
             keywords=keywords,
@@ -1007,7 +1007,7 @@ class Mgrid(Section):
             "PROGRESSION_FACTOR": Keyword("PROGRESSION_FACTOR", progression_factor),
         }
 
-        super(Mgrid, self).__init__(
+        super().__init__(
             "MGRID",
             description=description,
             keywords=keywords,
@@ -1051,7 +1051,7 @@ class Diagonalization(Section):
             "JACOBI_THRESHOLD": Keyword("JACOBI_THRESHOLD", jacobi_threshold),
         }
 
-        super(Diagonalization, self).__init__(
+        super().__init__(
             "DIAGONALIZATION",
             keywords=keywords,
             repeats=False,
@@ -1086,7 +1086,7 @@ class Davidson(Section):
             "PRECONDITIONER": Keyword("PRECONDITIONER", preconditioner),
         }
 
-        super(Davidson, self).__init__(
+        super().__init__(
             "DAVIDSON",
             keywords=keywords,
             repeats=False,
@@ -1171,7 +1171,7 @@ class OrbitalTransformation(Section):
             "LINESEARCH": Keyword("LINESEARCH", linesearch),
         }
 
-        super(OrbitalTransformation, self).__init__(
+        super().__init__(
             "OT",
             description=description,
             keywords=keywords,
@@ -1205,7 +1205,7 @@ class Cell(Section):
             "C": Keyword("C", *lattice.matrix[2]),
         }
 
-        super(Cell, self).__init__(
+        super().__init__(
             "CELL", description=description, keywords=keywords, subsections={}, **kwargs
         )
 
@@ -1273,7 +1273,7 @@ class Kind(Section):
         self.verbose = True
         self.repeats = False
 
-        super(Kind, self).__init__(
+        super().__init__(
             name=self.name,
             subsections=self.subsections,
             description=self.description,
@@ -1328,7 +1328,7 @@ class DftPlusU(Section):
             "U_RAMPING": Keyword("U_RAMPING", u_ramping),
         }
 
-        super(DftPlusU, self).__init__(
+        super().__init__(
             name=self.name,
             subsections=None,
             description=self.description,
@@ -1386,7 +1386,7 @@ class Coord(Section):
                 for ss in structure.symbol_set
             }
 
-        super(Coord, self).__init__(
+        super().__init__(
             name="COORD",
             description=description,
             keywords=keywords,
@@ -1421,7 +1421,7 @@ class PDOS(Section):
             "COMPONENTS": Keyword("COMPONENTS"),
         }
 
-        super(PDOS, self).__init__(
+        super().__init__(
             "PDOS", description=description, keywords=keywords, subsections={}, **kwargs
         )
 
@@ -1448,7 +1448,7 @@ class LDOS(Section):
 
         keywords = {"COMPONENTS": Keyword("COMPONENTS"), "LIST": Keyword("LIST", index)}
 
-        super(LDOS, self).__init__(
+        super().__init__(
             "LDOS",
             subsections={},
             alias=alias,
@@ -1478,7 +1478,7 @@ class V_Hartree_Cube(Section):
             + "Note that by convention the potential has opposite sign than the expected physical one."
         )
 
-        super(V_Hartree_Cube, self).__init__(
+        super().__init__(
             "V_HARTREE_CUBE",
             subsections={},
             description=description,
@@ -1517,7 +1517,7 @@ class MO_Cubes(Section):
             "NLUMO": Keyword("NLUMO", nlumo),
         }
 
-        super(MO_Cubes, self).__init__(
+        super().__init__(
             "MO_CUBES",
             subsections={},
             description=description,
@@ -1544,7 +1544,7 @@ class E_Density_Cube(Section):
             + "calculations, the spin density."
         )
 
-        super(E_Density_Cube, self).__init__(
+        super().__init__(
             "E_DENSITY_CUBE",
             subsections={},
             description=description,
@@ -1585,7 +1585,7 @@ class Smear(Section):
             ),
         }
 
-        super(Smear, self).__init__(
+        super().__init__(
             "SMEAR",
             description=description,
             keywords=keywords,
@@ -1652,7 +1652,7 @@ class BrokenSymmetry(Section):
         }
         beta = Section("BETA", keywords=keywords_beta, subsections={}, repeats=False)
 
-        super(BrokenSymmetry, self).__init__(
+        super().__init__(
             "BS",
             description=description,
             subsections={"ALPHA": alpha, "BETA": beta},
@@ -1709,7 +1709,7 @@ class XC_FUNCTIONAL(Section):
                 "You must specify subsection to define this functional."
             )
 
-        super(XC_FUNCTIONAL, self).__init__(
+        super().__init__(
             "XC_FUNCTIONAL",
             subsections=self.subsections,
             location=location,
@@ -1753,7 +1753,7 @@ class PBE(Section):
             "SCALE_X": Keyword("SCALE_X", scale_x),
         }
 
-        super(PBE, self).__init__(
+        super().__init__(
             "PBE",
             subsections={},
             repeats=False,
@@ -1846,7 +1846,7 @@ class Kpoints(Section):
             }
         )
 
-        super(Kpoints, self).__init__(
+        super().__init__(
             name="KPOINTS",
             subsections=None,
             repeats=False,
