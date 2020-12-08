@@ -11,21 +11,20 @@ import glob
 import logging
 import os
 import re
-import numpy as np
-import pandas as pd
 import warnings
 
+import numpy as np
+import pandas as pd
 from monty.io import zopen
-from monty.re import regrep
 from monty.json import jsanitize
+from monty.re import regrep
 
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, add_densities, CompleteDos
-from pymatgen.io.xyz import XYZ
-
+from pymatgen.electronic_structure.core import Orbital, Spin
+from pymatgen.electronic_structure.dos import CompleteDos, Dos, add_densities
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
+from pymatgen.io.xyz import XYZ
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"
@@ -169,7 +168,7 @@ class Cp2kOutput:
         """
         if self.band_gap is None:
             return True
-        elif self.band_gap <= 0:
+        if self.band_gap <= 0:
             return True
         return False
 
@@ -186,18 +185,10 @@ class Cp2kOutput:
             else:
                 self.filenames["PDOS"].append(p)
 
-        self.filenames["trajectory"] = glob.glob(
-            os.path.join(self.dir, "*pos*.xyz*")
-        )
-        self.filenames['forces'] = glob.glob(
-            os.path.join(self.dir, "*frc*.xyz*")
-        )
-        self.filenames['stress'] = glob.glob(
-            os.path.join(self.dir, "*stress*")
-        )
-        self.filenames["cell"] = glob.glob(
-            os.path.join(self.dir, "*.cell*")
-        )
+        self.filenames["trajectory"] = glob.glob(os.path.join(self.dir, "*pos*.xyz*"))
+        self.filenames["forces"] = glob.glob(os.path.join(self.dir, "*frc*.xyz*"))
+        self.filenames["stress"] = glob.glob(os.path.join(self.dir, "*stress*"))
+        self.filenames["cell"] = glob.glob(os.path.join(self.dir, "*.cell*"))
         self.filenames["electron_density"] = glob.glob(
             os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*")
         )
@@ -210,14 +201,14 @@ class Cp2kOutput:
         self.filenames["v_hartree"].sort(key=natural_keys)
 
         restart = glob.glob(os.path.join(self.dir, "*restart*"))
-        self.filenames['restart.bak'] = []
+        self.filenames["restart.bak"] = []
         for r in restart:
             if r.split("/")[-1].__contains__("bak"):
                 self.filenames["restart.bak"].append(r)
             else:
                 self.filenames["restart"] = r
         wfn = glob.glob(os.path.join(self.dir, "*wfn*"))
-        self.filenames['wfn.bak'] = []
+        self.filenames["wfn.bak"] = []
         for w in wfn:
             if w.split("/")[-1].__contains__("bak"):
                 self.filenames["wfn.bak"].append(w)
@@ -243,7 +234,9 @@ class Cp2kOutput:
                     if len(latfile.shape) > 1
                     else latfile[2:11].reshape(3, 3)
                 )
-                lattice.append(lattice[-1])  # TODO is this always needed? from re-eval at minimum
+                lattice.append(
+                    lattice[-1]
+                )  # TODO is this always needed? from re-eval at minimum
             else:
                 raise FileNotFoundError(
                     "Unable to automatically determine lattice file. More than one exist."
@@ -258,9 +251,7 @@ class Cp2kOutput:
                 self.structures.append(self.parse_initial_structure())
                 self.final_structure = self.structures[-1]
             elif len(self.filenames["trajectory"]) == 1:
-                mols = XYZ.from_file(
-                    self.filenames["trajectory"][0]
-                ).all_molecules
+                mols = XYZ.from_file(self.filenames["trajectory"][0]).all_molecules
                 self.structures = []
                 for m, l in zip(mols, lattice):
                     self.structures.append(
@@ -298,10 +289,7 @@ class Cp2kOutput:
         pattern = re.compile(r"- Atoms:\s+(\d+)")
         patterns = {"num_atoms": pattern}
         self.read_pattern(
-            patterns=patterns,
-            reverse=False,
-            terminate_on_match=True,
-            postprocess=int,
+            patterns=patterns, reverse=False, terminate_on_match=True, postprocess=int,
         )
 
         coord_table = []
@@ -319,23 +307,23 @@ class Cp2kOutput:
 
         lattice = self.parse_cell_params()
         gs = {}
-        for k in self.data['atomic_kind_info'].values():
-            if k['pseudo_potential'].upper() == 'NONE':
-                gs[k['kind_number']] = True
+        for k in self.data["atomic_kind_info"].values():
+            if k["pseudo_potential"].upper() == "NONE":
+                gs[k["kind_number"]] = True
             else:
-                gs[k['kind_number']] = False
+                gs[k["kind_number"]] = False
 
         self.initial_structure = Structure(
             lattice[0],
             species=[i[2] for i in coord_table],
-            coords=[
-                [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
-            ],
+            coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
             coords_are_cartesian=True,
-            site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
+            site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
         )
 
-        self.initial_structure.set_charge(self.input['FORCE_EVAL']['DFT'].get('CHARGE', [0])[0])
+        self.initial_structure.set_charge(
+            self.input["FORCE_EVAL"]["DFT"].get("CHARGE", [0])[0]
+        )
         self.composition = self.initial_structure.composition
         return self.initial_structure
 
@@ -346,9 +334,7 @@ class Cp2kOutput:
         of warnings issued.
         """
         program_ended_at = re.compile(r"PROGRAM ENDED AT\s+(\w+)")
-        num_warnings = re.compile(
-            r"The number of warnings for this run is : (\d+)"
-        )
+        num_warnings = re.compile(r"The number of warnings for this run is : (\d+)")
         self.read_pattern(
             patterns={"completed": program_ended_at},
             reverse=True,
@@ -383,11 +369,11 @@ class Cp2kOutput:
             terminate_on_match=False,
             postprocess=bool,
         )
-        for i, x in enumerate(self.data['scf_converged']):
+        for i, x in enumerate(self.data["scf_converged"]):
             if x[0]:
-                self.data['scf_converged'][i] = True
+                self.data["scf_converged"][i] = True
             else:
-                self.data['scf_converged'][i] = False
+                self.data["scf_converged"][i] = False
 
         # GEO_OPT
         geo_opt_not_converged = re.compile(
@@ -423,7 +409,9 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
-        self.data['total_energy'] = np.multiply(self.data.get('total_energy', []), _hartree_to_ev_)
+        self.data["total_energy"] = np.multiply(
+            self.data.get("total_energy", []), _hartree_to_ev_
+        )
         self.final_energy = self.data.get("total_energy", [])[-1][-1]
 
     def parse_forces(self):
@@ -431,12 +419,10 @@ class Cp2kOutput:
         Get the forces from the output file
         """
 
-        if len(self.filenames['forces']) == 1:
-            self.data['forces'] = [
-                [
-                    list(atom.coords) for atom in step
-                ]
-                for step in XYZ.from_file(self.filenames['forces'][0]).all_molecules
+        if len(self.filenames["forces"]) == 1:
+            self.data["forces"] = [
+                [list(atom.coords) for atom in step]
+                for step in XYZ.from_file(self.filenames["forces"][0]).all_molecules
             ]
         else:
             header_pattern = r"ATOMIC FORCES.+Z"
@@ -457,13 +443,10 @@ class Cp2kOutput:
         """
         Get the stresses from the output file.
         """
-        if len(self.filenames['stress']) == 1:
-            dat = np.loadtxt(self.filenames['stress'][0], skiprows=1)
-            self.data['stress_tensor'] = [
-                [
-                    list(d[2:5]), list(d[5:8]), list(d[8:11])
-                ]
-                for d in dat
+        if len(self.filenames["stress"]) == 1:
+            dat = np.loadtxt(self.filenames["stress"][0], skiprows=1)
+            self.data["stress_tensor"] = [
+                [list(d[2:5]), list(d[5:8]), list(d[8:11])] for d in dat
             ]
         else:
             header_pattern = r"STRESS TENSOR.+Z"
@@ -494,8 +477,8 @@ class Cp2kOutput:
 
         # TODO: find a better workaround. Currently when optimization is done there
         # is an extra scf step before the optimization starts causing size difference
-        if len(self.structures) + 1 == len(self.data['total_energy']):
-            self.data['total_energy'] = self.data['total_energy'][1:]
+        if len(self.structures) + 1 == len(self.data["total_energy"]):
+            self.data["total_energy"] = self.data["total_energy"][1:]
 
         for i in range(len(self.data["total_energy"])):
             self.ionic_steps.append({})
@@ -528,17 +511,16 @@ class Cp2kOutput:
             {"cp2k_version": version, "input_filename": input_file},
             terminate_on_match=True,
             reverse=False,
-            postprocess=_postprocessor
+            postprocess=_postprocessor,
         )
 
     def parse_input(self):
         """
         Load in the input set from the input file (if it can be found)
         """
-        if len(self.data['input_filename']) == 0:
+        if len(self.data["input_filename"]) == 0:
             return
-        else:
-            input_filename = self.data["input_filename"][0][0]
+        input_filename = self.data["input_filename"][0][0]
         for ext in ["", ".gz", ".GZ", ".z", ".Z", ".bz2", ".BZ2"]:
             if os.path.exists(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(
@@ -552,9 +534,7 @@ class Cp2kOutput:
         Parse the GLOBAL section parameters from CP2K output file into a dictionary.
         """
         pat = re.compile(r"\s+GLOBAL\|\s+([\w+\s]*)\s+(\w+)")
-        self.read_pattern(
-            {"global": pat}, terminate_on_match=False, reverse=False
-        )
+        self.read_pattern({"global": pat}, terminate_on_match=False, reverse=False)
         for d in self.data["global"]:
             d[0], d[1] = _postprocessor(d[0]), str(d[1])
         self.data["global"] = dict(self.data["global"])
@@ -576,9 +556,7 @@ class Cp2kOutput:
         self.data["dft"]["cutoffs"]["density"] = self.data["dft"].pop(
             "Cutoffs:_density", None
         )
-        self.data["dft"]["cutoffs"]["gradient"] = self.data["dft"].pop(
-            "gradient", None
-        )
+        self.data["dft"]["cutoffs"]["gradient"] = self.data["dft"].pop("gradient", None)
         self.data["dft"]["cutoffs"]["tau"] = self.data["dft"].pop("tau", None)
 
         # Functional
@@ -629,8 +607,12 @@ class Cp2kOutput:
             reverse=False,
         )
         self.data["scf"] = {}
-        self.data["scf"]["max_scf"] = self.data.pop("max_scf")[0][0] if self.data['max_scf'] else None
-        self.data["scf"]["eps_scf"] = self.data.pop("eps_scf")[0][0] if self.data['eps_scf'] else None
+        self.data["scf"]["max_scf"] = (
+            self.data.pop("max_scf")[0][0] if self.data["max_scf"] else None
+        )
+        self.data["scf"]["eps_scf"] = (
+            self.data.pop("eps_scf")[0][0] if self.data["eps_scf"] else None
+        )
 
     def parse_cell_params(self):
         """
@@ -648,9 +630,8 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
-        i = iter(self.data['lattice'])
-        lattices = [_ for _ in zip(i, i, i)]
-        return lattices
+        i = iter(self.data["lattice"])
+        return list(zip(i, i, i))
 
     def parse_atomic_kind_info(self):
         """
@@ -658,12 +639,12 @@ class Cp2kOutput:
         """
         kinds = re.compile(r"Atomic kind: (\w+)")
         orbital_basis_set = re.compile(r"Orbital Basis Set\s+(.+$)")
-        potential_information = re.compile(r"(?:Potential information for\s+(.+$))|(?:atomic kind are GHOST atoms)")
+        potential_information = re.compile(
+            r"(?:Potential information for\s+(.+$))|(?:atomic kind are GHOST atoms)"
+        )
         auxiliary_basis_set = re.compile(r"Auxiliary Fit Basis Set\s+(.+$)")
         core_electrons = re.compile(r"Total number of core electrons\s+(\d+)")
-        valence_electrons = re.compile(
-            r"Total number of valence electrons\s+(\d+)"
-        )
+        valence_electrons = re.compile(r"Total number of valence electrons\s+(\d+)")
         pseudo_energy = re.compile(r"Total Pseudopotential Energy.+(-?\d+.\d+)")
         self.read_pattern(
             {
@@ -673,7 +654,7 @@ class Cp2kOutput:
                 "auxiliary_basis_set": auxiliary_basis_set,
                 "core_electrons": core_electrons,
                 "valence_electrons": valence_electrons,
-                "pseudo_energy": pseudo_energy
+                "pseudo_energy": pseudo_energy,
             },
             terminate_on_match=True,
             postprocess=str,
@@ -684,7 +665,7 @@ class Cp2kOutput:
             atomic_kind_info[kind[0]] = {
                 "orbital_basis_set": self.data.get("orbital_basis_set")[i][0],
                 "pseudo_potential": self.data.get("potential_info")[i][0],
-                "kind_number": i+1
+                "kind_number": i + 1,
             }
             try:
                 atomic_kind_info[kind[0]]["valence_electrons"] = self.data.get(
@@ -699,16 +680,16 @@ class Cp2kOutput:
             except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]["core_electrons"] = None
             try:
-                atomic_kind_info[kind[0]][
+                atomic_kind_info[kind[0]]["auxiliary_basis_set"] = self.data.get(
                     "auxiliary_basis_set"
-                ] = self.data.get("auxiliary_basis_set")[i]
+                )[i]
             except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]["auxiliary_basis_set"] = None
             try:
-                atomic_kind_info[kind[0]][
-                    "total_pseudopotential_energy"
-                ] = self.data.get(
-                    "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
+                atomic_kind_info[kind[0]]["total_pseudopotential_energy"] = (
+                    self.data.get("total_pseudopotential_energy")[i][0]
+                    * _hartree_to_ev_
+                )
             except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]["total_pseudopotential_energy"] = None
         self.data["atomic_kind_info"] = atomic_kind_info
@@ -760,11 +741,13 @@ class Cp2kOutput:
         )
 
         self.data["electronic_steps"] = []
-        self.data['convergence'] = []
-        self.data['scf_time'] = []
+        self.data["convergence"] = []
+        self.data["scf_time"] = []
         for i in scfs:
-            self.data['scf_time'].append([float(j[-4]) for j in i])
-            self.data['convergence'].append([float(j[-3]) for j in i if j[-3] != 'None'])
+            self.data["scf_time"].append([float(j[-4]) for j in i])
+            self.data["convergence"].append(
+                [float(j[-3]) for j in i if j[-3] != "None"]
+            )
             self.data["electronic_steps"].append([float(j[-2]) for j in i])
 
     def parse_timing(self):
@@ -800,9 +783,7 @@ class Cp2kOutput:
         """
         # "Informations at step =" Summary block (floating point terms)
         total_energy = re.compile(r"\s+Total Energy\s+=\s+(-?\d+.\d+)")
-        real_energy_change = re.compile(
-            r"\s+Real energy change\s+=\s+(-?\d+.\d+)"
-        )
+        real_energy_change = re.compile(r"\s+Real energy change\s+=\s+(-?\d+.\d+)")
         prediced_change_in_energy = re.compile(
             r"\s+Predicted change in energy\s+=\s+(-?\d+.\d+)"
         )
@@ -812,12 +793,8 @@ class Cp2kOutput:
         used_time = re.compile(r"\s+Used time\s+=\s+(-?\d+.\d+)")
 
         # For RUN_TYPE=CELL_OPT
-        pressure_deviation = re.compile(
-            r"\s+Pressure Deviation.*=\s+(-?\d+.\d+)"
-        )
-        pressure_tolerance = re.compile(
-            r"\s+Pressure Tolerance.*=\s+(-?\d+.\d+)"
-        )
+        pressure_deviation = re.compile(r"\s+Pressure Deviation.*=\s+(-?\d+.\d+)")
+        pressure_tolerance = re.compile(r"\s+Pressure Tolerance.*=\s+(-?\d+.\d+)")
 
         self.read_pattern(
             {
@@ -837,16 +814,10 @@ class Cp2kOutput:
 
         # "Informations at step =" Summary block (bool terms)
         decrease_in_energy = re.compile(r"\s+Decrease in energy\s+=\s+(\w+)")
-        converged_step_size = re.compile(
-            r"\s+Convergence in step size\s+=\s+(\w+)"
-        )
-        converged_rms_step = re.compile(
-            r"\s+Convergence in RMS step\s+=\s+(\w+)"
-        )
+        converged_step_size = re.compile(r"\s+Convergence in step size\s+=\s+(\w+)")
+        converged_rms_step = re.compile(r"\s+Convergence in RMS step\s+=\s+(\w+)")
         converged_in_grad = re.compile(r"\s+Conv\. in gradients\s+=\s+(\w+)")
-        converged_in_rms_grad = re.compile(
-            r"\s+Conv\. in RMS gradients\s+=\s+(\w+)"
-        )
+        converged_in_rms_grad = re.compile(r"\s+Conv\. in RMS gradients\s+=\s+(\w+)")
         pressure_converged = re.compile(r"\s+Conv\. for  PRESSURE\s+=\s+(\w+)")
 
         self.read_pattern(
@@ -889,7 +860,9 @@ class Cp2kOutput:
         footer = r"^$"
 
         if not uks:
-            pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+            pattern = (
+                r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+            )
             d = self.read_table_pattern(
                 header_pattern=header,
                 row_pattern=pattern,
@@ -979,18 +952,17 @@ class Cp2kOutput:
                                     efermi[-1][Spin.down] = float(line.split()[-1])
                                     break
                                 eigenvalues[-1]["occupied"][Spin.down].extend(
-                                    [
-                                        _hartree_to_ev_ * float(l)
-                                        for l in line.split()
-                                    ]
+                                    [_hartree_to_ev_ * float(l) for l in line.split()]
                                 )
                     if line.__contains__(" unoccupied subspace spin"):
                         next(lines)
                         line = next(lines)
                         while True:
                             if line.__contains__("WARNING : did not converge"):
-                                warnings.warn('Convergence of eigenvalues for '
-                                              'unoccupied subspace spin 1 did NOT converge')
+                                warnings.warn(
+                                    "Convergence of eigenvalues for "
+                                    "unoccupied subspace spin 1 did NOT converge"
+                                )
                                 next(lines)
                                 next(lines)
                                 next(lines)
@@ -1001,55 +973,64 @@ class Cp2kOutput:
                                 next(lines)
                                 line = next(lines)
                                 break
-                            else:
-                                line = next(lines)
-                                if line.__contains__("Eigenvalues"):
-                                    break
-                                elif line.__contains__("HOMO"):
-                                    break
-                                eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                    [_hartree_to_ev_ * float(l) for l in line.split()]
-                                )
+
+                            line = next(lines)
+                            if "Eigenvalues" in line or "HOMO" in line:
+                                break
+                            eigenvalues[-1]["unoccupied"][Spin.up].extend(
+                                [_hartree_to_ev_ * float(l) for l in line.split()]
+                            )
                         if line.__contains__(" unoccupied subspace spin"):
                             next(lines)
                             line = next(lines)
                             while True:
                                 if line.__contains__("WARNING : did not converge"):
-                                    warnings.warn('Convergence of eigenvalues for '
-                                                  'unoccupied subspace spin 2 did NOT converge')
+                                    warnings.warn(
+                                        "Convergence of eigenvalues for "
+                                        "unoccupied subspace spin 2 did NOT converge"
+                                    )
                                     next(lines)
                                     next(lines)
                                     next(lines)
                                     line = next(lines)
                                     eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                        [_hartree_to_ev_ * float(l) for l in line.split()]
+                                        [
+                                            _hartree_to_ev_ * float(l)
+                                            for l in line.split()
+                                        ]
                                     )
                                     break
-                                else:
-                                    line = next(lines)
-                                    if line.__contains__("HOMO"):
-                                        next(lines)
-                                        break
-                                    try:
-                                        eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                            [
-                                                _hartree_to_ev_ * float(l)
-                                                for l in line.split()
-                                            ]
-                                        )
-                                    except AttributeError:
-                                        break
+
+                                line = next(lines)
+                                if line.__contains__("HOMO"):
+                                    next(lines)
+                                    break
+                                try:
+                                    eigenvalues[-1]["unoccupied"][Spin.down].extend(
+                                        [
+                                            _hartree_to_ev_ * float(l)
+                                            for l in line.split()
+                                        ]
+                                    )
+                                except AttributeError:
+                                    break
 
                 except ValueError:
-                    eigenvalues = [{'occupied': {Spin.up: None, Spin.down: None},
-                                    'unoccupied': {Spin.up: None, Spin.down: None}}]
-                    warnings.warn('Convergence of eigenvalues  for one or more subspaces did NOT converge')
+                    eigenvalues = [
+                        {
+                            "occupied": {Spin.up: None, Spin.down: None},
+                            "unoccupied": {Spin.up: None, Spin.down: None},
+                        }
+                    ]
+                    warnings.warn(
+                        "Convergence of eigenvalues  for one or more subspaces did NOT converge"
+                    )
 
         self.data["eigenvalues"] = eigenvalues
         self.data["band_gap"] = band_gap
 
         if len(eigenvalues) == 0:
-            warnings.warn('No MO eigenvalues detected.')
+            warnings.warn("No MO eigenvalues detected.")
             return
 
         # self.data will always contained the eigenvalues resolved by spin channel. The average vbm, cbm, gap,
@@ -1064,12 +1045,8 @@ class Cp2kOutput:
                 Spin.up: np.min(eigenvalues[-1]["unoccupied"][Spin.up]),
                 Spin.down: np.min(eigenvalues[-1]["unoccupied"][Spin.down]),
             }
-            self.vbm = (
-                self.data["vbm"][Spin.up] + self.data["vbm"][Spin.down]
-            ) / 2
-            self.cbm = (
-                self.data["cbm"][Spin.up] + self.data["cbm"][Spin.down]
-            ) / 2
+            self.vbm = (self.data["vbm"][Spin.up] + self.data["vbm"][Spin.down]) / 2
+            self.cbm = (self.data["cbm"][Spin.up] + self.data["cbm"][Spin.down]) / 2
             self.efermi = (efermi[-1][Spin.up] + efermi[-1][Spin.down]) / 2
         else:
             self.data["vbm"] = {
@@ -1097,17 +1074,21 @@ class Cp2kOutput:
             postprocess=float,
         )
         bg = {Spin.up: [], Spin.down: []}
-        for i in range(len(self.data['band_gap'])):
+        for i in range(len(self.data["band_gap"])):
             if self.spin_polarized:
                 if i % 2:
-                    bg[Spin.up].append(self.data['band_gap'][i][0])
+                    bg[Spin.up].append(self.data["band_gap"][i][0])
                 else:
-                    bg[Spin.down].append(self.data['band_gap'][i][0])
+                    bg[Spin.down].append(self.data["band_gap"][i][0])
             else:
-                bg[Spin.up].append(self.data['band_gap'][i][0])
-                bg[Spin.down].append(self.data['band_gap'][i][0])
-        self.data['band_gap'] = bg
-        self.band_gap = (bg[Spin.up][-1]+bg[Spin.down][-1])/2 if bg[Spin.up] and bg[Spin.down] else None
+                bg[Spin.up].append(self.data["band_gap"][i][0])
+                bg[Spin.down].append(self.data["band_gap"][i][0])
+        self.data["band_gap"] = bg
+        self.band_gap = (
+            (bg[Spin.up][-1] + bg[Spin.down][-1]) / 2
+            if bg[Spin.up] and bg[Spin.down]
+            else None
+        )
 
     def parse_dos(self, pdos_files=None, ldos_files=None, sigma=0):
         """
@@ -1144,7 +1125,9 @@ class Cp2kOutput:
                 if not all([_tdos.densities.keys() == tdos.densities.keys()]):
                     tdos.densities.update(_tdos.densities)
                 else:
-                    tdos.densities = add_densities(density1=_tdos.densities, density2=tdos.densities)
+                    tdos.densities = add_densities(
+                        density1=_tdos.densities, density2=tdos.densities
+                    )
 
         # parse any site-projected dos
         for ldos_file in ldos_files:
@@ -1156,17 +1139,19 @@ class Cp2kOutput:
                 else:
                     ldoss.update(_pdos)
 
-        self.data['pdos'] = jsanitize(pdoss, strict=True)
-        self.data['ldos'] = jsanitize(ldoss, strict=True)
-        self.data['tdos'] = jsanitize(tdos, strict=True)
+        self.data["pdos"] = jsanitize(pdoss, strict=True)
+        self.data["ldos"] = jsanitize(ldoss, strict=True)
+        self.data["tdos"] = jsanitize(tdos, strict=True)
 
         # If number of site-projected dos == number of sites, assume they are bijective
         # and create the CompleteDos object
         _ldoss = {}
         if len(ldoss) == len(self.initial_structure):
-            for k in self.data['ldos']:
-                _ldoss[self.initial_structure[int(k)-1]] = self.data['ldos'][k]
-            self.data['cdos'] = CompleteDos(self.final_structure, total_dos=tdos, pdoss=_ldoss)
+            for k in self.data["ldos"]:
+                _ldoss[self.initial_structure[int(k) - 1]] = self.data["ldos"][k]
+            self.data["cdos"] = CompleteDos(
+                self.final_structure, total_dos=tdos, pdoss=_ldoss
+            )
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
@@ -1179,7 +1164,7 @@ class Cp2kOutput:
         e_s = np.linspace(min(energies), max(energies), npts)
 
         for e, _pd in zip(energies, densities):
-            weight = np.exp(-((e_s - e) / width) ** 2) / (np.sqrt(np.pi) * width)
+            weight = np.exp(-(((e_s - e) / width) ** 2)) / (np.sqrt(np.pi) * width)
             d += _pd * weight
 
         return d
@@ -1316,9 +1301,7 @@ class Cp2kOutput:
         d["output"]["ionic_steps"] = self.ionic_steps
         d["composition"] = self.composition.as_dict()
         d["output"]["energy"] = self.final_energy
-        d["output"]["energy_per_atom"] = (
-            self.final_energy / self.composition.num_atoms
-        )
+        d["output"]["energy_per_atom"] = self.final_energy / self.composition.num_atoms
         d["output"]["bandgap"] = self.band_gap
         d["output"]["cbm"] = self.cbm
         d["output"]["vbm"] = self.vbm
@@ -1374,13 +1357,13 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
     if spin_channel:
         spin = Spin(spin_channel)
     else:
-        spin = Spin.down if os.path.split(dos_file)[-1].__contains__("BETA") else Spin.up
+        spin = (
+            Spin.down if os.path.split(dos_file)[-1].__contains__("BETA") else Spin.up
+        )
 
     with zopen(dos_file, "rt") as f:
         lines = f.readlines()
-        kind = re.search(
-            r"atomic kind\s(.*)\sat iter", lines[0]
-        ) or re.search(
+        kind = re.search(r"atomic kind\s(.*)\sat iter", lines[0]) or re.search(
             r"list\s(\d+)\s(.*)\sat iter", lines[0]
         )
         kind = kind.groups()[0]
@@ -1390,35 +1373,35 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
         dat = np.loadtxt(dos_file)
 
         def cp2k_to_pmg_labels(x):
-            if x == 'p':
-                return 'px'
-            elif x == 'd':
-                return 'dxy'
-            elif x == 'f':
-                return 'f_3'
-            elif x == "d-2":
+            if x == "p":
+                return "px"
+            if x == "d":
                 return "dxy"
-            elif x == "d-1":
-                return "dyz"
-            elif x == "d0":
-                return "dz2"
-            elif x == "d+1":
-                return "dxz"
-            elif x == "d+2":
-                return "dx2"
-            elif x == "f-3":
+            if x == "f":
                 return "f_3"
-            elif x == "f-2":
+            if x == "d-2":
+                return "dxy"
+            if x == "d-1":
+                return "dyz"
+            if x == "d0":
+                return "dz2"
+            if x == "d+1":
+                return "dxz"
+            if x == "d+2":
+                return "dx2"
+            if x == "f-3":
+                return "f_3"
+            if x == "f-2":
                 return "f_2"
-            elif x == "f-1":
+            if x == "f-1":
                 return "f_1"
-            elif x == "f0":
+            if x == "f0":
                 return "f0"
-            elif x == "f+1":
+            if x == "f+1":
                 return "f1"
-            elif x == "f+2":
+            if x == "f+2":
                 return "f2"
-            elif x == "f+3":
+            if x == "f+3":
                 return "f3"
             return x
 
@@ -1431,23 +1414,20 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
 
         pdos = {
             kind: {
-                getattr(Orbital, h):
-                    Dos(
-                        efermi=efermi,
-                        energies=energies,
-                        densities={spin: data[:, i+2]}
-                    ) for i, h in enumerate(header)
+                getattr(Orbital, h): Dos(
+                    efermi=efermi, energies=energies, densities={spin: data[:, i + 2]}
+                )
+                for i, h in enumerate(header)
             }
         }
         if total:
             tdos = Dos(
                 efermi=efermi,
                 energies=energies,
-                densities={spin: np.sum(data[:, 2:], axis=1)}
+                densities={spin: np.sum(data[:, 2:], axis=1)},
             )
             return pdos, tdos
-        else:
-            return pdos
+        return pdos
 
 
 def gauss_smear(data, width):
@@ -1461,12 +1441,14 @@ def gauss_smear(data, width):
     e_s = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), data.shape[0])
     grid = np.multiply(np.ones((npts, npts)), e_s).T
 
-    def foo(d):
+    def smear(d):
         return np.sum(
             np.multiply(
-                np.exp(-(np.subtract(grid, data[:, 0]) / width) ** 2) / (np.sqrt(np.pi) * width),
-                d
+                np.exp(-((np.subtract(grid, data[:, 0]) / width) ** 2))
+                / (np.sqrt(np.pi) * width),
+                d,
             ),
-            axis=1
+            axis=1,
         )
-    return np.array([foo(data[:, i]) for i in range(1, nOrbitals)]).T
+
+    return np.array([smear(data[:, i]) for i in range(1, nOrbitals)]).T

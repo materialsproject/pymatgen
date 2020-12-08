@@ -7,9 +7,9 @@ This module creates an interface to the JHU kpoints servlet,
 see http://muellergroup.jhu.edu/K-Points.html.
 """
 
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
 
 import requests
 
@@ -22,9 +22,17 @@ __email__ = "montoyjh@lbl.gov"
 __date__ = "June 22, 2017"
 
 
-def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
-                kppra=None, gap_distance=7, remove_symmetry=None,
-                include_gamma="auto", header="simple", incar=None):
+def get_kpoints(
+    structure,
+    min_distance=0,
+    min_total_kpoints=1,
+    kppra=None,
+    gap_distance=7,
+    remove_symmetry=None,
+    include_gamma="auto",
+    header="simple",
+    incar=None,
+):
     """
     Get kpoints object from JHU servlet, per Wisesa-McGill-Mueller
     methodology.  Refer to http://muellergroup.jhu.edu/K-Points.html
@@ -53,23 +61,22 @@ def get_kpoints(structure, min_distance=0, min_total_kpoints=1,
     config.pop("structure", "incar")
 
     # Generate PRECALC string
-    precalc = ''.join(["{}={}\n".format(k, v) for k, v in config.items()])
-    precalc = precalc.replace('_', '').upper()
-    precalc = precalc.replace('REMOVESYMMETRY', 'REMOVE_SYMMETRY')
-    precalc = precalc.replace('TIMEREVERSAL', 'TIME_REVERSAL')
+    precalc = "".join(["{}={}\n".format(k, v) for k, v in config.items()])
+    precalc = precalc.replace("_", "").upper()
+    precalc = precalc.replace("REMOVESYMMETRY", "REMOVE_SYMMETRY")
+    precalc = precalc.replace("TIMEREVERSAL", "TIME_REVERSAL")
     url = "http://muellergroup.jhu.edu:8080/PreCalcServer/PreCalcServlet"
     temp_dir_name = tempfile.mkdtemp()
     cwd = os.getcwd()
     os.chdir(temp_dir_name)
 
-    precalc_file = open("PRECALC", 'w+')
-    poscar_file = open("POSCAR", 'w+')
-    incar_file = open("INCAR", 'w+')
+    precalc_file = open("PRECALC", "w+")
+    poscar_file = open("POSCAR", "w+")
+    incar_file = open("INCAR", "w+")
 
     precalc_file.write(precalc)
     poscar_file.write(structure.to("POSCAR"))
-    files = [("fileupload", precalc_file),
-             ("fileupload", poscar_file)]
+    files = [("fileupload", precalc_file), ("fileupload", poscar_file)]
     if incar:
         incar_file.write(incar.get_string())
         files.append(("fileupload", incar_file))

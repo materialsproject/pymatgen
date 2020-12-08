@@ -7,8 +7,8 @@ Most features of this module has been moved to monty. Please refer to
 monty.json and monty.serialization documentation.
 """
 
-import json
 import functools
+import json
 import pickle
 
 from pymatgen.core.periodic_table import Element
@@ -77,6 +77,7 @@ class PmgUnpickler(pickle.Unpickler):
             # of a real tuple. Use ast to evalute the expression (much safer
             # than eval).
             import ast
+
             type_tag, key_id = ast.literal_eval(pid)
 
         if type_tag == "Element":
@@ -84,8 +85,7 @@ class PmgUnpickler(pickle.Unpickler):
         # Always raises an error if you cannot return the correct object.
         # Otherwise, the unpickler will think None is the object referenced
         # by the persistent ID.
-        raise pickle.UnpicklingError(
-            "unsupported persistent object with pid %s" % pid)
+        raise pickle.UnpicklingError("unsupported persistent object with pid %s" % pid)
 
 
 def pmg_pickle_load(filobj, **kwargs):
@@ -123,7 +123,8 @@ class SlotPickleMixin:
     def __getstate__(self):
         return dict(
             (slot, getattr(self, slot))
-            for slot in self.__slots__ if hasattr(self, slot)
+            for slot in self.__slots__
+            if hasattr(self, slot)
         )
 
     def __setstate__(self, state):

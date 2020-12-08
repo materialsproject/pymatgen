@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pymatgen.util.sequence import get_chunks, PBarSafe
+from pymatgen.util.sequence import PBarSafe, get_chunks
 
 
 class SequenceUtilsTest(TestCase):

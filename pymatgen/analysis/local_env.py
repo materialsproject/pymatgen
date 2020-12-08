@@ -218,7 +218,7 @@ class NearNeighbors:
     """
 
     def __eq__(self, other):
-        if type(other) is type(self):
+        if isinstance(other, type(self)):
             return self.__dict__ == other.__dict__
         return False
 
@@ -2455,7 +2455,6 @@ class LocalStructOrderParams:
         return len(self._last_nneigh)
 
     def compute_trigonometric_terms(self, thetas, phis):
-
         """
         Computes trigonometric terms that are required to
         calculate bond orientational order parameters using
@@ -2500,7 +2499,6 @@ class LocalStructOrderParams:
             self._cos_n_p[i] = [cos(float(i) * float(p)) for p in phis]
 
     def get_q2(self, thetas=None, phis=None):
-
         """
         Calculates the value of the bond orientational order parameter of
         weight l=2.  If the function is called with non-empty lists of
@@ -2571,7 +2569,6 @@ class LocalStructOrderParams:
         return q2
 
     def get_q4(self, thetas=None, phis=None):
-
         """
         Calculates the value of the bond orientational order parameter of
         weight l=4.  If the function is called with non-empty lists of
@@ -2688,7 +2685,6 @@ class LocalStructOrderParams:
         return q4
 
     def get_q6(self, thetas=None, phis=None):
-
         """
         Calculates the value of the bond orientational order parameter of
         weight l=6.  If the function is called with non-empty lists of
@@ -2867,7 +2863,6 @@ class LocalStructOrderParams:
         return q6
 
     def get_type(self, index):
-
         """
         Return type of order parameter at the index provided and
         represented by a short string.
@@ -2883,7 +2878,6 @@ class LocalStructOrderParams:
         return self._types[index]
 
     def get_parameters(self, index):
-
         """
         Returns list of floats that represents
         the parameters associated
@@ -3397,13 +3391,15 @@ class LocalStructOrderParams:
                                                     norms[i][j][kc] += 1.0
                                         elif t in ["cuboct", "cuboct_max"]:
                                             if (
-                                                    thetam < self._params[i]["min_SPP"]
-                                                    and self._params[i][4] < thetak <
-                                                    self._params[i][2]
+                                                thetam < self._params[i]["min_SPP"]
+                                                and self._params[i][4]
+                                                < thetak
+                                                < self._params[i][2]
                                             ):
                                                 if (
-                                                        self._params[i][4] < thetam <
-                                                        self._params[i][2]
+                                                    self._params[i][4]
+                                                    < thetam
+                                                    < self._params[i][2]
                                                 ):
                                                     tmp = cos(phi)
                                                     tmp2 = self._params[i][5] * (
@@ -3587,7 +3583,7 @@ class LocalStructOrderParams:
             dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
-                if t in ('reg_tri', 'sq'):
+                if t in ("reg_tri", "sq"):
                     if nneigh < 3:
                         ops[i] = None
                     else:
@@ -3667,8 +3663,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.nn_distance for i in neighs_dists]
-        ds.sort()
+        ds = sorted([i.nn_distance for i in neighs_dists])
 
         ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
 
@@ -3741,8 +3736,7 @@ class BrunnerNN_relative(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.nn_distance for i in neighs_dists]
-        ds.sort()
+        ds = sorted([i.nn_distance for i in neighs_dists])
 
         ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
 
@@ -3815,8 +3809,7 @@ class BrunnerNN_real(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.nn_distance for i in neighs_dists]
-        ds.sort()
+        ds = sorted([i.nn_distance for i in neighs_dists])
 
         ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
 

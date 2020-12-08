@@ -16,7 +16,6 @@ import numbers
 from functools import partial
 
 import numpy as np
-
 import scipy.constants as const
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
@@ -55,21 +54,10 @@ BASE_UNITS = {
         "pm": 1e-12,
         "bohr": bohr_to_angstrom * 1e-10,
     },
-    "mass": {
-        "kg": 1,
-        "g": 1e-3,
-        "amu": amu_to_kg,
-    },
-    "time": {
-        "s": 1,
-        "min": 60,
-        "h": 3600,
-        "d": 3600 * 24,
-    },
+    "mass": {"kg": 1, "g": 1e-3, "amu": amu_to_kg,},
+    "time": {"s": 1, "min": 60, "h": 3600, "d": 3600 * 24,},
     "current": {"A": 1},
-    "temperature": {
-        "K": 1,
-    },
+    "temperature": {"K": 1,},
     "amount": {"mol": 1, "atom": 1 / const.N_A},
     "intensity": {"cd": 1},
     "memory": {
@@ -96,10 +84,7 @@ DERIVED_UNITS = {
         "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1},
         "kCal": {"kg": 1, "m": 2, "s": -2, 1000: 1, kCal_to_kJ: 1},
     },
-    "charge": {
-        "C": {"A": 1, "s": 1},
-        "e": {"A": 1, "s": 1, const.e: 1},
-    },
+    "charge": {"C": {"A": 1, "s": 1}, "e": {"A": 1, "s": 1, const.e: 1},},
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2},
         "KN": {"kg": 1, "m": 1, "s": -2, 1000: 1},

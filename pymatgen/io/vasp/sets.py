@@ -49,7 +49,7 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import numpy as np
@@ -57,13 +57,14 @@ from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.periodic_table import Species, Element
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.io.lobster import Lobsterin
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
+from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -510,15 +511,19 @@ class DictSet(VaspInputSet):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
                         if site.specie.symbol == "Co":
-                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
-                                          "not desired, please set the spin on the magmom on the site directly to "
-                                          "ensure correct initialization")
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(str(site.specie)))
                     else:
                         if site.specie.symbol == "Co":
-                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
-                                          "not desired, please set the spin on the magmom on the site directly to "
-                                          "ensure correct initialization")
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
@@ -531,7 +536,7 @@ class DictSet(VaspInputSet):
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
-                            v[most_electroneg], dict
+                        v[most_electroneg], dict
                     ):
                         incar[k] = [
                             v[most_electroneg].get(sym, 0)
@@ -799,7 +804,9 @@ class DictSet(VaspInputSet):
 
 
 # Helper functions to determine valid FFT grids for VASP
-def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
+def next_num_with_prime_factors(
+    n: int, max_prime_factor: int, must_inc_2: bool = True
+) -> int:
     """
     Return the next number greater than or equal to n that only has the desired prime factors
 
@@ -831,7 +838,7 @@ def primes_less_than(max_val: int) -> List[int]:
     Get the primes less than or equal to the max value
     """
     res = []
-    for i in range(2, max_val+1):
+    for i in range(2, max_val + 1):
         for j in range(2, i):
             if i % j == 0:
                 break

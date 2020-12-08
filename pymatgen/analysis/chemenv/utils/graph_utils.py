@@ -1,27 +1,30 @@
-import networkx as nx
-import numpy as np
-from monty.json import MSONable
 import itertools
 import operator
 
-__author__ = 'waroquiers'
+import networkx as nx
+import numpy as np
+from monty.json import MSONable
+
+__author__ = "waroquiers"
 
 
 def get_delta(node1, node2, edge_data):
-    if node1.isite == edge_data['start'] and node2.isite == edge_data['end']:
-        return np.array(edge_data['delta'], dtype=np.int)
-    elif node2.isite == edge_data['start'] and node1.isite == edge_data['end']:
-        return -np.array(edge_data['delta'], dtype=np.int)
+    if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
+        return np.array(edge_data["delta"], dtype=np.int)
+    elif node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
+        return -np.array(edge_data["delta"], dtype=np.int)
     else:
-        raise ValueError('Trying to find a delta between two nodes with an edge '
-                         'that seems not to link these nodes.')
+        raise ValueError(
+            "Trying to find a delta between two nodes with an edge "
+            "that seems not to link these nodes."
+        )
 
 
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
     edge_paths = []
     if not graph.is_multigraph():
         for path in nx.all_simple_paths(graph, source, target, cutoff=cutoff):
-            edge_paths.append([(path[ii], path[ii+1]) for ii in range(len(path) - 1)])
+            edge_paths.append([(path[ii], path[ii + 1]) for ii in range(len(path) - 1)])
         return edge_paths
 
     node_paths = []
@@ -35,7 +38,9 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
             continue
         node_paths.append(path)
         current_edge_paths = [[]]
-        for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
+        for (node1, node2) in [
+            (node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])
+        ]:
             new_edge_paths = []
             for key, edge_data in graph[node1][node2].items():
                 for tmp_edge_path in current_edge_paths:
@@ -66,9 +71,9 @@ def _c2index_isreverse(c1, c2):
     c1_0 = c1.nodes[0]
     c1_1 = c1.nodes[1]
     if c1_0 not in c2.nodes:
-        return None, None, 'First node of cycle c1 not found in cycle c2.'
+        return None, None, "First node of cycle c1 not found in cycle c2."
     if c1_1 not in c2.nodes:
-        return None, None, 'Second node of cycle c1 not found in cycle c2.'
+        return None, None, "Second node of cycle c1 not found in cycle c2."
     c2_0_index = c2.nodes.index(c1_0)
     c2_1_index = c2.nodes.index(c1_1)
     if c2_0_index == 0:
@@ -77,25 +82,37 @@ def _c2index_isreverse(c1, c2):
         elif c2_1_index == len(c2.nodes) - 1:
             reverse = True
         else:
-            return None, None, 'Second node of cycle c1 is not second or last in cycle c2 ' \
-                               '(first node of cycle c1 is first in cycle c2).'
+            return (
+                None,
+                None,
+                "Second node of cycle c1 is not second or last in cycle c2 "
+                "(first node of cycle c1 is first in cycle c2).",
+            )
     elif c2_0_index == len(c2.nodes) - 1:
         if c2_1_index == 0:
             reverse = False
         elif c2_1_index == c2_0_index - 1:
             reverse = True
         else:
-            return None, None, 'Second node of cycle c1 is not first or before last in cycle c2 ' \
-                               '(first node of cycle c1 is last in cycle c2).'
+            return (
+                None,
+                None,
+                "Second node of cycle c1 is not first or before last in cycle c2 "
+                "(first node of cycle c1 is last in cycle c2).",
+            )
     else:
         if c2_1_index == c2_0_index + 1:
             reverse = False
         elif c2_1_index == c2_0_index - 1:
             reverse = True
         else:
-            return None, None, 'Second node of cycle c1 in cycle c2 is not just after or ' \
-                               'just before first node of cycle c1 in cycle c2.'
-    return c2_0_index, reverse, ''
+            return (
+                None,
+                None,
+                "Second node of cycle c1 in cycle c2 is not just after or "
+                "just before first node of cycle c1 in cycle c2.",
+            )
+    return c2_0_index, reverse, ""
 
 
 class SimpleGraphCycle(MSONable):
@@ -128,30 +145,33 @@ class SimpleGraphCycle(MSONable):
         :return: True if the SimpleGraphCycle is valid, False otherwise.
         """
         if len(self.nodes) == 1:
-            return True, ''
+            return True, ""
         elif len(self.nodes) == 2:
-            return False, 'Simple graph cycle with 2 nodes is not valid.'
+            return False, "Simple graph cycle with 2 nodes is not valid."
         elif len(self.nodes) == 0:
-            return False, 'Empty cycle is not valid.'
+            return False, "Empty cycle is not valid."
         if len(self.nodes) != len(set(self.nodes)):  # Should not have duplicate nodes
-            return False, 'Duplicate nodes.'
+            return False, "Duplicate nodes."
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
             except TypeError as te:
                 msg = te.args[0]
-                if '\'<\' not supported between instances of' in msg:
-                    return False, 'The nodes are not sortable.'
+                if "'<' not supported between instances of" in msg:
+                    return False, "The nodes are not sortable."
                 raise
             res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
             if not res:
-                return False, 'The list of nodes in the cycle cannot be strictly ordered.'
-        return True, ''
+                return (
+                    False,
+                    "The list of nodes in the cycle cannot be strictly ordered.",
+                )
+        return True, ""
 
     def validate(self, check_strict_ordering=False):
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
-            raise ValueError('SimpleGraphCycle is not valid : {}'.format(msg))
+            raise ValueError("SimpleGraphCycle is not valid : {}".format(msg))
 
     def order(self, raise_on_fail=True):
         """Orders the SimpleGraphCycle.
@@ -171,7 +191,7 @@ class SimpleGraphCycle(MSONable):
             self.validate(check_strict_ordering=True)
         except ValueError as ve:
             msg = ve.args[0]
-            if 'SimpleGraphCycle is not valid :' in msg and not raise_on_fail:
+            if "SimpleGraphCycle is not valid :" in msg and not raise_on_fail:
                 self.ordered = False
                 return
             raise
@@ -186,13 +206,18 @@ class SimpleGraphCycle(MSONable):
         node_classes = set(n.__class__ for n in self.nodes)
         if len(node_classes) > 1:
             if raise_on_fail:
-                raise ValueError('Could not order simple graph cycle as the nodes '
-                                 'are of different classes.')
+                raise ValueError(
+                    "Could not order simple graph cycle as the nodes "
+                    "are of different classes."
+                )
             self.ordered = False
             return
 
         min_index, min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
-        reverse = self.nodes[(min_index-1) % len(self.nodes)] < self.nodes[(min_index+1) % len(self.nodes)]
+        reverse = (
+            self.nodes[(min_index - 1) % len(self.nodes)]
+            < self.nodes[(min_index + 1) % len(self.nodes)]
+        )
         if reverse:
             self.nodes = self.nodes[min_index::-1] + self.nodes[:min_index:-1]
         else:
@@ -206,13 +231,15 @@ class SimpleGraphCycle(MSONable):
         return len(self.nodes)
 
     def __str__(self):
-        out = ['Simple cycle with nodes :']
+        out = ["Simple cycle with nodes :"]
         out.extend([str(node) for node in self.nodes])
-        return '\n'.join(out)
+        return "\n".join(out)
 
     def __eq__(self, other):
         if not self.ordered or not other.ordered:
-            raise RuntimeError('Simple cycles should be ordered in order to be compared.')
+            raise RuntimeError(
+                "Simple cycles should be ordered in order to be compared."
+            )
         return self.nodes == other.nodes
 
     @classmethod
@@ -226,8 +253,11 @@ class SimpleGraphCycle(MSONable):
         """
         if edges_are_ordered:
             nodes = [e[0] for e in edges]
-            if not all([e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])]) or edges[-1][1] != edges[0][0]:
-                raise ValueError('Could not construct a cycle from edges.')
+            if (
+                not all([e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])])
+                or edges[-1][1] != edges[0][0]
+            ):
+                raise ValueError("Could not construct a cycle from edges.")
         else:
             remaining_edges = list(edges)
             nodes = list(remaining_edges.pop())
@@ -243,21 +273,21 @@ class SimpleGraphCycle(MSONable):
                         nodes.append(e[0])
                         break
                 else:  # did not find the next edge
-                    raise ValueError('Could not construct a cycle from edges.')
+                    raise ValueError("Could not construct a cycle from edges.")
             if nodes[0] != nodes[-1]:
-                raise ValueError('Could not construct a cycle from edges.')
+                raise ValueError("Could not construct a cycle from edges.")
             nodes.pop()
         return cls(nodes)
 
     def as_dict(self):
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
-        d['nodes'] = list(d['nodes'])
+        d["nodes"] = list(d["nodes"])
         return d
 
     @classmethod
     def from_dict(cls, d, validate=False):
-        return cls(nodes=d['nodes'], validate=validate, ordered=d['ordered'])
+        return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
 
 
 class MultiGraphCycle(MSONable):
@@ -272,6 +302,7 @@ class MultiGraphCycle(MSONable):
         nodes:          1 - 3 - 4 - 0 - 2 - (1)
         edge_indices:     0 . 1 . 0 . 2 . 0 . (0)
     """
+
     def __init__(self, nodes, edge_indices, validate=True, ordered=None):
         self.nodes = tuple(nodes)
         self.edge_indices = tuple(edge_indices)
@@ -292,32 +323,42 @@ class MultiGraphCycle(MSONable):
         - that there are either 1 or more than 2 nodes
         :return: True if the SimpleGraphCycle is valid, False otherwise.
         """
-        if len(self.nodes) != len(self.edge_indices):  # Should have the same number of nodes and edges
-            return False, 'Number of nodes different from number of edge indices.'
+        if len(self.nodes) != len(
+            self.edge_indices
+        ):  # Should have the same number of nodes and edges
+            return False, "Number of nodes different from number of edge indices."
         if len(self.nodes) == 0:
-            return False, 'Empty cycle is not valid.'
+            return False, "Empty cycle is not valid."
         if len(self.nodes) != len(set(self.nodes)):  # Should not have duplicate nodes
-            return False, 'Duplicate nodes.'
-        if len(self.nodes) == 2:  # Cycles with two nodes cannot use the same edge for the cycle
+            return False, "Duplicate nodes."
+        if (
+            len(self.nodes) == 2
+        ):  # Cycles with two nodes cannot use the same edge for the cycle
             if self.edge_indices[0] == self.edge_indices[1]:
-                return False, 'Cycles with two nodes cannot use the same edge for the cycle.'
+                return (
+                    False,
+                    "Cycles with two nodes cannot use the same edge for the cycle.",
+                )
         if check_strict_ordering:
             try:
                 sorted_nodes = sorted(self.nodes)
             except TypeError as te:
                 msg = te.args[0]
-                if '\'<\' not supported between instances of' in msg:
-                    return False, 'The nodes are not sortable.'
+                if "'<' not supported between instances of" in msg:
+                    return False, "The nodes are not sortable."
                 raise
             res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
             if not res:
-                return False, 'The list of nodes in the cycle cannot be strictly ordered.'
-        return True, ''
+                return (
+                    False,
+                    "The list of nodes in the cycle cannot be strictly ordered.",
+                )
+        return True, ""
 
     def validate(self, check_strict_ordering=False):
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
-            raise ValueError('MultiGraphCycle is not valid : {}'.format(msg))
+            raise ValueError("MultiGraphCycle is not valid : {}".format(msg))
 
     def order(self, raise_on_fail=True):
         """Orders the SimpleGraphCycle.
@@ -337,7 +378,7 @@ class MultiGraphCycle(MSONable):
             self.validate(check_strict_ordering=True)
         except ValueError as ve:
             msg = ve.args[0]
-            if 'MultiGraphCycle is not valid :' in msg and not raise_on_fail:
+            if "MultiGraphCycle is not valid :" in msg and not raise_on_fail:
                 self.ordered = False
                 return
             raise
@@ -352,8 +393,10 @@ class MultiGraphCycle(MSONable):
         node_classes = set(n.__class__ for n in self.nodes)
         if len(node_classes) > 1:
             if raise_on_fail:
-                raise ValueError('Could not order simple graph cycle as the nodes '
-                                 'are of different classes.')
+                raise ValueError(
+                    "Could not order simple graph cycle as the nodes "
+                    "are of different classes."
+                )
             self.ordered = False
             return
 
@@ -367,14 +410,22 @@ class MultiGraphCycle(MSONable):
             self.ordered = True
             return
 
-        reverse = self.nodes[(min_index-1) % len(self.nodes)] < self.nodes[(min_index+1) % len(self.nodes)]
+        reverse = (
+            self.nodes[(min_index - 1) % len(self.nodes)]
+            < self.nodes[(min_index + 1) % len(self.nodes)]
+        )
         if reverse:
             self.nodes = self.nodes[min_index::-1] + self.nodes[:min_index:-1]
-            min_edge_index = (min_index-1) % len(self.nodes)
-            self.edge_indices = self.edge_indices[min_edge_index::-1] + self.edge_indices[:min_edge_index:-1]
+            min_edge_index = (min_index - 1) % len(self.nodes)
+            self.edge_indices = (
+                self.edge_indices[min_edge_index::-1]
+                + self.edge_indices[:min_edge_index:-1]
+            )
         else:
             self.nodes = self.nodes[min_index:] + self.nodes[:min_index]
-            self.edge_indices = self.edge_indices[min_index:] + self.edge_indices[:min_index]
+            self.edge_indices = (
+                self.edge_indices[min_index:] + self.edge_indices[:min_index]
+            )
         self.ordered = True
 
     def __hash__(self):
@@ -384,18 +435,30 @@ class MultiGraphCycle(MSONable):
         return len(self.nodes)
 
     def __str__(self):
-        out = ['Multigraph cycle with nodes :']
+        out = ["Multigraph cycle with nodes :"]
         cycle = []
-        for inode, node1, node2 in zip(itertools.count(), self.nodes[:-1], self.nodes[1:]):
-            cycle.append('{} -*{:d}*- {}'.format(str(node1), self.edge_indices[inode], str(node2)))
-        cycle.append('{} -*{:d}*- {}'.format(str(self.nodes[-1]), self.edge_indices[-1], str(self.nodes[0])))
+        for inode, node1, node2 in zip(
+            itertools.count(), self.nodes[:-1], self.nodes[1:]
+        ):
+            cycle.append(
+                "{} -*{:d}*- {}".format(
+                    str(node1), self.edge_indices[inode], str(node2)
+                )
+            )
+        cycle.append(
+            "{} -*{:d}*- {}".format(
+                str(self.nodes[-1]), self.edge_indices[-1], str(self.nodes[0])
+            )
+        )
         # out.extend([str(node) for node in self.nodes])
         out.extend(cycle)
-        return '\n'.join(out)
+        return "\n".join(out)
 
     def __eq__(self, other):
         if not self.ordered or not other.ordered:
-            raise RuntimeError('Multigraph cycles should be ordered in order to be compared.')
+            raise RuntimeError(
+                "Multigraph cycles should be ordered in order to be compared."
+            )
         return self.nodes == other.nodes and self.edge_indices == other.edge_indices
 
 
@@ -431,17 +494,21 @@ def get_all_elementary_cycles(graph):
 
     for ncycles in range(1, len(cycle_basis) + 1):
         for cycles_combination in itertools.combinations(cycles_matrix, ncycles):
-            edges_counts = np.array(np.mod(np.sum(cycles_combination, axis=0), 2), dtype=np.bool)
-            myedges = [edge for iedge, edge in enumerate(index2edge) if edges_counts[iedge]]
+            edges_counts = np.array(
+                np.mod(np.sum(cycles_combination, axis=0), 2), dtype=np.bool
+            )
+            myedges = [
+                edge for iedge, edge in enumerate(index2edge) if edges_counts[iedge]
+            ]
             # print(myedges)
             try:
                 sgc = SimpleGraphCycle.from_edges(myedges, edges_are_ordered=False)
                 # print(sgc)
             except ValueError as ve:
                 msg = ve.args[0]
-                if msg == 'SimpleGraphCycle is not valid : Duplicate nodes.':
+                if msg == "SimpleGraphCycle is not valid : Duplicate nodes.":
                     continue
-                elif msg == 'Could not construct a cycle from edges.':
+                elif msg == "Could not construct a cycle from edges.":
                     continue
                 raise
             elementary_cycles_list.append(sgc)

@@ -10,14 +10,14 @@ Base classes representing defects.
 import logging
 from abc import ABCMeta, abstractmethod
 from functools import lru_cache
-import numpy as np
 
-from monty.json import MSONable, MontyDecoder
-from pymatgen.core.structure import Structure, PeriodicSite
+import numpy as np
+from monty.json import MontyDecoder, MSONable
+
 from pymatgen.core.composition import Composition
+from pymatgen.core.structure import PeriodicSite, Structure
 from pymatgen.core.units import kb
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

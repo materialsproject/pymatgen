@@ -79,9 +79,8 @@ class CorrectionCalculator:
             "SeO3",
             "TiO3",
             "TiO4",
-        ]
+        ],
     ) -> None:
-
         """
         Initializes a CorrectionCalculator.
 
@@ -124,7 +123,6 @@ class CorrectionCalculator:
             self.sulfides: List[str] = []
 
     def compute_from_files(self, exp_gz: str, comp_gz: str):
-
         """
         Args:
             exp_gz: name of .json.gz file that contains experimental data
@@ -141,7 +139,6 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-
         """
         Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
@@ -207,7 +204,7 @@ class CorrectionCalculator:
                     break
 
             # filter out compounds that are unstable
-            if type(self.allow_unstable) == float:
+            if isinstance(self.allow_unstable, float):
                 try:
                     eah = compound.data["e_above_hull"]
                 except KeyError:
@@ -274,7 +271,9 @@ class CorrectionCalculator:
                         try:
                             coeff.append(comp[specie])
                         except ValueError:
-                            raise ValueError("We can't detect this specie: {}".format(specie))
+                            raise ValueError(
+                                "We can't detect this specie: {}".format(specie)
+                            )
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -317,7 +316,6 @@ class CorrectionCalculator:
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
-
         """
         Graphs the residual errors for all compounds after applying computed corrections.
         """
@@ -363,7 +361,6 @@ class CorrectionCalculator:
         return fig
 
     def graph_residual_error_per_species(self, specie: str) -> go.Figure:
-
         """
         Graphs the residual errors for each compound that contains specie after applying computed corrections.
 
@@ -510,21 +507,40 @@ class CorrectionCalculator:
         contents["Name"] = name
 
         # make CommentedMap so comments can be added
-        contents["Corrections"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o)
-        contents["Corrections"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f)
-        contents["Corrections"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr)
-        contents["Uncertainties"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o_error)
-        contents["Uncertainties"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f_error)
-        contents["Uncertainties"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
+        contents["Corrections"]["GGAUMixingCorrections"][
+            "O"
+        ] = ruamel.yaml.comments.CommentedMap(o)
+        contents["Corrections"]["GGAUMixingCorrections"][
+            "F"
+        ] = ruamel.yaml.comments.CommentedMap(f)
+        contents["Corrections"][
+            "CompositionCorrections"
+        ] = ruamel.yaml.comments.CommentedMap(comp_corr)
+        contents["Uncertainties"]["GGAUMixingCorrections"][
+            "O"
+        ] = ruamel.yaml.comments.CommentedMap(o_error)
+        contents["Uncertainties"]["GGAUMixingCorrections"][
+            "F"
+        ] = ruamel.yaml.comments.CommentedMap(f_error)
+        contents["Uncertainties"][
+            "CompositionCorrections"
+        ] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
 
-        contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
+        contents["Corrections"].yaml_set_start_comment(
+            "Energy corrections in eV/atom", indent=2
+        )
         contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to transition metal oxides\nand fluorides to " +
-            "make GGA and GGA+U energies compatible\nwhen compat_type = \"Advanced\" (default)", indent=4)
+            "Composition-based corrections applied to transition metal oxides\nand fluorides to "
+            + 'make GGA and GGA+U energies compatible\nwhen compat_type = "Advanced" (default)',
+            indent=4,
+        )
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to any compound containing\nthese species as anions", indent=4)
+            "Composition-based corrections applied to any compound containing\nthese species as anions",
+            indent=4,
+        )
         contents["Uncertainties"].yaml_set_start_comment(
-            "Uncertainties corresponding to each energy correction (eV/atom)", indent=2)
+            "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
+        )
 
         yaml.dump(contents, file)
         file.close()

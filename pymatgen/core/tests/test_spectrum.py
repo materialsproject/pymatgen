@@ -2,22 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+import unittest
+
+import numpy as np
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.testing import PymatgenTest
-import unittest
-import numpy as np
 
 
 class SpectrumTest(PymatgenTest):
-
     def setUp(self):
         self.spec1 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100))
         self.spec2 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100))
 
-        self.multi_spec1 = Spectrum(np.arange(0, 10, 0.1),
-                                    np.random.randn(100, 2))
-        self.multi_spec2 = Spectrum(np.arange(0, 10, 0.1),
-                                    np.random.randn(100, 2))
+        self.multi_spec1 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100, 2))
+        self.multi_spec2 = Spectrum(np.arange(0, 10, 0.1), np.random.randn(100, 2))
 
     def test_normalize(self):
         self.spec1.normalize(mode="max")
@@ -35,25 +34,26 @@ class SpectrumTest(PymatgenTest):
 
     def test_operators(self):
         scaled_spect = 3 * self.spec1 + self.spec2
-        self.assertTrue(np.allclose(scaled_spect.y,
-                                    3 * self.spec1.y + self.spec2.y))
-        self.assertAlmostEqual(self.spec1.get_interpolated_value(0.05),
-                               (self.spec1.y[0] + self.spec1.y[1]) / 2)
+        self.assertTrue(np.allclose(scaled_spect.y, 3 * self.spec1.y + self.spec2.y))
+        self.assertAlmostEqual(
+            self.spec1.get_interpolated_value(0.05),
+            (self.spec1.y[0] + self.spec1.y[1]) / 2,
+        )
 
         scaled_spect = self.spec1 - self.spec2
-        self.assertTrue(np.allclose(scaled_spect.y,
-                                    self.spec1.y - self.spec2.y))
+        self.assertTrue(np.allclose(scaled_spect.y, self.spec1.y - self.spec2.y))
 
         scaled_spect = self.spec1 / 3
-        self.assertTrue(np.allclose(scaled_spect.y,
-                                    self.spec1.y / 3))
+        self.assertTrue(np.allclose(scaled_spect.y, self.spec1.y / 3))
 
         scaled_spect = 3 * self.multi_spec1 + self.multi_spec2
-        self.assertTrue(np.allclose(scaled_spect.y,
-                                    3 * self.multi_spec1.y + self.multi_spec2.y))
+        self.assertTrue(
+            np.allclose(scaled_spect.y, 3 * self.multi_spec1.y + self.multi_spec2.y)
+        )
         self.assertArrayAlmostEqual(
             self.multi_spec1.get_interpolated_value(0.05),
-            (self.multi_spec1.y[0, :] + self.multi_spec1.y[1, :]) / 2)
+            (self.multi_spec1.y[0, :] + self.multi_spec1.y[1, :]) / 2,
+        )
 
     def test_smear(self):
         y = np.array(self.spec1.y)
@@ -64,8 +64,9 @@ class SpectrumTest(PymatgenTest):
         y = np.array(self.multi_spec1.y)
         self.multi_spec1.smear(0.2)
         self.assertFalse(np.allclose(y, self.multi_spec1.y))
-        self.assertArrayAlmostEqual(np.sum(y, axis=0),
-                                    np.sum(self.multi_spec1.y, axis=0))
+        self.assertArrayAlmostEqual(
+            np.sum(y, axis=0), np.sum(self.multi_spec1.y, axis=0)
+        )
 
     def test_str(self):
         # Just make sure that these methods work.
@@ -79,5 +80,5 @@ class SpectrumTest(PymatgenTest):
         self.assertEqual(spec1copy.y[1], self.spec1.y[1])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

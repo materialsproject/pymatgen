@@ -18,11 +18,13 @@ http://doi.org/10.1016/j.commatsci.2017.01.017
 import os
 
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                              "aflow_prototypes.json"))
+AFLOW_PROTOTYPE_LIBRARY = loadfn(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "aflow_prototypes.json")
+)
 
 
 class AflowPrototypeMatcher:
@@ -59,16 +61,18 @@ class AflowPrototypeMatcher:
     def _match_prototype(structure_matcher, structure):
         tags = []
         for d in AFLOW_PROTOTYPE_LIBRARY:
-            p = d['snl'].structure
+            p = d["snl"].structure
             match = structure_matcher.fit_anonymous(p, structure)
             if match:
                 tags.append(d)
         return tags
 
     def _match_single_prototype(self, structure):
-        sm = StructureMatcher(ltol=self.initial_ltol,
-                              stol=self.initial_stol,
-                              angle_tol=self.initial_angle_tol)
+        sm = StructureMatcher(
+            ltol=self.initial_ltol,
+            stol=self.initial_stol,
+            angle_tol=self.initial_angle_tol,
+        )
         tags = self._match_prototype(sm, structure)
         while len(tags) > 1:
             sm.ltol *= 0.8

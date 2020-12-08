@@ -2,16 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 import warnings
 
 import pandas as pd
-
 from monty.os.path import which
 
 import pymatgen.command_line.vampire_caller as vampirecaller
-
 from pymatgen import Structure
 
 test_dir = os.path.join(
