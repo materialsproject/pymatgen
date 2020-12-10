@@ -26,7 +26,6 @@ from typing import Iterable
 from monty.json import MSONable
 from scipy.constants import N_A
 
-from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -103,7 +102,6 @@ class AbstractElectrode(Sequence, MSONable):
     """
 
     voltage_pairs: Iterable[AbstractVoltagePair]
-    working_ion: Element
     working_ion_entry: ComputedEntry
 
     def __getitem__(self, index):
@@ -117,6 +115,13 @@ class AbstractElectrode(Sequence, MSONable):
 
     def __len__(self):
         return len(self.voltage_pairs)
+
+    @property
+    def working_ion(self):
+        """
+        working ion as pymatgen Element object
+        """
+        return self.working_ion_entry.composition.elements[0]
 
     @property
     def max_delta_volume(self):
