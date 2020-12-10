@@ -11,8 +11,9 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
-import abc
 from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Iterable
 
 from monty.json import MSONable
 from scipy.constants import N_A
@@ -25,78 +26,39 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
+from pymatgen.core.periodic_table import Element
+from pymatgen.entries.computed_entries import ComputedEntry
 
-class AbstractVoltagePair:
+
+@dataclass
+class AbstractVoltagePair(MSONable):
     """
     An Abstract Base Class for a Voltage Pair.
+
+    Attributes:
+        voltage : Voltage of voltage pair.
+        mAh: Energy in mAh.
+        mass_charge: Mass of charged pair.
+        mass_discharge: Mass of discharged pair.
+        vol_charge: Vol of charged pair.
+        vol_discharge: Vol of discharged pair.
+        frac_charge: Frac of working ion in charged pair.
+        frac_discharge: Frac of working ion in discharged pair.
+        working_ion_entry: Working ion as an entry.
     """
 
-    __metaclass__ = abc.ABCMeta
-
-    @property
-    @abc.abstractmethod
-    def voltage(self) -> float:
-        """
-        Returns: Voltage of voltage pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def mAh(self):
-        """
-        Returns: Energy in mAh.
-        """
-
-    @property
-    @abc.abstractmethod
-    def mass_charge(self):
-        """
-        Returns: Mass of charged pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def mass_discharge(self):
-        """
-        Returns: Mass of discharged pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def vol_charge(self):
-        """
-        Returns: Vol of charged pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def vol_discharge(self):
-        """
-        Returns: Vol of discharged pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def frac_charge(self):
-        """
-        Returns: Frac of working ion in charged pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def frac_discharge(self):
-        """
-        Returns: Frac of working ion in discharged pair.
-        """
-
-    @property
-    @abc.abstractmethod
-    def working_ion_entry(self):
-        """
-        Returns: Working ion as an entry.
-        """
+    voltage: float
+    mAh: float
+    mass_charge: float
+    mass_discharge: float
+    vol_charge: float
+    vol_discharge: float
+    frac_charge: float
+    frac_discharge: float
+    working_ion_entry: ComputedEntry
 
 
+@dataclass
 class AbstractElectrode(Sequence, MSONable):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
@@ -134,33 +96,15 @@ class AbstractElectrode(Sequence, MSONable):
 
     Developers implementing a new battery (other than the two general ones
     already implemented) need to implement a VoltagePair and an Electrode.
+    Attributes:
+        voltage_pairs: Objects that represent each voltage step
+        working_ion: Representation of the working ion that only contains element type
+        working_ion_entry: Representation of the working_ion that contains the energy
     """
 
-    __metaclass__ = abc.ABCMeta
-
-    @property
-    @abc.abstractmethod
-    def voltage_pairs(self):
-        """
-        Returns all the VoltagePairs
-        """
-        return
-
-    @property
-    @abc.abstractmethod
-    def working_ion(self):
-        """
-        The working ion as an Element object
-        """
-        return
-
-    @property
-    @abc.abstractmethod
-    def working_ion_entry(self):
-        """
-        The working ion as an Entry object
-        """
-        return
+    voltage_pairs: Iterable[AbstractVoltagePair]
+    working_ion: Element
+    working_ion_entry: ComputedEntry
 
     def __getitem__(self, index):
         return self.voltage_pairs[index]
