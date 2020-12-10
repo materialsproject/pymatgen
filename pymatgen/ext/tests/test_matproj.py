@@ -1,27 +1,29 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+import random
 import re
 import unittest
 import warnings
-import random
-import sys
+
 import ruamel.yaml as yaml
-from pymatgen import SETTINGS, __version__ as pmg_version, SETTINGS_FILE
-from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure, Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine,
-    BandStructure,
-)
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+
+from pymatgen import SETTINGS, SETTINGS_FILE
+from pymatgen import __version__ as pmg_version
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
-from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Composition, Structure
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructure,
+    BandStructureSymmLine,
+)
+from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -364,17 +366,17 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(entry.energy, -825.5)
 
     # def test_submit_query_delete_snl(self):
-        # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-        # d = self.rester.submit_snl(
-        #     [s, s], remarks=["unittest"],
-        #     authors="Test User <test@materialsproject.com>")
-        # self.assertEqual(len(d), 2)
-        # data = self.rester.query_snl({"about.remarks": "unittest"})
-        # self.assertEqual(len(data), 2)
-        # snlids = [d["_id"] for d in data]
-        # self.rester.delete_snl(snlids)
-        # data = self.rester.query_snl({"about.remarks": "unittest"})
-        # self.assertEqual(len(data), 0)
+    # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+    # d = self.rester.submit_snl(
+    #     [s, s], remarks=["unittest"],
+    #     authors="Test User <test@materialsproject.com>")
+    # self.assertEqual(len(d), 2)
+    # data = self.rester.query_snl({"about.remarks": "unittest"})
+    # self.assertEqual(len(data), 2)
+    # snlids = [d["_id"] for d in data]
+    # self.rester.delete_snl(snlids)
+    # data = self.rester.query_snl({"about.remarks": "unittest"})
+    # self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
         entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
@@ -487,7 +489,9 @@ class MPResterTest(PymatgenTest):
         self.assertDictEqual(
             dict(meta),
             {
-                "mp-23494": [{"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}],
+                "mp-23494": [
+                    {"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}
+                ],
                 "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
             },
         )
@@ -542,17 +546,6 @@ class MPResterTest(PymatgenTest):
             m, msg="Unexpected user-agent value {}".format(headers["user-agent"])
         )
         self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
-        self.assertEqual(
-            m.groups()[3:6],
-            tuple(
-                str(n)
-                for n in (
-                    sys.version_info.major,
-                    sys.version_info.minor,
-                    sys.version_info.micro,
-                )
-            ),
-        )
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn(
             "user-agent", self.rester.session.headers, msg="user-agent header unwanted"

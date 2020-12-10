@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Collaborative Github Workflow &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>Collaborative Github Workflow &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -226,6 +226,13 @@ The pymatgen repo comes with a complete set of tests for all modules. If
 you have written new modules or methods, you must write tests for the new
 code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run pytest in your
 local repo directory and fix all errors before continuing further.</p></li>
+<li><p>If you have <a class="reference external" href="https://pre-commit.com/">pre-commit</a> installed you can use
+the provided <code class="code docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file to perform automatic style checks
+before publishing your code.  The pre-commit hooks can be installed using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pre</span><span class="o">-</span><span class="n">commit</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
 <li><p>If everything is ok, publish the commits to your github repository.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
 </pre></div>

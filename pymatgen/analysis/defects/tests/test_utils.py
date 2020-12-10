@@ -3,36 +3,33 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import random
+import unittest
 from collections import Counter
 
 import numpy as np
-import random
 
 from pymatgen.analysis.defects.utils import (
-    QModel,
-    eV_to_k,
-    generate_reciprocal_vectors_squared,
-    genrecip,
-    closestsites,
-    StructureMotifInterstitial,
-    TopographyAnalyzer,
     ChargeDensityAnalyzer,
     ChargeInsertionAnalyzer,
-    converge,
+    QModel,
+    StructureMotifInterstitial,
+    TopographyAnalyzer,
     calculate_vol,
-    tune_for_gamma,
+    closestsites,
+    converge,
+    eV_to_k,
     generate_R_and_G_vecs,
+    generate_reciprocal_vectors_squared,
+    genrecip,
+    tune_for_gamma,
 )
-
-from pymatgen.util.testing import PymatgenTest
-
 from pymatgen.core import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from skimage.feature import peak_local_max

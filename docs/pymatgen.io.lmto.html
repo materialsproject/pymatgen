@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.lmto module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.io.lmto module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -209,7 +209,7 @@ LMTO-ASA code. It will primarily be used to generate a pymatgen
 Structure object in the pymatgen.electronic_structure.cohp.py module.</p>
 <dl class="py class">
 <dt id="pymatgen.io.lmto.LMTOCopl">
-<em class="property">class </em><code class="sig-name descname">LMTOCopl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'COPL'</span></em>, <em class="sig-param"><span class="n">to_eV</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L313-L424"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCopl" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LMTOCopl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'COPL'</span></em>, <em class="sig-param"><span class="n">to_eV</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L332-L463"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCopl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for reading COPL files, which contain COHP data.</p>
 <dl class="field-list simple">
@@ -225,7 +225,7 @@ eV, set to True. Defaults to False for energies in Ry.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.io.lmto.LMTOCtrl">
-<em class="property">class </em><code class="sig-name descname">LMTOCtrl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'LMASA-47'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L32-L310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LMTOCtrl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">header</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'LMASA-47'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L32-L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
 Currently, only HEADER, VERS and the structure can be used.</p>
@@ -242,7 +242,7 @@ Defaults to the newest version (4.7).</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.lmto.LMTOCtrl.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L106-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L107-L163"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the CTRL as a dictionary. “SITE” and “CLASS” are of
 the form {‘CATEGORY’: {‘TOKEN’: value}}, the rest is of the
 form ‘TOKEN’/’CATEGORY’: value. It gets the conventional standard
@@ -253,7 +253,7 @@ parameter of the primitive cell.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.lmto.LMTOCtrl.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L258-L310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L274-L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a CTRL file object from a dictionary. The dictionary
 must contain the items “ALAT”, PLAT” and “SITE”.</p>
 <dl>
@@ -284,7 +284,7 @@ VERS (optional): LMTO version as a str</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.lmto.LMTOCtrl.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'CTRL'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L165-L178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'CTRL'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L173-L186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a CTRL file object from an existing file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -298,7 +298,7 @@ VERS (optional): LMTO version as a str</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.lmto.LMTOCtrl.from_string">
-<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">sigfigs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L180-L256"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">sigfigs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L188-L272"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a CTRL file object from a string. This will mostly be
 used to read an LMTOCtrl object from a CTRL file. Empty spheres
 are ignored.</p>
@@ -314,14 +314,14 @@ are ignored.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.lmto.LMTOCtrl.get_string">
-<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigfigs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L67-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.get_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigfigs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L68-L105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates the string representation of the CTRL file. This is
 the mininmal CTRL file necessary to execute lmhart.run.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.lmto.LMTOCtrl.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'CTRL'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/lmto.py#L157-L163"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'CTRL'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lmto.py#L165-L171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lmto.LMTOCtrl.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes a CTRL file with structure, HEADER, and VERS that can be
 used as input for lmhart.run.</p>
 </dd></dl>

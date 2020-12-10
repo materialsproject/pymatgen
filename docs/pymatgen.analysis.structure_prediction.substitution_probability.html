@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.structure_prediction.substitution_probability module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.structure_prediction.substitution_probability module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -210,7 +210,7 @@
 probabilities.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor">
-<em class="property">class </em><code class="sig-name descname">SubstitutionPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lambda_table</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">- 5</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/substitution_probability.py#L180-L289"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SubstitutionPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lambda_table</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">- 5</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/substitution_probability.py#L185-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Predicts likely substitutions either to or from a given composition
 or species list using the SubstitutionProbability</p>
@@ -225,7 +225,7 @@ or species list using the SubstitutionProbability</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction">
-<code class="sig-name descname">composition_prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">composition</span></em>, <em class="sig-param"><span class="n">to_this_composition</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/substitution_probability.py#L254-L289"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">composition_prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">composition</span></em>, <em class="sig-param"><span class="n">to_this_composition</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/substitution_probability.py#L258-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns charged balanced substitutions from a starting or ending
 composition.</p>
 <dl class="field-list simple">
@@ -249,7 +249,7 @@ from that list.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction">
-<code class="sig-name descname">list_prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">to_this_composition</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/substitution_probability.py#L196-L252"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">list_prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">to_this_composition</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/substitution_probability.py#L201-L256"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -273,7 +273,7 @@ from that list.</p>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability">
-<em class="property">class </em><code class="sig-name descname">SubstitutionProbability</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/substitution_probability.py#L32-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SubstitutionProbability</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/substitution_probability.py#L32-L182"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability</span></code></a></p>
 <p>This class finds substitution probabilities given lists of atoms
 to substitute. The inputs make more sense if you look through the

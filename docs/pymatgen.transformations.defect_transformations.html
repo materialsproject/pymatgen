@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.transformations.defect_transformations module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.transformations.defect_transformations module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>This module defines classes for point defect transformations on structures</p>
 <dl class="py class">
 <dt id="pymatgen.transformations.defect_transformations.DefectTransformation">
-<em class="property">class </em><code class="sig-name descname">DefectTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaling_matrix</span></em>, <em class="sig-param"><span class="n">defect</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/transformations/defect_transformations.py#L21-L66"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DefectTransformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaling_matrix</span></em>, <em class="sig-param"><span class="n">defect</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/transformations/defect_transformations.py#L20-L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Generates Defect structures based on pymatgen Defect Core classes</p>
 <dl class="field-list simple">
@@ -221,7 +221,7 @@ NOTE: defect.bulk_structure should be same as provided structure in the apply_tr
 </dl>
 <dl class="py method">
 <dt id="pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation">
-<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/transformations/defect_transformations.py#L35-L45"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_transformation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/transformations/defect_transformations.py#L34-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> – (bulk structure to be scaled up - typically conventional unit cell)</p>
@@ -234,13 +234,13 @@ NOTE: defect.bulk_structure should be same as provided structure in the apply_tr
 
 <dl class="py method">
 <dt id="pymatgen.transformations.defect_transformations.DefectTransformation.inverse">
-<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">inverse</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Not implemented</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many">
-<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_one_to_many</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/transformations/defect_transformations.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.defect_transformations.DefectTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
 <dd><p>False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>

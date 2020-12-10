@@ -1,0 +1,631 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.cp2k.outputs module &mdash; pymatgen 2020.12.3 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.cp2k.outputs.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.cp2k.sets module" href="pymatgen.io.cp2k.sets.html" />
+    <link rel="prev" title="pymatgen.io.cp2k.inputs module" href="pymatgen.io.cp2k.inputs.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.12.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.cp2k.html">pymatgen.io.cp2k package</a> &raquo;</li>
+        
+      <li>pymatgen.io.cp2k.outputs module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.cp2k.outputs.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.cp2k.outputs">
+<span id="pymatgen-io-cp2k-outputs-module"></span><h1>pymatgen.io.cp2k.outputs module<a class="headerlink" href="#module-pymatgen.io.cp2k.outputs" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
+outputs.</p>
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput">
+<em class="property">class </em><code class="sig-name descname">Cp2kOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">auto_load</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L44-L1314"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for parsing output file from CP2K. The CP2K output file is very flexible in the way that it is returned.
+This class will automatically parse parameters that should always be present, but other parsing features may be
+called depending on the run type.</p>
+<p>Initialize the Cp2kOutput object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – (str) Name of the CP2K output file to parse</p></li>
+<li><p><strong>verbose</strong> – (bool) Whether or not to parse with verbosity (will parse lots of data that may not be useful)</p></li>
+<li><p><strong>auto_load</strong> (<em>bool</em>) – Whether or not to automatically load basic info like energies and structures.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1289-L1314"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary representation of the output</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.completed">
+<em class="property">property </em><code class="sig-name descname">completed</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.completed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Did the calculation complete</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.convergence">
+<code class="sig-name descname">convergence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L356-L399"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.convergence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether or not the SCF and geometry optimization cycles converged.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.cp2k_version">
+<em class="property">property </em><code class="sig-name descname">cp2k_version</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.cp2k_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cp2k version used in the calculation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.is_metal">
+<em class="property">property </em><code class="sig-name descname">is_metal</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.is_metal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Was a band gap found? i.e. is it a metal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.num_warnings">
+<em class="property">property </em><code class="sig-name descname">num_warnings</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.num_warnings" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many warnings showed up during the run</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_atomic_kind_info">
+<code class="sig-name descname">parse_atomic_kind_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L638-L697"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_atomic_kind_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse info on what atomic kinds are present and what basis/pseudopotential is describing each of them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_cell_params">
+<code class="sig-name descname">parse_cell_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L618-L636"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_cell_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the lattice parameters (initial) from the output file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_cp2k_params">
+<code class="sig-name descname">parse_cp2k_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L504-L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_cp2k_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the CP2K general parameters from CP2K output file into a dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_dft_params">
+<code class="sig-name descname">parse_dft_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L543-L595"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_dft_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the DFT parameters (as well as functional, HF, vdW params)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_dos">
+<code class="sig-name descname">parse_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pdos_files</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ldos_files</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1097-L1158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the pdos_ALPHA files created by cp2k, and assimilate them into a CompleteDos object.
+Either provide a list of PDOS file paths, or use glob to find the .pdos_ALPHA extension in
+the calculation directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdos_files</strong> (<em>list</em>) – list of pdos file paths, otherwise they will be inferred</p></li>
+<li><p><strong>ldos_Files</strong> (<em>list</em>) – list of ldos file paths, otherwise they will be inferred</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – Gaussian smearing parameter, if desired. Because cp2k is generally
+used as a gamma-point only code, this is often needed to get smooth DOS that
+are comparable to k-point averaged DOS</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_energies">
+<code class="sig-name descname">parse_energies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L401-L415"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_energies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total energy from the output file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_files">
+<code class="sig-name descname">parse_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L175-L216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify files present in the directory with the cp2k output file. Looks for trajectories, dos, and cubes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_forces">
+<code class="sig-name descname">parse_forces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L417-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the forces from the output file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_global_params">
+<code class="sig-name descname">parse_global_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L533-L541"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_global_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the GLOBAL section parameters from CP2K output file into a dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_hirshfeld">
+<code class="sig-name descname">parse_hirshfeld</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L856-L912"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_hirshfeld" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse the hirshfeld population analysis for each step</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_homo_lumo">
+<code class="sig-name descname">parse_homo_lumo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1068-L1095"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_homo_lumo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed by
+spin up/spin down channel and over many ionic steps, see parse_mo_eigenvalues()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_initial_structure">
+<code class="sig-name descname">parse_initial_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L285-L328"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_initial_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the initial structure from the main cp2k output file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_input">
+<code class="sig-name descname">parse_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L517-L531"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load in the input set from the input file (if it can be found)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_ionic_steps">
+<code class="sig-name descname">parse_ionic_steps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L472-L502"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_ionic_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the ionic step info</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_mo_eigenvalues">
+<code class="sig-name descname">parse_mo_eigenvalues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L914-L1066"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_mo_eigenvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the MO eigenvalues from the cp2k output file. Will get the eigenvalues (and band gap)
+at each ionic step (if more than one exist).</p>
+<p>Everything is decomposed by spin channel. If calculation was performed without spin polarization,
+then only Spin.up will be present, which represents the average of up and down.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_mulliken">
+<code class="sig-name descname">parse_mulliken</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L838-L854"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_mulliken" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the mulliken population analysis info for each step
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_opt_steps">
+<code class="sig-name descname">parse_opt_steps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L782-L836"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_opt_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the geometry optimization information</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_scf_opt">
+<code class="sig-name descname">parse_scf_opt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L724-L753"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_scf_opt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the SCF cycles (not usually important)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_scf_params">
+<code class="sig-name descname">parse_scf_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L597-L616"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_scf_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the most import SCF parameters: the max number of scf cycles (max_scf),
+the convergence cutoff for scf (eps_scf),
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_stresses">
+<code class="sig-name descname">parse_stresses</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L442-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_stresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the stresses from the output file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_structures">
+<code class="sig-name descname">parse_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trajectory_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lattice_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L218-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the structures from a cp2k calculation. Static calculations simply use the initial structure.
+For calculations with ionic motion, the function will look for the appropriate trajectory and lattice
+files based on naming convention. If no file is given, and no file is found, it is assumed
+that the lattice/structure remained constant, and the initial lattice/structure is used.
+Cp2k does not output the trajectory in the main output file by default, so non static calculations have to
+reference the trajectory file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_timing">
+<code class="sig-name descname">parse_timing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L755-L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_timing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the timing info (how long did the run take).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.parse_total_numbers">
+<code class="sig-name descname">parse_total_numbers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L699-L722"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.parse_total_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse total numbers (not usually important)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.project_name">
+<em class="property">property </em><code class="sig-name descname">project_name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.project_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>What project name was used for this calculation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.ran_successfully">
+<code class="sig-name descname">ran_successfully</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L330-L354"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.ran_successfully" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sanity checks that the program ran successfully. Looks at the bottom of the CP2K output file
+for the “PROGRAM ENDED” line, which is printed when successfully ran. Also grabs the number
+of warnings issued.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.read_pattern">
+<code class="sig-name descname">read_pattern</code><span class="sig-paren">(</span><em class="sig-param">patterns</em>, <em class="sig-param">reverse=False</em>, <em class="sig-param">terminate_on_match=False</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1176-L1211"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.read_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function originally comes from pymatgen.io.vasp.outputs Outcar class</p>
+<p>General pattern reading. Uses monty’s regrep method. Takes the same
+arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
+{“energy”: r”energy\(sigma-&gt;0\)\s+=\s+([\d\-.]+)”}.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
+large files, esp OUTCARs, especially when used with
+terminate_on_match.</p></li>
+<li><p><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
+least one match in each key in pattern.</p></li>
+<li><p><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
+matches. Defaults to str, i.e., no change.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Renders accessible:</dt><dd><p>Any attribute in patterns. For example,
+{“energy”: r”energy\(sigma-&gt;0\)\s+=\s+([\d\-.]+)”} will set the
+value of self.data[“energy”] = [[-1234], [-3453], …], to the
+results from regex and postprocess. Note that the returned values
+are lists of lists, because you can grep multiple items on one line.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.read_table_pattern">
+<code class="sig-name descname">read_table_pattern</code><span class="sig-paren">(</span><em class="sig-param">header_pattern</em>, <em class="sig-param">row_pattern</em>, <em class="sig-param">footer_pattern</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em>, <em class="sig-param">attribute_name=None</em>, <em class="sig-param">last_one_only=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1213-L1287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function originally comes from pymatgen.io.vasp.outputs Outcar class</p>
+<p>Parse table-like data. A table composes of three parts: header,
+main body, footer. All the data matches “row pattern” in the main body
+will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header_pattern</strong> (<em>str</em>) – The regular expression pattern matches the
+table header. This pattern should match all the text
+immediately before the main body of the table. For multiple
+sections table match the text until the section of
+interest. MULTILINE and DOTALL options are enforced, as a
+result, the “.” meta-character will also match “n” in this
+section.</p></li>
+<li><p><strong>row_pattern</strong> (<em>str</em>) – The regular expression matches a single line in
+the table. Capture interested field using regular expression
+groups.</p></li>
+<li><p><strong>footer_pattern</strong> (<em>str</em>) – The regular expression matches the end of the
+table. E.g. a long dash line.</p></li>
+<li><p><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
+matches. Defaults to str, i.e., no change.</p></li>
+<li><p><strong>attribute_name</strong> (<em>str</em>) – Name of this table. If present the parsed data
+will be attached to “data. e.g. self.data[“efg”] = […]</p></li>
+<li><p><strong>last_one_only</strong> (<em>bool</em>) – All the tables will be parsed, if this option
+is set to True, only the last table will be returned. The
+enclosing list will be removed. i.e. Only a single table will
+be returned. Default to be True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of tables. 1) A table is a list of rows. 2) A row if either a list of
+attribute values in case the the capturing group is defined without name in
+row_pattern, or a dict in case that named capturing groups are defined by
+row_pattern.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.run_type">
+<em class="property">property </em><code class="sig-name descname">run_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.run_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>What type of run (Energy, MD, etc.) was performed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.outputs.Cp2kOutput.spin_polarized">
+<em class="property">property </em><code class="sig-name descname">spin_polarized</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.Cp2kOutput.spin_polarized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Was the calculation spin polarized</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.cp2k.outputs.gauss_smear">
+<code class="sig-name descname">gauss_smear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">width</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1438-L1459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.gauss_smear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a gaussian smeared DOS</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.cp2k.outputs.parse_dos">
+<code class="sig-name descname">parse_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dos_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spin_channel</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">total</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1338-L1435"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.parse_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a single DOS file created by cp2k. Must contain one PDOS snapshot. i.e. you cannot
+use this cannot deal with multiple concatenated dos files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dos_file</strong> (<em>list</em>) – list of pdos_ALPHA file paths</p></li>
+<li><p><strong>spin_channel</strong> (<em>int</em>) – Which spin channel the file corresponds to. By default, CP2K will
+write the file with ALPHA or BETA in the filename (for spin up or down), but
+you can specify this here, in case you have a manual file name.
+spin_channel == 1 –&gt; spin up, spin_channel == -1 –&gt; spin down.</p></li>
+<li><p><strong>total</strong> (<em>bool</em>) – Whether to grab the total occupations, or the orbital decomposed ones.</p></li>
+<li><p><strong>sigma</strong> (<em>float</em>) – width for gaussian smearing, if desired</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><blockquote>
+<div><ol class="arabic simple">
+<li><p>orbital decomposed DOS dict:
+i.e. pdoss = {specie: {orbital.s: {Spin.up: … }, orbital.px: {Spin.up: … } …}}</p></li>
+<li><p>energy levels of this dos file</p></li>
+<li><p>fermi energy (in eV).</p></li>
+</ol>
+</div></blockquote>
+<p>DOS object is not created here</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Everything necessary to create a dos object, in dict format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.cp2k.outputs.parse_energy_file">
+<code class="sig-name descname">parse_energy_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">energy_file</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/outputs.py#L1317-L1335"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.outputs.parse_energy_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses energy file for calculations with multiple ionic steps.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

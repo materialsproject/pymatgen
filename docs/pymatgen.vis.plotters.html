@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.vis.plotters module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.vis.plotters module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>This module defines generic plotters.</p>
 <dl class="py class">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter">
-<em class="property">class </em><code class="sig-name descname">SpectrumPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xshift</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">yshift</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">stack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">color_cycle</span><span class="o">=</span><span class="default_value">'qualitative', 'Set1_9'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/vis/plotters.py#L14-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SpectrumPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xshift</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">yshift</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">stack</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">color_cycle</span><span class="o">=</span><span class="default_value">'qualitative', 'Set1_9'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/vis/plotters.py#L15-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for plotting Spectrum objects and subclasses. Note that the interface
 is extremely flexible given that there are many different ways in which
@@ -244,7 +244,7 @@ overridden</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.add_spectra">
-<code class="sig-name descname">add_spectra</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spectra_dict</span></em>, <em class="sig-param"><span class="n">key_sort_func</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/vis/plotters.py#L75-L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectra" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_spectra</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spectra_dict</span></em>, <em class="sig-param"><span class="n">key_sort_func</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/vis/plotters.py#L76-L90"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a dictionary of doses, with an optional sorting function for the
 keys.</p>
 <dl class="field-list simple">
@@ -259,7 +259,7 @@ keys.</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.add_spectrum">
-<code class="sig-name descname">add_spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">spectrum</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/vis/plotters.py#L59-L73"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">spectrum</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/vis/plotters.py#L60-L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.add_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a Spectrum for plotting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -276,7 +276,7 @@ the default color cycle.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.get_plot">
-<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xlim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/vis/plotters.py#L91-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xlim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/vis/plotters.py#L92-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib plot showing the DOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -291,7 +291,7 @@ determination.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.save_plot">
-<code class="sig-name descname">save_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">img_format</span><span class="o">=</span><span class="default_value">'eps'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/vis/plotters.py#L129-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">img_format</span><span class="o">=</span><span class="default_value">'eps'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/vis/plotters.py#L140-L149"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -305,7 +305,7 @@ determination.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.plotters.SpectrumPlotter.show">
-<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/vis/plotters.py#L140-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/vis/plotters.py#L151-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.plotters.SpectrumPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 </dd></dl>
 

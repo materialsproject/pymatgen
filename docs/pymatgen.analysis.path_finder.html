@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.path_finder module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.path_finder module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -214,7 +214,7 @@ following work:</p>
 </div>
 <dl class="py class">
 <dt id="pymatgen.analysis.path_finder.ChgcarPotential">
-<em class="property">class </em><code class="sig-name descname">ChgcarPotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chgcar</span></em>, <em class="sig-param"><span class="n">smear</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L416-L436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.ChgcarPotential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ChgcarPotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chgcar</span></em>, <em class="sig-param"><span class="n">smear</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L436-L456"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.ChgcarPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.path_finder.StaticPotential" title="pymatgen.analysis.path_finder.StaticPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.path_finder.StaticPotential</span></code></a></p>
 <p>Implements a potential field based on the charge density output from VASP.</p>
 <dl class="field-list simple">
@@ -233,7 +233,7 @@ from 0 to 1</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.path_finder.FreeVolumePotential">
-<em class="property">class </em><code class="sig-name descname">FreeVolumePotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">dim</span></em>, <em class="sig-param"><span class="n">smear</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L439-L476"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.FreeVolumePotential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FreeVolumePotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">dim</span></em>, <em class="sig-param"><span class="n">smear</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L459-L496"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.FreeVolumePotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.path_finder.StaticPotential" title="pymatgen.analysis.path_finder.StaticPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.path_finder.StaticPotential</span></code></a></p>
 <p>Implements a potential field based on geometric distances from atoms in the
 structure - basically, the potential
@@ -254,7 +254,7 @@ from 0 to 1</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.path_finder.MixedPotential">
-<em class="property">class </em><code class="sig-name descname">MixedPotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potentials</span></em>, <em class="sig-param"><span class="n">coefficients</span></em>, <em class="sig-param"><span class="n">smear</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L479-L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.MixedPotential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MixedPotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">potentials</span></em>, <em class="sig-param"><span class="n">coefficients</span></em>, <em class="sig-param"><span class="n">smear</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L499-L521"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.MixedPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.path_finder.StaticPotential" title="pymatgen.analysis.path_finder.StaticPotential"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.path_finder.StaticPotential</span></code></a></p>
 <p>Implements a potential that is a weighted sum of some other potentials</p>
 <dl class="field-list simple">
@@ -272,7 +272,7 @@ from 0 to 1</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder">
-<em class="property">class </em><code class="sig-name descname">NEBPathfinder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start_struct</span></em>, <em class="sig-param"><span class="n">end_struct</span></em>, <em class="sig-param"><span class="n">relax_sites</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">n_images</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">mid_struct</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L36-L305"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NEBPathfinder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start_struct</span></em>, <em class="sig-param"><span class="n">end_struct</span></em>, <em class="sig-param"><span class="n">relax_sites</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">n_images</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">mid_struct</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L36-L324"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>General pathfinder for interpolating between two structures, where the
 interpolating path is calculated with the elastic band method with
@@ -292,14 +292,14 @@ be relaxed</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder.images">
-<em class="property">property </em><code class="sig-name descname">images</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.images" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">images</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of structures interpolating between the start and
 endpoint structures.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder.interpolate">
-<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L69-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.interpolate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L65-L114"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds a set of n_images from self.s1 to self.s2, where all sites except
 for the ones given in relax_sites, the interpolation is linear (as in
 pymatgen.core.structure.interpolate), and for the site indices given
@@ -311,14 +311,14 @@ The final number of images will still be n_images.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder.plot_images">
-<code class="sig-name descname">plot_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L126-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.plot_images" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_images</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L124-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.plot_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a POSCAR with the calculated diffusion path with respect to the first endpoint.
 :param outfile: Output file for the POSCAR</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.NEBPathfinder.string_relax">
-<em class="property">static </em><code class="sig-name descname">string_relax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">V</span></em>, <em class="sig-param"><span class="n">n_images</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">dr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">h</span><span class="o">=</span><span class="default_value">3.0</span></em>, <em class="sig-param"><span class="n">k</span><span class="o">=</span><span class="default_value">0.17</span></em>, <em class="sig-param"><span class="n">min_iter</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">max_iter</span><span class="o">=</span><span class="default_value">10000</span></em>, <em class="sig-param"><span class="n">max_tol</span><span class="o">=</span><span class="default_value">5e-06</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L144-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.string_relax" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">string_relax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">V</span></em>, <em class="sig-param"><span class="n">n_images</span><span class="o">=</span><span class="default_value">25</span></em>, <em class="sig-param"><span class="n">dr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">h</span><span class="o">=</span><span class="default_value">3.0</span></em>, <em class="sig-param"><span class="n">k</span><span class="o">=</span><span class="default_value">0.17</span></em>, <em class="sig-param"><span class="n">min_iter</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">max_iter</span><span class="o">=</span><span class="default_value">10000</span></em>, <em class="sig-param"><span class="n">max_tol</span><span class="o">=</span><span class="default_value">5e-06</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L145-L295"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.NEBPathfinder.string_relax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements path relaxation via the elastic band method. In general, the
 method is to define a path by a set of points (images) connected with
 bands with some elasticity constant k. The images then relax along the
@@ -356,7 +356,7 @@ CHGCARs.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.path_finder.StaticPotential">
-<em class="property">class </em><code class="sig-name descname">StaticPotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">pot</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L308-L413"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StaticPotential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">pot</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L327-L433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Defines a general static potential for diffusion calculations. Implements
 grid-rescaling and smearing for the potential grid. Also provides a
@@ -371,7 +371,7 @@ function to normalize the potential from 0 to 1 (recommended).</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.gaussian_smear">
-<code class="sig-name descname">gaussian_smear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L368-L413"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.gaussian_smear" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gaussian_smear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L388-L433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.gaussian_smear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies an isotropic Gaussian smear of width (standard deviation) r to
 the potential field. This is necessary to avoid finding paths through
 narrow minima or nodes that may exist in the field (although any
@@ -386,19 +386,19 @@ boundary conditions at the edges of the cell.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.get_v">
-<code class="sig-name descname">get_v</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L323-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.get_v" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_v</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L342-L346"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.get_v" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the potential</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.normalize">
-<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L329-L334"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.normalize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L348-L353"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the potential range 0 to 1.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.path_finder.StaticPotential.rescale_field">
-<code class="sig-name descname">rescale_field</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_dim</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/path_finder.py#L336-L366"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.rescale_field" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rescale_field</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_dim</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/path_finder.py#L355-L386"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.path_finder.StaticPotential.rescale_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Changes the discretization of the potential field by linear
 interpolation. This is necessary if the potential field
 obtained from DFT is strangely skewed, or is too fine or coarse. Obeys

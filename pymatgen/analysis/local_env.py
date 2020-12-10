@@ -17,7 +17,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 
 import numpy as np
 import ruamel.yaml as yaml
@@ -218,7 +218,7 @@ class NearNeighbors:
     """
 
     def __eq__(self, other):
-        if type(other) is type(self):
+        if isinstance(other, type(self)):
             return self.__dict__ == other.__dict__
         return False
 
@@ -1031,6 +1031,126 @@ class VoronoiNN(NearNeighbors):
                     poly_info = nstats
                     del poly_info["site"]
                     nn_info["poly_info"] = poly_info
+                siw.append(nn_info)
+        return siw
+
+
+class IsayevNN(VoronoiNN):
+    """
+    Uses the algorithm defined in 10.1038/ncomms15679
+
+    Sites are considered neighbors if (i) they share a Voronoi facet and (ii) the
+    bond distance is less than the sum of the Cordero covalent radii + 0.25 Å.
+    """
+
+    def __init__(
+        self,
+        tol: float = 0.25,
+        targets: Optional[Union[Element, List[Element]]] = None,
+        cutoff: float = 13.0,
+        allow_pathological: bool = False,
+        extra_nn_info: bool = True,
+        compute_adj_neighbors: bool = True
+    ):
+        """
+        Args:
+            tol: Tolerance in Å for bond distances that are considered coordinated.
+            targets: Target element(s).
+            cutoff: Cutoff radius in Angstrom to look for near-neighbor atoms.
+            allow_pathological: Whether to allow infinite vertices in Voronoi
+                coordination.
+            extra_nn_info: Add all polyhedron info to `get_nn_info`.
+            compute_adj_neighbors: Whether to compute which neighbors are adjacent. Turn
+                off for faster performance.
+        """
+        super().__init__()
+        self.tol = tol
+        self.cutoff = cutoff
+        self.allow_pathological = allow_pathological
+        self.targets = targets
+        self.extra_nn_info = extra_nn_info
+        self.compute_adj_neighbors = compute_adj_neighbors
+
+    def get_nn_info(self, structure: Structure, n: int) -> List[Dict[str, Any]]:
+        """
+        Get all near-neighbor site information.
+
+        Gets the the associated image locations and weights of the site with index n
+        in structure using Voronoi decomposition and distance cutoff.
+
+        Args:
+            structure: Input structure.
+            n: Index of site for which to determine near-neighbor sites.
+
+        Returns:
+            List of dicts containing the near-neighbor information. Each dict has the
+            keys:
+
+            - "site": The near-neighbor site.
+            - "image": The periodic image of the near-neighbor site.
+            - "weight": The face weight of the Voronoi decomposition.
+            - "site_index": The index of the near-neighbor site in the original
+              structure.
+        """
+        nns = self.get_voronoi_polyhedra(structure, n)
+        return self._filter_nns(structure, n, nns)
+
+    def get_all_nn_info(self, structure: Structure) -> List[List[Dict[str, Any]]]:
+        """
+        Args:
+            structure (Structure): input structure.
+
+        Returns:
+            List of near neighbor information for each site. See get_nn_info for the
+            format of the data for each site.
+        """
+        all_nns = self.get_all_voronoi_polyhedra(structure)
+        return [self._filter_nns(structure, n, nns) for n, nns in enumerate(all_nns)]
+
+    def _filter_nns(
+        self, structure: Structure, n: int, nns: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Extract and filter the NN info into the format needed by NearestNeighbors.
+
+        Args:
+            structure: The structure.
+            n: The central site index.
+            nns: Nearest neighbor information for the structure.
+
+        Returns:
+            See get_nn_info for the format of the returned data.
+        """
+
+        # Get the target information
+        if self.targets is None:
+            targets = structure.composition.elements
+        else:
+            targets = self.targets
+
+        site = structure[n]
+
+        # Extract the NN info
+        siw = []
+        max_weight = max(nn["area"] for nn in nns.values())
+        for nstats in nns.values():
+            nn = nstats.pop('site')
+
+            # use the Cordero radius if it is available, otherwise the atomic radius
+            cov_distance = _get_default_radius(site) + _get_default_radius(nn)
+            nn_distance = np.linalg.norm(site.coords - nn.coords)
+
+            # by default VoronoiNN only returns neighbors which share a Voronoi facet
+            # therefore we don't need do to additional filtering based on the weight
+            if _is_in_targets(nn, targets) and nn_distance <= cov_distance + self.tol:
+                nn_info = {
+                    'site': nn,
+                    'image': self._get_image(structure, nn),
+                    'weight': nstats["area"] / max_weight,
+                    'site_index': self._get_original_site(structure, nn)
+                }
+
+                if self.extra_nn_info:
+                    nn_info['poly_info'] = nstats
                 siw.append(nn_info)
         return siw
 
@@ -2335,7 +2455,6 @@ class LocalStructOrderParams:
         return len(self._last_nneigh)
 
     def compute_trigonometric_terms(self, thetas, phis):
-
         """
         Computes trigonometric terms that are required to
         calculate bond orientational order parameters using
@@ -2380,7 +2499,6 @@ class LocalStructOrderParams:
             self._cos_n_p[i] = [cos(float(i) * float(p)) for p in phis]
 
     def get_q2(self, thetas=None, phis=None):
-
         """
         Calculates the value of the bond orientational order parameter of
         weight l=2.  If the function is called with non-empty lists of
@@ -2451,7 +2569,6 @@ class LocalStructOrderParams:
         return q2
 
     def get_q4(self, thetas=None, phis=None):
-
         """
         Calculates the value of the bond orientational order parameter of
         weight l=4.  If the function is called with non-empty lists of
@@ -2568,7 +2685,6 @@ class LocalStructOrderParams:
         return q4
 
     def get_q6(self, thetas=None, phis=None):
-
         """
         Calculates the value of the bond orientational order parameter of
         weight l=6.  If the function is called with non-empty lists of
@@ -2747,7 +2863,6 @@ class LocalStructOrderParams:
         return q6
 
     def get_type(self, index):
-
         """
         Return type of order parameter at the index provided and
         represented by a short string.
@@ -2763,7 +2878,6 @@ class LocalStructOrderParams:
         return self._types[index]
 
     def get_parameters(self, index):
-
         """
         Returns list of floats that represents
         the parameters associated
@@ -3277,13 +3391,15 @@ class LocalStructOrderParams:
                                                     norms[i][j][kc] += 1.0
                                         elif t in ["cuboct", "cuboct_max"]:
                                             if (
-                                                    thetam < self._params[i]["min_SPP"]
-                                                    and self._params[i][4] < thetak <
-                                                    self._params[i][2]
+                                                thetam < self._params[i]["min_SPP"]
+                                                and self._params[i][4]
+                                                < thetak
+                                                < self._params[i][2]
                                             ):
                                                 if (
-                                                        self._params[i][4] < thetam <
-                                                        self._params[i][2]
+                                                    self._params[i][4]
+                                                    < thetam
+                                                    < self._params[i][2]
                                                 ):
                                                     tmp = cos(phi)
                                                     tmp2 = self._params[i][5] * (
@@ -3467,7 +3583,7 @@ class LocalStructOrderParams:
             dhalf = max(distjk_unique) / 2.0 if len(distjk_unique) > 0 else 0
 
             for i, t in enumerate(self._types):
-                if t in ('reg_tri', 'sq'):
+                if t in ("reg_tri", "sq"):
                     if nneigh < 3:
                         ops[i] = None
                     else:
@@ -3547,8 +3663,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.nn_distance for i in neighs_dists]
-        ds.sort()
+        ds = sorted([i.nn_distance for i in neighs_dists])
 
         ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
 
@@ -3621,8 +3736,7 @@ class BrunnerNN_relative(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.nn_distance for i in neighs_dists]
-        ds.sort()
+        ds = sorted([i.nn_distance for i in neighs_dists])
 
         ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
 
@@ -3695,8 +3809,7 @@ class BrunnerNN_real(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        ds = [i.nn_distance for i in neighs_dists]
-        ds.sort()
+        ds = sorted([i.nn_distance for i in neighs_dists])
 
         ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.wannier90 module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.io.wannier90 module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,18 +207,18 @@
 <p>Modules for working with wannier90 input and output.</p>
 <dl class="py class">
 <dt id="pymatgen.io.wannier90.Unk">
-<em class="property">class </em><code class="sig-name descname">Unk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ik</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py#L22-L188"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Unk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ik</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py#L23-L196"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object representing the data in a UNK file.</p>
 <dl class="py attribute">
 <dt id="pymatgen.io.wannier90.Unk.ik">
-<code class="sig-name descname">ik</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.ik" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ik</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.ik" title="Permalink to this definition">¶</a></dt>
 <dd><p>int index of kpoint for this file</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.wannier90.Unk.data">
-<code class="sig-name descname">data</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>numpy.ndarray that contains the wavefunction data for in the UNK file.
 The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
 (nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.</p>
@@ -226,19 +226,19 @@ The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
 
 <dl class="py attribute">
 <dt id="pymatgen.io.wannier90.Unk.is_noncollinear">
-<code class="sig-name descname">is_noncollinear</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.is_noncollinear" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_noncollinear</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.is_noncollinear" title="Permalink to this definition">¶</a></dt>
 <dd><p>bool that specifies if data is from a noncollinear calculation</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.wannier90.Unk.nbnd">
-<code class="sig-name descname">nbnd</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.nbnd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nbnd</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.nbnd" title="Permalink to this definition">¶</a></dt>
 <dd><p>int number of bands in data</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.wannier90.Unk.ng">
-<code class="sig-name descname">ng</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.ng" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ng</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.ng" title="Permalink to this definition">¶</a></dt>
 <dd><p>sequence of three integers that correspond to the grid size of the
 given data. The definition is ng = (ngx, ngy, ngz).</p>
 </dd></dl>
@@ -255,7 +255,7 @@ ngx, ngy, ngz) or (nbnd, 2, ngx, ngy, ngz) if noncollinear</p></li>
 </dl>
 <dl class="py method">
 <dt id="id0">
-<em class="property">property </em><code class="sig-name descname">data</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">data</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>contains the wavefunction data for in the UNK file.
 The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
 (nbnd, 2, ngx, ngy, ngz) for noncollinear calculations.</p>
@@ -268,7 +268,7 @@ The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
 
 <dl class="py method">
 <dt id="pymatgen.io.wannier90.Unk.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; object<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py#L101-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; object<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py#L107-L144"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the UNK data from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -282,27 +282,27 @@ The shape should be (nbnd, ngx, ngy, ngz) for regular calculations and
 
 <dl class="py attribute">
 <dt id="id1">
-<code class="sig-name descname">ik</code><em class="property">: int</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ik</code><em class="property">: int</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="id2">
-<code class="sig-name descname">is_noncollinear</code><em class="property">: bool</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_noncollinear</code><em class="property">: bool</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="id3">
-<code class="sig-name descname">nbnd</code><em class="property">: int</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nbnd</code><em class="property">: int</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="id4">
-<code class="sig-name descname">ng</code><em class="property">: Sequence[int]</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ng</code><em class="property">: Sequence[int]</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.wannier90.Unk.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/wannier90.py#L140-L158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/wannier90.py#L146-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.wannier90.Unk.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the UNK file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

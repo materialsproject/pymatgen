@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.entries.computed_entries module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.entries.computed_entries module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -211,7 +211,7 @@ structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.</p>
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.CompositionEnergyAdjustment">
-<em class="property">class </em><code class="sig-name descname">CompositionEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adj_per_atom</span></em>, <em class="sig-param"><span class="n">n_atoms</span></em>, <em class="sig-param"><span class="n">uncertainty_per_atom</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">'Composition-based energy adjustment'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L168-L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CompositionEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adj_per_atom</span></em>, <em class="sig-param"><span class="n">n_atoms</span></em>, <em class="sig-param"><span class="n">uncertainty_per_atom</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">'Composition-based energy adjustment'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L191-L249"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.EnergyAdjustment" title="pymatgen.entries.computed_entries.EnergyAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.EnergyAdjustment</span></code></a></p>
 <p>An energy adjustment applied to a ComputedEntry based on the atomic composition.
 Used in various DFT energy correction schemes.</p>
@@ -231,14 +231,20 @@ adjustment. (Default: None)</p></li>
 </dd>
 </dl>
 <dl class="py method">
+<dt id="pymatgen.entries.computed_entries.CompositionEnergyAdjustment.explain">
+<em class="property">property </em><code class="sig-name descname">explain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an explanaion of how the energy adjustment is calculated.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.entries.computed_entries.CompositionEnergyAdjustment.uncertainty">
-<em class="property">property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the energy adjustment in eV.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.CompositionEnergyAdjustment.value">
-<em class="property">property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.CompositionEnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the energy adjustment in eV.</p>
 </dd></dl>
 
@@ -246,7 +252,7 @@ adjustment. (Default: None)</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry">
-<em class="property">class </em><code class="sig-name descname">ComputedEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">composition</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a></span></em>, <em class="sig-param"><span class="n">energy</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">correction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy_adjustments</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L279-L513"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ComputedEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">composition</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition">pymatgen.core.composition.Composition</a></span></em>, <em class="sig-param"><span class="n">energy</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">correction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy_adjustments</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L316-L566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry" title="pymatgen.entries.Entry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.Entry</span></code></a></p>
 <p>Lightweight Entry object for computed data. Contains facilities
 for applying corrections to the .energy attribute and for storing
@@ -274,7 +280,7 @@ with the entry. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L497-L513"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L550-L566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable dict.</p>
@@ -284,7 +290,7 @@ with the entry. Defaults to None.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.correction">
-<em class="property">property </em><code class="sig-name descname">correction</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">correction</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 float: the total energy correction / adjustment applied to the entry,</p>
 <blockquote>
@@ -294,7 +300,7 @@ float: the total energy correction / adjustment applied to the entry,</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.correction_per_atom">
-<em class="property">property </em><code class="sig-name descname">correction_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction_per_atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">correction_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 float: the total energy correction / adjustment applied to the entry,</p>
 <blockquote>
@@ -304,14 +310,14 @@ float: the total energy correction / adjustment applied to the entry,</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty">
-<em class="property">property </em><code class="sig-name descname">correction_uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">correction_uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 float: the uncertainty of the energy adjustments applied to the entry, in eV</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty_per_atom">
-<em class="property">property </em><code class="sig-name descname">correction_uncertainty_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty_per_atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">correction_uncertainty_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.correction_uncertainty_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 float: the uncertainty of the energy adjustments applied to the entry,</p>
 <blockquote>
@@ -321,7 +327,7 @@ float: the uncertainty of the energy adjustments applied to the entry,</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.energy">
-<em class="property">property </em><code class="sig-name descname">energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>the <em>corrected</em> energy of the entry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -332,7 +338,7 @@ float: the uncertainty of the energy adjustments applied to the entry,</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L458-L495"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L512-L548"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
@@ -345,20 +351,24 @@ float: the uncertainty of the energy adjustments applied to the entry,</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.normalize">
-<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'formula_unit'</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L403-L416"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.normalize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'formula_unit'</span></em>, <em class="sig-param"><span class="n">inplace</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L444-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize the entry’s composition and energy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mode</strong> – “formula_unit” is the default, which normalizes to
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> – “formula_unit” is the default, which normalizes to
 composition.reduced_formula. The other option is “atom”, which
-normalizes such that the composition amounts sum to 1.</p>
+normalizes such that the composition amounts sum to 1.</p></li>
+<li><p><strong>inplace</strong> – “True” is the default which normalises the current Entry object.
+Setting inplace to “False” returns a normalized copy of the Entry object.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy_per_atom">
-<em class="property">property </em><code class="sig-name descname">uncorrected_energy_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">uncorrected_energy_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy_per_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 float: the <em>uncorrected</em> energy of the entry, normalized by atoms</p>
 <blockquote>
@@ -370,7 +380,7 @@ float: the <em>uncorrected</em> energy of the entry, normalized by atoms</p>
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.ComputedStructureEntry">
-<em class="property">class </em><code class="sig-name descname">ComputedStructureEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">energy</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">correction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy_adjustments</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L516-L606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ComputedStructureEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">energy</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">correction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy_adjustments</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L569-L658"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></code></a></p>
 <p>A heavier version of ComputedEntry which contains a structure as well. The
 structure is needed for some analyses.</p>
@@ -394,7 +404,7 @@ with the entry. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L559-L567"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L612-L620"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -404,7 +414,7 @@ with the entry. Defaults to None.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry">pymatgen.entries.computed_entries.ComputedStructureEntry</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L569-L606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry">pymatgen.entries.computed_entries.ComputedStructureEntry</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L622-L658"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
@@ -419,7 +429,7 @@ with the entry. Defaults to None.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.ConstantEnergyAdjustment">
-<em class="property">class </em><code class="sig-name descname">ConstantEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">uncertainty</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Constant energy adjustment'</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">'Constant energy adjustment'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L97-L150"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ConstantEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">uncertainty</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Constant energy adjustment'</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">'Constant energy adjustment'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L112-L173"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.EnergyAdjustment" title="pymatgen.entries.computed_entries.EnergyAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.EnergyAdjustment</span></code></a></p>
 <p>A constant energy adjustment applied to a ComputedEntry. Useful in energy referencing
 schemes such as the Aqueous energy referencing scheme.</p>
@@ -437,14 +447,20 @@ adjustment. (Default: None)</p></li>
 </dd>
 </dl>
 <dl class="py method">
+<dt id="pymatgen.entries.computed_entries.ConstantEnergyAdjustment.explain">
+<em class="property">property </em><code class="sig-name descname">explain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an explanaion of how the energy adjustment is calculated.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ConstantEnergyAdjustment.uncertainty">
-<em class="property">property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the uncertainty in the value of the energy adjustment in eV</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.ConstantEnergyAdjustment.value">
-<em class="property">property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the energy correction in eV.</p>
 </dd></dl>
 
@@ -452,7 +468,7 @@ adjustment. (Default: None)</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.EnergyAdjustment">
-<em class="property">class </em><code class="sig-name descname">EnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">uncertainty</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Manual adjustment'</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L44-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">uncertainty</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'Manual adjustment'</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L44-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Lightweight class to contain information about an energy adjustment or
 energy correction.</p>
@@ -469,14 +485,20 @@ energy correction.</p>
 </dd>
 </dl>
 <dl class="py method">
+<dt id="pymatgen.entries.computed_entries.EnergyAdjustment.explain">
+<em class="property">property </em><code class="sig-name descname">explain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an explanaion of how the energy adjustment is calculated.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.entries.computed_entries.EnergyAdjustment.uncertainty">
-<em class="property">abstract property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the uncertainty in the value of the energy adjustment in eV</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.EnergyAdjustment.value">
-<em class="property">abstract property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.EnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the energy adjustment in eV</p>
 </dd></dl>
 
@@ -484,7 +506,7 @@ energy correction.</p>
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">
-<em class="property">class </em><code class="sig-name descname">GibbsComputedStructureEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">formation_enthalpy</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">temp</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">300</span></em>, <em class="sig-param"><span class="n">gibbs_model</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO'</span></em>, <em class="sig-param"><span class="n">correction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy_adjustments</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L609-L902"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">GibbsComputedStructureEntry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">formation_enthalpy</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">temp</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">300</span></em>, <em class="sig-param"><span class="n">gibbs_model</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'SISSO'</span></em>, <em class="sig-param"><span class="n">correction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy_adjustments</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parameters</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">entry_id</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L661-L954"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></code></a></p>
 <p>An extension to ComputedStructureEntry which includes the estimated Gibbs
 free energy of formation via a machine-learned model.</p>
@@ -511,7 +533,7 @@ with the entry. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.GibbsComputedStructureEntry.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L859-L870"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L911-L922"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -521,7 +543,7 @@ with the entry. Defaults to None.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">pymatgen.entries.computed_entries.GibbsComputedStructureEntry</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L872-L893"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">pymatgen.entries.computed_entries.GibbsComputedStructureEntry</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L924-L945"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
@@ -534,7 +556,7 @@ with the entry. Defaults to None.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_entries">
-<em class="property">classmethod </em><code class="sig-name descname">from_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">temp</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">gibbs_model</span><span class="o">=</span><span class="default_value">'SISSO'</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">pymatgen.entries.computed_entries.GibbsComputedStructureEntry</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L834-L857"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">temp</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">gibbs_model</span><span class="o">=</span><span class="default_value">'SISSO'</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">pymatgen.entries.computed_entries.GibbsComputedStructureEntry</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L886-L909"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor method for initializing GibbsComputedStructureEntry objects from
 T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
 database e.g. The Materials Project.</p>
@@ -563,7 +585,7 @@ specified temperature.</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_pd">
-<em class="property">classmethod </em><code class="sig-name descname">from_pd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pd</span></em>, <em class="sig-param"><span class="n">temp</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">gibbs_model</span><span class="o">=</span><span class="default_value">'SISSO'</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">pymatgen.entries.computed_entries.GibbsComputedStructureEntry</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L794-L832"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_pd" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_pd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pd</span></em>, <em class="sig-param"><span class="n">temp</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">gibbs_model</span><span class="o">=</span><span class="default_value">'SISSO'</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry" title="pymatgen.entries.computed_entries.GibbsComputedStructureEntry">pymatgen.entries.computed_entries.GibbsComputedStructureEntry</a><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L846-L884"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.from_pd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor method for initializing a list of GibbsComputedStructureEntry
 objects from an existing T = 0 K phase diagram composed of
 ComputedStructureEntry objects, as acquired from a thermochemical database;
@@ -593,7 +615,7 @@ specified temperature.</p>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.GibbsComputedStructureEntry.gf_sisso">
-<code class="sig-name descname">gf_sisso</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L675-L716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.gf_sisso" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gf_sisso</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L727-L768"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.GibbsComputedStructureEntry.gf_sisso" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
 et al. (2018). Units: eV (not normalized)</p>
 <p>WARNING: This descriptor only applies to solids. The implementation here
@@ -618,7 +640,7 @@ temperature-dependent materials chemistry. Nature Communications, 9(1),
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.ManualEnergyAdjustment">
-<em class="property">class </em><code class="sig-name descname">ManualEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L153-L165"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ManualEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ManualEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L176-L188"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ManualEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.ConstantEnergyAdjustment" title="pymatgen.entries.computed_entries.ConstantEnergyAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.ConstantEnergyAdjustment</span></code></a></p>
 <p>A manual energy adjustment applied to a ComputedEntry.</p>
 <dl class="field-list simple">
@@ -630,7 +652,7 @@ temperature-dependent materials chemistry. Nature Communications, 9(1),
 
 <dl class="py class">
 <dt id="pymatgen.entries.computed_entries.TemperatureEnergyAdjustment">
-<em class="property">class </em><code class="sig-name descname">TemperatureEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adj_per_deg</span></em>, <em class="sig-param"><span class="n">temp</span></em>, <em class="sig-param"><span class="n">n_atoms</span></em>, <em class="sig-param"><span class="n">uncertainty_per_degK</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">'Temperature-based energy adjustment'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py#L222-L276"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">TemperatureEnergyAdjustment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adj_per_deg</span></em>, <em class="sig-param"><span class="n">temp</span></em>, <em class="sig-param"><span class="n">n_atoms</span></em>, <em class="sig-param"><span class="n">uncertainty_per_deg</span><span class="o">=</span><span class="default_value">nan</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">'Temperature-based energy adjustment'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py#L252-L313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.EnergyAdjustment" title="pymatgen.entries.computed_entries.EnergyAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.EnergyAdjustment</span></code></a></p>
 <p>An energy adjustment applied to a ComputedEntry based on the temperature.
 Used, for example, to add entropy to DFT energies.</p>
@@ -640,7 +662,7 @@ Used, for example, to add entropy to DFT energies.</p>
 <li><p><strong>adj_per_deg</strong> – float, energy adjustment to apply per degree K, in eV/atom</p></li>
 <li><p><strong>temp</strong> – float, temperature in Kelvin</p></li>
 <li><p><strong>n_atoms</strong> – float or int, number of atoms</p></li>
-<li><p><strong>uncertainty_per_degK</strong> – float, uncertainty in energy adjustment to apply per degree K,
+<li><p><strong>uncertainty_per_deg</strong> – float, uncertainty in energy adjustment to apply per degree K,
 in eV/atom. (Default: np.nan)</p></li>
 <li><p><strong>name</strong> – str, human-readable name of the energy adjustment.
 (Default: “”)</p></li>
@@ -651,14 +673,20 @@ adjustment. (Default: None)</p></li>
 </dd>
 </dl>
 <dl class="py method">
+<dt id="pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.explain">
+<em class="property">property </em><code class="sig-name descname">explain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an explanaion of how the energy adjustment is calculated.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.uncertainty">
-<em class="property">property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">uncertainty</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.uncertainty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the energy adjustment in eV.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.value">
-<em class="property">property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">value</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.TemperatureEnergyAdjustment.value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the energy correction in eV.</p>
 </dd></dl>
 

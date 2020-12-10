@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen package &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen package &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -573,7 +573,6 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.abiinspect.html">pymatgen.io.abinit.abiinspect module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.abiobjects.html">pymatgen.io.abinit.abiobjects module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.abitimer.html">pymatgen.io.abinit.abitimer module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.helpers.html">pymatgen.io.abinit.helpers module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.inputs.html">pymatgen.io.abinit.inputs module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.netcdf.html">pymatgen.io.abinit.netcdf module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.abinit.pseudos.html">pymatgen.io.abinit.pseudos module</a></li>
@@ -581,6 +580,20 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.abinit.html#module-pymatgen.io.abinit">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cp2k.html">pymatgen.io.cp2k package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.cp2k.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.cp2k.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.inputs.html">pymatgen.io.cp2k.inputs module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.outputs.html">pymatgen.io.cp2k.outputs module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.sets.html">pymatgen.io.cp2k.sets module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.cp2k.utils.html">pymatgen.io.cp2k.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.cp2k.html#module-pymatgen.io.cp2k">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.exciting.html">pymatgen.io.exciting package</a><ul>
@@ -671,6 +684,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.babel.html">pymatgen.io.babel module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cif.html">pymatgen.io.cif module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cssr.html">pymatgen.io.cssr module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.io.cube.html">pymatgen.io.cube module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.fiesta.html">pymatgen.io.fiesta module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.gaussian.html">pymatgen.io.gaussian module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.io.jarvis.html">pymatgen.io.jarvis module</a></li>
@@ -816,7 +830,7 @@
 for materials analysis. This is the root package.</p>
 <dl class="py function">
 <dt id="pymatgen.get_structure_from_mp">
-<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/__init__.py#L61-L82"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/__init__.py#L61-L83"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a crystal from the Materials Project database via
 the API. Requires PMG_MAPI_KEY to be set.</p>
 <dl class="field-list simple">
@@ -835,7 +849,7 @@ the API. Requires PMG_MAPI_KEY to be set.</p>
 
 <dl class="py function">
 <dt id="pymatgen.loadfn">
-<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/__init__.py#L85-L108"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/__init__.py#L86-L114"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to perform quick loading of data from a filename. The
 type of object returned depends the file type.</p>
 <dl class="field-list simple">

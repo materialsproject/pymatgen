@@ -10,9 +10,8 @@ Implementation for `pmg query` CLI.
 import json
 import re
 
-from tabulate import tabulate
-
 from monty.serialization import dumpfn
+from tabulate import tabulate
 
 from pymatgen.ext.matproj import MPRester
 
@@ -50,12 +49,21 @@ def do_query(args):
         props += args.data
         entries = m.get_entries(criteria, property_data=props)
         t = []
-        headers = ["mp-id", "Formula", "Spacegroup", "E/atom (eV)",
-                   "E above hull (eV)"] + args.data
+        headers = [
+            "mp-id",
+            "Formula",
+            "Spacegroup",
+            "E/atom (eV)",
+            "E above hull (eV)",
+        ] + args.data
         for e in entries:
-            row = [e.entry_id, e.composition.reduced_formula,
-                   e.data["spacegroup"]["symbol"],
-                   e.energy_per_atom, e.data["e_above_hull"]]
+            row = [
+                e.entry_id,
+                e.composition.reduced_formula,
+                e.data["spacegroup"]["symbol"],
+                e.energy_per_atom,
+                e.data["e_above_hull"],
+            ]
             row += [e.data[s] for s in args.data]
 
             t.append(row)

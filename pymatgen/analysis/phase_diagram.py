@@ -6,29 +6,28 @@
 This module defines tools to generate and analyze phase diagrams.
 """
 
-import re
 import collections
 import itertools
-import math
-import logging
-import os
 import json
+import logging
+import math
+import os
+import re
 from functools import lru_cache
-from monty.json import MSONable, MontyDecoder
 
 import numpy as np
-from scipy.spatial import ConvexHull
-from scipy.optimize import minimize
-
 import plotly.graph_objs as go
+from monty.json import MontyDecoder, MSONable
+from scipy.optimize import minimize
+from scipy.spatial import ConvexHull
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, DummySpecies, get_el_sp
-from pymatgen.util.coord import Simplex, in_coord_list
-from pymatgen.util.string import latexify
-from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
+from pymatgen.util.coord import Simplex, in_coord_list
+from pymatgen.util.plotting import pretty_plot
+from pymatgen.util.string import latexify
 
 logger = logging.getLogger(__name__)
 
@@ -671,17 +670,16 @@ class PhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        entries = [e for e in self.stable_entries if e.normalize(inplace=False) != entry.normalize(inplace=False)]
+        entries = [
+            e
+            for e in self.stable_entries
+            if e.normalize(inplace=False) != entry.normalize(inplace=False)
+        ]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_quasi_e_to_hull(
-        self,
-        entry,
-        space_limit=200,
-        stable_only=False,
-        tol=1e-10,
-        maxiter=1000
+        self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000
     ):
         """
         Provides the combination of entries in the PhaseDiagram that gives the
@@ -734,7 +732,9 @@ class PhaseDiagram(MSONable):
 
         # take entries with negative formation enthalpies as competing entries
         competing_entries = [
-            c for c in compare_entries if c.normalize(inplace=False) != entry.normalize(inplace=False)
+            c
+            for c in compare_entries
+            if c.normalize(inplace=False) != entry.normalize(inplace=False)
             if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
@@ -744,25 +744,36 @@ class PhaseDiagram(MSONable):
         # requires computing the convex hull of a second (hopefully smallish) space
         # and so is not done by default
         if len(competing_entries) > space_limit and not stable_only:
-            inner_hull = PhaseDiagram(list(set.intersection(
-                set(competing_entries),  # same chemical space
-                set(self.qhull_entries),  # negative E_f
-                set(self.unstable_entries),  # not already on hull
-            )) + list(self.el_refs.values()))  # terminal points
+            inner_hull = PhaseDiagram(
+                list(
+                    set.intersection(
+                        set(competing_entries),  # same chemical space
+                        set(self.qhull_entries),  # negative E_f
+                        set(self.unstable_entries),  # not already on hull
+                    )
+                )
+                + list(self.el_refs.values())
+            )  # terminal points
 
-            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
+            competing_entries = list(
+                self.stable_entries.union(inner_hull.stable_entries)
+            )
             competing_entries = [c for c in competing_entries if c != entry]
 
         solution = _slsqp_decomp_solution(entry, competing_entries, tol, maxiter)
 
         if solution.success:
             decomp_amts = solution.x
-            decomp = {c: amt for c, amt
-                      in zip(competing_entries, decomp_amts)
-                      if amt > PhaseDiagram.numerical_tol}
+            decomp = {
+                c: amt
+                for c, amt in zip(competing_entries, decomp_amts)
+                if amt > PhaseDiagram.numerical_tol
+            }
 
             # find the minimum alternative formation energy for the decomposition
-            decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
+            decomp_enthalpy = np.sum(
+                [c.energy_per_atom * amt for c, amt in decomp.items()]
+            )
 
             decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
 
@@ -913,10 +924,10 @@ class PhaseDiagram(MSONable):
 
         # only take compositions between endpoints
         proj = proj[
-            np.logical_and(
-                proj > -self.numerical_tol, proj < proj[1] + self.numerical_tol
-            )
-        ]
+                np.logical_and(
+                    proj > -self.numerical_tol, proj < proj[1] + self.numerical_tol
+                )
+            ]
         proj.sort()
 
         # only unique compositions
@@ -1616,30 +1627,29 @@ def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
 
     molar_constraint = {
         "type": "eq",
-        "fun": lambda x: np.dot(A_transpose, x)-b,
-        "jac": lambda x: A_transpose
+        "fun": lambda x: np.dot(A_transpose, x) - b,
+        "jac": lambda x: A_transpose,
     }
 
-    options = {
-        "maxiter": maxiter,
-        "disp": False
-    }
+    options = {"maxiter": maxiter, "disp": False}
 
     max_bound = entry.composition.num_atoms
     bounds = [(0, max_bound)] * len(competing_entries)
-    x0 = [1/len(competing_entries)] * len(competing_entries)
+    x0 = [1 / len(competing_entries)] * len(competing_entries)
 
     # NOTE the tolerence needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
     # tol > 1e-7 in the fractional composition (default 1e-10).
-    solution = minimize(fun=lambda x: np.dot(x, Es),
-                        x0=x0,
-                        method="SLSQP",
-                        jac=lambda x: Es,
-                        bounds=bounds,
-                        constraints=[molar_constraint],
-                        tol=tol,
-                        options=options)
+    solution = minimize(
+        fun=lambda x: np.dot(x, Es),
+        x0=x0,
+        method="SLSQP",
+        jac=lambda x: Es,
+        bounds=bounds,
+        constraints=[molar_constraint],
+        tol=tol,
+        options=options,
+    )
 
     return solution
 
@@ -1949,8 +1959,8 @@ class PDPlotter:
                 for x, y in lines:
                     plt.plot(x, y, "ko-", **self.plotkwargs)
         else:
-            from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
+            from matplotlib.colors import LinearSegmentedColormap, Normalize
 
             for x, y in lines:
                 plt.plot(x, y, "k-", markeredgecolor="k")
@@ -2138,9 +2148,7 @@ class PDPlotter:
 
         fig = plt.figure()
         ax = p3.Axes3D(fig)
-        font = FontProperties()
-        font.set_weight("bold")
-        font.set_size(20)
+        font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
         newlabels = list()
@@ -2160,13 +2168,16 @@ class PDPlotter:
             label = entry.name
             if label_stable:
                 if len(entry.composition.elements) == 1:
-                    ax.text(coords[0], coords[1], coords[2], label)
+                    ax.text(coords[0], coords[1], coords[2], label, fontproperties=font)
                 else:
-                    ax.text(coords[0], coords[1], coords[2], str(count))
+                    ax.text(coords[0], coords[1], coords[2], str(count), fontsize=12)
                     newlabels.append("{} : {}".format(count, latexify(label)))
                     count += 1
-        plt.figtext(0.01, 0.01, "\n".join(newlabels))
+        plt.figtext(0.01, 0.01, "\n".join(newlabels), fontproperties=font)
         ax.axis("off")
+        ax.set_xlim(-0.1, 0.72)
+        ax.set_ylim(0, 0.66)
+        ax.set_zlim(0, 0.56)
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
@@ -2317,8 +2328,8 @@ class PDPlotter:
         Returns:
             A matplotlib plot object.
         """
-        from scipy import interpolate
         from matplotlib import cm
+        from scipy import interpolate
 
         pd = self._pd
         entries = pd.qhull_entries
@@ -2406,7 +2417,7 @@ class PDPlotter:
         offset_2d = 0.005  # extra distance to offset label position for clarity
         offset_3d = 0.01
 
-        energy_offset = -0.1*self._min_energy
+        energy_offset = -0.1 * self._min_energy
 
         if self._dim == 2:
             min_energy_x = min(list(self.pd_plot_data[1].keys()), key=lambda c: c[1])[0]
@@ -2526,7 +2537,7 @@ class PDPlotter:
                     if self._dim == 3:
                         annotation.update({"x": y, "y": x})
                         if entry.composition.is_element:
-                            z = 0.9*self._min_energy  # place label 10% above base
+                            z = 0.9 * self._min_energy  # place label 10% above base
 
                 annotation.update({"z": z})
 
@@ -2689,8 +2700,12 @@ class PDPlotter:
                     y=list(stable_props["x"]),
                     z=list(stable_props["z"]),
                     name="Stable",
-                    marker=dict(color="black", size=12, opacity=0.8,
-                                line=dict(color="black", width=3)),
+                    marker=dict(
+                        color="black",
+                        size=12,
+                        opacity=0.8,
+                        line=dict(color="black", width=3),
+                    ),
                     hovertext=stable_props["texts"],
                     error_z=dict(
                         array=list(stable_props["uncertainties"]),
@@ -2792,15 +2807,16 @@ class PDPlotter:
         y = stable_marker_plot.y
 
         transformed = False
-        if hasattr(self._pd, "original_entries") or hasattr(self._pd,
-                                                            "chempots"):
+        if hasattr(self._pd, "original_entries") or hasattr(self._pd, "chempots"):
             transformed = True
 
         if self._dim == 2:
             error = stable_marker_plot.error_y["array"]
 
             points = np.append(x, [y, error]).reshape(3, -1).T
-            points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
+            points = points[
+                points[:, 0].argsort()
+            ]  # sort by composition  # pylint: disable=E1136
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()

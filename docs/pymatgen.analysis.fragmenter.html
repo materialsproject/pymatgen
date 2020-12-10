@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.fragmenter module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.fragmenter module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>Perform fragmentation of molecules.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.fragmenter.Fragmenter">
-<em class="property">class </em><code class="sig-name descname">Fragmenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">open_rings</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_metal_edge_extender</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">opt_steps</span><span class="o">=</span><span class="default_value">10000</span></em>, <em class="sig-param"><span class="n">prev_unique_frag_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">assume_previous_thoroughness</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/fragmenter.py#L27-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.Fragmenter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Fragmenter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">open_rings</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">use_metal_edge_extender</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">opt_steps</span><span class="o">=</span><span class="default_value">10000</span></em>, <em class="sig-param"><span class="n">prev_unique_frag_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">assume_previous_thoroughness</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/fragmenter.py#L29-L356"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.Fragmenter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Molecule fragmenter class.</p>
 <p>Standard constructor for molecule fragmentation</p>
@@ -251,13 +251,13 @@ miss some unique subfragments.</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.fragmenter.metal_edge_extender">
-<code class="sig-name descname">metal_edge_extender</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_graph</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/fragmenter.py#L300-L338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.metal_edge_extender" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">metal_edge_extender</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_graph</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/fragmenter.py#L373-L412"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.metal_edge_extender" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to identify and add missed edges in ionic bonding of Li and Mg ions.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.fragmenter.open_ring">
-<code class="sig-name descname">open_ring</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_graph</span></em>, <em class="sig-param"><span class="n">bond</span></em>, <em class="sig-param"><span class="n">opt_steps</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/fragmenter.py#L286-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.open_ring" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">open_ring</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_graph</span></em>, <em class="sig-param"><span class="n">bond</span></em>, <em class="sig-param"><span class="n">opt_steps</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/fragmenter.py#L359-L370"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.fragmenter.open_ring" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to actually open a ring using OpenBabel’s local opt. Given a molecule
 graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
 the given bond, perform the local opt with the number of steps determined by

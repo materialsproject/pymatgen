@@ -18,7 +18,6 @@ __date__ = "Jun 10, 2012"
 
 from pymatgen.core.composition import Composition
 
-
 STANDARD_TEMP = 298.0
 
 
@@ -26,8 +25,19 @@ class ThermoData:
     """
     A object container for an experimental Thermochemical Data.
     """
-    def __init__(self, data_type, cpdname, phaseinfo, formula, value, ref="",
-                 method="", temp_range=(298, 298), uncertainty=None):
+
+    def __init__(
+        self,
+        data_type,
+        cpdname,
+        phaseinfo,
+        formula,
+        value,
+        ref="",
+        method="",
+        temp_range=(298, 298),
+        uncertainty=None,
+    ):
         """
         Args:
             data_type: The thermochemical data type. Should be one of the
@@ -70,30 +80,57 @@ class ThermoData:
         Returns:
             ThermoData
         """
-        return ThermoData(d["type"], d["compound_name"],
-                          d["phaseinfo"], d["formula"],
-                          d["value"], d["ref"], d["method"],
-                          d["temp_range"], d.get("uncertainty", None))
+        return ThermoData(
+            d["type"],
+            d["compound_name"],
+            d["phaseinfo"],
+            d["formula"],
+            d["value"],
+            d["ref"],
+            d["method"],
+            d["temp_range"],
+            d.get("uncertainty", None),
+        )
 
     def as_dict(self):
         """
         Returns: MSONable dict
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__, "type": self.type,
-                "formula": self.formula, "compound_name": self.compound_name,
-                "phaseinfo": self.phaseinfo, "value": self.value,
-                "temp_range": self.temp_range, "method": self.method,
-                "ref": self.ref, "uncertainty": self.uncertainty}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "type": self.type,
+            "formula": self.formula,
+            "compound_name": self.compound_name,
+            "phaseinfo": self.phaseinfo,
+            "value": self.value,
+            "temp_range": self.temp_range,
+            "method": self.method,
+            "ref": self.ref,
+            "uncertainty": self.uncertainty,
+        }
 
     def __repr__(self):
-        props = ["formula", "compound_name", "phaseinfo", "type", "temp_range",
-                 "value", "method", "ref", "uncertainty"]
+        props = [
+            "formula",
+            "compound_name",
+            "phaseinfo",
+            "type",
+            "temp_range",
+            "value",
+            "method",
+            "ref",
+            "uncertainty",
+        ]
         output = ["{} : {}".format(k, getattr(self, k)) for k in props]
         return "\n".join(output)
 
     def __str__(self):
         return "{}_{}_{} = {}, Valid T : {}, Ref = {}".format(
-            self.type, self.formula, self.phaseinfo, self.value,
-            self.temp_range, self.ref
+            self.type,
+            self.formula,
+            self.phaseinfo,
+            self.value,
+            self.temp_range,
+            self.ref,
         )

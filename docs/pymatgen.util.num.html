@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.util.num module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.util.num module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>This module provides utilities for basic math operations.</p>
 <dl class="py function">
 <dt id="pymatgen.util.num.abs_cap">
-<code class="sig-name descname">abs_cap</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">max_abs_val</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L15-L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.abs_cap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abs_cap</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">max_abs_val</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L15-L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.abs_cap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value with its absolute value capped at max_abs_val.
 Particularly useful in passing values to trignometric functions where
 numerical errors may result in an argument &gt; 1 being passed in.</p>
@@ -226,7 +226,7 @@ numerical errors may result in an argument &gt; 1 being passed in.</p>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.make_symmetric_matrix_from_upper_tri">
-<code class="sig-name descname">make_symmetric_matrix_from_upper_tri</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L156-L170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.make_symmetric_matrix_from_upper_tri" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_symmetric_matrix_from_upper_tri</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L155-L169"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.make_symmetric_matrix_from_upper_tri" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a symmetric matrix in upper triangular matrix form as flat array indexes as:
 [A_xx,A_yy,A_zz,A_xy,A_xz,A_yz]
 This will generate the full matrix:
@@ -235,7 +235,7 @@ This will generate the full matrix:
 
 <dl class="py function">
 <dt id="pymatgen.util.num.maxloc">
-<code class="sig-name descname">maxloc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L66-L72"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.maxloc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">maxloc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L66-L72"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.maxloc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the index of the (first) maximum in seq</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">maxloc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
 </pre></div>
@@ -244,14 +244,14 @@ This will generate the full matrix:
 
 <dl class="py function">
 <dt id="pymatgen.util.num.min_max_indexes">
-<code class="sig-name descname">min_max_indexes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L75-L81"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.min_max_indexes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">min_max_indexes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L75-L81"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.min_max_indexes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses enumerate, max, and min to return the indices of the values
 in a list with the maximum and minimum value:</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.minloc">
-<code class="sig-name descname">minloc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L57-L63"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.minloc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">minloc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L57-L63"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.minloc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the index of the (first) minimum in seq</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">minloc</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span>
 </pre></div>
@@ -260,7 +260,7 @@ in a list with the maximum and minimum value:</p>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.monotonic">
-<code class="sig-name descname">monotonic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'&lt;'</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L104-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.monotonic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">monotonic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'&lt;'</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L104-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.monotonic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns False if values are not monotonic (decreasing|increasing).
 mode is “&lt;” for a decreasing sequence, “&gt;” for an increasing sequence.
 Two numbers are considered equal if they differ less that atol.</p>
@@ -275,26 +275,26 @@ Two numbers are considered equal if they differ less that atol.</p>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.non_decreasing">
-<code class="sig-name descname">non_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L99-L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_decreasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">non_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L99-L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are not decreasing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.non_increasing">
-<code class="sig-name descname">non_increasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L94-L96"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_increasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">non_increasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L94-L96"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.non_increasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are not increasing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.round_to_sigfigs">
-<code class="sig-name descname">round_to_sigfigs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em>, <em class="sig-param"><span class="n">sigfigs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L137-L153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.round_to_sigfigs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">round_to_sigfigs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em>, <em class="sig-param"><span class="n">sigfigs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L137-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.round_to_sigfigs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rounds a number rounded to a specific number of significant
 figures instead of to a specific precision.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.sort_dict">
-<code class="sig-name descname">sort_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L31-L54"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.sort_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L31-L54"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.sort_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sorts a dict by value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -314,13 +314,13 @@ of the dict i.e. key = lambda t : t[1]</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.strictly_decreasing">
-<code class="sig-name descname">strictly_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L89-L91"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_decreasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">strictly_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L89-L91"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_decreasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are stricly decreasing.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.util.num.strictly_increasing">
-<code class="sig-name descname">strictly_increasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/util/num.py#L84-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_increasing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">strictly_increasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/util/num.py#L84-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.strictly_increasing" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if values are stricly increasing.</p>
 </dd></dl>
 

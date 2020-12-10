@@ -1,32 +1,31 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import unittest
+import filecmp
 import os
 import re
-import filecmp
 import shutil
+import unittest
 
 import pandas as pd
+
 from pymatgen import Lattice, Structure
 from pymatgen.io.lammps.data import LammpsData
-
 from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        "test_files", "lammps")
+test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
+)
 
 
 class LammpsRunTest(unittest.TestCase):
     maxDiff = None
 
     def test_md(self):
-        s = Structure.from_spacegroup(225, Lattice.cubic(3.62126),
-                                      ["Cu"], [[0, 0, 0]])
+        s = Structure.from_spacegroup(225, Lattice.cubic(3.62126), ["Cu"], [[0, 0, 0]])
         ld = LammpsData.from_structure(s, atom_style="atomic")
         ff = "\n".join(["pair_style eam", "pair_coeff * * Cu_u3.eam"])
-        md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0,
-                          nsteps=10000)
+        md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0, nsteps=10000)
         md.write_inputs(output_dir="md")
         with open(os.path.join("md", "in.md")) as f:
             md_script = f.read()
@@ -79,14 +78,14 @@ run             10000
 
 
 class FuncTest(unittest.TestCase):
-
     def test_write_lammps_inputs(self):
         # script template
         with open(os.path.join(test_dir, "kappa.txt")) as f:
             kappa_template = f.read()
         kappa_settings = {"method": "heat"}
-        write_lammps_inputs(output_dir="heat", script_template=kappa_template,
-                            settings=kappa_settings)
+        write_lammps_inputs(
+            output_dir="heat", script_template=kappa_template, settings=kappa_settings
+        )
         with open(os.path.join("heat", "in.lammps")) as f:
             kappa_script = f.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
@@ -104,16 +103,15 @@ class FuncTest(unittest.TestCase):
             peptide_script = f.read()
         # copy data file
         src = os.path.join(test_dir, "data.quartz")
-        write_lammps_inputs(output_dir="path", script_template=peptide_script,
-                            data=src)
+        write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
         dst = os.path.join("path", "data.peptide")
         self.assertTrue(filecmp.cmp(src, dst, shallow=False))
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
-        write_lammps_inputs(output_dir="obj", script_template=peptide_script,
-                            data=obj)
-        obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"),
-                                        atom_style="atomic")
+        write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
+        obj_read = LammpsData.from_file(
+            os.path.join("obj", "data.peptide"), atom_style="atomic"
+        )
         pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
         pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 

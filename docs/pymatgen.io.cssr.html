@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.cssr module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.io.cssr module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.io.fiesta module" href="pymatgen.io.fiesta.html" />
+    <link rel="next" title="pymatgen.io.cube module" href="pymatgen.io.cube.html" />
     <link rel="prev" title="pymatgen.io.cif module" href="pymatgen.io.cif.html" />
  
 <script type="text/javascript">
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>This module provides input and output from the CSSR file format.</p>
 <dl class="py class">
 <dt id="pymatgen.io.cssr.Cssr">
-<em class="property">class </em><code class="sig-name descname">Cssr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/cssr.py#L24-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Cssr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cssr.py#L25-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic object for working with Cssr file. Right now, only conversion from
 a Structure to a Cssr file is supported.</p>
@@ -218,7 +218,7 @@ a Structure to a Cssr file is supported.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.cssr.Cssr.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/cssr.py#L90-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cssr.py#L97-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a CSSR file to a Cssr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -232,7 +232,7 @@ a Structure to a Cssr file is supported.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.cssr.Cssr.from_string">
-<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/cssr.py#L62-L88"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cssr.py#L69-L95"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a string representation to a Cssr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -246,7 +246,7 @@ a Structure to a Cssr file is supported.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.cssr.Cssr.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/cssr.py#L52-L60"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cssr.py#L59-L67"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssr.Cssr.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out a CSSR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

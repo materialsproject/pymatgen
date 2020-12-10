@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chemenv.utils.chemenv_config module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.chemenv.utils.chemenv_config module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -210,7 +210,7 @@
 <span id="pymatgen-analysis-chemenv-utils-chemenv-config-module"></span><h1>pymatgen.analysis.chemenv.utils.chemenv_config module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.utils.chemenv_config" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig">
-<em class="property">class </em><code class="sig-name descname">ChemEnvConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">package_options</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py#L25-L161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ChemEnvConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">package_options</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py#L25-L194"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="simple">
 <dt>Class used to store the configuration of the chemenv package :</dt><dd><ul class="simple">
@@ -222,37 +222,37 @@
 </dl>
 <dl class="py attribute">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS">
-<code class="sig-name descname">DEFAULT_PACKAGE_OPTIONS</code><em class="property"> = {'default_max_distance_factor': 1.5, 'default_strategy': {'strategy': 'SimplestChemenvStrategy', 'strategy_options': {'additional_condition': 1, 'angle_cutoff': 0.3, 'continuous_symmetry_measure_cutoff': 10.0, 'distance_cutoff': 1.4}}}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">DEFAULT_PACKAGE_OPTIONS</code><em class="property"> = {'default_max_distance_factor': 1.5, 'default_strategy': {'strategy': 'SimplestChemenvStrategy', 'strategy_options': {'additional_condition': 1, 'angle_cutoff': 0.3, 'continuous_symmetry_measure_cutoff': 10.0, 'distance_cutoff': 1.4}}}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.DEFAULT_PACKAGE_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load">
-<em class="property">classmethod </em><code class="sig-name descname">auto_load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py#L146-L161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">auto_load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py#L179-L194"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.auto_load" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access">
-<em class="property">property </em><code class="sig-name descname">has_materials_project_access</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">has_materials_project_access</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.has_materials_project_access" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description">
-<code class="sig-name descname">package_options_description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py#L115-L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">package_options_description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py#L138-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.package_options_description" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py#L127-L144"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py#L158-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup">
-<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py#L55-L81"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py#L65-L93"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options">
-<code class="sig-name descname">setup_package_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/chemenv_config.py#L87-L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_package_options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/chemenv/utils/chemenv_config.py#L99-L136"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig.setup_package_options" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

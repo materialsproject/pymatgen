@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.structure_prediction.volume_predictor module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.structure_prediction.volume_predictor module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -209,7 +209,7 @@
 <p>Predict volumes of crystal structures.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor">
-<em class="property">class </em><code class="sig-name descname">DLSVolumePredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cutoff</span><span class="o">=</span><span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">min_scaling</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">max_scaling</span><span class="o">=</span><span class="default_value">1.5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/volume_predictor.py#L146-L260"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DLSVolumePredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cutoff</span><span class="o">=</span><span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">min_scaling</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">max_scaling</span><span class="o">=</span><span class="default_value">1.5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/volume_predictor.py#L149-L269"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Data-mined lattice scaling (DLS) scheme that relies on data-mined bond
 lengths to predict the crystal volume of a given structure.</p>
@@ -235,7 +235,7 @@ too-large volumes)</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure">
-<code class="sig-name descname">get_predicted_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">icsd_vol</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/volume_predictor.py#L248-L260"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_predicted_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">icsd_vol</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/volume_predictor.py#L257-L269"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a structure, returns back the structure scaled to predicted
 volume.
 :param structure: structure w/unknown volume
@@ -249,7 +249,7 @@ volume.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">icsd_vol</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/volume_predictor.py#L175-L246"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">icsd_vol</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/volume_predictor.py#L178-L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a structure, returns the predicted volume.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -269,7 +269,7 @@ ICSD.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor">
-<em class="property">class </em><code class="sig-name descname">RLSVolumePredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">check_isostructural</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">radii_type</span><span class="o">=</span><span class="default_value">'ionic-atomic'</span></em>, <em class="sig-param"><span class="n">use_bv</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/volume_predictor.py#L33-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">RLSVolumePredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">check_isostructural</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">radii_type</span><span class="o">=</span><span class="default_value">'ionic-atomic'</span></em>, <em class="sig-param"><span class="n">use_bv</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/volume_predictor.py#L33-L146"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reference lattice scaling (RLS) scheme that predicts the volume of a
 structure based on a known crystal structure.</p>
@@ -290,7 +290,7 @@ states if not present.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure">
-<code class="sig-name descname">get_predicted_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">ref_structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/volume_predictor.py#L129-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_predicted_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">ref_structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/volume_predictor.py#L132-L146"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a structure, returns back the structure scaled to predicted
 volume.
 :param structure: structure w/unknown volume
@@ -308,7 +308,7 @@ volume.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">ref_structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/structure_prediction/volume_predictor.py#L56-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">ref_structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/structure_prediction/volume_predictor.py#L58-L130"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a structure, returns the predicted volume.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

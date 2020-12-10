@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.prototypes module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.prototypes module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -214,7 +214,7 @@ Computational Materials Science, 136, S1-S828.
 <a class="reference external" href="http://doi.org/10.1016/j.commatsci.2017.01.017">http://doi.org/10.1016/j.commatsci.2017.01.017</a></p>
 <dl class="py class">
 <dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher">
-<em class="property">class </em><code class="sig-name descname">AflowPrototypeMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_ltol</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">initial_stol</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">initial_angle_tol</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/prototypes.py#L28-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AflowPrototypeMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_ltol</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">initial_stol</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">initial_angle_tol</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/prototypes.py#L30-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class will match structures to their crystal prototypes, and will
 attempt to group species together to match structures derived from
@@ -239,7 +239,7 @@ gradually decreased until only a single match is found (if possible).</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes">
-<code class="sig-name descname">get_prototypes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/prototypes.py#L82-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_prototypes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/prototypes.py#L86-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get prototype(s) structures for a given
 input structure. If you use this method in
 your work, please cite the appropriate

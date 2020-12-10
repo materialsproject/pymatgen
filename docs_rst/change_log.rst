@@ -1,6 +1,41 @@
 Change log
 ==========
 
+v2020.12.3
+----------
+* Site insertion algorithm based on charge density (@jmmshn, #1997)
+* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
+* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
+* Improvement to allow general input for exciting (@vorwerkc, #1975)
+* Improvements to code formatting (@mkhorton, #2008)
+* Bug fix for VASP run type detection (@rkingsbury, #1996)
+
+v2020.11.11
+-----------
+* Bug fix for PhononBandStructureSymmLine. (@gpetretto)
+* Improved robustness in ABINIT input generation. (@gpetretto)
+* Other minor bug fixes.
+
+v2020.10.20
+-----------
+1. Cp2K support (@nwinner)
+2. Better BSPlotter (@fraricci)
+3. Better deprecation warnings.
+4. Bug fix for Py3.9 support.
+5. Bug fix for neutron diffraction get_plot.
+
+v2020.10.9
+----------
+* Cube parsing and Cube integration to Bader (@nwinner, #1967)
+* Improvements to PhaseDiagram (@CompRhys, #1899)
+* Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (@jmmshn, #1959)
+* Changes to MPRelaxSet, default to low spin for Co (@shyuep, #1976)
+* Changes to MPScanSet (@rkingsbury, #1952)
+* Rename of `Specie` to `Species`, `Specie` will be retained for backwards compatibility (@shyuep, #1963)
+* Bug fix for VASP sets (@utf, #1979)
+* Bug fix for PDPlotter (@mattmcdermott, #1973)
+* Bug fix for EnergyAdjustment (@rkingsbury, #1960)
+
 v2020.9.14
 ----------
 

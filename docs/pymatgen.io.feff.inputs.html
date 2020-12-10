@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.feff.inputs module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.io.feff.inputs module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -212,7 +212,7 @@ control tags.</p>
 <p>XANES and EXAFS input files, are available, for non-spin case at this time.</p>
 <dl class="py class">
 <dt id="pymatgen.io.feff.inputs.Atoms">
-<em class="property">class </em><code class="sig-name descname">Atoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">absorbing_atom</span></em>, <em class="sig-param"><span class="n">radius</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L281-L429"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Atoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">absorbing_atom</span></em>, <em class="sig-param"><span class="n">radius</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L385-L554"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Atomic cluster centered around the absorbing atom.</p>
 <dl class="field-list simple">
@@ -226,7 +226,7 @@ control tags.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Atoms.atoms_string_from_file">
-<em class="property">static </em><code class="sig-name descname">atoms_string_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L332-L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.atoms_string_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">atoms_string_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L439-L469"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.atoms_string_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads atomic shells from file such as feff.inp or ATOMS file
 The lines are arranged as follows:</p>
 <p>x y z   ipot    Atom Symbol   Distance   Number</p>
@@ -244,13 +244,13 @@ the potential used.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Atoms.cluster">
-<em class="property">property </em><code class="sig-name descname">cluster</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.cluster" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">cluster</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the atomic cluster as a Molecule object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Atoms.cluster_from_file">
-<em class="property">static </em><code class="sig-name descname">cluster_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L364-L385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.cluster_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">cluster_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L471-L492"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.cluster_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the feff input file and return the atomic cluster as a Molecule
 object.</p>
 <dl class="field-list simple">
@@ -272,7 +272,7 @@ object.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Atoms.get_lines">
-<code class="sig-name descname">get_lines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L387-L407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.get_lines" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_lines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L494-L529"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.get_lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of string representations of the atomic configuration
 information(x, y, z, ipot, atom_symbol, distance, id).</p>
 <dl class="field-list simple">
@@ -291,7 +291,7 @@ information(x, y, z, ipot, atom_symbol, distance, id).</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Atoms.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'ATOMS'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L421-L429"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'ATOMS'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L546-L554"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write Atoms list to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -304,7 +304,7 @@ information(x, y, z, ipot, atom_symbol, distance, id).</p>
 
 <dl class="py exception">
 <dt id="pymatgen.io.feff.inputs.FeffParserError">
-<em class="property">exception </em><code class="sig-name descname">FeffParserError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L883-L887"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.FeffParserError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">FeffParserError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L1034-L1038"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.FeffParserError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for Structure.
 Raised when the structure has problems, e.g., atoms that are too close.</p>
@@ -312,7 +312,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.feff.inputs.Header">
-<em class="property">class </em><code class="sig-name descname">Header</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">source</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L61-L278"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Header</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">source</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L143-L382"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Creates Header for the FEFF input file.</p>
 <p>Has the following format:</p>
@@ -343,13 +343,13 @@ would be the material ID number</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.formula">
-<em class="property">property </em><code class="sig-name descname">formula</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.formula" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">formula</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Formula of structure</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.from_cif_file">
-<em class="property">static </em><code class="sig-name descname">from_cif_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cif_file</span></em>, <em class="sig-param"><span class="n">source</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L102-L118"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.from_cif_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_cif_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cif_file</span></em>, <em class="sig-param"><span class="n">source</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L186-L202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.from_cif_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static method to create Header object from cif_file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -368,13 +368,13 @@ would be the material ID number</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L137-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L221-L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Header object from file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.from_string">
-<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header_str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L189-L247"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">header_str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L273-L332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads Header string and returns Header object if header was
 generated by pymatgen.
 Note: Checks to see if generated by pymatgen, if not it is impossible</p>
@@ -394,7 +394,7 @@ header object and routine ends</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.header_string_from_file">
-<em class="property">static </em><code class="sig-name descname">header_string_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'feff.inp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L145-L187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.header_string_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">header_string_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'feff.inp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L229-L271"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.header_string_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads Header string from either a HEADER file or feff.inp file
 Will also read a header from a non-pymatgen generated feff.inp file</p>
 <dl class="field-list simple">
@@ -409,7 +409,7 @@ Will also read a header from a non-pymatgen generated feff.inp file</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.structure_symmetry">
-<em class="property">property </em><code class="sig-name descname">structure_symmetry</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.structure_symmetry" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">structure_symmetry</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.structure_symmetry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns space number and space group</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -420,7 +420,7 @@ Will also read a header from a non-pymatgen generated feff.inp file</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Header.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'HEADER'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L270-L278"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'HEADER'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L374-L382"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Header.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes Header into filename on disk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -433,7 +433,7 @@ Will also read a header from a non-pymatgen generated feff.inp file</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.feff.inputs.Paths">
-<em class="property">class </em><code class="sig-name descname">Paths</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em>, <em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">degeneracies</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L838-L880"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Paths" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Paths</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em>, <em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">degeneracies</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L985-L1031"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Set FEFF scattering paths(‘paths.dat’ file used by the ‘genfmt’ module).</p>
 <dl class="field-list simple">
@@ -449,7 +449,7 @@ e.g. [[0, 1, 2], [5, 9, 4, 1]] -&gt; 2 paths: one with 3 legs and the other with
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Paths.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'paths.dat'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L875-L880"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Paths.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'paths.dat'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L1026-L1031"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Paths.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write paths.dat.</p>
 </dd></dl>
 
@@ -457,7 +457,7 @@ e.g. [[0, 1, 2], [5, 9, 4, 1]] -&gt; 2 paths: one with 3 legs and the other with
 
 <dl class="py class">
 <dt id="pymatgen.io.feff.inputs.Potential">
-<em class="property">class </em><code class="sig-name descname">Potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">absorbing_atom</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L699-L835"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struct</span></em>, <em class="sig-param"><span class="n">absorbing_atom</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L831-L982"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>FEFF atomic potential.</p>
 <dl class="field-list simple">
@@ -470,7 +470,7 @@ e.g. [[0, 1, 2], [5, 9, 4, 1]] -&gt; 2 paths: one with 3 legs and the other with
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Potential.pot_dict_from_string">
-<em class="property">static </em><code class="sig-name descname">pot_dict_from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pot_data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L765-L797"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential.pot_dict_from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">pot_dict_from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pot_data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L902-L934"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential.pot_dict_from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates atomic symbol/potential number dictionary
 forward and reverse</p>
 <dl class="simple">
@@ -486,7 +486,7 @@ forward and reverse</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Potential.pot_string_from_file">
-<em class="property">static </em><code class="sig-name descname">pot_string_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'feff.inp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L720-L763"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential.pot_string_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">pot_string_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'feff.inp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L853-L900"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential.pot_string_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads Potential parameters from a feff.inp or FEFFPOT file.
 The lines are arranged as follows:</p>
 <blockquote>
@@ -504,7 +504,7 @@ The lines are arranged as follows:</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Potential.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'POTENTIALS'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L827-L835"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'POTENTIALS'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L974-L982"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Potential.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -517,7 +517,7 @@ The lines are arranged as follows:</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.feff.inputs.Tags">
-<em class="property">class </em><code class="sig-name descname">Tags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L432-L696"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Tags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L557-L828"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 <p>FEFF control parameters.</p>
 <dl class="field-list simple">
@@ -527,7 +527,7 @@ The lines are arranged as follows:</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L460-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L588-L598"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -538,7 +538,7 @@ The lines are arranged as follows:</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.diff">
-<code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L654-L684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L789-L816"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Diff function.  Compares two PARAMETER files and indicates which
 parameters are the same and which are not. Useful for checking whether
 two runs were done using the same parameters.</p>
@@ -559,7 +559,7 @@ parameters are return as full dictionaries of values.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.from_dict">
-<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L472-L487"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L600-L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates Tags object from a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -573,7 +573,7 @@ parameters are return as full dictionaries of values.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'feff.inp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L553-L599"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'feff.inp'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L681-L733"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a Feff_tag dictionary from a PARAMETER or feff.inp file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -587,7 +587,7 @@ parameters are return as full dictionaries of values.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.get_string">
-<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sort_keys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">pretty</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L489-L528"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.get_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sort_keys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">pretty</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L617-L656"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string representation of the Tags.  The reason why this
 method is different from the __str__ method is to provide options
 for pretty printing.</p>
@@ -607,7 +607,7 @@ Defaults to False.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.proc_val">
-<em class="property">static </em><code class="sig-name descname">proc_val</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L601-L652"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.proc_val" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">proc_val</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L735-L787"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.proc_val" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static helper method to convert Feff parameters to proper types, e.g.
 integers, floats, lists, etc.</p>
 <dl class="field-list simple">
@@ -622,7 +622,7 @@ integers, floats, lists, etc.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.feff.inputs.Tags.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'PARAMETERS'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L543-L551"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'PARAMETERS'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L671-L679"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Tags.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write Tags to a Feff parameter tag file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -635,7 +635,7 @@ integers, floats, lists, etc.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index">
-<code class="sig-name descname">get_absorbing_atom_symbol_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">absorbing_atom</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L910-L925"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_absorbing_atom_symbol_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">absorbing_atom</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L1061-L1076"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the absorbing atom symboll and site index in the given structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -655,7 +655,7 @@ integers, floats, lists, etc.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.feff.inputs.get_atom_map">
-<code class="sig-name descname">get_atom_map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/feff/inputs.py#L890-L907"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.get_atom_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_atom_map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/feff/inputs.py#L1041-L1058"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.get_atom_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict that maps each atomic symbol to a unique integer starting
 from 1.</p>
 <dl class="field-list simple">

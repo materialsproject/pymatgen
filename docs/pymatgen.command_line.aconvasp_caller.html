@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.aconvasp_caller module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.command_line.aconvasp_caller module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -209,7 +209,7 @@ Only tested on Linux. Inspired by Shyue”s qhull_caller
 WARNING: you need to have a convasp in your path for this to work</p>
 <dl class="py exception">
 <dt id="pymatgen.command_line.aconvasp_caller.AconvaspError">
-<em class="property">exception </em><code class="sig-name descname">AconvaspError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L110-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.AconvaspError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">AconvaspError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L109-L123"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.AconvaspError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for aconvasp.
 Raised when the aconvasp gives an error</p>
@@ -222,39 +222,39 @@ Raised when the aconvasp gives an error</p>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_conv_struct">
-<code class="sig-name descname">get_conv_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L67-L75"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_conv_struct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_conv_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L66-L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_conv_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a minkowski reduced structure</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_minkowski_red">
-<code class="sig-name descname">get_minkowski_red</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L48-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_minkowski_red" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_minkowski_red</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L47-L63"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_minkowski_red" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a minkowski reduced structure</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_num_division_kpoints">
-<code class="sig-name descname">get_num_division_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">kppa</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L37-L45"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_num_division_kpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_num_division_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">kppa</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L37-L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_num_division_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get kpoint divisions for a given k-point density (per reciprocal-atom):
 kppa and a given structure</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_prim_struct">
-<code class="sig-name descname">get_prim_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L78-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_prim_struct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_prim_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L77-L85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_prim_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get standard primitive</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym">
-<code class="sig-name descname">get_vasp_kpoint_file_sym</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L89-L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_vasp_kpoint_file_sym</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L88-L106"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym" title="Permalink to this definition">¶</a></dt>
 <dd><p>get a kpoint file ready to be ran in VASP along the symmetry lines of the
 Brillouin Zone</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.run_aconvasp_command">
-<code class="sig-name descname">run_aconvasp_command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">command</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L25-L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.run_aconvasp_command" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_aconvasp_command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">command</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/command_line/aconvasp_caller.py#L25-L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.run_aconvasp_command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for calling aconvasp with different arguments</p>
 </dd></dl>
 

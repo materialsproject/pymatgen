@@ -12,14 +12,13 @@ import warnings
 from fnmatch import fnmatch
 
 import ruamel.yaml as yaml
-
-from monty.json import MontyEncoder, MontyDecoder, MSONable
+from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2020.10.9.01"
+__version__ = "2020.12.3"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -43,18 +42,19 @@ def _load_pmg_settings():
 
 SETTINGS = _load_pmg_settings()
 
+from .core.composition import Composition
+from .core.lattice import Lattice
+from .core.operations import SymmOp
+
 # pylint: disable=C0413
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
 # Note that these have to come after the SETTINGS have been loaded. Otherwise, import does not work.
-from .core.periodic_table import Element, Species, DummySpecies, Specie, DummySpecie
-from .core.composition import Composition
-from .core.structure import Structure, IStructure, Molecule, IMolecule
-from .core.lattice import Lattice
-from .core.sites import Site, PeriodicSite
-from .core.operations import SymmOp
-from .core.units import Unit, FloatWithUnit, ArrayWithUnit
-from .electronic_structure.core import Spin, Orbital
+from .core.periodic_table import DummySpecie, DummySpecies, Element, Specie, Species
+from .core.sites import PeriodicSite, Site
+from .core.structure import IMolecule, IStructure, Molecule, Structure
+from .core.units import ArrayWithUnit, FloatWithUnit, Unit
+from .electronic_structure.core import Orbital, Spin
 from .ext.matproj import MPRester
 
 
@@ -73,12 +73,13 @@ def get_structure_from_mp(formula):
     m = MPRester()
     entries = m.get_entries(formula, inc_structure="final")
     if len(entries) == 0:
-        raise ValueError("No structure with formula %s in Materials Project!" %
-                         formula)
+        raise ValueError("No structure with formula %s in Materials Project!" % formula)
     if len(entries) > 1:
-        warnings.warn("%d structures with formula %s found in Materials "
-                      "Project. The lowest energy structure will be returned." %
-                      (len(entries), formula))
+        warnings.warn(
+            "%d structures with formula %s found in Materials "
+            "Project. The lowest energy structure will be returned."
+            % (len(entries), formula)
+        )
     return min(entries, key=lambda e: e.energy_per_atom).structure
 
 
@@ -96,13 +97,18 @@ def loadfn(fname):
         (Vasprun) *vasprun*
         (obj) if *json* (passthrough to monty.serialization.loadfn)
     """
-    if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or ".cif" in fname.lower()) or \
-            fnmatch(fname, "*.vasp"):
+    if (
+        fnmatch(fname, "*POSCAR*")
+        or fnmatch(fname, "*CONTCAR*")
+        or ".cif" in fname.lower()
+    ) or fnmatch(fname, "*.vasp"):
         return Structure.from_file(fname)
     if fnmatch(fname, "*vasprun*"):
         from pymatgen.io.vasp import Vasprun
+
         return Vasprun(fname)
     if fnmatch(fname, "*.json*"):
         from monty.serialization import loadfn
+
         return loadfn(fname)
     raise ValueError("Unable to determine how to process %s." % fname)

@@ -70,9 +70,7 @@ class TestShengBTE(PymatgenTest):
         if isinstance(io["types"], list):
             all_ints = all(isinstance(item, int) for item in io["types"])
             self.assertTrue(all_ints)
-        self.assertArrayEqual(
-            io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
-        )
+        self.assertArrayEqual(io["positions"], [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]])
         self.assertArrayEqual(io["scell"], [5, 5, 5])
         self.assertEqual(io["t"], 500)
         self.assertEqual(io["scalebroad"], 0.5)
@@ -87,9 +85,7 @@ class TestShengBTE(PymatgenTest):
 
         with open(os.path.join(test_dir, "test_control"), "r") as file:
             test_string = file.read()
-        with open(
-            os.path.join(test_dir, "CONTROL-CSLD_Si"), "r"
-        ) as reference_file:
+        with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), "r") as reference_file:
             reference_string = reference_file.read()
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, "test_control"))
@@ -102,9 +98,7 @@ class TestShengBTE(PymatgenTest):
         io.to_file(filename=os.path.join(test_dir, "test_control"))
         with open(os.path.join(test_dir, "test_control"), "r") as file:
             test_string = file.read()
-        with open(
-            os.path.join(test_dir, "CONTROL-CSLD_Si"), "r"
-        ) as reference_file:
+        with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), "r") as reference_file:
             reference_string = reference_file.read()
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, "test_control"))

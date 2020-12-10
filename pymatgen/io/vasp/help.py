@@ -38,7 +38,8 @@ class VaspDoc:
             tag (str): Tag used in VASP.
         """
         help = self.get_help(tag, "html")
-        from IPython.core.display import display, HTML
+        from IPython.core.display import HTML, display
+
         display(HTML(help))
 
     @classmethod
@@ -70,12 +71,14 @@ class VaspDoc:
         Returns: All incar tags
         """
         tags = []
-        for page in ["http://www.vasp.at/wiki/index.php/Category:INCAR",
-                     "http://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages"]:
+        for page in [
+            "http://www.vasp.at/wiki/index.php/Category:INCAR",
+            "http://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
+        ]:
             r = requests.get(page, verify=False)
             soup = BeautifulSoup(r.text)
-            for div in soup.findAll('div', {'class': 'mw-category-group'}):
-                children = div.findChildren('li')
+            for div in soup.findAll("div", {"class": "mw-category-group"}):
+                children = div.findChildren("li")
                 for child in children:
                     tags.append(child.text.strip())
         return tags

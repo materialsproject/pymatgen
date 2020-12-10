@@ -3,18 +3,27 @@
 # Distributed under the terms of the MIT License.
 
 import os
-import unittest
 import tempfile
+import unittest
+
 import numpy as np
 
 from pymatgen import Structure
+from pymatgen.io.abinit.inputs import (
+    BasicAbinitInput,
+    BasicMultiDataset,
+    ShiftMode,
+    calc_shiftk,
+    ebands_input,
+    gs_input,
+    ion_ioncell_relax_input,
+    num_valence_electrons,
+)
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinit.inputs import (BasicAbinitInput, BasicMultiDataset, calc_shiftk,
-                                       num_valence_electrons, ShiftMode, gs_input, ebands_input,
-                                       ion_ioncell_relax_input)
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                         'test_files', "abinit")
+_test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"
+)
 
 
 def abiref_file(filename):
@@ -35,20 +44,17 @@ class AbinitInputTestCase(PymatgenTest):
         # Build simple input with structure and pseudos
         unit_cell = {
             "acell": 3 * [10.217],
-            'rprim': [[.0, .5, .5],
-                      [.5, .0, .5],
-                      [.5, .5, .0]],
-            'ntypat': 1,
-            'znucl': [14],
-            'natom': 2,
-            'typat': [1, 1],
-            'xred': [[.0, .0, .0],
-                     [.25, .25, .25]]
+            "rprim": [[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]],
+            "ntypat": 1,
+            "znucl": [14],
+            "natom": 2,
+            "typat": [1, 1],
+            "xred": [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
         }
 
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
-        shiftk = [[0.5, 0.5, 0.5], [0.5,  0., 0.], [0., 0.5, 0.], [0., 0., 0.5]]
+        shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
         self.assertArrayEqual(calc_shiftk(inp.structure), shiftk)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
@@ -61,7 +67,12 @@ class AbinitInputTestCase(PymatgenTest):
         assert inp.isnc and not inp.ispaw
 
         inp["ecut"] = 1
-        assert inp.get("ecut") == 1 and len(inp) == 1 and "ecut" in inp.keys() and "foo" not in inp
+        assert (
+            inp.get("ecut") == 1
+            and len(inp) == 1
+            and "ecut" in inp.keys()
+            and "foo" not in inp
+        )
 
         # Test to_string
         assert inp.to_string(with_structure=True, with_pseudos=True)
@@ -116,7 +127,9 @@ class AbinitInputTestCase(PymatgenTest):
 
         # Ambiguous list of pseudos.
         with self.assertRaises(BasicAbinitInput.Error):
-            BasicAbinitInput(si_structure, pseudos=abiref_files("14si.pspnc", "14si.4.hgh"))
+            BasicAbinitInput(
+                si_structure, pseudos=abiref_files("14si.pspnc", "14si.4.hgh")
+            )
 
         # Pseudos do not match structure.
         with self.assertRaises(BasicAbinitInput.Error):
@@ -127,10 +140,8 @@ class AbinitInputTestCase(PymatgenTest):
             natom=1,
             typat=[1],
             znucl=14,
-            acell=3*[7.60],
-            rprim=[[0.0, 0.5, 0.5],
-                   [-0.5, -0.0, -0.5],
-                   [0.5, 0.5, 0.0]],
+            acell=3 * [7.60],
+            rprim=[[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
             xred=[[0.0, 0.0, 0.0]],
         )
 
@@ -140,7 +151,9 @@ class AbinitInputTestCase(PymatgenTest):
 
     def test_helper_functions(self):
         """Testing BasicAbinitInput helper functions."""
-        inp = BasicAbinitInput(structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=_test_dir)
+        inp = BasicAbinitInput(
+            structure=abiref_file("si.cif"), pseudos="14si.pspnc", pseudo_dir=_test_dir
+        )
 
         inp.set_kmesh(ngkpt=(1, 2, 3), shiftk=(1, 2, 3, 4, 5, 6))
         assert inp["kptopt"] == 1 and inp["nshiftk"] == 2
@@ -165,7 +178,9 @@ class TestMultiDataset(PymatgenTest):
         with self.assertRaises(ValueError):
             BasicMultiDataset(structure=structure, pseudos=pseudo, ndtset=-1)
 
-        multi = BasicMultiDataset(structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir)
+        multi = BasicMultiDataset(
+            structure=structure, pseudos=pseudo, pseudo_dir=pseudo_dir
+        )
 
         assert len(multi) == 1 and multi.ndtset == 1
         assert multi.isnc
@@ -199,11 +214,16 @@ class TestMultiDataset(PymatgenTest):
         assert all(s == structure for s in multi.structure)
         assert multi.has_same_structures
         multi[1].set_structure(pert_structure)
-        assert multi[0].structure != multi[1].structure and multi[1].structure == pert_structure
+        assert (
+            multi[0].structure != multi[1].structure
+            and multi[1].structure == pert_structure
+        )
         assert not multi.has_same_structures
 
         split = multi.split_datasets()
-        assert len(split) == 2 and all(split[i] == multi[i] for i in range(multi.ndtset))
+        assert len(split) == 2 and all(
+            split[i] == multi[i] for i in range(multi.ndtset)
+        )
         repr(multi)
         str(multi)
         assert multi.to_string(with_pseudos=False)
@@ -234,7 +254,6 @@ class TestMultiDataset(PymatgenTest):
 
 
 class ShiftModeTest(PymatgenTest):
-
     def test_shiftmode(self):
         """Testing shiftmode"""
         gamma = ShiftMode.GammaCentered
@@ -245,7 +264,6 @@ class ShiftModeTest(PymatgenTest):
 
 
 class FactoryTest(PymatgenTest):
-
     def setUp(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
@@ -253,7 +271,9 @@ class FactoryTest(PymatgenTest):
 
     def test_gs_input(self):
         """Testing gs_input factory."""
-        inp = gs_input(self.si_structure, self.si_pseudo, kppa=10, ecut=10, spin_mode="polarized")
+        inp = gs_input(
+            self.si_structure, self.si_pseudo, kppa=10, ecut=10, spin_mode="polarized"
+        )
         str(inp)
         assert inp["nsppol"] == 2
         assert inp["nband"] == 14
@@ -267,22 +287,42 @@ class FactoryTest(PymatgenTest):
         scf_inp, nscf_inp = multi.split_datasets()
 
         # Test dos_kppa and other options.
-        multi_dos = ebands_input(self.si_structure, self.si_pseudo, nscf_nband=10, kppa=10, ecut=2,
-                                 spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=50)
+        multi_dos = ebands_input(
+            self.si_structure,
+            self.si_pseudo,
+            nscf_nband=10,
+            kppa=10,
+            ecut=2,
+            spin_mode="unpolarized",
+            smearing=None,
+            charge=2.0,
+            dos_kppa=50,
+        )
         assert len(multi_dos) == 3
         assert all(i["charge"] == 2 for i in multi_dos)
         self.assertEqual(multi_dos.get("nsppol"), [1, 1, 1])
         self.assertEqual(multi_dos.get("iscf"), [None, -2, -2])
 
-        multi_dos = ebands_input(self.si_structure, self.si_pseudo, nscf_nband=10, kppa=10, ecut=2,
-                                 spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=[50, 100])
+        multi_dos = ebands_input(
+            self.si_structure,
+            self.si_pseudo,
+            nscf_nband=10,
+            kppa=10,
+            ecut=2,
+            spin_mode="unpolarized",
+            smearing=None,
+            charge=2.0,
+            dos_kppa=[50, 100],
+        )
         assert len(multi_dos) == 4
         self.assertEqual(multi_dos.get("iscf"), [None, -2, -2, -2])
         str(multi_dos)
 
     def test_ion_ioncell_relax_input(self):
         """Testing ion_ioncell_relax_input factory."""
-        multi = ion_ioncell_relax_input(self.si_structure, self.si_pseudo, kppa=10, ecut=2)
+        multi = ion_ioncell_relax_input(
+            self.si_structure, self.si_pseudo, kppa=10, ecut=2
+        )
 
         str(multi)
         ion_inp, ioncell_inp = multi.split_datasets()

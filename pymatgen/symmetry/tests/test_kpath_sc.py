@@ -3,15 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
+from pymatgen.util.testing import PymatgenTest
 
-test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files", "space_group_structs")
+test_dir_structs = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "test_files", "space_group_structs"
+)
 
 
 class BandStructureSCTest(PymatgenTest):
@@ -29,7 +31,13 @@ class BandStructureSCTest(PymatgenTest):
         for i in range(230):
             sg_num = i + 1
             if sg_num in triclinic:
-                lattice = Lattice([[3.0233057319441246, 0, 0], [0, 7.9850357844548681, 0], [0, 0, 8.1136762279561818]])
+                lattice = Lattice(
+                    [
+                        [3.0233057319441246, 0, 0],
+                        [0, 7.9850357844548681, 0],
+                        [0, 0, 8.1136762279561818],
+                    ]
+                )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -44,7 +52,9 @@ class BandStructureSCTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
+            kpath = KPathSetyawanCurtarolo(
+                struct
+            )  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "ICSD_170.cif")
         struct = Structure.from_file(struct_file_path)
@@ -61,7 +71,10 @@ class BandStructureSCTest(PymatgenTest):
         kpoints = kpath._kpath["kpoints"]
         labels = list(kpoints.keys())
 
-        self.assertEqual(sorted(labels), sorted(["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"]))
+        self.assertEqual(
+            sorted(labels),
+            sorted(["\\Gamma", "A", "A_1", "R", "S", "T", "X", "X_1", "Y", "Z"]),
+        )
 
         self.assertEqual(kpoints["\\Gamma"][0], 0.00000000)
         self.assertAlmostEqual(kpoints["\\Gamma"][1], 0.00000000)

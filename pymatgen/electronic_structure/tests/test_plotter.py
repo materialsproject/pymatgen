@@ -2,44 +2,43 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
+import os
+import unittest
 import warnings
 from io import open
 
 import scipy
-
 from monty.os.path import which
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.cohp import CompleteCohp
-from pymatgen.electronic_structure.dos import CompleteDos
+
+from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
+from pymatgen.electronic_structure.cohp import CompleteCohp
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import (
-    DosPlotter,
+    BoltztrapPlotter,
+    BSDOSPlotter,
     BSPlotter,
-    plot_ellipsoid,
+    BSPlotterProjected,
+    CohpPlotter,
+    DosPlotter,
     fold_point,
     plot_brillouin_zone,
-    BSPlotterProjected,
-    BSDOSPlotter,
-    CohpPlotter,
-    BoltztrapPlotter,
+    plot_ellipsoid,
 )
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files")
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class DosPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"),
-                  "r",
-                  encoding="utf-8") as f:
+        with open(
+            os.path.join(test_dir, "complete_dos.json"), "r", encoding="utf-8"
+        ) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
         warnings.simplefilter("ignore")
@@ -50,14 +49,16 @@ class DosPlotterTest(unittest.TestCase):
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 0)
-        self.plotter.add_dos_dict(self.dos.get_element_dos(),
-                                  key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 4)
 
     def test_get_dos_dict(self):
-        self.plotter.add_dos_dict(self.dos.get_element_dos(),
-                                  key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         d = self.plotter.get_dos_dict()
         for el in ["Li", "Fe", "P", "O"]:
             self.assertIn(el, d)
@@ -69,8 +70,9 @@ class DosPlotterTest(unittest.TestCase):
         from matplotlib import rc
 
         rc("text", usetex=False)
-        self.plotter.add_dos_dict(self.dos.get_element_dos(),
-                                  key_sort_func=lambda x: x.X)
+        self.plotter.add_dos_dict(
+            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
+        )
         plt = self.plotter.get_plot()
         self.plotter.save_plot("dosplot.png")
         self.assertTrue(os.path.isfile("dosplot.png"))
@@ -80,33 +82,32 @@ class DosPlotterTest(unittest.TestCase):
 
 class BSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"),
-                  "r",
-                  encoding="utf-8") as f:
+        with open(
+            os.path.join(test_dir, "CaO_2605_bandstructure.json"), "r", encoding="utf-8"
+        ) as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
 
-        self.assertEqual(len(self.plotter._bs), 1,
-                         "wrong number of band objects")
+        self.assertEqual(len(self.plotter._bs), 1, "wrong number of band objects")
 
-        with open(os.path.join(test_dir, "N2_12103_bandstructure.json"),
-                  "r",
-                  encoding="utf-8") as f:
+        with open(
+            os.path.join(test_dir, "N2_12103_bandstructure.json"), "r", encoding="utf-8"
+        ) as f:
             d = json.loads(f.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(d)
 
-        with open(os.path.join(test_dir, "C_48_bandstructure.json"),
-                  "r",
-                  encoding="utf-8") as f:
+        with open(
+            os.path.join(test_dir, "C_48_bandstructure.json"), "r", encoding="utf-8"
+        ) as f:
             d = json.loads(f.read())
             self.sbs_met = BandStructureSymmLine.from_dict(d)
 
         self.plotter_multi = BSPlotter([self.sbs_sc, self.sbs_met])
-        self.assertEqual(len(self.plotter_multi._bs), 2,
-                         "wrong number of band objects")
-        self.assertEqual(self.plotter_multi._nb_bands, [96, 96],
-                         "wrong number of bands")
+        self.assertEqual(len(self.plotter_multi._bs), 2, "wrong number of band objects")
+        self.assertEqual(
+            self.plotter_multi._nb_bands, [96, 96], "wrong number of bands"
+        )
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -114,26 +115,27 @@ class BSPlotterTest(unittest.TestCase):
 
     def test_add_bs(self):
         self.plotter_multi.add_bs(self.sbs_sc)
-        self.assertEqual(len(self.plotter_multi._bs), 3,
-                         "wrong number of band objects")
-        self.assertEqual(self.plotter_multi._nb_bands, [96, 96, 96],
-                         "wrong number of bands")
+        self.assertEqual(len(self.plotter_multi._bs), 3, "wrong number of band objects")
+        self.assertEqual(
+            self.plotter_multi._nb_bands, [96, 96, 96], "wrong number of bands"
+        )
 
     def test_get_branch_steps(self):
         steps_idx = BSPlotter._get_branch_steps(self.sbs_sc.branches)
-        self.assertEqual(steps_idx, [0, 121, 132, 143],
-                         "wrong list of steps idx")
+        self.assertEqual(steps_idx, [0, 121, 132, 143], "wrong list of steps idx")
 
     def test_rescale_distances(self):
         rescaled_distances = self.plotter_multi._rescale_distances(
-            self.sbs_sc, self.sbs_met)
+            self.sbs_sc, self.sbs_met
+        )
         self.assertEqual(
             len(rescaled_distances),
             len(self.sbs_met.distance),
             "wrong lenght of distances list",
         )
-        self.assertEqual(rescaled_distances[-1], 6.5191398067252875,
-                         "wrong last distance value")
+        self.assertEqual(
+            rescaled_distances[-1], 6.5191398067252875, "wrong last distance value"
+        )
         self.assertEqual(
             rescaled_distances[148],
             self.sbs_sc.distance[19],
@@ -146,14 +148,14 @@ class BSPlotterTest(unittest.TestCase):
         en = data["energy"]["1"]
         int_distances, int_energies = self.plotter._interpolate_bands(d, en)
 
-        self.assertEqual(len(int_distances), 10,
-                         "wrong lenght of distances list")
-        self.assertEqual(len(int_distances[0]), 100,
-                         "wrong lenght of distances in a branch")
-        self.assertEqual(len(int_energies), 10,
-                         "wrong lenght of distances list")
-        self.assertEqual(int_energies[0].shape, (16, 100),
-                         "wrong lenght of distances list")
+        self.assertEqual(len(int_distances), 10, "wrong lenght of distances list")
+        self.assertEqual(
+            len(int_distances[0]), 100, "wrong lenght of distances in a branch"
+        )
+        self.assertEqual(len(int_energies), 10, "wrong lenght of distances list")
+        self.assertEqual(
+            int_energies[0].shape, (16, 100), "wrong lenght of distances list"
+        )
 
     def test_bs_plot_data(self):
         self.assertEqual(
@@ -172,20 +174,19 @@ class BSPlotterTest(unittest.TestCase):
             "wrong number of distances",
         )
 
-        lenght = len(
-            self.plotter.bs_plot_data(split_branches=False)["distances"][0])
+        lenght = len(self.plotter.bs_plot_data(split_branches=False)["distances"][0])
         self.assertEqual(
-            lenght, 144,
-            "wrong number of distances in the first sequence of branches")
+            lenght, 144, "wrong number of distances in the first sequence of branches"
+        )
 
-        lenght = len(
-            self.plotter.bs_plot_data(split_branches=False)["distances"])
+        lenght = len(self.plotter.bs_plot_data(split_branches=False)["distances"])
         self.assertEqual(
-            lenght, 2,
-            "wrong number of distances in the first sequence of branches")
+            lenght, 2, "wrong number of distances in the first sequence of branches"
+        )
 
-        self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][5], "K",
-                         "wrong tick label")
+        self.assertEqual(
+            self.plotter.bs_plot_data()["ticks"]["label"][5], "K", "wrong tick label"
+        )
         self.assertEqual(
             len(self.plotter.bs_plot_data()["ticks"]["label"]),
             19,
@@ -193,8 +194,7 @@ class BSPlotterTest(unittest.TestCase):
         )
 
     def test_get_ticks(self):
-        self.assertEqual(self.plotter.get_ticks()["label"][5], "K",
-                         "wrong tick label")
+        self.assertEqual(self.plotter.get_ticks()["label"][5], "K", "wrong tick label")
         self.assertEqual(
             self.plotter.get_ticks()["distance"][5],
             2.406607625322699,
@@ -223,8 +223,7 @@ class BSPlotterTest(unittest.TestCase):
 
         # test plotter with 2 bandstructures
         plt = self.plotter_multi.get_plot()
-        self.assertEqual(len(plt.gca().get_lines()), 874,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 874, "wrong number of lines")
         self.assertEqual(plt.ylim(), (-10.0, 10.0), "wrong ylim")
         plt = self.plotter_multi.get_plot(zero_to_efermi=False)
         self.assertEqual(plt.ylim(), (-15.2379, 12.67141266), "wrong ylim")
@@ -237,9 +236,9 @@ class BSPlotterTest(unittest.TestCase):
 
 class BSPlotterProjectedTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
-                  "r",
-                  encoding="utf-8") as f:
+        with open(
+            os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "r", encoding="utf-8"
+        ) as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotterProjected(self.bs)
@@ -253,10 +252,10 @@ class BSPlotterProjectedTest(unittest.TestCase):
     def test_methods(self):
         self.plotter.get_elt_projected_plots().close()
         self.plotter.get_elt_projected_plots_color().close()
-        self.plotter.get_projected_plots_dots({'Cu': ['d', 's'], 'O': ['p']}).close()
+        self.plotter.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]}).close()
         self.plotter.get_projected_plots_dots_patom_pmorb(
-            {'Cu': ['dxy', 's', 'px'], 'O': ['px', 'py', 'pz']},
-            {'Cu': [3, 5], 'O': [1]}
+            {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
+            {"Cu": [3, 5], "O": [1]},
         ).close()
 
 
@@ -274,11 +273,14 @@ class BSDOSPlotterTest(unittest.TestCase):
         p = BSDOSPlotter()
         plt = p.get_plot(
             v.get_band_structure(
-                kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")))
+                kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")
+            )
+        )
         plt.close()
         plt = p.get_plot(
             v.get_band_structure(
-                kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
+                kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")
+            ),
             v.complete_dos,
         )
         plt.close("all")
@@ -286,10 +288,12 @@ class BSDOSPlotterTest(unittest.TestCase):
 
 class PlotBZTest(unittest.TestCase):
     def setUp(self):
-        self.rec_latt = Structure.from_file(os.path.join(
-            test_dir, "Si.cssr")).lattice.reciprocal_lattice
-        self.kpath = [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75],
-                       [0.375, 0.375, 0.75]]]
+        self.rec_latt = Structure.from_file(
+            os.path.join(test_dir, "Si.cssr")
+        ).lattice.reciprocal_lattice
+        self.kpath = [
+            [[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]
+        ]
         self.labels = {
             "\\Gamma": [0.0, 0.0, 0.0],
             "K": [0.375, 0.375, 0.75],
@@ -311,9 +315,7 @@ class PlotBZTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_bz_plot(self):
-        fig, ax = plot_ellipsoid(self.hessian,
-                                 self.center,
-                                 lattice=self.rec_latt)
+        fig, ax = plot_ellipsoid(self.hessian, self.center, lattice=self.rec_latt)
         fig = plot_brillouin_zone(
             self.rec_latt,
             lines=self.kpath,
@@ -328,12 +330,14 @@ class PlotBZTest(unittest.TestCase):
             scipy.allclose(
                 fold_point([0.0, -0.5, 0.5], lattice=self.rec_latt),
                 self.rec_latt.get_cartesian_coords([0.0, 0.5, 0.5]),
-            ))
+            )
+        )
         self.assertTrue(
             scipy.allclose(
                 fold_point([0.1, -0.6, 0.2], lattice=self.rec_latt),
                 self.rec_latt.get_cartesian_coords([0.1, 0.4, 0.2]),
-            ))
+            )
+        )
 
 
 x_trans = which("x_trans")
@@ -342,8 +346,7 @@ x_trans = which("x_trans")
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapPlotterTest(unittest.TestCase):
     def setUp(self):
-        bz = BoltztrapAnalyzer.from_files(
-            os.path.join(test_dir, "boltztrap/transp/"))
+        bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/transp/"))
         self.plotter = BoltztrapPlotter(bz)
         warnings.simplefilter("ignore")
 
@@ -352,8 +355,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_carriers(self):
         plt = self.plotter.plot_carriers()
-        self.assertEqual(len(plt.gca().get_lines()), 7,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 7, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -368,8 +370,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_complexity_factor_mu(self):
         plt = self.plotter.plot_complexity_factor_mu()
-        self.assertEqual(len(plt.gca().get_lines()), 2,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 2, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -384,8 +385,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_conductivity_dop(self):
         plt = self.plotter.plot_conductivity_dop()
-        self.assertEqual(len(plt.gca().get_lines()), 8,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 8, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             1000000000000000.0,
@@ -400,8 +400,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_conductivity_mu(self):
         plt = self.plotter.plot_conductivity_mu()
-        self.assertEqual(len(plt.gca().get_lines()), 9,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 9, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -416,10 +415,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_conductivity_temp(self):
         plt = self.plotter.plot_conductivity_temp()
-        self.assertEqual(len(plt.gca().get_lines()), 6,
-                         "wrong number of lines")
-        self.assertEqual(plt.gca().get_lines()[0].get_data()[0][0], 100,
-                         "wrong 0 data in line 0")
+        self.assertEqual(len(plt.gca().get_lines()), 6, "wrong number of lines")
+        self.assertEqual(
+            plt.gca().get_lines()[0].get_data()[0][0], 100, "wrong 0 data in line 0"
+        )
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[1][0],
             0.3801957596666667,
@@ -429,21 +428,20 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_dos(self):
         plt = self.plotter.plot_dos()
-        self.assertEqual(len(plt.gca().get_lines()), 3,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 3, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.4197044934588674,
             "wrong 0 data in line 0",
         )
-        self.assertEqual(plt.gca().get_lines()[0].get_data()[1][0], 0.0,
-                         "wrong 1 data in line 0")
+        self.assertEqual(
+            plt.gca().get_lines()[0].get_data()[1][0], 0.0, "wrong 1 data in line 0"
+        )
         plt.close()
 
     def test_plot_eff_mass_dop(self):
         plt = self.plotter.plot_eff_mass_dop()
-        self.assertEqual(len(plt.gca().get_lines()), 8,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 8, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             1000000000000000.0,
@@ -458,10 +456,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_eff_mass_temp(self):
         plt = self.plotter.plot_eff_mass_temp()
-        self.assertEqual(len(plt.gca().get_lines()), 6,
-                         "wrong number of lines")
-        self.assertEqual(plt.gca().get_lines()[0].get_data()[0][0], 100,
-                         "wrong 0 data in line 0")
+        self.assertEqual(len(plt.gca().get_lines()), 6, "wrong number of lines")
+        self.assertEqual(
+            plt.gca().get_lines()[0].get_data()[0][0], 100, "wrong 0 data in line 0"
+        )
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[1][0],
             1.4231240011719886,
@@ -471,8 +469,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_hall_carriers(self):
         plt = self.plotter.plot_hall_carriers()
-        self.assertEqual(len(plt.gca().get_lines()), 7,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 7, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -487,8 +484,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_power_factor_dop(self):
         plt = self.plotter.plot_power_factor_dop()
-        self.assertEqual(len(plt.gca().get_lines()), 8,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 8, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             1000000000000000.0,
@@ -503,8 +499,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_power_factor_mu(self):
         plt = self.plotter.plot_power_factor_mu()
-        self.assertEqual(len(plt.gca().get_lines()), 9,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 9, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -519,10 +514,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_power_factor_temp(self):
         plt = self.plotter.plot_power_factor_temp()
-        self.assertEqual(len(plt.gca().get_lines()), 6,
-                         "wrong number of lines")
-        self.assertEqual(plt.gca().get_lines()[0].get_data()[0][0], 100,
-                         "wrong 0 data in line 0")
+        self.assertEqual(len(plt.gca().get_lines()), 6, "wrong number of lines")
+        self.assertEqual(
+            plt.gca().get_lines()[0].get_data()[0][0], 100, "wrong 0 data in line 0"
+        )
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[1][0],
             0.40606868935796925,
@@ -532,8 +527,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_seebeck_dop(self):
         plt = self.plotter.plot_seebeck_dop()
-        self.assertEqual(len(plt.gca().get_lines()), 8,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 8, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             1000000000000000.0,
@@ -548,8 +542,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_seebeck_eff_mass_mu(self):
         plt = self.plotter.plot_seebeck_eff_mass_mu()
-        self.assertEqual(len(plt.gca().get_lines()), 2,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 2, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -564,8 +557,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_seebeck_mu(self):
         plt = self.plotter.plot_seebeck_mu()
-        self.assertEqual(len(plt.gca().get_lines()), 9,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 9, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -580,10 +572,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_seebeck_temp(self):
         plt = self.plotter.plot_seebeck_temp()
-        self.assertEqual(len(plt.gca().get_lines()), 6,
-                         "wrong number of lines")
-        self.assertEqual(plt.gca().get_lines()[0].get_data()[0][0], 100,
-                         "wrong 0 data in line 0")
+        self.assertEqual(len(plt.gca().get_lines()), 6, "wrong number of lines")
+        self.assertEqual(
+            plt.gca().get_lines()[0].get_data()[0][0], 100, "wrong 0 data in line 0"
+        )
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[1][0],
             1050.8197666666667,
@@ -593,8 +585,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_zt_dop(self):
         plt = self.plotter.plot_zt_dop()
-        self.assertEqual(len(plt.gca().get_lines()), 8,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 8, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             1000000000000000.0,
@@ -609,8 +600,7 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_zt_mu(self):
         plt = self.plotter.plot_zt_mu()
-        self.assertEqual(len(plt.gca().get_lines()), 9,
-                         "wrong number of lines")
+        self.assertEqual(len(plt.gca().get_lines()), 9, "wrong number of lines")
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[0][0],
             -2.0702422655947665,
@@ -625,10 +615,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
     def test_plot_zt_temp(self):
         plt = self.plotter.plot_zt_temp()
-        self.assertEqual(len(plt.gca().get_lines()), 6,
-                         "wrong number of lines")
-        self.assertEqual(plt.gca().get_lines()[0].get_data()[0][0], 100,
-                         "wrong 0 data in line 0")
+        self.assertEqual(len(plt.gca().get_lines()), 6, "wrong number of lines")
+        self.assertEqual(
+            plt.gca().get_lines()[0].get_data()[0][0], 100, "wrong 0 data in line 0"
+        )
         self.assertEqual(
             plt.gca().get_lines()[0].get_data()[1][0],
             4.060682863129955e-05,
@@ -679,8 +669,8 @@ class CohpPlotterTest(PymatgenTest):
         self.assertEqual(len(d_coop), 0)
         bonds = self.coop.bonds
         self.coop_plot.add_cohp_dict(
-            self.coop.all_cohps,
-            key_sort_func=lambda x: sortkeys(bonds[x]["sites"]))
+            self.coop.all_cohps, key_sort_func=lambda x: sortkeys(bonds[x]["sites"])
+        )
         d_coop = self.coop_plot.get_cohp_dict()
         self.assertEqual(len(d_coop), 11)
         self.assertEqual(list(self.coop_plot._cohps.keys()), sorted_keys)
@@ -708,22 +698,19 @@ class CohpPlotterTest(PymatgenTest):
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(),
-                                        -cohp_fe_fe.cohp[spin])
+            self.assertArrayAlmostEqual(lines.get_xdata(), -cohp_fe_fe.cohp[spin])
             self.assertArrayAlmostEqual(lines.get_ydata(), self.cohp.energies)
             self.assertEqual(lines.get_linestyle(), linestyles[spin])
         plt_cohp.close()
 
-        plt_cohp = self.cohp_plot.get_plot(invert_axes=False,
-                                           plot_negative=False)
+        plt_cohp = self.cohp_plot.get_plot(invert_axes=False, plot_negative=False)
         ax_cohp = plt_cohp.gca()
         self.assertEqual(ax_cohp.get_xlabel(), "$E$ (eV)")
         self.assertEqual(ax_cohp.get_ylabel(), "COHP")
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
             self.assertArrayAlmostEqual(lines.get_xdata(), self.cohp.energies)
-            self.assertArrayAlmostEqual(lines.get_ydata(),
-                                        cohp_fe_fe.cohp[spin])
+            self.assertArrayAlmostEqual(lines.get_ydata(), cohp_fe_fe.cohp[spin])
         plt_cohp.close()
 
         plt_cohp = self.cohp_plot.get_plot(integrated=True)
@@ -731,8 +718,7 @@ class CohpPlotterTest(PymatgenTest):
         self.assertEqual(ax_cohp.get_xlabel(), "-ICOHP (eV)")
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2 * linesindex + s]
-            self.assertArrayAlmostEqual(lines.get_xdata(),
-                                        -cohp_fe_fe.icohp[spin])
+            self.assertArrayAlmostEqual(lines.get_xdata(), -cohp_fe_fe.icohp[spin])
 
         coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
@@ -741,8 +727,9 @@ class CohpPlotterTest(PymatgenTest):
         self.assertEqual(ax_coop.get_xlabel(), "COOP")
         self.assertEqual(ax_coop.get_ylabel(), "$E - E_f$ (eV)")
         lines_coop = ax_coop.get_lines()[0]
-        self.assertArrayAlmostEqual(lines_coop.get_ydata(),
-                                    self.coop.energies - self.coop.efermi)
+        self.assertArrayAlmostEqual(
+            lines_coop.get_ydata(), self.coop.energies - self.coop.efermi
+        )
         coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
         self.assertArrayAlmostEqual(lines_coop.get_xdata(), coop_bi_bi)
 

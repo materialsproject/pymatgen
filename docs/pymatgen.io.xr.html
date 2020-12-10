@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.xr module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.io.xr module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -212,7 +212,7 @@ to remove shell positions from relaxations
 that employed core-shell models.</p>
 <dl class="py class">
 <dt id="pymatgen.io.xr.Xr">
-<em class="property">class </em><code class="sig-name descname">Xr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xr.py#L32-L160"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Xr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xr.py#L32-L178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic object for working with xr files.</p>
 <dl class="field-list simple">
@@ -223,7 +223,7 @@ Xr object.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.xr.Xr.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">use_cores</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">0.0001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xr.py#L139-L160"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">use_cores</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">0.0001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xr.py#L159-L178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads an xr-formatted file to create an Xr object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -252,7 +252,7 @@ header information and cell vectors, respectively.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.xr.Xr.from_string">
-<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span></em>, <em class="sig-param"><span class="n">use_cores</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">0.0001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xr.py#L75-L137"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span></em>, <em class="sig-param"><span class="n">use_cores</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">thresh</span><span class="o">=</span><span class="default_value">0.0001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xr.py#L82-L157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an Xr object from a string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -281,7 +281,7 @@ header information and cell vectors, respectively.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.xr.Xr.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xr.py#L65-L73"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xr.py#L72-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xr.Xr.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out an xr file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

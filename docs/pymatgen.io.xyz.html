@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.xyz module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.io.xyz module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -207,7 +207,7 @@
 <p>Module implementing an XYZ file object class.</p>
 <dl class="py class">
 <dt id="pymatgen.io.xyz.XYZ">
-<em class="property">class </em><code class="sig-name descname">XYZ</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">coord_precision</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">6</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py#L18-L160"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">XYZ</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">coord_precision</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">6</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py#L18-L168"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic class for importing and exporting Molecules or Structures in XYZ
 format.</p>
@@ -228,13 +228,13 @@ lattice.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.xyz.XYZ.all_molecules">
-<em class="property">property </em><code class="sig-name descname">all_molecules</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.all_molecules" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">all_molecules</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.all_molecules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all the frames of molecule associated with this XYZ.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.xyz.XYZ.as_dataframe">
-<code class="sig-name descname">as_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py#L121-L140"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.as_dataframe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py#L127-L148"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.as_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a coordinates data frame with columns: atom, x, y, and z
 In case of multiple frame XYZ, returns the last frame.</p>
 <dl class="field-list simple">
@@ -246,7 +246,7 @@ In case of multiple frame XYZ, returns the last frame.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.xyz.XYZ.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py#L107-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py#L113-L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates XYZ object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -260,7 +260,7 @@ In case of multiple frame XYZ, returns the last frame.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.xyz.XYZ.from_string">
-<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contents</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py#L81-L105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contents</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py#L85-L111"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates XYZ object from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -274,14 +274,14 @@ In case of multiple frame XYZ, returns the last frame.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.xyz.XYZ.molecule">
-<em class="property">property </em><code class="sig-name descname">molecule</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">molecule</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns molecule associated with this XYZ. In case multiple frame
 XYZ, returns the last frame.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.xyz.XYZ.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/io/xyz.py#L152-L160"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/xyz.py#L160-L168"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes XYZ to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

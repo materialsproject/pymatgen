@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.molecule_matcher module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.molecule_matcher module &mdash; pymatgen 2020.12.3 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.12.3
               </div>
             
           
@@ -209,16 +209,18 @@ atom orders.
 This module is supposed to perform exact comparisons without the atom order
 correspondence prerequisite, while molecule_structure_comparator is supposed
 to do rough comparisons with the atom order correspondence prerequisite.</p>
+<p>The implementation is based on an excellent python package called <cite>rmsd</cite> that
+you can find at <a class="reference external" href="https://github.com/charnley/rmsd">https://github.com/charnley/rmsd</a>.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper">
-<em class="property">class </em><code class="sig-name descname">AbstractMolAtomMapper</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L38-L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AbstractMolAtomMapper</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L51-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract molecular atom order mapping class. A mapping will be able to
 find the uniform atom order of two molecules that can pair the
 geometrically equivalent atoms.</p>
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L79-L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L92-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>d</em>) – Dict</p>
@@ -231,7 +233,7 @@ geometrically equivalent atoms.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash">
-<em class="property">abstract </em><code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L65-L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L78-L90"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines a hash for molecules. This allows molecules to be grouped
 efficiently for comparison.</p>
 <dl class="field-list simple">
@@ -246,7 +248,7 @@ efficiently for comparison.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels">
-<em class="property">abstract </em><code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L45-L63"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L58-L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pair the geometrically equivalent atoms of the molecules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,8 +272,282 @@ order.
 </dd></dl>
 
 <dl class="py class">
+<dt id="pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher">
+<em class="property">class </em><code class="sig-name descname">BruteForceOrderMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L901-L1014"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.KabschMatcher" title="pymatgen.analysis.molecule_matcher.KabschMatcher"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.KabschMatcher</span></code></a></p>
+<p>Finding the best match between molecules by selecting molecule order
+with the smallest RMSD from all the possible order combinations.</p>
+<p class="rubric">Notes</p>
+<p>When aligning molecules, the atoms of the two molecules <strong>must</strong> have same number
+of atoms from the same species.</p>
+<p>Constructor of the matcher object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> – a <cite>Molecule</cite> object used as a target during the alignment</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">ignore_warning</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L980-L1001"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Order, rotate and transform <cite>p</cite> molecule according to the best match.</p>
+<p>A <cite>ValueError</cite> will be raised when the total number of possible combinations
+become unfeasible (more than a million combinations).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p></li>
+<li><p><strong>ignore_warning</strong> – ignoring error when the number of combination is too large</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotated and translated of the <cite>p</cite> <cite>Molecule</cite> object
+rmsd: Root-mean-square-deviation between <cite>p_prime</cite> and the <cite>target</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>p_prime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.match">
+<code class="sig-name descname">match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">ignore_warning</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L910-L978"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar as <cite>KabschMatcher.match</cite> but this method also finds the order of
+atoms which belongs to the best match.</p>
+<p>A <cite>ValueError</cite> will be raised when the total number of possible combinations
+become unfeasible (more than a million combination).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p></li>
+<li><p><strong>ignore_warning</strong> – ignoring error when the number of combination is too large</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices of atoms
+U: 3x3 rotation matrix
+V: Translation vector
+rmsd: Root mean squared deviation between P and Q</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>inds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.permutations">
+<em class="property">static </em><code class="sig-name descname">permutations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1003-L1014"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.BruteForceOrderMatcher.permutations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all the possible permutations of atom order. To achieve better
+performance all tha cases where the atoms are different has been ignored.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.molecule_matcher.GeneticOrderMatcher">
+<em class="property">class </em><code class="sig-name descname">GeneticOrderMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">threshold</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1236-L1393"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.GeneticOrderMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.KabschMatcher" title="pymatgen.analysis.molecule_matcher.KabschMatcher"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.KabschMatcher</span></code></a></p>
+<p>This method was inspired by genetic algorithms and tries to match molecules
+based on their already matched fragments.</p>
+<p>It uses the fact that when two molecule is matching their sub-structures have to match as well.
+The main idea here is that in each iteration (generation) we can check the match of all possible
+fragments and ignore those which are not feasible.</p>
+<p>Although in the worst case this method has N! complexity (same as the brute force one),
+in practice it performs much faster because many of the combination can be eliminated
+during the fragment matching.</p>
+<p class="rubric">Notes</p>
+<p>This method very robust and returns with all the possible orders.</p>
+<p>There is a well known weakness/corner case: The case when there is
+a outlier with large deviation with a small index might be ignored.
+This happens due to the nature of the average function
+used to calculate the RMSD for the fragments.</p>
+<p>When aligning molecules, the atoms of the two molecules <strong>must</strong> have the
+same number of atoms from the same species.</p>
+<p>Constructor of the matcher object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> – a <cite>Molecule</cite> object used as a target during the alignment</p></li>
+<li><p><strong>threshold</strong> – value used to match fragments and prune configuration</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.GeneticOrderMatcher.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1296-L1322"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.GeneticOrderMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Order, rotate and transform all of the matched <cite>p</cite> molecule
+according to the given <cite>threshold</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>p_prime: Rotated and translated of the <cite>p</cite> <cite>Molecule</cite> object
+rmsd: Root-mean-square-deviation between <cite>p_prime</cite> and the <cite>target</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Array of the possible matches where the elements are</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.GeneticOrderMatcher.match">
+<code class="sig-name descname">match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1271-L1294"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.GeneticOrderMatcher.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar as <cite>KabschMatcher.match</cite> but this method also finds all of the
+possible atomic orders according to the <cite>threshold</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>inds: The indices of atoms
+U: 3x3 rotation matrix
+V: Translation vector
+rmsd: Root mean squared deviation between P and Q</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Array of the possible matches where the elements are</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.GeneticOrderMatcher.permutations">
+<code class="sig-name descname">permutations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1324-L1393"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.GeneticOrderMatcher.permutations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all of possible permutations of atom order according the threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of index arrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.molecule_matcher.HungarianOrderMatcher">
+<em class="property">class </em><code class="sig-name descname">HungarianOrderMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1017-L1233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.KabschMatcher" title="pymatgen.analysis.molecule_matcher.KabschMatcher"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.KabschMatcher</span></code></a></p>
+<p>This method pre-aligns the molecules based on their principal inertia
+axis and then re-orders the input atom list using the Hungarian method.</p>
+<p class="rubric">Notes</p>
+<p>This method cannot guarantee the best match but is very fast.</p>
+<p>When aligning molecules, the atoms of the two molecules <strong>must</strong> have same number
+of atoms from the same species.</p>
+<p>Constructor of the matcher object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> – a <cite>Molecule</cite> object used as a target during the alignment</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1082-L1100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Order, rotate and transform <cite>p</cite> molecule according to the best match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotated and translated of the <cite>p</cite> <cite>Molecule</cite> object
+rmsd: Root-mean-square-deviation between <cite>p_prime</cite> and the <cite>target</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>p_prime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.get_principal_axis">
+<em class="property">static </em><code class="sig-name descname">get_principal_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1173-L1202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.get_principal_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the molecule’s principal axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – coordinates of atoms</p></li>
+<li><p><strong>weights</strong> – the weight use for calculating the inertia tensor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of dim 3 containing the principal axis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.match">
+<code class="sig-name descname">match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1028-L1080"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar as <cite>KabschMatcher.match</cite> but this method also finds the order of
+atoms which belongs to the best match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The indices of atoms
+U: 3x3 rotation matrix
+V: Translation vector
+rmsd: Root mean squared deviation between P and Q</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>inds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.permutations">
+<em class="property">static </em><code class="sig-name descname">permutations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p_atoms</span></em>, <em class="sig-param"><span class="n">p_centroid</span></em>, <em class="sig-param"><span class="n">p_weights</span></em>, <em class="sig-param"><span class="n">q_atoms</span></em>, <em class="sig-param"><span class="n">q_centroid</span></em>, <em class="sig-param"><span class="n">q_weights</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1102-L1171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.permutations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates two possible permutations of atom order. This method uses the principle component
+of the inertia tensor to prealign the molecules and hungarian method to determine the order.
+There are always two possible permutation depending on the way to pre-aligning the molecules.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p_atoms</strong> – atom numbers</p></li>
+<li><p><strong>p_centroid</strong> – array of atom positions</p></li>
+<li><p><strong>p_weights</strong> – array of atom weights</p></li>
+<li><p><strong>q_atoms</strong> – atom numbers</p></li>
+<li><p><strong>q_centroid</strong> – array of atom positions</p></li>
+<li><p><strong>q_weights</strong> – array of atom weights</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><em>perm_inds</em> – array of atoms’ order</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.rotation_matrix_vectors">
+<em class="property">static </em><code class="sig-name descname">rotation_matrix_vectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L1204-L1233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.HungarianOrderMatcher.rotation_matrix_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rotation matrix that rotates v1 onto v2 using
+Rodrigues’ rotation formula.</p>
+<p>See more: <a class="reference external" href="https://math.stackexchange.com/a/476311">https://math.stackexchange.com/a/476311</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> – initial vector</p></li>
+<li><p><strong>v2</strong> – target vector</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3x3 rotation matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper">
-<em class="property">class </em><code class="sig-name descname">InchiMolAtomMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">10.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L200-L579"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">InchiMolAtomMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">10.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L220-L610"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper</span></code></a></p>
 <p>Pair atoms by inchi labels.</p>
 <dl class="field-list simple">
@@ -281,7 +557,7 @@ order.
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L213-L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L233-L243"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -291,7 +567,7 @@ order.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L222-L231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L245-L254"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
@@ -304,13 +580,13 @@ order.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash">
-<code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L573-L579"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L604-L610"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return inchi as molecular hash</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels">
-<code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L526-L571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L554-L602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -328,12 +604,12 @@ order.
 
 <dl class="py class">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper">
-<em class="property">class </em><code class="sig-name descname">IsomorphismMolAtomMapper</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L103-L197"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">IsomorphismMolAtomMapper</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L122-L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper</span></code></a></p>
 <p>Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class</p>
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L180-L186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L197-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Jsonable dict.</p>
@@ -343,7 +619,7 @@ order.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L188-L197"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L208-L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -356,13 +632,13 @@ order.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash">
-<code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L169-L178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_molecule_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L186-L195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return inchi as molecular hash</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels">
-<code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L108-L167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L127-L184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pair the geometrically equivalent atoms of the molecules.
 Calculate RMSD on all possible isomorphism mappings and return mapping
 with the least RMSD</p>
@@ -388,8 +664,98 @@ order.
 </dd></dl>
 
 <dl class="py class">
+<dt id="pymatgen.analysis.molecule_matcher.KabschMatcher">
+<em class="property">class </em><code class="sig-name descname">KabschMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L783-L898"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.KabschMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Molecule matcher using Kabsch algorithm</p>
+<p>The Kabsch algorithm capable aligning two molecules by finding the parameters
+(translation, rotation) which minimize the root-mean-square-deviation (RMSD) of
+two molecules which are topologically (atom types, geometry) similar two each other.</p>
+<p class="rubric">Notes</p>
+<p>When aligning molecules, the atoms of the two molecules <strong>must</strong> be in the same
+order for the results to be sensible.</p>
+<p>Constructor of the matcher object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> – a <cite>Molecule</cite> object used as a target during the alignment</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.KabschMatcher.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L846-L864"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.KabschMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate and transform <cite>p</cite> molecule according to the best match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotated and translated of the <cite>p</cite> <cite>Molecule</cite> object
+rmsd: Root-mean-square-deviation between <cite>p_prime</cite> and the <cite>target</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>p_prime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.KabschMatcher.kabsch">
+<em class="property">static </em><code class="sig-name descname">kabsch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">P</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">Q</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L866-L898"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.KabschMatcher.kabsch" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Kabsch algorithm is a method for calculating the optimal rotation matrix
+that minimizes the root mean squared deviation (RMSD) between two paired sets of points
+P and Q, centered around the their centroid.</p>
+<p>For more info see:
+- <a class="reference external" href="http://en.wikipedia.org/wiki/Kabsch_algorithm">http://en.wikipedia.org/wiki/Kabsch_algorithm</a> and
+- <a class="reference external" href="https://cnx.org/contents/HV-RsdwL&#64;23/Molecular-Distance-Measures">https://cnx.org/contents/HV-RsdwL&#64;23/Molecular-Distance-Measures</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> – Nx3 matrix, where N is the number of points.</p></li>
+<li><p><strong>Q</strong> – Nx3 matrix, where N is the number of points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3x3 rotation matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>U</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.molecule_matcher.KabschMatcher.match">
+<code class="sig-name descname">match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L803-L844"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.KabschMatcher.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using the Kabsch algorithm the alignment of two molecules (P, Q)
+happens in three steps:
+- translate the P and Q into their centroid
+- compute of the optimal rotation matrix (U) using Kabsch algorithm
+- compute the translation (V) and rmsd</p>
+<p>The function returns the rotation matrix (U), translation vector (V),
+and RMSD between Q and P’, where P’ is:</p>
+<blockquote>
+<div><p>P’ = P * U + V</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> – a <cite>Molecule</cite> object what will be matched with the target one.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rotation matrix (D,D)
+V: Translation vector (D)
+RMSD : Root mean squared deviation between P and Q</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>U</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher">
-<em class="property">class </em><code class="sig-name descname">MoleculeMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L582-L735"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MoleculeMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L613-L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to match molecules and identify whether molecules are the same.</p>
 <dl class="field-list simple">
@@ -404,7 +770,7 @@ molecule to uniform order</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L715-L722"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L755-L766"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -414,7 +780,7 @@ molecule to uniform order</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L602-L613"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L635-L646"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit two molecules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -431,7 +797,7 @@ molecule to uniform order</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L724-L735"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L768-L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -444,7 +810,7 @@ molecule to uniform order</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd">
-<code class="sig-name descname">get_rmsd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L615-L626"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_rmsd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span></em>, <em class="sig-param"><span class="n">mol2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L648-L659"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get RMSD between two molecule with arbitrary atom order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -456,7 +822,7 @@ Infinite if  the topology is different</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules">
-<code class="sig-name descname">group_molecules</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_list</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/molecule_matcher.py#L668-L713"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">group_molecules</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol_list</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/analysis/molecule_matcher.py#L701-L753"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Group molecules by structural equality.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

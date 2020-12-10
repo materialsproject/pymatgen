@@ -17,6 +17,7 @@ __date__ = "Jul 12, 2012"
 
 
 from collections import OrderedDict
+
 from pymatgen.util.plotting import pretty_plot
 
 
@@ -68,8 +69,7 @@ class VoltageProfilePlotter:
                 x.append(cap)
             else:
                 x.append(vpair.frac_charge / (1 - vpair.frac_charge) / norm)
-                x.append(vpair.frac_discharge / (1 - vpair.frac_discharge)
-                         / norm)
+                x.append(vpair.frac_discharge / (1 - vpair.frac_discharge) / norm)
             y.extend([vpair.voltage] * 2)
 
         x.append(x[-1])
@@ -90,14 +90,14 @@ class VoltageProfilePlotter:
         plt = pretty_plot(width, height)
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode)
-            plt.plot(x, y, '-', linewidth=2, label=label)
+            plt.plot(x, y, "-", linewidth=2, label=label)
 
         plt.legend()
         if self.xaxis == "capacity":
-            plt.xlabel('Capacity (mAh/g)')
+            plt.xlabel("Capacity (mAh/g)")
         else:
-            plt.xlabel('Fraction')
-        plt.ylabel('Voltage (V)')
+            plt.xlabel("Fraction")
+        plt.ylabel("Voltage (V)")
         plt.tight_layout()
         return plt
 
