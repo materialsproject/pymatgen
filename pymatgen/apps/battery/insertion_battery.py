@@ -101,7 +101,6 @@ class InsertionElectrode(AbstractElectrode):
         )
         return cls(
             voltage_pairs=_vpairs,
-            working_ion=_working_ion_entry.composition.elements[0],
             working_ion_entry=_working_ion_entry,
             _stable_entries=_stable_entries,
             _unstable_entries=_unstable_entries,
@@ -606,13 +605,6 @@ class InsertionVoltagePair(AbstractVoltagePair):
         vpair._frac_discharge = comp_discharge.get_atomic_fraction(working_element)
 
         return vpair
-
-    @property
-    def working_ion(self):
-        """
-        Returns: working ion
-        """
-        return self.working_ion_entry.composition.elements[0]
 
     def __repr__(self):
         output = [
