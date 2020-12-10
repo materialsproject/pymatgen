@@ -11,13 +11,6 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
-from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import Iterable
-
-from monty.json import MSONable
-from scipy.constants import N_A
-
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -25,6 +18,13 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Iterable
+
+from monty.json import MSONable
+from scipy.constants import N_A
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import ComputedEntry
