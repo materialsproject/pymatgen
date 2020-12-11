@@ -3,6 +3,7 @@ This module calculates corrections for the species listed below, fitted to the e
 entries given to the CorrectionCalculator constructor.
 """
 
+import os
 import warnings
 from collections import OrderedDict
 from typing import Dict, List, Tuple, Union, Sequence, Optional
@@ -15,7 +16,6 @@ except ImportError:
     except ImportError:
         import yaml  # type: ignore # noqa
 import numpy as np
-import os
 import plotly.graph_objects as go
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
@@ -307,6 +307,11 @@ class CorrectionCalculator:
                 round(self.corrections[i], 3),
                 round(self.corrections_std_error[i], 4),
             )
+
+        # set ozonide correction to 0 so that this species does not recieve a correction
+        # while other oxide types do
+        self.corrections_dict["ozonide"] = (0, 0)
+
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
@@ -423,7 +428,7 @@ class CorrectionCalculator:
         Args:
             name: str, alternate name for the created .yaml file.
                 Default: "MP2020"
-            dir: str, directory in which to save the file. Pass None (default) to 
+            dir: str, directory in which to save the file. Pass None (default) to
                 save the file in the current working directory.
         """
 
@@ -441,7 +446,7 @@ class CorrectionCalculator:
         o_error: "OrderedDict[str, float]" = OrderedDict()
         f_error: "OrderedDict[str, float]" = OrderedDict()
 
-        for specie in self.species:
+        for specie in self.species+("ozonide",):
             if specie in ggaucorrection_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
@@ -452,9 +457,6 @@ class CorrectionCalculator:
             else:
                 comp_corr[specie] = self.corrections_dict[specie][0]
                 comp_corr_error[specie] = self.corrections_dict[specie][1]
-
-        comp_corr["ozonide"] = 0  # do i need this??
-        comp_corr_error["ozonide"] = 0
 
         outline = """\
         Name:
@@ -470,15 +472,16 @@ class CorrectionCalculator:
             CompositionCorrections:
         """
         fn = name + "Compatibility.yaml"
-        file = open(fn, "w")
-        yml = yaml.YAML()
-        yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
-        yml.default_flow_style = False
-        contents = yml.load(outline)
         if dir:
             path = os.path.join(dir, fn)
         else:
             path = fn
+
+        file = open(path, "w")
+        yml = yaml.YAML()
+        yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
+        yml.default_flow_style = False
+        contents = yml.load(outline)
 
         contents["Name"] = name
 
@@ -504,5 +507,5 @@ class CorrectionCalculator:
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
         )
 
-        yaml.dump(contents, file)
+        yml.dump(contents, file)
         file.close()
