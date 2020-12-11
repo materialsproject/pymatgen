@@ -13,7 +13,6 @@ import logging
 import math
 import os
 import re
-import warnings
 from functools import lru_cache
 
 import numpy as np
