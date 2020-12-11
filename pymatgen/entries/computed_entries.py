@@ -12,6 +12,8 @@ diagram analysis.
 
 import abc
 import copy
+import hashlib
+import warnings
 import json
 import os
 from itertools import combinations
@@ -350,7 +352,6 @@ class ComputedEntry(Entry):
             entry_id: An optional id to uniquely identify the entry.
         """
         super().__init__(composition, energy)
-        self.uncorrected_energy = self._energy
         self.energy_adjustments = energy_adjustments if energy_adjustments else []
 
         if correction != 0.0:
@@ -367,6 +368,14 @@ class ComputedEntry(Entry):
         self.data = data if data else {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
+
+    @property
+    def uncorrected_energy(self) -> float:
+        """
+        Returns:
+            float: the *uncorrected* energy of the entry
+        """
+        return self._energy
 
     @property
     def energy(self) -> float:
@@ -456,20 +465,16 @@ class ComputedEntry(Entry):
         """
         if inplace:
             factor = self._normalization_factor(mode)
-            self.uncorrected_energy /= factor
             for ea in self.energy_adjustments:
                 ea._normalize(factor)
             super().normalize(mode, inplace)
             return None
-        else:
-            entry = copy.deepcopy(self)
-            factor = entry._normalization_factor(mode)
-            entry.uncorrected_energy /= factor
-            for ea in entry.energy_adjustments:
-                ea._normalize(factor)
-            return super(ComputedEntry, entry).normalize(mode, inplace)
 
-    def __repr__(self):
+        entry = copy.deepcopy(self)
+        entry.normalize(mode, inplace=True)
+        return entry
+
+    def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
         output = [
             "{} {:<10} - {:<12} ({})".format(
@@ -510,7 +515,7 @@ class ComputedEntry(Entry):
         return self.__repr__()
 
     @classmethod
-    def from_dict(cls, d) -> "ComputedEntry":
+    def from_dict(cls, d: dict) -> "ComputedEntry":
         """
         :param d: Dict representation.
         :return: ComputedEntry
@@ -565,6 +570,36 @@ class ComputedEntry(Entry):
         )
         return return_dict
 
+    def __eq__(self, other: object) -> bool:
+        # NOTE Scaled duplicates i.e. physically equivalent materials
+        # are not equal unless normalized separately
+        if self is other:
+            return True
+
+        if isinstance(other, self.__class__):
+            if self.entry_id != other.entry_id:
+                return False
+            if self._energy != other._energy:
+                return False
+            if self._composition != other._composition:
+                return False
+            # NOTE this is not performant and should be preceeded
+            # if faster rigorous checks are available.
+            return self.as_dict() == other.as_dict()
+        return False
+
+    def __hash__(self) -> int:
+        # NOTE there is a trade-off between using `_energy` and `energy`
+        # as `energy` requires the calculation of the corrections. It is
+        # more discriminative but also more expensive.
+        data_md5 = hashlib.md5((
+            f"{self.__class__.__name__}"
+            f"{self.entry_id}"
+            f"{self.composition.reduced_formula}"
+            f"{self._energy}").encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)
+
 
 class ComputedStructureEntry(ComputedEntry):
     """
@@ -607,7 +642,14 @@ class ComputedStructureEntry(ComputedEntry):
             data=data,
             entry_id=entry_id,
         )
-        self.structure = structure
+        self._structure = structure
+
+    @property
+    def structure(self) -> Structure:
+        """
+        :return: the structure of the entry.
+        """
+        return self._structure
 
     def as_dict(self) -> dict:
         """
@@ -657,6 +699,28 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id=d.get("entry_id", None),
         )
 
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ):
+        """
+        Normalize the entry's composition and energy. The structure remains
+        unchanged.
+
+        Args:
+            mode: "formula_unit" is the default, which normalizes to
+                composition.reduced_formula. The other option is "atom",
+                which normalizes such that the composition amounts sum to 1.
+            inplace: "True" is the default which normalises the current
+                Entry object. Setting inplace to "False" returns a normalized
+                copy of the Entry object.
+        """
+        warnings.warn((
+            f"Normalization of a `{self.__class__.__name__}` makes "
+            "`self.composition` and `self.structure.composition` inconsistent"
+            " - please use self.composition for all further calculations."
+        ))
+        return super().normalize(mode, inplace)
+
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
     """
@@ -694,8 +758,15 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
-        self.structure = structure
-        self.formation_enthalpy = formation_enthalpy
+        super().__init__(
+            structure,
+            energy=formation_enthalpy,
+            correction=correction,
+            energy_adjustments=energy_adjustments,
+            parameters=parameters,
+            data=data,
+            entry_id=entry_id,
+        )
         self.temp = temp
         self.interpolated = False
 
@@ -706,7 +777,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             self.interpolated = True
 
         if gibbs_model.lower() == "sisso":
-            gibbs_energy = self.gf_sisso()
+            self.gibbs_correction_fn = self.gf_sisso
         else:
             raise ValueError(
                 f"{gibbs_model} not a valid model. Please select from [" f"'SISSO']"
@@ -714,15 +785,26 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         self.gibbs_model = gibbs_model
 
-        super().__init__(
-            structure,
-            energy=gibbs_energy,
-            correction=correction,
-            energy_adjustments=energy_adjustments,
-            parameters=parameters,
-            data=data,
-            entry_id=entry_id,
-        )
+    @property
+    def formation_enthalpy(self) -> float:
+        """
+        :return: the formation enthalpy energy of the entry.
+        """
+        return self._energy
+
+    @property
+    def gibbs_correction(self) -> float:
+        """
+        :return: the formation enthalpy energy of the entry.
+        """
+        return self.gibbs_correction_fn()
+
+    @property
+    def uncorrected_energy(self) -> float:
+        """
+        :return: the *uncorrected* energy of the entry after gibbs correction.
+        """
+        return self.formation_enthalpy + self.gibbs_correction
 
     def gf_sisso(self) -> float:
         """
@@ -740,9 +822,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         4168. https://doi.org/10.1038/s41467-018-06682-4
 
         Returns:
-            float: Gibbs free energy of formation (eV)
+            float: the entropic term of the Gibbs free energy of formation (eV)
         """
-        comp = self.structure.composition
+        comp = self.composition
 
         if comp.is_element:
             return self.formation_enthalpy
@@ -762,8 +844,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         reduced_mass = self._reduced_mass()
 
         return (
-            self.formation_enthalpy
-            + num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp)
+            comp.num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp)
             - self._sum_g_i()
         )
 
@@ -775,7 +856,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
              float: sum of weighted chemical potentials [eV]
         """
-        elems = self.structure.composition.get_el_amt_dict()
+        elems = self.composition.get_el_amt_dict()
 
         if self.interpolated:
             sum_g_i = 0
@@ -799,7 +880,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: reduced mass (amu)
         """
-        reduced_comp = self.structure.composition.reduced_composition
+        reduced_comp = self.composition.reduced_composition
         num_elems = len(reduced_comp.elements)
         elem_dict = reduced_comp.get_el_amt_dict()
 
@@ -845,7 +926,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_pd(
-        cls, pd, temp=300, gibbs_model="SISSO"
+        cls, pd, temp: float = 300, gibbs_model: str = "SISSO"
     ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing a list of GibbsComputedStructureEntry
@@ -885,7 +966,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_entries(
-        cls, entries, temp=300, gibbs_model="SISSO"
+        cls, entries: List["ComputedStructureEntry"], temp=300, gibbs_model="SISSO"
     ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing GibbsComputedStructureEntry objects from
@@ -922,7 +1003,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return d
 
     @classmethod
-    def from_dict(cls, d) -> "GibbsComputedStructureEntry":
+    def from_dict(cls, d: dict) -> "GibbsComputedStructureEntry":
         """
         :param d: Dict representation.
         :return: GibbsComputedStructureEntry
@@ -944,7 +1025,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             entry_id=d.get("entry_id", None),
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         output = [
             "GibbsComputedStructureEntry {} - {}".format(
                 self.entry_id, self.composition.formula
@@ -952,3 +1033,14 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             "Gibbs Free Energy (Formation) = {:.4f}".format(self.energy),
         ]
         return "\n".join(output)
+
+    def __hash__(self) -> int:
+        # NOTE based on hash choice of @mattmcdermott + class name
+        data_md5 = hashlib.md5(
+            f"{self.__class__.__name__}"
+            f"{self.entry_id}"
+            f"{self.composition.reduced_formula}"
+            f"{self._energy}"
+            f"{self.temp}".encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)

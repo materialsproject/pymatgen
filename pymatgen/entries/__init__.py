@@ -11,6 +11,7 @@ and PDEntry inherit from this class.
 """
 
 import copy
+import hashlib
 from abc import ABCMeta, abstractmethod
 from typing import Optional
 
@@ -36,7 +37,12 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     """
 
-    def __init__(self, composition: Composition, energy: float):
+    def __init__(
+        self,
+        composition: Composition,
+        energy: float,
+        per_atom: bool = False,
+    ):
         """
         Initializes an Entry.
 
@@ -46,16 +52,27 @@ class Entry(MSONable, metaclass=ABCMeta):
                 taken by a Composition, including a {symbol: amt} dict,
                 a string formula, and others.
             energy (float): Energy of the entry.
+            per_atom (bool): Whether the energy given is per atom.
         """
-        self._energy = energy
-        self.composition = Composition(composition)
+        self._composition = Composition(composition)
+        if per_atom:
+            self._energy = energy * self.composition.num_atoms
+        else:
+            self._energy = energy
 
     @property
     def is_element(self) -> bool:
         """
         :return: Whether composition of entry is an element.
         """
-        return self.composition.is_element
+        return self._composition.is_element
+
+    @property
+    def composition(self) -> Composition:
+        """
+        :return: the composition of the entry.
+        """
+        return self._composition
 
     @property
     @abstractmethod
@@ -89,30 +106,54 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         if inplace:
             factor = self._normalization_factor(mode)
-            self.composition /= factor
+            self._composition /= factor
             self._energy /= factor
             return None
-        else:
-            entry = copy.deepcopy(self)
-            factor = entry._normalization_factor(mode)
-            entry.composition /= factor
-            entry._energy /= factor
-            return entry
+
+        entry = copy.deepcopy(self)
+        entry.normalize(mode, inplace=True)
+        return entry
 
     def _normalization_factor(self, mode: str = "formula_unit") -> float:
+        # NOTE here we use composition rather than _composition in order to ensure
+        # that we have the expected behaviour downstream in cases where composition
+        # is overwritten (GrandPotPDEntry, TransformedPDEntry)
         if mode == "atom":
             factor = self.composition.num_atoms
+        elif mode == "formula_unit":
+            factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            comp, factor = self.composition.get_reduced_composition_and_factor()
+            raise ValueError(
+                "`{}` is not an allowed option for normalization".format(mode)
+            )
+
         return factor
 
     def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
-        return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-            "energy": self._energy,
-            "composition": self.composition.as_dict(),
-        }
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "energy": self._energy,
+                "composition": self.composition.as_dict()}
+
+    def __eq__(self, other):
+        # NOTE Scaled duplicates i.e. physically equivalent materials
+        # are not equal unless normalized separately
+        if self is other:
+            return True
+
+        if isinstance(other, self.__class__):
+            # NOTE this is not performant and should be overwritten or
+            # preceeded if faster rigorous checks are available.
+            return self.as_dict() == other.as_dict()
+        return False
+
+    def __hash__(self):
+        data_md5 = hashlib.md5((
+            f"{self.__class__.__name__}"
+            f"{self._composition.reduced_formula}"
+            f"{self._energy}").encode('utf-8')
+        ).hexdigest()
+        return int(data_md5, 16)
