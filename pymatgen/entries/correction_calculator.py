@@ -16,7 +16,6 @@ except ImportError:
     except ImportError:
         import yaml  # type: ignore # noqa
 import numpy as np
-import os
 import plotly.graph_objects as go
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
@@ -429,7 +428,7 @@ class CorrectionCalculator:
         Args:
             name: str, alternate name for the created .yaml file.
                 Default: "MP2020"
-            dir: str, directory in which to save the file. Pass None (default) to 
+            dir: str, directory in which to save the file. Pass None (default) to
                 save the file in the current working directory.
         """
 
@@ -483,10 +482,6 @@ class CorrectionCalculator:
         yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
         yml.default_flow_style = False
         contents = yml.load(outline)
-        if dir:
-            path = os.path.join(dir, fn)
-        else:
-            path = fn
 
         contents["Name"] = name
 
