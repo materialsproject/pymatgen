@@ -20,6 +20,7 @@ import numpy as np
 
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
+from pymatgen.symmetry.analyzer import PointGroupAnalyzer
 
 from typing import Union
 
@@ -32,6 +33,7 @@ cm2kcal = 0.0028591459
 cm2hartree = 4.5563352812122E-06
 kcal2hartree = 0.0015936
 amu2kg = 1.66053886E-27
+bohr2angs = 0.52917721092
 
 
 class QuasiRRHO():
@@ -46,167 +48,83 @@ class QuasiRRHO():
         self.v0 = v0
 
         if isinstance(output, GaussianOutput):
-            self._get_thermochemistry_from_GaussianOutput(output)
+            mult = output.spin_multiplicity
+            sigma_r = output.rot_sym_num
+            elec_e = output.final_energy
+            mol = output.final_structure
+            vib_freqs = [f['frequency'] for f in output.frequencies[-1]]
+
+            self._get_quasirrho_thermo(mol=mol, mult=mult, sigma_r=sigma_r, frequencies=vib_freqs, elec_energy=elec_e)
 
         if isinstance(output, QCOutput):
-            self._get_thermochemistry_from_QCOutput(output)
+            # TO-DO fix QCOutput to get rotational symmetry number
+            sigma_r = 1
+            mult = output.data['multiplicity']
+            elec_e = output.data["SCF_energy_in_the_final_basis_set"]
+
+            if output.data["optimization"]:
+                mol = output.data["molecule_from_last_geometry"]
+            else:
+                mol = output.data["initial_molecule"]
+            frequencies = output.frequencies
+
+            self._get_quasirrho_thermo(mol=mol, mult=mult, sigma_r=sigma_r, frequencies=frequencies, elec_energy=elec_e)
 
         if isinstance(output, dict):
-            self._get_thermochemistry_from_dict(output)
+            self._get_thermochemistry_from_dict(
+                output["mol"], output["mult"], output["sigma_r"], output["frequencies"], output["elec_energy"])
 
-    def _get_thermochemistry_from_GaussianOutput(self, GaussianOutput):
-        mult = GaussianOutput.spin_multiplicity
-        mass = GaussianOutput.mass * amu2kg
-        sigma_r = GaussianOutput.rot_sym_num
-        rot_temps = GaussianOutput.rot_temps
-        h_corrected = GaussianOutput.corrections['Enthalpy']
-        final_energy = GaussianOutput.final_energy
+    def get_avg_mom_inertia(self, mol):
+        centered_mol = mol.get_centered_molecule()
+        inertia_tensor = np.zeros((3, 3))
+        for site in centered_mol:
+            c = site.coords
+            wt = site.specie.atomic_mass
+            for i in range(3):
+                inertia_tensor[i, i] += wt * (
+                        c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2
+                )
+            for i, j in [(0, 1), (1, 2), (0, 2)]:
+                inertia_tensor[i, j] += -wt * c[i] * c[j]
+                inertia_tensor[j, i] += -wt * c[j] * c[i]
 
-        # Get frequencies for last frequency run
-        vib_freqs = []
-        vib_temps = []
-        for freq_dict in GaussianOutput.frequencies[-1]:
-            f = freq_dict['frequency']
-        if f > 0:
-            vib_freqs.append(f)
-            vib_temps.append(f * c * h / kb)
+        inertia_eigenvals = np.linalg.eig(inertia_tensor)[0].tolist()
 
-        Bav = (h ** 2 / (24 * np.pi ** 2 * kb)) * (
-                1 / rot_temps[0] + 1 / rot_temps[1] + 1 / rot_temps[2])
-        print('bav', Bav)
+        iav = np.average(np.multiply(inertia_eigenvals, amu2kg * 1E-20))  # amuangs^2 to kg m^
 
-        # Translational component of entropy
-        qt = (2 * np.pi * mass * kb * self.temp / (h * h)) ** (3 / 2) * kb * self.temp / self.press
-        st = R * (np.log(qt) + 5 / 2)
+        return iav, inertia_eigenvals
 
-        # Electronic component of Entropy
-        se = R * np.log(mult)
-
-        # Rotational component of Entropy
-        qr = np.sqrt(np.pi) / sigma_r * self.temp ** (3 / 2) / np.sqrt(
-            rot_temps[0] * rot_temps[1] * rot_temps[2])
-        sr = R * (np.log(qr) + 3 / 2)
-
-        # Vibrational component of Entropy and Energy
-        sv = 0
-        sv_quasiRRHO = 0
-
-        for vt in vib_temps:
-            sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
-            sv += sv_temp
-
-            # quasi-RRHO
-            mu = h / (8 * np.pi ** 2 * vt * c)
-            mu_prime = mu * Bav / (mu + Bav)
-            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi ** 3 * mu_prime * kb * self.temp / h ** 2))
-            weight = 1 / (1 + (self.v0 / vt) ** 4)
-            sv_quasiRRHO += weight * sv_temp + (1 - weight) * srotor
-
-        sv *= R
-        sv_quasiRRHO *= R
-
-        molarity_corr = 0.000003166488448771253 * self.temp * np.log(0.082057338 * self.temp * self.conc)
-
-        self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
-        self.free_energy_quasiRRHO = final_energy + h_corrected - self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000
-        self.concentration_corrected_g_quasiRRHO = self.free_energy_quasiRRHO + molarity_corr
-
-    def _get_thermochemistry_from_QCOutput(self, QCOutput):
-        mult = QCOutput.data['multiplicity']
-        mol = QCOutput.data['initial_molecule']
-
+    def _get_quasirrho_thermo(self, mol, mult, sigma_r, frequencies, elec_energy):
+        # TO-DO: Get rotational symmetry number from molecule
+        # Calculate mass in kg
         mass = 0
         for site in mol.sites:
-            mass += site.specie._atomic_mass
+            mass += site.specie.atomic_mass
         mass *= amu2kg
 
-        # TO-DO fix QCOutput to get rotational symmetry number
-        sigma_r = 1
-        rot_temps = GaussianOutput.rot_temps
-        h_corrected = GaussianOutput.corrections['Enthalpy']
-        final_energy = GaussianOutput.final_energy
-
-        # Get frequencies for last frequency run
-        vib_freqs = []
+        # Calculate vibrational temperatures
         vib_temps = []
-        for freq_dict in GaussianOutput.frequencies[-1]:
-            f = freq_dict['frequency']
-        if f > 0:
-            vib_freqs.append(f)
-            vib_temps.append(f * c * h / kb)
+        for f in frequencies:
+            if f > 0:
+                vib_temps.append(f * c * h / kb)
 
-        Bav = (h ** 2 / (24 * np.pi ** 2 * kb)) * (
-                1 / rot_temps[0] + 1 / rot_temps[1] + 1 / rot_temps[2])
+        # Get properties related to rotational symmetry. Bav is average moment of inertia
+        Bav, i_eigen = self.get_avg_mom_inertia(mol)
+        rot_temps = [h ** 2 / (np.pi ** 2 * kb * 8 * i) for i in i_eigen]
 
-        # Translational component of entropy
+        # Translational component of entropy and energy
         qt = (2 * np.pi * mass * kb * self.temp / (h * h)) ** (3 / 2) * kb * self.temp / self.press
         st = R * (np.log(qt) + 5 / 2)
+        et = 3 * R * self.temp / 2
 
-        # Electronic component of Entropy
+        # Electronic component of Entropy and energy
         se = R * np.log(mult)
 
-        # Rotational component of Entropy
+        # Rotational component of Entropy and Energy
         qr = np.sqrt(np.pi) / sigma_r * self.temp ** (3 / 2) / np.sqrt(
             rot_temps[0] * rot_temps[1] * rot_temps[2])
         sr = R * (np.log(qr) + 3 / 2)
-
-        # Vibrational component of Entropy and Energy
-        sv = 0
-        sv_quasiRRHO = 0
-
-        for vt in vib_temps:
-            sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
-            sv += sv_temp
-
-            # quasi-RRHO
-            mu = h / (8 * np.pi ** 2 * vt * c)
-            mu_prime = mu * Bav / (mu + Bav)
-            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi ** 3 * mu_prime * kb * self.temp / h ** 2))
-            weight = 1 / (1 + (self.v0 / vt) ** 4)
-            sv_quasiRRHO += weight * sv_temp + (1 - weight) * srotor
-
-        sv *= R
-        sv_quasiRRHO *= R
-
-        molarity_corr = 0.000003166488448771253 * self.temp * np.log(0.082057338 * self.temp * self.conc)
-
-        self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
-        self.free_energy_quasiRRHO = final_energy + h_corrected - self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000
-        self.concentration_corrected_g_quasiRRHO = self.free_energy_quasiRRHO + molarity_corr
-
-    @classmethod
-    def _get_thermochemistry_from_params(self, param_dict):
-        self.data = {'final_thermochemistry': {}, 'thermal_corrections': {}}
-
-        zpve = param_dict['zpve']
-        elec_zvpe = param_dict['elec_zvpe']
-        rot_temps = param_dict['rot_temps']
-        vib_temps = param_dict['vib_temps']
-        vib_freqs = param_dict['vib_freqs']
-        mult = param_dict['mult']
-        mass = param_dict['mass']
-        sigma_r = param_dict['sigma_r']
-
-        Bav = (h ** 2 / (24 * np.pi ** 2 * kb)) * (
-                1 / rot_temps[0] + 1 / rot_temps[1] + 1 / rot_temps[2])
-
-        # Translational entropy
-        qt = (2 * np.pi * self.mass * kb * self.temp / (h * h)) ** (3 / 2) * kb * self.temp / self.press
-        st = R * (np.log(qt) + 5 / 2)
-
-        # Translation component of Energy
-        et = 3 * R * self.temp / 2;
-
-        # Electronic component of Entropy
-        se = R * np.log(self.mult)
-
-        # Rotational component of Entropy
-        qr = np.sqrt(np.pi) / self.sigma_r * self.temp ** (3 / 2) / np.sqrt(
-            rot_temps[0] * rot_temps[1] * rot_temps[2])
-        sr = R * (np.log(qr) + 3 / 2)
-
-        # Rotational component of Energy
-        er = 3 * R * self.temp / 2
+        er = 3 * R * self.temp / 2;
 
         # Vibrational component of Entropy and Energy
         ev = 0
@@ -214,53 +132,27 @@ class QuasiRRHO():
         sv_quasiRRHO = 0
 
         for vt in vib_temps:
+            ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))
             sv_temp = vt / (self.temp * (np.exp(vt / self.temp) - 1)) - np.log(1 - np.exp(-vt / self.temp))
             sv += sv_temp
-            ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))
 
             # quasi-RRHO
             mu = h / (8 * np.pi ** 2 * vt * c)
             mu_prime = mu * Bav / (mu + Bav)
-            sr = 1 / 2 + np.log(np.sqrt(8 * np.pi ** 3 * mu_prime * kb * self.temp / h ** 2))
+            srotor = 1 / 2 + np.log(np.sqrt(8 * np.pi ** 3 * mu_prime * kb * self.temp / h ** 2))
             weight = 1 / (1 + (self.v0 / vt) ** 4)
-            sv_quasiRRHO += weight * sv_temp + (1 - weight) * sr
+            sv_quasiRRHO += weight * sv_temp + (1 - weight) * srotor
 
         sv *= R
-        ev *= R
         sv_quasiRRHO *= R
+        ev *= R
 
-        self.data['final_thermochemistry']['electronic_energy'] = (self.elec_zvpe - self.zpve) * kcal2hartree / 1000
-        self.data['thermal_corrections']['e_corrected'] = et + er + ev
-        self.data['thermal_corrections']['h_corrected'] = (self.data['thermal_e_correction'] + R * self.temp) \
-                                                          * kcal2hartree / 1000
-        self.data['thermal_corrections']['quasiRRHO_entropy'] = st + sr + sv_quasiRRHO + se
-        self.data['thermal_corrections']['entropy'] = st + sr + sv + se
-        self.data['thermal_corrections']['harmonic_g_corrected'] = (self.data['thermal_corrections'][
-                                                                        'h_corrected'] - self.temp *
-                                                                    self.data['thermal_corrections'][
-                                                                        'entropy']) * kcal2hartree / 1000
-        self.data['thermal_corrections']['quasiRRHO_g_corrected'] = (self.data['thermal_corrections'][
-                                                                         'h_corrected'] - self.temp *
-                                                                     self.data['thermal_corrections'][
-                                                                         'quasiRRHO_entropy']) * kcal2hartree / 1000
+        etot = (et + er + ev) * kcal2hartree / 1000
+        h_corrected = etot + R * self.temp * kcal2hartree / 1000
 
-        molarity_corr = 0.000003166488448771253 * self.temp * np.log(0.082057338 * self.T * self.conc)
-        self.data['final_thermochemistry']['energies'] = self.data['thermal_corrections']['e_corrected'] + \
-                                                         self.data['final_thermochemistry']['electronic_energy']
-        self.data['final_thermochemistry']['enthalpy'] = self.data['final_thermochemistry']['electronic_energy'] + \
-                                                         self.data['thermal_corrections']['h_corrected']
+        molarity_corr = 0.000003166488448771253 * self.temp * np.log(0.082057338 * self.temp * self.conc)
 
-        self.data['final_thermochemistry']['harmonic_g'] = self.data['final_thermochemistry']['electronic_energy'] + \
-                                                           self.data['thermal_corrections'][
-                                                               'harmonic_g_corrected']
-
-        self.data['final_thermochemistry']['quasiRRHO_g'] = self.data['final_thermochemistry'][
-                                                                'electronic_energy'] + \
-                                                            self.data['thermal_corrections'][
-                                                                'quasiRRHO_g_corrected']
-        self.data['final_thermochemistry']['concentration_corrected_quasiRRHO_g'] = \
-            self.data['final_thermochemistry']['electronic_energy'] + \
-            self.data['thermal_corrections'][
-                'quasiRRHO_g_corrected'] + molarity_corr
-
-        self.quasiRRHO_g = self.data['final_thermochemistry']['quasiRRHO_g']
+        self.entropy_quasiRRHO = st + sr + sv_quasiRRHO + se
+        self.free_energy_quasiRRHO = elec_energy + h_corrected - \
+                                     self.temp * self.entropy_quasiRRHO * kcal2hartree / 1000
+        self.concentration_corrected_g_quasiRRHO = self.free_energy_quasiRRHO + molarity_corr
