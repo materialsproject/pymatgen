@@ -260,11 +260,11 @@ class TransformedPDEntry(PDEntry):
 
 class BasePhaseDiagram(MSONable):
     """
-    BasePhaseDiagram is not intended to be used directly, and PhaseDiagram should be preferred. 
-    
-    When constructing a PhaseDiagram, a lot of heavy processing is performed to calculate the 
-    phase diagram information such as facets, simplexes, etc. The BasePhaseDiagram offers a way to 
-    store this information so that a phase diagram can be re-constructed without doing this heavy 
+    BasePhaseDiagram is not intended to be used directly, and PhaseDiagram should be preferred.
+
+    When constructing a PhaseDiagram, a lot of heavy processing is performed to calculate the
+    phase diagram information such as facets, simplexes, etc. The BasePhaseDiagram offers a way to
+    store this information so that a phase diagram can be re-constructed without doing this heavy
     processing. It is primarily intended for database applications.
     """
 
@@ -285,7 +285,7 @@ class BasePhaseDiagram(MSONable):
     ):
         """
         This class uses casting to bypass the init, so this constructor should only be
-        called by as_dict and from_dict functions. Prefer the PhaseDiagram class for 
+        called by as_dict and from_dict functions. Prefer the PhaseDiagram class for
         typical use cases.
         """
         self.facets = facets
