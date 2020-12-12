@@ -89,9 +89,6 @@ class PDEntry(Entry):
         """
         return self._energy
 
-    def __repr__(self):
-        return "PDEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
-
     def as_dict(self):
         """
         :return: MSONable dict.

@@ -88,6 +88,11 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         return self.energy / self.composition.num_atoms
 
+    def __repr__(self):
+        return "{} : {} with energy = {:.4f}".format(
+            self.__class__.__name__, self.composition, self.energy
+        )
+
     def __str__(self):
         return self.__repr__()
 
@@ -133,10 +138,12 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         :return: MSONable dict.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "energy": self._energy,
-                "composition": self.composition.as_dict()}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "energy": self._energy,
+            "composition": self.composition.as_dict()
+        }
 
     def __eq__(self, other):
         # NOTE Scaled duplicates i.e. physically equivalent materials

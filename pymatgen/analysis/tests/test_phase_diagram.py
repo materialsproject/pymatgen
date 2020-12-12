@@ -339,6 +339,11 @@ class PhaseDiagramTest(unittest.TestCase):
             "Novel scaled duplicates of stable entries should have same decomposition energy!",
         )
 
+        # NOTE to be removed when #1974 merged
+        self.comp_entry = ComputedEntry("Li5FeO4", -164.8117344866667)
+        self.assertRaises(ValueError, self.pd.get_quasi_e_to_hull, self.comp_entry)
+        self.assertRaises(ValueError, self.pd.get_decomp_and_quasi_e_to_hull, self.comp_entry)
+
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
             self.assertEqual(
