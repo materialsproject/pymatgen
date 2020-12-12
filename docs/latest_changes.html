@@ -1,19 +1,15 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.11.11 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.12.3 documentation</title>
   
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -60,7 +59,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -70,7 +69,7 @@
             
             
               <div class="version">
-                2020.11.11
+                2020.12.3
               </div>
             
           
@@ -87,7 +86,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -108,7 +106,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -147,7 +144,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
       <li>Change log</li>
     
@@ -172,12 +169,15 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2020-11-11">
-<h2>v2020.11.11<a class="headerlink" href="#v2020-11-11" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2020-12-3">
+<h2>v2020.12.3<a class="headerlink" href="#v2020-12-3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Bug fix for PhononBandStructureSymmLine. (&#64;gpetretto)</p></li>
-<li><p>Improved robustness in ABINIT input generation. (&#64;gpetretto)</p></li>
-<li><p>Other minor bug fixes.</p></li>
+<li><p>Site insertion algorithm based on charge density (&#64;jmmshn, #1997)</p></li>
+<li><p>Allow calculation of Fermi level from occupancies in VASP calculation (&#64;rkingsbury, #2000)</p></li>
+<li><p>Improvement to legibility of 3D phase diagram plots (&#64;bayesfactor, #1999)</p></li>
+<li><p>Improvement to allow general input for exciting (&#64;vorwerkc, #1975)</p></li>
+<li><p>Improvements to code formatting (&#64;mkhorton, #2008)</p></li>
+<li><p>Bug fix for VASP run type detection (&#64;rkingsbury, #1996)</p></li>
 </ul>
 </div>
 </div>
@@ -193,19 +193,11 @@
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -216,6 +208,7 @@
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

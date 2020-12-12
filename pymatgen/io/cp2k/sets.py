@@ -123,7 +123,7 @@ class Cp2kInputSet(Cp2kInput):
         self.kwargs = kwargs
 
         for s in self.structure.species:
-            assert s in [e for e in Element]
+            assert s in Element
 
         self.insert(ForceEval())  # always present in cp2k
         self.basis_set_file_names = None  # need for dft
@@ -569,7 +569,7 @@ class DftSet(Cp2kInputSet):
                 )
 
             for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
-                if "KIND" == v.name.upper():
+                if v.name.upper() == "KIND":
                     kind = v["ELEMENT"].values[0]
                     v.keywords["BASIS_SET"] += Keyword(
                         "BASIS_SET", "AUX_FIT", basis[kind]

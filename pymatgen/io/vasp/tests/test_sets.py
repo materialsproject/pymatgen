@@ -450,6 +450,46 @@ class MITMPRelaxSetTest(PymatgenTest):
         potcar = vis.potcar
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
 
+    def test_valid_magmom_struct(self):
+        # First test the helper function
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
+        props = [isite.properties for isite in struct.sites]
+        self.assertEquals(props, [{"magmom": [1.0, 1.0, 1.0]}] * len(props))
+
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
+        props = [isite.properties for isite in struct.sites]
+        self.assertEquals(props, [{"magmom": 1.0}] * len(props))
+        struct.insert(0, "Li", [0, 0, 0])
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
+        props = [isite.properties for isite in struct.sites]
+        self.assertEquals(props, [{"magmom": 1.0}] * len(props))
+
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
+        struct.insert(0, "Li", [0, 0, 0], properties={"magmom": 10.0})
+        with self.assertRaises(TypeError) as context:
+            get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
+        self.assertTrue("Magmom type conflict" in str(context.exception))
+
+        # Test the behavior of MPRelaxSet to atomacically fill in the missing magmom
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
+        struct.insert(0, "Li", [0, 0, 0])
+
+        vis = MPRelaxSet(
+            struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False
+        )
+        with self.assertRaises(TypeError) as context:
+            print(vis.get_vasp_input())
+
+        self.assertTrue("argument must be a string" in str(context.exception))
+        vis = MPRelaxSet(
+            struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True
+        )
+        self.assertEqual(vis.get_vasp_input()["INCAR"]["MAGMOM"], [1.0] * len(struct))
+
 
 class MPStaticSetTest(PymatgenTest):
     def setUp(self):

@@ -6,7 +6,6 @@
 Classes for reading/manipulating/writing VASP ouput files.
 """
 
-import collections
 import glob
 import itertools
 import json
@@ -16,10 +15,10 @@ import os
 import re
 import warnings
 import xml.etree.cElementTree as ET
-from collections import defaultdict
 from io import StringIO
+from collections import defaultdict
+from typing import Optional, Tuple, List, Union, DefaultDict
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import numpy as np
 from monty.dev import deprecated
@@ -821,30 +820,33 @@ class Vasprun(MSONable):
             data=data,
         )
 
-    def get_band_structure(
-        self,
-        kpoints_filename=None,
-        efermi=None,
-        line_mode=False,
-        force_hybrid_mode=False,
-    ):
+    def get_band_structure(self,
+                           kpoints_filename: Optional[str] = None,
+                           efermi: Optional[Union[float, str]] = None,
+                           line_mode: bool = False,
+                           force_hybrid_mode: bool = False
+                           ):
         """
         Returns the band structure as a BandStructure object
 
         Args:
-            kpoints_filename (str): Full path of the KPOINTS file from which
+            kpoints_filename: Full path of the KPOINTS file from which
                 the band structure is generated.
                 If none is provided, the code will try to intelligently
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
-            efermi (float): If you want to specify manually the fermi energy
-                this is where you should do it. By default, the None value
-                means the code will get it from the vasprun.
-            line_mode (bool): Force the band structure to be considered as
-                a run along symmetry lines.
-            force_hybrid_mode (bool): Makes it possible to read in self-consistent band structure calculations for
-                every type of functional
+            efermi: The Fermi energy associated with the bandstructure, in eV. By default (None),
+                uses the value reported by VASP in vasprun.xml. To manually set the Fermi energy,
+                pass a float. Pass 'smart' to use the `calculate_efermi()` method, which calculates
+                the Fermi level based on band occupancies. This algorithm works by checking whether
+                the Fermi level reported by VASP crosses a band. If it does, and if the bandgap is
+                nonzero, the Fermi level is placed in the center of the bandgap. Otherwise, the
+                value is identical to the value reported by VASP.
+            line_mode: Force the band structure to be considered as
+                a run along symmetry lines. (Default: False)
+            force_hybrid_mode: Makes it possible to read in self-consistent band structure calculations for
+                every type of functional. (Default: False)
 
         Returns:
             a BandStructure object (or more specifically a
@@ -858,21 +860,23 @@ class Vasprun(MSONable):
             functionals). The explicit KPOINTS file needs to have data on the
             kpoint label as commentary.
         """
-
         if not kpoints_filename:
             kpoints_filename = zpath(
                 os.path.join(os.path.dirname(self.filename), "KPOINTS")
             )
-        if not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError(
-                "KPOINTS needed to obtain band structure " "along symmetry lines."
-            )
+        if kpoints_filename:
+            if not os.path.exists(kpoints_filename) and line_mode is True:
+                raise VaspParserError(
+                    "KPOINTS needed to obtain band structure " "along symmetry lines."
+                )
 
-        if efermi is None:
+        if efermi == "smart":
+            efermi = self.calculate_efermi()
+        elif efermi is None:
             efermi = self.efermi
 
         kpoint_file = None
-        if os.path.exists(kpoints_filename):
+        if kpoints_filename and os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.final_structure.lattice.reciprocal_lattice.matrix)
 
@@ -880,8 +884,8 @@ class Vasprun(MSONable):
             np.array(self.actual_kpoints[i]) for i in range(len(self.actual_kpoints))
         ]
 
-        p_eigenvals = defaultdict(list)
-        eigenvals = defaultdict(list)
+        p_eigenvals: DefaultDict[Spin, list] = defaultdict(list)
+        eigenvals: DefaultDict[Spin, list] = defaultdict(list)
 
         nkpts = len(kpoints)
 
@@ -941,14 +945,15 @@ class Vasprun(MSONable):
                         eigenvals[Spin.down][i][start_bs_index:nkpts]
                         for i in range(nbands)
                     ]
-                    eigenvals = {Spin.up: up_eigen, Spin.down: down_eigen}
+                    eigenvals[Spin.up] = up_eigen
+                    eigenvals[Spin.down] = down_eigen
                     if self.projected_eigenvalues:
                         p_eigenvals[Spin.down] = [
                             p_eigenvals[Spin.down][i][start_bs_index:nkpts]
                             for i in range(nbands)
                         ]
                 else:
-                    eigenvals = {Spin.up: up_eigen}
+                    eigenvals[Spin.up] = up_eigen
             else:
                 if "" in kpoint_file.labels:
                     raise Exception(
@@ -996,6 +1001,40 @@ class Vasprun(MSONable):
                         cbm = eigenval
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
+
+    def calculate_efermi(self):
+        """
+        Calculate the Fermi level based on band occupancies, as an alternative to
+        using the Fermi level reported directly by VASP. For a semiconductor,
+        the Fermi level will be put in the center of the gap. This algorithm works
+        by checking whether the Fermi level reported by VASP crosses a band. If it does,
+        and if the bandgap is nonzero, place the Fermi level in the middle of the
+        bandgap.
+        """
+        # finding the Fermi level is quite painful, as VASP can sometimes put it slightly
+        # inside a band
+        fermi_crosses_band = False
+        for spin_eigenvalues in self.eigenvalues.values():
+            # drop weights and set shape nbands, nkpoints
+            spin_eigenvalues = spin_eigenvalues[:, :, 0].transpose(1, 0)
+            eigs_below = np.any(spin_eigenvalues < self.efermi, axis=1)
+            eigs_above = np.any(spin_eigenvalues > self.efermi, axis=1)
+            if np.any(eigs_above & eigs_below):
+                fermi_crosses_band = True
+        # if the Fermi level crosses a band, the eigenvalue band properties is a more
+        # reliable way to check whether this is a real effect
+        bandgap, cbm, vbm, _ = self.eigenvalue_band_properties
+        if not fermi_crosses_band:
+            # safe to use VASP fermi level
+            efermi = self.efermi
+        elif fermi_crosses_band and bandgap == 0:
+            # it is actually a metal
+            efermi = self.efermi
+        else:
+            # Set Fermi level half way between valence and conduction bands
+            efermi = (cbm + vbm) / 2
+
+        return efermi
 
     def get_potcars(self, path):
         """
@@ -1453,27 +1492,25 @@ class BSVasprun(Vasprun):
     etc. are ignored.
     """
 
-    def __init__(
-        self,
-        filename,
-        parse_projected_eigen=False,
-        parse_potcar_file=False,
-        occu_tol=1e-8,
-    ):
+    def __init__(self,
+                 filename: str,
+                 parse_projected_eigen: Union[bool, str] = False,
+                 parse_potcar_file: Union[bool, str] = False,
+                 occu_tol: float = 1e-8):
         """
         Args:
-            filename (str): Filename to parse
-            parse_projected_eigen (bool): Whether to parse the projected
+            filename: Filename to parse
+            parse_projected_eigen: Whether to parse the projected
                 eigenvalues. Defaults to False. Set to True to obtain projected
                 eigenvalues. **Note that this can take an extreme amount of time
                 and memory.** So use this wisely.
-            parse_potcar_file (bool/str): Whether to parse the potcar file to read
+            parse_potcar_file: Whether to parse the potcar file to read
                 the potcar hashes for the potcar_spec attribute. Defaults to True,
                 where no hashes will be determined and the potcar_spec dictionaries
                 will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
                 the same directory as the vasprun.xml, with same extensions as
                  Vasprun.xml. If a string is provided, looks at that filepath.
-            occu_tol (float): Sets the minimum tol for the determination of the
+            occu_tol: Sets the minimum tol for the determination of the
                 vbm and cbm. Usually the default of 1e-8 works well enough,
                 but there may be pathological cases.
         """
@@ -2138,7 +2175,7 @@ class Outcar:
             r"no local field effects\)(\sdensity-density)*$"
         )
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 3)
-        plasma_frequencies = collections.defaultdict(list)
+        plasma_frequencies = defaultdict(list)
         read_plasma = False
         read_dielectric = False
         energies = []

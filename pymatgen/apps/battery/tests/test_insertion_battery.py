@@ -31,9 +31,9 @@ class InsertionElectrodeTest(unittest.TestCase):
         with open(os.path.join(test_dir, "CaMoO2_batt.json"), "r") as f:
             self.entries_CMO = json.load(f, cls=MontyDecoder)
 
-        self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
-        self.ie_MVO = InsertionElectrode(self.entries_MVO, self.entry_Mg)
-        self.ie_CMO = InsertionElectrode(self.entries_CMO, self.entry_Ca)
+        self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)
+        self.ie_MVO = InsertionElectrode.from_entries(self.entries_MVO, self.entry_Mg)
+        self.ie_CMO = InsertionElectrode.from_entries(self.entries_CMO, self.entry_Ca)
 
     def test_voltage(self):
         # test basic voltage
@@ -111,6 +111,26 @@ class InsertionElectrodeTest(unittest.TestCase):
 
     def test_as_dict_summary(self):
         d = self.ie_CMO.as_dict_summary()
+        self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
+        self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
+        self.assertAlmostEqual(
+            d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
+        )
+
+    def test_init_no_structure(self):
+        def remove_structure(entries):
+            ents = []
+            for ient in entries:
+                dd = ient.as_dict()
+                ent = ComputedEntry.from_dict(dd)
+                ent.data["volume"] = ient.structure.volume
+                ents.append(ent)
+            return ents
+
+        ie_CMO_no_struct = InsertionElectrode.from_entries(
+            remove_structure(self.entries_CMO), self.entry_Ca
+        )
+        d = ie_CMO_no_struct.as_dict_summary()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
         self.assertAlmostEqual(
