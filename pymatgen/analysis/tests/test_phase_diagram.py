@@ -24,7 +24,7 @@ from pymatgen.analysis.phase_diagram import (
     tet_coord,
     triangular_coord,
     uniquelines,
-    DBPhaseDiagram,
+    BasePhaseDiagram,
 )
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element
@@ -605,10 +605,10 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         self.assertIsNotNone(str(self.pd))
 
 
-class DBPhaseDiagramTest(PhaseDiagramTest):
+class BasePhaseDiagramTest(PhaseDiagramTest):
     def setUp(self):
         self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
-        self.pd = DBPhaseDiagram.from_entries(self.entries)
+        self.pd = BasePhaseDiagram.from_entries(self.entries)
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -619,7 +619,7 @@ class DBPhaseDiagramTest(PhaseDiagramTest):
 
     def test_as_dict_from_dict(self):
         dd = self.pd.as_dict()
-        new_pd = DBPhaseDiagram.from_dict(dd)
+        new_pd = BasePhaseDiagram.from_dict(dd)
         new_dd = new_pd.as_dict()
         self.assertEqual(new_dd, dd)
 
