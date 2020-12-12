@@ -258,15 +258,14 @@ class TransformedPDEntry(PDEntry):
         return cls(d["composition"], entry)
 
 
-class DBPhaseDiagram(MSONable):
+class BasePhaseDiagram(MSONable):
     """
-    As currently constructed storage of the PhaseDiagram object is cumbersome since
-    the __init__ function is doing a great deal of processing.
-    The present object can replace the PhaseDiagram object for database production applications
-    We effectively moved the functionality of the original __init__ into a from_entries function
-    and make the __init__ much simpler.
-
-    The PhaseDiagram Object can be used in it's current state but now inherits from this object.
+    BasePhaseDiagram is not intended to be used directly, and PhaseDiagram should be preferred. 
+    
+    When constructing a PhaseDiagram, a lot of heavy processing is performed to calculate the 
+    phase diagram information such as facets, simplexes, etc. The BasePhaseDiagram offers a way to 
+    store this information so that a phase diagram can be re-constructed without doing this heavy 
+    processing. It is primarily intended for database applications.
     """
 
     # Tolerance for determining if formation energy is positive.
@@ -285,8 +284,9 @@ class DBPhaseDiagram(MSONable):
         qhull_entries,
     ):
         """
-        CAUTION: This class uses casting to bypass the init. so this constructor should only be
-            called by as_dict and from_dict functions
+        This class uses casting to bypass the init, so this constructor should only be
+        called by as_dict and from_dict functions. Prefer the PhaseDiagram class for 
+        typical use cases.
         """
         self.facets = facets
         self.simplexes = simplexes
@@ -1138,7 +1138,7 @@ class DBPhaseDiagram(MSONable):
         return res
 
 
-class PhaseDiagram(DBPhaseDiagram):
+class PhaseDiagram(BasePhaseDiagram):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
