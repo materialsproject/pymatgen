@@ -303,7 +303,7 @@ class BasePhaseDiagram(MSONable):
     @classmethod
     def from_entries(cls, entries, elements=None):
         """
-        Construct the PhaseDiagram object and recast it as a DBPhaseDiagram
+        Construct the PhaseDiagram object and recast it as a BasePhaseDiagram
 
         Args:
             entries ([PDEntry]): A list of PDEntry-like objects having an
@@ -1209,7 +1209,7 @@ class PhaseDiagram(BasePhaseDiagram):
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
         """
-        super().__init__(**DBPhaseDiagram._kwargs_from_entries(entries, elements))
+        super().__init__(**BasePhaseDiagram._kwargs_from_entries(entries, elements))
 
     def as_dict(self):
         """
