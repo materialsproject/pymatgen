@@ -137,6 +137,15 @@ class InsertionElectrodeTest(unittest.TestCase):
             d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
         )
 
+        ie_LTO_no_struct = InsertionElectrode.from_entries(
+            self.entries_LTO, self.entry_Li, strip_structures=True
+        )
+        vols_no_struct = [
+            ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()
+        ]
+        vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
+        self.assertAlmostEqual(vols_no_struct, vols_struct)
+
 
 if __name__ == "__main__":
     unittest.main()

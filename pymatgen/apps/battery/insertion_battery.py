@@ -42,7 +42,7 @@ class InsertionElectrode(AbstractElectrode):
     _unstable_entries: Iterable[ComputedEntry]
 
     @classmethod
-    def from_entries(cls, entries, working_ion_entry):
+    def from_entries(cls, entries, working_ion_entry, strip_structures=False):
         """
         Create a new InsertionElectrode.
 
@@ -53,7 +53,21 @@ class InsertionElectrode(AbstractElectrode):
             working_ion_entry: A single ComputedEntry or PDEntry
                 representing the element that carries charge across the
                 battery, e.g. Li.
+            strip_structures: Since the electrode document only uses volume we can make the
+                electrode object significantly leaner by dropping the structure data.
+                If this parameter is set to True, the ComputedStructureEntry will be replaced
+                with ComputedEntry and the volume will be stored in ComputedEntry.data['volume']
         """
+
+        if strip_structures:
+            ents = []
+            for ient in entries:
+                dd = ient.as_dict()
+                ent = ComputedEntry.from_dict(dd)
+                ent.data["volume"] = ient.structure.volume
+                ents.append(ent)
+            entries = ents
+
         _working_ion = working_ion_entry.composition.elements[0]
         _working_ion_entry = working_ion_entry
 
