@@ -22,7 +22,7 @@ class VoltageProfilePlotterTest(unittest.TestCase):
 
         with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
             entries_LTO = json.load(f, cls=MontyDecoder)
-            ie_LTO = InsertionElectrode(entries_LTO, entry_Li)
+            ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
 
         with open(os.path.join(test_dir, "FeF3_batt.json"), "r") as fid:
             entries = json.load(fid, cls=MontyDecoder)

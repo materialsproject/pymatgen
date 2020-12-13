@@ -103,11 +103,11 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    We allow a few exceptions when they are well-justified (e.g., Element's
    atomic number is given a variable name of capital Z, in line with accepted
    scientific convention), but generally, PEP 8 must be observed. Code style
-   will be automatically checked, but to aid you, you can copy the example
-   pre-commit hook into your .git/hooks directly. This will automatically run
-   pycodestyle prior to any commits. At the very least, copy pre-commit to
-   .git/hooks/pre-push.
-3. **Python 3**. We only support Python 3.6+.
+   will be automatically checked for all PRs and must pass before any PR is merged.
+   To aid you, you can copy the example pre-commit hook into your .git/hooks
+   directly. This will automatically run pycodestyle and other linting services
+   prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.
+3. **Python 3**. We only support Python 3.7+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a

@@ -30,7 +30,7 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     site_is_of_motif_type,
-    solid_angle,
+    solid_angle, IsayevNN,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -299,6 +299,18 @@ class JmolNNTest(PymatgenTest):
     def tearDown(self):
         del self.jmol
         del self.jmol_update
+
+
+class TestIsayevNN(PymatgenTest):
+
+    def test_get_nn(self):
+        inn = IsayevNN()
+        s = self.get_structure("LiFePO4")
+
+        self.assertEqual(inn.get_cn(s, 0), 2)
+        self.assertEqual(inn.get_cn(s, 5), 6)
+        self.assertEqual(inn.get_cn(s, 10), 4)
+        self.assertEqual(len(inn.get_nn(s, 0)), 2)
 
 
 class OpenBabelNNTest(PymatgenTest):

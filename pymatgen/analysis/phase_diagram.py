@@ -33,7 +33,6 @@ from pymatgen.util.string import latexify
 
 logger = logging.getLogger(__name__)
 
-
 with open(
     os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")
 ) as f:
@@ -317,49 +316,52 @@ class TransformedPDEntry(PDEntry):
         return cls(entry, d["sp_mapping"])
 
 
-class PhaseDiagram(MSONable):
+class BasePhaseDiagram(MSONable):
     """
-    Simple phase diagram class taking in elements and entries as inputs.
-    The algorithm is based on the work in the following papers:
+    BasePhaseDiagram is not intended to be used directly, and PhaseDiagram should be preferred.
 
-    1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
-       First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
-       doi:10.1021/cm702327g
-
-    2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
-       of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
-       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
-       doi:10.1016/j.elecom.2010.01.010
-
-    Attributes:
-        dim (int): The dimensionality of the phase diagram.
-        elements: Elements in the phase diagram.
-        el_refs: List of elemental references for the phase diagrams. These are
-            entries corresponding to the lowest energy element entries for simple
-            compositional phase diagrams.
-        all_entries: All entries provided for Phase Diagram construction. Note that this
-            does not mean that all these entries are actually used in the phase
-            diagram. For example, this includes the positive formation energy
-            entries that are filtered out before Phase Diagram construction.
-        qhull_entries: Actual entries used in convex hull. Excludes all positive formation
-            energy entries.
-        qhull_data: Data used in the convex hull operation. This is essentially a matrix of
-            composition data and energy per atom values created from qhull_entries.
-        facets: Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...].
-            For a ternary, it is the indices (references to qhull_entries and
-            qhull_data) for the vertices of the phase triangles. Similarly
-            extended to higher D simplices for higher dimensions.
-        simplices: The simplices of the phase diagram as a list of np.ndarray, i.e.,
-            the list of stable compositional coordinates in the phase diagram.
+    When constructing a PhaseDiagram, a lot of heavy processing is performed to calculate the
+    phase diagram information such as facets, simplexes, etc. The BasePhaseDiagram offers a way to
+    store this information so that a phase diagram can be re-constructed without doing this heavy
+    processing. It is primarily intended for database applications.
     """
 
     # Tolerance for determining if formation energy is positive.
     formation_energy_tol = 1e-11
     numerical_tol = 1e-8
 
-    def __init__(self, entries, elements=None):
+    def __init__(
+        self,
+        facets,
+        simplexes,
+        all_entries,
+        qhull_data,
+        dim,
+        el_refs,
+        elements,
+        qhull_entries,
+    ):
         """
-        Standard constructor for phase diagram.
+        This class uses casting to bypass the init, so this constructor should only be
+        called by as_dict and from_dict functions. Prefer the PhaseDiagram class for
+        typical use cases.
+        """
+        self.facets = facets
+        self.simplexes = simplexes
+        self.all_entries = all_entries
+        self.qhull_data = qhull_data
+        self.dim = dim
+        self.el_refs = el_refs
+        self.elements = elements
+        self.qhull_entries = qhull_entries
+        self._stable_entries = set(
+            self.qhull_entries[i] for i in set(itertools.chain(*self.facets))
+        )
+
+    @classmethod
+    def from_entries(cls, entries, elements=None):
+        """
+        Construct the PhaseDiagram object and recast it as a BasePhaseDiagram
 
         Args:
             entries ([PDEntry, ]): A list of PDEntry-like objects having an
@@ -370,6 +372,10 @@ class PhaseDiagram(MSONable):
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
         """
+        return cls(**cls._kwargs_from_entries(entries, elements))
+
+    @classmethod
+    def _kwargs_from_entries(cls, entries, elements):
         if elements is None:
             elements = sorted(list(set().union(
                 [els for e in entries for els in e.composition.elements]
@@ -398,7 +404,7 @@ class PhaseDiagram(MSONable):
         # Use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
-        inds = np.where(form_e < -self.formation_energy_tol)[0].tolist()
+        inds = np.where(form_e < -cls.formation_energy_tol)[0].tolist()
 
         # Add the elemental references
         inds.extend([min_entries.index(el) for el in el_refs.values()])
@@ -413,7 +419,7 @@ class PhaseDiagram(MSONable):
         qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
 
         if dim == 1:
-            self.facets = [qhull_data.argmin(axis=0)]
+            facets = [qhull_data.argmin(axis=0)]
         else:
             facets = get_facets(qhull_data)
             final_facets = []
@@ -425,17 +431,19 @@ class PhaseDiagram(MSONable):
                 m[:, -1] = 1
                 if abs(np.linalg.det(m)) > 1e-14:
                     final_facets.append(facet)
-            self.facets = final_facets
+            facets = final_facets
 
-        self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
-        self.all_entries = all_entries
-        self.qhull_data = qhull_data
-        self.dim = dim
-        self.el_refs = el_refs
-        self.elements = elements
-        self.qhull_entries = qhull_entries
-        self._stable_entries = set(
-            self.qhull_entries[i] for i in set(itertools.chain(*self.facets))
+        simplexes = [Simplex(qhull_data[f, :-1]) for f in facets]
+
+        return dict(
+            facets=facets,
+            simplexes=simplexes,
+            all_entries=all_entries,
+            qhull_data=qhull_data,
+            dim=dim,
+            el_refs=el_refs,
+            elements=elements,
+            qhull_entries=qhull_entries,
         )
 
     @property
@@ -513,32 +521,6 @@ class PhaseDiagram(MSONable):
             ", ".join([entry.name for entry in self.stable_entries]),
         ]
         return "\n".join(output)
-
-    def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of PhaseDiagram
-        """
-        return {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-            "all_entries": [e.as_dict() for e in self.all_entries],
-            "elements": [e.as_dict() for e in self.elements],
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Args:
-            d (dict): dictionary representation of PhaseDiagram
-
-        Returns:
-            PhaseDiagram
-        """
-        # NOTE this wastes computation as we don't store the facets and simplexes
-        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
-        elements = [Element.from_dict(dd) for dd in d["elements"]]
-        return cls(entries, elements)
 
     def pd_coords(self, comp):
         """
@@ -1220,6 +1202,79 @@ class PhaseDiagram(MSONable):
         res[open_elt] = (min_open, max_open)
 
         return res
+
+
+class PhaseDiagram(BasePhaseDiagram):
+    """
+    Simple phase diagram class taking in elements and entries as inputs.
+    The algorithm is based on the work in the following papers:
+
+    1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+       First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
+       doi:10.1021/cm702327g
+
+    2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+       of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
+       doi:10.1016/j.elecom.2010.01.010
+
+    Attributes:
+        dim (int): The dimensionality of the phase diagram.
+        elements: Elements in the phase diagram.
+        el_refs: List of elemental references for the phase diagrams. These are
+            entries corresponding to the lowest energy element entries for simple
+            compositional phase diagrams.
+        all_entries: All entries provided for Phase Diagram construction. Note that this
+            does not mean that all these entries are actually used in the phase
+            diagram. For example, this includes the positive formation energy
+            entries that are filtered out before Phase Diagram construction.
+        qhull_entries: Actual entries used in convex hull. Excludes all positive formation
+            energy entries.
+        qhull_data: Data used in the convex hull operation. This is essentially a matrix of
+            composition data and energy per atom values created from qhull_entries.
+        facets: Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...].
+            For a ternary, it is the indices (references to qhull_entries and
+            qhull_data) for the vertices of the phase triangles. Similarly
+            extended to higher D simplices for higher dimensions.
+        simplices: The simplices of the phase diagram as a list of np.ndarray, i.e.,
+            the list of stable compositional coordinates in the phase diagram.
+    """
+
+    def __init__(self, entries, elements=None):
+        """
+        Standard constructor for phase diagram.
+
+        Args:
+            entries ([PDEntry]): A list of PDEntry-like objects having an
+                energy, energy_per_atom and composition.
+            elements ([Element]): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the the entries themselves and are sorted alphabetically.
+                If specified, element ordering (e.g. for pd coordinates)
+                is preserved.
+        """
+        super().__init__(**BasePhaseDiagram._kwargs_from_entries(entries, elements))
+
+    def as_dict(self):
+        """
+        :return: MSONAble dict
+        """
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "all_entries": [e.as_dict() for e in self.all_entries],
+            "elements": [e.as_dict() for e in self.elements],
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: PhaseDiagram
+        """
+        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
+        elements = [Element.from_dict(dd) for dd in d["elements"]]
+        return cls(entries, elements)
 
 
 class GrandPotentialPhaseDiagram(PhaseDiagram):
@@ -3005,7 +3060,7 @@ class PDPlotter:
         """
 
         def get_marker_props(coords, entries, stable=True):
-            """ Method for getting marker locations, hovertext, and error bars
+            """Method for getting marker locations, hovertext, and error bars
             from pd_plot_data"""
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 

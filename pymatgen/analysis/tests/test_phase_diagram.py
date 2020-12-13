@@ -30,6 +30,7 @@ from pymatgen.analysis.phase_diagram import (
     tet_coord,
     triangular_coord,
     uniquelines,
+    BasePhaseDiagram,
 )
 
 module_dir = Path(__file__).absolute().parent
@@ -621,6 +622,25 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
+
+
+class BasePhaseDiagramTest(PhaseDiagramTest):
+    def setUp(self):
+        self.entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
+        self.pd = BasePhaseDiagram.from_entries(self.entries)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
+
+    def test_init(self):
+        pass
+
+    def test_as_dict_from_dict(self):
+        dd = self.pd.as_dict()
+        new_pd = BasePhaseDiagram.from_dict(dd)
+        new_dd = new_pd.as_dict()
+        self.assertEqual(new_dd, dd)
 
 
 class CompoundPhaseDiagramTest(unittest.TestCase):
