@@ -27,7 +27,7 @@ class VoltageProfilePlotter:
     A plotter to make voltage profile plots for batteries.
     """
 
-    def __init__(self, xaxis="capacity_grav", hide_negative=False):
+    def __init__(self, xaxis="capacity", hide_negative=False):
         """
         Args:
             xaxis: The quantity to use as the xaxis. Can be either
@@ -70,7 +70,7 @@ class VoltageProfilePlotter:
         for sub_electrode in electrode.get_sub_electrodes(adjacent_only=True):
             if self.hide_negative and sub_electrode.get_average_voltage() < 0:
                 continue
-            if self.xaxis == "capacity_grav":
+            if self.xaxis in {"capacity_grav", "capacity"}:
                 x.append(cap)
                 cap += sub_electrode.get_capacity_grav()
                 x.append(cap)
@@ -106,15 +106,17 @@ class VoltageProfilePlotter:
             A matplotlib plot object.
         """
         plt = pretty_plot(width, height)
+        wion_symbol = set()
+        formula = set()
+
         for label, electrode in self._electrodes.items():
             (x, y) = self.get_plot_data(electrode)
+            wion_symbol.add(electrode.working_ion.symbol)
+            formula.add(electrode._framework_formula)
             plt.plot(x, y, "-", linewidth=2, label=label)
 
         plt.legend()
-        if self.xaxis == "capacity":
-            plt.xlabel("Capacity (mAh/g)")
-        else:
-            plt.xlabel("Fraction")
+        plt.xlabel(self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol))
         plt.ylabel("Voltage (V)")
         plt.tight_layout()
         return plt
@@ -143,7 +145,6 @@ class VoltageProfilePlotter:
             else font_dict
         )
         hover_temp = "Voltage : %{y:.2f} V"
-        xlab = {"capacity_grav": "Capacity (mAh/g)", "capacity_vol": "Capacity (Ah/l)"}
 
         data = []
         wion_symbol = set()
@@ -153,6 +154,32 @@ class VoltageProfilePlotter:
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode._framework_formula)
             data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
+
+        fig = go.Figure(
+            data=data,
+            layout=go.Layout(
+                title="Voltage vs. Capacity",
+                width=width,
+                height=height,
+                font=font_dict,
+                xaxis=dict(
+                    title=self._choose_best_x_lable(
+                        formula=formula, wion_symbol=wion_symbol
+                    )
+                ),
+                yaxis=dict(title="Voltage (V)"),
+                **kwargs,
+            ),
+        )
+
+        fig.update_layout(template="plotly_white", title_x=0.5)
+        return fig
+
+    def _choose_best_x_lable(self, formula, wion_symbol):
+        if self.xaxis in {"capacity", "capacity_grav"}:
+            return "Capacity (mAh/g)"
+        if self.xaxis == "capacity_vol":
+            return "Capacity (Ah/l)"
 
         if len(formula) == 1:
             formula = formula.pop()
@@ -164,31 +191,16 @@ class VoltageProfilePlotter:
         else:
             wion_symbol = None
 
-        if formula and wion_symbol:
-            xlab["x_form"] = f"x in {wion_symbol}<sub>x</sub>{formula}"
-        else:
-            xlab["x_form"] = "x Workion Ion per Host F.U."
+        if self.xaxis == "x_form":
+            if formula and wion_symbol:
+                return f"x in {wion_symbol}<sub>x</sub>{formula}"
+            return "x Workion Ion per Host F.U."
 
-        if wion_symbol:
-            xlab["frac_x"] = f"Atomic Fraction of {wion_symbol}"
-        else:
-            xlab["frac_x"] = "Atomic Fraction of Working Ion"
-
-        fig = go.Figure(
-            data=data,
-            layout=go.Layout(
-                title="Voltage vs. Capacity",
-                width=width,
-                height=height,
-                font=font_dict,
-                xaxis=dict(title=xlab[self.xaxis]),
-                yaxis=dict(title="Voltage (V)"),
-                **kwargs,
-            ),
-        )
-
-        fig.update_layout(template="plotly_white", title_x=0.5)
-        return fig
+        if self.xaxis == "frac_x":
+            if wion_symbol:
+                return f"Atomic Fraction of {wion_symbol}"
+            return "Atomic Fraction of Working Ion"
+        raise RuntimeError("No xaxis label can be determined")
 
     def show(self, width=8, height=6):
         """
