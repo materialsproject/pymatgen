@@ -6,7 +6,6 @@
 import json
 import os
 import unittest
-from pprint import pprint
 
 from monty.json import MontyDecoder
 
@@ -93,11 +92,14 @@ class ConversionElectrodeTest(unittest.TestCase):
                 self.assertAlmostEqual(getattr(electrode, "get_" + k).__call__(), v, 2)
 
     def test_summary(self):
+        kmap = {"specific_energy": "energy_grav", "energy_density": "energy_vol"}
         for f in self.formulas:
             c = self.conversion_eletrodes[f]["CE"]
-            pprint(c.as_dict_summary())
             d = c.get_summary_dict()
-            print(d.keys())
+            p = self.expected_properties[f]
+            for k, v in p.items():
+                summary_key = kmap.get(k, k)
+                self.assertAlmostEqual(d[summary_key], v, 2)
 
 
 if __name__ == "__main__":

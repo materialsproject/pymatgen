@@ -272,6 +272,25 @@ class ConversionElectrode(AbstractElectrode):
         """
 
         d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
+        d["reactions"] = []
+        d["reactant_compositions"] = []
+        comps = []
+        frac = []
+        for pair in self.voltage_pairs:
+            rxn = pair.rxn
+            frac.append(pair.frac_charge)
+            frac.append(pair.frac_discharge)
+            d["reactions"].append(str(rxn))
+            for i in range(len(rxn.coeffs)):
+                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+                    comps.append(rxn.all_comp[i])
+                if (
+                    abs(rxn.coeffs[i]) > 1e-5
+                    and rxn.all_comp[i].reduced_formula != d["working_ion"]
+                ):
+                    reduced_comp = rxn.all_comp[i].reduced_composition
+                    comp_dict = reduced_comp.as_dict()
+                    d["reactant_compositions"].append(comp_dict)
         return d
 
     def as_dict_summary(self, print_subelectrodes=True):
