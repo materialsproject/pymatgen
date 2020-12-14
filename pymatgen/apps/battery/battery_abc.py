@@ -19,15 +19,14 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
-from abc import abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Iterable, Dict
+from typing import Dict, Tuple
 
 from monty.json import MSONable
 from scipy.constants import N_A
 
-from pymatgen import Composition
+from pymatgen import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -65,28 +64,28 @@ class AbstractVoltagePair(MSONable):
         self._framework_formula = self.framework.reduced_formula
 
     @property
-    def working_ion(self):
+    def working_ion(self) -> Element:
         """
         working ion as pymatgen Element object
         """
         return self.working_ion_entry.composition.elements[0]
 
     @property
-    def framework(self):
+    def framework(self) -> Composition:
         """
         The composition object representing the framework
         """
         return Composition(self._framework_formula)
 
     @property
-    def x_charge(self):
+    def x_charge(self) -> float:
         """
         The number of working ions per formula unit of host in the charged state
         """
         return self.frac_charge * self.framework.num_atoms / (1 - self.frac_charge)
 
     @property
-    def x_discharge(self):
+    def x_discharge(self) -> float:
         """
         The number of working ions per formula unit of host in the discharged state
         """
@@ -140,7 +139,7 @@ class AbstractElectrode(Sequence, MSONable):
         framework: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Iterable[AbstractVoltagePair]
+    voltage_pairs: Tuple[AbstractVoltagePair]
     working_ion_entry: ComputedEntry
     _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
@@ -232,7 +231,6 @@ class AbstractElectrode(Sequence, MSONable):
         """
         return self.voltage_pairs[-1].vol_discharge
 
-    @abstractmethod
     def get_sub_electrodes(self, adjacent_only=True):
         """
         If this electrode contains multiple voltage steps, then it is possible
@@ -246,7 +244,10 @@ class AbstractElectrode(Sequence, MSONable):
         Returns:
             A list of Electrode objects
         """
-        pass
+        NotImplementedError(
+            "The get_sub_electrodes function must be implemented for each concrete electrode "
+            f"class {self.__class__.__name__,}"
+        )
 
     def get_average_voltage(self, min_voltage=None, max_voltage=None):
         """
