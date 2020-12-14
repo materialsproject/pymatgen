@@ -1,5 +1,11 @@
 """
 This module implements an f* coordinate and diagram generator.
+For information about f* diagrams, see the following publications:
+Yin, L. et al. Extending the limits of powder diffraction analysis: diffraction parameter space, occupancy defects, and
+atomic form factors. Rev. Sci. Instrum. 89, 093002 (2018). 10.1063/1.5044555
+Yin, L. et al.Thermodynamics of Antisite Defects in Layered NMC Cathodes: Systematic Insights from High-Precision Powder
+Diffraction Analyses Chem. Mater 2020 32 (3), 1002-1010. 10.1021/acs.chemmater.9b03646
+
 """
 
 import os
@@ -14,11 +20,11 @@ import plotly.express as px
 
 with open(os.path.join(os.path.dirname(__file__),
                        "xray_factors_2.csv")) as f:
-    x_ray_scatter_df = pd.read_csv(f)
+    X_RAY_SCATTER_DF = pd.read_csv(f)
     # from https://it.iucr.org/Cb/ch6o1v0001/ table 6.1.1.4
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_factors.csv")) as f:
-    neutron_scatter_df = pd.read_csv(f)
+    NEUTRON_SCATTER_DF = pd.read_csv(f)
     # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
 
@@ -182,53 +188,53 @@ class FStarDiagram:
                                 z = round(str2float(z), 4)
                             frac_coord = [x, y, z]
                             if frac_coord == site_frac_coord_list:
-                                try:
+                                if hasattr(sp, "element"):
                                     if str(sp.element) == str(cif_dic['_atom_site_type_symbol'][xi]):
                                         occ = str2float(cif_dic['_atom_site_occupancy'][xi])
-                                except AttributeError:
+                                else:
                                     if str(sp) == str(cif_dic['_atom_site_type_symbol'][xi]):
                                         occ = str2float(cif_dic['_atom_site_occupancy'][xi])
                     if self._scatter == 'X-ray_simple':
                         f_occ = sp.Z * occ
                     if self._scatter == 'X-ray':
-                        for i, n in enumerate(x_ray_scatter_df['atom'].values):
-                            try:
+                        for i, n in enumerate(X_RAY_SCATTER_DF['atom'].values):
+                            if hasattr(sp, "element"):
                                 if n == str(sp.element):
                                     f_occ = round(
-                                        sum([x_ray_scatter_df.loc[i]['a1'], x_ray_scatter_df.loc[i]['a2'],
-                                             x_ray_scatter_df.loc[i]['a3'],
-                                             x_ray_scatter_df.loc[i]['a4'], x_ray_scatter_df.loc[i]['c']]), 0) * occ
+                                        sum([X_RAY_SCATTER_DF.loc[i]['a1'], X_RAY_SCATTER_DF.loc[i]['a2'],
+                                             X_RAY_SCATTER_DF.loc[i]['a3'],
+                                             X_RAY_SCATTER_DF.loc[i]['a4'], X_RAY_SCATTER_DF.loc[i]['c']]), 0) * occ
                                     break
                                 else:
                                     continue
-                            except AttributeError:
+                            else:
                                 if n == str(sp):
                                     f_occ = round(
-                                        sum([x_ray_scatter_df.loc[i]['a1'], x_ray_scatter_df.loc[i]['a2'],
-                                             x_ray_scatter_df.loc[i]['a3'],
-                                             x_ray_scatter_df.loc[i]['a4'], x_ray_scatter_df.loc[i]['c']]), 0) * occ
+                                        sum([X_RAY_SCATTER_DF.loc[i]['a1'], X_RAY_SCATTER_DF.loc[i]['a2'],
+                                             X_RAY_SCATTER_DF.loc[i]['a3'],
+                                             X_RAY_SCATTER_DF.loc[i]['a4'], X_RAY_SCATTER_DF.loc[i]['c']]), 0) * occ
                                     break
                                 else:
                                     continue
 
                     if self._scatter == 'Neutron':
-                        for i, n in enumerate(neutron_scatter_df['Isotope'].values):
-                            try:
+                        for i, n in enumerate(NEUTRON_SCATTER_DF['Isotope'].values):
+                            if hasattr(sp, "element"):
                                 if n == str(sp.element):
-                                    f_occ = float(neutron_scatter_df.loc[i]['Coh b']) * occ
+                                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
                                     break
                                 else:
                                     continue
-                            except AttributeError:
+                            else:
                                 if n == str(sp):
-                                    f_occ = float(neutron_scatter_df.loc[i]['Coh b']) * occ
+                                    f_occ = float(NEUTRON_SCATTER_DF.loc[i]['Coh b']) * occ
                                     break
                                 else:
                                     continue
                     if self._scatter == 'Custom':
-                        try:
+                        if hasattr(sp, "element"):
                             f_occ = self._custscat(str(sp.element), occ, ind1, ind2)
-                        except AttributeError:
+                        else:
                             f_occ = self._custscat(str(sp), occ, ind1, ind2)
                     occ_f_list.append(f_occ)
 

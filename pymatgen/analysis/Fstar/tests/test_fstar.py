@@ -8,15 +8,16 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__))
-os.chdir(test_dir)
 
 
-class FStarDiagram_test(PymatgenTest):
+
+class test_fstardiagram(PymatgenTest):
 
     def setUp(self):
 
         self.cif_list = [i for i in os.listdir(test_dir) if i.endswith('.cif')]
-        self.struct_list = [CifParser(file).get_structures(primitive=False)[0] for file in self.cif_list]
+        self.struct_list = [CifParser(os.path.join(test_dir, file)).get_structures(primitive=False)[0]
+                            for file in self.cif_list]
         self.fstar = FStarDiagram(structure_objects=self.struct_list)
 
     def test_edit_fstar_diagram(self):
