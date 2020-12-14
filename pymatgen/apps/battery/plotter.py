@@ -66,8 +66,6 @@ class VoltageProfilePlotter:
         x = []
         y = []
         cap = 0
-        # most_discharged = electrode[-1].frac_discharge
-        # norm = most_discharged / (1 - most_discharged)
 
         for sub_electrode in electrode.get_sub_electrodes(adjacent_only=True):
             if self.hide_negative and sub_electrode.get_average_voltage() < 0:
@@ -85,7 +83,7 @@ class VoltageProfilePlotter:
                 x.append(sub_electrode.x_discharge)
             elif self.xaxis == "frac_x":
                 x.append(sub_electrode.voltage_pairs[0].frac_charge)
-                x.append(sub_electrode.voltage_pairs[-1].frac_discharge)
+                x.append(sub_electrode.voltage_pairs[0].frac_discharge)
             else:
                 raise NotImplementedError(
                     "x_axis must be capacity_grav/capacity_vol/x_form/frac_x"
