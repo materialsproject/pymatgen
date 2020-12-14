@@ -20,6 +20,7 @@ import itertools
 from dataclasses import dataclass
 from typing import Iterable, Dict
 
+from monty.dev import deprecated
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
@@ -398,6 +399,10 @@ class InsertionElectrode(AbstractElectrode):
 
         return d
 
+    @deprecated(
+        replacement=get_summary_dict,
+        message="Name and logic changed, will be as_dict_summary will be removed in the futurn.",
+    )
     def as_dict_summary(self, print_subelectrodes=True):
         """
         Generate a summary dict.

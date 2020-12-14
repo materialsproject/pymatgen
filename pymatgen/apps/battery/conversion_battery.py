@@ -8,7 +8,7 @@ This module contains the classes to build a ConversionElectrode.
 from typing import Iterable, Dict
 from dataclasses import dataclass
 
-# from monty.json import MontyDecoder
+from monty.dev import deprecated
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -293,6 +293,10 @@ class ConversionElectrode(AbstractElectrode):
                     d["reactant_compositions"].append(comp_dict)
         return d
 
+    @deprecated(
+        replacement=get_summary_dict,
+        message="Name and logic changed, will be as_dict_summary will be removed in the futurn.",
+    )
     def as_dict_summary(self, print_subelectrodes=True):
         """
         Args:
