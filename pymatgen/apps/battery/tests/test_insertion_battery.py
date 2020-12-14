@@ -11,6 +11,26 @@ from pymatgen import MontyDecoder, MontyEncoder
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.entries.computed_entries import ComputedEntry
 
+
+def diff_dicts(a, b, missing=KeyError):
+    """
+    Find keys and values which differ from `a` to `b` as a dict.
+
+    If a value differs from `a` to `b` then the value in the returned dict will
+    be: `(a_value, b_value)`. If either is missing then the token from
+    `missing` will be used instead.
+
+    :param a: The from dict
+    :param b: The to dict
+    :param missing: A token used to indicate the dict did not include this key
+    :return: A dict of keys to tuples with the matching value from a and b
+    """
+    return {
+        key: (a.get(key, missing), b.get(key, missing))
+        for key in dict(set(a.items()) ^ set(b.items())).keys()
+    }
+
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
@@ -108,14 +128,22 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(vpair.vol_discharge, 37.917719932)
         self.assertAlmostEqual(vpair.frac_charge, 0.0)
         self.assertAlmostEqual(vpair.frac_discharge, 0.14285714285714285)
+        self.assertAlmostEqual(vpair.x_charge, 0.0)
+        self.assertAlmostEqual(vpair.x_discharge, 0.5)
 
     def test_as_dict_summary(self):
-        d = self.ie_CMO.as_dict_summary()
+        d = self.ie_CMO.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
         self.assertAlmostEqual(
             d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
         )
+
+        self.assertAlmostEqual(
+            d["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
+        )
+        self.assertAlmostEqual(d["framework_formula"], "MoO2")
+        self.assertAlmostEqual(d["adj_pairs"][1]["framework_formula"], "MoO2")
 
     def test_init_no_structure(self):
         def remove_structure(entries):

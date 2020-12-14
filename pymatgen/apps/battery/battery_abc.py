@@ -19,13 +19,15 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
+from abc import abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Dict
 
 from monty.json import MSONable
 from scipy.constants import N_A
 
+from pymatgen import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -44,6 +46,7 @@ class AbstractVoltagePair(MSONable):
         frac_charge: Frac of working ion in charged pair.
         frac_discharge: Frac of working ion in discharged pair.
         working_ion_entry: Working ion as an entry.
+        framework : The compositions of one formula unit of the host material
     """
 
     voltage: float
@@ -55,6 +58,41 @@ class AbstractVoltagePair(MSONable):
     frac_charge: float
     frac_discharge: float
     working_ion_entry: ComputedEntry
+    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+
+    def __post_init__(self):
+        # ensure the the frame work is a reduced composition
+        self._framework_formula = self.framework.reduced_formula
+
+    @property
+    def working_ion(self):
+        """
+        working ion as pymatgen Element object
+        """
+        return self.working_ion_entry.composition.elements[0]
+
+    @property
+    def framework(self):
+        """
+        The composition object representing the framework
+        """
+        return Composition(self._framework_formula)
+
+    @property
+    def x_charge(self):
+        """
+        The number of working ions per formula unit of host in the charged state
+        """
+        return self.frac_charge * self.framework.num_atoms / (1 - self.frac_charge)
+
+    @property
+    def x_discharge(self):
+        """
+        The number of working ions per formula unit of host in the discharged state
+        """
+        return (
+            self.frac_discharge * self.framework.num_atoms / (1 - self.frac_discharge)
+        )
 
 
 @dataclass
@@ -99,10 +137,16 @@ class AbstractElectrode(Sequence, MSONable):
         voltage_pairs: Objects that represent each voltage step
         working_ion: Representation of the working ion that only contains element type
         working_ion_entry: Representation of the working_ion that contains the energy
+        framework: The compositions of one formula unit of the host material
     """
 
     voltage_pairs: Iterable[AbstractVoltagePair]
     working_ion_entry: ComputedEntry
+    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+
+    def __post_init__(self):
+        # ensure the the frame work is a reduced composition
+        self._framework_formula = self.framework.reduced_formula
 
     def __getitem__(self, index):
         return self.voltage_pairs[index]
@@ -122,6 +166,13 @@ class AbstractElectrode(Sequence, MSONable):
         working ion as pymatgen Element object
         """
         return self.working_ion_entry.composition.elements[0]
+
+    @property
+    def framework(self):
+        """
+        The composition object representing the framework
+        """
+        return Composition(self._framework_formula)
 
     @property
     def max_delta_volume(self):
@@ -180,6 +231,22 @@ class AbstractElectrode(Sequence, MSONable):
             electrode of the last voltage pair.
         """
         return self.voltage_pairs[-1].vol_discharge
+
+    @abstractmethod
+    def get_sub_electrodes(self, adjacent_only=True):
+        """
+        If this electrode contains multiple voltage steps, then it is possible
+        to use only a subset of the voltage steps to define other electrodes.
+        Must be implemented for each electrode object.
+        Args:
+            adjacent_only: Only return electrodes from compounds that are
+                adjacent on the convex hull, i.e. no electrodes returned
+                will have multiple voltage steps if this is set true
+
+        Returns:
+            A list of Electrode objects
+        """
+        pass
 
     def get_average_voltage(self, min_voltage=None, max_voltage=None):
         """
@@ -326,3 +393,45 @@ class AbstractElectrode(Sequence, MSONable):
                 lambda p: min_voltage <= p.voltage <= max_voltage, self.voltage_pairs
             )
         )
+
+    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+        """
+        Generate a summary dict.
+
+        Args:
+            print_subelectrodes: Also print data on all the possible
+                subelectrodes.
+
+        Returns:
+            A summary of this electrode"s properties in dict format.
+        """
+
+        d = {
+            "average_voltage": self.get_average_voltage(),
+            "max_voltage": self.max_voltage,
+            "min_voltage": self.min_voltage,
+            "max_delta_volume": self.max_delta_volume,
+            "max_voltage_step": self.max_voltage_step,
+            "capacity_grav": self.get_capacity_grav(),
+            "capacity_vol": self.get_capacity_vol(),
+            "energy_grav": self.get_specific_energy(),
+            "energy_vol": self.get_energy_density(),
+            "working_ion": self.working_ion.symbol,
+            "nsteps": self.num_steps,
+            "fracA_charge": self.voltage_pairs[0].frac_charge,
+            "fracA_discharge": self.voltage_pairs[-1].frac_discharge,
+            "framework_formula": self._framework_formula,
+        }
+
+        if print_subelectrodes:
+
+            def f_dict(c):
+                return c.get_summary_dict(print_subelectrodes=False)
+
+            d["adj_pairs"] = list(
+                map(f_dict, self.get_sub_electrodes(adjacent_only=True))
+            )
+            d["all_pairs"] = list(
+                map(f_dict, self.get_sub_electrodes(adjacent_only=False))
+            )
+        return d

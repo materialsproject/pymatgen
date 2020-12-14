@@ -18,7 +18,7 @@ __status__ = "Beta"
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Dict
 
 from scipy.constants import N_A
 
@@ -113,11 +113,13 @@ class InsertionElectrode(AbstractElectrode):
                 for i in range(len(_stable_entries) - 1)
             ]
         )
+        framework = _vpairs[0].framework
         return cls(
             voltage_pairs=_vpairs,
             working_ion_entry=_working_ion_entry,
             _stable_entries=_stable_entries,
             _unstable_entries=_unstable_entries,
+            _framework_formula=framework.reduced_formula,
         )
 
     def get_stable_entries(self, charge_to_discharge=True):
@@ -324,6 +326,78 @@ class InsertionElectrode(AbstractElectrode):
                 )
         return battery_list
 
+    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
+        """
+        Generate a summary dict.
+        Populates the summary dict with the basic information from the parent method then populates more information.
+        Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
+        The current methode will be called from within super().get_summary_dict.
+
+        Args:
+            print_subelectrodes: Also print data on all the possible
+                subelectrodes.
+
+        Returns:
+            A summary of this electrode"s properties in dict format.
+        """
+
+        d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
+
+        chg_comp = self.fully_charged_entry.composition
+        dischg_comp = self.fully_discharged_entry.composition
+
+        d.update(
+            {
+                "id_charge": self.fully_charged_entry.entry_id,
+                "formula_charge": chg_comp.reduced_formula,
+                "id_discharge": self.fully_discharged_entry.entry_id,
+                "formula_discharge": dischg_comp.reduced_formula,
+                "max_instability": self.get_max_instability(),
+                "min_instability": self.get_min_instability(),
+                "material_ids": [
+                    itr_ent.entry_id for itr_ent in self.get_all_entries()
+                ],
+                "stable_material_ids": [
+                    itr_ent.entry_id for itr_ent in self.get_stable_entries()
+                ],
+                "unstable_material_ids": [
+                    itr_ent.entry_id for itr_ent in self.get_unstable_entries()
+                ],
+            }
+        )
+        if all(
+            [
+                "decomposition_energy" in itr_ent.data
+                for itr_ent in self.get_all_entries()
+            ]
+        ):
+            d.update(
+                {
+                    "stability_charge": self.fully_charged_entry.data[
+                        "decomposition_energy"
+                    ],
+                    "stability_discharge": self.fully_discharged_entry.data[
+                        "decomposition_energy"
+                    ],
+                    "stability_data": {
+                        itr_ent.entry_id: itr_ent.data["decomposition_energy"]
+                        for itr_ent in self.get_all_entries()
+                    },
+                }
+            )
+
+        if all(["muO2" in itr_ent.data for itr_ent in self.get_all_entries()]):
+            d.update(
+                {
+                    "muO2_data": {
+                        itr_ent.entry_id: itr_ent.data["muO2"]
+                        for itr_ent in self.get_all_entries()
+                    }
+                }
+            )
+
+        return d
+
     def as_dict_summary(self, print_subelectrodes=True):
         """
         Generate a summary dict.
@@ -463,11 +537,7 @@ class InsertionElectrode(AbstractElectrode):
 class InsertionVoltagePair(AbstractVoltagePair):
     """
     Defines an Insertion Voltage Pair.
-    Attributes:
-        framework : The compositions of one formula unit of the host material
     """
-
-    framework: Composition
 
     @classmethod
     def from_entries(cls, entry1, entry2, working_ion_entry):
@@ -599,7 +669,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
             frac_charge=_frac_charge,
             frac_discharge=_frac_discharge,
             working_ion_entry=working_ion_entry,
-            framework=framework,
+            _framework_formula=framework.reduced_formula,
         )
 
         # Step 4: add (optional) hull and muO2 data
