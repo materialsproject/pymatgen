@@ -19,7 +19,7 @@ from monty.io import zopen
 from monty.re import regrep
 from monty.json import jsanitize
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import Dos, CompleteDos
 from pymatgen.io.xyz import XYZ
@@ -163,6 +163,16 @@ class Cp2kOutput:
         return False
 
     @property
+    def is_molecule(self):
+        """
+        Returns True if the cp2k output was generated for a molecule (i.e.
+        no periodicity in the cell). Returns false otherwise.
+        """
+        if self.data.get('poisson_periodicity', [['']]) is None:
+            return True
+        return False
+
+    @property
     def is_metal(self):
         """
         Was a band gap found? i.e. is it a metal
@@ -279,15 +289,18 @@ class Cp2kOutput:
         else:
             mols = XYZ.from_file(trajectory_file).all_molecules
             self.structures = []
-            for m, l in zip(mols, lattice):
-                self.structures.append(
-                    Structure(
-                        lattice=l,
-                        coords=[s.coords for s in m.sites],
-                        species=[s.specie for s in m.sites],
-                        coords_are_cartesian=True,
+            if not self.is_molecule:
+                for m, l in zip(mols, lattice):
+                    self.structures.append(
+                        Structure(
+                            lattice=l,
+                            coords=[s.coords for s in m.sites],
+                            species=[s.specie for s in m.sites],
+                            coords_are_cartesian=True,
+                        )
                     )
-                )
+            else:
+                self.structures = mols
             self.final_structure = self.structures[-1]
             self.final_structure.set_charge(self.initial_structure.charge)
 
@@ -325,15 +338,25 @@ class Cp2kOutput:
             else:
                 gs[k['kind_number']] = False
 
-        self.initial_structure = Structure(
-            lattice[0],
-            species=[i[2] for i in coord_table],
-            coords=[
-                [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
-            ],
-            coords_are_cartesian=True,
-            site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
-        )
+        if self.is_molecule:
+            self.initial_structure = Molecule(
+                species=[i[2] for i in coord_table],
+                coords=[
+                    [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
+                ],
+                coords_are_cartesian=True,
+                site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
+            )
+        else:
+            self.initial_structure = Structure(
+                lattice[0],
+                species=[i[2] for i in coord_table],
+                coords=[
+                    [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
+                ],
+                coords_are_cartesian=True,
+                site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
+            )
 
         self.initial_structure.set_charge(self.input['FORCE_EVAL']['DFT'].get('CHARGE', [0])[0])
         self.composition = self.initial_structure.composition
@@ -615,6 +638,9 @@ class Cp2kOutput:
         if len(self.data["vdw"]) > 0:
             self.data["dft"]["vdw"] = self.data.pop("vdw")[0][0]
 
+        poisson_periodic = {'poisson_periodicity': re.compile(r"POISSON\| Periodicity\s+(\w+)")}
+        self.read_pattern(poisson_periodic, terminate_on_match=True)
+
     def parse_scf_params(self):
         """
         Retrieve the most import SCF parameters: the max number of scf cycles (max_scf),
@@ -747,8 +773,11 @@ class Cp2kOutput:
             + r"\s+\-+"
         )
         row = (
-            r"(\d+)\s+(\S+\s?\S+)\s+(\d+\.\d+E\+\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)?"
-            + r"\s+(-?\d+\.\d+)\s+(-?\d+\.\d+E[\+\-]?\d+)"
+            r"(\d+)\s+(\S+\s?\S+)\s+" +
+            r"(-?\d+\.\d+E[+\-]?\d+)" +
+            r"\s+(\d+\.\d+)\s+(\d+\.\d+)?" +
+            r"\s+(-?\d+\.\d+)\s+" +
+            r"(-?\d+\.\d+E[+\-]?\d+)?"
         )
         footer = r"^$"
 
