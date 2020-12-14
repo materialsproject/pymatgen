@@ -174,6 +174,20 @@ class AbstractElectrode(Sequence, MSONable):
         return Composition(self._framework_formula)
 
     @property
+    def x_charge(self) -> float:
+        """
+        The number of working ions per formula unit of host in the charged state
+        """
+        return self.voltage_pairs[0].x_charge
+
+    @property
+    def x_discharge(self) -> float:
+        """
+        The number of working ions per formula unit of host in the discharged state
+        """
+        return self.voltage_pairs[-1].x_discharge
+
+    @property
     def max_delta_volume(self):
         """
         Maximum volume change along insertion
