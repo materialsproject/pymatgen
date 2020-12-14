@@ -12,25 +12,6 @@ from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-def diff_dicts(a, b, missing=KeyError):
-    """
-    Find keys and values which differ from `a` to `b` as a dict.
-
-    If a value differs from `a` to `b` then the value in the returned dict will
-    be: `(a_value, b_value)`. If either is missing then the token from
-    `missing` will be used instead.
-
-    :param a: The from dict
-    :param b: The to dict
-    :param missing: A token used to indicate the dict did not include this key
-    :return: A dict of keys to tuples with the matching value from a and b
-    """
-    return {
-        key: (a.get(key, missing), b.get(key, missing))
-        for key in dict(set(a.items()) ^ set(b.items())).keys()
-    }
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
