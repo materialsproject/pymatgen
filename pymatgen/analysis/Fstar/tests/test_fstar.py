@@ -10,7 +10,6 @@ from pymatgen.io.cif import CifParser
 test_dir = os.path.join(os.path.dirname(__file__))
 
 
-
 class test_fstardiagram(PymatgenTest):
 
     def setUp(self):
