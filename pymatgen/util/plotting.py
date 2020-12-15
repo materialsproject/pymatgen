@@ -5,8 +5,11 @@
 Utilities for generating nicer plots.
 """
 import math
-
+from typing import Union, Optional, List, Tuple
 import numpy as np
+from matplotlib.axes import Axes
+from scipy.stats import linregress
+from sklearn.metrics import max_error, mean_absolute_error, mean_squared_error
 
 from pymatgen.core.periodic_table import Element
 
@@ -62,6 +65,118 @@ def pretty_plot(
 
     ax.set_xlabel(ax.get_xlabel(), size=labelsize)
     ax.set_ylabel(ax.get_ylabel(), size=labelsize)
+
+    return plt
+
+
+def pretty_parity_plot(x: Union[np.ndarray, List],
+                       y: Union[np.ndarray, List],
+                       xlabel: Optional[str] = None,
+                       ylabel: Optional[str] = None,
+                       units: Optional[str] = None,
+                       color: str = "r",
+                       alpha: float = 0.7,
+                       xlim: Optional[Tuple] = None,
+                       ylim: Optional[Tuple] = None,
+                       width: float = 6,
+                       hegith: float = 6,
+                       show_diagonal: bool = True,
+                       show_regression_stats: bool = True,
+                       show_regression_line: bool = False,
+                       diagonal_ls: str = "k--",
+                       regression_ls: str = "r-",
+                       ax: Optional[Axes] = None,
+                       ):
+    """
+    Construct a nicely-formatted parity plot of x vs. y. A parity plot is intended to
+    compare two quantities that should, ideally, be equal (e.g., experimental and computed data).
+
+    Args:
+        x: numerical data for the x axis.
+        y: numerical data for the y axis.
+        xlabel: x axis label. (Default: no label)
+        ylabel: y axis label. (Default: no label)
+        units: Units of the x and y axis. The units will automatically be included in the axis labels and
+            in the regression statistics if show_regression_stats is True. (Default: no units)
+        color: color of the data points. (Default: 'r')
+        alpha: transparency value of the data points (0-1). (Default: 0.7)
+        xlim: limits for the x axis. If None, axis limits will be determined automatically by matplotlib.
+            (Default: None)
+        ylim: limits for the y axis. If None, axis limits will be determined automatically by matplotlib.
+            (Default: None)
+        width: Plot width in inches. (Default: 6)
+        height: Plot height in inches. (Default: 6)
+        show_diagonal: Show a diagonal y=x line. (Default: True)
+        show_regression_stats: Show a summary of the linear regression statistics (slope, intercept,
+            root mean squared error, etc.) on the plot. (Default: True)
+        show_regression_line: Plot the line of best fit from the linear regression. (Default: False)
+
+        diagonal_ls: Linestyle string for the diagonal y=x line. (Default: 'k--')
+        regression_ls: Linestyle string for the regression line. (Default: 'r-')
+
+    Returns:
+        matplotlib Figure instance
+    """
+    if isinstance(ax, Axes):
+        ax = ax
+    else:
+        plt = pretty_plot(width=6, height=6)
+        ax = plt.gca()
+    ax.plot(x, y, '.', color=color, alpha=alpha)
+
+    units = units if units else "--"
+
+    if xlabel:
+        ax.set_xlabel("{} ({})".format(xlabel, units))
+    if ylabel:
+        ax.set_ylabel("{} ({})".format(ylabel, units))
+
+    if xlim:
+        ax.xaxis.set_xlim(xlim)
+
+    if ylim:
+        ax.yaxis.set_ylim(ylim)
+
+    # this logic allows the plot to work if there are np.nan or np.inf in the data
+    X = np.array(x)
+    Y = np.array(y)
+    finitemask = np.isfinite([X, Y]).all(axis=0)
+
+    # 1:1 line
+    if show_diagonal:
+        xp = np.linspace(min(X[finitemask]), max(X[finitemask]), 200)
+        ax.plot(xp, xp, diagonal_ls)
+
+    # linear regression stats
+    n_points = len(finitemask)
+    fit = linregress(X[finitemask], Y[finitemask])
+
+    # error metrics
+    ME = max_error(X[finitemask], Y[finitemask])
+    MAE = mean_absolute_error(X[finitemask], Y[finitemask])
+    RMSE = mean_squared_error(X[finitemask], Y[finitemask]) ** 0.5
+
+    if show_regression_stats:
+        ax.text(0.03,
+                0.97,
+                (f'{n_points} data points\n'
+                 f'$R^2$={fit.rvalue**2:.4f}\n'
+                 f'slope={fit.slope:.3f}\n'
+                 f'intercept={fit.intercept:.3f}\n'
+                 f'MaxE={ME:.3f} ({units})\n'
+                 f'MAE={MAE:.3f} ({units})\n'
+                 f'RMSE={RMSE:.3f} ({units})'
+                 ),
+                size=14,
+                verticalalignment='top',
+                transform=ax.transAxes)
+
+    if show_regression_line:
+        def regfit(x):
+            return fit.intercept + x * fit.slope
+
+        y_fit = [regfit(x) for x in x]
+        ax.plot(x, y_fit, regression_ls)
 
     return plt
 
