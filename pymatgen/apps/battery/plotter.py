@@ -96,13 +96,14 @@ class VoltageProfilePlotter:
             y.append(0)
         return x, y
 
-    def get_plot(self, width=8, height=8):
+    def get_plot(self, width=8, height=8, term_zero=True):
         """
         Returns a plot object.
 
         Args:
             width: Width of the plot. Defaults to 8 in.
             height: Height of the plot. Defaults to 6 in.
+            term_zero: If True append zero voltage point at the end
 
         Returns:
             A matplotlib plot object.
@@ -112,7 +113,7 @@ class VoltageProfilePlotter:
         formula = set()
 
         for label, electrode in self._electrodes.items():
-            (x, y) = self.get_plot_data(electrode)
+            (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode._framework_formula)
             plt.plot(x, y, "-", linewidth=2, label=label)
@@ -128,6 +129,7 @@ class VoltageProfilePlotter:
         width=800,
         height=600,
         font_dict=None,
+        term_zero=True,
         **kwargs,
     ):
         """
@@ -136,6 +138,7 @@ class VoltageProfilePlotter:
             width: Width of the plot. Defaults to 800 px.
             height: Height of the plot. Defaults to 600 px.
             font: dictionary that defines the font
+            term_zero: If True append zero voltage point at the end
             **kwargs:
 
         Returns:
@@ -152,7 +155,7 @@ class VoltageProfilePlotter:
         wion_symbol = set()
         formula = set()
         for label, electrode in self._electrodes.items():
-            (x, y) = self.get_plot_data(electrode)
+            (x, y) = self.get_plot_data(electrode, term_zero=term_zero)
             wion_symbol.add(electrode.working_ion.symbol)
             formula.add(electrode._framework_formula)
             data.append(go.Scatter(x=x, y=y, name=label, hovertemplate=hover_temp))
