@@ -79,11 +79,11 @@ def pretty_parity_plot(x: Union[np.ndarray, List],
                        xlim: Optional[Tuple] = None,
                        ylim: Optional[Tuple] = None,
                        width: float = 6,
-                       hegith: float = 6,
+                       height: float = 6,
                        show_diagonal: bool = True,
+                       diagonal_ls: str = "k--",
                        show_regression_stats: bool = True,
                        show_regression_line: bool = False,
-                       diagonal_ls: str = "k--",
                        regression_ls: str = "r-",
                        ax: Optional[Axes] = None,
                        ):
@@ -107,20 +107,22 @@ def pretty_parity_plot(x: Union[np.ndarray, List],
         width: Plot width in inches. (Default: 6)
         height: Plot height in inches. (Default: 6)
         show_diagonal: Show a diagonal y=x line. (Default: True)
+        diagonal_ls: Linestyle string for the diagonal y=x line. (Default: 'k--')
         show_regression_stats: Show a summary of the linear regression statistics (slope, intercept,
             root mean squared error, etc.) on the plot. (Default: True)
         show_regression_line: Plot the line of best fit from the linear regression. (Default: False)
-
-        diagonal_ls: Linestyle string for the diagonal y=x line. (Default: 'k--')
         regression_ls: Linestyle string for the regression line. (Default: 'r-')
+        ax: matplotlib Axes object to plot onto. If None (Default), then a new plotting instance 
+            will be created using pretty_plot()
 
     Returns:
         matplotlib Figure instance
     """
     if isinstance(ax, Axes):
         ax = ax
+        plt = ax.get_figure()
     else:
-        plt = pretty_plot(width=6, height=6)
+        plt = pretty_plot(width=width, height=height)
         ax = plt.gca()
     ax.plot(x, y, '.', color=color, alpha=alpha)
 
