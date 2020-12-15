@@ -55,10 +55,11 @@ class VoltageProfilePlotter:
             label = "Electrode {}".format(len(self._electrodes) + 1)
         self._electrodes[label] = electrode
 
-    def get_plot_data(self, electrode):
+    def get_plot_data(self, electrode, term_zero=True):
         """
         Args:
-            electrode (): Electrode object
+            electrode: Electrode object
+            term_zero: If True append zero voltage point at the end
 
         Returns:
             Plot data in x, y.
@@ -90,8 +91,9 @@ class VoltageProfilePlotter:
                 )
             y.extend([sub_electrode.get_average_voltage()] * 2)
 
-        x.append(x[-1])
-        y.append(0)
+        if term_zero:
+            x.append(x[-1])
+            y.append(0)
         return x, y
 
     def get_plot(self, width=8, height=8):
