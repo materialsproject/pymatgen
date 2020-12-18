@@ -5,11 +5,12 @@
 import os
 import tempfile
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.abiinspect import *
+from pymatgen.util.testing import PymatgenTest
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                         'test_files', "abinit")
+_test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"
+)
 
 try:
     import matplotlib
@@ -31,8 +32,7 @@ class YamlTokenizerTest(PymatgenTest):
     """Test YamlTokenizer."""
 
     def test_base(self):
-        string = \
-            """---
+        string = """---
 none: [~, null]
 bool: [true, false, on, off]
 int: 42
@@ -107,7 +107,6 @@ attacks: [BITE, HURT]
 
 
 class AbinitInpectTest(PymatgenTest):
-
     def test_scfcycle(self):
         """Testing ScfCycle."""
         cycle = GroundStateScfCycle.from_file(ref_file("mgb2_scf.abo"))
@@ -117,8 +116,15 @@ class AbinitInpectTest(PymatgenTest):
         assert cycle.num_iterations == 6
         last = cycle.last_iteration
 
-        assert last["Etot(hartree)"] == -7.1476241568657 and last["vres2"] == 3.879E-08
-        assert list(cycle["vres2"]) == [1.769E+02, 7.920E-01, 1.570E-01, 4.259E-03, 4.150E-05, 3.879E-08]
+        assert last["Etot(hartree)"] == -7.1476241568657 and last["vres2"] == 3.879e-08
+        assert list(cycle["vres2"]) == [
+            1.769e02,
+            7.920e-01,
+            1.570e-01,
+            4.259e-03,
+            4.150e-05,
+            3.879e-08,
+        ]
 
         # TODO: Reactivate
         # if have_matplotlib:

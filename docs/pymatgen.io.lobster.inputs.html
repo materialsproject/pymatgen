@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.lobster.inputs module &mdash; pymatgen 2020.12.3 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.lobster.inputs.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.lobster.outputs module" href="pymatgen.io.lobster.outputs.html" />
+    <link rel="prev" title="pymatgen.io.lobster package" href="pymatgen.io.lobster.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.12.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.lobster.html">pymatgen.io.lobster package</a> &raquo;</li>
+        
+      <li>pymatgen.io.lobster.inputs module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.lobster.inputs.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.lobster.inputs">
+<span id="pymatgen-io-lobster-inputs-module"></span><h1>pymatgen.io.lobster.inputs module<a class="headerlink" href="#module-pymatgen.io.lobster.inputs" title="Permalink to this headline">¶</a></h1>
+<p>Module for reading Lobster output files. For more information
+on LOBSTER see www.cohp.de.</p>
+<dl class="py class">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin">
+<em class="property">class </em><code class="sig-name descname">Lobsterin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">settingsdict</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L36-L833"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This class can handle and generate lobsterin files
+Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
+and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
+There are also several standard lobsterin files that can be easily generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>settingsdict</strong> – dict to initialize Lobsterin</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.AVAILABLEKEYWORDS">
+<code class="sig-name descname">AVAILABLEKEYWORDS</code><em class="property"> = ['COHPstartEnergy', 'COHPendEnergy', 'basisSet', 'cohpGenerator', 'gaussianSmearingWidth', 'saveProjectionToFile', 'basisfunctions', 'skipdos', 'skipcohp', 'skipcoop', 'skipPopulationAnalysis', 'skipGrossPopulation', 'userecommendedbasisfunctions', 'loadProjectionFromFile', 'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipProjection', 'createFatband', 'writeBasisFunctions', 'writeMatricesToFile', 'realspaceHamiltonian', 'realspaceOverlap', 'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'useDecimalPlaces', 'kSpaceCOHP']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.AVAILABLEKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.BOOLEANKEYWORDS">
+<code class="sig-name descname">BOOLEANKEYWORDS</code><em class="property"> = ['saveProjectionToFile', 'skipdos', 'skipcohp', 'skipcoop', 'loadProjectionFromFile', 'forceEnergyRange', 'DensityOfEnergy', 'BWDF', 'BWDFCOHP', 'skipPopulationAnalysis', 'skipGrossPopulation', 'userecommendedbasisfunctions', 'skipProjection', 'writeBasisFunctions', 'writeMatricesToFile', 'noFFTforVisualization', 'RMSp', 'onlyReadVasprun.xml', 'noMemoryMappedFiles', 'skipPAWOrthonormalityTest', 'doNotIgnoreExcessiveBands', 'doNotUseAbsoluteSpilling', 'skipReOrthonormalization', 'forceV1HMatrix', 'useOriginalTetrahedronMethod', 'forceEnergyRange', 'bandwiseSpilling', 'kpointwiseSpilling']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.BOOLEANKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.FLOATKEYWORDS">
+<code class="sig-name descname">FLOATKEYWORDS</code><em class="property"> = ['COHPstartEnergy', 'COHPendEnergy', 'gaussianSmearingWidth', 'useDecimalPlaces', 'COHPSteps']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.FLOATKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.LISTKEYWORDS">
+<code class="sig-name descname">LISTKEYWORDS</code><em class="property"> = ['basisfunctions', 'cohpbetween', 'createFatband']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.LISTKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.STRINGKEYWORDS">
+<code class="sig-name descname">STRINGKEYWORDS</code><em class="property"> = ['basisSet', 'cohpGenerator', 'realspaceHamiltonian', 'realspaceOverlap', 'printPAWRealSpaceWavefunction', 'printLCAORealSpaceWavefunction', 'kSpaceCOHP']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.STRINGKEYWORDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L328-L335"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.diff">
+<code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L189-L246"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Diff function for lobsterin. Compares two lobsterin and indicates which parameters are the same.
+Similar to the diff in INCAR.
+:param other: Lobsterin object to compare to
+:type other: Lobsterin</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict with differences and similarities</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L337-L343"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lobsterin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lobsterin</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L629-L685"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lobsterin</strong> (<em>str</em>) – path to lobsterin</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lobsterin object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.get_all_possible_basis_functions">
+<em class="property">static </em><code class="sig-name descname">get_all_possible_basis_functions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">potcar_symbols</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">address_basis_file_min</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'/Users/matt/git/pymatgen-release/pymatgen/pymatgen/io/lobster/lobster_basis/BASIS_PBE_54_min.yaml'</span></em>, <em class="sig-param"><span class="n">address_basis_file_max</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'/Users/matt/git/pymatgen-release/pymatgen/pymatgen/io/lobster/lobster_basis/BASIS_PBE_54_max.yaml'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L426-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.get_all_possible_basis_functions" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure object</p></li>
+<li><p><strong>potcar_symbols</strong> – list of the potcar symbols</p></li>
+<li><p><strong>address_basis_file_min</strong> – path to file with the minium required basis by the POTCAR</p></li>
+<li><p><strong>address_basis_file_max</strong> – path to file with the largest possible basis of the POTCAR</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: List of dictionaries that can be used to create new Lobsterin objects in
+standard_calculations_from_vasp_files as dict_for_basis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.get_basis">
+<em class="property">static </em><code class="sig-name descname">get_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">potcar_symbols</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">address_basis_file</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'/Users/matt/git/pymatgen-release/pymatgen/pymatgen/io/lobster/lobster_basis/BASIS_PBE_54_standard.yaml'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L384-L424"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.get_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>will get the basis from given potcar_symbols (e.g., [“Fe_pv”,”Si”]
+#include this in lobsterin class
+:param structure: Structure object
+:type structure: Structure
+:param potcar_symbols: list of potcar symbols</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns basis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.standard_calculations_from_vasp_files">
+<em class="property">classmethod </em><code class="sig-name descname">standard_calculations_from_vasp_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">POSCAR_input</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'POSCAR'</span></em>, <em class="sig-param"><span class="n">INCAR_input</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'INCAR'</span></em>, <em class="sig-param"><span class="n">POTCAR_input</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dict_for_basis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">option</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'standard'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L707-L833"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.standard_calculations_from_vasp_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>will generate Lobsterin with standard settings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>POSCAR_input</strong> (<em>str</em>) – path to POSCAR</p></li>
+<li><p><strong>INCAR_input</strong> (<em>str</em>) – path to INCAR</p></li>
+<li><p><strong>POTCAR_input</strong> (<em>str</em>) – path to POTCAR</p></li>
+<li><p><strong>dict_for_basis</strong> (<em>dict</em>) – can be provided: it should look the following:
+dict_for_basis={“Fe”:’3p 3d 4s 4f’, “C”: ‘2s 2p’} and will overwrite all settings from POTCAR_input</p></li>
+<li><p><strong>option</strong> (<em>str</em>) – ‘standard’ will start a normal lobster run where COHPs, COOPs, DOS, CHARGE etc. will be
+calculated
+‘standard_from_projection’ will start a normal lobster run from a projection
+‘standard_with_fatband’ will do a fatband calculation, run over all orbitals
+‘onlyprojection’ will only do a projection
+‘onlydos’ will only calculate a projected dos
+‘onlycohp’ will only calculate cohp
+‘onlycoop’ will only calculate coop
+‘onlycohpcoop’ will only calculate cohp and coop</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Lobsterin Object with standard settings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.write_INCAR">
+<code class="sig-name descname">write_INCAR</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">incar_input</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'INCAR'</span></em>, <em class="sig-param"><span class="n">incar_output</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'INCAR.lobster'</span></em>, <em class="sig-param"><span class="n">poscar_input</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'POSCAR'</span></em>, <em class="sig-param"><span class="n">isym</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">further_settings</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L345-L382"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.write_INCAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
+You have to check for the rest.
+:param incar_input: path to input INCAR
+:type incar_input: str
+:param incar_output: path to output INCAR
+:type incar_output: str
+:param poscar_input: path to input POSCAR
+:type poscar_input: str
+:param isym: isym equal to -1 or 0 are possible. Current Lobster version only allow -1.
+:type isym: int
+:param further_settings: A dict can be used to include further settings, e.g. {“ISMEAR”:-5}
+:type further_settings: dict</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.write_KPOINTS">
+<em class="property">static </em><code class="sig-name descname">write_KPOINTS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">POSCAR_input</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'POSCAR'</span></em>, <em class="sig-param"><span class="n">KPOINTS_output</span><span class="o">=</span><span class="default_value">'KPOINTS.lobster'</span></em>, <em class="sig-param"><span class="n">reciprocal_density</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">isym</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">from_grid</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">input_grid</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">[5, 5, 5]</span></em>, <em class="sig-param"><span class="n">line_mode</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">kpoints_line_density</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">20</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.01</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L488-L627"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.write_KPOINTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
+:param POSCAR_input: path to POSCAR
+:type POSCAR_input: str
+:param KPOINTS_output: path to output KPOINTS
+:type KPOINTS_output: str
+:param reciprocal_density: Grid density
+:type reciprocal_density: int
+:param isym: either -1 or 0. Current Lobster versions only allow -1.
+:type isym: int
+:param from_grid: If True KPOINTS will be generated with the help of a grid given in input_grid. Otherwise,</p>
+<blockquote>
+<div><p>they will be generated from the reciprocal_density</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_grid</strong> (<em>list</em>) – grid to generate the KPOINTS file</p></li>
+<li><p><strong>line_mode</strong> (<em>bool</em>) – If True, band structure will be generated</p></li>
+<li><p><strong>kpoints_line_density</strong> (<em>int</em>) – density of the lines in the band structure</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – precision to determine symmetry</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.write_POSCAR_with_standard_primitive">
+<em class="property">static </em><code class="sig-name descname">write_POSCAR_with_standard_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">POSCAR_input</span><span class="o">=</span><span class="default_value">'POSCAR'</span></em>, <em class="sig-param"><span class="n">POSCAR_output</span><span class="o">=</span><span class="default_value">'POSCAR.lobster'</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L472-L486"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.write_POSCAR_with_standard_primitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a POSCAR with the standard primitive cell. This is needed to arrive at the correct kpath
+:param POSCAR_input: filename of input POSCAR
+:type POSCAR_input: str
+:param POSCAR_output: filename of output POSCAR
+:type POSCAR_output: str
+:param symprec: precision to find symmetry
+:type symprec: float</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.lobster.inputs.Lobsterin.write_lobsterin">
+<code class="sig-name descname">write_lobsterin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'lobsterin'</span></em>, <em class="sig-param"><span class="n">overwritedict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L281-L326"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.Lobsterin.write_lobsterin" title="Permalink to this definition">¶</a></dt>
+<dd><p>writes a lobsterin file
+:param path: filename of the lobsterin file that will be written
+:type path: str
+:param overwritedict: dict that can be used to overwrite lobsterin, e.g. {“skipdos”: True}
+:type overwritedict: dict</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.lobster.inputs.get_all_possible_basis_combinations">
+<code class="sig-name descname">get_all_possible_basis_combinations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_basis</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">max_basis</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span> &#x2192; list<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/lobster/inputs.py#L836-L881"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lobster.inputs.get_all_possible_basis_combinations" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_basis</strong> – list of basis entries: e.g., [‘Si 3p 3s ‘]</p></li>
+<li><p><strong>max_basis</strong> – list of basis entries: e.g., [‘Si 3p 3s ‘]</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: all possible combinations of basis functions, e.g. [[‘Si 3p 3s’]]</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

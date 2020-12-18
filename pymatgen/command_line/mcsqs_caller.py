@@ -4,14 +4,14 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 """
 
 import os
+import tempfile
 import warnings
-from subprocess import Popen, TimeoutExpired
-from typing import Dict, Union, List, NamedTuple, Optional
 from pathlib import Path
+from subprocess import Popen, TimeoutExpired
+from typing import Dict, List, NamedTuple, Optional, Union
 
 from monty.dev import requires
 from monty.os.path import which
-import tempfile
 
 from pymatgen import Structure
 
@@ -24,6 +24,7 @@ class Sqs(NamedTuple):
     bestsqs: Structure
     objective_function: Union[float, str]
     allsqs: List
+    clusters: List
     directory: str
 
 
@@ -35,7 +36,7 @@ class Sqs(NamedTuple):
 def run_mcsqs(
     structure: Structure,
     clusters: Dict[int, float],
-    scaling: Union[int, List[int]],
+    scaling: Union[int, List[int]] = 1,
     search_time: float = 60,
     directory: Optional[str] = None,
     instances: Optional[int] = None,
@@ -56,7 +57,7 @@ def run_mcsqs(
                    scaling=4 would lead to a 32 atom supercell
                 b. A sequence of three scaling factors, e.g., [2, 1, 1], which
                    specifies that the supercell should have dimensions 2a x b x c
-    Keyword Args:
+            Defaults to 1.
         search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
         directory (str): Directory to run mcsqs calculation and store files (default: None
             runs calculations in a temp directory)
@@ -170,9 +171,8 @@ def run_mcsqs(
             sqs = _parse_sqs_path(".")
             return sqs
 
-        else:
-            os.chdir(original_directory)
-            raise TimeoutError("Cluster expansion took too long.")
+        os.chdir(original_directory)
+        raise TimeoutError("Cluster expansion took too long.")
 
 
 def _parse_sqs_path(path) -> Sqs:
@@ -189,7 +189,7 @@ def _parse_sqs_path(path) -> Sqs:
     path = Path(path)
 
     # detected instances will be 0 if mcsqs was run in series, or number of instances
-    detected_instances = len(list(path.glob("bestsqs*[0-9]*")))
+    detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to cif file and pymatgen Structure
     p = Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path)
@@ -197,7 +197,7 @@ def _parse_sqs_path(path) -> Sqs:
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        bestsqs = Structure.from_file(path / "bestsqs.cif")
+        bestsqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
     with open(path / "bestcorr.out", "r") as f:
@@ -217,11 +217,11 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_out = "bestsqs{}.out".format(i + 1)
         sqs_cif = "bestsqs{}.cif".format(i + 1)
         corr_out = "bestcorr{}.out".format(i + 1)
-        p = Popen("str2cif <" + sqs_out + ">" + sqs_cif, shell=True, cwd=path)
+        p = Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path)
         p.communicate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            sqs = Structure.from_file(sqs_cif)
+            sqs = Structure.from_file(path / sqs_out)
         with open(path / corr_out, "r") as f:
             lines = f.readlines()
 
@@ -233,9 +233,61 @@ def _parse_sqs_path(path) -> Sqs:
             obj = "Perfect_match"
         allsqs.append({"structure": sqs, "objective_function": obj})
 
+    clusters = _parse_clusters(path / "clusters.out")
+
     return Sqs(
         bestsqs=bestsqs,
         objective_function=objective_function,
         allsqs=allsqs,
         directory=str(path.resolve()),
+        clusters=clusters,
     )
+
+
+def _parse_clusters(filename):
+    """
+    Private function to parse clusters.out file
+    Args:
+        path: directory to perform parsing
+
+    Returns:
+        List of dicts
+    """
+
+    with open(filename, "r") as f:
+        lines = f.readlines()
+
+    clusters = []
+    cluster_block = []
+    for line in lines:
+        line = line.split("\n")[0]
+        if line == "":
+            clusters.append(cluster_block)
+            cluster_block = []
+        else:
+            cluster_block.append(line)
+
+    cluster_dicts = []
+    for cluster in clusters:
+        cluster_dict = {
+            "multiplicity": int(cluster[0]),
+            "longest_pair_length": float(cluster[1]),
+            "num_points_in_cluster": int(cluster[2]),
+        }
+        points = []
+        for point in range(cluster_dict["num_points_in_cluster"]):
+            line = cluster[3 + point].split(" ")
+            point_dict = {}
+            point_dict["coordinates"] = [float(line) for line in line[0:3]]
+            point_dict["num_possible_species"] = (
+                int(line[3]) + 2
+            )  # see ATAT manual for why +2
+            point_dict["cluster_function"] = float(
+                line[4]
+            )  # see ATAT manual for what "function" is
+            points.append(point_dict)
+
+        cluster_dict["coordinates"] = points
+        cluster_dicts.append(cluster_dict)
+
+    return cluster_dicts

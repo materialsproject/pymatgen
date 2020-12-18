@@ -1,0 +1,724 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.cp2k.sets module &mdash; pymatgen 2020.12.3 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.cp2k.sets.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.cp2k.utils module" href="pymatgen.io.cp2k.utils.html" />
+    <link rel="prev" title="pymatgen.io.cp2k.outputs module" href="pymatgen.io.cp2k.outputs.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.12.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.cp2k.html">pymatgen.io.cp2k package</a> &raquo;</li>
+        
+      <li>pymatgen.io.cp2k.sets module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.cp2k.sets.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.cp2k.sets">
+<span id="pymatgen-io-cp2k-sets-module"></span><h1>pymatgen.io.cp2k.sets module<a class="headerlink" href="#module-pymatgen.io.cp2k.sets" title="Permalink to this headline">¶</a></h1>
+<p>This module defines input sets for CP2K and is a work in progress. The structure/philosophy
+of this module is based on the Vasp input sets in Pymatgen. These sets are meant to contain
+tested parameters that will result in successful, reproducible, consistent calculations without
+need for intervention 99% of the time. 99% of the time, you only need to provide a pymatgen
+structure object and let the defaults take over from there.</p>
+<p>The sets are intended to be very general, e.g. a set for geometry relaxation, and so most of the
+time, if you have specific needs, you can simply specify them via the keyword argument
+override_default_params (see Section.update() method). If you have the need to create a new input
+set (say for a standardized high throughput calculation) then you can create a new child of the
+Cp2kInputSet class.</p>
+<dl class="simple">
+<dt>In order to implement a new Set within the current code structure, follow this 3 step flow:</dt><dd><ol class="arabic simple">
+<li><p>Inherit from Cp2kInputSet or one of its children and call the super() constructor</p></li>
+<li><p>Create the new sections and insert them into self and its subsections as needed</p></li>
+<li><p>Call self.update(override_default_params) in order to allow user settings.</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.CellOptSet">
+<em class="property">class </em><code class="sig-name descname">CellOptSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'CellOpt'</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L879-L925"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.CellOptSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.DftSet" title="pymatgen.io.cp2k.sets.DftSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.DftSet</span></code></a></p>
+<p>CP2K input set containing the basic settings for performing geometry optimization. Values are all cp2k
+defaults, and should be good for most systems of interest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen structure object</p></li>
+<li><p><strong>max_drift</strong> – Convergence criterion for the maximum geometry change between the current and the
+last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
+Default value: 3.00000000E-003
+Default unit: [bohr]</p></li>
+<li><p><strong>max_force</strong> (<em>float</em>) – Convergence criterion for the maximum force component of the current configuration.
+This keyword cannot be repeated and it expects precisely one real.
+Default value: 4.50000000E-004
+Default unit: [bohr^-1*hartree]</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Specifies the maximum number of geometry optimization steps.
+One step might imply several force evaluations for the CG and LBFGS optimizers.
+This keyword cannot be repeated and it expects precisely one integer.
+Default value: 200</p></li>
+<li><p><strong>optimizer</strong> (<em>str</em>) – Specify which method to use to perform a geometry optimization.
+This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
+quasi-newtonian method, and will best for “small” systems near the minimum. LBFGS
+is a limited memory version that can be used for “large” (&gt;1000 atom) systems when
+efficiency outweights robustness. CG is more robust, especially when you are far from
+the minimum, but it slower.
+Default value: BFGS</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.Cp2kInputSet">
+<em class="property">class </em><code class="sig-name descname">Cp2kInputSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">potential_and_basis</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">multiplicity</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'CP2K'</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L65-L218"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.Cp2kInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Cp2kInput" title="pymatgen.io.cp2k.inputs.Cp2kInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.inputs.Cp2kInput</span></code></a></p>
+<p>The basic representation of a CP2K input set as a collection of “sections” defining the simulation
+connected to a structure object. At the most basis level, CP2K requires a &amp;GLOBAL section and
+&amp;FORCE_EVAL section. Global sets parameters like “RUN_TYPE” or the overall verbosity. FORCE_EVAL is
+the largest section usually, containing the cell and coordinates of atoms, the DFT settings, and more.
+This top level input set is meant to initialize GLOBAL and FORCE_EVAL based on a structure object and
+and sections that the user provides.</p>
+<p>Like everything that goes into a cp2k input file, this base input set is essentially a section object.
+These sets are distinguished by saving default settings for easy implementation of calculations such
+as relaxation and static calculations. This base set is here to transfer a pymatgen structure object
+into the input format for cp2k and associate the basis set and pseudopotential to use with each
+element in the structure.</p>
+<p>Generally, this class will not be used directly, and instead one of
+its child-classes will be used, which contain more predefined initializations of various sections, and,
+if modifications are required, the user can specify override_default_settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – (Structure or Molecule) pymatgen structure or molecule object used to define
+the lattice, coordinates, and elements. This structure object cannot contain “special”
+species like the Dummy species, e.g. X, or fractional occupations, e.g. Fe0.2, etc.</p></li>
+<li><p><strong>potential_and_basis</strong> – <p>(dict) Specifies what basis set and potential to use. Specify these
+as a dict of the form:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>{ element: {‘cardinality’: __, ‘sr’: __, ‘q’: __},</dt><dd><p>’cardinality’: __, ‘functional’: __}</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Where cardinality and functional are overall specifications (for all elements), while
+&lt;key=’element’&gt; specifies the overrides for a specific element. Currently the following
+conventions must be followed:</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>All species of a particular element must have the same potential/basis</p></li>
+</ol>
+</div></blockquote>
+</p></li>
+<li><p><strong>multiplicity</strong> – (int) Specify the system’s multiplicity if appropriate</p></li>
+<li><p><strong>project_name</strong> – (str) Specify the project name. This will be used to name the output files
+from a CP2K calculation</p></li>
+<li><p><strong>override_default_params</strong> – (dict) Specifies user-defined settings to override the settings of any
+input set (See Section.update())</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.Cp2kInputSet.create_subsys">
+<code class="sig-name descname">create_subsys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L142-L196"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.Cp2kInputSet.create_subsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the structure for the input</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.Cp2kInputSet.print_forces">
+<code class="sig-name descname">print_forces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L198-L204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.Cp2kInputSet.print_forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out the forces and stress during calculation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.Cp2kInputSet.print_motion">
+<code class="sig-name descname">print_motion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L206-L218"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.Cp2kInputSet.print_motion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the motion info (trajectory, cell, forces, stress</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.DftSet">
+<em class="property">class </em><code class="sig-name descname">DftSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">ot</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">band_gap</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">eps_default</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-12</span></em>, <em class="sig-param"><span class="n">eps_scf</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-07</span></em>, <em class="sig-param"><span class="n">max_scf</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">minimizer</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'DIIS'</span></em>, <em class="sig-param"><span class="n">preconditioner</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'FULL_ALL'</span></em>, <em class="sig-param"><span class="n">algorithm</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'STRICT'</span></em>, <em class="sig-param"><span class="n">linesearch</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'2PNT'</span></em>, <em class="sig-param"><span class="n">cutoff</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1200</span></em>, <em class="sig-param"><span class="n">rel_cutoff</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">80</span></em>, <em class="sig-param"><span class="n">ngrids</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">5</span></em>, <em class="sig-param"><span class="n">progression_factor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">3</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">wfn_restart_file_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kpoints</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoints" title="pymatgen.io.cp2k.inputs.Kpoints">pymatgen.io.cp2k.inputs.Kpoints</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smearing</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L221-L773"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.Cp2kInputSet" title="pymatgen.io.cp2k.sets.Cp2kInputSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.Cp2kInputSet</span></code></a></p>
+<p>Base for an input set using the Quickstep module (i.e. a DFT calculation). The DFT section is pretty vast
+in CP2K, so this set hopes to make the DFT setup fairly simple. The provided parameters are pretty conservative,
+and so they should not need to be changed very often.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen structure or molecule object</p></li>
+<li><p><strong>ot</strong> (<em>bool</em>) – Whether or not to use orbital transformation method for matrix diagonalization. OT is the
+flagship scf solver of CP2K, and will provide huge speed-ups for this part of the calculation,
+but the system must have a band gap for OT to be used (higher band-gap –&gt; faster convergence).
+Band gap is also used by the preconditioner for OT, and should be set as a value SMALLER than the true
+band gap to get good efficiency. Generally, this parameter does not need to be changed from
+default of 0.01</p></li>
+<li><p><strong>band_gap</strong> (<em>float</em>) – The band gap can also be specified in order to determine if ot should be turned on.</p></li>
+<li><p><strong>eps_default</strong> (<em>float</em>) – Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
+value, ensuring an overall accuracy of at least this much.</p></li>
+<li><p><strong>eps_scf</strong> (<em>float</em>) – The convergence criteria for leaving the SCF loop in Hartrees. Default is 1e-7. Should
+ensure reasonable results for all properties. Smaller than 1e-7 is generally not needed unless
+you need very high precision. 1e-6 may be used for difficult systems, and should still give
+reasonable results for most properties.</p></li>
+<li><p><strong>max_scf</strong> (<em>int</em>) – The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
+corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
+while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+inner loop limit set by</p></li>
+<li><p><strong>minimizer</strong> (<em>str</em>) – The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
+gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.</p></li>
+<li><p><strong>preconditioner</strong> (<em>str</em>) – Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
+default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
+only change from theses two when simulation cell gets to be VERY large,
+in which case FULL_KINETIC might be preferred.</p></li>
+<li><p><strong>cutoff</strong> (<em>int</em>) – Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
+have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.</p></li>
+<li><p><strong>rel_cutoff</strong> (<em>int</em>) – <p>This cutoff decides how the Guassians are mapped onto the different levels of the
+multigrid. From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the</p>
+<blockquote>
+<div><p>function will cover number of grid points greater than or equal to the number of grid points
+will cover on a reference grid defined by REL_CUTOFF.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>progression_factor</strong> (<em>int</em>) – Divisor of CUTOFF to get the cutoff for the next level of the multigrid.</p></li>
+<li><p><strong>for the cutoffs</strong> (<em>Takeaway</em>) – <a class="reference external" href="https://www.cp2k.org/howto:converging_cutoff">https://www.cp2k.org/howto:converging_cutoff</a></p></li>
+<li><p><strong>CUTOFF is too low</strong><strong>, </strong><strong>then all grids will be coarse and the calculation may become inaccurate; and if</strong> (<em>If</em>) – </p></li>
+<li><p><strong>is too low</strong><strong>, </strong><strong>then even if you have a high CUTOFF</strong><strong>, </strong><strong>all Gaussians will be mapped onto the coarsest</strong> (<em>REL_CUTOFF</em>) – </p></li>
+<li><p><strong>of the multi-grid</strong><strong>, </strong><strong>and thus the effective integration grid for the calculation may still be too</strong> (<em>level</em>) – </p></li>
+<li><p><strong>coarse.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.activate_fast_minimization">
+<code class="sig-name descname">activate_fast_minimization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">on</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L672-L684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.activate_fast_minimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to modify the set to use fast SCF minimization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.activate_hybrid">
+<code class="sig-name descname">activate_hybrid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hybrid_functional</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'PBE0'</span></em>, <em class="sig-param"><span class="n">hf_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.25</span></em>, <em class="sig-param"><span class="n">gga_x_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">gga_c_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">max_memory</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2000</span></em>, <em class="sig-param"><span class="n">cutoff_radius</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">8.0</span></em>, <em class="sig-param"><span class="n">potential_type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">aux_basis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">admm</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">eps_schwarz</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">eps_schwarz_forces</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">screen_on_initial_p</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">screen_p_forces</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L481-L670"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.activate_hybrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.</p>
+<p>Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements exceed
+what is available (see max_memory), then CP2K will have to calculate the 4-electron integrals
+for HFX during each step of the SCF cycle. ADMM provides a huge speed up by making the memory
+requirements <em>feasible</em> to fit into RAM, which means you only need to calculate the integrals
+once each SCF cycle. But, this only works if it fits into memory. When setting up ADMM
+calculations, we recommend doing whatever is possible to fit all the 4EI into memory.</p>
+<p>Note 2: This set is designed for reliable high-throughput calculations, NOT for extreme
+accuracy. Please review the in-line comments in this method if you want more control.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hybrid_functional</strong> (<em>str</em>) – Type of hybrid functional. This set supports HSE (screened) and PBE0
+(truncated). Default is PBE0, which converges easier in the GPW basis used by
+cp2k.</p></li>
+<li><p><strong>hf_fraction</strong> (<em>float</em>) – fraction of exact HF exchange energy to mix. Default: 0.25</p></li>
+<li><p><strong>gga_x_fraction</strong> (<em>float</em>) – fraction of gga exchange energy to retain. Default: 0.75</p></li>
+<li><p><strong>gga_c_fraction</strong> (<em>float</em>) – fraction of gga correlation energy to retain. Default: 1.0</p></li>
+<li><p><strong>max_memory</strong> (<em>int</em>) – Maximum memory available to each MPI process (in Mb) in the calculation.
+Most modern computing nodes will have ~2Gb per core, or 2048 Mb, but check for
+your specific system. This value should be as large as possible while still leaving
+some memory for the other parts of cp2k. Important: If this value is set larger
+than the memory limits, CP2K will likely seg-fault.
+Default: 2000</p></li>
+<li><p><strong>cutoff_radius</strong> (<em>float</em>) – for truncated hybrid functional (i.e. PBE0), this is the cutoff
+radius. The default is selected as that which generally gives convergence, but
+maybe too low (if you want very high accuracy) or too high (if you want a quick
+screening). Default: 8 angstroms</p></li>
+<li><p><strong>potential_type</strong> (<em>str</em>) – what interaction potential to use for HFX. Available in CP2K are
+COULOMB, GAUSSIAN, IDENTITY, LOGRANGE, MIX_CL, MIX_CL_TRUNC, MIX_LG, SHORTRANGE,
+and TRUNCATED. Default is None, and it will be set automatically depending on the
+named hybrid_functional that you use, but setting it to one of the acceptable
+values will constitute a user-override.</p></li>
+<li><p><strong>omega</strong> (<em>float</em>) – For HSE, this specifies the screening parameter. HSE06 sets this as
+0.2, which is the default.</p></li>
+<li><p><strong>aux_basis</strong> (<em>dict</em>) – If you want to specify the aux basis to use, specify it as a dict of
+the form {‘specie_1’: ‘AUX_BASIS_1’, ‘specie_2’: ‘AUX_BASIS_2’}</p></li>
+<li><p><strong>admm</strong> (<em>bool</em>) – Whether or not to use the auxiliary density matrix method for the exact
+HF exchange contribution. Highly recommended. Speed ups between 10x and aaa1000x are
+possible when compared to non ADMM hybrid calculations. Default: True</p></li>
+<li><p><strong>eps_schwarz</strong> (<em>float</em>) – Screening threshold for HFX, in Ha. Contributions smaller than this
+will be screened. The smaller the value, the more accurate, but also the more
+costly. Default value is 1e-6, which is quite aggressive. Aggressive screening
+can also lead to convergence issues. 1e-7 should be a safe value if 1e-6 is too
+aggressive.</p></li>
+<li><p><strong>eps_schwarz_forces</strong> (<em>float</em>) – Same as for eps_schwarz, but for screening contributions to
+forces. Convergence is not as sensitive with respect to eps_schwarz forces as
+compared to eps_schwarz, and so 1e-6 should be good default.</p></li>
+<li><p><strong>screen_on_initial_p</strong> (<em>bool</em>) – If an initial density matrix is provided, in the form of a
+CP2K wfn restart file, then this initial density will be used for screening. This
+is generally very computationally efficient, but, as with eps_schwarz, can lead to
+instabilities if the initial density matrix is poor.</p></li>
+<li><p><strong>screen_p_forces</strong> (<em>bool</em>) – Same as screen_on_initial_p, but for screening of forces.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.activate_nonperiodic">
+<code class="sig-name descname">activate_nonperiodic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L713-L732"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.activate_nonperiodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activates a calculation with non-periodic calculations by turning of PBC and
+changing the poisson solver. Still requires a CELL to put the atoms</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.activate_robust_minimization">
+<code class="sig-name descname">activate_robust_minimization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L686-L697"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.activate_robust_minimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to modify the set to use more robust SCF minimization technique</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.activate_very_strict_minimization">
+<code class="sig-name descname">activate_very_strict_minimization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L699-L711"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.activate_very_strict_minimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to modify the set to use very strict SCF minimization scheme
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.modify_dft_print_iters">
+<code class="sig-name descname">modify_dft_print_iters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iters</span></em>, <em class="sig-param"><span class="n">add_last</span><span class="o">=</span><span class="default_value">'no'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L734-L773"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.modify_dft_print_iters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify all DFT print iterations at once. Common use is to set iters to the max
+number of iterations + 1 and then set add_last to numeric. This would have the
+effect of printing only the first and last iteration, which might be useful for
+speeding up/saving space on GEO_OPT or MD runs where you don’t need the intermediate
+values.</p>
+<dl>
+<dt>Args</dt><dd><p>iters (int): print each “iters” iterations.
+add_last (str): Whether to explicitly include the last iteration, and how to mark it.</p>
+<blockquote>
+<div><p>numeric: mark last iteration with the iteration number
+symbolic: mark last iteration with the letter “l”
+no: do not explicitly include the last iteration</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.print_e_density">
+<code class="sig-name descname">print_e_density</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L468-L473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.print_e_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls the printing of cube files with the electronic density and, for LSD calculations, the spin density</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.print_hartree_potential">
+<code class="sig-name descname">print_hartree_potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stride</span><span class="o">=</span><span class="default_value">[1, 1, 1]</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L457-L466"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.print_hartree_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controls the printing of a cube file with eletrostatic potential generated by the total density
+(electrons+ions). It is valid only for QS with GPW formalism.
+Note that by convention the potential has opposite sign than the expected physical one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.print_ldos">
+<code class="sig-name descname">print_ldos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nlumo</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L422-L435"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.print_ldos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate the printing of LDOS files, printing one for each atom kind by default</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nlumo</strong> (<em>int</em>) – Number of virtual orbitals to be added to the MO set (-1=all).
+CAUTION: Setting this value to be higher than the number of states present may cause a Cholesky error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.print_mo">
+<code class="sig-name descname">print_mo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L451-L455"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.print_mo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print molecular orbitals when running non-OT diagonalization</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.print_mo_cubes">
+<code class="sig-name descname">print_mo_cubes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">write_cube</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nlumo</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">nhomo</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L437-L449"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.print_mo_cubes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate printing of molecular orbitals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>write_cube</strong> (<em>bool</em>) – whether to write cube file for the MOs (setting false will just print levels in out file)</p></li>
+<li><p><strong>nlumo</strong> (<em>int</em>) – Controls the number of lumos that are printed and dumped as a cube (-1=all)</p></li>
+<li><p><strong>nhomo</strong> (<em>int</em>) – Controls the number of homos that are printed and dumped as a cube (-1=all)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.print_pdos">
+<code class="sig-name descname">print_pdos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nlumo</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L411-L420"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.print_pdos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate creation of the PDOS file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nlumo</strong> (<em>int</em>) – Number of virtual orbitals to be added to the MO set (-1=all).
+CAUTION: Setting this value to be higher than the number of states present may cause a Cholesky error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cp2k.sets.DftSet.set_charge">
+<code class="sig-name descname">set_charge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">charge</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L475-L479"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.DftSet.set_charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the overall charge of the simulation cell</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.HybridCellOptSet">
+<em class="property">class </em><code class="sig-name descname">HybridCellOptSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hybrid_functional</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'PBE0'</span></em>, <em class="sig-param"><span class="n">hf_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.25</span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Hybrid-CellOpt'</span></em>, <em class="sig-param"><span class="n">gga_x_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">gga_c_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">max_memory</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2000</span></em>, <em class="sig-param"><span class="n">cutoff_radius</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">8.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">aux_basis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">admm</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">eps_schwarz</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">eps_schwarz_forces</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">screen_on_initial_p</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">screen_p_forces</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L1076-L1147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.HybridCellOptSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.CellOptSet" title="pymatgen.io.cp2k.sets.CellOptSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.CellOptSet</span></code></a></p>
+<p>Static calculation using hybrid DFT with the ADMM formalism in Cp2k.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen structure object</p></li>
+<li><p><strong>method</strong> – hybrid dft method to use (currently select between HSE06 and PBE0)</p></li>
+<li><p><strong>hf_fraction</strong> – percentage of exact HF to mix-in</p></li>
+<li><p><strong>project_name</strong> – what to call this project</p></li>
+<li><p><strong>gga_x_fraction</strong> – percentage of gga exchange to use</p></li>
+<li><p><strong>gga_c_fraction</strong> – percentage of gga correlation to use</p></li>
+<li><p><strong>override_default_params</strong> – override settings (see above).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.HybridRelaxSet">
+<em class="property">class </em><code class="sig-name descname">HybridRelaxSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hybrid_functional</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'PBE0'</span></em>, <em class="sig-param"><span class="n">hf_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.25</span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Hybrid-Relax'</span></em>, <em class="sig-param"><span class="n">gga_x_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">gga_c_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">max_memory</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2000</span></em>, <em class="sig-param"><span class="n">cutoff_radius</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">8.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">aux_basis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">admm</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">eps_schwarz</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">eps_schwarz_forces</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">screen_on_initial_p</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">screen_p_forces</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L1002-L1073"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.HybridRelaxSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.RelaxSet" title="pymatgen.io.cp2k.sets.RelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.RelaxSet</span></code></a></p>
+<p>Static calculation using hybrid DFT with the ADMM formalism in Cp2k.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen structure object</p></li>
+<li><p><strong>method</strong> – hybrid dft method to use (currently select between HSE06 and PBE0)</p></li>
+<li><p><strong>hf_fraction</strong> – percentage of exact HF to mix-in</p></li>
+<li><p><strong>project_name</strong> – what to call this project</p></li>
+<li><p><strong>gga_x_fraction</strong> – percentage of gga exchange to use</p></li>
+<li><p><strong>gga_c_fraction</strong> – percentage of gga correlation to use</p></li>
+<li><p><strong>override_default_params</strong> – override settings (see above).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.HybridStaticSet">
+<em class="property">class </em><code class="sig-name descname">HybridStaticSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">hybrid_functional</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'PBE0'</span></em>, <em class="sig-param"><span class="n">hf_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.25</span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Hybrid-Static'</span></em>, <em class="sig-param"><span class="n">gga_x_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">gga_c_fraction</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">max_memory</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2000</span></em>, <em class="sig-param"><span class="n">cutoff_radius</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">8.0</span></em>, <em class="sig-param"><span class="n">omega</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">aux_basis</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">admm</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">eps_schwarz</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">eps_schwarz_forces</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-06</span></em>, <em class="sig-param"><span class="n">screen_on_initial_p</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">screen_p_forces</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L928-L999"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.HybridStaticSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.StaticSet" title="pymatgen.io.cp2k.sets.StaticSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.StaticSet</span></code></a></p>
+<p>Static calculation using hybrid DFT with the ADMM formalism in Cp2k.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen structure object</p></li>
+<li><p><strong>method</strong> – hybrid dft method to use (currently select between HSE06 and PBE0)</p></li>
+<li><p><strong>hf_fraction</strong> – percentage of exact HF to mix-in</p></li>
+<li><p><strong>project_name</strong> – what to call this project</p></li>
+<li><p><strong>gga_x_fraction</strong> – percentage of gga exchange to use</p></li>
+<li><p><strong>gga_c_fraction</strong> – percentage of gga correlation to use</p></li>
+<li><p><strong>override_default_params</strong> – override settings (see above).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.RelaxSet">
+<em class="property">class </em><code class="sig-name descname">RelaxSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">max_drift</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.003</span></em>, <em class="sig-param"><span class="n">max_force</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0045</span></em>, <em class="sig-param"><span class="n">max_iter</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">200</span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Relax'</span></em>, <em class="sig-param"><span class="n">optimizer</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'BFGS'</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L808-L876"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.RelaxSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.DftSet" title="pymatgen.io.cp2k.sets.DftSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.DftSet</span></code></a></p>
+<p>CP2K input set containing the basic settings for performing geometry optimization. Values are all cp2k
+defaults, and should be good for most systems of interest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – </p></li>
+<li><p><strong>max_drift</strong> – Convergence criterion for the maximum geometry change between the current and the
+last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
+Default value: 3.00000000E-003
+Default unit: [bohr]</p></li>
+<li><p><strong>max_force</strong> (<em>float</em>) – Convergence criterion for the maximum force component of the current configuration.
+This keyword cannot be repeated and it expects precisely one real.
+Default value: 4.50000000E-004
+Default unit: [bohr^-1*hartree]</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Specifies the maximum number of geometry optimization steps.
+One step might imply several force evaluations for the CG and LBFGS optimizers.
+This keyword cannot be repeated and it expects precisely one integer.
+Default value: 200</p></li>
+<li><p><strong>optimizer</strong> (<em>str</em>) – Specify which method to use to perform a geometry optimization.
+This keyword cannot be repeated and it expects precisely one keyword. BFGS is a
+quasi-newtonian method, and will best for “small” systems near the minimum. LBFGS
+is a limited memory version that can be used for “large” (&gt;1000 atom) systems when
+efficiency outweights robustness. CG is more robust, especially when you are far from
+the minimum, but it slower.
+Default value: BFGS</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.cp2k.sets.StaticSet">
+<em class="property">class </em><code class="sig-name descname">StaticSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><span class="p">, </span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Static'</span></em>, <em class="sig-param"><span class="n">run_type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'ENERGY_FORCE'</span></em>, <em class="sig-param"><span class="n">override_default_params</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.3/pymatgen/io/cp2k/sets.py#L776-L805"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.sets.StaticSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cp2k.sets.DftSet" title="pymatgen.io.cp2k.sets.DftSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cp2k.sets.DftSet</span></code></a></p>
+<p>Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
+and uses structure object to build the subsystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Pymatgen structure object</p></li>
+<li><p><strong>project_name</strong> (<em>str</em>) – What to name this cp2k project (controls naming of files printed out)</p></li>
+<li><p><strong>run_type</strong> (<em>str</em>) – Run type. As a static set it should be one of the static aliases, like ‘ENERGY_FORCE’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

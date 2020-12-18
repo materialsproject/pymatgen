@@ -6,7 +6,8 @@ https://www.nature.com/articles/s41524-020-0319-4
 """
 
 import numpy as np
-from pymatgen.io.vasp.outputs import Wavecar 
+
+from pymatgen.io.vasp.outputs import Wavecar
 
 # from jarvis.io.vasp.outputs import Wavecar
 
@@ -173,18 +174,18 @@ class SOCSpillage(object):
                         # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
                         # prepare matricies
                         for n1 in range(1, nelec_up + 1):
-                            Vnoso[0:vs // 2, n1 - 1] = np.array(
+                            Vnoso[0 : vs // 2, n1 - 1] = np.array(
                                 noso.coeffs[0][nk1 - 1][n1 - 1]
-                            )[0:vs // 2]
+                            )[0 : vs // 2]
                         for n1 in range(1, nelec_dn + 1):
-                            Vnoso[vs // 2:vs, n1 - 1 + nelec_up] = np.array(
+                            Vnoso[vs // 2 : vs, n1 - 1 + nelec_up] = np.array(
                                 noso.coeffs[1][nk1 - 1][n1 - 1]
-                            )[0:vs // 2]
+                            )[0 : vs // 2]
                         for n1 in range(1, nelec_tot + 1):
                             t = so.coeffs[nk2 - 1][n1 - 1].flatten()
-                            Vso[0:vs // 2, n1 - 1] = t[0:vs // 2]
-                            Vso[vs // 2:vs, n1 - 1] = t[
-                                n_so // 2:n_so // 2 + vs // 2
+                            Vso[0 : vs // 2, n1 - 1] = t[0 : vs // 2]
+                            Vso[vs // 2 : vs, n1 - 1] = t[
+                                n_so // 2 : n_so // 2 + vs // 2
                             ]
                         Qnoso, num_noso = self.orth(Vnoso)  # make orthonormal basis?
 

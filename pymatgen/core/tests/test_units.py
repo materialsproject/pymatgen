@@ -5,14 +5,25 @@
 
 import collections
 
+from pymatgen.core.units import (
+    ArrayWithUnit,
+    Energy,
+    EnergyArray,
+    FloatWithUnit,
+    Length,
+    LengthArray,
+    Mass,
+    Memory,
+    Time,
+    TimeArray,
+    Unit,
+    UnitError,
+    unitized,
+)
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized, Mass, Memory,
-                                 EnergyArray, TimeArray, LengthArray, Unit,
-                                 FloatWithUnit, ArrayWithUnit, UnitError)
 
 
 class UnitTest(PymatgenTest):
-
     def test_init(self):
         u1 = Unit((("m", 1), ("s", -1)))
         self.assertEqual(str(u1), "m s^-1")
@@ -29,13 +40,12 @@ class UnitTest(PymatgenTest):
 
 
 class FloatWithUnitTest(PymatgenTest):
-
     def test_energy(self):
         a = Energy(1.1, "eV")
         b = a.to("Ha")
         self.assertAlmostEqual(b, 0.0404242579378)
         c = Energy(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.9598338493806797e+19)
+        self.assertAlmostEqual(c.to("eV"), 1.9598338493806797e19)
         self.assertRaises(UnitError, Energy, 1, "m")
 
         d = Energy(1, "Ha")
@@ -44,11 +54,11 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(a + 1, 2.1)
         self.assertEqual(str(a / d), "1.1 eV Ha^-1")
 
-        e = Energy(1, 'kJ')
-        f = e.to('kCal')
+        e = Energy(1, "kJ")
+        f = e.to("kCal")
         self.assertAlmostEqual(f, 0.2390057361376673)
-        self.assertEqual(str(e + f), '2.0 kJ')
-        self.assertEqual(str(f + e), '0.4780114722753346 kCal')
+        self.assertEqual(str(e + f), "2.0 kJ")
+        self.assertEqual(str(f + e), "0.4780114722753346 kCal")
 
     def test_time(self):
         a = Time(20, "h")
@@ -144,7 +154,6 @@ class FloatWithUnitTest(PymatgenTest):
 
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
-
     def test_energy(self):
         """
         Similar to FloatWithUnitTest.test_energy.
@@ -162,7 +171,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(float(b), 0.0404242579378)
         c = EnergyArray(3.14, "J")
-        self.assertAlmostEqual(float(c.to("eV")), 1.9598338493806797e+19, 5)
+        self.assertAlmostEqual(float(c.to("eV")), 1.9598338493806797e19, 5)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
@@ -246,7 +255,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         l = LengthArray([1.0], "ang").to("bohr")
         self.assertTrue(str(l).endswith(" bohr"))
         v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
-        self.assertTrue(str(v).endswith(' ang^3'))
+        self.assertTrue(str(v).endswith(" ang^3"))
 
     def test_as_base_units(self):
         x = ArrayWithUnit([5, 10], "MPa")
@@ -269,7 +278,7 @@ class DataPersistenceTest(PymatgenTest):
                     self.assertTrue(str(old_item) == str(new_item))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import unittest
 
     unittest.main()

@@ -8,12 +8,12 @@ import warnings
 
 import numpy as np
 
-from pymatgen.io.cif import CifParser, CifWriter, CifBlock
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
+from pymatgen import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.electronic_structure.core import Magmom
+from pymatgen.io.cif import CifBlock, CifParser, CifWriter
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import pybtex
@@ -22,9 +22,8 @@ except ImportError:
 
 
 class CifBlockTest(PymatgenTest):
-
     def test_to_string(self):
-        with open(self.TEST_FILES_DIR / 'Graphite.cif') as f:
+        with open(self.TEST_FILES_DIR / "Graphite.cif") as f:
             s = f.read()
         c = CifBlock.from_string(s)
         cif_str_2 = str(CifBlock.from_string(str(c)))
@@ -106,8 +105,9 @@ loop_
  _atom_site_attached_hydrogens
   C1  C0+  2  b  0  0  0.25  .  1.  0
   C2  C0+  2  c  0.3333  0.6667  0.25  .  1.  0"""
-        for l1, l2, l3 in zip(str(c).split("\n"), cif_str.split("\n"),
-                              cif_str_2.split("\n")):
+        for l1, l2, l3 in zip(
+            str(c).split("\n"), cif_str.split("\n"), cif_str_2.split("\n")
+        ):
             self.assertEqual(l1.strip(), l2.strip())
             self.assertEqual(l2.strip(), l3.strip())
 
@@ -141,14 +141,18 @@ long quotes
 actually going to end now
 ;"""
         cb = CifBlock.from_string(cif_str)
-        self.assertEqual(cb["_thing"], " long quotes  ;  still in the quote"
-                                       "  ; actually going to end now")
+        self.assertEqual(
+            cb["_thing"],
+            " long quotes  ;  still in the quote" "  ; actually going to end now",
+        )
 
     def test_long_loop(self):
-        data = {'_stuff1': ['A' * 30] * 2,
-                '_stuff2': ['B' * 30] * 2,
-                '_stuff3': ['C' * 30] * 2}
-        loops = [['_stuff1', '_stuff2', '_stuff3']]
+        data = {
+            "_stuff1": ["A" * 30] * 2,
+            "_stuff2": ["B" * 30] * 2,
+            "_stuff3": ["C" * 30] * 2,
+        }
+        loops = [["_stuff1", "_stuff2", "_stuff3"]]
         cif_str = """data_test
 loop_
  _stuff1
@@ -158,18 +162,16 @@ loop_
   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"""
-        self.assertEqual(str(CifBlock(data, loops, 'test')), cif_str)
+        self.assertEqual(str(CifBlock(data, loops, "test")), cif_str)
 
 
 class CifIOTest(PymatgenTest):
-
     def test_CifParser(self):
-        parser = CifParser(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        parser = CifParser(self.TEST_FILES_DIR / "LiFePO4.cif")
         for s in parser.get_structures(True):
-            self.assertEqual(s.formula, "Li4 Fe4 P4 O16",
-                             "Incorrectly parsed cif.")
+            self.assertEqual(s.formula, "Li4 Fe4 P4 O16", "Incorrectly parsed cif.")
 
-        parser = CifParser(self.TEST_FILES_DIR / 'V2O3.cif')
+        parser = CifParser(self.TEST_FILES_DIR / "V2O3.cif")
         for s in parser.get_structures(True):
             self.assertEqual(s.formula, "V4 O6")
 
@@ -185,17 +187,18 @@ class CifIOTest(PymatgenTest):
         """
         self.assertEqual(parser.get_bibtex_string().strip(), bibtex_str.strip())
 
-        parser = CifParser(self.TEST_FILES_DIR / 'Li2O.cif')
+        parser = CifParser(self.TEST_FILES_DIR / "Li2O.cif")
         prim = parser.get_structures(True)[0]
         self.assertEqual(prim.formula, "Li2 O1")
         conv = parser.get_structures(False)[0]
         self.assertEqual(conv.formula, "Li8 O4")
 
         # test for disordered structures
-        parser = CifParser(self.TEST_FILES_DIR / 'Li10GeP2S12.cif')
+        parser = CifParser(self.TEST_FILES_DIR / "Li10GeP2S12.cif")
         for s in parser.get_structures(True):
-            self.assertEqual(s.formula, "Li20.2 Ge2.06 P3.94 S24",
-                             "Incorrectly parsed cif.")
+            self.assertEqual(
+                s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
+            )
         cif_str = """#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file
@@ -280,9 +283,8 @@ loop_
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            parser = CifParser(self.TEST_FILES_DIR / 'srycoo.cif')
-        self.assertEqual(parser.get_structures()[0].formula,
-                         "Sr5.6 Y2.4 Co8 O21")
+            parser = CifParser(self.TEST_FILES_DIR / "srycoo.cif")
+        self.assertEqual(parser.get_structures()[0].formula, "Sr5.6 Y2.4 Co8 O21")
 
         # Test with a decimal Xyz. This should parse as two atoms in
         # conventional cell if it is correct, one if not.
@@ -291,24 +293,32 @@ loop_
         self.assertFalse(parser.has_errors)
 
     def test_site_symbol_preference(self):
-        parser = CifParser(self.TEST_FILES_DIR / 'site_type_symbol_test.cif')
+        parser = CifParser(self.TEST_FILES_DIR / "site_type_symbol_test.cif")
         self.assertEqual(parser.get_structures()[0].formula, "Ge0.4 Sb0.4 Te1")
 
     def test_implicit_hydrogen(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            parser = CifParser(self.TEST_FILES_DIR / 'Senegalite_implicit_hydrogen.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "Senegalite_implicit_hydrogen.cif")
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Al8 P4 O32")
-                self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
-            self.assertIn("Structure has implicit hydrogens defined, "
-                          "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.warnings)
-            parser = CifParser(self.TEST_FILES_DIR / 'cif_implicit_hydrogens_cod_1011130.cif')
+                self.assertEqual(sum(s.site_properties["implicit_hydrogens"]), 20)
+            self.assertIn(
+                "Structure has implicit hydrogens defined, "
+                "parsed structure unlikely to be suitable for use "
+                "in calculations unless hydrogens added.",
+                parser.warnings,
+            )
+            parser = CifParser(
+                self.TEST_FILES_DIR / "cif_implicit_hydrogens_cod_1011130.cif"
+            )
             s = parser.get_structures()[0]
-            self.assertIn("Structure has implicit hydrogens defined, "
-                          "parsed structure unlikely to be suitable for use "
-                          "in calculations unless hydrogens added.", parser.warnings)
+            self.assertIn(
+                "Structure has implicit hydrogens defined, "
+                "parsed structure unlikely to be suitable for use "
+                "in calculations unless hydrogens added.",
+                parser.warnings,
+            )
 
     def test_CifParserSpringerPauling(self):
         with warnings.catch_warnings():
@@ -316,37 +326,37 @@ loop_
             # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
             # Partial occupancy on sites, incorrect label, previously unparsable
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1928405.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1928405.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Er1 Mn3.888 Fe2.112 Sn6")
             self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, previously parsed as an ordered structure
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1011081.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1011081.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Zr0.2 Nb0.8")
             self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, incorrect label, previously unparsable
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1615854.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1615854.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Na2 Al2 Si6 O16")
             self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, incorrect label, previously unparsable
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1622133.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1622133.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Ca0.184 Mg13.016 Fe2.8 Si16 O48")
             self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, previously parsed as an ordered structure
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1908491.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1908491.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Mn0.48 Zn0.52 Ga2 Se4")
             self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, incorrect label, previously unparsable
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1811457.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1811457.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Ba2 Mg0.6 Zr0.2 Ta1.2 O6")
             self.assertTrue(parser.has_errors)
@@ -357,25 +367,25 @@ loop_
             # corresponding symbol is "NH3". Since, the label and symbol are switched
             # in CIFs from Springer Materials/Pauling file DBs, CifParser parses the
             # element as "Nh" (Nihonium).
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1002871.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1002871.cif")
             self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 Nh6")
             self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 Nh6")
             self.assertTrue(parser.has_errors)
 
             # Incomplete powder diffraction data, previously unparsable
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1704003.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1704003.cif")
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Rb4 Mn2 F12")
             self.assertTrue(parser.has_errors)
 
             # Unparsable species 'OH/OH2', previously parsed as "O"
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1500382.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1500382.cif")
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Mg6 B2 O6 F1.764")
             self.assertTrue(parser.has_errors)
 
             # Unparsable species 'OH/OH2', previously parsed as "O"
-            parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1601634.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "PF_sd_1601634.cif")
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Zn1.29 Fe0.69 As2 Pb1.02 O8")
 
@@ -387,12 +397,12 @@ loop_
             warnings.simplefilter("ignore")
 
             # Symbol in capital letters
-            parser = CifParser(self.TEST_FILES_DIR / 'Cod_2100513.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "Cod_2100513.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Ca4 Nb2.0 Al2 O12")
 
             # Label in capital letters
-            parser = CifParser(self.TEST_FILES_DIR / 'Cod_4115344.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "Cod_4115344.cif")
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Mo4 P2 H60 C60 I4 O4")
 
@@ -433,7 +443,7 @@ loop_
             "NH": "Nh",
             "NH2": "Nh",
             "NH3": "Nh",
-            "SH": "S"
+            "SH": "S",
         }
 
         for e in Element:
@@ -448,18 +458,17 @@ loop_
             test_cases[name + str(3)] = name
             test_cases[name + str(1) + "A"] = name
 
-        special = {"Hw": "H", "Ow": "O", "Wat": "O",
-                   "wat": "O", "OH": "", "OH2": ""}
+        special = {"Hw": "H", "Ow": "O", "Wat": "O", "wat": "O", "OH": "", "OH2": ""}
         test_cases.update(special)
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            parser = CifParser(self.TEST_FILES_DIR / 'LiFePO4.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "LiFePO4.cif")
             for sym, expected_symbol in test_cases.items():
                 self.assertEqual(parser._parse_symbol(sym), expected_symbol)
 
     def test_CifWriter(self):
-        filepath = self.TEST_FILES_DIR / 'POSCAR'
+        filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.01)
         ans = """# generated using pymatgen
@@ -504,7 +513,7 @@ loop_
             self.assertEqual(l1.strip(), l2.strip())
 
     def test_symmetrized(self):
-        filepath = self.TEST_FILES_DIR / 'POSCAR'
+        filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
         ans = """# generated using pymatgen
@@ -594,7 +603,7 @@ loop_
   O  O5  4  0.043155  0.750000  0.708460  1.0
   O  O6  4  0.096215  0.250000  0.741480  1.0
 """
-        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
         writer = CifWriter(s, symprec=0.1)
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
 
@@ -606,11 +615,11 @@ loop_
         self.assertTrue(m.fit(s, s2))
 
         # test angle tolerance.
-        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
         writer = CifWriter(s, symprec=0.1, angle_tolerance=0)
         d = list(writer.ciffile.data.values())[0]
         self.assertEqual(d["_symmetry_Int_Tables_number"], 14)
-        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        s = Structure.from_file(self.TEST_FILES_DIR / "LiFePO4.cif")
         writer = CifWriter(s, symprec=0.1, angle_tolerance=2)
         d = list(writer.ciffile.data.values())[0]
         self.assertEqual(d["_symmetry_Int_Tables_number"], 62)
@@ -621,9 +630,15 @@ loop_
         coords = list()
         coords.append(np.array([0, 0, 0]))
         coords.append(np.array([0.75, 0.5, 0.75]))
-        lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
-                                    [1.9200989668, 3.3257101909, 0.00],
-                                    [0.00, -2.2171384943, 3.1355090603]]))
+        lattice = Lattice(
+            np.array(
+                [
+                    [3.8401979337, 0.00, 0.00],
+                    [1.9200989668, 3.3257101909, 0.00],
+                    [0.00, -2.2171384943, 3.1355090603],
+                ]
+            )
+        )
         struct = Structure(lattice, [si, {si: 0.5, n: 0.5}], coords)
         writer = CifWriter(struct)
         ans = """# generated using pymatgen
@@ -659,17 +674,33 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
+    def test_cifwrite_without_refinement(self):
+        si2 = Structure.from_file(self.TEST_FILES_DIR / "abinit" / "si.cif")
+        writer = CifWriter(
+            si2, symprec=1e-3, significant_figures=10, refine_struct=False
+        )
+        s = str(writer)
+        assert "Fd-3m" in s
+        same_si2 = CifParser.from_string(s).get_structures()[0]
+        assert len(si2) == len(same_si2)
+
     def test_specie_cifwriter(self):
-        si4 = Specie("Si", 4)
-        si3 = Specie("Si", 3)
-        n = DummySpecie("X", -3)
+        si4 = Species("Si", 4)
+        si3 = Species("Si", 3)
+        n = DummySpecies("X", -3)
         coords = list()
         coords.append(np.array([0.5, 0.5, 0.5]))
         coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0, 0, 0]))
-        lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
-                                    [1.9200989668, 3.3257101909, 0.00],
-                                    [0.00, -2.2171384943, 3.1355090603]]))
+        lattice = Lattice(
+            np.array(
+                [
+                    [3.8401979337, 0.00, 0.00],
+                    [1.9200989668, 3.3257101909, 0.00],
+                    [0.00, -2.2171384943, 3.1355090603],
+                ]
+            )
+        )
         struct = Structure(lattice, [n, {si3: 0.5, n: 0.5}, si4], coords)
         writer = CifWriter(struct)
         ans = """# generated using pymatgen
@@ -719,16 +750,17 @@ loop_
     def test_primes(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            parser = CifParser(self.TEST_FILES_DIR / 'C26H16BeN2O2S2.cif')
+            parser = CifParser(self.TEST_FILES_DIR / "C26H16BeN2O2S2.cif")
             for s in parser.get_structures(False):
-                self.assertEqual(s.composition, 8 * Composition('C26H16BeN2O2S2'))
+                self.assertEqual(s.composition, 8 * Composition("C26H16BeN2O2S2"))
 
     def test_missing_atom_site_type_with_oxistates(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            parser = CifParser(self.TEST_FILES_DIR / 'P24Ru4H252C296S24N16.cif')
-            c = Composition({'S0+': 24, 'Ru0+': 4, 'H0+': 252, 'C0+': 296,
-                             'N0+': 16, 'P0+': 24})
+            parser = CifParser(self.TEST_FILES_DIR / "P24Ru4H252C296S24N16.cif")
+            c = Composition(
+                {"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24}
+            )
             for s in parser.get_structures(False):
                 self.assertEqual(s.composition, c)
 
@@ -824,7 +856,7 @@ loop_
 """
         cp = CifParser.from_string(cif_structure)
         s_test = cp.get_structures(False)[0]
-        filepath = self.TEST_FILES_DIR / 'POSCAR'
+        filepath = self.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         s_ref = poscar.structure
 
@@ -834,11 +866,11 @@ loop_
     def test_empty(self):
         # single line
         cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n ''")
-        self.assertEqual(cb.data['_tag'][0], '')
+        self.assertEqual(cb.data["_tag"][0], "")
 
         # multi line
         cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n;\n;")
-        self.assertEqual(cb.data['_tag'][0], '')
+        self.assertEqual(cb.data["_tag"][0], "")
 
         cb2 = CifBlock.from_string(str(cb))
         self.assertEqual(cb, cb2)
@@ -881,8 +913,11 @@ loop_
             p = CifParser(f)
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
-            self.assertIn("Some fractional co-ordinates rounded to ideal "
-                          "values to avoid issues with finite precision.", p.warnings)
+            self.assertIn(
+                "Some fractional co-ordinates rounded to ideal "
+                "values to avoid issues with finite precision.",
+                p.warnings,
+            )
 
     def test_empty_deque(self):
         s = """data_1526655
@@ -954,13 +989,18 @@ Si1 Si 0 0 0 1 0.0
 
 
 class MagCifTest(PymatgenTest):
-
     def setUp(self):
         warnings.filterwarnings("ignore")
         self.mcif = CifParser(self.TEST_FILES_DIR / "magnetic.example.NiO.mcif")
-        self.mcif_ncl = CifParser(self.TEST_FILES_DIR / "magnetic.ncl.example.GdB4.mcif")
-        self.mcif_incom = CifParser(self.TEST_FILES_DIR / "magnetic.incommensurate.example.Cr.mcif")
-        self.mcif_disord = CifParser(self.TEST_FILES_DIR / "magnetic.disordered.example.CuMnO2.mcif")
+        self.mcif_ncl = CifParser(
+            self.TEST_FILES_DIR / "magnetic.ncl.example.GdB4.mcif"
+        )
+        self.mcif_incom = CifParser(
+            self.TEST_FILES_DIR / "magnetic.incommensurate.example.Cr.mcif"
+        )
+        self.mcif_disord = CifParser(
+            self.TEST_FILES_DIR / "magnetic.disordered.example.CuMnO2.mcif"
+        )
         self.mcif_ncl2 = CifParser(self.TEST_FILES_DIR / "Mn3Ge_IR2.mcif")
 
     def tearDown(self):
@@ -1017,13 +1057,15 @@ Gd1 5.05 5.05 0.0"""
 
         s = self.mcif.get_structures(primitive=False)[0]
         self.assertEqual(s.formula, "Ni32 O32")
-        self.assertTrue(Magmom.are_collinear(s.site_properties['magmom']))
+        self.assertTrue(Magmom.are_collinear(s.site_properties["magmom"]))
 
         # example with non-collinear spin
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
-        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(primitive=False)[0]
+        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(
+            primitive=False
+        )[0]
         self.assertEqual(s_ncl.formula, "Gd4 B16")
-        self.assertFalse(Magmom.are_collinear(s_ncl.site_properties['magmom']))
+        self.assertFalse(Magmom.are_collinear(s_ncl.site_properties["magmom"]))
 
         self.assertTrue(s_ncl.matches(s_ncl_from_msg))
 
@@ -1090,16 +1132,16 @@ loop_
         self.assertEqual(cw.__str__(), cw_ref_string)
 
         # from list-type magmoms
-        list_magmoms = [list(m) for m in s_ncl.site_properties['magmom']]
+        list_magmoms = [list(m) for m in s_ncl.site_properties["magmom"]]
 
         # float magmoms (magnitude only)
-        float_magmoms = [float(m) for m in s_ncl.site_properties['magmom']]
+        float_magmoms = [float(m) for m in s_ncl.site_properties["magmom"]]
 
-        s_ncl.add_site_property('magmom', list_magmoms)
+        s_ncl.add_site_property("magmom", list_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
         self.assertEqual(cw.__str__(), cw_ref_string)
 
-        s_ncl.add_site_property('magmom', float_magmoms)
+        s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
         cw_ref_string_magnitudes = """# generated using pymatgen
@@ -1161,14 +1203,16 @@ loop_
         self.assertEqual(cw.__str__().strip(), cw_ref_string_magnitudes.strip())
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.get_structures()[0]
-        list_magmoms = [list(m) for m in s_ncl2.site_properties['magmom']]
+        list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
         self.assertEqual(list_magmoms[0][0], 0.0)
         self.assertAlmostEqual(list_magmoms[0][1], 5.9160793408726366)
         self.assertAlmostEqual(list_magmoms[1][0], -5.1234749999999991)
         self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
 
         # test creating an structure without oxidation state doesn't raise errors
-        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        s_manual = Structure(
+            Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
+        )
         s_manual.add_spin_by_site([1, -1])
         cw = CifWriter(s_manual, write_magmoms=True)
 
@@ -1229,5 +1273,5 @@ loop_
         self.assertEqual(self.mcif_ncl.get_bibtex_string(), ref_bibtex_string)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

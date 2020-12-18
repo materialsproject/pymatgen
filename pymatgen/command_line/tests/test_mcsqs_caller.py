@@ -4,6 +4,7 @@ import unittest
 from monty.os.path import which
 from monty.serialization import loadfn
 
+from pymatgen import Structure
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.util.testing import PymatgenTest
 
@@ -37,6 +38,23 @@ class McsqsCallerTest(PymatgenTest):
 
         matches = [sqs.bestsqs.matches(s) for s in self.pztstructs]
         self.assertIn(True, matches)
+
+        self.assertIsInstance(sqs.bestsqs, Structure)
+
+        # ensures specific keys are present in cluster parsing for use in atomate
+        self.assertSetEqual(
+            set(sqs.clusters[0].keys()),
+            {
+                "multiplicity",
+                "coordinates",
+                "longest_pair_length",
+                "num_points_in_cluster",
+            },
+        )
+        self.assertSetEqual(
+            set(sqs.clusters[0]["coordinates"][0].keys()),
+            {"cluster_function", "coordinates", "num_possible_species"},
+        )
 
     def test_mcsqs_caller_total_atoms(self):
         struc = self.struc.copy()

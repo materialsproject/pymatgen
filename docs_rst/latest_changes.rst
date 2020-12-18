@@ -1,13 +1,11 @@
 Change log
 ==========
 
-v2020.6.8
----------
-* New: Support for parsing WAVECARS with spin-orbit coupling (@mturiansky, #1861)
-* New: Support to convert WAVECAR to wannier90 UNK files (@mturiansky, #1861)
-* New: Site-weighted XAS spectrum (@yimingchen95, #1837)
-* Fixed: Elfcar serialization (@ayushgupta, #1859)
-* Fixed: Units in label for phonon plot (@ab5424, #1857)
-* Fixed: StructureMatcher serialization (@lbluque, #1850)
-* Fixed: Comment string in KPOINTS file (@arosen93, #1842)
-* Fixed: parsing of dielectric function in VASP output (@computron, #1836)
+v2020.12.3
+----------
+* Site insertion algorithm based on charge density (@jmmshn, #1997)
+* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
+* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
+* Improvement to allow general input for exciting (@vorwerkc, #1975)
+* Improvements to code formatting (@mkhorton, #2008)
+* Bug fix for VASP run type detection (@rkingsbury, #1996)
