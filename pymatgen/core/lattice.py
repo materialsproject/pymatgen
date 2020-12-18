@@ -595,9 +595,8 @@ class Lattice(MSONable):
             ),
         ]
         while len([*filter(lambda scalar: scalar > 0, selling_vector)]) > 0:
-            max_scalar = max(selling_vector)
             max_index = selling_vector.argmax()
-            selling_vector = np.dot(reduction_matrices[max_index], selling_vector)
+            selling_vector = np.dot(reduction_matrices[int(max_index)], selling_vector)
 
         return selling_vector
 
