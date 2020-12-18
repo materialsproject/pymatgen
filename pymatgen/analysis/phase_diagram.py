@@ -206,8 +206,10 @@ class TransformedPDEntry(PDEntry):
     def __init__(self, entry, sp_mapping, name=None):
         """
         Args:
-            comp (Composition): Transformed composition as a Composition.
-            original_entry (PDEntry): Original entry that this entry arose from.
+            entry (PDEntry): Original entry to be transformed.
+            sp_mapping ({Composition: DummySpecies}): dictionary
+                mapping Terminal Compositions to Dummy Species
+
         """
         super().__init__(
             entry.composition,
