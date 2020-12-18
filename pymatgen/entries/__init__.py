@@ -11,7 +11,8 @@ and PDEntry inherit from this class.
 """
 
 import copy
-import hashlib
+import numpy as np
+
 from abc import ABCMeta, abstractmethod
 from typing import Optional
 
@@ -150,15 +151,20 @@ class Entry(MSONable, metaclass=ABCMeta):
             return True
 
         if isinstance(other, self.__class__):
-            # NOTE this is not performant and should be overwritten or
-            # preceeded if faster rigorous checks are available.
+            if not np.allclose(self.energy, other.energy):
+                return False
+            if self.composition != other.composition:
+                return False
+
+            # NOTE this is not performant and should be preceeded
+            # in child classes if faster rigorous checks are available.
             return self.as_dict() == other.as_dict()
+
         return False
 
     def __hash__(self):
-        data_md5 = hashlib.md5((
+        return hash(
             f"{self.__class__.__name__}"
             f"{self._composition.reduced_formula}"
-            f"{self._energy}").encode('utf-8')
-        ).hexdigest()
-        return int(data_md5, 16)
+            f"{self._energy}"
+        )

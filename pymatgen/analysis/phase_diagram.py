@@ -38,13 +38,6 @@ with open(
     plotly_layouts = json.load(f)
 
 
-class TransformedPDEntryError(Exception):
-    """
-    An exception class for TransformedPDEntry.
-    """
-    pass
-
-
 class PDEntry(Entry):
     """
     An object encompassing all relevant data for phase diagrams.
@@ -289,6 +282,13 @@ class TransformedPDEntry(PDEntry):
         """
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(entry, d["sp_mapping"])
+
+
+class TransformedPDEntryError(Exception):
+    """
+    An exception class for TransformedPDEntry.
+    """
+    pass
 
 
 class BasePhaseDiagram(MSONable):
