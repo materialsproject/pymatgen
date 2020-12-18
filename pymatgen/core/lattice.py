@@ -927,6 +927,7 @@ class Lattice(MSONable):
         return min(
             [np.linalg.norm(reflection - selling2) for reflection in all_reflections]
         )
+
     def __repr__(self):
         outs = [
             "Lattice",
