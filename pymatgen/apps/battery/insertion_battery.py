@@ -691,11 +691,6 @@ class InsertionVoltagePair(AbstractVoltagePair):
         vpair.muO2_charge = entry_charge.data.get("muO2", None)
         vpair.muO2_discharge = entry_discharge.data.get("muO2", None)
 
-        vpair.normalization_charge = norm_charge
-        vpair.normalization_discharge = norm_discharge
-        vpair._frac_charge = comp_charge.get_atomic_fraction(working_element)
-        vpair._frac_discharge = comp_discharge.get_atomic_fraction(working_element)
-
         return vpair
 
     def __repr__(self):
