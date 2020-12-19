@@ -544,6 +544,9 @@ class InsertionVoltagePair(AbstractVoltagePair):
     Defines an Insertion Voltage Pair.
     """
 
+    entry_charge: ComputedEntry
+    entry_discharge: ComputedEntry
+
     @classmethod
     def from_entries(cls, entry1, entry2, working_ion_entry):
         """
@@ -674,6 +677,8 @@ class InsertionVoltagePair(AbstractVoltagePair):
             frac_charge=_frac_charge,
             frac_discharge=_frac_discharge,
             working_ion_entry=working_ion_entry,
+            entry_charge=entry_charge,
+            entry_discharge=entry_discharge,
             _framework_formula=framework.reduced_formula,
         )
 
