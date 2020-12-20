@@ -11,9 +11,11 @@ and PDEntry inherit from this class.
 """
 
 import copy
-import hashlib
+
 from abc import ABCMeta, abstractmethod
 from typing import Optional
+
+import numpy as np
 
 from monty.json import MSONable
 
@@ -41,7 +43,6 @@ class Entry(MSONable, metaclass=ABCMeta):
         self,
         composition: Composition,
         energy: float,
-        per_atom: bool = False,
     ):
         """
         Initializes an Entry.
@@ -55,16 +56,16 @@ class Entry(MSONable, metaclass=ABCMeta):
             per_atom (bool): Whether the energy given is per atom.
         """
         self._composition = Composition(composition)
-        if per_atom:
-            self._energy = energy * self.composition.num_atoms
-        else:
-            self._energy = energy
+        self._energy = energy
 
     @property
     def is_element(self) -> bool:
         """
         :return: Whether composition of entry is an element.
         """
+        # NOTE _composition rather than composition as GrandPDEntry
+        # edge case exists if we have a compound where chempots are
+        # given for all bar one element type
         return self._composition.is_element
 
     @property
@@ -87,6 +88,11 @@ class Entry(MSONable, metaclass=ABCMeta):
         :return: the energy per atom of the entry.
         """
         return self.energy / self.composition.num_atoms
+
+    def __repr__(self):
+        return "{} : {} with energy = {:.4f}".format(
+            self.__class__.__name__, self.composition, self.energy
+        )
 
     def __str__(self):
         return self.__repr__()
@@ -129,14 +135,17 @@ class Entry(MSONable, metaclass=ABCMeta):
 
         return factor
 
+    # NOTE should this be made an abstract method?
     def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "energy": self._energy,
-                "composition": self.composition.as_dict()}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "energy": self._energy,
+            "composition": self.composition.as_dict()
+        }
 
     def __eq__(self, other):
         # NOTE Scaled duplicates i.e. physically equivalent materials
@@ -145,15 +154,20 @@ class Entry(MSONable, metaclass=ABCMeta):
             return True
 
         if isinstance(other, self.__class__):
-            # NOTE this is not performant and should be overwritten or
-            # preceeded if faster rigorous checks are available.
+            if not np.allclose(self.energy, other.energy):
+                return False
+            if self.composition != other.composition:
+                return False
+
+            # NOTE this is not performant and should be preceeded
+            # in child classes if faster rigorous checks are available.
             return self.as_dict() == other.as_dict()
+
         return False
 
     def __hash__(self):
-        data_md5 = hashlib.md5((
+        return hash(
             f"{self.__class__.__name__}"
             f"{self._composition.reduced_formula}"
-            f"{self._energy}").encode('utf-8')
-        ).hexdigest()
-        return int(data_md5, 16)
+            f"{self._energy}"
+        )

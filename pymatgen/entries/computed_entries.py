@@ -12,7 +12,6 @@ diagram analysis.
 
 import abc
 import copy
-import hashlib
 import warnings
 import json
 import os
@@ -576,29 +575,25 @@ class ComputedEntry(Entry):
         if self is other:
             return True
 
+        # NOTE It is assumed that the user will not provide two entries
+        # with the same entry_id that are different.
         if isinstance(other, self.__class__):
-            if self.entry_id != other.entry_id:
-                return False
-            if self._energy != other._energy:
-                return False
-            if self._composition != other._composition:
-                return False
-            # NOTE this is not performant and should be preceeded
-            # if faster rigorous checks are available.
-            return self.as_dict() == other.as_dict()
+            if (
+                self.entry_id is not None
+                and self.entry_id == other.entry_id
+                and np.allclose(self.energy, other.energy)
+            ):
+                return True
+
+            return super().__eq__(other)
+
         return False
 
     def __hash__(self) -> int:
-        # NOTE there is a trade-off between using `_energy` and `energy`
-        # as `energy` requires the calculation of the corrections. It is
-        # more discriminative but also more expensive.
-        data_md5 = hashlib.md5((
-            f"{self.__class__.__name__}"
-            f"{self.entry_id}"
-            f"{self.composition.reduced_formula}"
-            f"{self._energy}").encode('utf-8')
-        ).hexdigest()
-        return int(data_md5, 16)
+        if self.entry_id is not None:
+            return hash(f"{self.__class__.__name__}{self.entry_id}")
+
+        return super().__hash__()
 
 
 class ComputedStructureEntry(ComputedEntry):
@@ -1034,13 +1029,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         ]
         return "\n".join(output)
 
-    def __hash__(self) -> int:
-        # NOTE based on hash choice of @mattmcdermott + class name
-        data_md5 = hashlib.md5(
-            f"{self.__class__.__name__}"
-            f"{self.entry_id}"
-            f"{self.composition.reduced_formula}"
-            f"{self._energy}"
-            f"{self.temp}".encode('utf-8')
-        ).hexdigest()
-        return int(data_md5, 16)
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            if self.temp != other.temp:
+                return False
+
+        return super().__eq__(other)

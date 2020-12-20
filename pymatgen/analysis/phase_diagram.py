@@ -27,6 +27,7 @@ from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify
@@ -96,9 +97,6 @@ class PDEntry(Entry):
             the energy of the entry.
         """
         return self._energy
-
-    def __repr__(self):
-        return "PDEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
 
     def as_dict(self):
         """
@@ -234,8 +232,10 @@ class TransformedPDEntry(PDEntry):
     def __init__(self, entry, sp_mapping, name=None):
         """
         Args:
-            comp (Composition): Transformed composition as a Composition.
-            original_entry (PDEntry): Original entry that this entry arose from.
+            entry (PDEntry): Original entry to be transformed.
+            sp_mapping ({Composition: DummySpecies}): dictionary
+                mapping Terminal Compositions to Dummy Species
+
         """
         super().__init__(
             entry.composition,
@@ -659,7 +659,7 @@ class BasePhaseDiagram(MSONable):
 
         Returns:
             (decomp, energy_above_hull). The decomposition is provided
-                as a dict of {PDEntry: amount, } where amount is the amount of the
+                as a dict of {PDEntry: amount} where amount is the amount of the
                 fractional composition. Stable entries should have energy above
                 convex hull of 0. The energy is given per atom.
         """
@@ -759,6 +759,9 @@ class BasePhaseDiagram(MSONable):
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The energy is given per atom.
         """
+        if isinstance(entry, ComputedEntry):
+            raise ValueError("`get_quasi_e_to_hull` is not compatible with `ComputedEntry`")
+
         # For unstable or novel materials use simplex approach
         if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
@@ -836,6 +839,9 @@ class BasePhaseDiagram(MSONable):
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0.
         """
+        if isinstance(entry, ComputedEntry):
+            raise ValueError("`get_quasi_e_to_hull` is not compatible with `ComputedEntry`")
+
         # Handle unstable and novel materials
         if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
@@ -1120,7 +1126,6 @@ class BasePhaseDiagram(MSONable):
                         res = {}
                         for i, el in enumerate(elts):
                             res[el] = v[i] + muref[i]
-
                         res[dep_elt] = (np.dot(v + muref, coeff) + ef) / \
                             target_comp[dep_elt]
                         already_in = False
