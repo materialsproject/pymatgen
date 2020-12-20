@@ -1,11 +1,10 @@
 Change log
 ==========
 
-v2020.12.3
-----------
-* Site insertion algorithm based on charge density (@jmmshn, #1997)
-* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
-* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
-* Improvement to allow general input for exciting (@vorwerkc, #1975)
-* Improvements to code formatting (@mkhorton, #2008)
-* Bug fix for VASP run type detection (@rkingsbury, #1996)
+v2020.12.18
+-----------
+* New IsayevNN nearest-neighbor algorithm (@utf, #2011)
+* Improvements to electrode objects (@jmmshn, #2016)
+* Improvements to Element and PhaseDiagram (@jmmshn, #2005) 
+* Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (@shyuep, see issue #2010)
+* Bug fix to VASP run type detection (@rkingsbury, #2007)
