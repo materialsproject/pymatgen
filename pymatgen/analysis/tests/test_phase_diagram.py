@@ -112,10 +112,10 @@ class TransformedPDEntryTest(unittest.TestCase):
 
     def test_get_energy(self):
         self.assertEqual(self.transformed_entry.energy, 53, "Wrong energy!")
-        self.assertEqual(self.transformed_entry.original_entry.energy, 53.0)
+        self.assertAlmostEqual(self.transformed_entry.original_entry.energy, 53.0, 11)
 
     def test_get_energy_per_atom(self):
-        self.assertEqual(self.transformed_entry.energy_per_atom, 53.0 / 2)
+        self.assertAlmostEqual(self.transformed_entry.energy_per_atom, 53.0 / 2, 11)
 
     def test_get_name(self):
         self.assertEqual(self.transformed_entry.name, "LiFeO2", "Wrong name!")
@@ -132,7 +132,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         d = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(d)
         self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
-        self.assertEqual(entry.energy_per_atom, 53.0 / 2)
+        self.assertAlmostEqual(entry.energy_per_atom, 53.0 / 2, 11)
 
     def test_str(self):
         self.assertIsNotNone(str(self.transformed_entry))
