@@ -641,6 +641,19 @@ class Cp2kOutput:
         poisson_periodic = {'poisson_periodicity': re.compile(r"POISSON\| Periodicity\s+(\w+)")}
         self.read_pattern(poisson_periodic, terminate_on_match=True)
 
+    def parse_overlap_condition(self):
+        """
+        Retrieve the overlap condition number
+        :return:
+        """
+        overlap_condition = re.compile(r"\|A\|\*\|A\^-1\|.+=\s+(-?\d+\.\d+E[+\-]?\d+)\s+Log")
+        self.read_pattern(
+            {'overlap_condition_number': overlap_condition},
+            terminate_on_match=True,
+            reverse=False,
+            postprocess=_postprocessor
+        )
+
     def parse_scf_params(self):
         """
         Retrieve the most import SCF parameters: the max number of scf cycles (max_scf),
@@ -776,8 +789,8 @@ class Cp2kOutput:
             r"(\d+)\s+(\S+\s?\S+)\s+" +
             r"(-?\d+\.\d+E[+\-]?\d+)" +
             r"\s+(\d+\.\d+)\s+(\d+\.\d+)?" +
-            r"\s+(-?\d+\.\d+)\s+" +
-            r"(-?\d+\.\d+E[+\-]?\d+)?"
+            r"\s+(-?\d+\.\d+)" +
+            r"(\s+-?\d+\.\d+E[+\-]?\d+)?"
         )
         footer = r"^$"
 
