@@ -1,0 +1,628 @@
+H:
+  - cFIT3
+  - pFIT3
+  - cpFIT3
+  - FIT3
+  - aug-FIT3
+  - aug-pFIT3
+  - aug-cFIT3
+  - aug-cpFIT3
+  - GTH-def-QZVP
+  - aug-GTH-def-QZVP
+He:
+  - -cFIT3
+  - GTH-def2-QZVP
+  - cpFIT3
+  - FIT3
+  - pFIT3
+Li:
+  - cFIT4
+  - cFIT4-SR
+  - cFIT5
+  - cFIT5-SR
+  - FIT4
+  - FIT4-SR
+  - FIT5
+  - FIT5-SR
+  - GTH-def2-QZVP
+  - cFIT3
+  - cpFIT3
+  - FIT3
+  - pFIT3
+Be:
+  - cFIT3
+  - GTH-def2-QZVP
+  - cpFIT3
+  - FIT3
+  - pFIT3
+B:
+  - cFIT3
+  - GTH-def2-QZVP
+  - cpFIT3
+  - FIT3
+  - pFIT3
+C:
+  - cFIT3
+  - pFIT3
+  - cpFIT3
+  - FIT3
+  - aug-FIT3
+  - aug-cFIT3
+  - aug-pFIT3
+  - aug-cpFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+N:
+  - cFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+  - cpFIT3
+  - aug-cFIT3
+  - aug-cpFIT3
+  - FIT3
+  - pFIT3
+  - aug-FIT3
+  - aug-pFIT3
+O:
+  - cFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+  - cpFIT3
+  - aug-cFIT3
+  - aug-cpFIT3
+  - FIT3
+  - pFIT3
+  - aug-FIT3
+  - aug-pFIT3
+  - FIT9
+F:
+  - cFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+  - cpFIT3
+  - aug-cFIT3
+  - aug-cpFIT3
+  - FIT3
+  - pFIT3
+  - aug-FIT3
+  - aug-pFIT3
+Ne:
+Na:
+  - cFIT3
+  - GTH-def2-QZVP
+  - cpFIT3
+  - FIT3
+  - pFIT3
+Mg:
+  - cFIT3
+  - GTH-def2-QZVP
+  - cpFIT3
+  - FIT3
+  - pFIT3
+Al:
+  - cFIT6
+  - GTH-def2-QZVP
+  - cFIT3
+  - cpFIT3
+  - FIT3
+  - pFIT3
+  - cFIT7
+  - cFIT8
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT8
+  - FIT9
+Si:
+  - cFIT3
+  - cpFIT3
+  - FIT3
+  - pFIT3
+  - aug-FIT3
+  - aug-cFIT3
+  - aug-pFIT3
+  - aug-cpFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+P:
+  - cFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+  - cpFIT3
+  - aug-cFIT3
+  - aug-cpFIT3
+  - FIT3
+  - pFIT3
+  - aug-FIT3
+  - aug-pFIT3
+S:
+  - cFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+  - cpFIT3
+  - aug-cFIT3
+  - aug-cpFIT3
+  - FIT3
+  - pFIT3
+  - aug-FIT3
+  - aug-pFIT3
+Cl:
+  - cFIT3
+  - pFIT3
+  - cpFIT3
+  - FIT3
+  - aug-FIT3
+  - aug-cFIT3
+  - aug-pFIT3
+  - aug-cpFIT3
+  - GTH-def2-QZVP
+  - aug-GTH-def2-QZVP
+Ar:
+K:
+  - cFIT7
+  - cFIT8
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - FIT7
+  - FIT8
+  - FIT9
+  - FIT10
+  - FIT11
+Ca:
+  - cFIT7
+  - cFIT8
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - FIT7
+  - FIT8
+  - FIT9
+  - FIT10
+  - FIT11
+Sc:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Ti:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+V:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Cr:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Mn:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Fe:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Co:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Ni:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Cu:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Zn:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Ga:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Ge:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+As:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Se:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Br:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Kr:
+Rb:
+  - cFIT7
+  - cFIT8
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - FIT7
+  - FIT8
+  - FIT9
+  - FIT10
+  - FIT11
+Sr:
+  - cFIT8
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - FIT8
+  - FIT9
+  - FIT10
+  - FIT11
+Y:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Zr:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Nb:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Mo:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Tc:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Ru:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Rh:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Pd:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Ag:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Cd:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+In:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Sn:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Sb:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Te:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+I:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Xe:
+Cs:
+  - cFIT7
+  - cFIT8
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - FIT7
+  - FIT8
+  - FIT9
+  - FIT10
+  - FIT11
+Ba:
+  - cFIT8
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - FIT8
+  - FIT9
+  - FIT10
+  - FIT11
+La:
+Ce:
+Pr:
+Nd:
+Pm:
+Sm:
+Eu:
+Gd:
+Dy:
+Ho:
+Er:
+Tm:
+Yb:
+Lu:
+Hf:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Ta:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+W:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Re:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Os:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Ir:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Pt:
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - cFIT13
+  - FIT10
+  - FIT11
+  - FIT12
+  - FIT13
+Au:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Hg:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Tl:
+  - cFIT9
+  - cFIT10
+  - cFIT11
+  - cFIT12
+  - FIT9
+  - FIT10
+  - FIT11
+  - FIT12
+Pb:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Bi:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Po:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+At:
+  - cFIT6
+  - cFIT7
+  - cFIT9
+  - FIT6
+  - FIT7
+  - FIT9
+Rn:
+Fr:
+Ra:
+Ac:
+Th:
+Pa:
+U:
+Np:
+Pu:
+Am:
+Cm:
+Bk:
+Cf:
+Es:
+Fm:
+Md:
+No:
+Lr:

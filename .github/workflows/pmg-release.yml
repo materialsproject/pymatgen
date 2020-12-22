@@ -1,8 +1,9 @@
-name: Lint, Test, Release
+name: Test, Release
 
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -31,23 +32,6 @@ jobs:
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
         pip install -e .
-    - name: pycodestyle
-      run: |
-        pycodestyle pymatgen
-    - name: mypy
-      run: |
-        mypy pymatgen
-    - name: flake8
-      run: |
-        flake8 --count --show-source --statistics pymatgen
-        # exit-zero treats all errors as warnings.
-        flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-    - name: pydocstyle
-      run: |
-        pydocstyle --count pymatgen
-    - name: Lint with pylint
-      run: |
-        source pylint_mod.sh
     - name: pytest
       run: |
         pytest pymatgen --color=yes
@@ -55,8 +39,6 @@ jobs:
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-        MPLBACKEND: "Agg"
       run: |
         pip install setuptools wheel twine
         python setup.py sdist bdist_wheel

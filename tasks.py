@@ -302,7 +302,7 @@ def release(ctx, nodoc=False):
         ctx.run("git push")
     merge_stable(ctx)
     release_github(ctx)
-    post_discourse(ctx)
+    post_discourse(ctx, warn=True)
 
 
 @task

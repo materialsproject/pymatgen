@@ -25,10 +25,13 @@ class XSF:
         """
         self.structure = structure
 
-    def to_string(self):
+    def to_string(self, atom_symbol=True):
         """
         Returns a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html
+
+        Args:
+            atom_symbol (bool): Uses atom symbol instead of atomic number. Defaults to True.
         """
         lines = []
         app = lines.append
@@ -38,16 +41,19 @@ class XSF:
         app("PRIMVEC")
         cell = self.structure.lattice.matrix
         for i in range(3):
-            app(' %.14f %.14f %.14f' % tuple(cell[i]))
+            app(" %.14f %.14f %.14f" % tuple(cell[i]))
 
         cart_coords = self.structure.cart_coords
         app("# Cartesian coordinates in Angstrom.")
         app("PRIMCOORD")
         app(" %d 1" % len(cart_coords))
 
-        for a, coord in enumerate(cart_coords):
-            sp = "%d" % self.structure.atomic_numbers[a]
-            app(sp + ' %20.14f %20.14f %20.14f' % tuple(coord))
+        for site, coord in zip(self.structure, cart_coords):
+            if atom_symbol:
+                sp = site.specie.symbol
+            else:
+                sp = "%d" % site.specie.Z
+            app(sp + " %20.14f %20.14f %20.14f" % tuple(coord))
 
         return "\n".join(lines)
 
@@ -86,13 +92,13 @@ class XSF:
 
         for i, line in enumerate(lines):
             if "PRIMVEC" in line:
-                for j in range(i+1, i+4):
+                for j in range(i + 1, i + 4):
                     lattice.append([float(c) for c in lines[j].split()])
 
             if "PRIMCOORD" in line:
-                num_sites = int(lines[i+1].split()[0])
+                num_sites = int(lines[i + 1].split()[0])
 
-                for j in range(i+2, i+2+num_sites):
+                for j in range(i + 2, i + 2 + num_sites):
                     tokens = lines[j].split()
                     if tokens[0].isalpha():
                         Z = Element(tokens[0]).Z
@@ -106,6 +112,7 @@ class XSF:
 
         if cls_ is None:
             from pymatgen.core.structure import Structure
+
             cls_ = Structure
 
         s = cls_(lattice, species, coords, coords_are_cartesian=True)

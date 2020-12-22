@@ -6,19 +6,21 @@
 This module provides classes for predicting new structures from existing ones.
 """
 
+import functools
 import itertools
 import logging
 from operator import mul
-import functools
+
 from monty.json import MSONable
 
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.analysis.structure_prediction.substitution_probability import SubstitutionProbability
-from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-from pymatgen.alchemy.transmuters import StandardTransmuter
-from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
-
+from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.alchemy.transmuters import StandardTransmuter
+from pymatgen.analysis.structure_prediction.substitution_probability import (
+    SubstitutionProbability,
+)
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -64,8 +66,13 @@ class Substitutor(MSONable):
         """
         return self._sp.species
 
-    def pred_from_structures(self, target_species, structures_list,
-                             remove_duplicates=True, remove_existing=False):
+    def pred_from_structures(
+        self,
+        target_species,
+        structures_list,
+        remove_duplicates=True,
+        remove_existing=False,
+    ):
         """
         performs a structure prediction targeting compounds containing all of
         the target_species, based on a list of structure (those structures
@@ -84,7 +91,7 @@ class Substitutor(MSONable):
         Args:
             target_species:
                 a list of species with oxidation states
-                e.g., [Specie('Li',1),Specie('Ni',2), Specie('O',-2)]
+                e.g., [Species('Li',1),Species('Ni',2), Species('O',-2)]
 
             structures_list:
                 a list of dictionnary of the form {'structure':Structure object
@@ -105,22 +112,31 @@ class Substitutor(MSONable):
         target_species = get_el_sp(target_species)
         result = []
         transmuter = StandardTransmuter([])
-        if len(list(set(target_species) & set(self.get_allowed_species()))) \
-                != len(target_species):
-            raise ValueError("the species in target_species are not allowed "
-                             + "for the probability model you are using")
+        if len(list(set(target_species) & set(self.get_allowed_species()))) != len(
+            target_species
+        ):
+            raise ValueError(
+                "the species in target_species are not allowed "
+                + "for the probability model you are using"
+            )
 
         for permut in itertools.permutations(target_species):
             for s in structures_list:
                 # check if: species are in the domain,
                 # and the probability of subst. is above the threshold
-                els = s['structure'].composition.elements
-                if len(els) == len(permut) and len(list(set(els) & set(self.get_allowed_species()))) == \
-                        len(els) and self._sp.cond_prob_list(permut, els) > self._threshold:
+                els = s["structure"].composition.elements
+                if (
+                    len(els) == len(permut)
+                    and len(list(set(els) & set(self.get_allowed_species())))
+                    == len(els)
+                    and self._sp.cond_prob_list(permut, els) > self._threshold
+                ):
 
-                    clean_subst = {els[i]: permut[i]
-                                   for i in range(0, len(els))
-                                   if els[i] != permut[i]}
+                    clean_subst = {
+                        els[i]: permut[i]
+                        for i in range(0, len(els))
+                        if els[i] != permut[i]
+                    }
 
                     if len(clean_subst) == 0:
                         continue
@@ -128,30 +144,34 @@ class Substitutor(MSONable):
                     transf = SubstitutionTransformation(clean_subst)
 
                     if Substitutor._is_charge_balanced(
-                            transf.apply_transformation(s['structure'])):
+                        transf.apply_transformation(s["structure"])
+                    ):
                         ts = TransformedStructure(
-                            s['structure'], [transf],
-                            history=[{"source": s['id']}],
+                            s["structure"],
+                            [transf],
+                            history=[{"source": s["id"]}],
                             other_parameters={
-                                'type': 'structure_prediction',
-                                'proba': self._sp.cond_prob_list(permut, els)}
+                                "type": "structure_prediction",
+                                "proba": self._sp.cond_prob_list(permut, els),
+                            },
                         )
                         result.append(ts)
                         transmuter.append_transformed_structures([ts])
 
         if remove_duplicates:
-            transmuter.apply_filter(RemoveDuplicatesFilter(
-                symprec=self._symprec))
+            transmuter.apply_filter(RemoveDuplicatesFilter(symprec=self._symprec))
         if remove_existing:
             # Make the list of structures from structures_list that corresponds to the
             # target species
             chemsys = {sp.symbol for sp in target_species}
             structures_list_target = [
-                st['structure'] for st in structures_list
-                if Substitutor._is_from_chemical_system(chemsys, st['structure'])
+                st["structure"]
+                for st in structures_list
+                if Substitutor._is_from_chemical_system(chemsys, st["structure"])
             ]
-            transmuter.apply_filter(RemoveExistingFilter(structures_list_target,
-                                                         symprec=self._symprec))
+            transmuter.apply_filter(
+                RemoveExistingFilter(structures_list_target, symprec=self._symprec)
+            )
         return transmuter.transformed_structures
 
     @staticmethod
@@ -205,13 +225,13 @@ class Substitutor(MSONable):
 
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
-            best_case_prob[:len(output_prob)] = output_prob
+            best_case_prob[: len(output_prob)] = output_prob
             if functools.reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
                     odict = {
-                        'substitutions':
-                            dict(zip(species_list, output_species)),
-                        'probability': functools.reduce(mul, best_case_prob)}
+                        "substitutions": dict(zip(species_list, output_species)),
+                        "probability": functools.reduce(mul, best_case_prob),
+                    }
                     output.append(odict)
                     return
                 for sp in self._sp.species:
@@ -220,7 +240,7 @@ class Substitutor(MSONable):
                     _recurse(output_prob + [prob], output_species + [sp])
 
         _recurse([], [])
-        logging.info('{} substitutions found'.format(len(output)))
+        logging.info("{} substitutions found".format(len(output)))
         return output
 
     def pred_from_comp(self, composition):
@@ -231,25 +251,28 @@ class Substitutor(MSONable):
         output = []
         predictions = self.pred_from_list(composition.elements)
         for p in predictions:
-            subs = p['substitutions']
+            subs = p["substitutions"]
             charge = 0
             for i_el in composition.elements:
                 f_el = subs[i_el]
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
                 output.append(p)
-        logging.info('{} charge balanced '
-                     'compositions found'.format(len(output)))
+        logging.info("{} charge balanced " "compositions found".format(len(output)))
         return output
 
     def as_dict(self):
         """
         Returns: MSONable dict
         """
-        return {"name": self.__class__.__name__, "version": __version__,
-                "kwargs": self._kwargs, "threshold": self._threshold,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "name": self.__class__.__name__,
+            "version": __version__,
+            "kwargs": self._kwargs,
+            "threshold": self._threshold,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -260,6 +283,6 @@ class Substitutor(MSONable):
         Returns:
             Class
         """
-        t = d['threshold']
-        kwargs = d['kwargs']
+        t = d["threshold"]
+        kwargs = d["kwargs"]
         return cls(threshold=t, **kwargs)

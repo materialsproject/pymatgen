@@ -14,8 +14,8 @@ import warnings
 from string import Template
 
 from monty.json import MSONable
-from pymatgen.io.lammps.data import LammpsData
 
+from pymatgen.io.lammps.data import LammpsData
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -34,11 +34,9 @@ class LammpsRun(MSONable):
 
     """
 
-    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "templates")
+    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 
-    def __init__(self, script_template, settings, data,
-                 script_filename):
+    def __init__(self, script_template, settings, data, script_filename):
         """
         Base constructor.
 
@@ -70,14 +68,17 @@ class LammpsRun(MSONable):
             **kwargs: kwargs supported by LammpsData.write_file.
 
         """
-        write_lammps_inputs(output_dir=output_dir,
-                            script_template=self.script_template,
-                            settings=self.settings, data=self.data,
-                            script_filename=self.script_filename, **kwargs)
+        write_lammps_inputs(
+            output_dir=output_dir,
+            script_template=self.script_template,
+            settings=self.settings,
+            data=self.data,
+            script_filename=self.script_filename,
+            **kwargs
+        )
 
     @classmethod
-    def md(cls, data, force_field, temperature, nsteps,
-           other_settings=None):
+    def md(cls, data, force_field, temperature, nsteps, other_settings=None):
         r"""
         Example for a simple MD run based on template md.txt.
 
@@ -96,16 +97,27 @@ class LammpsRun(MSONable):
         with open(template_path) as f:
             script_template = f.read()
         settings = other_settings.copy() if other_settings is not None else {}
-        settings.update({'force_field': force_field,
-                         "temperature": temperature, "nsteps": nsteps})
+        settings.update(
+            {"force_field": force_field, "temperature": temperature, "nsteps": nsteps}
+        )
         script_filename = "in.md"
-        return cls(script_template=script_template,
-                   settings=settings, data=data, script_filename=script_filename)
+        return cls(
+            script_template=script_template,
+            settings=settings,
+            data=data,
+            script_filename=script_filename,
+        )
 
 
-def write_lammps_inputs(output_dir, script_template, settings=None,
-                        data=None, script_filename="in.lammps",
-                        make_dir_if_not_present=True, **kwargs):
+def write_lammps_inputs(
+    output_dir,
+    script_template,
+    settings=None,
+    data=None,
+    script_filename="in.lammps",
+    make_dir_if_not_present=True,
+    **kwargs
+):
     """
     Writes input files for a LAMMPS run. Input script is constructed
     from a str template with placeholders to be filled by custom
@@ -197,5 +209,4 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
         elif isinstance(data, str) and os.path.exists(data):
             shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            warnings.warn("No data file supplied. Skip writing %s."
-                          % data_filename)
+            warnings.warn("No data file supplied. Skip writing %s." % data_filename)

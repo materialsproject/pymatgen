@@ -2,49 +2,49 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
+import os
+import unittest
 import warnings
+
 import numpy as np
-
-from pymatgen import Lattice, Structure, Specie, Molecule
-from pymatgen.transformations.standard_transformations import (
-    OxidationStateDecorationTransformation,
-    SubstitutionTransformation,
-    OrderDisorderedStructureTransformation,
-    AutoOxiStateDecorationTransformation,
-)
-from pymatgen.transformations.advanced_transformations import (
-    SuperTransformation,
-    EnumerateStructureTransformation,
-    MultipleSubstitutionTransformation,
-    ChargeBalanceTransformation,
-    SubstitutionPredictorTransformation,
-    MagOrderingTransformation,
-    DopingTransformation,
-    _find_codopant,
-    SlabTransformation,
-    MagOrderParameterConstraint,
-    DisorderOrderedTransformation,
-    GrainBoundaryTransformation,
-    CubicSupercellTransformation,
-    AddAdsorbateTransformation,
-    SubstituteSurfaceSiteTransformation,
-    SQSTransformation,
-    MonteCarloRattleTransformation,
-)
-
-from monty.serialization import loadfn
 from monty.os.path import which
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.io.cif import CifParser
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from monty.serialization import loadfn
+
+from pymatgen import Lattice, Molecule, Species, Structure
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io import atat
+from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.transformations.advanced_transformations import (
+    AddAdsorbateTransformation,
+    ChargeBalanceTransformation,
+    CubicSupercellTransformation,
+    DisorderOrderedTransformation,
+    DopingTransformation,
+    EnumerateStructureTransformation,
+    GrainBoundaryTransformation,
+    MagOrderingTransformation,
+    MagOrderParameterConstraint,
+    MonteCarloRattleTransformation,
+    MultipleSubstitutionTransformation,
+    SlabTransformation,
+    SQSTransformation,
+    SubstituteSurfaceSiteTransformation,
+    SubstitutionPredictorTransformation,
+    SuperTransformation,
+    _find_codopant,
+)
+from pymatgen.transformations.standard_transformations import (
+    AutoOxiStateDecorationTransformation,
+    OrderDisorderedStructureTransformation,
+    OxidationStateDecorationTransformation,
+    SubstitutionTransformation,
+)
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import hiphive  # type: ignore
@@ -627,8 +627,8 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(trans.max_structures_per_enum, 1)
 
     def test_find_codopant(self):
-        self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
-        self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
+        self.assertEqual(_find_codopant(Species("Fe", 2), 1), Species("Cu", 1))
+        self.assertEqual(_find_codopant(Species("Fe", 2), 3), Species("In", 3))
 
 
 class SlabTransformationTest(PymatgenTest):
@@ -701,14 +701,12 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class SQSTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        # non-sensical example just for testing purposes
         pztstructs = loadfn(os.path.join(test_dir, "mcsqs/pztstructs.json"))
-        self.struc = self.get_structure("Pb2TiZrO6")
-
         trans = SQSTransformation(
             scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0
         )
-        struc = self.struc.copy()
+        # nonsensical example just for testing purposes
+        struc = self.get_structure("Pb2TiZrO6").copy()
         struc.replace_species(
             {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
         )
@@ -719,16 +717,29 @@ class SQSTransformationTest(PymatgenTest):
     def test_return_ranked_list(self):
         # list of structures
         pztstructs2 = loadfn(os.path.join(test_dir, "mcsqs/pztstructs2.json"))
-        self.struc = self.get_structure("Pb2TiZrO6")
-
         trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struc = self.struc.copy()
+        struc = self.get_structure("Pb2TiZrO6").copy()
         struc.replace_species(
             {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
         )
         ranked_list_out = trans.apply_transformation(struc, return_ranked_list=True)
         matches = [ranked_list_out[0]["structure"].matches(s) for s in pztstructs2]
         self.assertIn(True, matches)
+
+    def test_spin(self):
+
+        trans = SQSTransformation(
+            scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0
+        )
+
+        # nonsensical example just for testing purposes
+        struc = self.get_structure("Pb2TiZrO6").copy()
+        struc.replace_species({"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}})
+
+        struc_out = trans.apply_transformation(struc)
+        struc_out_specie_strings = [site.species_string for site in struc_out]
+        self.assertIn("Ti,spin=-5", struc_out_specie_strings)
+        self.assertIn("Ti,spin=5", struc_out_specie_strings)
 
 
 class CubicSupercellTransformationTest(PymatgenTest):

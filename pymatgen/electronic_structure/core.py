@@ -10,7 +10,6 @@ such as the Spin, Orbital, etc.
 from enum import Enum, unique
 
 import numpy as np
-
 from monty.json import MSONable
 
 
@@ -20,6 +19,7 @@ class Spin(Enum):
     Enum type for Spin.  Only up and down.
     Usage: Spin.up, Spin.down.
     """
+
     up, down = (1, -1)
 
     def __int__(self):
@@ -144,13 +144,13 @@ class Magmom(MSONable):
             saxis = moment.saxis
             moment = moment.moment
 
-        moment = np.array(moment, dtype='d')
+        moment = np.array(moment, dtype="d")
         if moment.ndim == 0:
             moment = moment * [0, 0, 1]
 
         self.moment = moment
 
-        saxis = np.array(saxis, dtype='d')
+        saxis = np.array(saxis, dtype="d")
 
         self.saxis = saxis / np.linalg.norm(saxis)
 
@@ -184,9 +184,11 @@ class Magmom(MSONable):
         sin_a = np.sin(alpha)
         sin_b = np.sin(beta)
 
-        m = [[cos_b * cos_a, -sin_a, sin_b * cos_a],
-             [cos_b * sin_a, cos_a, sin_b * sin_a],
-             [-sin_b, 0, cos_b]]
+        m = [
+            [cos_b * cos_a, -sin_a, sin_b * cos_a],
+            [cos_b * sin_a, cos_a, sin_b * sin_a],
+            [-sin_b, 0, cos_b],
+        ]
 
         return m
 
@@ -203,9 +205,11 @@ class Magmom(MSONable):
         sin_a = np.sin(alpha)
         sin_b = np.sin(beta)
 
-        m = [[cos_b * cos_a, cos_b * sin_a, -sin_b],
-             [-sin_a, cos_a, 0],
-             [sin_b * cos_a, sin_b * sin_a, cos_b]]
+        m = [
+            [cos_b * cos_a, cos_b * sin_a, -sin_b],
+            [-sin_a, cos_a, 0],
+            [sin_b * cos_a, sin_b * sin_a, cos_b],
+        ]
 
         return m
 
@@ -382,7 +386,9 @@ class Magmom(MSONable):
         # use first moment as reference to compare against
         ref_magmom = magmoms[0]
         # magnitude of cross products != 0 if non-collinear with reference
-        num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
+        num_ncl = np.count_nonzero(
+            np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1)
+        )
         if num_ncl > 0:
             return False
         return True
@@ -477,5 +483,5 @@ class Magmom(MSONable):
 
     def __repr__(self):
         if np.allclose(self.saxis, (0, 0, 1)):
-            return 'Magnetic moment {0}'.format(self.moment)
-        return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment, self.saxis)
+            return "Magnetic moment {0}".format(self.moment)
+        return "Magnetic moment {0} (spin axis = {1})".format(self.moment, self.saxis)

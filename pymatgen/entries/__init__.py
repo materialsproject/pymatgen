@@ -3,16 +3,20 @@
 # Distributed under the terms of the MIT License.
 
 """
-Entries are containers for calculated information, which is used in 
-many analyses. This module contains entry related tools and implements 
-the base Entry class, which is the basic entity that can be used to 
-store calculated information. Other Entry classes such as ComputedEntry 
+Entries are containers for calculated information, which is used in
+many analyses. This module contains entry related tools and implements
+the base Entry class, which is the basic entity that can be used to
+store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-from pymatgen.core.composition import Composition
-from monty.json import MSONable
+import copy
 from abc import ABCMeta, abstractmethod
+from typing import Optional
+
+from monty.json import MSONable
+
+from pymatgen.core.composition import Composition
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -25,16 +29,14 @@ __date__ = "Mar 03, 2020"
 
 class Entry(MSONable, metaclass=ABCMeta):
     """
-    A lightweight object containing the energy associated with 
-    a specific chemical composition. This base class is not 
-    intended to be instantiated directly. Note that classes 
+    A lightweight object containing the energy associated with
+    a specific chemical composition. This base class is not
+    intended to be instantiated directly. Note that classes
     which inherit from Entry must define a .energy property.
 
     """
 
-    def __init__(self,
-                 composition: Composition,
-                 energy: float):
+    def __init__(self, composition: Composition, energy: float):
         """
         Initializes an Entry.
 
@@ -72,7 +74,9 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit") -> None:
+    def normalize(
+        self, mode: str = "formula_unit", inplace: bool = True
+    ) -> Optional["Entry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -80,10 +84,20 @@ class Entry(MSONable, metaclass=ABCMeta):
             mode: "formula_unit" is the default, which normalizes to
                 composition.reduced_formula. The other option is "atom", which
                 normalizes such that the composition amounts sum to 1.
+            inplace: "True" is the default which normalises the current Entry object.
+                Setting inplace to "False" returns a normalized copy of the Entry object.
         """
-        factor = self._normalization_factor(mode)
-        self.composition /= factor
-        self._energy /= factor
+        if inplace:
+            factor = self._normalization_factor(mode)
+            self.composition /= factor
+            self._energy /= factor
+            return None
+        else:
+            entry = copy.deepcopy(self)
+            factor = entry._normalization_factor(mode)
+            entry.composition /= factor
+            entry._energy /= factor
+            return entry
 
     def _normalization_factor(self, mode: str = "formula_unit") -> float:
         if mode == "atom":
@@ -96,7 +110,9 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         :return: MSONable dict.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "energy": self._energy,
-                "composition": self.composition.as_dict()}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "energy": self._energy,
+            "composition": self.composition.as_dict(),
+        }

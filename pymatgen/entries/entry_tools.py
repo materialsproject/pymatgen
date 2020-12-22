@@ -15,24 +15,23 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 24, 2012"
 
-import logging
-import json
-import datetime
 import collections
-import itertools
 import csv
+import datetime
+import itertools
+import json
+import logging
 import re
+from typing import Iterable, List, Set, Union
 
-from typing import List, Union, Iterable, Set
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition
-from pymatgen.analysis.phase_diagram import PDEntry
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-from monty.json import MontyEncoder, MontyDecoder, MSONable
+from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.string import unicode2str
 
-from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    SpeciesComparator
+from pymatgen.analysis.phase_diagram import PDEntry
+from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +46,17 @@ def _get_host(structure, species_to_remove):
 
 
 def _perform_grouping(args):
-    (entries_json, hosts_json, ltol, stol, angle_tol,
-     primitive_cell, scale, comparator, groups) = args
+    (
+        entries_json,
+        hosts_json,
+        ltol,
+        stol,
+        angle_tol,
+        primitive_cell,
+        scale,
+        comparator,
+        groups,
+    ) = args
 
     entries = json.loads(entries_json, cls=MontyDecoder)
     hosts = json.loads(hosts_json, cls=MontyDecoder)
@@ -56,21 +64,30 @@ def _perform_grouping(args):
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(
-            "Reference tid = {}, formula = {}".format(unmatched[0][0].entry_id,
-                                                      ref_host.formula)
+            "Reference tid = {}, formula = {}".format(
+                unmatched[0][0].entry_id, ref_host.formula
+            )
         )
         ref_formula = ref_host.composition.reduced_formula
         logger.info("Reference host = {}".format(ref_formula))
         matches = [unmatched[0]]
         for i in range(1, len(unmatched)):
             test_host = unmatched[i][1]
-            logger.info("Testing tid = {}, formula = {}"
-                        .format(unmatched[i][0].entry_id, test_host.formula))
+            logger.info(
+                "Testing tid = {}, formula = {}".format(
+                    unmatched[i][0].entry_id, test_host.formula
+                )
+            )
             test_formula = test_host.composition.reduced_formula
             logger.info("Test host = {}".format(test_formula))
-            m = StructureMatcher(ltol=ltol, stol=stol, angle_tol=angle_tol,
-                                 primitive_cell=primitive_cell, scale=scale,
-                                 comparator=comparator)
+            m = StructureMatcher(
+                ltol=ltol,
+                stol=stol,
+                angle_tol=angle_tol,
+                primitive_cell=primitive_cell,
+                scale=scale,
+                comparator=comparator,
+            )
             if m.fit(ref_host, test_host):
                 logger.info("Fit found")
                 matches.append(unmatched[i])
@@ -79,11 +96,17 @@ def _perform_grouping(args):
         logger.info("{} unmatched remaining".format(len(unmatched)))
 
 
-def group_entries_by_structure(entries, species_to_remove=None,
-                               ltol=0.2, stol=.4, angle_tol=5,
-                               primitive_cell=True, scale=True,
-                               comparator=SpeciesComparator(),
-                               ncpus=None):
+def group_entries_by_structure(
+    entries,
+    species_to_remove=None,
+    ltol=0.2,
+    stol=0.4,
+    angle_tol=5,
+    primitive_cell=True,
+    scale=True,
+    comparator=SpeciesComparator(),
+    ncpus=None,
+):
     """
     Given a sequence of ComputedStructureEntries, use structure fitter to group
     them by structural similarity.
@@ -112,32 +135,53 @@ def group_entries_by_structure(entries, species_to_remove=None,
     """
     start = datetime.datetime.now()
     logger.info("Started at {}".format(start))
-    entries_host = [(entry, _get_host(entry.structure, species_to_remove))
-                    for entry in entries]
+    entries_host = [
+        (entry, _get_host(entry.structure, species_to_remove)) for entry in entries
+    ]
     if ncpus:
         symm_entries = collections.defaultdict(list)
         for entry, host in entries_host:
-            symm_entries[comparator.get_structure_hash(host)].append((entry,
-                                                                      host))
+            symm_entries[comparator.get_structure_hash(host)].append((entry, host))
         import multiprocessing as mp
+
         logging.info("Using {} cpus".format(ncpus))
         manager = mp.Manager()
         groups = manager.list()
         p = mp.Pool(ncpus)
         # Parallel processing only supports Python primitives and not objects.
-        p.map(_perform_grouping,
-              [(json.dumps([e[0] for e in eh], cls=MontyEncoder),
-                json.dumps([e[1] for e in eh], cls=MontyEncoder),
-                ltol, stol, angle_tol, primitive_cell, scale,
-                comparator, groups)
-               for eh in symm_entries.values()])
+        p.map(
+            _perform_grouping,
+            [
+                (
+                    json.dumps([e[0] for e in eh], cls=MontyEncoder),
+                    json.dumps([e[1] for e in eh], cls=MontyEncoder),
+                    ltol,
+                    stol,
+                    angle_tol,
+                    primitive_cell,
+                    scale,
+                    comparator,
+                    groups,
+                )
+                for eh in symm_entries.values()
+            ],
+        )
     else:
         groups = []
         hosts = [host for entry, host in entries_host]
-        _perform_grouping((json.dumps(entries, cls=MontyEncoder),
-                           json.dumps(hosts, cls=MontyEncoder),
-                           ltol, stol, angle_tol, primitive_cell, scale,
-                           comparator, groups))
+        _perform_grouping(
+            (
+                json.dumps(entries, cls=MontyEncoder),
+                json.dumps(hosts, cls=MontyEncoder),
+                ltol,
+                stol,
+                angle_tol,
+                primitive_cell,
+                scale,
+                comparator,
+                groups,
+            )
+        )
     entry_groups = []
     for g in groups:
         entry_groups.append(json.loads(g, cls=MontyDecoder))
@@ -152,7 +196,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(self, entries: Iterable[Union[PDEntry, ComputedEntry, ComputedStructureEntry]]):
+    def __init__(
+        self, entries: Iterable[Union[PDEntry, ComputedEntry, ComputedStructureEntry]]
+    ):
         """
         Args:
             entries: All the entries.
@@ -202,7 +248,9 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
         ground_states = set()
-        for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+        for _, g in itertools.groupby(
+            entries, key=lambda e: e.composition.reduced_formula
+        ):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
@@ -223,8 +271,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         chem_sys = set(chemsys)
         if not chem_sys.issubset(self.chemsys):
-            raise ValueError("%s is not a subset of %s" % (chem_sys,
-                                                           self.chemsys))
+            raise ValueError("%s is not a subset of %s" % (chem_sys, self.chemsys))
         subset = set()
         for e in self.entries:
             elements = [sp.symbol for sp in e.composition.keys()]
@@ -236,9 +283,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         :return: MSONable dict
         """
-        return {
-            "entries": list(self.entries)
-        }
+        return {"entries": list(self.entries)}
 
     def to_csv(self, filename: str, latexify_names: bool = False):
         """
@@ -255,13 +300,19 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         for entry in self.entries:
             els.update(entry.composition.elements)
         elements = sorted(list(els), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
-                            quotechar=unicode2str("\""),
-                            quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(
+            open(filename, "w"),
+            delimiter=unicode2str(","),
+            quotechar=unicode2str('"'),
+            quoting=csv.QUOTE_MINIMAL,
+        )
         writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
         for entry in self.entries:
-            row = [entry.name if not latexify_names
-                   else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+            row = [
+                entry.name
+                if not latexify_names
+                else re.sub(r"([0-9]+)", r"_{\1}", entry.name)
+            ]
             row.extend([entry.composition[el] for el in elements])
             row.append(str(entry.energy))
             writer.writerow(row)
@@ -278,15 +329,18 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             List of Elements, List of PDEntries
         """
         with open(filename, "r", encoding="utf-8") as f:
-            reader = csv.reader(f, delimiter=unicode2str(","),
-                                quotechar=unicode2str("\""),
-                                quoting=csv.QUOTE_MINIMAL)
+            reader = csv.reader(
+                f,
+                delimiter=unicode2str(","),
+                quotechar=unicode2str('"'),
+                quoting=csv.QUOTE_MINIMAL,
+            )
             entries = list()
             header_read = False
             elements = []  # type: List[str]
             for row in reader:
                 if not header_read:
-                    elements = row[1:(len(row) - 1)]
+                    elements = row[1 : (len(row) - 1)]
                     header_read = True
                 else:
                     name = row[0]

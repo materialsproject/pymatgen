@@ -18,7 +18,7 @@ from operator import mul
 
 from monty.design_patterns import cached_class
 
-from pymatgen.core.periodic_table import Specie, get_el_sp
+from pymatgen.core.periodic_table import Species, get_el_sp
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -54,7 +54,7 @@ class SubstitutionProbability:
             self._lambda_table = lambda_table
         else:
             module_dir = os.path.dirname(__file__)
-            json_file = os.path.join(module_dir, 'data', 'lambda.json')
+            json_file = os.path.join(module_dir, "data", "lambda.json")
             with open(json_file) as f:
                 self._lambda_table = json.load(f)
 
@@ -63,9 +63,9 @@ class SubstitutionProbability:
         self._l = {}
         self.species = set()
         for row in self._lambda_table:
-            if 'D1+' not in row:
-                s1 = Specie.from_string(row[0])
-                s2 = Specie.from_string(row[1])
+            if "D1+" not in row:
+                s1 = Species.from_string(row[0])
+                s2 = Species.from_string(row[1])
                 self.species.add(s1)
                 self.species.add(s2)
                 self._l[frozenset([s1, s2])] = float(row[2])
@@ -88,14 +88,13 @@ class SubstitutionProbability:
         Returns:
             Lambda values
         """
-        k = frozenset([get_el_sp(s1),
-                       get_el_sp(s2)])
+        k = frozenset([get_el_sp(s1), get_el_sp(s2)])
         return self._l.get(k, self.alpha)
 
     def get_px(self, sp):
         """
         Args:
-            sp (Specie/Element): Species
+            sp (Species/Element): Species
 
         Returns:
             Probability
@@ -134,7 +133,11 @@ class SubstitutionProbability:
         Returns:
             The pair correlation of 2 species
         """
-        return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
+        return (
+            math.exp(self.get_lambda(s1, s2))
+            * self.Z
+            / (self.get_px(s1) * self.get_px(s2))
+        )
 
     def cond_prob_list(self, l1, l2):
         """
@@ -159,11 +162,13 @@ class SubstitutionProbability:
         """
         Returns: MSONAble dict
         """
-        return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"lambda_table": self._l,
-                              "alpha": self.alpha},
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "name": self.__class__.__name__,
+            "version": __version__,
+            "init_args": {"lambda_table": self._l, "alpha": self.alpha},
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -174,7 +179,7 @@ class SubstitutionProbability:
         Returns:
             Class
         """
-        return cls(**d['init_args'])
+        return cls(**d["init_args"])
 
 
 class SubstitutionPredictor:
@@ -211,8 +216,10 @@ class SubstitutionPredictor:
         """
         for sp in species:
             if get_el_sp(sp) not in self.p.species:
-                raise ValueError("the species {} is not allowed for the"
-                                 "probability model you are using".format(sp))
+                raise ValueError(
+                    "the species {} is not allowed for the"
+                    "probability model you are using".format(sp)
+                )
         max_probabilities = []
         for s1 in species:
             if to_this_composition:
@@ -225,17 +232,14 @@ class SubstitutionPredictor:
 
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
-            best_case_prob[:len(output_prob)] = output_prob
+            best_case_prob[: len(output_prob)] = output_prob
             if functools.reduce(mul, best_case_prob) > self.threshold:
                 if len(output_species) == len(species):
-                    odict = {
-                        'probability': functools.reduce(mul, best_case_prob)}
+                    odict = {"probability": functools.reduce(mul, best_case_prob)}
                     if to_this_composition:
-                        odict['substitutions'] = dict(
-                            zip(output_species, species))
+                        odict["substitutions"] = dict(zip(output_species, species))
                     else:
-                        odict['substitutions'] = dict(
-                            zip(species, output_species))
+                        odict["substitutions"] = dict(zip(species, output_species))
                     if len(output_species) == len(set(output_species)):
                         output.append(odict)
                     return
@@ -248,7 +252,7 @@ class SubstitutionPredictor:
                     _recurse(output_prob + [prob], output_species + [sp])
 
         _recurse([], [])
-        logging.info('{} substitutions found'.format(len(output)))
+        logging.info("{} substitutions found".format(len(output)))
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
@@ -271,19 +275,17 @@ class SubstitutionPredictor:
             will be from the list species. If false, the keys will be
             from that list.
         """
-        preds = self.list_prediction(list(composition.keys()),
-                                     to_this_composition)
+        preds = self.list_prediction(list(composition.keys()), to_this_composition)
         output = []
         for p in preds:
             if to_this_composition:
-                subs = {v: k for k, v in p['substitutions'].items()}
+                subs = {v: k for k, v in p["substitutions"].items()}
             else:
-                subs = p['substitutions']
+                subs = p["substitutions"]
             charge = 0
             for k, v in composition.items():
                 charge += subs[k].oxi_state * v
             if abs(charge) < 1e-8:
                 output.append(p)
-        logging.info('{} charge balanced substitutions found'
-                     .format(len(output)))
+        logging.info("{} charge balanced substitutions found".format(len(output)))
         return output

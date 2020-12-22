@@ -19,20 +19,21 @@ citing the following papers::
 """
 
 
-import warnings
 import multiprocessing
+import warnings
 
 import numpy as np
 import scipy.constants as const
-
 from monty.json import MSONable
 
-from pymatgen.analysis.structure_matcher import StructureMatcher, OrderDisorderElementComparator
+from pymatgen.analysis.structure_matcher import (
+    OrderDisorderElementComparator,
+    StructureMatcher,
+)
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord import pbc_diff
-
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
@@ -130,9 +131,19 @@ class DiffusionAnalyzer(MSONable):
         Haven ratio defined as diffusivity / chg_diffusivity.
     """
 
-    def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip, smoothed="max", min_obs=30,
-                 avg_nsteps=1000, lattices=None):
+    def __init__(
+        self,
+        structure,
+        displacements,
+        specie,
+        temperature,
+        time_step,
+        step_skip,
+        smoothed="max",
+        min_obs=30,
+        avg_nsteps=1000,
+        lattices=None,
+    ):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -153,7 +164,7 @@ class DiffusionAnalyzer(MSONable):
             structure (Structure): Initial structure.
             displacements (array): Numpy array of with shape [site,
                 time step, axis]
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             temperature (float): Temperature of the diffusion run in Kelvin.
             time_step (int): Time step between measurements.
@@ -209,10 +220,10 @@ class DiffusionAnalyzer(MSONable):
             else:
                 framework_indices.append(i)
         if self.disp.shape[1] < 2:
-            self.diffusivity = 0.
-            self.conductivity = 0.
-            self.diffusivity_components = np.array([0., 0., 0.])
-            self.conductivity_components = np.array([0., 0., 0.])
+            self.diffusivity = 0.0
+            self.conductivity = 0.0
+            self.diffusivity_components = np.array([0.0, 0.0, 0.0])
+            self.conductivity_components = np.array([0.0, 0.0, 0.0])
             self.max_framework_displacement = 0
         else:
             framework_disp = self.disp[framework_indices]
@@ -227,16 +238,17 @@ class DiffusionAnalyzer(MSONable):
                 timesteps = np.arange(0, nsteps)
             elif smoothed == "constant":
                 if nsteps <= avg_nsteps:
-                    raise ValueError('Not enough data to calculate diffusivity')
+                    raise ValueError("Not enough data to calculate diffusivity")
                 timesteps = np.arange(0, nsteps - avg_nsteps)
             else:
                 # limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
                 max_dt = min(len(indices) * nsteps // self.min_obs, nsteps)
                 if min_dt >= max_dt:
-                    raise ValueError('Not enough data to calculate diffusivity')
-                timesteps = np.arange(min_dt, max_dt,
-                                      max(int((max_dt - min_dt) / 200), 1))
+                    raise ValueError("Not enough data to calculate diffusivity")
+                timesteps = np.arange(
+                    min_dt, max_dt, max(int((max_dt - min_dt) / 200), 1)
+                )
 
             dt = timesteps * self.time_step * self.step_skip
 
@@ -250,11 +262,11 @@ class DiffusionAnalyzer(MSONable):
 
             for i, n in enumerate(timesteps):
                 if not smoothed:
-                    dx = dc[:, i:i + 1, :]
-                    dcomponents = dc[:, i:i + 1, :]
+                    dx = dc[:, i : i + 1, :]
+                    dcomponents = dc[:, i : i + 1, :]
                 elif smoothed == "constant":
-                    dx = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
-                    dcomponents = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
+                    dx = dc[:, i : i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
+                    dcomponents = dc[:, i : i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = dc[:, n:, :] - dc[:, :-n, :]
@@ -264,8 +276,7 @@ class DiffusionAnalyzer(MSONable):
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][indices])
 
-                msd_components[i] = np.average(dcomponents[indices] ** 2,
-                                               axis=(0, 1))
+                msd_components[i] = np.average(dcomponents[indices] ** 2, axis=(0, 1))
 
                 # Get mscd
                 sq_chg_disp = np.sum(dx[indices, :, :], axis=0) ** 2
@@ -299,8 +310,9 @@ class DiffusionAnalyzer(MSONable):
 
             # factor of 10 is to convert from A^2/fs to cm^2/s
             # factor of 6 is for dimensionality
-            conv_factor = get_conversion_factor(self.structure, self.specie,
-                                                self.temperature)
+            conv_factor = get_conversion_factor(
+                self.structure, self.specie, self.temperature
+            )
             self.diffusivity = m / 60
             self.chg_diffusivity = m_chg / 60
 
@@ -321,16 +333,21 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
 
             self.diffusivity_components = m_components / 20
-            self.diffusivity_components_std_dev = np.sqrt(n * m_components_res / denom) / 20 / 1000
+            self.diffusivity_components_std_dev = (
+                np.sqrt(n * m_components_res / denom) / 20 / 1000
+            )
             self.conductivity_components = self.diffusivity_components * conv_factor
-            self.conductivity_components_std_dev = self.diffusivity_components_std_dev * conv_factor
+            self.conductivity_components_std_dev = (
+                self.diffusivity_components_std_dev * conv_factor
+            )
 
             # Drift and displacement information.
             self.drift = drift
             self.corrected_displacements = dc
-            self.max_ion_displacements = np.max(np.sum(
-                dc ** 2, axis=-1) ** 0.5, axis=1)
-            self.max_framework_displacement = np.max(self.max_ion_displacements[framework_indices])
+            self.max_ion_displacements = np.max(np.sum(dc ** 2, axis=-1) ** 0.5, axis=1)
+            self.max_framework_displacement = np.max(
+                self.max_ion_displacements[framework_indices]
+            )
             self.msd = msd
             self.mscd = mscd
             self.haven_ratio = self.diffusivity / self.chg_diffusivity
@@ -359,9 +376,11 @@ class DiffusionAnalyzer(MSONable):
         for i in range(start or 0, stop or nsteps, step or 1):
             latt = lattices[0] if len(lattices) == 1 else lattices[i]
             yield Structure(
-                latt, species,
+                latt,
+                species,
                 coords + self.corrected_displacements[:, i, :],
-                coords_are_cartesian=True)
+                coords_are_cartesian=True,
+            )
 
     def get_summary_dict(self, include_msd_t=False, include_mscd_t=False):
         """
@@ -393,7 +412,7 @@ class DiffusionAnalyzer(MSONable):
             "time_step": self.time_step,
             "temperature": self.temperature,
             "max_framework_displacement": self.max_framework_displacement,
-            "Haven_ratio": self.haven_ratio
+            "Haven_ratio": self.haven_ratio,
         }
         if include_msd_t:
             d["msd"] = self.msd.tolist()
@@ -403,8 +422,7 @@ class DiffusionAnalyzer(MSONable):
             d["mscd"] = self.mscd.tolist()
         return d
 
-    def get_framework_rms_plot(self, plt=None, granularity=200,
-                               matching_s=None):
+    def get_framework_rms_plot(self, plt=None, granularity=200, matching_s=None):
         """
         Get the plot of rms framework displacement vs time. Useful for checking
         for melting, especially if framework atoms can move via paddle-wheel
@@ -422,17 +440,22 @@ class DiffusionAnalyzer(MSONable):
             The method doesn't apply to NPT-AIMD simulation analysis.
         """
         from pymatgen.util.plotting import pretty_plot
+
         if self.lattices is not None and len(self.lattices) > 1:
-            warnings.warn("Note the method doesn't apply to NPT-AIMD "
-                          "simulation analysis!")
+            warnings.warn(
+                "Note the method doesn't apply to NPT-AIMD " "simulation analysis!"
+            )
 
         plt = pretty_plot(12, 8, plt=plt)
         step = (self.corrected_displacements.shape[1] - 1) // (granularity - 1)
         f = (matching_s or self.structure).copy()
         f.remove_species([self.specie])
-        sm = StructureMatcher(primitive_cell=False, stol=0.6,
-                              comparator=OrderDisorderElementComparator(),
-                              allow_subset=True)
+        sm = StructureMatcher(
+            primitive_cell=False,
+            stol=0.6,
+            comparator=OrderDisorderElementComparator(),
+            allow_subset=True,
+        )
         rms = []
         for s in self.get_drift_corrected_structures(step=step):
             s.remove_species([self.specie])
@@ -444,14 +467,14 @@ class DiffusionAnalyzer(MSONable):
         max_dt = (len(rms) - 1) * step * self.step_skip * self.time_step
         if max_dt > 100000:
             plot_dt = np.linspace(0, max_dt / 1000, len(rms))
-            unit = 'ps'
+            unit = "ps"
         else:
             plot_dt = np.linspace(0, max_dt, len(rms))
-            unit = 'fs'
+            unit = "fs"
         rms = np.array(rms)
-        plt.plot(plot_dt, rms[:, 0], label='RMS')
-        plt.plot(plot_dt, rms[:, 1], label='max')
-        plt.legend(loc='best')
+        plt.plot(plot_dt, rms[:, 0], label="RMS")
+        plt.plot(plot_dt, rms[:, 1], label="max")
+        plt.legend(loc="best")
         plt.xlabel("Timestep ({})".format(unit))
         plt.ylabel("normalized distance")
         plt.tight_layout()
@@ -470,36 +493,37 @@ class DiffusionAnalyzer(MSONable):
                 time will be plotted.
         """
         from pymatgen.util.plotting import pretty_plot
+
         plt = pretty_plot(12, 8, plt=plt)
         if np.max(self.dt) > 100000:
             plot_dt = self.dt / 1000
-            unit = 'ps'
+            unit = "ps"
         else:
             plot_dt = self.dt
-            unit = 'fs'
+            unit = "fs"
 
         if mode == "species":
             for sp in sorted(self.structure.composition.keys()):
-                indices = [i for i, site in enumerate(self.structure) if
-                           site.specie == sp]
+                indices = [
+                    i for i, site in enumerate(self.structure) if site.specie == sp
+                ]
                 sd = np.average(self.sq_disp_ions[indices, :], axis=0)
                 plt.plot(plot_dt, sd, label=sp.__str__())
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "sites":
             for i, site in enumerate(self.structure):
                 sd = self.sq_disp_ions[i, :]
-                plt.plot(plot_dt, sd, label="%s - %d" % (
-                    site.specie.__str__(), i))
+                plt.plot(plot_dt, sd, label="%s - %d" % (site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
         elif mode == "mscd":
-            plt.plot(plot_dt, self.mscd, 'r')
+            plt.plot(plot_dt, self.mscd, "r")
             plt.legend(["Overall"], loc=2, prop={"size": 20})
         else:
             # Handle default / invalid mode case
-            plt.plot(plot_dt, self.msd, 'k')
-            plt.plot(plot_dt, self.msd_components[:, 0], 'r')
-            plt.plot(plot_dt, self.msd_components[:, 1], 'g')
-            plt.plot(plot_dt, self.msd_components[:, 2], 'b')
+            plt.plot(plot_dt, self.msd, "k")
+            plt.plot(plot_dt, self.msd_components[:, 0], "r")
+            plt.plot(plot_dt, self.msd_components[:, 1], "g")
+            plt.plot(plot_dt, self.msd_components[:, 2], "b")
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
 
         plt.xlabel("Timestep ({})".format(unit))
@@ -538,19 +562,28 @@ class DiffusionAnalyzer(MSONable):
         with open(filename, "wt") as f:
             if fmt == "dat":
                 f.write("# ")
-            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c",
-                                    "MSCD"]))
+            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c", "MSCD"]))
             f.write("\n")
-            for dt, msd, msdc, mscd in zip(self.dt, self.msd,
-                                           self.msd_components, self.mscd):
-                f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(
-                    msdc) + [mscd]]))
+            for dt, msd, msdc, mscd in zip(
+                self.dt, self.msd, self.msd_components, self.mscd
+            ):
+                f.write(
+                    delimiter.join(["%s" % v for v in [dt, msd] + list(msdc) + [mscd]])
+                )
                 f.write("\n")
 
     @classmethod
-    def from_structures(cls, structures, specie, temperature,
-                        time_step, step_skip, initial_disp=None,
-                        initial_structure=None, **kwargs):
+    def from_structures(
+        cls,
+        structures,
+        specie,
+        temperature,
+        time_step,
+        step_skip,
+        initial_disp=None,
+        initial_structure=None,
+        **kwargs
+    ):
         r"""
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
@@ -559,7 +592,7 @@ class DiffusionAnalyzer(MSONable):
             structures ([Structure]): list of Structure objects (must be
                 ordered in sequence of run). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             temperature (float): Temperature of the diffusion run in Kelvin.
             time_step (int): Time step between measurements.
@@ -609,12 +642,21 @@ class DiffusionAnalyzer(MSONable):
         if initial_disp is not None:
             disp += initial_disp[:, None, :]
 
-        return cls(structure, disp, specie, temperature, time_step,
-                   step_skip=step_skip, lattices=l, **kwargs)
+        return cls(
+            structure,
+            disp,
+            specie,
+            temperature,
+            time_step,
+            step_skip=step_skip,
+            lattices=l,
+            **kwargs
+        )
 
     @classmethod
-    def from_vaspruns(cls, vaspruns, specie, initial_disp=None,
-                      initial_structure=None, **kwargs):
+    def from_vaspruns(
+        cls, vaspruns, specie, initial_disp=None, initial_structure=None, **kwargs
+    ):
         r"""
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -623,7 +665,7 @@ class DiffusionAnalyzer(MSONable):
             vaspruns ([Vasprun]): List of Vaspruns (must be ordered  in
                 sequence of MD simulation). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             initial_disp (np.ndarray): Sometimes, you need to iteratively
                 compute estimates of the diffusivity. This supplies an
@@ -644,33 +686,46 @@ class DiffusionAnalyzer(MSONable):
                 if i == 0:
                     step_skip = vr.ionic_step_skip or 1
                     final_structure = vr.initial_structure
-                    temperature = vr.parameters['TEEND']
-                    time_step = vr.parameters['POTIM']
+                    temperature = vr.parameters["TEEND"]
+                    time_step = vr.parameters["POTIM"]
                     yield step_skip, temperature, time_step
                 # check that the runs are continuous
-                fdist = pbc_diff(vr.initial_structure.frac_coords,
-                                 final_structure.frac_coords)
+                fdist = pbc_diff(
+                    vr.initial_structure.frac_coords, final_structure.frac_coords
+                )
                 if np.any(fdist > 0.001):
-                    raise ValueError('initial and final structures do not '
-                                     'match.')
+                    raise ValueError("initial and final structures do not " "match.")
                 final_structure = vr.final_structure
 
                 assert (vr.ionic_step_skip or 1) == step_skip
                 for s in vr.ionic_steps:
-                    yield s['structure']
+                    yield s["structure"]
 
         s = get_structures(vaspruns)
         step_skip, temperature, time_step = next(s)
 
         return cls.from_structures(
-            structures=list(s), specie=specie, temperature=temperature,
-            time_step=time_step, step_skip=step_skip,
-            initial_disp=initial_disp, initial_structure=initial_structure,
-            **kwargs)
+            structures=list(s),
+            specie=specie,
+            temperature=temperature,
+            time_step=time_step,
+            step_skip=step_skip,
+            initial_disp=initial_disp,
+            initial_structure=initial_structure,
+            **kwargs
+        )
 
     @classmethod
-    def from_files(cls, filepaths, specie, step_skip=10, ncores=None,
-                   initial_disp=None, initial_structure=None, **kwargs):
+    def from_files(
+        cls,
+        filepaths,
+        specie,
+        step_skip=10,
+        ncores=None,
+        initial_disp=None,
+        initial_structure=None,
+        **kwargs
+    ):
         r"""
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
@@ -681,7 +736,7 @@ class DiffusionAnalyzer(MSONable):
                 you may have done sequential VASP runs and they are in run1,
                 run2, run3, etc. You should then pass in
                 ["run1/vasprun.xml", "run2/vasprun.xml", ...].
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
@@ -708,11 +763,14 @@ class DiffusionAnalyzer(MSONable):
         """
         if ncores is not None and len(filepaths) > 1:
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.imap(_get_vasprun,
-                              [(fp, step_skip) for fp in filepaths])
+            vaspruns = p.imap(_get_vasprun, [(fp, step_skip) for fp in filepaths])
             analyzer = cls.from_vaspruns(
-                vaspruns, specie=specie, initial_disp=initial_disp,
-                initial_structure=initial_structure, **kwargs)
+                vaspruns,
+                specie=specie,
+                initial_disp=initial_disp,
+                initial_structure=initial_structure,
+                **kwargs
+            )
             p.close()
             p.join()
             return analyzer
@@ -720,15 +778,18 @@ class DiffusionAnalyzer(MSONable):
         def vr(filepaths):
             offset = 0
             for p in filepaths:
-                v = Vasprun(p, ionic_step_offset=offset,
-                            ionic_step_skip=step_skip)
+                v = Vasprun(p, ionic_step_offset=offset, ionic_step_skip=step_skip)
                 yield v
                 # Recompute offset.
                 offset = (-(v.nionic_steps - offset)) % step_skip
 
         return cls.from_vaspruns(
-            vr(filepaths), specie=specie, initial_disp=initial_disp,
-            initial_structure=initial_structure, **kwargs)
+            vr(filepaths),
+            specie=specie,
+            initial_disp=initial_disp,
+            initial_structure=initial_structure,
+            **kwargs
+        )
 
     def as_dict(self):
         """
@@ -746,7 +807,7 @@ class DiffusionAnalyzer(MSONable):
             "min_obs": self.min_obs,
             "smoothed": self.smoothed,
             "avg_nsteps": self.avg_nsteps,
-            "lattices": self.lattices.tolist()
+            "lattices": self.lattices.tolist(),
         }
 
     @classmethod
@@ -758,12 +819,18 @@ class DiffusionAnalyzer(MSONable):
         Returns: DiffusionAnalyzer
         """
         structure = Structure.from_dict(d["structure"])
-        return cls(structure, np.array(d["displacements"]), specie=d["specie"],
-                   temperature=d["temperature"], time_step=d["time_step"],
-                   step_skip=d["step_skip"], min_obs=d["min_obs"],
-                   smoothed=d.get("smoothed", "max"),
-                   avg_nsteps=d.get("avg_nsteps", 1000),
-                   lattices=np.array(d.get("lattices", [d["structure"]["lattice"]["matrix"]])))
+        return cls(
+            structure,
+            np.array(d["displacements"]),
+            specie=d["specie"],
+            temperature=d["temperature"],
+            time_step=d["time_step"],
+            step_skip=d["step_skip"],
+            min_obs=d["min_obs"],
+            smoothed=d.get("smoothed", "max"),
+            avg_nsteps=d.get("avg_nsteps", 1000),
+            lattices=np.array(d.get("lattices", [d["structure"]["lattice"]["matrix"]])),
+        )
 
 
 def get_conversion_factor(structure, species, temperature):
@@ -776,7 +843,7 @@ def get_conversion_factor(structure, species, temperature):
 
     Args:
         structure (Structure): Input structure.
-        species (Element/Specie): Diffusing species.
+        species (Element/Species): Diffusing species.
         temperature (float): Temperature of the diffusion run in Kelvin.
 
     Returns:
@@ -792,15 +859,21 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
+    return (
+        1000
+        * n
+        / (vol * const.N_A)
+        * z ** 2
+        * (const.N_A * const.e) ** 2
+        / (const.R * temperature)
+    )
 
 
 def _get_vasprun(args):
     """
     Internal method to support multiprocessing.
     """
-    return Vasprun(args[0], ionic_step_skip=args[1],
-                   parse_dos=False, parse_eigen=False)
+    return Vasprun(args[0], ionic_step_skip=args[1], parse_dos=False, parse_eigen=False)
 
 
 def fit_arrhenius(temps, diffusivities):
@@ -844,8 +917,7 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     return c * np.exp(-Ea / (const.k / const.e * new_temp))
 
 
-def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
-                                  species):
+def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, species):
     """
     Returns extrapolated mS/cm conductivity.
 
@@ -855,17 +927,17 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
         structure (structure): Structure used for the diffusivity calculation
-        species (string/Specie): conducting species
+        species (string/Species): conducting species
 
     Returns:
         (float) Conductivity at extrapolated temp in mS/cm.
     """
-    return get_extrapolated_diffusivity(temps, diffusivities, new_temp) \
-        * get_conversion_factor(structure, species, new_temp)
+    return get_extrapolated_diffusivity(
+        temps, diffusivities, new_temp
+    ) * get_conversion_factor(structure, species, new_temp)
 
 
-def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
-                       **kwargs):
+def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None, **kwargs):
     r"""
     Returns an Arrhenius plot.
 
@@ -884,6 +956,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
     from pymatgen.util.plotting import pretty_plot
+
     plt = pretty_plot(12, 8)
 
     # log10 of the arrhenius fit
@@ -891,16 +964,27 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
 
     t_1 = 1000 / np.array(temps)
 
-    plt.plot(t_1, diffusivities, 'ko', t_1, arr, 'k--', markersize=10,
-             **kwargs)
+    plt.plot(t_1, diffusivities, "ko", t_1, arr, "k--", markersize=10, **kwargs)
     if diffusivity_errors is not None:
         n = len(diffusivity_errors)
-        plt.errorbar(t_1[0:n], diffusivities[0:n], yerr=diffusivity_errors,
-                     fmt='ko', ecolor='k', capthick=2, linewidth=2)
+        plt.errorbar(
+            t_1[0:n],
+            diffusivities[0:n],
+            yerr=diffusivity_errors,
+            fmt="ko",
+            ecolor="k",
+            capthick=2,
+            linewidth=2,
+        )
     ax = plt.axes()
-    ax.set_yscale('log')
-    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(Ea * 1000),
-             fontsize=30, transform=plt.axes().transAxes)
+    ax.set_yscale("log")
+    plt.text(
+        0.6,
+        0.85,
+        "E$_a$ = {:.0f} meV".format(Ea * 1000),
+        fontsize=30,
+        transform=plt.axes().transAxes,
+    )
     plt.ylabel("D (cm$^2$/s)")
     plt.xlabel("1000/T (K$^{-1}$)")
     plt.tight_layout()

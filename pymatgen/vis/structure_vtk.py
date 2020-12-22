@@ -7,9 +7,9 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-import os
 import itertools
 import math
+import os
 import subprocess
 import time
 
@@ -23,13 +23,13 @@ except ImportError:
     vtk = None
     vtkInteractorStyleTrackballCamera = object
 
-from monty.serialization import loadfn
 from monty.dev import requires
+from monty.serialization import loadfn
 
-from pymatgen.util.coord import in_coord_list
-from pymatgen.core.periodic_table import Specie
-from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.util.coord import in_coord_list
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
@@ -40,11 +40,18 @@ class StructureVis:
     Provides Structure object visualization using VTK.
     """
 
-    @requires(vtk, "Visualization requires the installation of VTK with "
-                   "Python bindings.")
-    def __init__(self, element_color_mapping=None, show_unit_cell=True,
-                 show_bonds=False, show_polyhedron=True,
-                 poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
+    @requires(
+        vtk, "Visualization requires the installation of VTK with " "Python bindings."
+    )
+    def __init__(
+        self,
+        element_color_mapping=None,
+        show_unit_cell=True,
+        show_bonds=False,
+        show_polyhedron=True,
+        poly_radii_tol_factor=0.5,
+        excluded_bonding_elements=None,
+    ):
         """
         Constructs a Structure Visualization.
 
@@ -103,8 +110,9 @@ class StructureVis:
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = excluded_bonding_elements if \
-            excluded_bonding_elements else []
+        self.excluded_bonding_elements = (
+            excluded_bonding_elements if excluded_bonding_elements else []
+        )
         self.show_help = True
         self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         self.redraw()
@@ -130,8 +138,7 @@ class StructureVis:
             camera.Pitch(angle)
         self.ren_win.Render()
 
-    def write_image(self, filename="image.png", magnification=1,
-                    image_format="png"):
+    def write_image(self, filename="image.png", magnification=1, image_format="png"):
         """
         Save render window to an image.
 
@@ -193,17 +200,20 @@ class StructureVis:
         """
         Display the help for various keyboard shortcuts.
         """
-        helptxt = ["h : Toggle help",
-                   "A/a, B/b or C/c : Increase/decrease cell by one a,"
-                   " b or c unit vector", "# : Toggle showing of polyhedrons",
-                   "-: Toggle showing of bonds", "r : Reset camera direction",
-                   "[/]: Decrease or increase poly_radii_tol_factor "
-                   "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-                   "Up/Down: Rotate view along Up direction by 90 "
-                   "clockwise/anticlockwise",
-                   "Left/right: Rotate view along camera direction by "
-                   "90 clockwise/anticlockwise", "s: Save view to image.png",
-                   "o: Orthogonalize structure"]
+        helptxt = [
+            "h : Toggle help",
+            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "# : Toggle showing of polyhedrons",
+            "-: Toggle showing of bonds",
+            "r : Reset camera direction",
+            "[/]: Decrease or increase poly_radii_tol_factor "
+            "by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by "
+            "90 clockwise/anticlockwise",
+            "s: Save view to image.png",
+            "o: Orthogonalize structure",
+        ]
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -272,10 +282,14 @@ class StructureVis:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
+                    color = color + occu * np.array(
+                        self.el_color_mapping.get(sp.symbol, [0, 0, 0])
+                    )
 
                 if not exclude:
-                    max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
+                    max_radius = (1 + self.poly_radii_tol_factor) * (
+                        max_radius + anion_radius
+                    )
                     nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
                     for neighbor in nn:
@@ -301,14 +315,15 @@ class StructureVis:
             if has_lattice:
                 # Adjust the camera for best viewing
                 lengths = s.lattice.abc
-                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
+                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(
+                    lengths
+                ) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
             else:
                 origin = s.center_of_mass
-                max_site = max(
-                    s, key=lambda site: site.distance_from_point(origin))
+                max_site = max(s, key=lambda site: site.distance_from_point(origin))
                 camera.SetPosition(origin + 5 * (max_site.coords - origin))
                 camera.SetFocalPoint(s.center_of_mass)
 
@@ -348,9 +363,11 @@ class StructureVis:
         total_occu = 0
 
         for specie, occu in site.species.items():
-            radius += occu * (specie.ionic_radius
-                              if isinstance(specie, Specie) and specie.ionic_radius
-                              else specie.average_ionic_radius)
+            radius += occu * (
+                specie.ionic_radius
+                if isinstance(specie, Species) and specie.ionic_radius
+                else specie.average_ionic_radius
+            )
             total_occu += occu
 
         vis_radius = 0.2 + 0.002 * radius
@@ -360,18 +377,23 @@ class StructureVis:
                 color = (1, 1, 1)
             elif specie.symbol in self.el_color_mapping:
                 color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
-            mapper = self.add_partial_sphere(site.coords, vis_radius, color,
-                                             start_angle, start_angle + 360 * occu)
+            mapper = self.add_partial_sphere(
+                site.coords, vis_radius, color, start_angle, start_angle + 360 * occu
+            )
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
 
         if total_occu < 1:
-            mapper = self.add_partial_sphere(site.coords, vis_radius, (1, 1, 1),
-                                             start_angle, start_angle + 360 * (1 - total_occu))
+            mapper = self.add_partial_sphere(
+                site.coords,
+                vis_radius,
+                (1, 1, 1),
+                start_angle,
+                start_angle + 360 * (1 - total_occu),
+            )
             self.mapper_map[mapper] = [site]
 
-    def add_partial_sphere(self, coords, radius, color, start=0, end=360,
-                           opacity=1.0):
+    def add_partial_sphere(self, coords, radius, color, start=0, end=360, opacity=1.0):
         """
         Adding a partial sphere (to display partial occupancies.
 
@@ -451,9 +473,16 @@ class StructureVis:
         actor.GetProperty().SetLineWidth(width)
         self.ren.AddActor(actor)
 
-    def add_polyhedron(self, neighbors, center, color, opacity=1.0,
-                       draw_edges=False, edges_color=[0.0, 0.0, 0.0],
-                       edges_linewidth=2):
+    def add_polyhedron(
+        self,
+        neighbors,
+        center,
+        color,
+        opacity=1.0,
+        draw_edges=False,
+        edges_color=[0.0, 0.0, 0.0],
+        edges_linewidth=2,
+    ):
         """
         Adds a polyhedron.
 
@@ -489,7 +518,7 @@ class StructureVis:
         # ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
         ac.GetProperty().SetOpacity(opacity)
-        if color == 'element':
+        if color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             myoccu = 0.0
@@ -507,9 +536,16 @@ class StructureVis:
             ac.GetProperty().EdgeVisibilityOn()
         self.ren.AddActor(ac)
 
-    def add_triangle(self, neighbors, color, center=None, opacity=0.4,
-                     draw_edges=False, edges_color=[0.0, 0.0, 0.0],
-                     edges_linewidth=2):
+    def add_triangle(
+        self,
+        neighbors,
+        color,
+        center=None,
+        opacity=0.4,
+        draw_edges=False,
+        edges_color=[0.0, 0.0, 0.0],
+        edges_linewidth=2,
+    ):
         """
         Adds a triangular surface between three atoms.
 
@@ -525,8 +561,7 @@ class StructureVis:
         points = vtk.vtkPoints()
         triangle = vtk.vtkTriangle()
         for ii in range(3):
-            points.InsertNextPoint(neighbors[ii].x, neighbors[ii].y,
-                                   neighbors[ii].z)
+            points.InsertNextPoint(neighbors[ii].x, neighbors[ii].y, neighbors[ii].z)
             triangle.GetPointIds().SetId(ii, ii)
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
@@ -543,11 +578,12 @@ class StructureVis:
         ac = vtk.vtkActor()
         ac.SetMapper(mapper)
         ac.GetProperty().SetOpacity(opacity)
-        if color == 'element':
+        if color == "element":
             if center is None:
                 raise ValueError(
-                    'Color should be chosen according to the central atom, '
-                    'and central atom is not provided')
+                    "Color should be chosen according to the central atom, "
+                    "and central atom is not provided"
+                )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
             myoccu = 0.0
@@ -657,7 +693,7 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]):
+    def add_edges(self, edges, type="line", linewidth=2, color=[0.0, 0.0, 0.0]):
         """
         Args:
             edges (): List of edges
@@ -688,8 +724,7 @@ class StructureVis:
         ac.GetProperty().SetLineWidth(linewidth)
         self.ren.AddActor(ac)
 
-    def add_bonds(self, neighbors, center, color=None, opacity=None,
-                  radius=0.1):
+    def add_bonds(self, neighbors, center, color=None, opacity=None, radius=0.1):
         """
         Adds bonds for a site.
 
@@ -748,12 +783,13 @@ class StructureVis:
                 if mapper in self.mapper_map:
                     output = []
                     for site in self.mapper_map[mapper]:
-                        row = ["{} - ".format(site.species_string),
-                               ", ".join(["{:.3f}".format(c)
-                                          for c in site.frac_coords]),
-                               "[" + ", ".join(["{:.3f}".format(c)
-                                                for c in site.coords]) +
-                               "]"]
+                        row = [
+                            "{} - ".format(site.species_string),
+                            ", ".join(["{:.3f}".format(c) for c in site.frac_coords]),
+                            "["
+                            + ", ".join(["{:.3f}".format(c) for c in site.coords])
+                            + "]",
+                        ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
                     self.helptxt_actor.SetPosition(10, 10)
@@ -790,10 +826,11 @@ class StructureVis:
                 mapper = picker.GetMapper()
                 if mapper in self.mapper_map:
                     site = self.mapper_map[mapper]
-                    output = [site.species_string, "Frac. coords: " +
-                              " ".join(["{:.4f}".format(c)
-                                        for c in
-                                        site.frac_coords])]
+                    output = [
+                        site.species_string,
+                        "Frac. coords: "
+                        + " ".join(["{:.4f}".format(c) for c in site.frac_coords]),
+                    ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
                     follower.VisibilityOn()
@@ -880,8 +917,9 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             parent.show_bonds = not parent.show_bonds
             parent.redraw()
         elif sym == "bracketleft":
-            parent.poly_radii_tol_factor -= 0.05 \
-                if parent.poly_radii_tol_factor > 0 else 0
+            parent.poly_radii_tol_factor -= (
+                0.05 if parent.poly_radii_tol_factor > 0 else 0
+            )
             parent.redraw()
         elif sym == "bracketright":
             parent.poly_radii_tol_factor += 0.05
@@ -908,8 +946,15 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         self.OnKeyPress()
 
 
-def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
-               bitrate="10000k", quality=1, **kwargs):
+def make_movie(
+    structures,
+    output_filename="movie.mp4",
+    zoom=1.0,
+    fps=20,
+    bitrate="10000k",
+    quality=1,
+    **kwargs
+):
     r"""
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
@@ -935,9 +980,19 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
         vis.set_structure(s)
         vis.write_image(filename.format(i), 3)
     filename = "image%0" + str(sigfig) + "d.png"
-    args = ["ffmpeg", "-y", "-i", filename,
-            "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate),
-            output_filename]
+    args = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        filename,
+        "-q:v",
+        str(quality),
+        "-r",
+        str(fps),
+        "-b:v",
+        str(bitrate),
+        output_filename,
+    ]
     subprocess.Popen(args)
 
 
@@ -945,15 +1000,24 @@ class MultiStructuresVis(StructureVis):
     """
     Visualization for multiple structures.
     """
-    DEFAULT_ANIMATED_MOVIE_OPTIONS = {'time_between_frames': 0.1,
-                                      'looping_type': 'restart',
-                                      'number_of_loops': 1,
-                                      'time_between_loops': 1.0}
 
-    def __init__(self, element_color_mapping=None, show_unit_cell=True,
-                 show_bonds=False, show_polyhedron=False,
-                 poly_radii_tol_factor=0.5, excluded_bonding_elements=None,
-                 animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS):
+    DEFAULT_ANIMATED_MOVIE_OPTIONS = {
+        "time_between_frames": 0.1,
+        "looping_type": "restart",
+        "number_of_loops": 1,
+        "time_between_loops": 1.0,
+    }
+
+    def __init__(
+        self,
+        element_color_mapping=None,
+        show_unit_cell=True,
+        show_bonds=False,
+        show_polyhedron=False,
+        poly_radii_tol_factor=0.5,
+        excluded_bonding_elements=None,
+        animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS,
+    ):
         """
         Args:
             element_color_mapping: Optional color mapping for the elements,
@@ -976,11 +1040,14 @@ class MultiStructuresVis(StructureVis):
                 framework (e.g., Li in a Li-ion battery cathode material).
             animated_movie_options (): Used for moving.
         """
-        super().__init__(element_color_mapping=element_color_mapping,
-                         show_unit_cell=show_unit_cell,
-                         show_bonds=show_bonds, show_polyhedron=show_polyhedron,
-                         poly_radii_tol_factor=poly_radii_tol_factor,
-                         excluded_bonding_elements=excluded_bonding_elements)
+        super().__init__(
+            element_color_mapping=element_color_mapping,
+            show_unit_cell=show_unit_cell,
+            show_bonds=show_bonds,
+            show_polyhedron=show_polyhedron,
+            poly_radii_tol_factor=poly_radii_tol_factor,
+            excluded_bonding_elements=excluded_bonding_elements,
+        )
         self.warningtxt_actor = vtk.vtkActor2D()
         self.infotxt_actor = vtk.vtkActor2D()
         self.structures = None
@@ -1010,15 +1077,19 @@ class MultiStructuresVis(StructureVis):
             for site in struct:
                 radius = 0
                 for specie, occu in site.species.items():
-                    radius += occu * (specie.ionic_radius
-                                      if isinstance(specie, Specie) and specie.ionic_radius
-                                      else specie.average_ionic_radius)
+                    radius += occu * (
+                        specie.ionic_radius
+                        if isinstance(specie, Species) and specie.ionic_radius
+                        else specie.average_ionic_radius
+                    )
                     vis_radius = 0.2 + 0.002 * radius
                 struct_radii.append(radius)
                 struct_vis_radii.append(vis_radius)
             self.all_radii.append(struct_radii)
             self.all_vis_radii.append(struct_vis_radii)
-        self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
+        self.set_structure(
+            self.current_structure, reset_camera=True, to_unit_cell=False
+        )
 
     def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
         """
@@ -1030,8 +1101,9 @@ class MultiStructuresVis(StructureVis):
                 determined based on the structure.
             to_unit_cell: Whether or not to fall back sites into the unit cell.
         """
-        super().set_structure(structure=structure, reset_camera=reset_camera,
-                              to_unit_cell=to_unit_cell)
+        super().set_structure(
+            structure=structure, reset_camera=reset_camera, to_unit_cell=to_unit_cell
+        )
         self.apply_tags()
 
     def apply_tags(self):
@@ -1040,31 +1112,37 @@ class MultiStructuresVis(StructureVis):
         """
         tags = {}
         for tag in self.tags:
-            istruct = tag.get('istruct', 'all')
-            if istruct != 'all':
+            istruct = tag.get("istruct", "all")
+            if istruct != "all":
                 if istruct != self.istruct:
                     continue
-            site_index = tag['site_index']
-            color = tag.get('color', [0.5, 0.5, 0.5])
-            opacity = tag.get('opacity', 0.5)
-            if site_index == 'unit_cell_all':
+            site_index = tag["site_index"]
+            color = tag.get("color", [0.5, 0.5, 0.5])
+            opacity = tag.get("opacity", 0.5)
+            if site_index == "unit_cell_all":
                 struct_radii = self.all_vis_radii[self.istruct]
                 for isite, site in enumerate(self.current_structure):
-                    vis_radius = 1.5 * tag.get('radius', struct_radii[isite])
-                    tags[(isite, (0, 0, 0))] = {'radius': vis_radius,
-                                                'color': color,
-                                                'opacity': opacity}
+                    vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
+                    tags[(isite, (0, 0, 0))] = {
+                        "radius": vis_radius,
+                        "color": color,
+                        "opacity": opacity,
+                    }
                 continue
-            cell_index = tag['cell_index']
-            if 'radius' in tag:
-                vis_radius = tag['radius']
-            elif 'radius_factor' in tag:
-                vis_radius = tag['radius_factor'] * self.all_vis_radii[self.istruct][site_index]
+            cell_index = tag["cell_index"]
+            if "radius" in tag:
+                vis_radius = tag["radius"]
+            elif "radius_factor" in tag:
+                vis_radius = (
+                    tag["radius_factor"] * self.all_vis_radii[self.istruct][site_index]
+                )
             else:
                 vis_radius = 1.5 * self.all_vis_radii[self.istruct][site_index]
-            tags[(site_index, cell_index)] = {'radius': vis_radius,
-                                              'color': color,
-                                              'opacity': opacity}
+            tags[(site_index, cell_index)] = {
+                "radius": vis_radius,
+                "color": color,
+                "opacity": opacity,
+            }
         for site_and_cell_index, tag_style in tags.items():
             isite, cell_index = site_and_cell_index
             site = self.current_structure[isite]
@@ -1072,18 +1150,27 @@ class MultiStructuresVis(StructureVis):
                 coords = site.coords
             else:
                 fcoords = site.frac_coords + np.array(cell_index)
-                site_image = PeriodicSite(site.species, fcoords,
-                                          self.current_structure.lattice, to_unit_cell=False,
-                                          coords_are_cartesian=False,
-                                          properties=site.properties)
+                site_image = PeriodicSite(
+                    site.species,
+                    fcoords,
+                    self.current_structure.lattice,
+                    to_unit_cell=False,
+                    coords_are_cartesian=False,
+                    properties=site.properties,
+                )
                 self.add_site(site_image)
                 coords = site_image.coords
-            vis_radius = tag_style['radius']
-            color = tag_style['color']
-            opacity = tag_style['opacity']
-            self.add_partial_sphere(coords=coords, radius=vis_radius,
-                                    color=color, start=0, end=360,
-                                    opacity=opacity)
+            vis_radius = tag_style["radius"]
+            color = tag_style["color"]
+            opacity = tag_style["opacity"]
+            self.add_partial_sphere(
+                coords=coords,
+                radius=vis_radius,
+                color=color,
+                start=0,
+                end=360,
+                opacity=opacity,
+            )
 
     def set_animated_movie_options(self, animated_movie_options=None):
         """
@@ -1096,27 +1183,30 @@ class MultiStructuresVis(StructureVis):
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
             for key in animated_movie_options:
                 if key not in self.DEFAULT_ANIMATED_MOVIE_OPTIONS.keys():
-                    raise ValueError('Wrong option for animated movie')
+                    raise ValueError("Wrong option for animated movie")
             self.animated_movie_options.update(animated_movie_options)
 
     def display_help(self):
         """
         Display the help for various keyboard shortcuts.
         """
-        helptxt = ["h : Toggle help",
-                   "A/a, B/b or C/c : Increase/decrease cell by one a,"
-                   " b or c unit vector", "# : Toggle showing of polyhedrons",
-                   "-: Toggle showing of bonds", "r : Reset camera direction",
-                   "[/]: Decrease or increase poly_radii_tol_factor "
-                   "by 0.05. Value = " + str(self.poly_radii_tol_factor),
-                   "Up/Down: Rotate view along Up direction by 90 "
-                   "clockwise/anticlockwise",
-                   "Left/right: Rotate view along camera direction by "
-                   "90 clockwise/anticlockwise", "s: Save view to image.png",
-                   "o: Orthogonalize structure",
-                   "n: Move to next structure",
-                   "p: Move to previous structure",
-                   "m: Animated movie of the structures"]
+        helptxt = [
+            "h : Toggle help",
+            "A/a, B/b or C/c : Increase/decrease cell by one a," " b or c unit vector",
+            "# : Toggle showing of polyhedrons",
+            "-: Toggle showing of bonds",
+            "r : Reset camera direction",
+            "[/]: Decrease or increase poly_radii_tol_factor "
+            "by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by "
+            "90 clockwise/anticlockwise",
+            "s: Save view to image.png",
+            "o: Orthogonalize structure",
+            "n: Move to next structure",
+            "p: Move to previous structure",
+            "m: Animated movie of the structures",
+        ]
         self.helptxt_mapper.SetInput("\n".join(helptxt))
         self.helptxt_actor.SetPosition(10, 10)
         self.helptxt_actor.VisibilityOn()
@@ -1182,6 +1272,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
     """
     Interactor for MultiStructureVis.
     """
+
     def __init__(self, parent):
         """
         Args:
@@ -1200,38 +1291,46 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
 
         if sym == "n":
             if parent.istruct == len(parent.structures) - 1:
-                parent.display_warning('LAST STRUCTURE')
+                parent.display_warning("LAST STRUCTURE")
                 parent.ren_win.Render()
             else:
                 parent.istruct += 1
                 parent.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+                parent.set_structure(
+                    parent.current_structure, reset_camera=False, to_unit_cell=False
+                )
                 parent.erase_warning()
                 parent.ren_win.Render()
         elif sym == "p":
             if parent.istruct == 0:
-                parent.display_warning('FIRST STRUCTURE')
+                parent.display_warning("FIRST STRUCTURE")
                 parent.ren_win.Render()
             else:
 
                 parent.istruct -= 1
                 parent.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+                parent.set_structure(
+                    parent.current_structure, reset_camera=False, to_unit_cell=False
+                )
                 parent.erase_warning()
                 parent.ren_win.Render()
         elif sym == "m":
             parent.istruct = 0
             parent.current_structure = parent.structures[parent.istruct]
-            parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
+            parent.set_structure(
+                parent.current_structure, reset_camera=False, to_unit_cell=False
+            )
             parent.erase_warning()
             parent.ren_win.Render()
-            nloops = parent.animated_movie_options['number_of_loops']
-            tstep = parent.animated_movie_options['time_between_frames']
-            tloops = parent.animated_movie_options['time_between_loops']
-            if parent.animated_movie_options['looping_type'] == 'restart':
+            nloops = parent.animated_movie_options["number_of_loops"]
+            tstep = parent.animated_movie_options["time_between_frames"]
+            tloops = parent.animated_movie_options["time_between_loops"]
+            if parent.animated_movie_options["looping_type"] == "restart":
                 loop_istructs = range(len(parent.structures))
-            elif parent.animated_movie_options['looping_type'] == 'palindrome':
-                loop_istructs = range(len(parent.structures)) + range(len(parent.structures) - 2, -1, -1)
+            elif parent.animated_movie_options["looping_type"] == "palindrome":
+                loop_istructs = range(len(parent.structures)) + range(
+                    len(parent.structures) - 2, -1, -1
+                )
             else:
                 raise ValueError('"looping_type" should be "restart" or "palindrome"')
             for iloop in range(nloops):
@@ -1239,14 +1338,19 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                     time.sleep(tstep)
                     parent.istruct = istruct
                     parent.current_structure = parent.structures[parent.istruct]
-                    parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
-                    parent.display_info('Animated movie : structure {:d}/{:d} '
-                                        '(loop {:d}/{:d})'.format(istruct + 1, len(parent.structures),
-                                                                  iloop + 1, nloops))
+                    parent.set_structure(
+                        parent.current_structure, reset_camera=False, to_unit_cell=False
+                    )
+                    parent.display_info(
+                        "Animated movie : structure {:d}/{:d} "
+                        "(loop {:d}/{:d})".format(
+                            istruct + 1, len(parent.structures), iloop + 1, nloops
+                        )
+                    )
                     parent.ren_win.Render()
                 time.sleep(tloops)
             parent.erase_info()
-            parent.display_info('Ended animated movie ...')
+            parent.display_info("Ended animated movie ...")
             parent.ren_win.Render()
 
         StructureInteractorStyle.keyPressEvent(self, obj, event)
