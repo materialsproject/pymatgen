@@ -26,27 +26,26 @@ def _postprocessor(s):
 
     if s.lower() == "no":
         return False
-    elif s.lower() == "none":
+    if s.lower() == "none":
         return None
-    elif s.lower() == "yes" or s.lower() == "true":
+    if s.lower() == "yes" or s.lower() == "true":
         return True
-    elif re.match(r"^-?\d+$", s):
+    if re.match(r"^-?\d+$", s):
         try:
             return int(s)
         except ValueError:
             raise IOError("Error in parsing CP2K file.")
-    elif re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
+    if re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
         try:
             return float(s)
         except ValueError:
             raise IOError("Error in parsing CP2K file.")
-    elif re.match(r"\*+", s):
+    if re.match(r"\*+", s):
         try:
             return np.NaN
         except ValueError:
             raise IOError("Error in parsing CP2K file.")
-    else:
-        return s
+    return s
 
 
 def _preprocessor(s, d="."):
@@ -166,7 +165,7 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
             b = sorted(b, key=srt)[-1:]
         if len(b) == 0:
             raise LookupError("NO BASIS OF THAT TYPE AVAILABLE")
-        elif len(b) > 1:
+        if len(b) > 1:
             raise LookupError("AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER")
 
         basis_and_potential[s]["basis"] = b[0]

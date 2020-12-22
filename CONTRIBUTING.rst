@@ -65,15 +65,7 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
       you have written new modules or methods, you must write tests for the new
       code as well (see `Coding Guidelines`_). Install and run pytest in your
       local repo directory and fix all errors before continuing further.
-   c. If you have `pre-commit <https://pre-commit.com/>`_ installed you can use
-      the provided :code:`.pre-commit-config.yaml` file to perform automatic style checks
-      before publishing your code.  The pre-commit hooks can be installed using
-
-      ::
-
-            pre-commit install
-
-   d. If everything is ok, publish the commits to your github repository.
+   c. If everything is ok, publish the commits to your github repository.
 
       ::
 
@@ -84,9 +76,9 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    pymatgen maintainers. They will pull your commits and run their own tests
    before releasing.
 
-"Work-in-progress" pull requests are encouraged, especially if this is your
-first time contributing to pymatgen, and the maintainers will be happy to
-help or provide code review as necessary. Put "[WIP]" in the title of your
+"Work-in-progress" pull requests are encouraged, especially if this is your 
+first time contributing to pymatgen, and the maintainers will be happy to 
+help or provide code review as necessary. Put "[WIP]" in the title of your 
 pull request to indicate it's not ready to be merged.
 
 Coding Guidelines
@@ -124,10 +116,10 @@ examples of what is expected.
 A word on coding for Python 2 compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As of 2019, pymatgen no longer requires code to be Python 2 compatible, and
-current versions of the code are not supported with Python 2. If you need a
-version of pymatgen that works with Python 2, please use a version before
-2018, but note this will be missing the latest bug fixes. This change follows
+As of 2019, pymatgen no longer requires code to be Python 2 compatible, and 
+current versions of the code are not supported with Python 2. If you need a 
+version of pymatgen that works with Python 2, please use a version before 
+2018, but note this will be missing the latest bug fixes. This change follows 
 the broader Python community no longer supporting Python 2, including numpy.
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
