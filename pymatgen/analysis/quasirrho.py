@@ -36,12 +36,13 @@ amu2kg = 1.66053886E-27
 bohr2angs = 0.52917721092
 
 
-class QuasiRRHO():
+class QuasiRRHO:
     """
     Grimme's Quasi-RRHO approximation
     """
 
-    def __init__(self, output: Union[GaussianOutput, QCOutput, dict], temp=298.15, press=101317, conc=1, v0=100):
+    def __init__(self, output: Union[GaussianOutput, QCOutput, dict], sigma_r=1, temp=298.15, press=101317, conc=1,
+                 v0=100):
         self.temp = temp
         self.press = press
         self.conc = conc
@@ -58,7 +59,6 @@ class QuasiRRHO():
 
         if isinstance(output, QCOutput):
             # TO-DO fix QCOutput to get rotational symmetry number
-            sigma_r = 1
             mult = output.data['multiplicity']
             elec_e = output.data["SCF_energy_in_the_final_basis_set"]
 
