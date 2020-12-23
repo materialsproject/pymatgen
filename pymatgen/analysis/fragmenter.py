@@ -7,6 +7,7 @@ Perform fragmentation of molecules.
 """
 
 import copy
+import logging
 import itertools
 from monty.json import MSONable
 
