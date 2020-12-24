@@ -1,6 +1,141 @@
 Change log
 ==========
 
+v2020.12.18
+-----------
+* New IsayevNN nearest-neighbor algorithm (@utf, #2011)
+* Improvements to electrode objects (@jmmshn, #2016)
+* Improvements to Element and PhaseDiagram (@jmmshn, #2005) 
+* Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (@shyuep, see issue #2010)
+* Bug fix to VASP run type detection (@rkingsbury, #2007)
+
+v2020.12.3
+----------
+* Site insertion algorithm based on charge density (@jmmshn, #1997)
+* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
+* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
+* Improvement to allow general input for exciting (@vorwerkc, #1975)
+* Improvements to code formatting (@mkhorton, #2008)
+* Bug fix for VASP run type detection (@rkingsbury, #1996)
+
+v2020.11.11
+-----------
+* Bug fix for PhononBandStructureSymmLine. (@gpetretto)
+* Improved robustness in ABINIT input generation. (@gpetretto)
+* Other minor bug fixes.
+
+v2020.10.20
+-----------
+1. Cp2K support (@nwinner)
+2. Better BSPlotter (@fraricci)
+3. Better deprecation warnings.
+4. Bug fix for Py3.9 support.
+5. Bug fix for neutron diffraction get_plot.
+
+v2020.10.9
+----------
+* Cube parsing and Cube integration to Bader (@nwinner, #1967)
+* Improvements to PhaseDiagram (@CompRhys, #1899)
+* Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (@jmmshn, #1959)
+* Changes to MPRelaxSet, default to low spin for Co (@shyuep, #1976)
+* Changes to MPScanSet (@rkingsbury, #1952)
+* Rename of `Specie` to `Species`, `Specie` will be retained for backwards compatibility (@shyuep, #1963)
+* Bug fix for VASP sets (@utf, #1979)
+* Bug fix for PDPlotter (@mattmcdermott, #1973)
+* Bug fix for EnergyAdjustment (@rkingsbury, #1960)
+
+v2020.9.14
+----------
+
+* New Plotly backend for PhaseDiagram plotting (@mattmcdermott, #1936)
+* New reporting and logging of Materials Project database version in MPRester (@mkhorton, #1945)
+* Improvements and bug fixes with mcsqs integration (@rwoodsrobinson, #1942)
+* Improvements to PackmolRunner (@rkingsbury, #1947)
+* Improvements to ComputerEntry (@rkingsbury, #1948)
+* Improvements for MPScanSet (@rkingsbury, #1940)
+* Bug fix for Surface and Composition (@gpetretto, #1937)
+* Bug fix for EwaldSummation serialization (@lbluque, #1932)
+* Bug fix for SeeK k-path (@Ian496, #1930)
+* Fix for deprecation warning in MPRester (@rkingsbury, #1951)
+
+v2020.8.13
+----------
+
+* New GibbsComputedStructureEntry (@mattmcdermott, #1921)
+* Changes to MPScanRelaxSet and new MPScanStaticSet (@rkingsbury, #1917)
+* Changes to LobsterSet (@JaGeo, #1928)
+* Bug fix and change for MPRelaxSet (@mkhorton, 9eb3ac2)
+* Bug fix for JMolNN (@utf, #1920)
+* Bug fix for Element valences (@rkurchin, #1926)
+* Bug fix for BabelMolAdaptor (@smheidrich, #1924)
+* Bug fix for Gaussion IO (@eimrek, #1918)
+
+v2020.8.3
+---------
+* Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (@chc273)
+* Add I/O for JARVIS Atoms (@knc6)
+
+v2020.7.18
+----------
+* Add validation and extrapolation for stitching XAS (@yimingcheng)
+* Better error handling and possibly verbose warning to get_structure_by_material_id
+
+v2020.7.16
+----------
+* Bug fix for boltztrap2 spin support. (@fraricci)
+
+v2020.7.14
+----------
+* EwaldSummation is now MSONAble (@lbluque).
+* Fix for QChem freq parsing (@samblau)
+* Much improved linting and workflows.
+
+v2020.7.10
+----------
+* Bug fix: serialization of slabs (@utf)
+* Bug fix: enumlib url (@wsyxbcl)
+* Bug fix: change in tolerance for Lattice comparison (@mbjumar)
+* Bug fix: k-path division by zero (@mfherbst)
+* New: support for openbabel 3.0 (@orioncohen)
+
+v2020.7.3
+---------
+* Make Slabs properly serializable in as_dict. Fixes #1892.
+* Fixes for Critic2Caller (@yuuukuma)
+* Add cost data for He, H, Ar, Ne, Kr, Tc (@computron)
+* Parse scientific notation in OUTCAR (possibly without spaces in between)
+* Spin support for boltztrap2 (@fraricci)
+* New static method to generate basis functions Lobster (@JaGeo)
+* SLME and spillage analysis (@knc6)
+
+v2020.6.8
+---------
+* New: Support for parsing WAVECARS with spin-orbit coupling (@mturiansky, #1861)
+* New: Support to convert WAVECAR to wannier90 UNK files (@mturiansky, #1861)
+* New: Site-weighted XAS spectrum (@yimingchen95, #1837)
+* Fixed: Elfcar serialization (@ayushgupta, #1859)
+* Fixed: Units in label for phonon plot (@ab5424, #1857)
+* Fixed: StructureMatcher serialization (@lbluque, #1850)
+* Fixed: Comment string in KPOINTS file (@arosen93, #1842)
+* Fixed: parsing of dielectric function in VASP output (@computron, #1836)
+
+v2020.4.29
+----------
+* Improved SQS caller. (@rwoodsrobinson)
+* VolumetricData speedup (@mturiansk)
+* Misc bug fixes
+
+v2020.4.2
+---------
+* New high-symmetry k-path algorithm (@munrojm, @kt-latimer)
+* New TEM diffraction calculator (@welltemperedpaprika, @thefrankwan, @shyamd)
+* New plotly plotting option for Wulff shapes (@richardtran415)
+* Improvements to SQS caller (@rwoodsrobinson)
+* Various bug fixes and improvements (@mfherbst, @chc273,
+  @jacksund, @espottesmith, @hongyi-zhao, @montoyjh,
+  @dongsenfo, @dynikon) including significant BrunnerNN, EconNN fixes (@utf),
+  see individual pull requests for details.
+
 v2020.3.13
 ----------
 * Added angle_tolerance to CifWriter.

@@ -40,40 +40,33 @@ The above are recommendations. The following are UNBREAKABLE rules:
 """
 
 import abc
-import re
-import os
 import glob
+import itertools
+import os
+import re
 import shutil
 import warnings
-from itertools import chain
 from copy import deepcopy
+from itertools import chain
 from pathlib import Path
-from typing import List, Union, Optional
-import numpy as np
-from monty.serialization import loadfn
-from monty.io import zopen
-from monty.dev import deprecated
+from typing import List, Optional, Tuple, Union
 from zipfile import ZipFile
 
-from pymatgen.core.periodic_table import Specie, Element
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
-from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from pymatgen.io.lobster import Lobsterin
+import numpy as np
+from monty.dev import deprecated
+from monty.io import zopen
 from monty.json import MSONable
+from monty.serialization import loadfn
+
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.io.lobster import Lobsterin
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
+from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.sites import PeriodicSite
-
-__author__ = (
-    "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier, " "Anubhav Jain"
-)
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 28 2016"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -108,6 +101,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         List of POTCAR symbols.
         """
+        # pylint: disable=E1101
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -126,6 +120,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Potcar object.
         """
+        # pylint: disable=E1101
         potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
         # warn if the selected POTCARs do not correspond to the chosen
@@ -136,10 +131,11 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                     "POTCAR data with symbol {} is not known by pymatgen to\
                     correspond with the selected potcar_functional {}. This POTCAR\
                     is known to correspond with functionals {}. Please verify that\
-                    you are using the right POTCARs!"
-                        .format(psingle.symbol,
-                                self.potcar_functional,
-                                psingle.identify_potcar(mode='data')[0]),
+                    you are using the right POTCARs!".format(
+                        psingle.symbol,
+                        self.potcar_functional,
+                        psingle.identify_potcar(mode="data")[0],
+                    ),
                     BadInputSetWarning,
                 )
 
@@ -174,8 +170,14 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             potcar=self.potcar,
         )
 
-    def write_input(self, output_dir, make_dir_if_not_present=True, include_cif=False,
-                    potcar_spec=False, zip_output=False):
+    def write_input(
+        self,
+        output_dir,
+        make_dir_if_not_present=True,
+        include_cif=False,
+        potcar_spec=False,
+        zip_output=False,
+    ):
         """
         Writes a set of VASP input to a directory.
 
@@ -201,16 +203,19 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
                 f.write("\n".join(self.potcar_symbols))
 
-            for k, v in {"INCAR": self.incar,
-                         "POSCAR": self.poscar,
-                         "KPOINTS": self.kpoints
-                         }.items():
+            for k, v in {
+                "INCAR": self.incar,
+                "POSCAR": self.poscar,
+                "KPOINTS": self.kpoints,
+            }.items():
                 if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
                         f.write(v.__str__())
         else:
             vinput = self.get_vasp_input()
-            vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
+            vinput.write_input(
+                output_dir, make_dir_if_not_present=make_dir_if_not_present
+            )
 
         cifname = ""
         if include_cif:
@@ -221,7 +226,14 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         if zip_output:
             filename = self.__class__.__name__ + ".zip"
             with ZipFile(filename, "w") as zip:
-                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cifname]:
+                for file in [
+                    "INCAR",
+                    "POSCAR",
+                    "KPOINTS",
+                    "POTCAR",
+                    "POTCAR.spec",
+                    cifname,
+                ]:
                     try:
                         zip.write(file)
                         os.remove(file)
@@ -297,6 +309,7 @@ class DictSet(VaspInputSet):
         standardize=False,
         sym_prec=0.1,
         international_monoclinic=True,
+        validate_magmom=True,
     ):
         """
         Args:
@@ -361,11 +374,15 @@ class DictSet(VaspInputSet):
             sym_prec (float): Tolerance for symmetry finding.
             international_monoclinic (bool): Whether to use international convention
                 (vs Curtarolo) for monoclinic. Defaults True.
+            validate_magmom (bool): Ensure that the missing magmom values are filled
+                in with the vasp default value of 1.0
         """
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
             structure = structure.get_sorted_structure()
+        if validate_magmom:
+            get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)
 
         self._structure = structure
         self._config_dict = deepcopy(config_dict)
@@ -419,7 +436,7 @@ class DictSet(VaspInputSet):
             warnings.warn(
                 "'potcar_functional' argument is deprecated. Use "
                 "'user_potcar_functional' instead.",
-                DeprecationWarning,
+                FutureWarning,
             )
             self.potcar_functional = potcar_functional
         elif user_potcar_functional:
@@ -461,8 +478,7 @@ class DictSet(VaspInputSet):
                 sym_prec=self.sym_prec,
                 international_monoclinic=self.international_monoclinic,
             )
-        else:
-            return self._structure
+        return self._structure
 
     @property
     def incar(self) -> Incar:
@@ -499,21 +515,31 @@ class DictSet(VaspInputSet):
                     elif hasattr(site.specie, "spin"):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
+                        if site.specie.symbol == "Co":
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(str(site.specie)))
                     else:
+                        if site.specie.symbol == "Co":
+                            warnings.warn(
+                                "Co without oxidation state is initialized low spin by default. If this is "
+                                "not desired, please set the spin on the magmom on the site directly to "
+                                "ensure correct initialization"
+                            )
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
                 if hubbard_u:
                     if hasattr(structure[0], k.lower()):
-                        m = dict(
-                            [
-                                (site.specie.symbol, getattr(site, k.lower()))
-                                for site in structure
-                            ]
-                        )
+                        m = {
+                            site.specie.symbol: getattr(site, k.lower())
+                            for site in structure
+                        }
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
-                    # lookup specific LDAU if specified for most_electroneg atom
+                        # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
                         v[most_electroneg], dict
                     ):
@@ -521,7 +547,7 @@ class DictSet(VaspInputSet):
                             v[most_electroneg].get(sym, 0)
                             for sym in poscar.site_symbols
                         ]
-                    # else, use fallback LDAU value if it exists
+                        # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [
                             v.get(sym, 0)
@@ -536,7 +562,6 @@ class DictSet(VaspInputSet):
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
                 incar[k] = v
-
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
@@ -573,8 +598,9 @@ class DictSet(VaspInputSet):
             if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
                 incar["ISMEAR"] = 0
 
-        if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get(
-            "ISMEAR", 0 == -5
+        if (
+            self.user_incar_settings.get("KSPACING", 0) > 0.5
+            and incar.get("ISMEAR", 0) == -5
         ):
             warnings.warn(
                 "Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
@@ -620,8 +646,7 @@ class DictSet(VaspInputSet):
 
         if self.use_structure_charge:
             return nelect - structure.charge
-        else:
-            return nelect
+        return nelect
 
     @property
     def kpoints(self) -> Union[Kpoints, None]:
@@ -666,23 +691,22 @@ class DictSet(VaspInputSet):
 
         # If reciprocal_density is in the kpoints_settings use
         # Kpoints.automatic_density_by_vol
-        elif settings.get("reciprocal_density"):
+        if settings.get("reciprocal_density"):
             return Kpoints.automatic_density_by_vol(
                 self.structure, int(settings["reciprocal_density"]), self.force_gamma
             )
 
         # If length is in the kpoints_settings use Kpoints.automatic
-        elif settings.get("length"):
+        if settings.get("length"):
             return Kpoints.automatic(settings["length"])
 
         # Raise error. Unsure of which kpoint generation to use
-        else:
-            raise ValueError(
-                "Invalid KPoint Generation algo : Supported Keys are "
-                "grid_density: for Kpoints.automatic_density generation, "
-                "reciprocal_density: for KPoints.automatic_density_by_vol "
-                "generation, and length  : for Kpoints.automatic generation"
-            )
+        raise ValueError(
+            "Invalid KPoint Generation algo : Supported Keys are "
+            "grid_density: for Kpoints.automatic_density generation, "
+            "reciprocal_density: for KPoints.automatic_density_by_vol "
+            "generation, and length  : for Kpoints.automatic generation"
+        )
 
     def __str__(self):
         return self.__class__.__name__
@@ -719,11 +743,113 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif,
             potcar_spec=potcar_spec,
-            zip_output=zip_output
+            zip_output=zip_output,
         )
         for k, v in self.files_to_transfer.items():
             with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
+
+    def calculate_ng(self, max_prime_factor: int = 7, must_inc_2: bool = True) -> Tuple:
+        """
+        Calculates the NGX, NGY, and NGZ values using the information availible in the INCAR and POTCAR
+        This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
+
+        Args:
+            max_prime_factor (int): the valid prime factors of the grid size in each direction
+                                    VASP has many different setting for this to handel many compiling options.
+                                    For typical MPI options all prime factors up to 7 are allowed
+        """
+
+        # TODO throw error for Ultrasoft potentials
+
+        _RYTOEV = 13.605826
+        _AUTOA = 0.529177249
+        _PI = 3.141592653589793238
+
+        # TODO Only do this for VASP 6 for now. Older version require more advanced logitc
+
+        # get the ENCUT val
+        if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
+            encut = self.incar["ENCUT"]
+        else:
+            encut = max([i_species.enmax for i_species in self.all_input["POTCAR"]])
+        #
+
+        _CUTOF = [
+            np.sqrt(encut / _RYTOEV) / (2 * _PI / (anorm / _AUTOA))
+            for anorm in self.poscar.structure.lattice.abc
+        ]
+
+        _PREC = "Normal"  # VASP default
+        if "PREC" in self.incar:
+            _PREC = self.incar["PREC"]
+
+        if _PREC[0].lower() in {"l", "m", "h"}:
+            raise NotImplementedError(
+                "PREC = LOW/MEDIUM/HIGH from VASP 4.x and not supported, Please use NORMA/SINGLE/ACCURATE"
+            )
+
+        if _PREC[0].lower() in {"a", "s"}:  # TODO This only works in VASP 6.x
+            _WFACT = 4
+        else:
+            _WFACT = 3
+
+        def next_g_size(cur_g_size):
+            g_size = int(_WFACT * cur_g_size + 0.5)
+            return next_num_with_prime_factors(g_size, max_prime_factor, must_inc_2)
+
+        ng_vec = [*map(next_g_size, _CUTOF)]
+
+        if _PREC[0].lower() in {"a", "n"}:  # TODO This works for VASP 5.x and 6.x
+            finer_g_scale = 2
+        else:
+            finer_g_scale = 1
+
+        return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
+
+
+# Helper functions to determine valid FFT grids for VASP
+def next_num_with_prime_factors(
+    n: int, max_prime_factor: int, must_inc_2: bool = True
+) -> int:
+    """
+    Return the next number greater than or equal to n that only has the desired prime factors
+
+    Args:
+        n (int): Initial guess at the grid density
+        max_prime_factor (int): the maximum prime factor
+        must_inc_2 (bool): 2 must be a prime factor of the result
+
+    Returns:
+        int: first product of of the prime_factors that is >= n
+    """
+    if max_prime_factor < 2:
+        raise ValueError("Must choose a maximum prime factor greater than 2")
+    prime_factors = primes_less_than(max_prime_factor)
+    for new_val in itertools.count(start=n):
+        if must_inc_2 and new_val % 2 != 0:
+            continue
+        cur_val_ = new_val
+        for j in prime_factors:
+            while cur_val_ % j == 0:
+                cur_val_ //= j
+        if cur_val_ == 1:
+            return new_val
+    raise ValueError("No factorable number found, not possible.")
+
+
+def primes_less_than(max_val: int) -> List[int]:
+    """
+    Get the primes less than or equal to the max value
+    """
+    res = []
+    for i in range(2, max_val + 1):
+        for j in range(2, i):
+            if i % j == 0:
+                break
+        else:
+            res.append(i)
+    return res
 
 
 class MITRelaxSet(DictSet):
@@ -774,11 +900,17 @@ class MPRelaxSet(DictSet):
 
 class MPScanRelaxSet(DictSet):
     """
-    Class for writing a relax input set using Strongly Constrained and
-    Appropriately Normed (SCAN) semilocal density functional.
+    Class for writing a relaxation input set using the accurate and numerically
+    efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
+    (SCAN) metaGGA density functional.
 
     Notes:
-        1. This functional is only available from VASP.5.4.3 upwards.
+        1. This functional is currently not officially supported in VASP. Source
+        code may be obtained by contacting the authors of the manuscript in the
+        References section. The original SCAN functional, available from VASP 5.4.3
+        onwards, maybe used instead by passing `user_incar_settings={"METAGGA": "SCAN"}`
+        when instantiating this InputSet. r2SCAN and SCAN are expected to yield
+        very similar results.
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
@@ -789,6 +921,11 @@ class MPScanRelaxSet(DictSet):
             kinetic energy-density
             mkinetic energy-density pseudized
             kinetic energy density (partial)
+
+    References:
+         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
+         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
+         The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
     """
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
@@ -847,13 +984,13 @@ class MPScanRelaxSet(DictSet):
             updates["SIGMA"] = 0.05
 
         # Don't overwrite things the user has supplied
-        if kwargs.get("user_incar_settings", {}).get("KSPACING"):
+        if self.user_incar_settings.get("KSPACING"):
             del updates["KSPACING"]
 
-        if kwargs.get("user_incar_settings", {}).get("ISMEAR"):
+        if self.user_incar_settings.get("ISMEAR"):
             del updates["ISMEAR"]
 
-        if kwargs.get("user_incar_settings", {}).get("SIGMA"):
+        if self.user_incar_settings.get("SIGMA"):
             del updates["SIGMA"]
 
         if self.vdw:
@@ -931,6 +1068,8 @@ class MPStaticSet(MPRelaxSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
+            lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+                for electronic polarization
             reciprocal_density (int): For static calculations, we usually set the
                 reciprocal density by volume. This is a convenience arg to change
                 that, rather than using user_kpoints_settings. Defaults to 100,
@@ -976,7 +1115,6 @@ class MPStaticSet(MPRelaxSet):
                 "LVHAR": True,
                 "LWAVE": False,
                 "NSW": 0,
-                "ICHARG": 0,
                 "ALGO": "Normal",
             }
         )
@@ -998,9 +1136,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(
-            self.kwargs.get("user_incar_settings", {}).keys()
-        ):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings.keys()):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1094,6 +1230,121 @@ class MPStaticSet(MPRelaxSet):
             **kwargs: All kwargs supported by MPStaticSet, other than prev_incar
                 and prev_structure and prev_kpoints which are determined from
                 the prev_calc_dir.
+        """
+        input_set = cls(_dummy_structure, **kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
+
+
+class MPScanStaticSet(MPScanRelaxSet):
+    """
+    Creates input files for a static calculation using the accurate and numerically
+    efficient r2SCAN variant of the Strongly Constrainted and Appropriately Normed
+    (SCAN) metaGGA functional.
+    """
+
+    def __init__(
+        self,
+        structure,
+        bandgap=0,
+        prev_incar=None,
+        lepsilon=False,
+        lcalcpol=False,
+        **kwargs
+    ):
+        """
+        Args:
+            structure (Structure): Structure from previous run.
+            bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+                    compute the appropriate k-point density and determine the
+                    smearing settings.
+            prev_incar (Incar): Incar file from previous run.
+            lepsilon (bool): Whether to add static dielectric calculation
+            lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+                for electronic polarization.
+            **kwargs: kwargs supported by MPScanRelaxSet.
+        """
+        super().__init__(structure, bandgap, **kwargs)
+        if isinstance(prev_incar, str):
+            prev_incar = Incar.from_file(prev_incar)
+
+        self.prev_incar = prev_incar
+        self.kwargs = kwargs
+        self.lepsilon = lepsilon
+        self.lcalcpol = lcalcpol
+
+    @property
+    def incar(self):
+        """
+        :return: Incar
+        """
+        parent_incar = super().incar
+        incar = (
+            Incar(self.prev_incar)
+            if self.prev_incar is not None
+            else Incar(parent_incar)
+        )
+
+        incar.update(
+            {"LREAL": False, "NSW": 0, "LORBIT": 11, "LVHAR": True, "ISMEAR": -5}
+        )
+
+        if self.lepsilon:
+            incar["IBRION"] = 8
+            incar["LEPSILON"] = True
+
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            incar["LPEAD"] = True
+
+            # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
+            # to output ionic.
+            incar.pop("NSW", None)
+            incar.pop("NPAR", None)
+
+        if self.lcalcpol:
+            incar["LCALCPOL"] = True
+
+        for k in list(self.user_incar_settings.keys()):
+            # For user specified settings, override
+            # the incar settings.
+            if parent_incar.get(k, None) is not None:
+                incar[k] = parent_incar[k]
+            else:
+                incar.pop(k, None)
+
+        return incar
+
+    def override_from_prev_calc(self, prev_calc_dir="."):
+        """
+        Update the input set to include settings from a previous calculation.
+
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        self.prev_incar = vasprun.incar
+
+        self._structure = get_structure_from_prev_run(vasprun, outcar)
+
+        return self
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+        """
+        Generate a set of Vasp input files for static calculations from a
+        directory of previous Vasp run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MPScanStaticSet, other than prev_incar
+                which is determined from the prev_calc_dir.
         """
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
@@ -1204,8 +1455,8 @@ class MPHSEBSSet(MPHSERelaxSet):
                 line_density=self.kpoints_line_density, coords_are_cartesian=False
             )
 
-            for k in range(len(frac_k_points)):
-                kpts.append(frac_k_points[k])
+            for k, f in enumerate(frac_k_points):
+                kpts.append(f)
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
@@ -1368,7 +1619,7 @@ class MPNonSCFSet(MPRelaxSet):
         """
         incar = super().incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()})
+            incar.update(self.prev_incar.items())
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update(
@@ -1393,7 +1644,7 @@ class MPNonSCFSet(MPRelaxSet):
             # is incompatible with ISMEAR = -5.
             incar.update({"ISMEAR": 0, "SIGMA": 0.01})
 
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         if self.mode.lower() in "uniform":
             # Set smaller steps for DOS and optics output
@@ -1412,7 +1663,7 @@ class MPNonSCFSet(MPRelaxSet):
         :return: Kpoints
         """
         # override pymatgen kpoints if provided
-        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        user_kpoints = self.user_kpoints_settings
         if isinstance(user_kpoints, Kpoints):
             return user_kpoints
 
@@ -1516,7 +1767,7 @@ class MPNonSCFSet(MPRelaxSet):
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
 
-        # automatic setting of nedos using the total energy range and the energy step dedos
+        # automatic setting of nedos using the energy range and the energy step dedos
         if self.nedos == 0:
             emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
             emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
@@ -1597,13 +1848,13 @@ class MPSOCSet(MPStaticSet):
         """
         incar = super().incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()})
+            incar.update(self.prev_incar.items())
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update(
             {"ISYM": -1, "LSORBIT": "T", "ICHARG": 11, "SAXIS": list(self.saxis)}
         )
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         return incar
 
@@ -1759,7 +2010,7 @@ class MPNMRSet(MPStaticSet):
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
             quad_efg = [
-                Specie(p).get_nmr_quadrupole_moment(isotopes.get(p, None))
+                Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))
                 for p in self.poscar.site_symbols
             ]
 
@@ -1776,7 +2027,7 @@ class MPNMRSet(MPStaticSet):
                     "SIGMA": 0.01,
                 }
             )
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         return incar
 
@@ -2300,8 +2551,8 @@ class MITNEBSet(MITRelaxSet):
         structures = [input_structures[0]]
         for s in input_structures[1:]:
             prev = structures[-1]
-            for i in range(len(s)):
-                t = np.round(prev[i].frac_coords - s[i].frac_coords)
+            for i, site in enumerate(s):
+                t = np.round(prev[i].frac_coords - site.frac_coords)
                 if np.any(np.abs(t) > 0.5):
                     s.translate_sites([i], t, to_unit_cell=False)
             structures.append(s)
@@ -2651,11 +2902,12 @@ class LobsterSet(MPRelaxSet):
     def __init__(
         self,
         structure: Structure,
-        isym: int = -1,
+        isym: int = 0,
         ismear: int = -5,
         reciprocal_density: int = None,
         address_basis_file: str = None,
         user_supplied_basis: dict = None,
+        user_potcar_settings: dict = {"W": "W_sv"},
         **kwargs
     ):
         """
@@ -2666,16 +2918,17 @@ class LobsterSet(MPRelaxSet):
             reciprocal_density (int): density of k-mesh by reciprocal volume
             user_supplied_basis (dict): dict including basis functions for all elements in structure,
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
-            address_basis_file (str): address to a file similar to "BASIS_PBE_54.yaml" in pymatgen.io
+            address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml"
+                in pymatgen.io.lobster.lobster_basis
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         warnings.warn(
             "Make sure that all parameters are okay! This is a brand new implementation."
         )
 
-        if not (isym == -1 or isym == 0):
+        if isym not in (-1, 0):
             raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry")
-        if not (ismear == -5 or ismear == 0):
+        if ismear not in (-5, 0):
             raise ValueError("Lobster usually works with ismear=-5 or ismear=0")
 
         # newest potcars are preferred
@@ -2705,20 +2958,17 @@ class LobsterSet(MPRelaxSet):
             else:
                 self.reciprocal_density = reciprocal_density
 
-        # might need to be adapted in the future
-        ediff_per_atom = 5e-05
-
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
         self.address_basis_file = address_basis_file
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if user_supplied_basis is None and address_basis_file is None:
-            basis = Lobsterin._get_basis(
+            basis = Lobsterin.get_basis(
                 structure=structure, potcar_symbols=self.potcar_symbols
             )
         elif address_basis_file is not None:
-            basis = Lobsterin._get_basis(
+            basis = Lobsterin.get_basis(
                 structure=structure,
                 potcar_symbols=self.potcar_symbols,
                 address_basis_file=address_basis_file,
@@ -2737,7 +2987,7 @@ class LobsterSet(MPRelaxSet):
         nbands = lobsterin._get_nbands(structure=structure)
 
         update_dict = {
-            "EDIFF_PER_ATOM": ediff_per_atom,
+            "EDIFF": 1e-6,
             "NSW": 0,
             "LWAVE": True,
             "ISYM": isym,
@@ -2941,3 +3191,57 @@ _dummy_structure = Structure(
     [[0, 0, 0]],
     site_properties={"magmom": [[0, 0, 1]]},
 )
+
+
+def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
+    """
+    Make sure that the structure is valid magmoms based on the kind of caculation
+    Fill in missing Magmom values
+
+    Args:
+        structure: The input structure
+        inplace: True - edit the magmom of the input structurel; False - return new structure
+        spin_mode: "scalar"/"vector"/"none"/"auto" only first letter (s/v/n) is needed.
+            dictates how the spin configuration will be determined.
+
+            - auto: read the existing magmom values and decide
+            - scalar: use a single scalar value (for spin up/down)
+            - vector: use a vector value for spin-orbit systems
+            - none: Remove all the magmom information
+
+    Returns:
+        New structure if inplace == False
+    """
+    default_values = {"s": 1.0, "v": [1.0, 1.0, 1.0], "n": None}
+    if spin_mode[0].lower() == "a":
+        mode = "n"
+        for isite in structure.sites:
+            if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+                pass
+            elif isinstance(isite.properties["magmom"], float):
+                if mode == "v":
+                    raise TypeError("Magmom type conflict")
+                mode = "s"
+            elif len(isite.properties["magmom"]) == 3:
+                if mode == "s":
+                    raise TypeError("Magmom type conflict")
+                mode = "v"
+            else:
+                raise TypeError("Unrecognized Magmom Value")
+    else:
+        mode = spin_mode[0].lower()
+
+    if not inplace:
+        new_struct = structure.copy()
+    else:
+        new_struct = structure
+    for isite in new_struct.sites:
+        if mode == "n":
+            if "magmom" in isite.properties:
+                isite.properties.pop("magmom")
+        elif "magmom" not in isite.properties or isite.properties["magmom"] is None:
+            isite.properties["magmom"] = default_values[mode]
+
+    if not inplace:
+        return new_struct
+    return None

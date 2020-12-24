@@ -5,17 +5,18 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.util.convergence
    pymatgen.util.coord
-   pymatgen.util.coord_cython.cpython-36m-darwin
-   pymatgen.util.coord_cython.cpython-37m-darwin
+   pymatgen.util.coord_cython
    pymatgen.util.coord_cython
    pymatgen.util.coord_cython
    pymatgen.util.io_utils

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Collaborative Github Workflow &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>Collaborative Github Workflow &mdash; pymatgen 2020.12.18 documentation</title>
   
 
   
@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.12.18
               </div>
             
           
@@ -224,9 +224,15 @@ the change is not creating any merge conflicts.</p></li>
 <li><p>Check that everything compiles cleanly and passes all tests.
 The pymatgen repo comes with a complete set of tests for all modules. If
 you have written new modules or methods, you must write tests for the new
-code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run nosetest in your
-local repo directory and fix all errors before continuing further. There
-must be <strong>no errors</strong> for the nosetest.</p></li>
+code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run pytest in your
+local repo directory and fix all errors before continuing further.</p></li>
+<li><p>If you have <a class="reference external" href="https://pre-commit.com/">pre-commit</a> installed you can use
+the provided <code class="code docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file to perform automatic style checks
+before publishing your code.  The pre-commit hooks can be installed using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pre</span><span class="o">-</span><span class="n">commit</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
 <li><p>If everything is ok, publish the commits to your github repository.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
 </pre></div>
@@ -236,9 +242,13 @@ must be <strong>no errors</strong> for the nosetest.</p></li>
 </li>
 <li><p>Now that your commit is published, it doesn’t mean that it has already been
 merged into the main repository. You should issue a merge request to
-pymatgen’ maintainers. They will pull your commits and run their own tests
+pymatgen maintainers. They will pull your commits and run their own tests
 before releasing.</p></li>
 </ol>
+<p>“Work-in-progress” pull requests are encouraged, especially if this is your
+first time contributing to pymatgen, and the maintainers will be happy to
+help or provide code review as necessary. Put “[WIP]” in the title of your
+pull request to indicate it’s not ready to be merged.</p>
 </div>
 <div class="section" id="coding-guidelines">
 <h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
@@ -253,11 +263,11 @@ maintainer cannot test your code, the contribution will be rejected.</p></li>
 We allow a few exceptions when they are well-justified (e.g., Element’s
 atomic number is given a variable name of capital Z, in line with accepted
 scientific convention), but generally, PEP 8 must be observed. Code style
-will be automatically checked, but to aid you, you can copy the example
-pre-commit hook into your .git/hooks directly. This will automatically run
-pycodestyle prior to any commits. At the very least, copy pre-commit to
-.git/hooks/pre-push.</p></li>
-<li><p><strong>Python 3</strong>. We only support Python 3.5+.</p></li>
+will be automatically checked for all PRs and must pass before any PR is merged.
+To aid you, you can copy the example pre-commit hook into your .git/hooks
+directly. This will automatically run pycodestyle and other linting services
+prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.</p></li>
+<li><p><strong>Python 3</strong>. We only support Python 3.7+.</p></li>
 <li><p><strong>Documentation</strong> required for all modules, classes and methods. In
 particular, the method docstrings should make clear the arguments expected
 and the return values. For complex algorithms (e.g., an Ewald summation), a
@@ -270,35 +280,13 @@ selecting the entire code and using the Code-&gt;Reformat Code within Pycharm.</
 </ol>
 <p>For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.</p>
-<div class="section" id="a-word-on-coding-for-python-3-compatibility">
-<h2>A word on coding for Python 3 compatibility<a class="headerlink" href="#a-word-on-coding-for-python-3-compatibility" title="Permalink to this headline">¶</a></h2>
-<p>With effect from version 3.0, all pymatgen code must be both Python 2.7+ and 3
-compatible. Specifically, we have adopted the following practices throughout
-pymatgen.</p>
-<ol class="arabic">
-<li><p><strong>Unicode-always.</strong> Unless you are absolutely sure you need byte literals
-(rare for pymatgen), always use unicode. In particular, the following should
-be the first line of all pymatgen modules:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-</pre></div>
-</div>
-<p>Future division means that 1/2 returns a float (0.5),
-which is more intuitive scientifically, instead of 0 (default integer
-division in Python 2). print_function ensures that print() is used instead
-of the print statement. And unicode_literals makes it such that all
-strings are treated as unicode by default. If you need to use bytes,
-those should be marked up explicitly as b’byte literal’.</p>
-</li>
-<li><p><strong>Use of the six package</strong>. Where necessary, use the six package to handle
-interoperability between Python 2 and 3. Examples include the six.moves
-functions (common ones are zip, filter, map), and six.stringtypes (testing
-for string types, which should be rarely done).</p></li>
-<li><p><strong>Python-modernize</strong>. Use python-modernize to check your code for any
-potential changes that need to be made.</p></li>
-<li><p><strong>Unit testing</strong>. The entire pymatgen code base is continuously being
-tested in both Python 2.7 and &gt;=3.3. If your code fails either of the
-tests, you need to fix it.</p></li>
-</ol>
+<div class="section" id="a-word-on-coding-for-python-2-compatibility">
+<h2>A word on coding for Python 2 compatibility<a class="headerlink" href="#a-word-on-coding-for-python-2-compatibility" title="Permalink to this headline">¶</a></h2>
+<p>As of 2019, pymatgen no longer requires code to be Python 2 compatible, and
+current versions of the code are not supported with Python 2. If you need a
+version of pymatgen that works with Python 2, please use a version before
+2018, but note this will be missing the latest bug fixes. This change follows
+the broader Python community no longer supporting Python 2, including numpy.</p>
 </div>
 </div>
 

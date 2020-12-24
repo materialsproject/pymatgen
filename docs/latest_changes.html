@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.12.18 documentation</title>
   
 
   
@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.12.18
               </div>
             
           
@@ -169,17 +169,14 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2020-3-13">
-<h2>v2020.3.13<a class="headerlink" href="#v2020-3-13" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2020-12-18">
+<h2>v2020.12.18<a class="headerlink" href="#v2020-12-18" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added angle_tolerance to CifWriter.</p></li>
-<li><p>Change default float precision in CifWriter to 8. Adds float_prec kwarg to
-allow setting of arbitrary precision.</p></li>
-<li><p>Rudimentary pymatgen.io.vasp.help.VaspDoc class for obtaining help from VASP wiki.</p></li>
-<li><p>Massive documentation cleanup.</p></li>
-<li><p>Reorganization of Entry, ComputedEntry (&#64;ayushsgupta).</p></li>
-<li><p>Bug fix for PourbaixDiagram (&#64;montoyjh).</p></li>
-<li><p>Read WAVECAR from gamma-point only VASP executable. (&#64;bernstei)</p></li>
+<li><p>New IsayevNN nearest-neighbor algorithm (&#64;utf, #2011)</p></li>
+<li><p>Improvements to electrode objects (&#64;jmmshn, #2016)</p></li>
+<li><p>Improvements to Element and PhaseDiagram (&#64;jmmshn, #2005)</p></li>
+<li><p>Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (&#64;shyuep, see issue #2010)</p></li>
+<li><p>Bug fix to VASP run type detection (&#64;rkingsbury, #2007)</p></li>
 </ul>
 </div>
 </div>

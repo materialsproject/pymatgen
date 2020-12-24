@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.optimization.neighbors module &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>pymatgen.optimization.neighbors module &mdash; pymatgen 2020.12.18 documentation</title>
   
 
   
@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.phonon package" href="pymatgen.phonon.html" />
-    <link rel="prev" title="pymatgen.optimization.neighbors.cpython-37m-darwin module" href="pymatgen.optimization.neighbors.cpython-37m-darwin.html" />
+    <link rel="prev" title="pymatgen.optimization.linear_assignment_numpy module" href="pymatgen.optimization.linear_assignment_numpy.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.12.18
               </div>
             
           
@@ -204,14 +204,14 @@
             
   <div class="section" id="module-pymatgen.optimization.neighbors">
 <span id="pymatgen-optimization-neighbors-module"></span><h1>pymatgen.optimization.neighbors module<a class="headerlink" href="#module-pymatgen.optimization.neighbors" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.optimization.neighbors.compute_offset_vectors">
-<code class="sig-name descname">compute_offset_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/optimization/neighbors.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.compute_offset_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compute_offset_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/optimization/neighbors.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.compute_offset_vectors" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.optimization.neighbors.find_points_in_spheres">
-<code class="sig-name descname">find_points_in_spheres</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/optimization/neighbors.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_points_in_spheres</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/optimization/neighbors.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.optimization.neighbors.find_points_in_spheres" title="Permalink to this definition">¶</a></dt>
 <dd><p>For each point in <cite>center_coords</cite>, get all the neighboring points in <cite>all_coords</cite> that are within the
 cutoff radius <cite>r</cite>. All the coordinates should be in cartesian.</p>
 <dl class="field-list simple">
