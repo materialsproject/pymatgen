@@ -5,17 +5,12 @@
 Parsers for XTB output files and directories
 """
 import logging
-import argparse
 import os
-
 import re
 
 from monty.json import MSONable
-from monty.io import zopen
-
 from pymatgen.core import Molecule
 from pymatgen.io.xyz import XYZ
-from pymatgen.io.qchem.utils import (read_pattern)
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
