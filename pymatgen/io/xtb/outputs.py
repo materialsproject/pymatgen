@@ -46,10 +46,12 @@ class CRESTOutput(MSONable):
 
     def _parse_crest_output(self):
         """
-        Parse output file and directory to extract all command line inputs and output files.
+        Parse output file and directory to extract all command line inputs
+            and output files.
         Sets the attributes:
             cmd_options: Dict of type {flag: value}
-            sorted_structrues_energies: n x m x 2 list, for n conformers, m rotamers per conformer, and tuple of
+            sorted_structrues_energies: n x m x 2 list, for n conformers,
+                m rotamers per conformer, and tuple of
                 [Molecule, energy]
             properly_terminated: True or False if run properly terminated
         """
@@ -109,10 +111,13 @@ class CRESTOutput(MSONable):
         if self.properly_terminated:
             # Parse for number of conformers and rotamers
             conformer_pattern = re.compile(
-                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+"
-                r"(?P<conformer>-*\d+\.\d+)\s+(?P<set>\d+)\s+(?P<degen>\d+)\s+(?P<origin>\w+)\n")
+                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+"
+                r"(?P<weight>-*\d+\.\d+)\s+"
+                r"(?P<conformer>-*\d+\.\d+)\s+(?P<set>\d+)\s+(?P<degen>\d+)\s+"
+                r"(?P<origin>\w+)\n")
             rotamer_pattern = re.compile(
-                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+"
+                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+"
+                r"(?P<weight>-*\d+\.\d+)\s+"
                 r"(?P<origin>\w+)\n")
             conformer_degeneracies = []
             energies = []
@@ -121,11 +126,13 @@ class CRESTOutput(MSONable):
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
                     if conformer_match:
-                        conformer_degeneracies.append(int(conformer_match['degen']))
+                        conformer_degeneracies.append(
+                            int(conformer_match['degen']))
                         energies.append(conformer_match['Etot'])
                     elif rotamer_match:
                         energies.append(rotamer_match['Etot'])
-            # Get final rotamers file and read in all molecules, sorted by conformer type and energy
+            # Get final rotamers file and read in all molecules,
+            # sorted by conformer type and energy
             if 'crest_rotamers.xyz' in os.listdir(self.path):
                 final_rotamer_filename = 'crest_rotamers.xyz'
             else:
@@ -135,7 +142,8 @@ class CRESTOutput(MSONable):
                         n_rot_file = int(os.path.splitext(f)[0].split('_')[2])
                         n_rot_files.append(n_rot_file)
                 if len(n_rot_files) > 0:
-                    final_rotamer_filename = 'crest_rotamers_{}.xyz'.format(max(n_rot_files))
+                    final_rotamer_filename = 'crest_rotamers_{}.xyz'.format(
+                        max(n_rot_files))
             try:
                 rotamers_path = os.path.join(self.path, final_rotamer_filename)
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules
@@ -146,10 +154,12 @@ class CRESTOutput(MSONable):
                     self.sorted_structures_energies.append([])
                     i = 0
                     for i in range(start, start + d):
-                        self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
+                        self.sorted_structures_energies[n].append(
+                            [rotamer_structures[i], energies[i]])
                     start = i + 1
             except FileNotFoundError:
-                print('{} not found, no rotamer list processed'.format(final_rotamer_filename))
+                print('{} not found, no rotamer list processed'.format(
+                    final_rotamer_filename))
 
             # Get lowest energy conformer from 'crest_best.xyz'
             crestbest_path = os.path.join(self.path, 'crest_best.xyz')
