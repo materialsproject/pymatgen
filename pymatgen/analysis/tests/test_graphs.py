@@ -472,7 +472,7 @@ from    to  to_image
             "bc_square_single.pdf",
             "bc_square.pdf",
             "MoS2_premul.pdf",
-            "MOS2_single.pdf",
+            "MoS2_single.pdf",
             "MoS2_twice_mul.pdf",
             "MoS2.pdf",
             "square_single.pdf",
