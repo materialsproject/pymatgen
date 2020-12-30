@@ -1185,7 +1185,7 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                 gga_entries.append(e)
             elif e.parameters.get("run_type") == "GGA+U":
                 gga_entries.append(e)
-            elif e.parameters.get("run_type") == "SCAN":
+            elif e.parameters.get("run_type") == "R2SCAN":
                 scan_entries.append(e)
             else:
                 warnings.warn("Invalid run_type {} for entry {}. This entry "
@@ -1345,16 +1345,16 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
 
         run_type = entry.parameters.get("run_type")
 
-        if run_type not in ["GGA", "GGA+U", "SCAN"]:
+        if run_type not in ["GGA", "GGA+U", "R2SCAN"]:
             raise CompatibilityError("Invalid run type {} for entry {}. Must be GGA, GGA+U, "
-                                     "or SCAN".format(run_type, entry.entry_id)
+                                     "or R2SCAN".format(run_type, entry.entry_id)
                                      )
 
         # The correction value depends on how many of the GGA reference states
         # are present as SCAN calculations
         if all(has_scan_hull_entries) and has_scan_hull_entries != [] or all(has_scan_ground_states):
             # If all SCAN reference are present,
-            if run_type == 'SCAN':
+            if run_type == 'R2SCAN':
                 # For SCAN entries, there is no correction
                 return adjustments
 
@@ -1393,7 +1393,7 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
 
         elif not any(has_scan_ground_states):
             # Discard SCAN entries if there are no SCAN reference states
-            if run_type == 'SCAN':
+            if run_type == 'R2SCAN':
                 raise CompatibilityError(
                               "Discarding SCAN entry {} for {} because there are no "
                               "SCAN reference structures".format(entry.entry_id, entry.composition.formula)
@@ -1402,7 +1402,7 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
 
         # Discard SCAN entries if there are fewer than 2 SCAN entries
         elif len(scan_entries) < 2:
-            if run_type == 'SCAN':
+            if run_type == 'R2SCAN':
                 raise CompatibilityError(
                             "Discarding SCAN {} entry for {} because there are fewer "
                             "than 2 SCAN entries".format(entry.entry_id, entry.composition.formula)
@@ -1418,7 +1418,7 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                     if present:
                         # correct the energy of GGA entries to maintain the same polymorph
                         # energy difference above the reference state
-                        if run_type == 'SCAN':
+                        if run_type == 'R2SCAN':
                             # find the SCAN reference
                             if self.structure_matcher.fit(ref.structure, entry.structure):
                                 # this is the SCAN reference energy
@@ -1461,7 +1461,7 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                                 return adjustments
                     else:
                         # There's no SCAN reference state here, so nothing we can do
-                        if run_type == 'SCAN':
+                        if run_type == 'R2SCAN':
                             raise CompatibilityError(
                                 "Discarding SCAN entry {} for {} for which there is no "
                                 "SCAN reference structure".format(entry.entry_id, entry.composition.formula)
