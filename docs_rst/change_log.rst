@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2020.12.31
+-----------
+* End of 2020 release with minor bug fixes for cli scripts.
+
 v2020.12.18
 -----------
 * New IsayevNN nearest-neighbor algorithm (@utf, #2011)
