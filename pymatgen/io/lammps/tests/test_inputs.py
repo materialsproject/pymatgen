@@ -16,9 +16,8 @@ from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "lammps")
 
 
 class LammpsRunTest(unittest.TestCase):

@@ -16,12 +16,11 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "grain_boundary"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "grain_boundary")
 
 
-class Test_GrainBoundary(PymatgenTest):
+class TestGrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings("ignore")

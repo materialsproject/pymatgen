@@ -5,7 +5,7 @@
 
 import unittest
 from pathlib import Path
-
+import os
 import numpy as np
 
 from pymatgen.core.operations import SymmOp

@@ -22,9 +22,8 @@ __email__ = "samblau1@gmail.com"
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "fragmenter_files"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "fragmenter_files")
 
 
 class TestFragmentMolecule(PymatgenTest):

@@ -31,9 +31,9 @@ except Exception:
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files/boltztrap2/"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "boltztrap2")
+
 
 vrunfile = os.path.join(test_dir, "vasprun.xml")
 vrun = Vasprun(vrunfile, parse_projected_eigen=True)

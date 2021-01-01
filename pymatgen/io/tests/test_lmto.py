@@ -23,9 +23,8 @@ __date__ = "Nov 30, 2017"
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "test_files", "cohp"
-)
+    test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "cohp")
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 

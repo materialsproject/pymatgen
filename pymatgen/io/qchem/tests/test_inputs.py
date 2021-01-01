@@ -23,10 +23,9 @@ logger = logging.getLogger(__name__)
 
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.path.join(test_dir, "qchem")
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "qchem"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "qchem")
 
 
 class TestQCInput(PymatgenTest):

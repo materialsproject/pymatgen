@@ -20,8 +20,10 @@ else:
     Phonopy = None
 
 try:
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "phonopy"
-)
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "phonopy")
 
 
 class PhonopyParserTest(PymatgenTest):

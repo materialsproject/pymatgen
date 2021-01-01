@@ -30,15 +30,8 @@ from pymatgen.core.structure import Lattice, Molecule, Structure
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "test_files",
-    "molecules",
-    "molecule_matcher",
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "molecules", "molecule_matcher")
 
 obalign_missing = (ob is None) or ("OBAlign" not in dir(ob))
 

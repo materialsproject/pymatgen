@@ -18,9 +18,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir_structs = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir_structs = test_dir
 
 
 class KPathLatimerMunroTest(PymatgenTest):

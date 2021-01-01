@@ -15,9 +15,8 @@ __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "mcsqs"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "mcsqs")
 
 
 @unittest.skipIf(not which("mcsqs"), "mcsqs executable not present")

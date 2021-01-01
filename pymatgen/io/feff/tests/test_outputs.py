@@ -12,12 +12,7 @@ try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-try:
-    test_dir = os.environ["PMG_TEST_FILES"]
-except KeyError:
-    test_dir_reci = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "feff_reci_dos"
-)
+test_dir_reci = os.path.join(test_dir, "feff_reci_dos")
 
 
 class FeffLdosTest(unittest.TestCase):

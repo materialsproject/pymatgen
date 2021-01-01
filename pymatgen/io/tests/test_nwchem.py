@@ -13,9 +13,8 @@ from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "nwchem"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "nwchem")
 
 coords = [
     [0.000000, 0.000000, 0.000000],

@@ -17,9 +17,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files/spectrum_test"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "spectrum_test")
 
 with open(os.path.join(test_dir, "LiCoO2_k_xanes.json")) as fp:
     k_xanes_dict = json.load(fp, cls=MontyDecoder)

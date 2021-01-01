@@ -15,9 +15,8 @@ from pymatgen.core.structure import Molecule
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "functional_groups"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "functional_groups")
 
 try:
     import networkx as nx

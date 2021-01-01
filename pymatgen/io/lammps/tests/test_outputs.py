@@ -13,9 +13,8 @@ from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lam
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "lammps")
 
 
 class LammpsDumpTest(unittest.TestCase):

@@ -8,15 +8,11 @@ from pymatgen import Molecule
 from pymatgen.io.lammps.data import Topology
 from pymatgen.io.lammps.utils import Polymer
 
-__author__ = "Kiran Mathew"
-__email__ = "kmathew@lbl.gov"
-
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "lammps")
 
 
 class TestPolymer(unittest.TestCase):

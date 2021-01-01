@@ -14,9 +14,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir_structs = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "space_group_structs"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir_structs = os.path.join(test_dir, "space_group_structs")
 
 
 class BandStructureSCTest(PymatgenTest):

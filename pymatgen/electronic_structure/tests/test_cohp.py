@@ -18,9 +18,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "cohp"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "cohp")
 
 
 class CohpTest(unittest.TestCase):

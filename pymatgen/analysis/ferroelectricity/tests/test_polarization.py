@@ -12,14 +12,8 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files/BTO_221_99_polarization",
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "BTO_221_99_polarization")
 bto_folders = ["nonpolar_polarization"]
 bto_folders += ["interpolation_{}_polarization".format(str(i)) for i in range(1, 9)][
     ::-1
