@@ -15,7 +15,7 @@ from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class FuncTest(unittest.TestCase):

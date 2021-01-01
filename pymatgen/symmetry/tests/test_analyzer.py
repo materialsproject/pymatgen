@@ -25,12 +25,9 @@ from pymatgen.util.testing import PymatgenTest
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir_mol = Path(__file__).parent / ".." / ".." / ".." / "test_files" / "molecules"
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES"]
-except KeyError:
-    test_dir = Path(__file__).parent / ".." / ".." / ".." / "test_files"
+test_dir_mol = os.path.join(test_dir, "molecules")
 
 
 class SpacegroupAnalyzerTest(PymatgenTest):
