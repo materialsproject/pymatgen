@@ -14,6 +14,7 @@ import json
 import tempfile
 import unittest
 from io import open
+import os
 from pathlib import Path
 
 import numpy.testing as nptu
@@ -33,7 +34,10 @@ class PymatgenTest(unittest.TestCase):
     _multiprocess_shared_ = True
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
-    TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
+    try:
+        TEST_FILES_DIR = Path(os.environ["PMG_TEST_FILES"])
+    except KeyError:
+        TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """
     Dict for test structures to aid testing.
     """
