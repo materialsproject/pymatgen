@@ -22,7 +22,10 @@ __maintainer__ = "Christian Vorwerk"
 __email__ = "vorwerk@physik.hu-berlin.de"
 __date__ = "Dec 01, 2016"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class ExcitingInputTest(PymatgenTest):

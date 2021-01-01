@@ -26,7 +26,10 @@ __version__ = "0.1"
 
 single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
 multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "molecules"
 )
 

@@ -11,7 +11,10 @@ from pymatgen.analysis.magnetism import *
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")

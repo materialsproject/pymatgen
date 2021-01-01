@@ -10,7 +10,10 @@ import pandas as pd
 
 from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
 )
 

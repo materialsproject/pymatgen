@@ -14,7 +14,10 @@ from pymatgen.analysis.energy_models import (
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class EwaldElectrostaticModelTest(unittest.TestCase):

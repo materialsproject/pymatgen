@@ -12,7 +12,10 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "functional_groups"
 )
 

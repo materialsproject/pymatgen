@@ -15,7 +15,10 @@ from pymatgen.electronic_structure.cohp import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "cohp"
 )
 

@@ -20,7 +20,10 @@ __version__ = "0.1"
 __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "test_files", "cohp"
 )
 this_dir = os.path.dirname(os.path.abspath(__file__))

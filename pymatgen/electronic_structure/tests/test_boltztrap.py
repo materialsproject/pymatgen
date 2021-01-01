@@ -27,7 +27,10 @@ except ImportError:
 
 x_trans = which("x_trans")
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 @unittest.skipIf(not x_trans, "No x_trans.")

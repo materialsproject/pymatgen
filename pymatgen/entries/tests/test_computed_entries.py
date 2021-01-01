@@ -24,7 +24,10 @@ from pymatgen.entries.computed_entries import (
 )
 from pymatgen.io.vasp.outputs import Vasprun
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 filepath = os.path.join(test_dir, "vasprun.xml")
 vasprun = Vasprun(filepath)

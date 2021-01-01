@@ -26,7 +26,10 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 try:
     from openbabel import openbabel as ob

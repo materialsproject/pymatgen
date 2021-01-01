@@ -21,7 +21,10 @@ __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "qchem"
 )
 

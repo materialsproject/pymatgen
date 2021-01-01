@@ -15,7 +15,10 @@ from pymatgen.apps.battery.conversion_battery import (
     ConversionVoltagePair,
 )
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class ConversionElectrodeTest(unittest.TestCase):

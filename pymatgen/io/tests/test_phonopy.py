@@ -19,7 +19,7 @@ if sys.version_info >= (3, 0):
 else:
     Phonopy = None
 
-test_dir = os.path.join(
+try:
     os.path.dirname(__file__), "..", "..", "..", "test_files", "phonopy"
 )
 

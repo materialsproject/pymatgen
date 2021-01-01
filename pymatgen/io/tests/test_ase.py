@@ -10,7 +10,10 @@ import pymatgen.io.ase as aio
 from pymatgen import Composition, Molecule
 from pymatgen.io.vasp.inputs import Poscar
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class AseAtomsAdaptorTest(unittest.TestCase):

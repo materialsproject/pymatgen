@@ -12,7 +12,10 @@ from pymatgen.core.structure import Molecule
 
 __author__ = "xiaohuiqu"
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__),
     "..",
     "..",

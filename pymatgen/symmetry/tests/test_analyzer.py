@@ -22,9 +22,15 @@ from pymatgen.symmetry.analyzer import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-test_dir_mol = Path(__file__).parent / ".." / ".." / ".." / "test_files" / "molecules"
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir_mol = Path(__file__).parent / ".." / ".." / ".." / "test_files" / "molecules"
 
-test_dir = Path(__file__).parent / ".." / ".." / ".." / "test_files"
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = Path(__file__).parent / ".." / ".." / ".." / "test_files"
 
 
 class SpacegroupAnalyzerTest(PymatgenTest):

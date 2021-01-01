@@ -13,7 +13,10 @@ from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
 from pymatgen.entries.computed_entries import ComputedEntry
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class VoltageProfilePlotterTest(unittest.TestCase):

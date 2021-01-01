@@ -41,7 +41,10 @@ except ImportError:
     pb = None
     ob = None
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class ValenceIonicRadiusEvaluatorTest(PymatgenTest):

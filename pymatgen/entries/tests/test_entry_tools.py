@@ -12,7 +12,10 @@ from monty.serialization import dumpfn, loadfn
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
 
-test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
 
 
 class FuncTest(unittest.TestCase):

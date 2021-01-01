@@ -20,7 +20,10 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class TransformedStructureTest(PymatgenTest):

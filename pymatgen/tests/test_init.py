@@ -14,7 +14,10 @@ from pymatgen import (
 )
 from pymatgen.io.vasp import Vasprun
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "test_files")
 
 
 class SettingsTestCase(unittest.TestCase):

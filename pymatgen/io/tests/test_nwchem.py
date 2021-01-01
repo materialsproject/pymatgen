@@ -10,7 +10,10 @@ import unittest
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "nwchem"
 )
 

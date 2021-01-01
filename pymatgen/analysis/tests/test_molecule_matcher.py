@@ -27,7 +27,10 @@ from pymatgen.analysis.molecule_matcher import (
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__),
     "..",
     "..",

@@ -12,7 +12,10 @@ from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class InsertionElectrodeTest(unittest.TestCase):

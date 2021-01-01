@@ -21,7 +21,10 @@ from pymatgen.analysis.diffusion_analyzer import (
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class FuncTest(unittest.TestCase):

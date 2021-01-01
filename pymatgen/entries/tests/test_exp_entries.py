@@ -11,7 +11,10 @@ from monty.json import MontyDecoder
 
 from pymatgen.entries.exp_entries import ExpEntry
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class ExpEntryTest(unittest.TestCase):

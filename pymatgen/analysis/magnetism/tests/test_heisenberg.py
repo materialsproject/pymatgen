@@ -11,7 +11,10 @@ import pandas as pd
 from pymatgen import Structure
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__),
     "..",
     "..",

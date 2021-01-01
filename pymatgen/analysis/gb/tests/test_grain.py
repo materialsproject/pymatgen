@@ -13,7 +13,10 @@ from pymatgen import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "grain_boundary"
 )
 

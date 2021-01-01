@@ -10,7 +10,10 @@ from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.abinit.abiobjects import *
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 
 
 class LatticeFromAbivarsTest(PymatgenTest):

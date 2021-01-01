@@ -13,7 +13,10 @@ from pymatgen.analysis.xas.spectrum import XAS
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.vis.plotters import SpectrumPlotter
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files/spectrum_test"
 )
 

@@ -9,7 +9,10 @@ import unittest
 import pymatgen.io.jarvis as jio
 from pymatgen.io.vasp.inputs import Poscar
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class JarvisAtomsAdaptorTest(unittest.TestCase):

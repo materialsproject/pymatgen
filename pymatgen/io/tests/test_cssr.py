@@ -22,7 +22,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.io.vasp.inputs import Poscar
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class CssrTest(unittest.TestCase):

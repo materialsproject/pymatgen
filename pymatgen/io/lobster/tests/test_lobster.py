@@ -34,7 +34,10 @@ __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
-test_dir = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "..",
     "..",
@@ -43,7 +46,10 @@ test_dir = os.path.join(
     "test_files",
     "cohp",
 )
-test_dir_doscar = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir_doscar = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "test_files"
 )
 

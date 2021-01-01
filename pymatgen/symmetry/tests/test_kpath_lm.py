@@ -15,7 +15,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
 from pymatgen.util.testing import PymatgenTest
 
-test_dir_structs = os.path.join(
+try:
+    test_dir = os.environ["PMG_TEST_FILES"]
+except KeyError:
+    test_dir_structs = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files"
 )
 
