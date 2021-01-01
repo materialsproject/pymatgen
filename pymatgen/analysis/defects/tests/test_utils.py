@@ -39,9 +39,7 @@ except ImportError:
 try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
-    test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "chgden"
-)
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "chgden")
 
 
 class DefectsUtilsTest(PymatgenTest):

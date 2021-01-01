@@ -34,6 +34,7 @@ jobs:
         pip install -e .
     - name: pytest
       run: |
+        export PMG_TEST_DIR=`pwd`/test_files
         pytest pymatgen --color=yes
     - name: release
       env:
