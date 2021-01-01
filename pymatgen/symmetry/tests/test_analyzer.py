@@ -27,7 +27,8 @@ try:
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
-test_dir_mol = os.path.join(test_dir, "molecules")
+test_dir_mol = Path(os.path.join(test_dir, "molecules"))
+test_dir = Path(test_dir)
 
 
 class SpacegroupAnalyzerTest(PymatgenTest):

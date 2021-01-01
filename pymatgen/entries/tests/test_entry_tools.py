@@ -16,6 +16,7 @@ try:
     test_dir = os.environ["PMG_TEST_FILES"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = Path(test_dir)
 
 
 class FuncTest(unittest.TestCase):
