@@ -35,7 +35,7 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
 

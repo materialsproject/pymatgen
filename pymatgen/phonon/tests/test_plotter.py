@@ -10,7 +10,7 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

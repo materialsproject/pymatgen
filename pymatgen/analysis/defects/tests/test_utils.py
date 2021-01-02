@@ -37,7 +37,7 @@ except ImportError:
     peak_local_max = None
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
     test_dir = os.path.join(test_dir, "chgden")
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "chgden")

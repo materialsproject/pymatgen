@@ -15,7 +15,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

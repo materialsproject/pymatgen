@@ -8,7 +8,7 @@ from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 test_dir = os.path.join(test_dir, "molecules")

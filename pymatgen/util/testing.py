@@ -35,7 +35,7 @@ class PymatgenTest(unittest.TestCase):
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
     try:
-        TEST_FILES_DIR = Path(os.environ["PMG_TEST_FILES"])
+        TEST_FILES_DIR = Path(os.environ["PMG_TEST_FILES_DIR"])
     except KeyError:
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """

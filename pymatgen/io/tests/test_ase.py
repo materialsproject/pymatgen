@@ -11,7 +11,7 @@ from pymatgen import Composition, Molecule
 from pymatgen.io.vasp.inputs import Poscar
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 

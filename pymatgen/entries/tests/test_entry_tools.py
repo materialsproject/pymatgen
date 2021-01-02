@@ -13,7 +13,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES"]
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
 except KeyError:
     test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
