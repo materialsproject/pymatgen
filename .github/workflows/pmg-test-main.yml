@@ -48,6 +48,5 @@ jobs:
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
-        PMG_TEST_FILES_DIR: ${{ GITHUB_WORKSPACE }}/test_files
       run: |
-        pytest pymatgen --ignore=pymatgen/analysis --color=yes
+        export PMG_TEST_FILES_DIR=`pwd`/test_files && pytest pymatgen --ignore=pymatgen/analysis --color=yes

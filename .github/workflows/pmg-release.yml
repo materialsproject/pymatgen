@@ -33,10 +33,8 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -e .
     - name: pytest
-      env:
-        PMG_TEST_FILES_DIR: ${{ GITHUB_WORKSPACE }}/test_files
       run: |
-        pytest pymatgen --color=yes
+        export PMG_TEST_FILES_DIR=`pwd`/test_files && pytest pymatgen --color=yes
     - name: release
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
