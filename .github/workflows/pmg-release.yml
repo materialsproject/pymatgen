@@ -34,7 +34,7 @@ jobs:
         pip install -e .
     - name: pytest
       env:
-        PMG_TEST_FILES_DIR: $GITHUB_WORKSPACE/test_files
+        PMG_TEST_FILES_DIR: ${{ GITHUB_WORKSPACE }}/test_files
       run: |
         pytest pymatgen --color=yes
     - name: release
