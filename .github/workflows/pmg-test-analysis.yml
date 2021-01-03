@@ -40,10 +40,16 @@ jobs:
       run: |
         for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
         export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+        export PMG_TEST_FILES_DIR=`pwd`/test_files
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
         for EXEPATH in `pwd`/cmd_line/*/Darwin_64bit; do export PATH=$PATH:$EXEPATH; done
+        export PMG_TEST_FILES_DIR=`pwd`/test_files
+    - name: Set Windows Paths
+      if: matrix.os == 'windows-latest'
+      run: |
+        set PMG_TEST_FILES_DIR=test_files
     - name: pytest
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
