@@ -1103,13 +1103,10 @@ class KPathSeek(KPathBase):
 class KPathLatimerMunro(KPathBase):
     """
     This class looks for a path along high symmetry lines in the
-    Brillouin zone.
-    It is based on the derived symmetry of the energy spectrum
-    for a crystalline solid given by A P Cracknell in J. Phys. C:
-    Solid State Phys. Vol. 6 (1973), pp. 826-840 ('Van Hove
-    singularities and zero-slope points in crystals') and pp. 841-
-    854 ('Van Hove singularities and zero-slope points in magnetic
-    crystals').
+    Brillouin zone. It is based on the method outlined in:
+    
+    npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+
     The user should ensure that the lattice of the input structure
     is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
