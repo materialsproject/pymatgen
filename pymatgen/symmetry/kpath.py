@@ -1104,7 +1104,7 @@ class KPathLatimerMunro(KPathBase):
     """
     This class looks for a path along high symmetry lines in the
     Brillouin zone. It is based on the method outlined in:
-    
+
     npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
 
     The user should ensure that the lattice of the input structure
