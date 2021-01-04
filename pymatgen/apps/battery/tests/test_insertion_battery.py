@@ -8,7 +8,10 @@ import os
 import unittest
 
 from pymatgen import MontyDecoder, MontyEncoder
-from pymatgen.apps.battery.insertion_battery import InsertionElectrode
+from pymatgen.apps.battery.insertion_battery import (
+    InsertionElectrode,
+    InsertionVoltagePair,
+)
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -114,6 +117,11 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(vpair.frac_discharge, 0.14285714285714285)
         self.assertAlmostEqual(vpair.x_charge, 0.0)
         self.assertAlmostEqual(vpair.x_discharge, 0.5)
+        # reconstruct the voltage pair
+        dd = vpair.as_dict()
+        vv = InsertionVoltagePair.from_dict(dd)
+        self.assertAlmostEqual(vv.entry_charge.energy, -105.53608265)
+        self.assertAlmostEqual(vv.voltage, 2.78583901)
 
     def test_as_dict_summary(self):
         d = self.ie_CMO.get_summary_dict()
