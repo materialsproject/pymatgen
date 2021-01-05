@@ -12,14 +12,13 @@ jobs:
       max-parallel: 3
       matrix:
         os: [macos-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
       with:
-        # Note that this is a must because pylint is done based on a previous tag.
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2

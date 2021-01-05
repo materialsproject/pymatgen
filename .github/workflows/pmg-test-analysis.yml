@@ -8,17 +8,19 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8]
-        exclude:
+        include:
           - os: macos-latest
-            python-version: 3.6
-          - os: macos-latest
-            python-version: 3.7
+            python-version: 3.9
           - os: windows-latest
-            python-version: 3.6
-          - os: windows-latest
+            python-version: 3.9
+          - os: ubuntu-latest
+            python-version: 3.9
+          - os: ubuntu-latest
+            python-version: 3.8
+          - os: ubuntu-latest
             python-version: 3.7
+          - os: ubuntu-latest
+            python-version: 3.6
 
     runs-on: ${{ matrix.os }}
 
