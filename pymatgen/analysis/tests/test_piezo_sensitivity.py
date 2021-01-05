@@ -16,23 +16,26 @@ __date__ = "4/23/19"
 
 import os
 import unittest
+
 import numpy as np
 
 import pymatgen
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.analysis.piezo_sensitivity import *
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from phonopy import Phonopy
 except ImportError:
     Phonopy = None
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "piezo_sensitivity"
-)
+try:
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "piezo_sensitivity")
 
 
 class PiezoSensitivityTest(PymatgenTest):

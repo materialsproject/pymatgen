@@ -1,8 +1,6 @@
 Change log
 ==========
 
-v2020.11.11
+v2020.12.31
 -----------
-* Bug fix for PhononBandStructureSymmLine. (@gpetretto)
-* Improved robustness in ABINIT input generation. (@gpetretto)
-* Other minor bug fixes.
+* End of 2020 release with minor bug fixes for cli scripts.

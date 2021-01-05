@@ -12,14 +12,18 @@ __date__ = "4/23/19"
 
 import os
 import unittest
-import numpy as np
-import pymatgen
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.symmetry import site_symmetries as ss
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "site_symmetries"
-)
+import numpy as np
+
+import pymatgen
+from pymatgen.symmetry import site_symmetries as ss
+from pymatgen.util.testing import PymatgenTest
+
+try:
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "site_symmetries")
 
 
 class SiteSymmetriesTest(PymatgenTest):

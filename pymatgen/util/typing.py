@@ -8,8 +8,9 @@ Type hinting is new to pymatgen, so this module is subject to
 change until best practices are established.
 """
 
-from typing import Union, List
 from pathlib import Path
+from typing import List, Union
+
 import numpy as np
 
 Vector3Like = Union[List[float], np.ndarray]

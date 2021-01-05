@@ -12,9 +12,11 @@ __author__ = "Handong Ling, Rachel Woods-Robinson"
 __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "mcsqs"
-)
+try:
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+test_dir = os.path.join(test_dir, "mcsqs")
 
 
 @unittest.skipIf(not which("mcsqs"), "mcsqs executable not present")
@@ -44,11 +46,16 @@ class McsqsCallerTest(PymatgenTest):
         # ensures specific keys are present in cluster parsing for use in atomate
         self.assertSetEqual(
             set(sqs.clusters[0].keys()),
-            {"multiplicity", "coordinates", "longest_pair_length", "num_points_in_cluster"}
+            {
+                "multiplicity",
+                "coordinates",
+                "longest_pair_length",
+                "num_points_in_cluster",
+            },
         )
         self.assertSetEqual(
             set(sqs.clusters[0]["coordinates"][0].keys()),
-            {"cluster_function", "coordinates", "num_possible_species"}
+            {"cluster_function", "coordinates", "num_possible_species"},
         )
 
     def test_mcsqs_caller_total_atoms(self):

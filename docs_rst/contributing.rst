@@ -65,7 +65,15 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
       you have written new modules or methods, you must write tests for the new
       code as well (see `Coding Guidelines`_). Install and run pytest in your
       local repo directory and fix all errors before continuing further.
-   c. If everything is ok, publish the commits to your github repository.
+   c. If you have `pre-commit <https://pre-commit.com/>`_ installed you can use
+      the provided :code:`.pre-commit-config.yaml` file to perform automatic style checks
+      before publishing your code.  The pre-commit hooks can be installed using
+
+      ::
+
+            pre-commit install
+
+   d. If everything is ok, publish the commits to your github repository.
 
       ::
 
@@ -76,9 +84,9 @@ http://www.eqqon.com/index.php/Collaborative_Github_Workflow):
    pymatgen maintainers. They will pull your commits and run their own tests
    before releasing.
 
-"Work-in-progress" pull requests are encouraged, especially if this is your 
-first time contributing to pymatgen, and the maintainers will be happy to 
-help or provide code review as necessary. Put "[WIP]" in the title of your 
+"Work-in-progress" pull requests are encouraged, especially if this is your
+first time contributing to pymatgen, and the maintainers will be happy to
+help or provide code review as necessary. Put "[WIP]" in the title of your
 pull request to indicate it's not ready to be merged.
 
 Coding Guidelines
@@ -95,11 +103,11 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    We allow a few exceptions when they are well-justified (e.g., Element's
    atomic number is given a variable name of capital Z, in line with accepted
    scientific convention), but generally, PEP 8 must be observed. Code style
-   will be automatically checked, but to aid you, you can copy the example
-   pre-commit hook into your .git/hooks directly. This will automatically run
-   pycodestyle prior to any commits. At the very least, copy pre-commit to
-   .git/hooks/pre-push.
-3. **Python 3**. We only support Python 3.6+.
+   will be automatically checked for all PRs and must pass before any PR is merged.
+   To aid you, you can copy the example pre-commit hook into your .git/hooks
+   directly. This will automatically run pycodestyle and other linting services
+   prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.
+3. **Python 3**. We only support Python 3.7+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
@@ -116,10 +124,10 @@ examples of what is expected.
 A word on coding for Python 2 compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As of 2019, pymatgen no longer requires code to be Python 2 compatible, and 
-current versions of the code are not supported with Python 2. If you need a 
-version of pymatgen that works with Python 2, please use a version before 
-2018, but note this will be missing the latest bug fixes. This change follows 
+As of 2019, pymatgen no longer requires code to be Python 2 compatible, and
+current versions of the code are not supported with Python 2. If you need a
+version of pymatgen that works with Python 2, please use a version before
+2018, but note this will be missing the latest bug fixes. This change follows
 the broader Python community no longer supporting Python 2, including numpy.
 
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/

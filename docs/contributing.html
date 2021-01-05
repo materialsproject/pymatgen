@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Collaborative Github Workflow &mdash; pymatgen 2020.11.11 documentation</title>
+  <title>Collaborative Github Workflow &mdash; pymatgen 2020.12.31 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2020.11.11
+                2020.12.31
               </div>
             
           
@@ -229,6 +229,13 @@ The pymatgen repo comes with a complete set of tests for all modules. If
 you have written new modules or methods, you must write tests for the new
 code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run pytest in your
 local repo directory and fix all errors before continuing further.</p></li>
+<li><p>If you have <a class="reference external" href="https://pre-commit.com/">pre-commit</a> installed you can use
+the provided <code class="code docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file to perform automatic style checks
+before publishing your code.  The pre-commit hooks can be installed using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pre</span><span class="o">-</span><span class="n">commit</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
 <li><p>If everything is ok, publish the commits to your github repository.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
 </pre></div>
@@ -259,11 +266,11 @@ maintainer cannot test your code, the contribution will be rejected.</p></li>
 We allow a few exceptions when they are well-justified (e.g., Element’s
 atomic number is given a variable name of capital Z, in line with accepted
 scientific convention), but generally, PEP 8 must be observed. Code style
-will be automatically checked, but to aid you, you can copy the example
-pre-commit hook into your .git/hooks directly. This will automatically run
-pycodestyle prior to any commits. At the very least, copy pre-commit to
-.git/hooks/pre-push.</p></li>
-<li><p><strong>Python 3</strong>. We only support Python 3.6+.</p></li>
+will be automatically checked for all PRs and must pass before any PR is merged.
+To aid you, you can copy the example pre-commit hook into your .git/hooks
+directly. This will automatically run pycodestyle and other linting services
+prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.</p></li>
+<li><p><strong>Python 3</strong>. We only support Python 3.7+.</p></li>
 <li><p><strong>Documentation</strong> required for all modules, classes and methods. In
 particular, the method docstrings should make clear the arguments expected
 and the return values. For complex algorithms (e.g., an Ewald summation), a

@@ -3,28 +3,31 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import pytest
-import os
 import json
-
+import os
+import unittest
 from collections import defaultdict
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.entries.computed_entries import (
-    ComputedEntry,
-    ComputedStructureEntry,
-    GibbsComputedStructureEntry,
-    EnergyAdjustment,
-    ConstantEnergyAdjustment,
-    CompositionEnergyAdjustment,
-    TemperatureEnergyAdjustment,
-    ManualEnergyAdjustment,
-)
-from pymatgen.analysis.phase_diagram import PhaseDiagram
 
+import pytest
 from monty.json import MontyDecoder
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
+    ComputedEntry,
+    ComputedStructureEntry,
+    ConstantEnergyAdjustment,
+    EnergyAdjustment,
+    GibbsComputedStructureEntry,
+    ManualEnergyAdjustment,
+    TemperatureEnergyAdjustment,
+)
+from pymatgen.io.vasp.outputs import Vasprun
+
+try:
+    test_dir = os.environ["PMG_TEST_FILES_DIR"]
+except KeyError:
+    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 filepath = os.path.join(test_dir, "vasprun.xml")
 vasprun = Vasprun(filepath)
@@ -63,17 +66,16 @@ def test_composition_energy_adjustment():
     ea = CompositionEnergyAdjustment(2, 2, uncertainty_per_atom=0, name="H")
     assert ea.name == "H"
     assert ea.value == 4
-    assert (
-        ea.explain
-        == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
-    )
+    assert ea.explain == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
     ead = ea.as_dict()
     ea2 = CompositionEnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())
 
 
 def test_temp_energy_adjustment():
-    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
+    ea = TemperatureEnergyAdjustment(
+        -0.1, 298, 5, uncertainty_per_deg=0, name="entropy"
+    )
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
@@ -124,9 +126,9 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertAlmostEqual(entry.uncorrected_energy, 6.9)
         self.assertAlmostEqual(entry.uncorrected_energy_per_atom, 6.9 / 15)
         self.assertAlmostEqual(entry.correction, -4.5)
-        self.assertAlmostEqual(entry.correction_per_atom, -4.5/15)
+        self.assertAlmostEqual(entry.correction_per_atom, -4.5 / 15)
         self.assertAlmostEqual(entry.correction_uncertainty, 0.9)
-        self.assertAlmostEqual(entry.correction_uncertainty_per_atom, 0.9/15)
+        self.assertAlmostEqual(entry.correction_uncertainty_per_atom, 0.9 / 15)
 
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
@@ -144,11 +146,12 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertAlmostEqual(entry.energy_adjustments[0].value, 1 / 15)
 
     def test_normalize_energy_adjustments(self):
-        ealist = [ManualEnergyAdjustment(5),
-                  ConstantEnergyAdjustment(5),
-                  CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
-                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0)
-                  ]
+        ealist = [
+            ManualEnergyAdjustment(5),
+            ConstantEnergyAdjustment(5),
+            CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
+            TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0),
+        ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
         assert entry.correction == 20
         entry.normalize()
@@ -157,11 +160,12 @@ class ComputedEntryTest(unittest.TestCase):
             assert ea.value == 1
 
     def test_normalize_not_in_place(self):
-        ealist = [ManualEnergyAdjustment(5),
-                  ConstantEnergyAdjustment(5),
-                  CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
-                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0)
-                  ]
+        ealist = [
+            ManualEnergyAdjustment(5),
+            ConstantEnergyAdjustment(5),
+            CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
+            TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0),
+        ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
 
         normed_entry = entry.normalize(inplace=False)

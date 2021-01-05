@@ -4,14 +4,15 @@
 
 
 import itertools
-from pymatgen.core.lattice import Lattice, get_points_in_spheres
+
 import numpy as np
-from pymatgen.util.testing import PymatgenTest
+
+from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
+from pymatgen.util.testing import PymatgenTest
 
 
 class LatticeTestCase(PymatgenTest):
-
     def setUp(self):
         self.lattice = Lattice.cubic(10.0)
         self.cubic = self.lattice
@@ -21,23 +22,33 @@ class LatticeTestCase(PymatgenTest):
         self.hexagonal = Lattice.hexagonal(10, 20)
         self.rhombohedral = Lattice.rhombohedral(10, 77)
 
-        family_names = ["cubic", "tetragonal", "orthorhombic", "monoclinic",
-                        "hexagonal", "rhombohedral"]
+        family_names = [
+            "cubic",
+            "tetragonal",
+            "orthorhombic",
+            "monoclinic",
+            "hexagonal",
+            "rhombohedral",
+        ]
 
         self.families = {}
         for name in family_names:
             self.families[name] = getattr(self, name)
 
     def test_format(self):
-        self.assertEqual("[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
-                         format(self.lattice, ".3fl"))
+        self.assertEqual(
+            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]",
+            format(self.lattice, ".3fl"),
+        )
         self.assertEqual(
             """10.000 0.000 0.000
 0.000 10.000 0.000
 0.000 0.000 10.000""",
-            format(self.lattice, ".3f"))
-        self.assertEqual("{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}",
-                         format(self.lattice, ".1fp"))
+            format(self.lattice, ".3f"),
+        )
+        self.assertEqual(
+            "{10.0, 10.0, 10.0, 90.0, 90.0, 90.0}", format(self.lattice, ".1fp")
+        )
 
     def test_init(self):
         a = 9.026
@@ -46,9 +57,12 @@ class LatticeTestCase(PymatgenTest):
         lattice2 = Lattice([[a, 0, 0], [0, a, 0], [0, 0, a]])
         for i in range(0, 3):
             for j in range(0, 3):
-                self.assertAlmostEqual(lattice.matrix[i][j],
-                                       lattice2.matrix[i][j], 5,
-                                       "Inconsistent matrix from two inits!")
+                self.assertAlmostEqual(
+                    lattice.matrix[i][j],
+                    lattice2.matrix[i][j],
+                    5,
+                    "Inconsistent matrix from two inits!",
+                )
 
     def test_copy(self):
         cubic_copy = self.cubic.copy()
@@ -57,11 +71,11 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_cartesian_or_frac_coord(self):
         coord = self.lattice.get_cartesian_coords([0.15, 0.3, 0.4])
-        self.assertArrayAlmostEqual(coord, [1.5, 3., 4.])
+        self.assertArrayAlmostEqual(coord, [1.5, 3.0, 4.0])
         self.assertArrayAlmostEqual(
-            self.tetragonal.get_fractional_coords([12.12312, 45.2134,
-                                                   1.3434]),
-            [1.212312, 4.52134, 0.06717])
+            self.tetragonal.get_fractional_coords([12.12312, 45.2134, 1.3434]),
+            [1.212312, 4.52134, 0.06717],
+        )
 
         # Random testing that get_cart and get_frac coords reverses each other.
         rand_coord = np.random.random_sample(3)
@@ -70,60 +84,73 @@ class LatticeTestCase(PymatgenTest):
         self.assertArrayAlmostEqual(fcoord, rand_coord)
 
     def test_get_vector_along_lattice_directions(self):
-        lattice_mat = np.array([[0.5, 0., 0.],
-                                [0.5, np.sqrt(3) / 2., 0.],
-                                [0., 0., 1.0]])
+        lattice_mat = np.array(
+            [[0.5, 0.0, 0.0], [0.5, np.sqrt(3) / 2.0, 0.0], [0.0, 0.0, 1.0]]
+        )
         lattice = Lattice(lattice_mat)
-        cart_coord = np.array([0.5, np.sqrt(3) / 4., 0.5])
+        cart_coord = np.array([0.5, np.sqrt(3) / 4.0, 0.5])
         latt_coord = np.array([0.25, 0.5, 0.5])
         from_direct = lattice.get_fractional_coords(cart_coord) * lattice.lengths
-        self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), from_direct)
-        self.assertArrayAlmostEqual(lattice.get_vector_along_lattice_directions(cart_coord), latt_coord)
-        self.assertArrayEqual(lattice.get_vector_along_lattice_directions(cart_coord).shape, [3, ])
-        self.assertArrayEqual(lattice.get_vector_along_lattice_directions(cart_coord.reshape([1, 3])).shape, [1, 3])
+        self.assertArrayAlmostEqual(
+            lattice.get_vector_along_lattice_directions(cart_coord), from_direct
+        )
+        self.assertArrayAlmostEqual(
+            lattice.get_vector_along_lattice_directions(cart_coord), latt_coord
+        )
+        self.assertArrayEqual(
+            lattice.get_vector_along_lattice_directions(cart_coord).shape, [3,]
+        )
+        self.assertArrayEqual(
+            lattice.get_vector_along_lattice_directions(
+                cart_coord.reshape([1, 3])
+            ).shape,
+            [1, 3],
+        )
 
     def test_d_hkl(self):
         cubic_copy = self.cubic.copy()
         hkl = (1, 2, 3)
-        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a ** 2)) ** (-1 / 2)
+        dhkl = ((hkl[0] ** 2 + hkl[1] ** 2 + hkl[2] ** 2) / (cubic_copy.a ** 2)) ** (
+            -1 / 2
+        )
         self.assertEqual(dhkl, cubic_copy.d_hkl(hkl))
 
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
-        self.assertArrayAlmostEqual(recip_latt.matrix,
-                                    0.628319 * np.eye(3), 5)
-        self.assertArrayAlmostEqual(self.tetragonal.reciprocal_lattice.matrix,
-                                    [[0.628319, 0., 0.], [0., 0.628319, 0],
-                                     [0., 0., 0.3141590]], 5)
+        self.assertArrayAlmostEqual(recip_latt.matrix, 0.628319 * np.eye(3), 5)
+        self.assertArrayAlmostEqual(
+            self.tetragonal.reciprocal_lattice.matrix,
+            [[0.628319, 0.0, 0.0], [0.0, 0.628319, 0], [0.0, 0.0, 0.3141590]],
+            5,
+        )
 
         # Test the crystallographic version.
         recip_latt_xtal = self.lattice.reciprocal_lattice_crystallographic
-        self.assertArrayAlmostEqual(recip_latt.matrix,
-                                    recip_latt_xtal.matrix * 2 * np.pi,
-                                    5)
+        self.assertArrayAlmostEqual(
+            recip_latt.matrix, recip_latt_xtal.matrix * 2 * np.pi, 5
+        )
 
     def test_static_methods(self):
         lengths_c = [3.840198, 3.84019885, 3.8401976]
         angles_c = [119.99998575, 90, 60.00000728]
-        mat_c = [[3.840198, 0.000000, 0.0000], [1.920099, 3.325710, 0.000000],
-                 [0.000000, -2.217138, 3.135509]]
+        mat_c = [
+            [3.840198, 0.000000, 0.0000],
+            [1.920099, 3.325710, 0.000000],
+            [0.000000, -2.217138, 3.135509],
+        ]
         # should give the lengths and angles above
         newlatt = Lattice(mat_c)
         lengths = newlatt.lengths
         angles = newlatt.angles
         for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], lengths_c[i], 5,
-                                   "Lengths incorrect!")
-            self.assertAlmostEqual(angles[i], angles_c[i], 5,
-                                   "Angles incorrect!")
+            self.assertAlmostEqual(lengths[i], lengths_c[i], 5, "Lengths incorrect!")
+            self.assertAlmostEqual(angles[i], angles_c[i], 5, "Angles incorrect!")
         latt = Lattice.from_parameters(*lengths, *angles)
         lengths = latt.lengths
         angles = latt.angles
         for i in range(0, 3):
-            self.assertAlmostEqual(lengths[i], lengths_c[i], 5,
-                                   "Lengths incorrect!")
-            self.assertAlmostEqual(angles[i], angles_c[i], 5,
-                                   "Angles incorrect!")
+            self.assertAlmostEqual(lengths[i], lengths_c[i], 5, "Lengths incorrect!")
+            self.assertAlmostEqual(angles[i], angles_c[i], 5, "Angles incorrect!")
 
     def test_attributes(self):
         """docstring for test_attributes"""
@@ -160,54 +187,66 @@ class LatticeTestCase(PymatgenTest):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = Lattice(np.array(
-            [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3)))
+        expected_ans = Lattice(
+            np.array([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3))
+        )
         self.assertAlmostEqual(
-            np.linalg.det(np.linalg.solve(expected_ans.matrix,
-                                          reduced_latt.matrix)),
-            1)
-        self.assertArrayAlmostEqual(
-            sorted(reduced_latt.abc), sorted(expected_ans.abc))
+            np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)), 1
+        )
+        self.assertArrayAlmostEqual(sorted(reduced_latt.abc), sorted(expected_ans.abc))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
-        latt = [7.164750, 2.481942, 0.000000,
-                - 4.298850, 2.481942, 0.000000,
-                0.000000, 0.000000, 14.253000]
-        expected_ans = Lattice(np.array(
-            [-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000,
-             0.000000, 0.000000, 14.253000]))
+        latt = [
+            7.164750,
+            2.481942,
+            0.000000,
+            -4.298850,
+            2.481942,
+            0.000000,
+            0.000000,
+            0.000000,
+            14.253000,
+        ]
+        expected_ans = Lattice(
+            np.array(
+                [
+                    -4.298850,
+                    2.481942,
+                    0.000000,
+                    2.865900,
+                    4.963884,
+                    0.000000,
+                    0.000000,
+                    0.000000,
+                    14.253000,
+                ]
+            )
+        )
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
         self.assertAlmostEqual(
-            np.linalg.det(np.linalg.solve(expected_ans.matrix,
-                                          reduced_latt.matrix)),
-            1)
-        self.assertArrayAlmostEqual(
-            sorted(reduced_latt.abc), sorted(expected_ans.abc))
+            np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)), 1
+        )
+        self.assertArrayAlmostEqual(sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
-        expected_ans = Lattice([0.0, 10.0, 10.0,
-                                10.0, 10.0, 0.0,
-                                30.0, -30.0, 40.0])
+        expected_ans = Lattice([0.0, 10.0, 10.0, 10.0, 10.0, 0.0, 30.0, -30.0, 40.0])
 
-        lattice = np.array([100., 0., 10., 10., 10., 20., 10., 10., 10.])
+        lattice = np.array([100.0, 0.0, 10.0, 10.0, 10.0, 20.0, 10.0, 10.0, 10.0])
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
         self.assertAlmostEqual(
-            np.linalg.det(np.linalg.solve(expected_ans.matrix,
-                                          reduced_latt.matrix)),
-            1)
-        self.assertArrayAlmostEqual(
-            sorted(reduced_latt.abc), sorted(expected_ans.abc))
+            np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)), 1
+        )
+        self.assertArrayAlmostEqual(sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
-            self.assertAlmostEqual(reduced_random_latt.volume,
-                                   random_latt.volume)
+            self.assertAlmostEqual(reduced_random_latt.volume, random_latt.volume)
 
     def test_get_niggli_reduced_lattice(self):
-        latt = Lattice.from_parameters(3, 5.196, 2, 103 + 55 / 60,
-                                       109 + 28 / 60,
-                                       134 + 53 / 60)
+        latt = Lattice.from_parameters(
+            3, 5.196, 2, 103 + 55 / 60, 109 + 28 / 60, 134 + 53 / 60
+        )
         reduced_cell = latt.get_niggli_reduced_lattice()
         abc = reduced_cell.lengths
         angles = reduced_cell.angles
@@ -228,22 +267,40 @@ class LatticeTestCase(PymatgenTest):
         for a in angles:
             self.assertAlmostEqual(a, 90, 3)
 
-        latt = Lattice([1.432950, 0.827314, 4.751000, -1.432950, 0.827314,
-                        4.751000, 0.0, -1.654628, 4.751000])
+        latt = Lattice(
+            [
+                1.432950,
+                0.827314,
+                4.751000,
+                -1.432950,
+                0.827314,
+                4.751000,
+                0.0,
+                -1.654628,
+                4.751000,
+            ]
+        )
         # ans = [[-1.432950, -2.481942, 0.0],
         #       [-2.8659, 0.0, 0.0],
         #       [-1.432950, -0.827314, -4.751000]]
-        ans = [[-1.43295, -2.481942,  0.], [-2.8659,  0.,  0.], [-1.43295, -0.827314, -4.751]]
-        self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
-                                    ans)
+        ans = [
+            [-1.43295, -2.481942, 0.0],
+            [-2.8659, 0.0, 0.0],
+            [-1.43295, -0.827314, -4.751],
+        ]
+        self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix, ans)
 
-        latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878,
-                                       75.542191, 81.181757, 156.396627)
-        ans = [[2.578932, 0.826965, 0.000000],
-               [-0.831059, 2.067413, 1.547813],
-               [-0.458407, -2.480895, 1.129126]]
-        self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
-                                    np.array(ans), 5)
+        latt = Lattice.from_parameters(
+            7.365450, 6.199506, 5.353878, 75.542191, 81.181757, 156.396627
+        )
+        ans = [
+            [2.578932, 0.826965, 0.000000],
+            [-0.831059, 2.067413, 1.547813],
+            [-0.458407, -2.480895, 1.129126],
+        ]
+        self.assertArrayAlmostEqual(
+            latt.get_niggli_reduced_lattice().matrix, np.array(ans), 5
+        )
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
@@ -257,7 +314,9 @@ class LatticeTestCase(PymatgenTest):
         (aligned_out, rot_out, scale_out) = latt2.find_mapping(latt)
         self.assertAlmostEqual(abs(np.linalg.det(rot)), 1)
 
-        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)
+        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(
+            latt.matrix
+        )
 
         self.assertArrayAlmostEqual(rotated, aligned_out.matrix)
         self.assertArrayAlmostEqual(np.dot(scale_out, latt2.matrix), aligned_out.matrix)
@@ -275,10 +334,12 @@ class LatticeTestCase(PymatgenTest):
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
         for (aligned_out, rot_out, scale_out) in latt.find_all_mappings(latt2):
-            self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out),
-                                        aligned_out.matrix, 5)
-            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix),
-                                        aligned_out.matrix)
+            self.assertArrayAlmostEqual(
+                np.inner(latt2.matrix, rot_out), aligned_out.matrix, 5
+            )
+            self.assertArrayAlmostEqual(
+                np.dot(scale_out, latt.matrix), aligned_out.matrix
+            )
             self.assertArrayAlmostEqual(aligned_out.parameters, latt2.parameters)
             self.assertFalse(np.allclose(aligned_out.parameters, latt.parameters))
 
@@ -321,8 +382,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertArrayAlmostEqual(new_lattice.angles, lattice.angles)
 
     def test_get_wigner_seitz_cell(self):
-        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]) \
-            .get_wigner_seitz_cell()
+        ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]]).get_wigner_seitz_cell()
         self.assertEqual(6, len(ws_cell))
         for l in ws_cell[3]:
             self.assertEqual([abs(i) for i in l], [5.0, 2.5, 0.5])
@@ -332,7 +392,9 @@ class LatticeTestCase(PymatgenTest):
 
         for family_name, lattice in self.families.items():
             # print(family_name)
-            self.assertArrayEqual(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
+            self.assertArrayEqual(
+                lattice.norm(lattice.matrix, frac_coords=False), lattice.abc
+            )
             self.assertArrayEqual(lattice.norm(frac_basis), lattice.abc)
             for (i, vec) in enumerate(frac_basis):
                 length = lattice.norm(vec)
@@ -360,8 +422,9 @@ class LatticeTestCase(PymatgenTest):
         pts = latt.get_fractional_coords(pts)
 
         # Test getting neighbors within 1 neighbor distance of the origin
-        fcoords, dists, inds, images = latt.get_points_in_sphere(pts, [0, 0, 0], 0.20001,
-                                                                 zip_results=False)
+        fcoords, dists, inds, images = latt.get_points_in_sphere(
+            pts, [0, 0, 0], 0.20001, zip_results=False
+        )
         self.assertEqual(len(fcoords), 7)  # There are 7 neighbors
         self.assertEqual(np.isclose(dists, 0.2).sum(), 6)  # 6 are at 0.2
         self.assertEqual(np.isclose(dists, 0).sum(), 1)  # 1 is at 0
@@ -374,17 +437,25 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(len(result[0]), 4)  # coords, dists, ind, supercell
 
     def test_get_all_distances(self):
-        fcoords = np.array([[0.3, 0.3, 0.5],
-                            [0.1, 0.1, 0.3],
-                            [0.9, 0.9, 0.8],
-                            [0.1, 0.0, 0.5],
-                            [0.9, 0.7, 0.0]])
+        fcoords = np.array(
+            [
+                [0.3, 0.3, 0.5],
+                [0.1, 0.1, 0.3],
+                [0.9, 0.9, 0.8],
+                [0.1, 0.0, 0.5],
+                [0.9, 0.7, 0.0],
+            ]
+        )
         lattice = Lattice.from_parameters(8, 8, 4, 90, 76, 58)
-        expected = np.array([[0.000, 3.015, 4.072, 3.519, 3.245],
-                             [3.015, 0.000, 3.207, 1.131, 4.453],
-                             [4.072, 3.207, 0.000, 2.251, 1.788],
-                             [3.519, 1.131, 2.251, 0.000, 3.852],
-                             [3.245, 4.453, 1.788, 3.852, 0.000]])
+        expected = np.array(
+            [
+                [0.000, 3.015, 4.072, 3.519, 3.245],
+                [3.015, 0.000, 3.207, 1.131, 4.453],
+                [4.072, 3.207, 0.000, 2.251, 1.788],
+                [3.519, 1.131, 2.251, 0.000, 3.852],
+                [3.245, 4.453, 1.788, 3.852, 0.000],
+            ]
+        )
         output = lattice.get_all_distances(fcoords, fcoords)
         self.assertArrayAlmostEqual(output, expected, 3)
         # test just one input point
@@ -410,8 +481,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertTrue(self.hexagonal.is_hexagonal())
 
     def test_get_distance_and_image(self):
-        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1],
-                                                        [0, 0., 0.9])
+        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.0, 0.9])
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
 
@@ -439,9 +509,9 @@ class LatticeTestCase(PymatgenTest):
     #             self.assertArrayAlmostEqual(min_image_dist[1], pmg_result[1])
 
     def test_lll_basis(self):
-        a = np.array([1., 0.1, 0.])
-        b = np.array([0., 2., 0.])
-        c = np.array([0., 0., 3.])
+        a = np.array([1.0, 0.1, 0.0])
+        b = np.array([0.0, 2.0, 0.0])
+        c = np.array([0.0, 0.0, 3.0])
 
         l1 = Lattice([a, b, c])
         l2 = Lattice([a + b, b + c, c])
@@ -451,34 +521,35 @@ class LatticeTestCase(PymatgenTest):
         l2_fcoords = l2.get_fractional_coords(ccoords)
 
         self.assertArrayAlmostEqual(l1.matrix, l2.lll_matrix)
-        self.assertArrayAlmostEqual(np.dot(l2.lll_mapping, l2.matrix),
-                                    l1.matrix)
+        self.assertArrayAlmostEqual(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
 
-        self.assertArrayAlmostEqual(np.dot(l2_fcoords, l2.matrix),
-                                    np.dot(l1_fcoords, l1.matrix))
+        self.assertArrayAlmostEqual(
+            np.dot(l2_fcoords, l2.matrix), np.dot(l1_fcoords, l1.matrix)
+        )
 
         lll_fcoords = l2.get_lll_frac_coords(l2_fcoords)
 
         self.assertArrayAlmostEqual(lll_fcoords, l1_fcoords)
-        self.assertArrayAlmostEqual(l1.get_cartesian_coords(lll_fcoords),
-                                    np.dot(lll_fcoords, l2.lll_matrix))
+        self.assertArrayAlmostEqual(
+            l1.get_cartesian_coords(lll_fcoords), np.dot(lll_fcoords, l2.lll_matrix)
+        )
 
-        self.assertArrayAlmostEqual(l2.get_frac_coords_from_lll(lll_fcoords),
-                                    l2_fcoords)
+        self.assertArrayAlmostEqual(
+            l2.get_frac_coords_from_lll(lll_fcoords), l2_fcoords
+        )
 
     def test_get_miller_index_from_sites(self):
         # test on a cubic system
         m = Lattice.cubic(1)
         s1 = np.array([0.5, -1.5, 3])
-        s2 = np.array([0.5, 3., -1.5])
-        s3 = np.array([2.5, 1.5, -4.])
-        self.assertEqual(m.get_miller_index_from_coords([s1, s2, s3]),
-                         (2, 1, 1))
+        s2 = np.array([0.5, 3.0, -1.5])
+        s3 = np.array([2.5, 1.5, -4.0])
+        self.assertEqual(m.get_miller_index_from_coords([s1, s2, s3]), (2, 1, 1))
 
         # test on a hexagonal system
-        m = Lattice([[2.319, -4.01662582, 0.],
-                     [2.319, 4.01662582, 0.],
-                     [0., 0., 7.252]])
+        m = Lattice(
+            [[2.319, -4.01662582, 0.0], [2.319, 4.01662582, 0.0], [0.0, 0.0, 7.252]]
+        )
 
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])
@@ -494,32 +565,47 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(hkl, (1, 0, 0))
 
         # test for more than 3 sites
-        sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7],
-                 [0.5, 0.1, 0.2]]
+        sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7], [0.5, 0.1, 0.2]]
 
         hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
         self.assertEqual(hkl, (1, 0, 0))
 
     def test_points_in_spheres(self):
-        points = [[0., 0., 0.], [2., 2., 2.]]
+        points = [[0.0, 0.0, 0.0], [2.0, 2.0, 2.0]]
         lattice = Lattice.cubic(3)
         center_points = [[1.5, 1.5, 1.5]]
-        nns = get_points_in_spheres(all_coords=np.array(points), center_coords=np.array(center_points), r=3,
-                                    pbc=np.array([0, 0, 0], dtype=int), lattice=lattice, numerical_tol=1e-8)
+        nns = get_points_in_spheres(
+            all_coords=np.array(points),
+            center_coords=np.array(center_points),
+            r=3,
+            pbc=np.array([0, 0, 0], dtype=int),
+            lattice=lattice,
+            numerical_tol=1e-8,
+        )
         self.assertEqual(len(nns[0]), 2)  # two neighbors
 
-        nns = get_points_in_spheres(all_coords=np.array(points), center_coords=np.array(center_points), r=3,
-                                    pbc=[1, 1, 1],
-                                    lattice=lattice, numerical_tol=1e-8, return_fcoords=True)
+        nns = get_points_in_spheres(
+            all_coords=np.array(points),
+            center_coords=np.array(center_points),
+            r=3,
+            pbc=[1, 1, 1],
+            lattice=lattice,
+            numerical_tol=1e-8,
+            return_fcoords=True,
+        )
         self.assertEqual(len(nns[0]), 12)
 
-        nns = get_points_in_spheres(all_coords=np.array(points), center_coords=np.array(center_points), r=3,
-                                    pbc=np.array([True, False, False], dtype=int),
-                                    lattice=lattice)
+        nns = get_points_in_spheres(
+            all_coords=np.array(points),
+            center_coords=np.array(center_points),
+            r=3,
+            pbc=np.array([True, False, False], dtype=int),
+            lattice=lattice,
+        )
         self.assertEqual(len(nns[0]), 4)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import unittest
 
     unittest.main()
