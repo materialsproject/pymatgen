@@ -172,7 +172,6 @@ setup(
     entry_points={
         'console_scripts': [
             'pmg = pymatgen.cli.pmg:main',
-            'feff_input_generation = pymatgen.cli.feff_input_generation:main',
             'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
             'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
             'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',

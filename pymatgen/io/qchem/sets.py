@@ -38,6 +38,7 @@ class QChemDictSet(QCInput):
         custom_smd=None,
         max_scf_cycles=200,
         geom_opt_max_cycles=200,
+        plot_cubes=False,
         overwrite_inputs=None,
     ):
         """
