@@ -5,7 +5,7 @@
 
 """
 A module to calculate free energies using the Quasi-Rigid Rotor Harmonic
- Oscillator approximation.
+ Oscillator approximation. Modified from a script by Steven Wheeler.
 See: Grimme, S. Chem. Eur. J. 2012, 18, 9955
 """
 
@@ -15,7 +15,7 @@ __version__ = "0.1"
 __maintainer__ = "Alex Epstein"
 __email__ = "aepstein@lbl.gov"
 __date__ = "January 5, 2021"
-__credits__ = "Trevor Seguin"
+__credits__ = "Steven Wheeler, Trevor Seguin"
 
 from typing import Union
 
