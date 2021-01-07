@@ -43,6 +43,7 @@ jobs:
         export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
         echo "Test files are in $PMG_TEST_FILES_DIR"
         sudo apt-get install python-openbabel
+        pip install openbabel
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
