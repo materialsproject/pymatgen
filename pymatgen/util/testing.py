@@ -14,7 +14,6 @@ import json
 import tempfile
 import unittest
 from io import open
-import os
 from pathlib import Path
 
 import numpy.testing as nptu
@@ -35,7 +34,7 @@ class PymatgenTest(unittest.TestCase):
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
     try:
-        TEST_FILES_DIR = Path(os.environ["PMG_TEST_FILES_DIR"])
+        TEST_FILES_DIR = Path(SETTINGS["PMG_TEST_FILES_DIR"])
     except KeyError:
         import warnings
         warnings.warn("It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
