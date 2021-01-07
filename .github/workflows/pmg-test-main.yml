@@ -32,6 +32,8 @@ jobs:
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
+        ls
+        pwd
         for pkg in `ls /home/runner/work/pymatgen/cmd_line`; do export PATH=$PATH:/home/runner/work/pymatgen/cmd_line/$pkg/Darwin_64bit; done
         export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
         echo "PATH=$PATH"
