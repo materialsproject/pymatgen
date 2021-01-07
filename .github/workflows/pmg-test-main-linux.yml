@@ -32,7 +32,7 @@ jobs:
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
         pip install -e .
-        for EXEPATH in /home/runner/work/pymatgen/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
+        for pkg in `ls /home/runner/work/pymatgen/cmd_line`; do export PATH=$PATH:/home/runner/work/pymatgen/cmd_line/$pkg/Linux_64bit; done
         export GULP_LIB=/home/runner/work/pymatgen/cmd_line/gulp/Libraries
         export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
         echo "PATH=$PATH"
