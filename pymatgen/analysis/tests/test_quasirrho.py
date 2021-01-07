@@ -11,20 +11,20 @@ import unittest
 from pymatgen.analysis.quasirrho import QuasiRRHO
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', "molecules")
+from pymatgen.util.testing import PymatgenTest
 
 
-class TestQuasiRRHO(unittest.TestCase):
+class TestQuasiRRHO(PymatgenTest):
     """
     Test class for QuasiRRHO
     """
 
     def setUp(self):
+        test_dir = self.TEST_FILES_DIR
         self.gout = GaussianOutput(
-            os.path.join(test_dir, "quasirrho_gaufreq.log"))
+            os.path.join(test_dir, "molecules", "quasirrho_gaufreq.log"))
         self.qout = QCOutput(os.path.join(test_dir,
+                                          "molecules",
                                           "new_qchem_files",
                                           "Frequency_no_equal.qout"))
 
