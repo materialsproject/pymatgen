@@ -41,20 +41,18 @@ jobs:
         for EXEPATH in /home/runner/work/pymatgen/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
         export GULP_LIB=/home/runner/work/pymatgen/cmd_line/gulp/Libraries
         export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
-        ls
         echo "Test files are in $PMG_TEST_FILES_DIR"
+        apt-get install python-openbabel
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
         for EXEPATH in /home/runner/work/pymatgen/cmd_line/*/Darwin_64bit; do export PATH=$PATH:$EXEPATH; done
         export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
-        ls
         echo "Test files are in $PMG_TEST_FILES_DIR"
     - name: Set Windows Paths
       if: matrix.os == 'windows-latest'
       run: |
         set PMG_TEST_FILES_DIR=test_files
-        dir
         echo %PMG_TEST_FILES_DIR%
     - name: pytest
       env:
