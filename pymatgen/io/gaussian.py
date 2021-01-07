@@ -776,8 +776,6 @@ class GaussianOutput:
         )
         num_basis_func_patt = re.compile(r"([0-9]+)\s+basis functions")
         num_elec_patt = re.compile(r"(\d+)\s+alpha electrons\s+(\d+)\s+beta electrons")
-        mass_patt = re.compile(r"Molecular mass:\s+(\S+)")
-        rot_sym_patt = re.compile(r"Rotational symmetry number\s+(\d+)")
         pcm_patt = re.compile(r"Polarizable Continuum Model")
         stat_type_patt = re.compile(r"imaginary frequencies")
         scf_patt = re.compile(r"E\(.*\)\s*=\s*([-\.\d]+)\s+")
@@ -919,12 +917,6 @@ class GaussianOutput:
                         elif geom_orientation == "standard":
                             std_structures.append(Molecule(sp, coords))
 
-                    if mass_patt.search(line):
-                        self.mass = float(mass_patt.search(line).groups()[0])
-
-                    if rot_sym_patt.search(line):
-                        self.rot_sym_num = int(rot_sym_patt.search(line).groups()[0])
-
                     if parse_forces:
                         m = forces_patt.search(line)
                         if m:
@@ -1035,7 +1027,7 @@ class GaussianOutput:
                         self.molecular_orbital = mo
 
                     elif parse_freq:
-                        while line.strip() != "":  #  blank line
+                        while line.strip() != "":  #  blank line
                             ifreqs = [int(val) - 1 for val in line.split()]
                             for ifreq in ifreqs:
                                 frequencies.append(
@@ -1072,7 +1064,7 @@ class GaussianOutput:
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = f.readline()
 
-                            #  read normal modes
+                            #  read normal modes
                             line = f.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
@@ -1085,8 +1077,8 @@ class GaussianOutput:
                         frequencies = []
 
                     elif parse_hessian:
-                        #  read Hessian matrix under "Force constants in Cartesian coordinates"
-                        #  Hessian matrix is in the input  orientation framework
+                        #  read Hessian matrix under "Force constants in Cartesian coordinates"
+                        #  Hessian matrix is in the input  orientation framework
                         # WARNING : need #P in the route line
                         parse_hessian = False
                         ndf = 3 * len(input_structures[0])
@@ -1107,9 +1099,7 @@ class GaussianOutput:
                             jndf += len(vals)
                             line = f.readline()
                             j_indices = [j + 5 for j in j_indices]
-                    elif rot_temps_patt.search(line):
-                        rot_temps_match = rot_temps_patt.search(line).groups()
-                        self.rot_temps = [float(t) for t in rot_temps_match]
+
                     elif parse_bond_order:
                         # parse Wiberg bond order
                         line = f.readline()
@@ -1200,7 +1190,7 @@ class GaussianOutput:
                         while not resume_end_patt.search(line):
                             resume.append(line)
                             line = f.readline()
-                            #  security if \\@ not in one line !
+                            #  security if \\@ not in one line !
                             if line == "\n":
                                 break
                         resume.append(line)
