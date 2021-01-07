@@ -14,7 +14,7 @@ __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
 
-test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "molecules")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
 class QChemDictSetTest(PymatgenTest):
