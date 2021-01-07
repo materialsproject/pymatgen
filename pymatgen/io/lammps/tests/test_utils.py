@@ -9,6 +9,7 @@ from pymatgen.io.lammps.data import Topology
 from pymatgen.io.lammps.utils import Polymer
 from pymatgen.util.testing import PymatgenTest
 
+
 class TestPolymer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
