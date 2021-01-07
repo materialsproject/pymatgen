@@ -17,27 +17,27 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 class VaspToComputedEntryDroneTest(unittest.TestCase):
     def setUp(self):
-        self.test_dir = os.path.join(
+        self.PymatgenTest.TEST_FILES_DIR = os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "..", "test_files"
         )
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(self.test_dir):
-            if path[0] == self.test_dir:
+        for path in os.walk(self.PymatgenTest.TEST_FILES_DIR):
+            if path[0] == self.PymatgenTest.TEST_FILES_DIR:
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            entry = self.drone.assimilate(self.test_dir)
+            entry = self.drone.assimilate(self.PymatgenTest.TEST_FILES_DIR)
             for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
                 self.assertIn(p, entry.parameters)
             self.assertAlmostEqual(entry.data["efermi"], -6.62148548)
             self.assertEqual(entry.composition.reduced_formula, "Xe")
             self.assertAlmostEqual(entry.energy, 0.5559329)
-            entry = self.structure_drone.assimilate(self.test_dir)
+            entry = self.structure_drone.assimilate(self.PymatgenTest.TEST_FILES_DIR)
             self.assertEqual(entry.composition.reduced_formula, "Xe")
             self.assertAlmostEqual(entry.energy, 0.5559329)
             self.assertIsInstance(entry, ComputedStructureEntry)
@@ -55,7 +55,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
 class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
     def setUp(self):
-        self.test_dir = os.path.join(
+        self.PymatgenTest.TEST_FILES_DIR = os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "..", "test_files"
         )
         self.drone = SimpleVaspToComputedEntryDrone()
@@ -66,8 +66,8 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
-        for path in os.walk(self.test_dir):
-            if path[0] == self.test_dir:
+        for path in os.walk(self.PymatgenTest.TEST_FILES_DIR):
+            if path[0] == self.PymatgenTest.TEST_FILES_DIR:
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_to_from_dict(self):
@@ -78,7 +78,7 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
 
 class GaussianToComputedEntryDroneTest(unittest.TestCase):
     def setUp(self):
-        self.test_dir = os.path.join(
+        self.PymatgenTest.TEST_FILES_DIR = os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "molecules"
         )
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
@@ -89,12 +89,12 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
-        for path in os.walk(self.test_dir):
-            if path[0] == self.test_dir:
+        for path in os.walk(self.PymatgenTest.TEST_FILES_DIR):
+            if path[0] == self.PymatgenTest.TEST_FILES_DIR:
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
-        test_file = os.path.join(self.test_dir, "methane.log")
+        test_file = os.path.join(self.PymatgenTest.TEST_FILES_DIR, "methane.log")
         entry = self.drone.assimilate(test_file)
         for p in [
             "functional",

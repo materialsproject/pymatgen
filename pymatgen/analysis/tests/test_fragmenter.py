@@ -19,11 +19,8 @@ except ImportError:
 __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "fragmenter_files")
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 
 
 class TestFragmentMolecule(PymatgenTest):

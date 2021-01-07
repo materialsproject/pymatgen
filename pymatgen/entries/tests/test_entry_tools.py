@@ -11,16 +11,12 @@ from monty.serialization import dumpfn, loadfn
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class FuncTest(unittest.TestCase):
     def test_group_entries_by_structure(self):
-        entries = loadfn(os.path.join(test_dir, "TiO2_entries.json"))
+        entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"))
         groups = group_entries_by_structure(entries)
         self.assertEqual(
             sorted([len(g) for g in groups]), [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4]
@@ -32,7 +28,7 @@ class FuncTest(unittest.TestCase):
 
 class EntrySetTest(unittest.TestCase):
     def setUp(self):
-        entries = loadfn(os.path.join(test_dir, "Li-Fe-P-O_entries.json"))
+        entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li-Fe-P-O_entries.json"))
         self.entry_set = EntrySet(entries)
 
     def test_chemsys(self):

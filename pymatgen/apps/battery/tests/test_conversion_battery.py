@@ -14,11 +14,7 @@ from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
     ConversionVoltagePair,
 )
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class ConversionElectrodeTest(unittest.TestCase):
@@ -28,7 +24,7 @@ class ConversionElectrodeTest(unittest.TestCase):
         self.conversion_eletrodes = {}
         for f in self.formulas:
 
-            with open(os.path.join(test_dir, f + "_batt.json"), "r") as fid:
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json"), "r") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"

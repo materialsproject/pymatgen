@@ -20,11 +20,6 @@ from pymatgen.core import Lattice
 from pymatgen.io.vasp import Outcar, Poscar, Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class DefectsCorrectionsTest(PymatgenTest):
     def test_freysoldt(self):
@@ -156,10 +151,10 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         # """Test Defect Entry approach to correction """
         bulk_struc = Poscar.from_file(
-            os.path.join(test_dir, "defect", "CONTCAR_bulk")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "CONTCAR_bulk")
         ).structure
-        bulk_out = Outcar(os.path.join(test_dir, "defect", "OUTCAR_bulk.gz"))
-        defect_out = Outcar(os.path.join(test_dir, "defect", "OUTCAR_vac_Ga_-3.gz"))
+        bulk_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_bulk.gz"))
+        defect_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_vac_Ga_-3.gz"))
         epsilon = 18.118 * np.identity(3)
         vac = Vacancy(bulk_struc, bulk_struc.sites[0], charge=-3)
         defect_structure = vac.generate_defect_structure()
@@ -234,7 +229,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         )
 
     def test_bandfilling(self):
-        v = Vasprun(os.path.join(test_dir, "vasprun.xml"))
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
         eigenvalues = v.eigenvalues.copy()
         kptweights = v.actual_kpoints_weights
         potalign = 0.0

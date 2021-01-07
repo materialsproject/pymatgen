@@ -6,11 +6,7 @@ import unittest
 
 from pymatgen.analysis.magnetism.jahnteller import *
 from pymatgen.io.cif import CifParser
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class JahnTellerTest(unittest.TestCase):
@@ -85,10 +81,10 @@ class JahnTellerTest(unittest.TestCase):
         self.assertEqual(m, "none")
 
     def test_jahn_teller_structure_analysis(self):
-        parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
         LiFePO4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif"))
         Fe3O4 = parser.get_structures()[0]
 
         self.assertTrue(self.jt.is_jahn_teller_active(LiFePO4))

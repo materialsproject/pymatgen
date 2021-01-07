@@ -6,17 +6,12 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class DosTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, "NaCl_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_ph_dos.json"), "r") as f:
             self.dos = PhononDos.from_dict(json.load(f))
-        with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json"), "r") as f:
             self.structure = CompletePhononDos.from_dict(json.load(f)).structure
 
     def test_properties(self):
@@ -61,7 +56,7 @@ class DosTest(PymatgenTest):
 
 class CompleteDosTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json"), "r") as f:
             self.cdos = CompletePhononDos.from_dict(json.load(f))
 
     def test_properties(self):

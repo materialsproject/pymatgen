@@ -14,11 +14,6 @@ from pymatgen.core import PeriodicSite
 from pymatgen.io.vasp import Outcar, Poscar, Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class DefectCompatibilityTest(PymatgenTest):
     def setUp(self):
@@ -51,10 +46,10 @@ class DefectCompatibilityTest(PymatgenTest):
         }
 
         kumagai_bulk_struc = Poscar.from_file(
-            os.path.join(test_dir, "defect", "CONTCAR_bulk")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "CONTCAR_bulk")
         ).structure
-        bulk_out = Outcar(os.path.join(test_dir, "defect", "OUTCAR_bulk.gz"))
-        defect_out = Outcar(os.path.join(test_dir, "defect", "OUTCAR_vac_Ga_-3.gz"))
+        bulk_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_bulk.gz"))
+        defect_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_vac_Ga_-3.gz"))
         self.kumagai_vac = Vacancy(
             kumagai_bulk_struc, kumagai_bulk_struc.sites[0], charge=-3
         )
@@ -71,7 +66,7 @@ class DefectCompatibilityTest(PymatgenTest):
             "gamma": 0.153156,  # not neccessary to load gamma, but speeds up unit test
         }
 
-        v = Vasprun(os.path.join(test_dir, "vasprun.xml"))
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
         eigenvalues = v.eigenvalues.copy()
         kptweights = v.actual_kpoints_weights
         potalign = -0.1

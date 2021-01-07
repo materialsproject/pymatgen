@@ -21,11 +21,11 @@ __date__ = "July 2017"
 class Critic2CallerTest(unittest.TestCase):
     def test_from_path(self):
         # uses chgcars
-        test_dir = os.path.join(
+        PymatgenTest.TEST_FILES_DIR = os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "test_files/bader"
         )
 
-        c2c = Critic2Caller.from_path(test_dir)
+        c2c = Critic2Caller.from_path(PymatgenTest.TEST_FILES_DIR)
 
         # check we have some results!
         self.assertGreaterEqual(len(c2c._stdout), 500)
@@ -58,7 +58,7 @@ class Critic2CallerTest(unittest.TestCase):
 
         # alternatively, can also set when we do the analysis, but note that this will change
         # the analysis performed since augmentation charges are added in core regions
-        c2c = Critic2Caller.from_path(test_dir, zpsp={"Fe": 8.0, "O": 6.0})
+        c2c = Critic2Caller.from_path(PymatgenTest.TEST_FILES_DIR, zpsp={"Fe": 8.0, "O": 6.0})
 
         # check yt integration
         self.assertAlmostEqual(

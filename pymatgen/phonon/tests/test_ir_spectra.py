@@ -5,16 +5,11 @@ from monty.serialization import loadfn
 
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class IRDielectricTensorTest(PymatgenTest):
     def setUp(self):
         self.ir_spectra = loadfn(
-            os.path.join(test_dir, "ir_spectra_mp-991652_DDB.json")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "ir_spectra_mp-991652_DDB.json")
         )
 
     def test_basic(self):

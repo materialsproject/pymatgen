@@ -11,11 +11,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir_structs = os.path.join(test_dir, "space_group_structs")
+test_dir_structs = os.path.join(PymatgenTest.TEST_FILES_DIR, "space_group_structs")
 
 
 class BandStructureSCTest(PymatgenTest):

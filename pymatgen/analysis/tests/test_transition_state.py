@@ -22,11 +22,8 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "neb_analysis")
+
+PymatgenTest.TEST_FILES_DIR = os.path.join(PymatgenTest.TEST_FILES_DIR, "neb_analysis")
 
 
 class NEBAnalysisTest(PymatgenTest):
@@ -37,7 +34,7 @@ class NEBAnalysisTest(PymatgenTest):
         warnings.simplefilter("default")
 
     def runTest(self):
-        neb_analysis1 = NEBAnalysis.from_dir(os.path.join(test_dir, "neb1", "neb"))
+        neb_analysis1 = NEBAnalysis.from_dir(os.path.join(PymatgenTest.TEST_FILES_DIR, "neb1", "neb"))
         neb_analysis1_from_dict = NEBAnalysis.from_dict(neb_analysis1.as_dict())
         json_data = json.dumps(neb_analysis1.as_dict())
 
@@ -74,7 +71,7 @@ class NEBAnalysisTest(PymatgenTest):
         self.assertArrayAlmostEqual(
             neb_analysis1.get_extrema()[1][0], (0.50023335723480078, 325.20003984140203)
         )
-        with open(os.path.join(test_dir, "neb2", "neb_analysis2.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "neb2", "neb_analysis2.json"), "r") as f:
             neb_analysis2_dict = json.load(f)
         neb_analysis2 = NEBAnalysis.from_dict(neb_analysis2_dict)
         self.assertArrayAlmostEqual(
@@ -87,7 +84,7 @@ class NEBAnalysisTest(PymatgenTest):
         )
 
     def test_combine_neb_plots(self):
-        neb_dir = os.path.join(test_dir, "neb1", "neb")
+        neb_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "neb1", "neb")
         neb_analysis = NEBAnalysis.from_dir(neb_dir)
         combine_neb_plots([neb_analysis, neb_analysis])
 

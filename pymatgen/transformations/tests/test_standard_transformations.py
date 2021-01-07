@@ -16,11 +16,8 @@ from pymatgen import Element, Lattice, PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import *
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 enumlib_present = which("enum.x") and which("makestr.x")
 
@@ -179,7 +176,7 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
 class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.LiFePO4"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False
         )
         t = AutoOxiStateDecorationTransformation()
         s = t.apply_transformation(p.structure)
@@ -277,7 +274,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformations_complete_ranking(self):
         p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.LiFePO4"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False
         )
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
         s = t1.apply_transformation(p.structure)
@@ -288,7 +285,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
 
     def test_apply_transformations_best_first(self):
         p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.LiFePO4"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False
         )
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
         s = t1.apply_transformation(p.structure)
@@ -466,7 +463,7 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
 
-        with open(os.path.join(test_dir, "TiO2_super.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_super.json")) as f:
             s = json.load(f, cls=MontyDecoder)
             prim = t.apply_transformation(s)
             self.assertEqual(prim.formula, "Ti4 O8")
@@ -636,7 +633,7 @@ class ChargedCellTransformationTest(unittest.TestCase):
 class ScaleToRelaxedTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         # Test on slab relaxation where volume is fixed
-        f = os.path.join(test_dir, "surface_tests")
+        f = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests")
         Cu_fin = Structure.from_file(os.path.join(f, "Cu_slab_fin.cif"))
         Cu_init = Structure.from_file(os.path.join(f, "Cu_slab_init.cif"))
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
@@ -645,7 +642,7 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
 
         # Test on gb relaxation
-        f = os.path.join(test_dir, "grain_boundary")
+        f = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")
         Be_fin = Structure.from_file(os.path.join(f, "Be_gb_fin.cif"))
         Be_init = Structure.from_file(os.path.join(f, "Be_gb_init.cif"))
         Zn_init = Structure.from_file(os.path.join(f, "Zn_gb_init.cif"))

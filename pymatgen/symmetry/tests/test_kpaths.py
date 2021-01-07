@@ -15,11 +15,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
-try:
     from seekpath import get_path  # type: ignore
 except ImportError:
     get_path = None
@@ -68,9 +63,9 @@ class HighSymmKpathTest(PymatgenTest):
             kpoints = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
-        bs = loadfn(os.path.join(test_dir, "Cu2O_361_bandstructure.json"))
+        bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
         cont_bs = loadfn(
-            os.path.join(test_dir, "Cu2O_361_bandstructure_continuous.json")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure_continuous.json")
         )
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 

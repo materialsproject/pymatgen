@@ -6,7 +6,6 @@
 import os
 import unittest
 
-from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.sets import *
 from pymatgen.util.testing import PymatgenTest
 
@@ -14,17 +13,14 @@ __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "molecules")
+
+PymatgenTest.TEST_FILES_DIR = os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "molecules")
 
 
 class QChemDictSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
@@ -55,7 +51,7 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_full_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
 
         test_DictSet = QChemDictSet(
@@ -128,7 +124,7 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_overwrite_input(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         overwrite_inputs = {
             "rem": {
@@ -157,7 +153,7 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_double_solvation(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         raised_error = False
         dict_set = None
@@ -180,7 +176,7 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_pcm_write(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
@@ -223,7 +219,7 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_smd_write(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
@@ -258,7 +254,7 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_custom_smd_write(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
@@ -300,7 +296,7 @@ class QChemDictSetTest(PymatgenTest):
 class OptSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_OptSet = OptSet(molecule=test_molecule)
         self.assertEqual(
@@ -326,7 +322,7 @@ class OptSetTest(PymatgenTest):
 
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_OptSet = OptSet(molecule=test_molecule, pcm_dielectric=10.0)
         self.assertEqual(
@@ -361,7 +357,7 @@ class OptSetTest(PymatgenTest):
 
     def test_smd_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_OptSet = OptSet(molecule=test_molecule, smd_solvent="water")
         self.assertEqual(
@@ -389,7 +385,7 @@ class OptSetTest(PymatgenTest):
 class SinglePointSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule)
         self.assertEqual(
@@ -413,7 +409,7 @@ class SinglePointSetTest(PymatgenTest):
 
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, pcm_dielectric=10.0)
         self.assertEqual(
@@ -447,7 +443,7 @@ class SinglePointSetTest(PymatgenTest):
 
     def test_smd_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water")
         self.assertEqual(
@@ -474,7 +470,7 @@ class SinglePointSetTest(PymatgenTest):
 class FreqSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_FreqSet = FreqSet(molecule=test_molecule)
         self.assertEqual(
@@ -498,7 +494,7 @@ class FreqSetTest(PymatgenTest):
 
     def test_pcm_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_FreqSet = FreqSet(molecule=test_molecule, pcm_dielectric=10.0)
         self.assertEqual(
@@ -532,7 +528,7 @@ class FreqSetTest(PymatgenTest):
 
     def test_smd_init(self):
         test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "new_qchem_files/pcm.qin")
         ).molecule
         test_FreqSet = FreqSet(molecule=test_molecule, smd_solvent="water")
         self.assertEqual(

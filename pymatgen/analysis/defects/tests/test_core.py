@@ -19,11 +19,6 @@ from pymatgen.core import Structure
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class DefectsCoreTest(PymatgenTest):
     def test_supercell_lattice_mismatch(self):
@@ -309,7 +304,7 @@ class create_saturated_interstitial_structureTest(PymatgenTest):
 
         # test interstitial in non-symmorphic structure type
         # (voronoi and InFit generator of different types...)
-        ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
+        ns_struc = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CuCl.cif"))
 
         inter_site = PeriodicSite(
             "H",

@@ -8,23 +8,9 @@ import unittest
 from pymatgen import Molecule
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
+from pymatgen.util.testing import PymatgenTest
 
-"""
-Created on Apr 17, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 17, 2012"
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "molecules")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 
 class GaussianInputTest(unittest.TestCase):

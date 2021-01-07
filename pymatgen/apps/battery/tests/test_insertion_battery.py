@@ -13,12 +13,7 @@ from pymatgen.apps.battery.insertion_battery import (
     InsertionVoltagePair,
 )
 from pymatgen.entries.computed_entries import ComputedEntry
-
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class InsertionElectrodeTest(unittest.TestCase):
@@ -26,16 +21,16 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json"), "r") as f:
             self.entries_LTO = json.load(f, cls=MontyDecoder)
 
-        with open(os.path.join(test_dir, "MgVO_batt.json"), "r") as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "MgVO_batt.json"), "r") as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
 
-        with open(os.path.join(test_dir, "Mg_batt.json"), "r") as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mg_batt.json"), "r") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(os.path.join(test_dir, "CaMoO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaMoO2_batt.json"), "r") as f:
             self.entries_CMO = json.load(f, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)

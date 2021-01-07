@@ -9,12 +9,9 @@ import unittest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "nwchem")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "nwchem")
 
 coords = [
     [0.000000, 0.000000, 0.000000],

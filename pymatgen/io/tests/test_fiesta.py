@@ -5,14 +5,10 @@ import unittest
 
 from pymatgen import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
-class FiestaInputTest(unittest.TestCase):
+class FiestaInputTest(PymatgenTest):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -74,9 +70,9 @@ class FiestaInputTest(unittest.TestCase):
         self.assertEqual(cellin.COHSEX_options["eigMethod"], "C")
 
 
-class FiestaOutputTest(unittest.TestCase):
+class FiestaOutputTest(PymatgenTest):
     def setUp(self):
-        self.logfiesta = FiestaOutput(os.path.join(test_dir, "log_fiesta"))
+        self.logfiesta = FiestaOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "log_fiesta"))
 
     def test_props(self):
         out = self.logfiesta

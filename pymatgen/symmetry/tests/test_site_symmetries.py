@@ -19,11 +19,7 @@ import pymatgen
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "site_symmetries")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "site_symmetries")
 
 
 class SiteSymmetriesTest(PymatgenTest):

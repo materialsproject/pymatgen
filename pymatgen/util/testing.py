@@ -37,6 +37,9 @@ class PymatgenTest(unittest.TestCase):
     try:
         TEST_FILES_DIR = Path(os.environ["PMG_TEST_FILES_DIR"])
     except KeyError:
+        import warnings
+        warnings.warn("It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
+                      "Now using a fallback location based on relative path from this module.")
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """
     Dict for test structures to aid testing.

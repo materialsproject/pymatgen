@@ -14,6 +14,7 @@ from monty.serialization import loadfn
 from pymatgen.electronic_structure.bandstructure import BandStructure
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
 from pymatgen.electronic_structure.core import OrbitalType, Spin
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from ase.io.cube import read_cube
@@ -27,33 +28,28 @@ except ImportError:
 
 x_trans = which("x_trans")
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapAnalyzerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bz = BoltztrapAnalyzer.from_files(
-            os.path.join(test_dir, "boltztrap/transp/")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/transp/")
         )
         cls.bz_bands = BoltztrapAnalyzer.from_files(
-            os.path.join(test_dir, "boltztrap/bands/")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/bands/")
         )
         cls.bz_up = BoltztrapAnalyzer.from_files(
-            os.path.join(test_dir, "boltztrap/dos_up/"), dos_spin=1
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dos_up/"), dos_spin=1
         )
         cls.bz_dw = BoltztrapAnalyzer.from_files(
-            os.path.join(test_dir, "boltztrap/dos_dw/"), dos_spin=-1
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dos_dw/"), dos_spin=-1
         )
         cls.bz_fermi = BoltztrapAnalyzer.from_files(
-            os.path.join(test_dir, "boltztrap/fermi/")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/fermi/")
         )
 
-        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rt") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), "rt") as f:
             d = json.load(f)
             cls.bs = BandStructure.from_dict(d)
             cls.btr = BoltztrapRunner(cls.bs, 1)
@@ -335,8 +331,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         )
 
     def test_get_symm_bands(self):
-        structure = loadfn(os.path.join(test_dir, "boltztrap/structure_mp-12103.json"))
-        sbs = loadfn(os.path.join(test_dir, "boltztrap/dft_bs_sym_line.json"))
+        structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
+        sbs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dft_bs_sym_line.json"))
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
         for kpt_line, labels_dict in zip(
@@ -349,8 +345,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]), 143)
 
     # def test_check_acc_bzt_bands(self):
-    #     structure = loadfn(os.path.join(test_dir,'boltztrap/structure_mp-12103.json'))
-    #     sbs = loadfn(os.path.join(test_dir,'boltztrap/dft_bs_sym_line.json'))
+    #     structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR,'boltztrap/structure_mp-12103.json'))
+    #     sbs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR,'boltztrap/dft_bs_sym_line.json'))
     #     sbs_bzt = self.bz_bands.get_symm_bands(structure,-5.25204548)
     #     corr,werr_vbm,werr_cbm,warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt,sbs)
     #     self.assertAlmostEqual(corr[2],9.16851750e-05)
@@ -359,7 +355,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     #     self.assertFalse(warn)
 
     def test_get_complete_dos(self):
-        structure = loadfn(os.path.join(test_dir, "boltztrap/structure_mp-12103.json"))
+        structure = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/structure_mp-12103.json"))
         cdos = self.bz_up.get_complete_dos(structure, self.bz_dw)
         spins = list(cdos.densities.keys())
         self.assertIn(Spin.down, spins)

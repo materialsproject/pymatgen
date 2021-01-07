@@ -10,16 +10,12 @@ import unittest
 from monty.json import MontyDecoder
 
 from pymatgen.entries.exp_entries import ExpEntry
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class ExpEntryTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "Fe2O3_exp.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe2O3_exp.json"), "r") as f:
             thermodata = json.load(f, cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermodata)
 

@@ -12,11 +12,8 @@ __author__ = "Handong Ling, Rachel Woods-Robinson"
 __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "mcsqs")
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 
 
 @unittest.skipIf(not which("mcsqs"), "mcsqs executable not present")

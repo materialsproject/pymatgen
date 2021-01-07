@@ -4,14 +4,11 @@ from os.path import join
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "molecules")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 geometry_string = """GEOMETRY
 smooth conservepoints

@@ -18,11 +18,6 @@ from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class LarsenDimensionalityTest(PymatgenTest):
     def setUp(self):
@@ -124,7 +119,7 @@ class LarsenDimensionalityTest(PymatgenTest):
         )
 
         # test for a troublesome structure
-        s = loadfn(os.path.join(test_dir, "PH7CN3O3F.json.gz"))
+        s = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "PH7CN3O3F.json.gz"))
         bs = CrystalNN().get_bonded_structure(s)
         comp_graphs = [
             bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)

@@ -9,14 +9,12 @@ from unittest import TestCase
 
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "xiaohuiqu"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "molecules", "structural_change")
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change")
 
 
 class TestMoleculeStructureComparator(TestCase):

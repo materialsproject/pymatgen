@@ -8,17 +8,13 @@ import unittest
 
 import pymatgen.io.jarvis as jio
 from pymatgen.io.vasp.inputs import Poscar
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class JarvisAtomsAdaptorTest(unittest.TestCase):
     @unittest.skipIf(not jio.jarvis_loaded, "JARVIS-tools not loaded.")
     def test_get_atoms_from_structure(self):
-        structure = Poscar.from_file(os.path.join(test_dir, "POSCAR")).structure
+        structure = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")).structure
         atoms = jio.JarvisAtomsAdaptor.get_atoms(structure)
         jarvis_composition = atoms.composition.reduced_formula
         self.assertEqual(jarvis_composition, structure.composition.reduced_formula)
@@ -26,7 +22,7 @@ class JarvisAtomsAdaptorTest(unittest.TestCase):
 
     @unittest.skipIf(not jio.jarvis_loaded, "JARVIS-tools not loaded.")
     def test_get_structure(self):
-        structure = Poscar.from_file(os.path.join(test_dir, "POSCAR")).structure
+        structure = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")).structure
         atoms = jio.JarvisAtomsAdaptor.get_atoms(structure)
         self.assertEqual(
             jio.JarvisAtomsAdaptor.get_structure(atoms).composition.reduced_formula,

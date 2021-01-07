@@ -41,11 +41,6 @@ except ImportError:
     pb = None
     ob = None
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
     def setUp(self):
@@ -318,8 +313,8 @@ class TestIsayevNN(PymatgenTest):
 
 class OpenBabelNNTest(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
-        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+        self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
     @unittest.skipIf(
         (not (ob and pb)) or (not which("babel")), "OpenBabel not installed."
@@ -365,8 +360,8 @@ class OpenBabelNNTest(PymatgenTest):
 
 class CovalentBondNNTest(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
-        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+        self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
     def test_nn_orders(self):
         strat = CovalentBondNN()

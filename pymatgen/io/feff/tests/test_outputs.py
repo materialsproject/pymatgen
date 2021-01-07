@@ -7,17 +7,15 @@ import os
 import unittest
 
 from pymatgen.io.feff.outputs import LDos, Xmu
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-test_dir_reci = os.path.join(test_dir, "feff_reci_dos")
+
+test_dir_reci = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_reci_dos")
 
 
 class FeffLdosTest(unittest.TestCase):
-    filepath1 = os.path.join(test_dir, "feff.inp")
-    filepath2 = os.path.join(test_dir, "ldos")
+    filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
+    filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "ldos")
     l = LDos.from_file(filepath1, filepath2)
 
     reci_feffinp = os.path.join(test_dir_reci, "feff.inp")
@@ -66,14 +64,14 @@ class FeffLdosTest(unittest.TestCase):
 
 class XmuTest(unittest.TestCase):
     def test_init(self):
-        filepath1 = os.path.join(test_dir, "xmu.dat")
-        filepath2 = os.path.join(test_dir, "feff.inp")
+        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "xmu.dat")
+        filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
         x = Xmu.from_file(filepath1, filepath2)
         self.assertEqual(x.absorbing_atom, "O", "failed to read xmu.dat file properly")
 
     def test_as_dict_and_from_dict(self):
-        filepath1 = os.path.join(test_dir, "xmu.dat")
-        filepath2 = os.path.join(test_dir, "feff.inp")
+        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "xmu.dat")
+        filepath2 = os.path.join(PymatgenTest.TEST_FILES_DIR, "feff.inp")
         x = Xmu.from_file(filepath1, filepath2)
         data = x.data.tolist()
         d = x.as_dict()

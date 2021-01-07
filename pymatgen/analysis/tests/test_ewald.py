@@ -11,17 +11,13 @@ import numpy as np
 
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.io.vasp.inputs import Poscar
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class EwaldSummationTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath, check_for_POTCAR=False)
         self.original_s = p.structure
         self.s = self.original_s.copy()
@@ -141,7 +137,7 @@ class EwaldMinimizerTest(unittest.TestCase):
 
     def test_site(self):
         """Test that uses an uncharged structure"""
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath, check_for_POTCAR=False)
         original_s = p.structure
         s = original_s.copy()

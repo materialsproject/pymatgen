@@ -22,11 +22,8 @@ from pymatgen.analysis.pourbaix_diagram import (
 )
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 logger = logging.getLogger(__name__)
 
 
@@ -110,7 +107,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.test_data = loadfn(os.path.join(test_dir, "pourbaix_test_data.json"))
+        cls.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_nofilter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
 
@@ -346,7 +343,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.test_data = loadfn(os.path.join(test_dir, "pourbaix_test_data.json"))
+        self.test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "pourbaix_test_data.json"))
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
 

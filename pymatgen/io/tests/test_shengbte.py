@@ -8,11 +8,7 @@ import unittest
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "shengbte")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "shengbte")
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 

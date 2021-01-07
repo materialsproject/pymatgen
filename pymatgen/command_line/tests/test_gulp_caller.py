@@ -25,11 +25,8 @@ from pymatgen.command_line.gulp_caller import (
 )
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 gulp_present = which("gulp") and os.environ.get("GULP_LIB")
 
 
@@ -104,7 +101,7 @@ class GulpIOTest(unittest.TestCase):
 
     def setUp(self):
         p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.Al12O18"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False
         )
         self.structure = p.structure
         self.gio = GulpIO()
@@ -256,7 +253,7 @@ class GulpIOTest(unittest.TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(os.path.join(test_dir, "example21.gout"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "example21.gout"), "r") as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
@@ -292,7 +289,7 @@ class GlobalFunctionsTest(unittest.TestCase):
 
     def test_get_energy_tersoff(self):
         p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.Al12O18"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False
         )
         structure = p.structure
         enrgy = get_energy_tersoff(structure)

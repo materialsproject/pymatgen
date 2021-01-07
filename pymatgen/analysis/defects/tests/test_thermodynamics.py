@@ -14,11 +14,6 @@ from pymatgen.core import Element
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class DefectsThermodynamicsTest(PymatgenTest):
     @classmethod
@@ -58,7 +53,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         )
 
         # load complete dos for fermi energy solving
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
             dos_dict = json.load(f)
         cls.dos = CompleteDos.from_dict(dos_dict)
 
