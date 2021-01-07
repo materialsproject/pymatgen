@@ -42,7 +42,7 @@ jobs:
         export GULP_LIB=/home/runner/work/pymatgen/cmd_line/gulp/Libraries
         export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
         echo "Test files are in $PMG_TEST_FILES_DIR"
-        apt-get install python-openbabel
+        sudo apt-get install python-openbabel
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
