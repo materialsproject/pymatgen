@@ -351,7 +351,7 @@ class BandStructure:
             can have several bands sharing the VBM) {Spin.up:[],
             Spin.down:[]}
             - "kpoint_index": The list of indices in self.kpoints for the
-            kpoint vbm. Please note that there can be several
+            kpoint VBM. Please note that there can be several
             kpoint_indices relating to the same kpoint (e.g., Gamma can
             occur at different spots in the band structure line plot)
             - "kpoint": The kpoint (as a kpoint object)
@@ -413,17 +413,17 @@ class BandStructure:
         Returns:
             {"band_index","kpoint_index","kpoint","energy"}
             - "band_index": A dict with spin keys pointing to a list of the
-            indices of the band containing the VBM (please note that you
-            can have several bands sharing the VBM) {Spin.up:[],
+            indices of the band containing the CBM (please note that you
+            can have several bands sharing the CBM) {Spin.up:[],
             Spin.down:[]}
             - "kpoint_index": The list of indices in self.kpoints for the
-            kpoint vbm. Please note that there can be several
+            kpoint CBM. Please note that there can be several
             kpoint_indices relating to the same kpoint (e.g., Gamma can
             occur at different spots in the band structure line plot)
             - "kpoint": The kpoint (as a kpoint object)
-            - "energy": The energy of the VBM
+            - "energy": The energy of the CBM
             - "projections": The projections along sites and orbitals of the
-            VBM if any projection data is available (else it is an empty
+            CBM if any projection data is available (else it is an empty
             dictionnary). The format is similar to the projections field in
             BandStructure: {spin:{'Orbital': [proj]}} where the array
             [proj] is ordered according to the sites in structure
