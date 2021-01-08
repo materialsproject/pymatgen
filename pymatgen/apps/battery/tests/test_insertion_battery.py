@@ -63,7 +63,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.ie_LTO.get_capacity_grav(1, 3, False), 160.803169506, 3
         )
-        self.assertIsNotNone(self.ie_LTO.as_dict_summary(True))
+        self.assertIsNotNone(self.ie_LTO.get_summary_dict(True))
 
         self.assertAlmostEqual(self.ie_MVO.get_capacity_grav(), 281.845548242, 3)
         self.assertAlmostEqual(self.ie_MVO.get_capacity_vol(), 1145.80087994, 3)
@@ -118,7 +118,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(vv.entry_charge.energy, -105.53608265)
         self.assertAlmostEqual(vv.voltage, 2.78583901)
 
-    def test_as_dict_summary(self):
+    def test_get_summary_dict(self):
         d = self.ie_CMO.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
@@ -145,7 +145,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         ie_CMO_no_struct = InsertionElectrode.from_entries(
             remove_structure(self.entries_CMO), self.entry_Ca
         )
-        d = ie_CMO_no_struct.as_dict_summary()
+        d = ie_CMO_no_struct.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
         self.assertAlmostEqual(
