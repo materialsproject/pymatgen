@@ -2,6 +2,7 @@ import os
 import unittest
 
 from pymatgen.entries.correction_calculator import CorrectionCalculator
+from pymatgen.util.testing import PymatgenTest
 
 
 class CorrectionCalculatorTest(unittest.TestCase):
@@ -82,14 +83,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
             "H": (-0.137, 0.0313),
         }
 
-        self.test_dir = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files",
-            "correction_calculator",
-        )
+        self.test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "correction_calculator")
 
     def tearDown(self):
         pass

@@ -26,24 +26,22 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class StructureMatcherTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(os.path.join(test_dir, "POSCAR.Li2O")),
+            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O")),
         ]
 
     def test_ignore_species(self):
-        s1 = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        s2 = Structure.from_file(os.path.join(test_dir, "POSCAR"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         m = StructureMatcher(
             ignored_species=["Li"], primitive_cell=False, attempt_supercell=True
         )
@@ -297,8 +295,8 @@ class StructureMatcherTest(PymatgenTest):
             comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6,
         )
 
-        s1 = Structure.from_file(test_dir + "/fit_symm_s1.vasp")
-        s2 = Structure.from_file(test_dir + "/fit_symm_s2.vasp")
+        s1 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s1.vasp")
+        s2 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s2.vasp")
         self.assertEqual(sm_coarse.fit(s1, s2), True)
         self.assertEqual(sm_coarse.fit(s2, s1), False)
         self.assertEqual(sm_coarse.fit(s1, s2, symmetric=True), False)
@@ -336,7 +334,7 @@ class StructureMatcherTest(PymatgenTest):
             self.get_structure("LiFePO4"),
         ]
         for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]:
-            structures.append(Structure.from_file(os.path.join(test_dir, fname)))
+            structures.append(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for g in groups:
@@ -349,7 +347,7 @@ class StructureMatcherTest(PymatgenTest):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted"""
         sm = StructureMatcher()
-        s = Structure.from_file(os.path.join(test_dir, "Li3GaPCO7.json"))
+        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li3GaPCO7.json"))
         self.assertTrue(sm.fit(s, s))
 
     def test_as_dict_and_from_dict(self):
@@ -377,8 +375,8 @@ class StructureMatcherTest(PymatgenTest):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = Structure.from_file(os.path.join(test_dir, "Al3F9.json"))
-        s2 = Structure.from_file(os.path.join(test_dir, "Al3F9_distorted.json"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9.json"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9_distorted.json"))
 
         self.assertFalse(sm.fit(s1, s2))
 
@@ -837,8 +835,8 @@ class StructureMatcherTest(PymatgenTest):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = Structure.from_file(os.path.join(test_dir, "Na2Fe2PAsO4S4.json"))
-        s2 = Structure.from_file(os.path.join(test_dir, "Na2Fe2PNO4Se4.json"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PAsO4S4.json"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PNO4Se4.json"))
         self.assertEqual(
             sm.get_best_electronegativity_anonymous_mapping(s1, s2),
             {
@@ -879,7 +877,7 @@ class PointDefectComparatorTest(PymatgenTest):
         # SETUP DEFECTS FOR TESTING
         # symmorphic defect test set
         s_struc = Structure.from_file(
-            os.path.join(test_dir, "CsSnI3.cif")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "CsSnI3.cif")
         )  # tetragonal CsSnI3
         identical_Cs_vacs = [Vacancy(s_struc, s_struc[0]), Vacancy(s_struc, s_struc[1])]
         identical_I_vacs_sublattice1 = [
@@ -1018,7 +1016,7 @@ class PointDefectComparatorTest(PymatgenTest):
         # test non-symmorphic interstitial matching
         # (using set generated from Voronoi generator, with same sublattice given by
         # saturatated_interstitial_structure function)
-        ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
+        ns_struc = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CuCl.cif"))
         ns_inter_H_sublattice1_set1 = PeriodicSite(
             "H", [0.06924513, 0.06308959, 0.86766528], ns_struc.lattice
         )

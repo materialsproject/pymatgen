@@ -36,9 +36,7 @@ try:
 except ImportError:
     peak_local_max = None
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "chgden"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chgden")
 
 
 class DefectsUtilsTest(PymatgenTest):

@@ -31,9 +31,7 @@ try:
 except ImportError:
     Phonopy = None
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "piezo_sensitivity"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "piezo_sensitivity")
 
 
 class PiezoSensitivityTest(PymatgenTest):

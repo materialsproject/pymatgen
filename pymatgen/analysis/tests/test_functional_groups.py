@@ -11,10 +11,9 @@ from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "functional_groups"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "functional_groups")
 
 try:
     import networkx as nx

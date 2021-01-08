@@ -6,8 +6,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class AdsorbateSiteFinderTest(PymatgenTest):
     def setUp(self):

@@ -24,10 +24,9 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
-filepath = os.path.join(test_dir, "vasprun.xml")
+filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml")
 vasprun = Vasprun(filepath)
 
 
@@ -429,7 +428,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(os.path.join(test_dir, "Mn-O_entries.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
             data = json.load(f)
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]

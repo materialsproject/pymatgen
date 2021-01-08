@@ -4,9 +4,9 @@
 
 
 import os
-import unittest
 import warnings
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
 from pymatgen.transformations.advanced_transformations import SuperTransformation
@@ -16,10 +16,8 @@ from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
 )
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
-
-class CifTransmuterTest(unittest.TestCase):
+class CifTransmuterTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
 
@@ -30,7 +28,7 @@ class CifTransmuterTest(unittest.TestCase):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
         tsc = CifTransmuter.from_filenames(
-            [os.path.join(test_dir, "MultiStructure.cif")], trans
+            [os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans
         )
         self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "Li", "P"])
@@ -39,12 +37,12 @@ class CifTransmuterTest(unittest.TestCase):
             self.assertEqual(expected_ans, els)
 
 
-class PoscarTransmuterTest(unittest.TestCase):
+class PoscarTransmuterTest(PymatgenTest):
     def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn"}))
         tsc = PoscarTransmuter.from_filenames(
-            [os.path.join(test_dir, "POSCAR"), os.path.join(test_dir, "POSCAR")], trans
+            [os.path.join(self.TEST_FILES_DIR, "POSCAR"), os.path.join(self.TEST_FILES_DIR, "POSCAR")], trans
         )
         self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "P"])
@@ -53,7 +51,7 @@ class PoscarTransmuterTest(unittest.TestCase):
             self.assertEqual(expected_ans, els)
 
     def test_transmuter(self):
-        tsc = PoscarTransmuter.from_filenames([os.path.join(test_dir, "POSCAR")])
+        tsc = PoscarTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "POSCAR")])
         tsc.append_transformation(RemoveSpeciesTransformation("O"))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
@@ -111,5 +109,5 @@ class PoscarTransmuterTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'Test.testName']
+    import unittest
     unittest.main()

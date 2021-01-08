@@ -10,8 +10,7 @@ from monty.os.path import which
 from pymatgen.analysis.magnetism import *
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.io.cif import CifParser
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
@@ -20,19 +19,19 @@ enumlib_present = enum_cmd and makestr_cmd
 
 class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
     def setUp(self):
-        parser = CifParser(os.path.join(test_dir, "Fe.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe.cif"))
         self.Fe = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
         self.LiFePO4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif"))
         self.Fe3O4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(test_dir, "magnetic.ncl.example.GdB4.mcif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic.ncl.example.GdB4.mcif"))
         self.GdB4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(test_dir, "magnetic.example.NiO.mcif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic.example.NiO.mcif"))
         self.NiO_expt = parser.get_structures()[0]
 
         latt = Lattice.cubic(4.17)
@@ -270,14 +269,14 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
     def test_ordering_enumeration(self):
         # simple afm
         structure = Structure.from_file(
-            os.path.join(test_dir, "magnetic_orderings/LaMnO3.json")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/LaMnO3.json")
         )
         enumerator = MagneticStructureEnumerator(structure)
         self.assertEqual(enumerator.input_origin, "afm")
 
         # ferrimagnetic (Cr produces net spin)
         structure = Structure.from_file(
-            os.path.join(test_dir, "magnetic_orderings/Cr2NiO4.json")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Cr2NiO4.json")
         )
         enumerator = MagneticStructureEnumerator(structure)
         print(enumerator.input_origin)
@@ -285,7 +284,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
 
         # antiferromagnetic on single magnetic site
         structure = Structure.from_file(
-            os.path.join(test_dir, "magnetic_orderings/Cr2WO6.json")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Cr2WO6.json")
         )
         enumerator = MagneticStructureEnumerator(structure)
         self.assertEqual(enumerator.input_origin, "afm_by_Cr")
@@ -300,7 +299,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
 
         # antiferromagnetic by structural motif
         structure = Structure.from_file(
-            os.path.join(test_dir, "magnetic_orderings/Ca3Co2O6.json")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings/Ca3Co2O6.json")
         )
         enumerator = MagneticStructureEnumerator(
             structure,
@@ -314,7 +313,7 @@ class MagneticStructureEnumeratorTest(unittest.TestCase):
 
 class MagneticDeformationTest(unittest.TestCase):
     def test_magnetic_deformation(self):
-        test_structs = loadfn(os.path.join(test_dir, "magnetic_deformation.json"))
+        test_structs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_deformation.json"))
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])
 
         self.assertEqual(mag_def.type, "NM-FM")

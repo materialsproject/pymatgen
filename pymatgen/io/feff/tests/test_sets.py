@@ -13,8 +13,7 @@ from pymatgen import Structure
 from pymatgen.io.cif import CifFile, CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class FeffInputSetTest(unittest.TestCase):
@@ -34,7 +33,7 @@ TITLE sites: 4
 * 2 Co     0.666667     0.333333     0.003676
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
-        cif_file = os.path.join(test_dir, "CoO19128.cif")
+        cif_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif")
         cls.structure = CifParser(cif_file).get_structures()[0]
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
@@ -179,7 +178,7 @@ TITLE sites: 4
         self.assertEqual(elnes.tags["KMESH"], [12, 12, 7])
 
     def test_large_systems(self):
-        struct = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "La4Fe4O12.cif"))
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
         self.assertNotIn("RECIPROCAL", elnes.tags)
@@ -248,23 +247,23 @@ TITLE sites: 4
 
     def test_post_distdiff(self):
         feff_dict_input = FEFFDictSet.from_directory(
-            os.path.join(test_dir, "feff_dist_test")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test")
         )
         self.assertTrue(
             feff_dict_input.tags
-            == Tags.from_file(os.path.join(test_dir, "feff_dist_test/feff.inp"))
+            == Tags.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/feff.inp"))
         )
         self.assertTrue(
             str(feff_dict_input.header())
-            == str(Header.from_file(os.path.join(test_dir, "feff_dist_test/HEADER")))
+            == str(Header.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/HEADER")))
         )
         feff_dict_input.write_input("feff_dist_regen")
         origin_tags = Tags.from_file(
-            os.path.join(test_dir, "feff_dist_test/PARAMETERS")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/PARAMETERS")
         )
         output_tags = Tags.from_file(os.path.join(".", "feff_dist_regen/PARAMETERS"))
         origin_mole = Atoms.cluster_from_file(
-            os.path.join(test_dir, "feff_dist_test/feff.inp")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/feff.inp")
         )
         output_mole = Atoms.cluster_from_file(
             os.path.join(".", "feff_dist_regen/feff.inp")

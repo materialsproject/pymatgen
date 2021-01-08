@@ -26,9 +26,6 @@ __version__ = "0.1"
 
 single_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "single_job.json"))
 multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__), "multi_job.json"))
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "molecules"
-)
 
 property_list = {
     "errors",
@@ -174,7 +171,7 @@ class TestQCOutput(PymatgenTest):
         """
         single_job_dict = {}
         for file in single_job_out_names:
-            single_job_dict[file] = QCOutput(os.path.join(test_dir, file)).data
+            single_job_dict[file] = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file)).data
         dumpfn(single_job_dict, "single_job.json")
 
     @staticmethod
@@ -185,7 +182,7 @@ class TestQCOutput(PymatgenTest):
         multi_job_dict = {}
         for file in multi_job_out_names:
             outputs = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(test_dir, file), keep_sub_files=False
+                QCOutput, os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
             data = []
             for sub_output in outputs:
@@ -213,12 +210,12 @@ class TestQCOutput(PymatgenTest):
     def test_all(self):
         single_outs = dict()
         for file in single_job_out_names:
-            single_outs[file] = QCOutput(os.path.join(test_dir, file)).data
+            single_outs[file] = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file)).data
 
         multi_outs = dict()
         for file in multi_job_out_names:
             multi_outs[file] = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(test_dir, file), keep_sub_files=False
+                QCOutput, os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file), keep_sub_files=False
             )
 
         for key in property_list:
@@ -228,25 +225,25 @@ class TestQCOutput(PymatgenTest):
     @unittest.skipIf((not (have_babel)), "OpenBabel not installed.")
     def test_structural_change(self):
 
-        t1 = Molecule.from_file(os.path.join(test_dir, "structural_change", "t1.xyz"))
-        t2 = Molecule.from_file(os.path.join(test_dir, "structural_change", "t2.xyz"))
-        t3 = Molecule.from_file(os.path.join(test_dir, "structural_change", "t3.xyz"))
+        t1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t1.xyz"))
+        t2 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t2.xyz"))
+        t3 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "t3.xyz"))
 
         thio_1 = Molecule.from_file(
-            os.path.join(test_dir, "structural_change", "thiophene1.xyz")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "thiophene1.xyz")
         )
         thio_2 = Molecule.from_file(
-            os.path.join(test_dir, "structural_change", "thiophene2.xyz")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change", "thiophene2.xyz")
         )
 
         frag_1 = Molecule.from_file(
             os.path.join(
-                test_dir, "new_qchem_files", "test_structure_change", "frag_1.xyz"
+                PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "test_structure_change", "frag_1.xyz"
             )
         )
         frag_2 = Molecule.from_file(
             os.path.join(
-                test_dir, "new_qchem_files", "test_structure_change", "frag_2.xyz"
+                PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "test_structure_change", "frag_2.xyz"
             )
         )
 

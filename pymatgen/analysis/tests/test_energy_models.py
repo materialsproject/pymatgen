@@ -13,8 +13,7 @@ from pymatgen.analysis.energy_models import (
 )
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class EwaldElectrostaticModelTest(unittest.TestCase):
@@ -41,7 +40,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
         self.assertAlmostEqual(m.get_energy(s), -264.66364858, 2)  # Result from GULP
-        s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -145.39050015844839, 4)
 
     def test_to_from_dict(self):
@@ -55,7 +54,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 class SymmetryModelTest(unittest.TestCase):
     def test_get_energy(self):
         m = SymmetryModel()
-        s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -225)
 
     def test_to_from_dict(self):
@@ -71,7 +70,7 @@ class IsingModelTest(unittest.TestCase):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Species
 
-        s = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
         s.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
         self.assertAlmostEqual(m.get_energy(s), 172.81260515787977)
         s[4] = Species("Fe", 2, {"spin": -4})
