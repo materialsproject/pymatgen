@@ -26,11 +26,9 @@ jobs:
     - name: Install dependencies
       shell: bash -l {0}
       run: |
-        pwd
-        ls /home/runner/work/pymatgen/pymatgen/cmd_line
         for pkg in `ls cmd_line`; do export PATH=$PATH:`pwd`/cmd_line/$pkg/Linux_64bit; done
-        export GULP_LIB=/home/runner/work/pymatgen/cmd_line/gulp/Libraries
-        export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
+        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+        export PMG_TEST_FILES_DIR=`pwd`/test_files
         echo "PATH=$PATH"
         echo "Test files are in $PMG_TEST_FILES_DIR"
         python -m pip install --upgrade pip
