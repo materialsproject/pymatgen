@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [[ "x$1" == "x-h" ]]
+then
+  echo Converts an ATAT structure file \(from stdin\) to the CIF format \(stdout\).
+  exit 1
+fi
+cellcvrt -f -abc | awk 'BEGIN {n=0;} {
+n++;
+if (n==1) {
+    print "data_global _chemical_name 'MyName'";
+    print "_cell_length_a " $1;
+    print "_cell_length_b " $2;
+    print "_cell_length_c " $3;
+    print "_cell_angle_alpha " $4;
+    print "_cell_angle_beta "  $5;
+    print "_cell_angle_gamma " $6;
+    print "_symmetry_space_group_name_H-M \x27P 1\x27";
+    print "loop_";
+    print "_atom_site_label";
+    print "_atom_site_fract_x";
+    print "_atom_site_fract_y";
+    print "_atom_site_fract_z";
+} else if (n>4) {
+    print $4,$1,$2,$3;
+}}'
