@@ -27,6 +27,8 @@ jobs:
       shell: bash -l {0}
       run: |
         for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
+        echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
+        echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
@@ -38,6 +40,5 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
         echo "PATH=$PATH"
         pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes
