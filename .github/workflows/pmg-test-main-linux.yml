@@ -38,8 +38,8 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
-        echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
+        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries"
+        export PMG_TEST_FILES_DIR=`pwd`/test_files"
         echo "PATH=$PATH"
         echo "Test files are in $PMG_TEST_FILES_DIR"
         pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes
