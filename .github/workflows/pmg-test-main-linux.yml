@@ -23,7 +23,7 @@ jobs:
     - name: Install OpenBabel
       shell: bash -l {0}
       run: |
-        sudo apt-get install csh gfortran g++
+        sudo apt-get install csh gfortran g++ libgfortran3
         conda install -c conda-forge openbabel
     - name: Install dependencies
       shell: bash -l {0}
