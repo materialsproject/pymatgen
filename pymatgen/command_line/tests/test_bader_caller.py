@@ -7,6 +7,7 @@ import unittest
 from pymatgen.command_line.bader_caller import *
 from pymatgen.util.testing import PymatgenTest
 
+
 @unittest.skipIf(not which("bader"), "bader executable not present.")
 class BaderAnalysisTest(unittest.TestCase):
     _multiprocess_shared_ = True
