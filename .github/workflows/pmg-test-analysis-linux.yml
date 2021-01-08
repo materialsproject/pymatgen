@@ -20,10 +20,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install OpenBabel
+    - name: Install OpenBabel and Libs
       shell: bash -l {0}
       run: |
-        sudo apt-get install csh gfortran g++ libgfortran3
+        # Required for gulp.
+        sudo apt-get install csh gfortran libgfortran3
         conda install -c conda-forge openbabel
 
     - name: Install dependencies
@@ -37,6 +38,7 @@ jobs:
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
         pip install -e .
+
     - name: pytest
       shell: bash -l {0}
       env:

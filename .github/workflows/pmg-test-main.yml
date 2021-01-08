@@ -25,6 +25,7 @@ jobs:
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
+        # Note that this is the way to update env variables in a way that persist for the entire job.
         for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Darwin_64bit" >> $GITHUB_PATH; done
         echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
         echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
