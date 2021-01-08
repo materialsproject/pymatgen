@@ -31,6 +31,8 @@ jobs:
         export PMG_TEST_FILES_DIR=`pwd`/test_files
         echo "PATH=$PATH"
         echo "Test files are in $PMG_TEST_FILES_DIR"
+        which enum.x
+        which bader
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
