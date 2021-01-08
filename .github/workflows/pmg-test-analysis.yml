@@ -45,4 +45,4 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        pytest pymatgen/analysis --color=yes
+        pytest pymatgen/analysis -rxXs --color=yes
