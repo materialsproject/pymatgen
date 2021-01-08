@@ -514,7 +514,7 @@ class ComputedEntry(Entry):
         return self.__repr__()
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ComputedEntry":
+    def from_dict(cls, d) -> "ComputedEntry":
         """
         :param d: Dict representation.
         :return: ComputedEntry

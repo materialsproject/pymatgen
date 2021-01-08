@@ -5,6 +5,7 @@
 
 import json
 import os
+import copy
 import unittest
 from collections import defaultdict
 
@@ -471,8 +472,8 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         self.assertIsNotNone(str(self.temp_entries[300]))
 
     def test_normalize(self):
-        # NOTE this test must be last as it mutates the entries.
-        for entry in self.temp_entries.values():
+        for e in self.temp_entries.values():
+            entry = copy.deepcopy(e)
             test = entry.normalize(mode="atom", inplace=False)
             self.assertAlmostEqual(entry.gibbs_correction, test.gibbs_correction * 25, 11)
             entry.normalize(mode="atom")

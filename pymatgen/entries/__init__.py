@@ -158,6 +158,8 @@ class Entry(MSONable, metaclass=ABCMeta):
 
             # NOTE this is not performant and should be preceeded
             # in child classes if faster rigorous checks are available.
+            # NOTE this does a strict comparision of the energies which
+            # could be problematic in some cases due to fp errors.
             return self.as_dict() == other.as_dict()
 
         return False
