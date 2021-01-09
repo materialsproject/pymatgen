@@ -413,24 +413,25 @@ class ComputedStructureEntryTest(unittest.TestCase):
 
 class GibbsComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
-        self.temps = [300, 600, 900, 1200, 1500, 1800]
-        self.struct = vasprun.final_structure
-        self.num_atoms = self.struct.composition.num_atoms
-        self.temp_entries = {
-            temp: GibbsComputedStructureEntry(
-                self.struct,
-                -2.436 * self.num_atoms,
-                temp=temp,
-                parameters=vasprun.incar,
-                entry_id="test",
-            )
-            for temp in self.temps
-        }
+        with pytest.warns(FutureWarning, match="MaterialsProjectCompatibility will be updated"):
+            self.temps = [300, 600, 900, 1200, 1500, 1800]
+            self.struct = vasprun.final_structure
+            self.num_atoms = self.struct.composition.num_atoms
+            self.temp_entries = {
+                temp: GibbsComputedStructureEntry(
+                    self.struct,
+                    -2.436 * self.num_atoms,
+                    temp=temp,
+                    parameters=vasprun.incar,
+                    entry_id="test",
+                )
+                for temp in self.temps
+            }
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
-            data = json.load(f)
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
+                data = json.load(f)
 
-        self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
+            self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):
         energies = {
@@ -451,13 +452,11 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
-
         self.assertIsNotNone(gibbs_entries)
 
     def test_from_pd(self):
         pd = PhaseDiagram(self.mp_entries)
         gibbs_entries = GibbsComputedStructureEntry.from_pd(pd)
-
         self.assertIsNotNone(gibbs_entries)
 
     def test_to_from_dict(self):
