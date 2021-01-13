@@ -477,8 +477,8 @@ class ComputedEntry(Entry):
         n_atoms = self.composition.num_atoms
         output = [
             "{} {:<10} - {:<12} ({})".format(
-                str(self.entry_id),
-                type(self).__name__,
+                self.entry_id,
+                self.__class__.__name__,
                 self.composition.formula,
                 self.composition.reduced_formula,
             ),
@@ -558,13 +558,13 @@ class ComputedEntry(Entry):
         return_dict = super().as_dict()
         return_dict.update(
             {
+                "entry_id": self.entry_id,
+                "correction": self.correction,
                 "energy_adjustments": json.loads(
                     json.dumps(self.energy_adjustments, cls=MontyEncoder)
                 ),
                 "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
                 "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
-                "entry_id": self.entry_id,
-                "correction": self.correction,
             }
         )
         return return_dict
@@ -575,9 +575,9 @@ class ComputedEntry(Entry):
         if self is other:
             return True
 
-        # NOTE It is assumed that the user will ensure entry_id is a
-        # unique identifier for ComputedEntry type classes.
         if isinstance(other, self.__class__):
+            # NOTE It is assumed that the user will ensure entry_id is a
+            # unique identifier for `ComputedEntry` type classes.
             if (
                 self.entry_id is not None
                 and self.entry_id == other.entry_id
@@ -585,7 +585,7 @@ class ComputedEntry(Entry):
             ):
                 return True
 
-            return super().__eq__(other)
+            return self.is_dict_eq(other)
 
         return False
 
@@ -653,8 +653,6 @@ class ComputedStructureEntry(ComputedEntry):
         :return: MSONAble dict.
         """
         d = super().as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.as_dict()
         return d
 
@@ -991,8 +989,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         :return: MSONAble dict.
         """
         d = super().as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
         d["formation_enthalpy"] = self.formation_enthalpy
         d["temp"] = self.temp
         d["gibbs_model"] = self.gibbs_model
@@ -1030,10 +1026,3 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             "Gibbs Free Energy (Formation) = {:.4f}".format(self.energy),
         ]
         return "\n".join(output)
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, self.__class__):
-            if self.temp != other.temp:
-                return False
-
-        return super().__eq__(other)

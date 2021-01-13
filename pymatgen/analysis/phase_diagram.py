@@ -479,8 +479,8 @@ class BasePhaseDiagram(MSONable):
         """
         return self._stable_entries
 
-    @lru_cache(1)  # cache in case of repeated calls
-    def get_stable_entries_normed(self, mode="atom"):
+    @lru_cache(2)  # cache in case of repeated calls
+    def get_stable_entries_normed(self, mode="formula_unit"):
         """
         Args:
             mode (str): type of normalization to perform.

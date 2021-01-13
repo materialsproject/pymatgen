@@ -15,6 +15,7 @@ import numpy as np
 
 from abc import ABCMeta, abstractmethod
 from typing import Optional
+from numbers import Number
 
 from monty.json import MSONable
 
@@ -141,7 +142,7 @@ class Entry(MSONable, metaclass=ABCMeta):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "energy": self._energy,
-            "composition": self.composition.as_dict()
+            "composition": self._composition.as_dict()
         }
 
     def __eq__(self, other):
@@ -151,23 +152,38 @@ class Entry(MSONable, metaclass=ABCMeta):
             return True
 
         if isinstance(other, self.__class__):
-            if not np.allclose(self.energy, other.energy):
-                return False
-            if self.composition != other.composition:
-                return False
-
-            # NOTE this is not performant and should be preceeded
-            # in child classes if faster rigorous checks are available.
-            # NOTE this does a strict comparision of the energies which
-            # could be problematic in some cases due to fp errors.
-            return self.as_dict() == other.as_dict()
+            return self.is_dict_eq(other)
 
         return False
 
+    def is_dict_eq(self, other):
+        self_dict = self.as_dict()
+        other_dict = other.as_dict()
+
+        # NOTE use implicit generator to allow all() to short-circuit
+        return all(_is_eq(other_dict[k], v) for k, v in self_dict.items())
+
     def __hash__(self):
-        # NOTE truncate _energy to ensure robustness
+        # NOTE truncate _energy to 8 dp to ensure same robustness
+        # as np.allclose
         return hash(
             f"{self.__class__.__name__}"
-            f"{self._composition.reduced_formula}"
-            f"{self._energy:.5f}"
+            f"{self._composition.formula}"
+            f"{self._energy:.8f}"
         )
+
+
+def _is_eq(v_self, v_other):
+    """
+    Use np.allclose for numerical values for robustness
+    otherwise use default __eq__.
+
+    NOTE robustness doesn't reach to nested structures i.e. For a
+    ComputedStructureEntry where parameters stores the Incar this would
+    not be robust to fp changes in that Incar dictionary. For a
+    GrandPotPDEntry it will not be robust to fp changes in the chempots
+    """
+    if isinstance(v_self, Number) and isinstance(v_other, Number):
+        return np.allclose(v_self, v_other, atol=1e-8)
+    else:
+        return v_self == v_other

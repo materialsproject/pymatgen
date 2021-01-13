@@ -173,6 +173,7 @@ class ComputedEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
+        self.assertEqual(self.entry, e)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
@@ -263,6 +264,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedStructureEntry.from_dict(d)
+        self.assertEqual(self.entry, e)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
     def test_str(self):
@@ -465,6 +467,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         test_entry = self.temp_entries[300]
         d = test_entry.as_dict()
         e = GibbsComputedStructureEntry.from_dict(d)
+        self.assertEqual(test_entry, e)
         self.assertAlmostEqual(e.energy, test_entry.energy)
 
     def test_str(self):
