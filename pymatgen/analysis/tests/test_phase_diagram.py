@@ -96,11 +96,10 @@ class PDEntryTest(unittest.TestCase):
 
 class TransformedPDEntryTest(unittest.TestCase):
     def setUp(self):
-        # NOTE a 1:1 isn't the best test? maybe a tertiary system should be used.
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
 
-        terminal_compositions = ["LiO", "FeO"]
+        terminal_compositions = ["Li2O", "FeO", "LiO8"]
         terminal_compositions = [Composition(c) for c in terminal_compositions]
 
         sp_mapping = OrderedDict()
@@ -114,14 +113,14 @@ class TransformedPDEntryTest(unittest.TestCase):
         self.assertAlmostEqual(self.transformed_entry.original_entry.energy, 53.0, 11)
 
     def test_get_energy_per_atom(self):
-        self.assertAlmostEqual(self.transformed_entry.energy_per_atom, 53.0 / 2, 11)
+        self.assertAlmostEqual(self.transformed_entry.energy_per_atom, 53.0 / (23 / 15), 11)
 
     def test_get_name(self):
         self.assertEqual(self.transformed_entry.name, "LiFeO2", "Wrong name!")
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
-        expected_comp = Composition({DummySpecies("Xf"): 1, DummySpecies("Xg"): 1})
+        expected_comp = Composition({DummySpecies("Xf"): 14/30, DummySpecies("Xg"): 1., DummySpecies("Xh"): 2/30})
         self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_is_element(self):
@@ -131,14 +130,14 @@ class TransformedPDEntryTest(unittest.TestCase):
         d = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(d)
         self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
-        self.assertAlmostEqual(entry.energy_per_atom, 53.0 / 2, 11)
+        self.assertAlmostEqual(entry.energy_per_atom, 53.0 / (23 / 15), 11)
 
     def test_str(self):
         self.assertIsNotNone(str(self.transformed_entry))
 
     def test_normalize(self):
         norm_entry = self.transformed_entry.normalize(mode="atom", inplace=False)
-        expected_comp = Composition({DummySpecies("Xf"): 0.5, DummySpecies("Xg"): 0.5})
+        expected_comp = Composition({DummySpecies("Xf"): 7/23, DummySpecies("Xg"): 15/23, DummySpecies("Xh"): 1/23})
         self.assertEqual(norm_entry.composition, expected_comp, "Wrong composition!")
 
 
