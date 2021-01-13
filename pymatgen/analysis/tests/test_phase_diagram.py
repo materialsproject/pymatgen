@@ -45,6 +45,9 @@ class PDEntryTest(unittest.TestCase):
         self.assertEqual(self.entry.energy, 53, "Wrong energy!")
         self.assertEqual(self.gpentry.energy, 50, "Wrong energy!")
 
+    def test_get_chemical_energy(self):
+        self.assertEqual(self.gpentry.chemical_energy, 3, "Wrong energy!")
+
     def test_get_energy_per_atom(self):
         self.assertEqual(self.entry.energy_per_atom, 53.0 / 4, "Wrong energy per atom!")
         self.assertEqual(
