@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Structure
+from pymatgen.core.lattice import Structure
 from pymatgen.analysis.eos import EOS
 from pymatgen.analysis.quasiharmonic import QuasiharmonicDebyeApprox
 

@@ -281,7 +281,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
     )
     def test_heavy(self):
-        from pymatgen import MPRester
+        from pymatgen.ext.matproj import MPRester
 
         mpr = MPRester()
         entries = mpr.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
@@ -297,7 +297,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
     )
     def test_mpr_pipeline(self):
-        from pymatgen import MPRester
+        from pymatgen.ext.matproj import MPRester
 
         mpr = MPRester()
         data = mpr.get_pourbaix_entries(["Zn"])

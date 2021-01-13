@@ -1,6 +1,7 @@
 import unittest
 
-from pymatgen import Lattice, Molecule, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list

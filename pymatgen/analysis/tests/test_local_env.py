@@ -9,7 +9,9 @@ from math import pi
 import numpy as np
 from monty.os.path import which
 
-from pymatgen import Element, Lattice, Molecule, Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.analysis.local_env import (
     BrunnerNN_real,
     BrunnerNN_reciprocal,

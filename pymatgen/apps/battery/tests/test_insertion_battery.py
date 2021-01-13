@@ -7,7 +7,8 @@ import json
 import os
 import unittest
 
-from pymatgen import MontyDecoder, MontyEncoder
+from monty.json import MontyDecoder, MontyEncoder
+
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.entries.computed_entries import ComputedEntry
 
