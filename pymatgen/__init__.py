@@ -9,6 +9,7 @@ for materials analysis. This is the root package.
 
 import os
 import warnings
+import lazy_import
 from fnmatch import fnmatch
 
 import ruamel.yaml as yaml
@@ -18,10 +19,12 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2020.12.3"
+__version__ = "2020.12.31"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
+lazy_import.lazy_module("scipy")
+lazy_import.lazy_module("networkx")
 
 def _load_pmg_settings():
     try:
@@ -42,20 +45,29 @@ def _load_pmg_settings():
 
 SETTINGS = _load_pmg_settings()
 
-from .core.composition import Composition
-from .core.lattice import Lattice
-from .core.operations import SymmOp
-
-# pylint: disable=C0413
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
-# Note that these have to come after the SETTINGS have been loaded. Otherwise, import does not work.
-from .core.periodic_table import DummySpecie, DummySpecies, Element, Specie, Species
-from .core.sites import PeriodicSite, Site
-from .core.structure import IMolecule, IStructure, Molecule, Structure
-from .core.units import ArrayWithUnit, FloatWithUnit, Unit
-from .electronic_structure.core import Orbital, Spin
-from .ext.matproj import MPRester
+# When developing on pymatgen, please do not use these convenience aliases.
+Composition = lazy_import.lazy_callable("pymatgen.core.composition.Composition")
+Lattice = lazy_import.lazy_callable("pymatgen.core.lattice.Lattice")
+SymmOp = lazy_import.lazy_callable("pymatgen.core.operations.SymmOp")
+DummySpecie = lazy_import.lazy_callable("pymatgen.core.periodic_table.DummySpecie")
+DummySpecies = lazy_import.lazy_callable("pymatgen.core.periodic_table.DummySpecies")
+Element = lazy_import.lazy_callable("pymatgen.core.periodic_table.Element")
+Specie = lazy_import.lazy_callable("pymatgen.core.periodic_table.Specie")
+Species = lazy_import.lazy_callable("pymatgen.core.periodic_table.Species")
+PeriodicSite = lazy_import.lazy_callable("pymatgen.core.sites.PeriodicSite")
+Site = lazy_import.lazy_callable("pymatgen.core.sites.Site")
+IMolecule = lazy_import.lazy_callable("pymatgen.core.structure.IMolecule")
+IStructure = lazy_import.lazy_callable("pymatgen.core.structure.IStructure")
+Molecule = lazy_import.lazy_callable("pymatgen.core.structure.Molecule")
+Structure = lazy_import.lazy_callable("pymatgen.core.structure.Structure")
+ArrayWithUnit = lazy_import.lazy_callable("pymatgen.core.units.ArrayWithUnit")
+FLoatWithUnit = lazy_import.lazy_callable("pymatgen.core.units.FloatWithUnit")
+Unit = lazy_import.lazy_callable("pymatgen.core.units.Unit")
+Spin = lazy_import.lazy_callable("pymatgen.electronic_structure.core.Spin")
+Orbital = lazy_import.lazy_callable("pymatgen.electronic_structure.core.Orbital")
+MPRester = lazy_import.lazy_callable("pymatgen.ext.matproj.MPRester")
 
 
 def get_structure_from_mp(formula):
