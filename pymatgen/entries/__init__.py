@@ -165,8 +165,9 @@ class Entry(MSONable, metaclass=ABCMeta):
         return False
 
     def __hash__(self):
+        # NOTE truncate _energy to ensure robustness
         return hash(
             f"{self.__class__.__name__}"
             f"{self._composition.reduced_formula}"
-            f"{self._energy}"
+            f"{self._energy:.5f}"
         )

@@ -575,8 +575,8 @@ class ComputedEntry(Entry):
         if self is other:
             return True
 
-        # NOTE It is assumed that the user will not provide two entries
-        # with the same entry_id that are different.
+        # NOTE It is assumed that the user will ensure entry_id is a
+        # unique identifier for ComputedEntry type classes.
         if isinstance(other, self.__class__):
             if (
                 self.entry_id is not None
@@ -590,6 +590,8 @@ class ComputedEntry(Entry):
         return False
 
     def __hash__(self) -> int:
+        # NOTE It is assumed that the user will ensure entry_id is a
+        # unique identifier for ComputedEntry type classes.
         if self.entry_id is not None:
             return hash(f"{self.__class__.__name__}{self.entry_id}")
 
