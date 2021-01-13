@@ -8,7 +8,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
     BasicAbinitInput,
     BasicMultiDataset,

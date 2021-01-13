@@ -22,7 +22,7 @@ except ImportError:
 from monty.os.path import which
 from monty.tempfile import ScratchDir
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.util.coord import get_angle

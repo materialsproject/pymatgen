@@ -10,7 +10,7 @@ import pandas as pd
 from monty.os.path import which
 
 import pymatgen.command_line.vampire_caller as vampirecaller
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files", "magnetic_orderings"

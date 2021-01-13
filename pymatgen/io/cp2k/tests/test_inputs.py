@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 import numpy as np
 
-from pymatgen import Molecule, Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import Coord, Cp2kInput, Keyword, KeywordList, Kind
 from pymatgen.util.testing import PymatgenTest
 

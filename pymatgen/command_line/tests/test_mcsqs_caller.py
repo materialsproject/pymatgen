@@ -4,7 +4,7 @@ import unittest
 from monty.os.path import which
 from monty.serialization import loadfn
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.util.testing import PymatgenTest
 

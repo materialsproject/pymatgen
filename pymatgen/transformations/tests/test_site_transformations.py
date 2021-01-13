@@ -8,7 +8,8 @@ import unittest
 import numpy as np
 from monty.os.path import which
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.transformations.site_transformations import (
     AddSitePropertyTransformation,
     InsertSitesTransformation,

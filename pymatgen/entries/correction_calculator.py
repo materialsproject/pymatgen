@@ -13,7 +13,8 @@ import ruamel.yaml
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
 
-from pymatgen import Composition, Element
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 

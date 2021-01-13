@@ -13,7 +13,7 @@ import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 
 try:

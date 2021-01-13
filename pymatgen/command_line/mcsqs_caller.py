@@ -13,7 +13,7 @@ from typing import Dict, List, NamedTuple, Optional, Union
 from monty.dev import requires
 from monty.os.path import which
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 
 
 class Sqs(NamedTuple):

@@ -5,7 +5,7 @@
 import os
 import unittest
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 

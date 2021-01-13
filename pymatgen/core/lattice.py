@@ -1441,7 +1441,7 @@ class Lattice(MSONable):
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
         # pylint: disable=C0415
-        from pymatgen import Structure
+        from pymatgen.core.structure import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])

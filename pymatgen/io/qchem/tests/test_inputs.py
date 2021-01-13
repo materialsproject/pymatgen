@@ -9,7 +9,7 @@ import unittest
 
 from monty.serialization import loadfn
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.util.testing import PymatgenTest
 

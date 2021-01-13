@@ -23,7 +23,8 @@ from typing import Dict, List, Sequence, Tuple, Union
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen import Lattice, Molecule, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 
 __author__ = "Nicholas Winner"

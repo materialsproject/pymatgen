@@ -9,7 +9,8 @@ import unittest
 
 import pandas as pd
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 

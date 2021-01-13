@@ -2,16 +2,8 @@ import os
 import unittest
 import warnings
 
-import ruamel.yaml as yaml
-
-from pymatgen import (
-    SETTINGS,
-    SETTINGS_FILE,
-    Structure,
-    _load_pmg_settings,
-    get_structure_from_mp,
-    loadfn,
-)
+from pymatgen import SETTINGS, get_structure_from_mp, loadfn
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "test_files")

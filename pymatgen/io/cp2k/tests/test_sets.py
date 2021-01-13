@@ -5,7 +5,7 @@
 import unittest
 from pathlib import Path
 
-from pymatgen import Molecule, Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import Cp2kInput
 from pymatgen.io.cp2k.sets import (
     CellOptSet,

@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")

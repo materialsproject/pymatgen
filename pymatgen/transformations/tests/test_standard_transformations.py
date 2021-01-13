@@ -12,7 +12,9 @@ import warnings
 from monty.json import MontyDecoder
 from monty.os.path import which
 
-from pymatgen import Element, Lattice, PeriodicSite
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import *
