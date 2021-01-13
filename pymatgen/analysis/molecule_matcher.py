@@ -43,7 +43,7 @@ except ImportError:
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
-from pymatgen import Molecule  # pylint: disable=ungrouped-imports
+from pymatgen.core.structure import Molecule  # pylint: disable=ungrouped-imports
 
 logger = logging.getLogger(__name__)
 

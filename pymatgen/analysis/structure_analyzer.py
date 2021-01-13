@@ -18,7 +18,9 @@ import numpy as np
 from monty.dev import deprecated
 from scipy.spatial import Voronoi
 
-from pymatgen import Composition, Element, PeriodicSite, Species
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

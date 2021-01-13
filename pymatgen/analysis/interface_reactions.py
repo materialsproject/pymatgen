@@ -11,7 +11,7 @@ import warnings
 import matplotlib.pylab as plt
 import numpy as np
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 
