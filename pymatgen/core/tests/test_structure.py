@@ -8,6 +8,7 @@ import unittest
 import warnings
 from pathlib import Path
 
+import pytest  # type: ignore
 import numpy as np
 from monty.os.path import which
 
@@ -577,25 +578,26 @@ class IStructureTest(PymatgenTest):
         self.assertEqual([len(i) for i in all_nn], [0, 0, 0])
 
     def test_get_all_neighbors_equal(self):
-        s = Structure(
-            Lattice.cubic(2),
-            ["Li", "Li", "Li", "Si"],
-            [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
-        )
-        nn_traditional = s.get_all_neighbors_old(
-            4, include_index=True, include_image=True, include_site=True
-        )
-        nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
-
-        for i in range(4):
-            self.assertEqual(len(nn_traditional[i]), len(nn_cell_lists[i]))
-            self.assertTrue(
-                np.linalg.norm(
-                    np.array(sorted([j[1] for j in nn_traditional[i]]))
-                    - np.array(sorted([j[1] for j in nn_cell_lists[i]]))
-                )
-                < 1e-3
+        with pytest.warns(FutureWarning, match="get_all_neighbors_old is deprecated"):
+            s = Structure(
+                Lattice.cubic(2),
+                ["Li", "Li", "Li", "Si"],
+                [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
             )
+            nn_traditional = s.get_all_neighbors_old(
+                4, include_index=True, include_image=True, include_site=True
+            )
+            nn_cell_lists = s.get_all_neighbors(4, include_index=True, include_image=True)
+
+            for i in range(4):
+                self.assertEqual(len(nn_traditional[i]), len(nn_cell_lists[i]))
+                self.assertTrue(
+                    np.linalg.norm(
+                        np.array(sorted([j[1] for j in nn_traditional[i]]))
+                        - np.array(sorted([j[1] for j in nn_cell_lists[i]]))
+                    )
+                    < 1e-3
+                )
 
     def test_get_dist_matrix(self):
         ans = [[0.0, 2.3516318], [2.3516318, 0.0]]

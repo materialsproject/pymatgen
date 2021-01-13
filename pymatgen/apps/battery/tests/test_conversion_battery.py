@@ -74,7 +74,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v, 2)
 
-            self.assertIsNotNone(c.as_dict_summary(True))
+            self.assertIsNotNone(c.get_summary_dict(True))
 
             # Test pair to dict
 

@@ -25,14 +25,10 @@ jobs:
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
-        for pkg in `ls cmd_line`; do export PATH=$PATH:`pwd`/cmd_line/$pkg/Darwin_64bit; done
-        export PMG_TEST_FILES_DIR=`pwd`/test_files
-        echo "PATH=$PATH"
-        echo "Test files are in $PMG_TEST_FILES_DIR"
-    - name: Set Windows Paths
-      if: matrix.os == 'windows-latest'
-      run: |
-        set PMG_TEST_FILES_DIR=test_files
+        # Note that this is the way to update env variables in a way that persist for the entire job.
+        for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Darwin_64bit" >> $GITHUB_PATH; done
+        echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
+        echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -45,4 +41,5 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        pytest pymatgen --ignore=pymatgen/analysis --color=yes
+        echo "PATH=$PATH"
+        pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes

@@ -4,10 +4,8 @@
 
 import unittest
 
-import numpy as np
-from monty.os.path import which
-
 from pymatgen.command_line.bader_caller import *
+from pymatgen.util.testing import PymatgenTest
 
 
 @unittest.skipIf(not which("bader"), "bader executable not present.")
@@ -22,10 +20,6 @@ class BaderAnalysisTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_init(self):
-        PymatgenTest.TEST_FILES_DIR = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files"
-        )
-
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"),
@@ -68,12 +62,10 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertEqual(len(analysis.data), 9)
 
     def test_from_path(self):
-        PymatgenTest.TEST_FILES_DIR = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files", "bader"
-        )
-        analysis = BaderAnalysis.from_path(PymatgenTest.TEST_FILES_DIR)
-        chgcar = os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.gz")
-        chgref = os.path.join(PymatgenTest.TEST_FILES_DIR, "_CHGCAR_sum.gz")
+        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
+        analysis = BaderAnalysis.from_path(test_dir)
+        chgcar = os.path.join(test_dir, "CHGCAR.gz")
+        chgref = os.path.join(test_dir, "_CHGCAR_sum.gz")
         analysis0 = BaderAnalysis(chgcar_filename=chgcar, chgref_filename=chgref)
         charge = np.array(analysis.summary["charge"])
         charge0 = np.array(analysis0.summary["charge"])
@@ -82,11 +74,9 @@ class BaderAnalysisTest(unittest.TestCase):
             os.remove("CHGREF")
 
     def test_automatic_runner(self):
-        PymatgenTest.TEST_FILES_DIR = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files/bader"
-        )
+        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
 
-        summary = bader_analysis_from_path(PymatgenTest.TEST_FILES_DIR)
+        summary = bader_analysis_from_path(test_dir)
 
         """
         Reference summary dict (with bader 1.0)
@@ -123,10 +113,6 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(sum(summary["magmom"]), 28, places=1)
 
     def test_atom_parsing(self):
-        PymatgenTest.TEST_FILES_DIR = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files"
-        )
-
         # test with reference file
         analysis = BaderAnalysis(
             chgcar_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "CHGCAR.Fe3O4"),
