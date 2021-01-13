@@ -353,9 +353,7 @@ class BasePhaseDiagram(MSONable):
     @classmethod
     def _kwargs_from_entries(cls, entries, elements):
         if elements is None:
-            elements = sorted(list(set().union(
-                [els for e in entries for els in e.composition.elements]
-            )))
+            elements = sorted({els for e in entries for els in e.composition.elements})
 
         elements = list(elements)
         dim = len(elements)
