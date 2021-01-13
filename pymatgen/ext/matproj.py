@@ -34,10 +34,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
-from pymatgen.entries.compatibility import (
-    MaterialsProjectAqueousCompatibility,
-    MaterialsProjectCompatibility,
-)
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -588,7 +584,9 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility):
+    def get_pourbaix_entries(
+        self, chemsys, solid_compat="MaterialsProjectCompatibility"
+    ):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -602,9 +600,18 @@ class MPRester:
                 (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
                 Default: MaterialsProjectCompatibility
         """
+        # imports are not top-level due to expense
+
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
+        from pymatgen.entries.compatibility import (
+            MaterialsProjectAqueousCompatibility,
+            MaterialsProjectCompatibility,
+        )
+
+        if solid_compat == "MaterialsProjectCompatibility":
+            solid_compat = MaterialsProjectCompatibility
 
         pbx_entries = []
 
