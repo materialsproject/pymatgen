@@ -1268,34 +1268,34 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         Args:
             entries ([PDEntry]): A list of PDEntry-like objects having an
                 energy, energy_per_atom and composition.
-            chempots {Element: float}: Specify the chemical potentials
+            chempots ({Element: float}): Specify the chemical potentials
                 of the open elements.
             elements ([Element]): Optional list of elements in the phase
                 diagram. If set to None, the elements are determined from
                 the the entries themselves.
         """
         if elements is None:
-            elements = set().union(
-                [els for e in entries for els in e.composition.elements]
-            )
+            elements = {els for e in entries for els in e.composition.elements}
+
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
-        all_entries = []
-        for e in entries:
-            if len(set(e.composition.elements).intersection(set(elements))) > 0:
-                all_entries.append(GrandPotPDEntry(e, self.chempots))
+
+        all_entries = [
+            GrandPotPDEntry(e, self.chempots) for e in entries
+            if len(elements.intersection(e.composition.elements)) > 0
+        ]
+
         super().__init__(all_entries, elements)
 
     def __repr__(self):
-        # TODO tidy this up
-        output = []
         chemsys = "-".join([el.symbol for el in self.elements])
-        output.append("{} grand potential phase diagram with ".format(chemsys))
-        output[-1] += ", ".join(
-            ["u{}={}".format(el, v) for el, v in self.chempots.items()]
-        )
-        output.append("{} stable phases: ".format(len(self.stable_entries)))
-        output.append(", ".join([entry.name for entry in self.stable_entries]))
+        chempots = ", ".join(["u{}={}".format(el, v) for el, v in self.chempots.items()])
+
+        output = [
+            "{} grand potential phase diagram with {}".format(chemsys, chempots),
+            "{} stable phases: ".format(len(self.stable_entries)),
+            ", ".join([entry.name for entry in self.stable_entries]),
+        ]
         return "\n".join(output)
 
     def as_dict(self):
