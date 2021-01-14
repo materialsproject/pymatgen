@@ -13,8 +13,7 @@ from pymatgen import (
     loadfn,
 )
 from pymatgen.io.vasp import Vasprun
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class SettingsTestCase(unittest.TestCase):
@@ -42,13 +41,13 @@ class SettingsTestCase(unittest.TestCase):
     def test_loadfn(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            obj = loadfn(os.path.join(test_dir, "Li2O.cif"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
             self.assertIsInstance(obj, Structure)
-            obj = loadfn(os.path.join(test_dir, "POSCAR"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
             self.assertIsInstance(obj, Structure)
-            obj = loadfn(os.path.join(test_dir, "LiFePO4.vasp"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.vasp"))
             self.assertIsInstance(obj, Structure)
-            obj = loadfn(os.path.join(test_dir, "vasprun.xml"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
             self.assertIsInstance(obj, Vasprun)
 
 

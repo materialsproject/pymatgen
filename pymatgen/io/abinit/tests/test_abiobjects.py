@@ -10,8 +10,6 @@ from pymatgen.core.units import Ha_to_eV, bohr_to_ang
 from pymatgen.io.abinit.abiobjects import *
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class LatticeFromAbivarsTest(PymatgenTest):
     def test_rprim_acell(self):
@@ -73,7 +71,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
         # Ga  Ga2  1  0.66666666666667  0.333333333333333  0.000880  1.0
         # N  N3  1  0.333333333333333  0.666666666666667  0.124120  1.0
         # N  N4  1  0.666666666666667  0.333333333333333  0.624120  1.0
-        gan = Structure.from_file(os.path.join(test_dir, "abinit", "gan.cif"))
+        gan = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "abinit", "gan.cif"))
 
         # By default, znucl is filled using the first new type found in sites.
         def_vars = structure_to_abivars(gan)

@@ -8,6 +8,7 @@ from monty.os.path import which
 
 from pymatgen.command_line.critic2_caller import *
 from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Matthew Horton"
 __version__ = "0.1"
@@ -21,9 +22,7 @@ __date__ = "July 2017"
 class Critic2CallerTest(unittest.TestCase):
     def test_from_path(self):
         # uses chgcars
-        test_dir = os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "test_files/bader"
-        )
+        test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "bader")
 
         c2c = Critic2Caller.from_path(test_dir)
 
@@ -93,34 +92,14 @@ class Critic2AnalysisTest(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        stdout_file = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files/critic2/MoS2_critic2_stdout.txt",
-        )
-        stdout_file_new_format = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "..",
-            "..",
-            "test_files/critic2/MoS2_critic2_stdout_new_format.txt",
-        )
+        stdout_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout.txt")
+        stdout_file_new_format = os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2_critic2_stdout_new_format.txt")
         with open(stdout_file, "r") as f:
             reference_stdout = f.read()
         with open(stdout_file_new_format, "r") as f:
             reference_stdout_new_format = f.read()
 
-        structure = Structure.from_file(
-            os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "test_files/critic2/MoS2.cif",
-            )
-        )
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "critic2/MoS2.cif"))
 
         self.c2o = Critic2Analysis(structure, reference_stdout)
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)

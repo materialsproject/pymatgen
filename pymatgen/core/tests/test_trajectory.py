@@ -9,13 +9,11 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class TrajectoryTest(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(os.path.join(test_dir, "Traj_XDATCAR"))
-        self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
+        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
+        self.traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
     def _check_traj_equality(self, traj_1, traj_2):
@@ -173,19 +171,19 @@ class TrajectoryTest(PymatgenTest):
 
         # Case of compatible trajectories
         compatible_traj = Trajectory.from_file(
-            os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_1")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_1")
         )
         traj.extend(compatible_traj)
 
         full_traj = Trajectory.from_file(
-            os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_Full")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_Full")
         )
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = self.traj.copy()
         incompatible_traj = Trajectory.from_file(
-            os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_2")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_2")
         )
         incompatible_test_success = False
         try:
@@ -529,7 +527,7 @@ class TrajectoryTest(PymatgenTest):
         self.assertTrue(len(self.traj) == len(self.structures))
 
     def test_displacements(self):
-        poscar = Poscar.from_file(os.path.join(test_dir, "POSCAR"))
+        poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structures = [poscar.structure]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
         for i in range(10):

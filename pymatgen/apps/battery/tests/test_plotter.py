@@ -12,19 +12,18 @@ from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
 from pymatgen.entries.computed_entries import ComputedEntry
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class VoltageProfilePlotterTest(unittest.TestCase):
     def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
-        with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json"), "r") as f:
             entries_LTO = json.load(f, cls=MontyDecoder)
             self.ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
 
-        with open(os.path.join(test_dir, "FeF3_batt.json"), "r") as fid:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "FeF3_batt.json"), "r") as fid:
             entries = json.load(fid, cls=MontyDecoder)
             self.ce_FF = ConversionElectrode.from_composition_and_entries(
                 Composition("FeF3"), entries

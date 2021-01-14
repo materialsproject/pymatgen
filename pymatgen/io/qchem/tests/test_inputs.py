@@ -21,10 +21,6 @@ __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "qchem"
-)
-
 
 class TestQCInput(PymatgenTest):
 
@@ -534,7 +530,7 @@ $end
 
     def test_from_multi_jobs_file(self):
         job_list_test = QCInput.from_multi_jobs_file(
-            os.path.join(test_dir, "pt_n2_wb97mv_0.0.in")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "qchem", "pt_n2_wb97mv_0.0.in")
         )
         species = [
             "S",

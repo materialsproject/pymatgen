@@ -355,7 +355,7 @@ class ConversionElectrode(AbstractElectrode):
         if print_subelectrodes:
 
             def f_dict(c):
-                return c.as_dict_summary(print_subelectrodes=False)
+                return c.get_summary_dict(print_subelectrodes=False)
 
             d["adj_pairs"] = list(
                 map(f_dict, self.get_sub_electrodes(adjacent_only=True))

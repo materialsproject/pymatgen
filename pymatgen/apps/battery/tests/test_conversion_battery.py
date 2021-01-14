@@ -14,8 +14,7 @@ from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
     ConversionVoltagePair,
 )
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class ConversionElectrodeTest(unittest.TestCase):
@@ -25,7 +24,7 @@ class ConversionElectrodeTest(unittest.TestCase):
         self.conversion_eletrodes = {}
         for f in self.formulas:
 
-            with open(os.path.join(test_dir, f + "_batt.json"), "r") as fid:
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, f + "_batt.json"), "r") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if f in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"
@@ -75,7 +74,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             for k, v in p.items():
                 self.assertAlmostEqual(getattr(c, "get_" + k).__call__(), v, 2)
 
-            self.assertIsNotNone(c.as_dict_summary(True))
+            self.assertIsNotNone(c.get_summary_dict(True))
 
             # Test pair to dict
 

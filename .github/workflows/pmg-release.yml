@@ -19,7 +19,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        # Note that this is a must because pylint is done based on a previous tag.
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -34,6 +33,7 @@ jobs:
         pip install -e .
     - name: pytest
       run: |
+        export PMG_TEST_FILES_DIR=/home/runner/work/pymatgen/test_files
         pytest pymatgen --color=yes
     - name: release
       env:

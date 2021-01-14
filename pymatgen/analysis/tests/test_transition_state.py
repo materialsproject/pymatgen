@@ -22,9 +22,8 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __date__ = "2/5/16"
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "neb_analysis"
-)
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "neb_analysis")
 
 
 class NEBAnalysisTest(PymatgenTest):

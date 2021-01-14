@@ -31,13 +31,11 @@ from pymatgen.electronic_structure.plotter import (
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class DosPlotterTest(unittest.TestCase):
     def setUp(self):
         with open(
-            os.path.join(test_dir, "complete_dos.json"), "r", encoding="utf-8"
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r", encoding="utf-8"
         ) as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
@@ -83,7 +81,7 @@ class DosPlotterTest(unittest.TestCase):
 class BSPlotterTest(unittest.TestCase):
     def setUp(self):
         with open(
-            os.path.join(test_dir, "CaO_2605_bandstructure.json"), "r", encoding="utf-8"
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "CaO_2605_bandstructure.json"), "r", encoding="utf-8"
         ) as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
@@ -92,13 +90,13 @@ class BSPlotterTest(unittest.TestCase):
         self.assertEqual(len(self.plotter._bs), 1, "wrong number of band objects")
 
         with open(
-            os.path.join(test_dir, "N2_12103_bandstructure.json"), "r", encoding="utf-8"
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "N2_12103_bandstructure.json"), "r", encoding="utf-8"
         ) as f:
             d = json.loads(f.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(d)
 
         with open(
-            os.path.join(test_dir, "C_48_bandstructure.json"), "r", encoding="utf-8"
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "C_48_bandstructure.json"), "r", encoding="utf-8"
         ) as f:
             d = json.loads(f.read())
             self.sbs_met = BandStructureSymmLine.from_dict(d)
@@ -237,7 +235,7 @@ class BSPlotterTest(unittest.TestCase):
 class BSPlotterProjectedTest(unittest.TestCase):
     def setUp(self):
         with open(
-            os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "r", encoding="utf-8"
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), "r", encoding="utf-8"
         ) as f:
             d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
@@ -269,17 +267,17 @@ class BSDOSPlotterTest(unittest.TestCase):
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
     def test_methods(self):
-        v = Vasprun(os.path.join(test_dir, "vasprun_Si_bands.xml"))
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun_Si_bands.xml"))
         p = BSDOSPlotter()
         plt = p.get_plot(
             v.get_band_structure(
-                kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")
+                kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")
             )
         )
         plt.close()
         plt = p.get_plot(
             v.get_band_structure(
-                kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")
+                kpoints_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "KPOINTS_Si_bands")
             ),
             v.complete_dos,
         )
@@ -289,7 +287,7 @@ class BSDOSPlotterTest(unittest.TestCase):
 class PlotBZTest(unittest.TestCase):
     def setUp(self):
         self.rec_latt = Structure.from_file(
-            os.path.join(test_dir, "Si.cssr")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
         ).lattice.reciprocal_lattice
         self.kpath = [
             [[0.0, 0.0, 0.0], [0.5, 0.0, 0.5], [0.5, 0.25, 0.75], [0.375, 0.375, 0.75]]
@@ -346,7 +344,7 @@ x_trans = which("x_trans")
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapPlotterTest(unittest.TestCase):
     def setUp(self):
-        bz = BoltztrapAnalyzer.from_files(os.path.join(test_dir, "boltztrap/transp/"))
+        bz = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/transp/"))
         self.plotter = BoltztrapPlotter(bz)
         warnings.simplefilter("ignore")
 
@@ -629,10 +627,10 @@ class BoltztrapPlotterTest(unittest.TestCase):
 
 class CohpPlotterTest(PymatgenTest):
     def setUp(self):
-        path = os.path.join(test_dir, "cohp", "complete_cohp_lobster.json")
+        path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_cohp_lobster.json")
         with open(os.path.join(path), "r") as f:
             self.cohp = CompleteCohp.from_dict(json.load(f))
-        path = os.path.join(test_dir, "cohp", "complete_coop_lobster.json")
+        path = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "complete_coop_lobster.json")
         with open(os.path.join(path), "r") as f:
             self.coop = CompleteCohp.from_dict(json.load(f))
         self.cohp_plot = CohpPlotter(zero_at_efermi=False)

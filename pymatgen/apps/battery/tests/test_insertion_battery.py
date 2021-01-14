@@ -8,11 +8,12 @@ import os
 import unittest
 
 from pymatgen import MontyDecoder, MontyEncoder
-from pymatgen.apps.battery.insertion_battery import InsertionElectrode
+from pymatgen.apps.battery.insertion_battery import (
+    InsertionElectrode,
+    InsertionVoltagePair,
+)
 from pymatgen.entries.computed_entries import ComputedEntry
-
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class InsertionElectrodeTest(unittest.TestCase):
@@ -20,16 +21,16 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiTiO2_batt.json"), "r") as f:
             self.entries_LTO = json.load(f, cls=MontyDecoder)
 
-        with open(os.path.join(test_dir, "MgVO_batt.json"), "r") as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "MgVO_batt.json"), "r") as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
 
-        with open(os.path.join(test_dir, "Mg_batt.json"), "r") as file:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mg_batt.json"), "r") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(os.path.join(test_dir, "CaMoO2_batt.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "CaMoO2_batt.json"), "r") as f:
             self.entries_CMO = json.load(f, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)
@@ -62,7 +63,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.ie_LTO.get_capacity_grav(1, 3, False), 160.803169506, 3
         )
-        self.assertIsNotNone(self.ie_LTO.as_dict_summary(True))
+        self.assertIsNotNone(self.ie_LTO.get_summary_dict(True))
 
         self.assertAlmostEqual(self.ie_MVO.get_capacity_grav(), 281.845548242, 3)
         self.assertAlmostEqual(self.ie_MVO.get_capacity_vol(), 1145.80087994, 3)
@@ -111,8 +112,13 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(vpair.frac_discharge, 0.14285714285714285)
         self.assertAlmostEqual(vpair.x_charge, 0.0)
         self.assertAlmostEqual(vpair.x_discharge, 0.5)
+        # reconstruct the voltage pair
+        dd = vpair.as_dict()
+        vv = InsertionVoltagePair.from_dict(dd)
+        self.assertAlmostEqual(vv.entry_charge.energy, -105.53608265)
+        self.assertAlmostEqual(vv.voltage, 2.78583901)
 
-    def test_as_dict_summary(self):
+    def test_get_summary_dict(self):
         d = self.ie_CMO.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
@@ -139,7 +145,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         ie_CMO_no_struct = InsertionElectrode.from_entries(
             remove_structure(self.entries_CMO), self.entry_Ca
         )
-        d = ie_CMO_no_struct.as_dict_summary()
+        d = ie_CMO_no_struct.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
         self.assertAlmostEqual(

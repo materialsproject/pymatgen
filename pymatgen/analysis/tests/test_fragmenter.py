@@ -25,9 +25,8 @@ except ImportError:
 __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "fragmenter_files"
-)
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 
 
 class TestFragmentMolecule(PymatgenTest):

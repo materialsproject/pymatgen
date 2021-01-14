@@ -18,6 +18,9 @@ from pymatgen.symmetry.kpath import (
     KPathSetyawanCurtarolo,
 )
 
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin
+
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
@@ -312,16 +315,15 @@ class HighSymmKpath(KPathBase):
         Obtain a continous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
         odd-degree to ensure a Eulerian path can be formed. Initial
-        k-path must be able to be converted to a connected graph.
+        k-path must be able to be converted to a connected graph. See
+        npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+        for more details.
 
         Args:
-        bandstructure (Bandstructure): Bandstructure object.
+        bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
 
         Returns:
-        distances_map (list): Mapping of 'distance' segments for altering a
-            BSPlotter object to new continuous path. List of tuples indicating the
-            new order of distances, and whether they should be plotted in reverse.
-        kpath_euler (list): New continuous kpath in the HighSymmKpath format.
+        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continous path.
         """
 
         G = nx.Graph()
@@ -351,4 +353,68 @@ class HighSymmKpath(KPathBase):
                 elif edge_euler[::-1] == edge_reg:
                     distances_map.append((plot_axis.index(edge_reg), True))
 
-        return distances_map, kpath_euler
+        if bandstructure.is_spin_polarized:
+            spins = [Spin.up, Spin.down]
+        else:
+            spins = [Spin.up]
+
+        new_kpoints = []
+        new_bands = {
+            spin: [np.array([]) for _ in range(bandstructure.nb_bands)]
+            for spin in spins
+        }
+        new_projections = {
+            spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins
+        }
+
+        for entry in distances_map:
+            if not entry[1]:
+                branch = bandstructure.branches[entry[0]]
+                start = branch["start_index"]
+                stop = branch["end_index"] + 1
+                step = 1
+
+            else:
+                branch = bandstructure.branches[entry[0]]
+                start = branch["end_index"]
+                stop = branch["start_index"] - 1
+                step = -1
+
+            # kpoints
+            new_kpoints += [
+                point.frac_coords for point in bandstructure.kpoints[start:stop:step]
+            ]
+
+            # eigenvals
+            for spin in spins:
+                for n, band in enumerate(bandstructure.bands[spin]):
+
+                    new_bands[spin][n] = np.concatenate(
+                        (new_bands[spin][n], band[start:stop:step])
+                    )
+
+            # projections
+            for spin in spins:
+                for n, band in enumerate(bandstructure.projections[spin]):
+
+                    new_projections[spin][n] += band[start:stop:step].tolist()
+
+        for spin in spins:
+            new_projections[spin] = np.array(new_projections[spin])
+
+        new_labels_dict = {
+            label: point.frac_coords
+            for label, point in bandstructure.labels_dict.items()
+        }
+
+        new_bandstructure = BandStructureSymmLine(
+            kpoints=new_kpoints,
+            eigenvals=new_bands,
+            lattice=bandstructure.lattice_rec,
+            efermi=bandstructure.efermi,
+            labels_dict=new_labels_dict,
+            structure=bandstructure.structure,
+            projections=new_projections,
+        )
+
+        return new_bandstructure

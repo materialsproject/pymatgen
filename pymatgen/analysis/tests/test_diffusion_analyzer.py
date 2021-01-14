@@ -21,12 +21,10 @@ from pymatgen.analysis.diffusion_analyzer import (
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class FuncTest(unittest.TestCase):
     def test_get_conversion_factor(self):
-        filepath = os.path.join(test_dir, "LiFePO4.cif")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif")
         s = Structure.from_file(filepath)
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
         self.assertAlmostEqual(
@@ -57,7 +55,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
-        with open(os.path.join(test_dir, "DiffusionAnalyzer.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "DiffusionAnalyzer.json")) as f:
             dd = json.load(f)
 
             d = DiffusionAnalyzer.from_dict(dd)
@@ -250,7 +248,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
-        with open(os.path.join(test_dir, "DiffusionAnalyzer_NPT.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "DiffusionAnalyzer_NPT.json"), "r") as f:
             dd = json.load(f)
             d = DiffusionAnalyzer.from_dict(dd)
             # large tolerance because scipy constants changed between 0.16.1 and 0.17

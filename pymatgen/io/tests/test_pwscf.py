@@ -8,8 +8,6 @@ import unittest
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class PWInputTest(PymatgenTest):
     def test_init(self):
@@ -69,7 +67,7 @@ CELL_PARAMETERS angstrom
 
 class PWOuputTest(PymatgenTest):
     def setUp(self):
-        self.pwout = PWOutput(os.path.join(test_dir, "Si.pwscf.out"))
+        self.pwout = PWOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.pwscf.out"))
 
     def test_properties(self):
         self.assertAlmostEqual(self.pwout.final_energy, -93.45259708)

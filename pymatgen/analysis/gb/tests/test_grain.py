@@ -13,12 +13,10 @@ from pymatgen import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "grain_boundary"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")
 
 
-class Test_GrainBoundary(PymatgenTest):
+class TestGrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         warnings.filterwarnings("ignore")

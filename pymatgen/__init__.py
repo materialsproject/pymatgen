@@ -1,6 +1,7 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+# pylint: disable=C0413
 
 """
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
@@ -18,7 +19,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2020.12.18"
+__version__ = "2020.12.31"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -42,14 +43,13 @@ def _load_pmg_settings():
 
 SETTINGS = _load_pmg_settings()
 
-from .core.composition import Composition
-from .core.lattice import Lattice
-from .core.operations import SymmOp
-
-# pylint: disable=C0413
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
 # Note that these have to come after the SETTINGS have been loaded. Otherwise, import does not work.
+
+from .core.composition import Composition
+from .core.lattice import Lattice
+from .core.operations import SymmOp
 from .core.periodic_table import DummySpecie, DummySpecies, Element, Specie, Species
 from .core.sites import PeriodicSite, Site
 from .core.structure import IMolecule, IStructure, Molecule, Structure

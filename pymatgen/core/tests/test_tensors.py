@@ -8,8 +8,6 @@ from pymatgen.core.tensors import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class TensorTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -106,7 +104,7 @@ class TensorTest(PymatgenTest):
         )
 
         self.structure = self.get_structure("BaNiO3")
-        ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
+        ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
         self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
@@ -310,7 +308,7 @@ class TensorTest(PymatgenTest):
         self.assertEqual(empty._tensor_list, [])
 
     def test_populate(self):
-        test_data = loadfn(os.path.join(test_dir, "test_toec_data.json"))
+        test_data = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "test_toec_data.json"))
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
@@ -407,7 +405,7 @@ class TensorCollectionTest(PymatgenTest):
         self.rand_tc = TensorCollection([t for t in np.random.random((4, 3, 3))])
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
-        ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
+        ieee_file_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "ieee_conversion_data.json")
         self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):

@@ -65,9 +65,9 @@ class CoordUtilsTest(PymatgenTest):
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertFalse(find_in_coord_list(coords, test_coord))
+        self.assertEqual(find_in_coord_list(coords, test_coord).size, 0)
         self.assertEqual(find_in_coord_list(coords, test_coord, atol=0.15)[0], 0)
-        self.assertFalse(find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15))
+        self.assertEqual(find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15).size, 0)
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.1, 0.1, 0.1]]
         self.assertArrayEqual(find_in_coord_list(coords, test_coord, atol=0.15), [0, 2])
 
@@ -102,7 +102,7 @@ class CoordUtilsTest(PymatgenTest):
     def test_find_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertFalse(find_in_coord_list_pbc(coords, test_coord))
+        self.assertEqual(find_in_coord_list_pbc(coords, test_coord).size, 0)
         self.assertEqual(find_in_coord_list_pbc(coords, test_coord, atol=0.15)[0], 0)
         test_coord = [0.99, 0.99, 0.99]
         self.assertEqual(find_in_coord_list_pbc(coords, test_coord, atol=0.02)[0], 0)
