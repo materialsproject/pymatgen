@@ -163,7 +163,7 @@ class QChemDictSet(QCInput):
                     for k, v in temp_smx.items():
                         mysmx[k] = v
                 if sec == "plots":
-                    tmp_plots = lower_and_check_unique(sec_dict)
+                    temp_plots = lower_and_check_unique(sec_dict)
                     for k, v in temp_plots.items():
                         myplots[k] = v
 
