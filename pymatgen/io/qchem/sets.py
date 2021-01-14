@@ -81,10 +81,7 @@ class QChemDictSet(QCInput):
             "vdwscale": "1.1",
         }
 
-        plots_defaults = {
-            "grid_spacing": "0.05",
-            "total_density": "0"
-        }
+        plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
         mypcm = {}
         mysolvent = {}
@@ -171,7 +168,8 @@ class QChemDictSet(QCInput):
                         myplots[k] = v
 
         super().__init__(
-            self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx, plots=myplots)
+            self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx, plots=myplots
+        )
 
     def write(self, input_file):
         """
@@ -180,9 +178,7 @@ class QChemDictSet(QCInput):
         """
         self.write_file(input_file)
         if self.smd_solvent == "custom" or self.smd_solvent == "other":
-            with zopen(
-                os.path.join(os.path.dirname(input_file), "solvent_data"), "wt"
-            ) as f:
+            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
                 f.write(self.custom_smd)
 
 
@@ -191,18 +187,20 @@ class OptSet(QChemDictSet):
     QChemDictSet for a geometry optimization
     """
 
-    def __init__(self,
-                 molecule,
-                 dft_rung=3,
-                 basis_set="def2-tzvppd",
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 scf_algorithm="diis",
-                 max_scf_cycles=200,
-                 geom_opt_max_cycles=200,
-                 plot_cubes=False,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        geom_opt_max_cycles=200,
+        plot_cubes=False,
+        overwrite_inputs=None,
+    ):
         """
         Args:
             molecule ():
@@ -232,7 +230,8 @@ class OptSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
-            overwrite_inputs=overwrite_inputs)
+            overwrite_inputs=overwrite_inputs,
+        )
 
 
 class SinglePointSet(QChemDictSet):
@@ -240,17 +239,19 @@ class SinglePointSet(QChemDictSet):
     QChemDictSet for a single point calculation
     """
 
-    def __init__(self,
-                 molecule,
-                 dft_rung=3,
-                 basis_set="def2-tzvppd",
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 scf_algorithm="diis",
-                 max_scf_cycles=200,
-                 plot_cubes=False,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        plot_cubes=False,
+        overwrite_inputs=None,
+    ):
         """
 
         Args:
@@ -278,7 +279,8 @@ class SinglePointSet(QChemDictSet):
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
-            overwrite_inputs=overwrite_inputs)
+            overwrite_inputs=overwrite_inputs,
+        )
 
 
 class FreqSet(QChemDictSet):
@@ -286,17 +288,19 @@ class FreqSet(QChemDictSet):
     QChemDictSet for a frequency calculation
     """
 
-    def __init__(self,
-                 molecule,
-                 dft_rung=3,
-                 basis_set="def2-tzvppd",
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 scf_algorithm="diis",
-                 max_scf_cycles=200,
-                 plot_cubes=False,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        plot_cubes=False,
+        overwrite_inputs=None,
+    ):
         """
         Args:
             molecule ():
@@ -323,4 +327,5 @@ class FreqSet(QChemDictSet):
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
-            overwrite_inputs=overwrite_inputs)
+            overwrite_inputs=overwrite_inputs,
+        )
