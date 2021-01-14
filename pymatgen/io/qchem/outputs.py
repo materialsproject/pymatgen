@@ -1119,10 +1119,9 @@ class QCOutput(MSONable):
         Parses final free energy information from single-point calculations.
         """
         temp_dict = read_pattern(
-            self.text, 
+            self.text,
             {
-                "final_energy":
-                    r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
+                "final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
             },
         )
 
