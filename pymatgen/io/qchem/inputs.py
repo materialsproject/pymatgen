@@ -367,6 +367,13 @@ class QCInput(MSONable):
 
     @staticmethod
     def plots_template(plots):
+        """
+        Args:
+            plots ():
+
+        Returns:
+            (str)
+        """
         plots_list = []
         plots_list.append("$plots")
         for key, value in plots.items():
@@ -606,6 +613,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_plots(string):
+        """
+        Read plots parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) plots parameters.
+        """
         header = r"^\s*\$plots"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
