@@ -585,7 +585,7 @@ class ComputedEntry(Entry):
             ):
                 return True
 
-            return self.is_dict_eq(other)
+            return self._is_dict_eq(other)
 
         return False
 
@@ -921,7 +921,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_pd(
-        cls, pd, temp: float = 300, gibbs_model: str = "SISSO"
+        cls, pd, temp=300, gibbs_model="SISSO"
     ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing a list of GibbsComputedStructureEntry
@@ -961,7 +961,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
     @classmethod
     def from_entries(
-        cls, entries: List["ComputedStructureEntry"], temp=300, gibbs_model="SISSO"
+        cls, entries, temp=300, gibbs_model="SISSO"
     ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing GibbsComputedStructureEntry objects from
@@ -996,7 +996,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return d
 
     @classmethod
-    def from_dict(cls, d: dict) -> "GibbsComputedStructureEntry":
+    def from_dict(cls, d) -> "GibbsComputedStructureEntry":
         """
         :param d: Dict representation.
         :return: GibbsComputedStructureEntry
@@ -1018,7 +1018,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             entry_id=d.get("entry_id", None),
         )
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         output = [
             "GibbsComputedStructureEntry {} - {}".format(
                 self.entry_id, self.composition.formula

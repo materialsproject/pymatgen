@@ -11,11 +11,12 @@ and PDEntry inherit from this class.
 """
 
 import copy
-import numpy as np
 
-from abc import ABCMeta, abstractmethod
-from typing import Optional
 from numbers import Number
+from typing import Optional
+from abc import ABCMeta, abstractmethod
+
+import numpy as np
 
 from monty.json import MSONable
 
@@ -152,16 +153,20 @@ class Entry(MSONable, metaclass=ABCMeta):
             return True
 
         if isinstance(other, self.__class__):
-            return self.is_dict_eq(other)
+            return self._is_dict_eq(other)
 
         return False
 
-    def is_dict_eq(self, other):
+    def _is_dict_eq(self, other):
+        """
+        Check if entry dicts are equal using a robust check for
+        numerical values.
+        """
         self_dict = self.as_dict()
         other_dict = other.as_dict()
 
         # NOTE use implicit generator to allow all() to short-circuit
-        return all(_is_eq(other_dict[k], v) for k, v in self_dict.items())
+        return all(_is_robust_eq(other_dict[k], v) for k, v in self_dict.items())
 
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness
@@ -173,7 +178,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         )
 
 
-def _is_eq(v_self, v_other):
+def _is_robust_eq(v_self, v_other):
     """
     Use np.allclose for numerical values for robustness
     otherwise use default __eq__.
