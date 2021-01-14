@@ -605,11 +605,10 @@ class QCInput(MSONable):
                 "No valid smx inputs found. Note that there should be no '=' chracters in smx input lines."
             )
             return {}
-        else:
-            smx = {key: val for key, val in smx_table[0]}
-            if smx["solvent"] == "tetrahydrofuran":
-                smx["solvent"] = "thf"
-            return smx
+        smx = smx_table[0]
+        if smx["solvent"] == "tetrahydrofuran":
+            smx["solvent"] = "thf"
+        return smx
 
     @staticmethod
     def read_plots(string):
@@ -635,6 +634,5 @@ class QCInput(MSONable):
                 "No valid plots inputs found. Note that there should be no '=' chracters in plots input lines."
             )
             return {}
-        else:
-            plots = {key: val for key, val in plots_table[0]}
-            return plots
+        plots = plots_table[0]
+        return plots
