@@ -605,7 +605,9 @@ class QCInput(MSONable):
                 "No valid smx inputs found. Note that there should be no '=' chracters in smx input lines."
             )
             return {}
-        smx = {key: val for key, val in smx_table[0]}
+        smx = {}
+        for key, val in smx_table[0]:
+            smx[key] = val
         if smx["solvent"] == "tetrahydrofuran":
             smx["solvent"] = "thf"
         return smx
@@ -634,5 +636,7 @@ class QCInput(MSONable):
                 "No valid plots inputs found. Note that there should be no '=' chracters in plots input lines."
             )
             return {}
-        plots = {key: val for key, val in plots_table[0]}
+        plots = {}
+        for key, val in plots_table[0]:
+            plots[key] = val
         return plots
