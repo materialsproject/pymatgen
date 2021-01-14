@@ -190,5 +190,5 @@ def _is_robust_eq(v_self, v_other):
     """
     if isinstance(v_self, Number) and isinstance(v_other, Number):
         return np.allclose(v_self, v_other, atol=1e-8)
-    else:
-        return v_self == v_other
+
+    return v_self == v_other
