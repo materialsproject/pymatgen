@@ -16,12 +16,6 @@ try:
 except ImportError:
     ob = None
 
-try:
-    from graphdot.experimental.metric.m3 import M3
-    M3_AVAILABLE = True
-except ImportError:
-    M3_AVAILABLE = False
-
 __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
@@ -103,8 +97,7 @@ class TestFragmentMolecule(PymatgenTest):
             self.pc, OpenBabelNN()
         )
         self.assertEqual(fragmenter.mol_graph, default_mol_graph)
-        # self.assertEqual(fragmenter.total_unique_fragments, 8)
-        self.assertEqual(fragmenter.total_unique_fragments, 25)
+        self.assertEqual(fragmenter.total_unique_fragments, 8)
 
     def test_edges_given_PC_not_defaults(self):
         fragmenter = Fragmenter(
@@ -119,8 +112,7 @@ class TestFragmentMolecule(PymatgenTest):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         default_mol_graph = MoleculeGraph.with_edges(self.pc, edges=edges)
         self.assertEqual(fragmenter.mol_graph, default_mol_graph)
-        # self.assertEqual(fragmenter.total_unique_fragments, 20)
-        self.assertEqual(fragmenter.total_unique_fragments, 74)
+        self.assertEqual(fragmenter.total_unique_fragments, 20)
 
     def test_edges_given_TFSI(self):
         fragmenter = Fragmenter(molecule=self.tfsi, edges=self.tfsi_edges, depth=0)
@@ -157,13 +149,13 @@ class TestFragmentMolecule(PymatgenTest):
         )
         self.assertEqual(fragmenter0.total_unique_fragments, 295)
 
-        fragmenter10 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=10, open_rings=False)
-        # self.assertEqual(fragmenter10.total_unique_fragments, 63)
-        self.assertEqual(fragmenter10.total_unique_fragments, 295)
+        fragmenter10 = Fragmenter(
+            molecule=self.pc, edges=self.pc_edges, depth=10, open_rings=False
+        )
+        self.assertEqual(fragmenter10.total_unique_fragments, 63)
 
         fragments_by_level = fragmenter10.fragments_by_level
-        # num_frags_by_level = [8, 12, 15, 14, 9, 4, 1]
-        num_frags_by_level = [25,49,65,64,50,28,12]
+        num_frags_by_level = [8, 12, 15, 14, 9, 4, 1]
         for ii in range(7):
             num_frags = 0
             for key in fragments_by_level[str(ii)]:
@@ -215,16 +207,6 @@ class TestFragmentMolecule(PymatgenTest):
         extended_mol_graph = metal_edge_extender(mol_graph)
         self.assertEqual(len(mol_graph.graph.edges), 12)
 
-    @unittest.skipIf(not M3_AVAILABLE, "M3 not available. Skipping...")
-    def test_LiEC(self):
-        edges=[[0, 2], [0, 1], [1, 3], [1, 4], [2, 7], [2, 5], [2, 8], [3, 6], [4, 5], [4, 6], [5, 9], [5, 10]]
-        frag1 = Fragmenter(molecule=self.LiEC, edges=edges, depth=0)
-        self.assertEqual(frag1.total_unique_fragments,180)
-        frag2 = Fragmenter(molecule=self.LiEC, edges=edges, depth=20, m3_cutoff=0.2)
-        self.assertEqual(frag2.total_unique_fragments,273)
-        frag3 = Fragmenter(molecule=self.LiEC, edges=edges, depth=0, prev_unique_frag_dict=frag2.unique_frag_dict, m3_cutoff=0.2)
-        self.assertEqual(frag3.total_unique_fragments,297)
-        self.assertEqual(frag3.new_unique_fragments,24)
 
 if __name__ == "__main__":
     unittest.main()

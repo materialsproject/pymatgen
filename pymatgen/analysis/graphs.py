@@ -37,14 +37,6 @@ try:
 except ImportError:
     IGRAPH_AVAILABLE = False
 
-try:
-    from graphdot.experimental.metric.m3 import M3
-    M3_AVAILABLE = True
-    from ase import Atoms
-except ImportError:
-    M3_AVAILABLE = False
-
-import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -2269,23 +2261,19 @@ class MoleculeGraph(MSONable):
 
         return sub_mols
 
-    def build_unique_fragments(self, m3_cutoff=0.0):
+    def build_unique_fragments(self):
         """
         Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs)
 
         :return:
         """
-        if m3_cutoff > 0.0 and not M3_AVAILABLE:
-            raise RuntimeError("M3 requested but not available for import! Exiting...")
-
         self.set_node_attributes()
 
         graph = self.graph.to_undirected()
 
         # find all possible fragments, aka connected induced subgraphs
         frag_dict = {}
-        num_tot_frags = 0
         for ii in range(1, len(self.molecule)):
             for combination in combinations(graph.nodes, ii):
                 mycomp = []
@@ -2294,70 +2282,24 @@ class MoleculeGraph(MSONable):
                 mycomp = "".join(sorted(mycomp))
                 subgraph = nx.subgraph(graph, combination)
                 if nx.is_connected(subgraph):
-                    num_tot_frags += 1
                     mykey = mycomp + str(len(subgraph.edges()))
                     if mykey not in frag_dict:
                         frag_dict[mykey] = [copy.deepcopy(subgraph)]
                     else:
                         frag_dict[mykey].append(copy.deepcopy(subgraph))
 
-        # narrow to all unique fragments using graph isomorphism and, if requested, M3
+        # narrow to all unique fragments using graph isomorphism
         unique_frag_dict = {}
         for key in frag_dict:
-            if m3_cutoff > 0.0:
-                subgroups = []
-                for frag in frag_dict[key]:
-                    matched = False
-                    for subgroup in subgroups:
-                        if _isomorphic(frag,subgroup["frag"]):
-                            subgroup["frag_list"].append(frag)
-                            matched = True
-                            break
-                    if not matched:
-                        subgroups.append({"frag":frag,"frag_list":[frag]})
-
-                # Separate by M3:
-                unique_frags = []
-                m3 = M3()
-                for subgroup in subgroups:
-                    if len(subgroup["frag_list"]) == 1:
-                        unique_frags.append(subgroup["frag"])
-                    elif len(subgroup["frag"].edges()) == 0:
-                        unique_frags.append(subgroup["frag"])
-                    else:
-                        adj = nx.Graph()
-                        tmp_ids = list(range(len(subgroup["frag_list"])))
-                        adj.add_nodes_from(tmp_ids)
-                        pairs = combinations(tmp_ids,2)
-                        atoms_list = []
-                        for frag in subgroup["frag_list"]:
-                            sym_dict = nx.get_node_attributes(frag, "specie")
-                            pos_dict = nx.get_node_attributes(frag, "coords")
-                            symbols = []
-                            positions = []
-                            for indkey in sym_dict:
-                                symbols.append(sym_dict[indkey])
-                                positions.append(pos_dict[indkey])
-                            atoms_list.append(Atoms(symbols=symbols, positions=positions))
-                        for pair in pairs:
-                            if m3(atoms_list[pair[0]],atoms_list[pair[1]]) < m3_cutoff:
-                                adj.add_edge(pair[0],pair[1])
-                        subgraphs = list(nx.connected_components(adj))
-                        if len(subgraphs) == 1:
-                            unique_frags.append(subgroup["frag"])
-                        else:
-                            for subgraph in subgraphs:
-                                unique_frags.append(subgroup["frag_list"][list(subgraph)[0]])
-            else:
-                unique_frags = []
-                for frag in frag_dict[key]:
-                    found = False
-                    for f in unique_frags:
-                        if _isomorphic(frag, f):
-                            found = True
-                            break
-                    if not found:
-                        unique_frags.append(frag)
+            unique_frags = []
+            for frag in frag_dict[key]:
+                found = False
+                for f in unique_frags:
+                    if _isomorphic(frag, f):
+                        found = True
+                        break
+                if not found:
+                    unique_frags.append(frag)
             unique_frag_dict[key] = copy.deepcopy(unique_frags)
 
         # convert back to molecule graphs
