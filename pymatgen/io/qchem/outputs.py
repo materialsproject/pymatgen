@@ -22,7 +22,6 @@ from monty.json import MSONable, jsanitize
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
-from pymatgen.analysis.fragmenter import metal_edge_extender
 
 try:
     from openbabel import openbabel as ob
@@ -1120,10 +1119,12 @@ class QCOutput(MSONable):
         Parses final free energy information from single-point calculations.
         """
         temp_dict = read_pattern(
-            self.text, {
+            self.text, 
+            {
                 "final_energy":
                     r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
-            })
+            },
+        )
 
         if temp_dict.get("final_energy") is None:
             self.data["final_energy"] = None

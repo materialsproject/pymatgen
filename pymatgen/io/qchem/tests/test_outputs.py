@@ -192,7 +192,6 @@ class TestQCOutput(PymatgenTest):
 
     def _test_property(self, key, single_outs, multi_outs):
         for name, outdata in single_outs.items():
-            print(name)
             try:
                 self.assertEqual(outdata.get(key), single_job_dict[name].get(key))
             except ValueError:
@@ -261,6 +260,4 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
-    TestQCOutput.generate_multi_job_dict()
-    TestQCOutput.generate_single_job_dict()
     unittest.main()
