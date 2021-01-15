@@ -101,10 +101,10 @@ class Cohpcar:
 
         # The COHP data start in row num_bonds + 3
         data = np.array(
-            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]
+            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]
         ).transpose()
         data = np.array(
-            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]
+            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]
         ).transpose()
         self.energies = data[0]
         cohp_data = {
@@ -455,10 +455,10 @@ class Doscar:
     """
 
     def __init__(
-            self,
-            doscar: str = "DOSCAR.lobster",
-            structure_file: str = "POSCAR",
-            dftprogram: str = "Vasp",
+        self,
+        doscar: str = "DOSCAR.lobster",
+        structure_file: str = "POSCAR",
+        dftprogram: str = "Vasp",
     ):
         """
         Args:
@@ -751,7 +751,7 @@ class Lobsterout:
 
         # check if Lobster starts from a projection
         self.is_restart_from_projection = (
-                "loading projection from projectionData.lobster..." in data
+            "loading projection from projectionData.lobster..." in data
         )
 
         self.lobster_version = self._get_lobster_version(data=data)
@@ -792,26 +792,26 @@ class Lobsterout:
         self.info_lines = infos
 
         self.has_DOSCAR = (
-                "writing DOSCAR.lobster..." in data
-                and "SKIPPING writing DOSCAR.lobster..." not in data
+            "writing DOSCAR.lobster..." in data
+            and "SKIPPING writing DOSCAR.lobster..." not in data
         )
         self.has_COHPCAR = (
-                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
-                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
+            "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
+            and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
         )
         self.has_COOPCAR = (
-                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
-                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
+            "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
+            and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
         )
         self.has_CHARGE = "SKIPPING writing CHARGE.lobster..." not in data
         self.has_Projection = "saving projection to projectionData.lobster..." in data
         self.has_bandoverlaps = (
-                "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster."
-                in data
+            "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster."
+            in data
         )
         self.has_fatbands = self._has_fatband(data=data)
         self.has_grosspopulation = (
-                "writing CHARGE.lobster and GROSSPOP.lobster..." in data
+            "writing CHARGE.lobster and GROSSPOP.lobster..." in data
         )
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
 
@@ -914,8 +914,8 @@ class Lobsterout:
                         )
 
             if (
-                    len(charge_spilling) == number_of_spins
-                    and len(total_spilling) == number_of_spins
+                len(charge_spilling) == number_of_spins
+                and len(total_spilling) == number_of_spins
             ):
                 break
 
@@ -1155,7 +1155,7 @@ class Fatband:
             if ifilename == 0:
                 self.nbands = int(parameters[6])
                 self.number_kpts = (
-                        kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
+                    kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
                 )
 
             if len(contents[1:]) == self.nbands + 2:
@@ -1164,7 +1164,7 @@ class Fatband:
                 self.is_spinpolarized = True
             else:
                 linenumbers = []
-                for iline, line in enumerate(contents[1: self.nbands * 2 + 4]):
+                for iline, line in enumerate(contents[1 : self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
                         linenumbers.append(iline)
 
@@ -1242,7 +1242,7 @@ class Fatband:
                     if linenumber < self.nbands:
                         if ifilename == 0:
                             eigenvals[Spin.up][iband][ikpoint] = (
-                                    float(line.split()[1]) + self.efermi
+                                float(line.split()[1]) + self.efermi
                             )
 
                         p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][
@@ -1251,7 +1251,7 @@ class Fatband:
                     if linenumber >= self.nbands and self.is_spinpolarized:
                         if ifilename == 0:
                             eigenvals[Spin.down][iband][ikpoint] = (
-                                    float(line.split()[1]) + self.efermi
+                                float(line.split()[1]) + self.efermi
                             )
                         p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
                             orbital_names[ifilename]
@@ -1266,7 +1266,7 @@ class Fatband:
 
         label_dict = {}
         for ilabel, label in enumerate(
-                kpoints_object.labels[-self.number_kpts:], start=0
+            kpoints_object.labels[-self.number_kpts :], start=0
         ):
 
             if label is not None:
@@ -1322,13 +1322,13 @@ class Bandoverlaps:
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
             if (
-                    "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0"
-                    in line
+                "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0"
+                in line
             ):
                 spin = Spin.up
             elif (
-                    "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1"
-                    in line
+                "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1"
+                in line
             ):
                 spin = Spin.down
             elif "k-point" in line:
@@ -1374,11 +1374,11 @@ class Bandoverlaps:
         return True
 
     def has_good_quality_check_occupied_bands(
-            self,
-            number_occ_bands_spin_up: int,
-            number_occ_bands_spin_down: Optional[int] = None,
-            spin_polarized: bool = False,
-            limit_deviation: float = 0.1,
+        self,
+        number_occ_bands_spin_up: int,
+        number_occ_bands_spin_down: Optional[int] = None,
+        spin_polarized: bool = False,
+        limit_deviation: float = 0.1,
     ) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
@@ -1397,8 +1397,8 @@ class Bandoverlaps:
             for iband1, band1 in enumerate(matrix["matrix"]):
                 for iband2, band2 in enumerate(band1):
                     if (
-                            iband1 < number_occ_bands_spin_up
-                            and iband2 < number_occ_bands_spin_up
+                        iband1 < number_occ_bands_spin_up
+                        and iband2 < number_occ_bands_spin_up
                     ):
                         if iband1 == iband2:
                             if abs(band2 - 1.0) > limit_deviation:
@@ -1413,8 +1413,8 @@ class Bandoverlaps:
                     for iband2, band2 in enumerate(band1):
                         if number_occ_bands_spin_down is not None:
                             if (
-                                    iband1 < number_occ_bands_spin_down
-                                    and iband2 < number_occ_bands_spin_down
+                                iband1 < number_occ_bands_spin_down
+                                and iband2 < number_occ_bands_spin_down
                             ):
                                 if iband1 == iband2:
                                     if abs(band2 - 1.0) > limit_deviation:
@@ -1527,9 +1527,13 @@ class Wavefunction:
         self.filename = filename
         self.structure = structure
 
-        self.grid, self.points, self.real, self.imaginary, self.distance = \
-            Wavefunction._parse_file(
-                filename)
+        (
+            self.grid,
+            self.points,
+            self.real,
+            self.imaginary,
+            self.distance,
+        ) = Wavefunction._parse_file(filename)
 
     @staticmethod
     def _parse_file(filename):
@@ -1544,7 +1548,9 @@ class Wavefunction:
         for line in contents[1:]:
             splitline = line.split()
             if len(splitline) >= 6:
-                points.append([float(splitline[0]), float(splitline[1]), float(splitline[2])])
+                points.append(
+                    [float(splitline[0]), float(splitline[1]), float(splitline[2])]
+                )
                 distance.append(float(splitline[3]))
                 real.append(float(splitline[4]))
                 imaginary.append(float(splitline[5]))
@@ -1583,18 +1589,33 @@ class Wavefunction:
         for x in range(0, Nx + 1):
             for y in range(0, Ny + 1):
                 for z in range(0, Nz + 1):
-                    x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
-                    y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
-                    z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
+                    x_here = (
+                        x / float(Nx) * a[0]
+                        + y / float(Ny) * b[0]
+                        + z / float(Nz) * c[0]
+                    )
+                    y_here = (
+                        x / float(Nx) * a[1]
+                        + y / float(Ny) * b[1]
+                        + z / float(Nz) * c[1]
+                    )
+                    z_here = (
+                        x / float(Nx) * a[2]
+                        + y / float(Ny) * b[2]
+                        + z / float(Nz) * c[2]
+                    )
 
                     if x != Nx:
                         if y != Ny:
                             if z != Nz:
-                                if not np.isclose(self.points[runner], [x_here, y_here, z_here], 1e-3).all():
+                                if not np.isclose(
+                                    self.points[runner], [x_here, y_here, z_here], 1e-3
+                                ).all():
                                     raise ValueError(
                                         "The provided wavefunction from Lobster does not contain all relevant points. "
                                         "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
-                                        "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 ")
+                                        "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
+                                    )
                                 else:
                                     new_x.append(x_here)
                                     new_y.append(y_here)
@@ -1603,7 +1624,10 @@ class Wavefunction:
                                     new_real.append(self.real[runner])
                                     new_imaginary.append(self.imaginary[runner])
                                     # TODO: make sure that there a no numerical difficulties
-                                    new_density.append(self.real[runner] ** 2 + self.imaginary[runner] ** 2)
+                                    new_density.append(
+                                        self.real[runner] ** 2
+                                        + self.imaginary[runner] ** 2
+                                    )
 
                     runner += 1
 
@@ -1612,8 +1636,12 @@ class Wavefunction:
         self.final_density = np.reshape(new_density, [Nx, Ny, Nz])
 
         self.volumetricdata_real = VolumetricData(structure, {"total": self.final_real})
-        self.volumetricdata_imaginary = VolumetricData(structure, {"total": self.final_imaginary})
-        self.volumetricdata_density = VolumetricData(structure, {"total": self.final_density})
+        self.volumetricdata_imaginary = VolumetricData(
+            structure, {"total": self.final_imaginary}
+        )
+        self.volumetricdata_density = VolumetricData(
+            structure, {"total": self.final_density}
+        )
 
     def get_volumetricdata_real(self):
         """
@@ -1622,7 +1650,7 @@ class Wavefunction:
         Returns: VolumetricData object
         """
 
-        if not (hasattr(self, 'volumetricdata_real')):
+        if not (hasattr(self, "volumetricdata_real")):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_real
 
@@ -1632,7 +1660,7 @@ class Wavefunction:
 
         Returns: VolumetricData object
         """
-        if not (hasattr(self, 'volumetricdata_imaginary')):
+        if not (hasattr(self, "volumetricdata_imaginary")):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_imaginary
 
@@ -1643,7 +1671,7 @@ class Wavefunction:
         Returns: VolumetricData object
 
         """
-        if not (hasattr(self, 'volumetricdata_density')):
+        if not (hasattr(self, "volumetricdata_density")):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_density
 
@@ -1662,8 +1690,11 @@ class Wavefunction:
         Returns:
 
         """
-        if not (hasattr(self, 'volumetricdata_real') and hasattr(self, 'volumetricdata_imaginary') and hasattr(self,
-                                                                                                               'volumetricdata_density')):
+        if not (
+            hasattr(self, "volumetricdata_real")
+            and hasattr(self, "volumetricdata_imaginary")
+            and hasattr(self, "volumetricdata_density")
+        ):
             self.set_volumetric_data(self.grid, self.structure)
         if part == "real":
             self.volumetricdata_real.write_file(filename)
@@ -1672,4 +1703,4 @@ class Wavefunction:
         elif part == "density":
             self.volumetricdata_density.write_file(filename)
         else:
-            raise ValueError("part can be only \"real\" or \"imaginary\" or \"density\"")
+            raise ValueError('part can be only "real" or "imaginary" or "density"')
