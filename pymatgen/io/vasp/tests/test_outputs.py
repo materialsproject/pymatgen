@@ -579,7 +579,7 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(bs_gap, eigen_gap, places=3)
         self.assertNotAlmostEqual(vrun.get_band_structure(efermi=None).get_band_gap()["energy"], eigen_gap, places=3)
         self.assertNotEqual(bs_gap, 0)
-    
+
     def test_sc_step_overflow(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.sc_overflow"
         # with warnings.catch_warnings(record=True) as w:
@@ -1080,9 +1080,14 @@ class OutcarTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon"
         cp = Outcar(filepath).read_avg_core_poten()
         self.assertAlmostEqual(cp[-1][1], -90.0487)
+
         filepath = self.TEST_FILES_DIR / "OUTCAR"
         cp = Outcar(filepath).read_avg_core_poten()
         self.assertAlmostEqual(cp[0][6], -73.1068)
+
+        filepath = self.TEST_FILES_DIR / "OUTCAR.bad_core_poten.gz"
+        cp = Outcar(filepath).read_avg_core_poten()
+        self.assertAlmostEqual(cp[0][1], -101.5055)
 
     def test_single_atom(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.Al"
