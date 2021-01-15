@@ -703,8 +703,8 @@ class DoscarTest(unittest.TestCase):
         )
         self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
-            self.DOSCAR_spin_pol.completedos.structure.frac_coords,
-            self.structure.frac_coords,
+                self.DOSCAR_spin_pol.completedos.structure.frac_coords,
+                self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)
@@ -915,7 +915,6 @@ class DoscarTest(unittest.TestCase):
         )
 
     def test_itdensities(self):
-        pass
         itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
         itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
         self.assertListEqual(
@@ -2520,16 +2519,16 @@ class LobsterinTest(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                np.isclose(kpoint[0], kpoint2[0])
-                and np.isclose(kpoint[1], kpoint2[1])
-                and np.isclose(kpoint[2], kpoint2[2])
+                    np.isclose(kpoint[0], kpoint2[0])
+                    and np.isclose(kpoint[1], kpoint2[1])
+                    and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                np.isclose(-kpoint[0], kpoint2[0])
-                and np.isclose(-kpoint[1], kpoint2[1])
-                and np.isclose(-kpoint[2], kpoint2[2])
+                    np.isclose(-kpoint[0], kpoint2[0])
+                    and np.isclose(-kpoint[1], kpoint2[1])
+                    and np.isclose(-kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
@@ -2832,7 +2831,7 @@ class GrosspopTest(unittest.TestCase):
             os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.SiO2")
         )
         for coords, coords2 in zip(
-            newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords
+                newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)

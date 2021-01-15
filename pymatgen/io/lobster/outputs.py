@@ -1118,7 +1118,6 @@ class Fatband:
             with zopen(filename, "rt") as f:
                 contents = f.read().split("\n")
 
-            # TODO: could be replaced for future versions of Lobster, get atomname from filename
             atomnames.append(os.path.split(filename)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
             atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
@@ -1616,18 +1615,16 @@ class Wavefunction:
                                         "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
                                         "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
                                     )
-                                else:
-                                    new_x.append(x_here)
-                                    new_y.append(y_here)
-                                    new_z.append(z_here)
 
-                                    new_real.append(self.real[runner])
-                                    new_imaginary.append(self.imaginary[runner])
-                                    # TODO: make sure that there a no numerical difficulties
-                                    new_density.append(
-                                        self.real[runner] ** 2
-                                        + self.imaginary[runner] ** 2
-                                    )
+                                new_x.append(x_here)
+                                new_y.append(y_here)
+                                new_z.append(z_here)
+
+                                new_real.append(self.real[runner])
+                                new_imaginary.append(self.imaginary[runner])
+                                new_density.append(
+                                    self.real[runner] ** 2 + self.imaginary[runner] ** 2
+                                )
 
                     runner += 1
 
@@ -1650,7 +1647,7 @@ class Wavefunction:
         Returns: VolumetricData object
         """
 
-        if not (hasattr(self, "volumetricdata_real")):
+        if not hasattr(self, "volumetricdata_real"):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_real
 
@@ -1660,7 +1657,7 @@ class Wavefunction:
 
         Returns: VolumetricData object
         """
-        if not (hasattr(self, "volumetricdata_imaginary")):
+        if not hasattr(self, "volumetricdata_imaginary"):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_imaginary
 
@@ -1671,7 +1668,7 @@ class Wavefunction:
         Returns: VolumetricData object
 
         """
-        if not (hasattr(self, "volumetricdata_density")):
+        if not hasattr(self, "volumetricdata_density"):
             self.set_volumetric_data(self.grid, self.structure)
         return self.volumetricdata_density
 
