@@ -172,19 +172,6 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for gmatteo
 
-| **Matthew Horton** |mkhorton| |0000-0001-7777-8871|
-| Lawrence Berkeley National Laboratory
-.. |mkhorton| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
-   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:mkhorton
-   :width: 16
-   :height: 16
-   :alt: GitHub profile for mkhorton
-.. |0000-0001-7777-8871| image:: _static/orcid.svg
-   :target: https://orcid.org/0000-0001-7777-8871
-   :width: 16
-   :height: 16
-   :alt: ORCID profile for 0000-0001-7777-8871
-
 | **Nils Zimmermann** |nisse3000| |0000-0003-1063-5926|
 | Parent
 .. |nisse3000| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -811,6 +798,6 @@ Thanks
 
 Thanks also to:
 
-stevetorr, welltemperedpaprika, nathan-diodan, JSelf42, jonathanjdenney, orioncohen, sonium0, hongyi-zhao, adengz, mamachra, ldamewood, shaunrong, josuav1, dkorotin, utopianf, mike5603, drew-parsons, HanmeiTang, Zhuoying, eimrek, mt-huebsch, adozier, bernstei, smheidrich, random-var-x, kylebystrom, yihanxiao92, jdagdelen, dependabot-preview[bot], ShuaishuaiYuan, shyamd, Tinaatucsd, RoberTnf, sdacek, cmgtam, mturiansky, dskoda, Qi-max, xhqu1981, wsyxbcl, katherinelatimer2013, GkAntonius, yuuukuma, kjappelbaum, yimingchen-eng, arepstein, eantono, munrojm, nishiyamat, cajfisher, bwjustus, aykol, uthpalaherath, zacharygibbs, hillarypan, rajeshsharma98, frssp, ctoher, marcoesters, albalu, ajjackson, miaoliu, johnson1228, darnoceloc, leicheng, pmla, ayushsgupta, ndardenne, czhengsci, sthartman, wardsimon, rambalachandran, as2362, acrutt, hmlli, w6ye, shreddd, wmdrichards, zooks97, ExpHP, mfherbst, zbwang, ucsdlxg, dongsenfo, WardLT, YunxingZuo, thefrankwan, jmmshn, renpj, ruixingw, JRSuckert, jan-janssen, dcossey014, wuxiaohua1011, gcheon, shyuep, Nokimann, tom-wood, anhhv, nawagner, yiming-xu, dynikon, arosen93, gen4438, tonnamb, saurabh02, jacksund, Liam-Deacon
+stevetorr, welltemperedpaprika, nathan-diodan, JSelf42, jonathanjdenney, orioncohen, sonium0, hongyi-zhao, adengz, mamachra, ldamewood, shaunrong, josuav1, dkorotin, utopianf, mike5603, drew-parsons, HanmeiTang, Zhuoying, eimrek, mt-huebsch, adozier, bernstei, smheidrich, random-var-x, kylebystrom, yihanxiao92, jdagdelen, dependabot-preview[bot], ShuaishuaiYuan, shyamd, Tinaatucsd, RoberTnf, sdacek, cmgtam, mturiansky, dskoda, Qi-max, xhqu1981, wsyxbcl, katherinelatimer2013, GkAntonius, yuuukuma, kjappelbaum, yimingchen-eng, arepstein, eantono, munrojm, nishiyamat, cajfisher, bwjustus, aykol, uthpalaherath, zacharygibbs, hillarypan, rajeshsharma98, frssp, ctoher, marcoesters, albalu, ajjackson, miaoliu, johnson1228, darnoceloc, leicheng, pmla, ayushsgupta, ndardenne, czhengsci, sthartman, wardsimon, rambalachandran, as2362, acrutt, hmlli, w6ye, shreddd, wmdrichards, zooks97, ExpHP, mfherbst, zbwang, ucsdlxg, dongsenfo, WardLT, YunxingZuo, thefrankwan, jmmshn, renpj, ruixingw, JRSuckert, jan-janssen, dcossey014, wuxiaohua1011, gcheon, Nokimann, tom-wood, anhhv, nawagner, yiming-xu, dynikon, arosen93, gen4438, tonnamb, saurabh02, jacksund, Liam-Deacon
 
 These are developers who have contributed via GitHub but have not filled out the form linked above.
