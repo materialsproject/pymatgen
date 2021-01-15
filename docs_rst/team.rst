@@ -17,6 +17,8 @@ A list of pymatgen developers can also be found `on GitHub`_.
 .. raw:: html
    :file: _static/team-map.html
 
+:caption: A map of pymatgen contributors based on associated institutions. If you spot an error or an omission, let us know or fill out the form above.
+
 Lead Maintainers
 ================
 
