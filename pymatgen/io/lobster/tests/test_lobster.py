@@ -22,7 +22,8 @@ from pymatgen.io.lobster import (
     Icohplist,
     Lobsterin,
     Lobsterout,
-)
+    Wavefunction
+    )
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
@@ -2770,6 +2771,72 @@ class TestUtils(PymatgenTest):
                 ["Si 1s 2s 2p 3s", "Na 1s 2s 2p 3s"],
             ],
         )
+
+
+
+class WavefunctionTest(PymatgenTest):
+
+    def test_parse_file(self):
+        grid, points, real, imaginary, distance = Wavefunction._parse_file(os.path.join(test_dir_doscar,"cohp",
+            "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"))
+        self.assertArrayEqual([41, 41, 41], grid)
+        self.assertAlmostEqual(points[4][0], 0.0000)
+        self.assertAlmostEqual(points[4][1], 0.0000)
+        self.assertAlmostEqual(points[4][2], 0.4000)
+        self.assertAlmostEqual(real[8], 1.38863e-01)
+        self.assertAlmostEqual(imaginary[8], 2.89645e-01)
+        self.assertEqual(len(imaginary), 41 * 41 * 41)
+        self.assertEqual(len(real), 41 * 41 * 41)
+        self.assertEqual(len(points), 41 * 41 * 41)
+        self.assertAlmostEqual(distance[0], 0.0000)
+
+    def test_set_volumetric_data(self):
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp","LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1" \
+                                                  ".gz"),
+            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+
+        wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
+        self.assertTrue(hasattr(wave1, "volumetricdata_real"))
+        self.assertTrue(hasattr(wave1, "volumetricdata_imaginary"))
+
+    def test_get_volumetricdata_real(self):
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+                                                   "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+        volumetricdata_real = wave1.get_volumetricdata_real()
+        self.assertAlmostEqual(volumetricdata_real.data["total"][0, 0, 0], -3.0966)
+
+    def test_get_volumetricdata_imaginary(self):
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+                                                   "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+        volumetricdata_imaginary = wave1.get_volumetricdata_imaginary()
+        self.assertAlmostEqual(volumetricdata_imaginary.data["total"][0, 0, 0], -6.45895e+00)
+
+    def test_get_volumetricdata_density(self):
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+                                                   "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+        volumetricdata_density = wave1.get_volumetricdata_density()
+        self.assertAlmostEqual(volumetricdata_density.data["total"][0, 0, 0],
+            (-3.0966 * -3.0966) + (-6.45895 * -6.45895))
+
+    def test_write_file(self):
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+                                                   "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
+            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+        wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="real")
+        self.assertTrue(os.path.isfile("wavecar_test.vasp"))
+
+        wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="imaginary")
+        self.assertTrue(os.path.isfile("wavecar_test.vasp"))
+        os.remove("wavecar_test.vasp")
+        wave1.write_file(filename=os.path.join("density.vasp"), part="density")
+        self.assertTrue(os.path.isfile("density.vasp"))
+        os.remove("density.vasp")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
 
 if __name__ == "__main__":
