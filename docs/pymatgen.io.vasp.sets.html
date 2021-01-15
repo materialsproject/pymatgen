@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.adf module" href="pymatgen.io.adf.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -893,7 +890,7 @@ which result in different fitted values.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.sets.MPSOCSet">
-<em class="property">class </em><code class="sig-name descname">MPSOCSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">saxis</span><span class="o">=</span><span class="default_value">(0, 0, 1)</span></em>, <em class="sig-param"><span class="n">copy_chgcar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">nbands_factor</span><span class="o">=</span><span class="default_value">1.2</span></em>, <em class="sig-param"><span class="n">reciprocal_density</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">small_gap_multiply</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magmom</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/sets.py#L1795-L1949"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPSOCSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MPSOCSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">saxis</span><span class="o">=</span><span class="default_value">0, 0, 1</span></em>, <em class="sig-param"><span class="n">copy_chgcar</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">nbands_factor</span><span class="o">=</span><span class="default_value">1.2</span></em>, <em class="sig-param"><span class="n">reciprocal_density</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">small_gap_multiply</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magmom</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/sets.py#L1795-L1949"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MPSOCSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPStaticSet" title="pymatgen.io.vasp.sets.MPStaticSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPStaticSet</span></code></a></p>
 <p>An input set for running spin-orbit coupling (SOC) calculations.</p>
 <dl class="field-list simple">
@@ -1752,19 +1749,11 @@ convention (vs Curtarolo) for monoclinic. Defaults True.</p></li>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1775,6 +1764,7 @@ convention (vs Curtarolo) for monoclinic. Defaults True.</p></li>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

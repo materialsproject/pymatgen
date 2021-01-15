@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.util.testing module" href="pymatgen.util.testing.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -227,7 +224,7 @@
 
 <dl class="py function">
 <dt id="pymatgen.util.string.disordered_formula">
-<code class="sig-name descname">disordered_formula</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disordered_struct</span></em>, <em class="sig-param"><span class="n">symbols</span><span class="o">=</span><span class="default_value">('x', 'y', 'z')</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'plain'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/string.py#L264-L383"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">disordered_formula</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disordered_struct</span></em>, <em class="sig-param"><span class="n">symbols</span><span class="o">=</span><span class="default_value">'x', 'y', 'z'</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">'plain'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/string.py#L264-L383"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a formula of a form like AxB1-x (x=0.5)
 for disordered structures. Will only return a
 formula for disordered structures with one
@@ -237,8 +234,7 @@ kind of disordered site at present.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>disordered_struct</strong> – a disordered structure</p></li>
 <li><p><strong>symbols</strong> – a tuple of characters to use for</p></li>
-<li><p><strong>subscripts</strong> (<em>'x'</em><em>, </em><em>'y'</em><em>, </em><em>'z'</em>) – </p></li>
-<li><p><strong>default this is</strong> (<em>by</em>) – </p></li>
+<li><p><strong>by default this is</strong> (<em>subscripts</em><em>,</em>) – </p></li>
 <li><p><strong>if you have more than three disordered</strong> (<em>but</em>) – </p></li>
 <li><p><strong>more symbols will need to be added</strong> (<em>species</em>) – </p></li>
 <li><p><strong>fmt</strong> (<em>str</em>) – ‘plain’, ‘HTML’ or ‘LaTeX’</p></li>
@@ -342,7 +338,7 @@ d,e,f
 
 <dl class="py function">
 <dt id="pymatgen.util.string.transformation_to_string">
-<code class="sig-name descname">transformation_to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">translation_vec</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em>, <em class="sig-param"><span class="n">components</span><span class="o">=</span><span class="default_value">('x', 'y', 'z')</span></em>, <em class="sig-param"><span class="n">c</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">delim</span><span class="o">=</span><span class="default_value">','</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/string.py#L225-L261"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transformation_to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">translation_vec</span><span class="o">=</span><span class="default_value">0, 0, 0</span></em>, <em class="sig-param"><span class="n">components</span><span class="o">=</span><span class="default_value">'x', 'y', 'z'</span></em>, <em class="sig-param"><span class="n">c</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">delim</span><span class="o">=</span><span class="default_value">','</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/string.py#L225-L261"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method. Given matrix returns string, e.g. x+2y+1/4
 :param matrix
 :param translation_vec
@@ -410,19 +406,11 @@ superscripts for oxidation states.</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -433,6 +421,7 @@ superscripts for oxidation states.</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

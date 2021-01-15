@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.entries package" href="pymatgen.entries.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -210,7 +207,7 @@
 <p>This module implements plotter for DOS and band structure.</p>
 <dl class="py class">
 <dt id="pymatgen.electronic_structure.plotter.BSDOSPlotter">
-<em class="property">class </em><code class="sig-name descname">BSDOSPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bs_projection</span><span class="o">=</span><span class="default_value">'elements'</span></em>, <em class="sig-param"><span class="n">dos_projection</span><span class="o">=</span><span class="default_value">'elements'</span></em>, <em class="sig-param"><span class="n">vb_energy_range</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">cb_energy_range</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">fixed_cb_energy</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">egrid_interval</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">font</span><span class="o">=</span><span class="default_value">'Times New Roman'</span></em>, <em class="sig-param"><span class="n">axis_fontsize</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">tick_fontsize</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">legend_fontsize</span><span class="o">=</span><span class="default_value">14</span></em>, <em class="sig-param"><span class="n">bs_legend</span><span class="o">=</span><span class="default_value">'best'</span></em>, <em class="sig-param"><span class="n">dos_legend</span><span class="o">=</span><span class="default_value">'best'</span></em>, <em class="sig-param"><span class="n">rgb_legend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fig_size</span><span class="o">=</span><span class="default_value">(11, 8.5)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/electronic_structure/plotter.py#L2592-L3147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSDOSPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BSDOSPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bs_projection</span><span class="o">=</span><span class="default_value">'elements'</span></em>, <em class="sig-param"><span class="n">dos_projection</span><span class="o">=</span><span class="default_value">'elements'</span></em>, <em class="sig-param"><span class="n">vb_energy_range</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">cb_energy_range</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">fixed_cb_energy</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">egrid_interval</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">font</span><span class="o">=</span><span class="default_value">'Times New Roman'</span></em>, <em class="sig-param"><span class="n">axis_fontsize</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">tick_fontsize</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">legend_fontsize</span><span class="o">=</span><span class="default_value">14</span></em>, <em class="sig-param"><span class="n">bs_legend</span><span class="o">=</span><span class="default_value">'best'</span></em>, <em class="sig-param"><span class="n">dos_legend</span><span class="o">=</span><span class="default_value">'best'</span></em>, <em class="sig-param"><span class="n">rgb_legend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fig_size</span><span class="o">=</span><span class="default_value">11, 8.5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/electronic_structure/plotter.py#L2592-L3147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSDOSPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A joint, aligned band structure and density of states plot. Contributions
 from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
@@ -509,7 +506,7 @@ character for the corresponding element and orbital.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb">
-<code class="sig-name descname">get_projected_plots_dots_patom_pmorb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictio</span></em>, <em class="sig-param"><span class="n">dictpa</span></em>, <em class="sig-param"><span class="n">sum_atoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sum_morbs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">zero_to_efermi</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vbm_cbm_marker</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">selected_branches</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">w_h_size</span><span class="o">=</span><span class="default_value">(12, 8)</span></em>, <em class="sig-param"><span class="n">num_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/electronic_structure/plotter.py#L1701-L1931"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_projected_plots_dots_patom_pmorb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dictio</span></em>, <em class="sig-param"><span class="n">dictpa</span></em>, <em class="sig-param"><span class="n">sum_atoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sum_morbs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">zero_to_efermi</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">vbm_cbm_marker</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">selected_branches</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">w_h_size</span><span class="o">=</span><span class="default_value">12, 8</span></em>, <em class="sig-param"><span class="n">num_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/electronic_structure/plotter.py#L1701-L1931"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots_patom_pmorb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returns a plot composed of subplots for different atoms and
 orbitals (subshell orbitals such as ‘s’, ‘p’, ‘d’ and ‘f’ defined by
 azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
@@ -1258,7 +1255,7 @@ coordinates in cartesian coordinates. Defaults to False.</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.electronic_structure.plotter.plot_brillouin_zone">
-<code class="sig-name descname">plot_brillouin_zone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bz_lattice</span></em>, <em class="sig-param"><span class="n">lines</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kpoints</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fold</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/plotting.py#L4791-L4858"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_brillouin_zone" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_brillouin_zone</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/plotting.py#L4791-L4858"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_brillouin_zone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots a 3D representation of the Brillouin zone of the structure.
 Can add to the plot paths, labels and kpoints</p>
 <dl class="field-list simple">
@@ -1326,7 +1323,7 @@ Default: False</p></td>
 
 <dl class="py function">
 <dt id="pymatgen.electronic_structure.plotter.plot_brillouin_zone_from_kpath">
-<code class="sig-name descname">plot_brillouin_zone_from_kpath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpath</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/plotting.py#L4766-L4788"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_brillouin_zone_from_kpath" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_brillouin_zone_from_kpath</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/plotting.py#L4766-L4788"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_brillouin_zone_from_kpath" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Gives the plot (as a matplotlib object) of the symmetry line path in</dt><dd><p>the Brillouin Zone.</p>
 </dd>
@@ -1421,7 +1418,7 @@ plot_ellipsoid(hessian,[0.0,0.0,0.0], struct.reciprocal_lattice,ax=ax)</p>
 
 <dl class="py function">
 <dt id="pymatgen.electronic_structure.plotter.plot_fermi_surface">
-<code class="sig-name descname">plot_fermi_surface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">cbm</span></em>, <em class="sig-param"><span class="n">energy_levels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">multiple_figure</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">mlab_figure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kpoints_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">transparency_factor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels_scale_factor</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">points_scale_factor</span><span class="o">=</span><span class="default_value">0.02</span></em>, <em class="sig-param"><span class="n">interative</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/../../monty/monty/dev.py#L4339-L4539"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_fermi_surface" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_fermi_surface</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L4339-L4539"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.plot_fermi_surface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the Fermi surface at specific energy value using Boltztrap 1 FERMI
 mode.</p>
 <p>The easiest way to use this plotter is:</p>
@@ -1610,19 +1607,11 @@ and linewidth to 1.</p></li>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1633,6 +1622,7 @@ and linewidth to 1.</p></li>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

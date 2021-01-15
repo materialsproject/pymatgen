@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.vasp.sets module" href="pymatgen.io.vasp.sets.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -250,7 +247,7 @@ but there may be pathological cases.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Chgcar">
-<em class="property">class </em><code class="sig-name descname">Chgcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">data_aug</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3969-L4012"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Chgcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">data_aug</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3968-L4011"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
 <p>Simple object for reading a CHGCAR file.</p>
 <dl class="field-list simple">
@@ -264,7 +261,7 @@ but there may be pathological cases.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Chgcar.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3994-L4003"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3993-L4002"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a CHGCAR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -291,7 +288,7 @@ but there may be pathological cases.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Dynmat">
-<em class="property">class </em><code class="sig-name descname">Dynmat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4698-L4768"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Dynmat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4697-L4767"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for reading a DYNMAT file.</p>
 <dl class="py attribute">
@@ -316,7 +313,7 @@ but there may be pathological cases.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Dynmat.get_phonon_frequencies">
-<code class="sig-name descname">get_phonon_frequencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4738-L4748"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat.get_phonon_frequencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_frequencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4737-L4747"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Dynmat.get_phonon_frequencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculate phonon frequencies</p>
 </dd></dl>
 
@@ -348,7 +345,7 @@ but there may be pathological cases.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Eigenval">
-<em class="property">class </em><code class="sig-name descname">Eigenval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">occu_tol</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5439-L5555"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Eigenval</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">occu_tol</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5438-L5554"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Eigenval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for reading EIGENVAL file.</p>
 <dl class="py attribute">
@@ -431,7 +428,7 @@ kpoint index is 0-based (unlike the 1-based indexing in VASP).</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Elfcar">
-<em class="property">class </em><code class="sig-name descname">Elfcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4015-L4067"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Elfcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4014-L4066"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
 <p>Read an ELFCAR file which contains the Electron Localization Function (ELF)
 as calculated by VASP.</p>
@@ -447,7 +444,7 @@ as calculated by VASP.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Elfcar.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4046-L4055"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4045-L4054"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a ELFCAR file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -461,7 +458,7 @@ as calculated by VASP.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Elfcar.get_alpha">
-<code class="sig-name descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4057-L4067"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar.get_alpha" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_alpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4056-L4066"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Elfcar.get_alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the parameter alpha where ELF = 1/(1+alpha^2).</p>
 </dd></dl>
 
@@ -469,7 +466,7 @@ as calculated by VASP.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Locpot">
-<em class="property">class </em><code class="sig-name descname">Locpot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3943-L3966"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Locpot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3942-L3965"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.outputs.VolumetricData" title="pymatgen.io.vasp.outputs.VolumetricData"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.outputs.VolumetricData</span></code></a></p>
 <p>Simple object for reading a LOCPOT file.</p>
 <dl class="field-list simple">
@@ -482,7 +479,7 @@ as calculated by VASP.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Locpot.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3957-L3966"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3956-L3965"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a LOCPOT file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -498,7 +495,7 @@ as calculated by VASP.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Oszicar">
-<em class="property">class </em><code class="sig-name descname">Oszicar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4261-L4407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Oszicar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4260-L4406"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A basic parser for an OSZICAR output from VASP.  In general, while the
 OSZICAR is useful for a quick look at the output from a VASP run, we
@@ -541,7 +538,7 @@ as a tuple of list of energies, e.g.,
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Oszicar.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4400-L4407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4399-L4406"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Oszicar.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONable dict</p>
@@ -558,7 +555,7 @@ as a tuple of list of energies, e.g.,
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Outcar">
-<em class="property">class </em><code class="sig-name descname">Outcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L1627-L3446"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Outcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L1627-L3445"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parser for data in OUTCAR that is not available in Vasprun.xml</p>
 <p>Note, this class works a bit differently than most of the other
@@ -691,7 +688,7 @@ read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3295-L3375"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3294-L3374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -706,7 +703,7 @@ read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_avg_core_poten">
-<code class="sig-name descname">read_avg_core_poten</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3255-L3293"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_avg_core_poten" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_avg_core_poten</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3255-L3292"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_avg_core_poten" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the core potential at each ionic step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -814,7 +811,7 @@ G0 contribution matrix as list of list.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift">
-<code class="sig-name descname">read_fermi_contact_shift</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3377-L3446"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_fermi_contact_shift</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3376-L3445"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_fermi_contact_shift" title="Permalink to this definition">¶</a></dt>
 <dd><p>output example:
 Fermi contact (isotropic) hyperfine coupling parameter (MHz)
 ————————————————————-
@@ -1030,7 +1027,7 @@ row_pattern.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Procar">
-<em class="property">class </em><code class="sig-name descname">Procar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4070-L4258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Procar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4069-L4257"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for reading a PROCAR file.</p>
 <dl class="py attribute">
@@ -1084,7 +1081,7 @@ nkpoints.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Procar.get_occupation">
-<code class="sig-name descname">get_occupation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atom_index</span></em>, <em class="sig-param"><span class="n">orbital</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4235-L4258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.get_occupation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_occupation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atom_index</span></em>, <em class="sig-param"><span class="n">orbital</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4234-L4257"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.get_occupation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the occupation for a particular orbital of a particular atom.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1108,7 +1105,7 @@ of that orbital is returned.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Procar.get_projection_on_elements">
-<code class="sig-name descname">get_projection_on_elements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4210-L4233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_projection_on_elements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4209-L4232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Procar.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1127,14 +1124,14 @@ of that orbital is returned.</p></li>
 
 <dl class="py exception">
 <dt id="pymatgen.io.vasp.outputs.UnconvergedVASPWarning">
-<em class="property">exception </em><code class="sig-name descname">UnconvergedVASPWarning</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5760-L5765"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.UnconvergedVASPWarning" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">UnconvergedVASPWarning</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5759-L5764"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.UnconvergedVASPWarning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
 <p>Warning for unconverged vasp run.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="pymatgen.io.vasp.outputs.VaspParserError">
-<em class="property">exception </em><code class="sig-name descname">VaspParserError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4410-L4415"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VaspParserError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">VaspParserError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4409-L4414"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VaspParserError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for VASP parsing.</p>
 </dd></dl>
@@ -1612,7 +1609,7 @@ List of Structure objects for the structure at each ionic step.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData">
-<em class="property">class </em><code class="sig-name descname">VolumetricData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distance_matrix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_aug</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3449-L3940"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VolumetricData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distance_matrix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_aug</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3448-L3939"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Simple volumetric object for reading LOCPOT and CHGCAR type files.</p>
 <dl class="py attribute">
@@ -1660,7 +1657,7 @@ shortcircuiting an otherwise expensive operation.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3545-L3554"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3544-L3553"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.copy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Copy of Volumetric object</p>
@@ -1670,7 +1667,7 @@ shortcircuiting an otherwise expensive operation.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.from_hdf5">
-<em class="property">classmethod </em><code class="sig-name descname">from_hdf5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3924-L3940"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_hdf5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3923-L3939"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.from_hdf5" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads VolumetricData from HDF5 file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1684,7 +1681,7 @@ shortcircuiting an otherwise expensive operation.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.get_average_along_axis">
-<code class="sig-name descname">get_average_along_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3864-L3884"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_average_along_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3863-L3883"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the averaged total of the volumetric data a certain axis direction.
 For example, useful for visualizing Hartree Potentials from a LOCPOT
 file.</p>
@@ -1700,7 +1697,7 @@ file.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.get_axis_grid">
-<code class="sig-name descname">get_axis_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3527-L3537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_axis_grid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_axis_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3526-L3536"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_axis_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the grid for a particular axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1711,7 +1708,7 @@ file.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.get_integrated_diff">
-<code class="sig-name descname">get_integrated_diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em>, <em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">nbins</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3805-L3862"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_integrated_diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_integrated_diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ind</span></em>, <em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">nbins</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3804-L3861"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_integrated_diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get integrated difference of atom index ind up to radius. This can be
 an extremely computationally intensive process, depending on how many
 grid points are in the VolumetricData.</p>
@@ -1736,7 +1733,7 @@ data[:,1])</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.linear_add">
-<code class="sig-name descname">linear_add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="n">scale_factor</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3556-L3583"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.linear_add" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">linear_add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="n">scale_factor</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3555-L3582"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.linear_add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to do a linear sum of volumetric objects. Used by + and -
 operators as well. Returns a VolumetricData object containing the
 linear sum.</p>
@@ -1755,7 +1752,7 @@ linear sum.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.linear_slice">
-<code class="sig-name descname">linear_slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3784-L3803"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.linear_slice" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">linear_slice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3783-L3802"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.linear_slice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a linear slice of the volumetric data with n data points from
 point p1 to point p2, in the form of a list.</p>
 <dl class="field-list simple">
@@ -1775,7 +1772,7 @@ data from point p1 to point p2.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.parse_file">
-<em class="property">static </em><code class="sig-name descname">parse_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3585-L3693"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.parse_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">parse_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3584-L3692"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.parse_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to parse a generic volumetric data file in the vasp
 like format. Used by subclasses for parsing file.</p>
 <dl class="field-list simple">
@@ -1804,7 +1801,7 @@ non-spin-polarized run would have Spin.up data == Spin.down data.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.to_hdf5">
-<code class="sig-name descname">to_hdf5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3886-L3922"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_hdf5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3885-L3921"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.to_hdf5" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the VolumetricData to a HDF5 format, which is a highly optimized
 format for reading storing large data. The mapping of the VolumetricData
 to this file format is as follows:</p>
@@ -1828,7 +1825,7 @@ f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.value_at">
-<code class="sig-name descname">value_at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">z</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3766-L3782"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.value_at" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">value_at</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">z</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3765-L3781"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.value_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a data value from self.data at a given point (x, y, z) in terms
 of fractional lattice parameters. Will be interpolated using a
 RegularGridInterpolator on self.data if (x, y, z) is not in the original
@@ -1850,7 +1847,7 @@ the point (x, y, z).</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">vasp4_compatible</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3695-L3764"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">vasp4_compatible</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L3694-L3763"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the VolumetricData object to a vasp compatible file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1866,7 +1863,7 @@ the point (x, y, z).</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Wavecar">
-<em class="property">class </em><code class="sig-name descname">Wavecar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'WAVECAR'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">precision</span><span class="o">=</span><span class="default_value">'normal'</span></em>, <em class="sig-param"><span class="n">vasp_type</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4811-L5436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Wavecar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'WAVECAR'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">precision</span><span class="o">=</span><span class="default_value">'normal'</span></em>, <em class="sig-param"><span class="n">vasp_type</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4810-L5435"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
 <p>Coefficients are read from the given WAVECAR file and the corresponding
@@ -1998,7 +1995,7 @@ values are [‘std’, ‘gam’, ‘ncl’]
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">
-<code class="sig-name descname">evaluate_wavefunc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoint</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">band</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">spin</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">spinor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span> &#x2192; numpy.complex64<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5219-L5259"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">evaluate_wavefunc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoint</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">band</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">spin</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">spinor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span> &#x2192; numpy.complex64<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5218-L5258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates the wavefunction for a given position, r.</p>
 <p>The wavefunction is given by the k-point and band. It is evaluated
 at the given position by summing over the components. Formally,</p>
@@ -2031,7 +2028,7 @@ if vasp_type == ‘ncl’)</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.fft_mesh">
-<code class="sig-name descname">fft_mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoint</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">band</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">spin</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">spinor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">shift</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5261-L5303"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.fft_mesh" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fft_mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoint</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">band</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">spin</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">spinor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">shift</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5260-L5302"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.fft_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Places the coefficients of a wavefunction onto an fft mesh.</p>
 <p>Once the mesh has been obtained, a discrete fourier transform can be
 used to obtain real-space evaluation of the wavefunction. The output
@@ -2062,7 +2059,7 @@ placed at index (0, 0, 0) or centered</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.get_parchg">
-<code class="sig-name descname">get_parchg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar">pymatgen.io.vasp.inputs.Poscar</a></span></em>, <em class="sig-param"><span class="n">kpoint</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">band</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">spin</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spinor</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phase</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">scale</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.vasp.outputs.Chgcar" title="pymatgen.io.vasp.outputs.Chgcar">pymatgen.io.vasp.outputs.Chgcar</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5305-L5392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.get_parchg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_parchg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">poscar</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Poscar" title="pymatgen.io.vasp.inputs.Poscar">pymatgen.io.vasp.inputs.Poscar</a></span></em>, <em class="sig-param"><span class="n">kpoint</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">band</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">spin</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spinor</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phase</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">scale</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">2</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.vasp.outputs.Chgcar" title="pymatgen.io.vasp.outputs.Chgcar">pymatgen.io.vasp.outputs.Chgcar</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5304-L5391"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.get_parchg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a Chgcar object, which is the charge density of the specified
 wavefunction.</p>
 <p>This function generates a Chgcar object with the charge density of the
@@ -2104,7 +2101,7 @@ least as fine as the VASP default.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.write_unks">
-<code class="sig-name descname">write_unks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5394-L5436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.write_unks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_unks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5393-L5435"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.write_unks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the UNK files to the given directory.</p>
 <p>Writes the cell-periodic part of the bloch wavefunctions from the
 WAVECAR file to each of the UNK files. There will be one UNK file for
@@ -2126,7 +2123,7 @@ a nscf calculation with ISYM=0 to obtain the correct grid.</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Waveder">
-<em class="property">class </em><code class="sig-name descname">Waveder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">gamma_only</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5652-L5757"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Waveder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">gamma_only</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5651-L5756"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for reading a WAVEDER file.
 The LOPTICS tag produces a WAVEDER file.
@@ -2145,7 +2142,7 @@ Author: Kamal Choudhary, NIST</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states">
-<code class="sig-name descname">get_orbital_derivative_between_states</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">band_i</span></em>, <em class="sig-param"><span class="n">band_j</span></em>, <em class="sig-param"><span class="n">kpoint</span></em>, <em class="sig-param"><span class="n">spin</span></em>, <em class="sig-param"><span class="n">cart_dir</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5729-L5757"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_orbital_derivative_between_states</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">band_i</span></em>, <em class="sig-param"><span class="n">band_j</span></em>, <em class="sig-param"><span class="n">kpoint</span></em>, <em class="sig-param"><span class="n">spin</span></em>, <em class="sig-param"><span class="n">cart_dir</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5728-L5756"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Waveder.get_orbital_derivative_between_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a value
 between bands band_i and band_j for k-point index, spin-channel and cartesian direction.
 :param band_i: Index of band i
@@ -2187,7 +2184,7 @@ between bands band_i and band_j for k-point index, spin-channel and cartesian di
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Wavederf">
-<em class="property">class </em><code class="sig-name descname">Wavederf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5558-L5649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavederf" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Wavederf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5557-L5648"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavederf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for reading a WAVEDERF file.</p>
 <p>Note: This file is only produced when LOPTICS is true AND vasp has been
@@ -2230,7 +2227,7 @@ real/imaginary parts, abs/phase, etc. )</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Wavederf.get_elements_between_bands">
-<code class="sig-name descname">get_elements_between_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">band_i</span></em>, <em class="sig-param"><span class="n">band_j</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5631-L5649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavederf.get_elements_between_bands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_elements_between_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">band_i</span></em>, <em class="sig-param"><span class="n">band_j</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L5630-L5648"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavederf.get_elements_between_bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a numpy array with elements</p>
 <p>[cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]</p>
 <p>between bands band_i and band_j (vasp 1-based indexing) for all kpoints.</p>
@@ -2263,7 +2260,7 @@ real/imaginary parts, abs/phase, etc. )</p>
 
 <dl class="py class">
 <dt id="pymatgen.io.vasp.outputs.Xdatcar">
-<em class="property">class </em><code class="sig-name descname">Xdatcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">ionicstep_start</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">ionicstep_end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4475-L4695"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Xdatcar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">ionicstep_start</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">ionicstep_end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4474-L4694"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class representing an XDATCAR file. Only tested with VASP 5.x files.</p>
 <dl class="py attribute">
@@ -2291,7 +2288,7 @@ real/imaginary parts, abs/phase, etc. )</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Xdatcar.concatenate">
-<code class="sig-name descname">concatenate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">ionicstep_start</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">ionicstep_end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4569-L4630"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.concatenate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">concatenate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">ionicstep_start</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">ionicstep_end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4568-L4629"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.concatenate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenate structures in file to Xdatcar.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2311,7 +2308,7 @@ same lattice structure and atoms as the Xdatcar class.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Xdatcar.get_string">
-<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ionicstep_start</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">ionicstep_end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">significant_figures</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4632-L4680"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.get_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ionicstep_start</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">ionicstep_end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">significant_figures</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4631-L4679"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.get_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write  Xdatcar class to a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2340,7 +2337,7 @@ vasp 5+ Xdatcar.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.vasp.outputs.Xdatcar.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4682-L4692"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4681-L4691"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Xdatcar.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write  Xdatcar class into a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2357,7 +2354,7 @@ vasp 5+ Xdatcar.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.vasp.outputs.get_adjusted_fermi_level">
-<code class="sig-name descname">get_adjusted_fermi_level</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">efermi</span></em>, <em class="sig-param"><span class="n">cbm</span></em>, <em class="sig-param"><span class="n">band_structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4771-L4801"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.get_adjusted_fermi_level" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_adjusted_fermi_level</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">efermi</span></em>, <em class="sig-param"><span class="n">cbm</span></em>, <em class="sig-param"><span class="n">band_structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4770-L4800"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.get_adjusted_fermi_level" title="Permalink to this definition">¶</a></dt>
 <dd><p>When running a band structure computations the fermi level needs to be
 take from the static run that gave the charge density used for the non-self
 consistent band structure run. Sometimes this fermi level is however a
@@ -2384,7 +2381,7 @@ level. This procedure has shown to detect correctly most insulators.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.vasp.outputs.get_band_structure_from_vasp_multiple_branches">
-<code class="sig-name descname">get_band_structure_from_vasp_multiple_branches</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dir_name</span></em>, <em class="sig-param"><span class="n">efermi</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projections</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4418-L4472"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.get_band_structure_from_vasp_multiple_branches" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_band_structure_from_vasp_multiple_branches</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dir_name</span></em>, <em class="sig-param"><span class="n">efermi</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projections</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/vasp/outputs.py#L4417-L4471"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.get_band_structure_from_vasp_multiple_branches" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to get band structure info from a VASP directory. It
 takes into account that the run can be divided in several branches named
 “branch_x”. If the run has not been divided in branches the method will
@@ -2418,19 +2415,11 @@ any. Note that this is sometimes very large</p></li>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -2441,6 +2430,7 @@ any. Note that this is sometimes very large</p></li>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

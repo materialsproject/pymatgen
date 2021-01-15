@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.bond_dissociation module" href="pymatgen.analysis.bond_dissociation.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -470,7 +467,7 @@ substitution sites, defaults to 0 to substitute at the surface</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh">
-<code class="sig-name descname">get_extended_surface_mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">repeat</span><span class="o">=</span><span class="default_value">(5, 5, 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/adsorption.py#L210-L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_extended_surface_mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">repeat</span><span class="o">=</span><span class="default_value">5, 5, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/adsorption.py#L210-L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.adsorption.AdsorbateSiteFinder.get_extended_surface_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets an extended surface mesh for to use for adsorption
 site finding by constructing supercell of surface sites</p>
 <dl class="field-list simple">
@@ -586,19 +583,11 @@ normal to the A-B plane</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -609,6 +598,7 @@ normal to the A-B plane</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

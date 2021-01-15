@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.util.coord_cython module" href="pymatgen.util.coord_cython.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -266,10 +263,8 @@ is in the facet.</p>
 <dt id="pymatgen.util.coord.Simplex.line_intersection">
 <code class="sig-name descname">line_intersection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point1</span></em>, <em class="sig-param"><span class="n">point2</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">1e-08</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/coord.py#L441-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.coord.Simplex.line_intersection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the intersection points of a line with a simplex
-:param point1: Points that determine the line
-:type point1: [float]
-:param point2: Points that determine the line
-:type point2: [float]</p>
+:param point1, point2: Points that determine the line
+:type point1, point2: [float]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>points where the line intersects the simplex (0, 1, or 2)</p>
@@ -342,10 +337,7 @@ simplex with d+1 points. Only works for d &gt;= 2.</p>
 Subset and superset cannot contain duplicate rows</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subset</strong> – List of coords</p></li>
-<li><p><strong>superset</strong> – List of coords</p></li>
-</ul>
+<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of indices such that superset[indices] = subset</p>
@@ -360,10 +352,7 @@ Subset and superset cannot contain duplicate rows</p>
 Superset cannot contain duplicate matching rows</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subset</strong> – List of frac_coords</p></li>
-<li><p><strong>superset</strong> – List of frac_coords</p></li>
-</ul>
+<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of frac_coords</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of indices such that superset[indices] = subset</p>
@@ -492,10 +481,7 @@ array.</p></li>
 Doesn’t use periodic boundary conditions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>subset</strong> – List of coords</p></li>
-<li><p><strong>superset</strong> – List of coords</p></li>
-</ul>
+<dd class="field-odd"><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of coords</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if all of subset is in superset.</p>
@@ -510,8 +496,7 @@ Doesn’t use periodic boundary conditions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>subset</strong> – List of fractional coords</p></li>
-<li><p><strong>superset</strong> – List of fractional coords</p></li>
+<li><p><strong>superset</strong> (<em>subset</em><em>,</em>) – List of fractional coords</p></li>
 <li><p><strong>atol</strong> (<em>float</em><em> or </em><em>size 3 array</em>) – Tolerance for matching</p></li>
 <li><p><strong>mask</strong> (<em>boolean array</em>) – Mask of matches that are not allowed.
 i.e. if mask[1,2] == True, then subset[1] cannot be matched
@@ -602,19 +587,11 @@ first index is fcoords1 index, second is fcoords2 index</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -625,6 +602,7 @@ first index is fcoords1 index, second is fcoords2 index</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

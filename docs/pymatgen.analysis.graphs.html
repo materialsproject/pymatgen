@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.hhi module" href="pymatgen.analysis.hhi.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -863,7 +860,7 @@ dict format (not intended to be constructed manually,</p></li>
 <p>see as_dict method for format)</p>
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.add_edge">
-<code class="sig-name descname">add_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_index</span></em>, <em class="sig-param"><span class="n">to_index</span></em>, <em class="sig-param"><span class="n">from_jimage</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em>, <em class="sig-param"><span class="n">to_jimage</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">warn_duplicates</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">edge_properties</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/graphs.py#L331-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">from_index</span></em>, <em class="sig-param"><span class="n">to_index</span></em>, <em class="sig-param"><span class="n">from_jimage</span><span class="o">=</span><span class="default_value">0, 0, 0</span></em>, <em class="sig-param"><span class="n">to_jimage</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">warn_duplicates</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">edge_properties</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/graphs.py#L331-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.add_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add edge to graph.</p>
 <p>Since physically a ‘bond’ (or other connection
 between sites) doesn’t have a direction, from_index,
@@ -1061,7 +1058,7 @@ from NetworkX to restore graph information.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.get_connected_sites">
-<code class="sig-name descname">get_connected_sites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">jimage</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/graphs.py#L780-L830"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_connected_sites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">jimage</span><span class="o">=</span><span class="default_value">0, 0, 0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/graphs.py#L780-L830"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a named tuple of neighbors of site n:
 periodic_site, jimage, index, weight.
 Index is the index of the corresponding site
@@ -1364,19 +1361,11 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1387,6 +1376,7 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

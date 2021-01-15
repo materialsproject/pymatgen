@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.symmetry.maggroups module" href="pymatgen.symmetry.maggroups.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -263,17 +260,12 @@ The input structure</p>
 
 <dl class="py class">
 <dt id="pymatgen.symmetry.kpath.KPathLatimerMunro">
-<em class="property">class </em><code class="sig-name descname">KPathLatimerMunro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">has_magmoms</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">magmom_axis</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/symmetry/kpath.py#L1103-L2570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">KPathLatimerMunro</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">has_magmoms</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">magmom_axis</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/symmetry/kpath.py#L1103-L2567"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
 <p>This class looks for a path along high symmetry lines in the
-Brillouin zone.
-It is based on the derived symmetry of the energy spectrum
-for a crystalline solid given by A P Cracknell in J. Phys. C:
-Solid State Phys. Vol. 6 (1973), pp. 826-840 (‘Van Hove
-singularities and zero-slope points in crystals’) and pp. 841-
-854 (‘Van Hove singularities and zero-slope points in magnetic
-crystals’).
-The user should ensure that the lattice of the input structure
+Brillouin zone. It is based on the method outlined in:</p>
+<p>npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7</p>
+<p>The user should ensure that the lattice of the input structure
 is as reduced as possible, i.e. that there is no linear
 combination of lattice vectors which can produce a vector of
 lesser magnitude than the given set (this is required to
@@ -310,13 +302,13 @@ equivalence of points and lines on the BZ.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints">
-<em class="property">static </em><code class="sig-name descname">LabelPoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/symmetry/kpath.py#L2498-L2533"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">LabelPoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/symmetry/kpath.py#L2495-L2530"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelPoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Axes used in generating labels for Latimer-Munro convention</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol">
-<em class="property">static </em><code class="sig-name descname">LabelSymbol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/symmetry/kpath.py#L2535-L2570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">LabelSymbol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/symmetry/kpath.py#L2532-L2567"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.kpath.KPathLatimerMunro.LabelSymbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Letters used in generating labels for Latimer-Munro convention</p>
 </dd></dl>
 
@@ -564,19 +556,11 @@ The primitive reciprocal cell structure</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -587,6 +571,7 @@ The primitive reciprocal cell structure</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {
