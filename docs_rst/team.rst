@@ -377,7 +377,6 @@ List of Developers (A–Z)
    :alt: ORCID profile for 0000-0003-3604-1026
 
 | **Kiran Mathew** |matk86|
-| nan
 .. |matk86| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:matk86
    :width: 16
@@ -606,7 +605,6 @@ List of Developers (A–Z)
    :alt: GitHub profile for guymoore13
 
 | **Ioannis Petousis** |petousis|
-| nan
 .. |petousis| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:petousis
    :width: 16
