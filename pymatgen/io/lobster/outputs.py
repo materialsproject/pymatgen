@@ -1607,14 +1607,19 @@ class Wavefunction:
                     if x != Nx:
                         if y != Ny:
                             if z != Nz:
-                                if not np.isclose(
-                                    self.points[runner], [x_here, y_here, z_here], 1e-3
-                                ).all():
-                                    raise ValueError(
-                                        "The provided wavefunction from Lobster does not contain all relevant points. "
-                                        "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
-                                        "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
-                                    )
+                                if not np.isclose(self.points[runner][0], x_here, 1e-3):
+                                    if not np.isclose(
+                                        self.points[runner][1], y_here, 1e-3
+                                    ):
+                                        if not np.isclose(
+                                            self.points[runner][2], z_here, 1e-3
+                                        ):
+                                            raise ValueError(
+                                                "The provided wavefunction from Lobster does not contain all relevant"
+                                                " points. "
+                                                "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
+                                                "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
+                                            )
 
                                 new_x.append(x_here)
                                 new_y.append(y_here)
