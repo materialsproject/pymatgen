@@ -11,9 +11,11 @@ If you believe your name has been missed from this list, please let us know
 by filling out `this form`_ so you can be credited appropriately.
 A list of pymatgen developers can also be found `on GitHub`_.
 
-
 .. _this form: https://forms.gle/JnisFb38QDR8QTFTA
 .. _on GitHub: https://github.com/materialsproject/pymatgen/graphs/contributors
+
+.. raw:: html
+   :file: _static/team-map.html
 
 Lead Maintainers
 ================
