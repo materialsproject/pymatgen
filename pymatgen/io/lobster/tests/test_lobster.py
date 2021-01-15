@@ -9,7 +9,6 @@ import unittest
 import warnings
 
 import numpy as np
-
 from pymatgen import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
@@ -23,7 +22,7 @@ from pymatgen.io.lobster import (
     Lobsterin,
     Lobsterout,
     Wavefunction
-    )
+)
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
@@ -34,7 +33,6 @@ __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
-
 
 test_dir_doscar = PymatgenTest.TEST_FILES_DIR
 
@@ -663,8 +661,8 @@ class DoscarTest(unittest.TestCase):
         )
         self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
-            self.DOSCAR_spin_pol.completedos.structure.frac_coords,
-            self.structure.frac_coords,
+                self.DOSCAR_spin_pol.completedos.structure.frac_coords,
+                self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)
@@ -2390,16 +2388,16 @@ class LobsterinTest(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                np.isclose(kpoint[0], kpoint2[0])
-                and np.isclose(kpoint[1], kpoint2[1])
-                and np.isclose(kpoint[2], kpoint2[2])
+                    np.isclose(kpoint[0], kpoint2[0])
+                    and np.isclose(kpoint[1], kpoint2[1])
+                    and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                np.isclose(-kpoint[0], kpoint2[0])
-                and np.isclose(-kpoint[1], kpoint2[1])
-                and np.isclose(-kpoint[2], kpoint2[2])
+                    np.isclose(-kpoint[0], kpoint2[0])
+                    and np.isclose(-kpoint[1], kpoint2[1])
+                    and np.isclose(-kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
@@ -2700,7 +2698,7 @@ class GrosspopTest(unittest.TestCase):
             os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "POSCAR.SiO2")
         )
         for coords, coords2 in zip(
-            newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords
+                newstructure.frac_coords, Structure.from_dict(struct_dict).frac_coords
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)
@@ -2773,12 +2771,11 @@ class TestUtils(PymatgenTest):
         )
 
 
-
 class WavefunctionTest(PymatgenTest):
 
     def test_parse_file(self):
-        grid, points, real, imaginary, distance = Wavefunction._parse_file(os.path.join(test_dir_doscar,"cohp",
-            "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"))
+        grid, points, real, imaginary, distance = Wavefunction._parse_file(os.path.join(test_dir_doscar, "cohp",
+                                                                                        "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"))
         self.assertArrayEqual([41, 41, 41], grid)
         self.assertAlmostEqual(points[4][0], 0.0000)
         self.assertAlmostEqual(points[4][1], 0.0000)
@@ -2791,40 +2788,41 @@ class WavefunctionTest(PymatgenTest):
         self.assertAlmostEqual(distance[0], 0.0000)
 
     def test_set_volumetric_data(self):
-        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp","LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1" \
-                                                  ".gz"),
-            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+        wave1 = Wavefunction(
+            filename=os.path.join(test_dir_doscar, "cohp", "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1" \
+                                                           ".gz"),
+            structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")))
 
         wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
         self.assertTrue(hasattr(wave1, "volumetricdata_real"))
         self.assertTrue(hasattr(wave1, "volumetricdata_imaginary"))
 
     def test_get_volumetricdata_real(self):
-        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar, "cohp",
                                                    "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
-            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+                             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")))
         volumetricdata_real = wave1.get_volumetricdata_real()
         self.assertAlmostEqual(volumetricdata_real.data["total"][0, 0, 0], -3.0966)
 
     def test_get_volumetricdata_imaginary(self):
-        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar, "cohp",
                                                    "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
-            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+                             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")))
         volumetricdata_imaginary = wave1.get_volumetricdata_imaginary()
         self.assertAlmostEqual(volumetricdata_imaginary.data["total"][0, 0, 0], -6.45895e+00)
 
     def test_get_volumetricdata_density(self):
-        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar, "cohp",
                                                    "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
-            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+                             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")))
         volumetricdata_density = wave1.get_volumetricdata_density()
         self.assertAlmostEqual(volumetricdata_density.data["total"][0, 0, 0],
-            (-3.0966 * -3.0966) + (-6.45895 * -6.45895))
+                               (-3.0966 * -3.0966) + (-6.45895 * -6.45895))
 
     def test_write_file(self):
-        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar,"cohp",
+        wave1 = Wavefunction(filename=os.path.join(test_dir_doscar, "cohp",
                                                    "LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"),
-            structure=Structure.from_file(os.path.join(test_dir_doscar,"cohp","POSCAR_O.gz")))
+                             structure=Structure.from_file(os.path.join(test_dir_doscar, "cohp", "POSCAR_O.gz")))
         wave1.write_file(filename=os.path.join("wavecar_test.vasp"), part="real")
         self.assertTrue(os.path.isfile("wavecar_test.vasp"))
 
