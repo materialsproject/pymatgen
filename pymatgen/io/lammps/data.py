@@ -30,12 +30,12 @@ from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 try:
-    import ruamel.yaml as YAML
+    import ruamel.yaml as yaml
 except ImportError:
     try:
-        import ruamel_yaml as YAML  # type: ignore
+        import ruamel_yaml as yaml  # type: ignore
     except ImportError:
-        import yaml as YAML  # type: ignore
+        import yaml  # type: ignore
 
 from pymatgen import Element, Lattice, Molecule, Structure, SymmOp
 from pymatgen.util.io_utils import clean_lines
@@ -1329,9 +1329,9 @@ class ForceField(MSONable):
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        yaml = YAML(typ="safe")
+        yml = yaml.YAML(typ="safe")
         with open(filename, "w") as f:
-            yaml.dump(d, f)
+            yml.dump(d, f)
 
     @classmethod
     def from_file(cls, filename):
@@ -1342,9 +1342,9 @@ class ForceField(MSONable):
             filename (str): Filename.
 
         """
-        yaml = YAML(typ="safe")
+        yml = yaml.YAML(typ="safe")
         with open(filename, "r") as f:
-            d = yaml.load(f)
+            d = yml.load(f)
         return cls.from_dict(d)
 
     @classmethod
