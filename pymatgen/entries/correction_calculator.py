@@ -5,7 +5,7 @@ entries given to the CorrectionCalculator constructor.
 
 import warnings
 from collections import OrderedDict
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Sequence
 
 import numpy as np
 import plotly.graph_objects as go
@@ -50,7 +50,7 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: List[str] = [
+        species: Sequence[str] = (
             "oxide",
             "peroxide",
             "superoxide",
@@ -73,10 +73,10 @@ class CorrectionCalculator:
             "W",
             "Mo",
             "H",
-        ],
+        ),
         max_error: float = 0.1,
         allow_unstable: Union[float, bool] = 0.1,
-        exclude_polyanions: List[str] = [
+        exclude_polyanions: Sequence[str] = (
             "SO4",
             "CO3",
             "NO3",
@@ -85,7 +85,7 @@ class CorrectionCalculator:
             "SeO3",
             "TiO3",
             "TiO4",
-        ],
+        ),
     ) -> None:
         """
         Initializes a CorrectionCalculator.
