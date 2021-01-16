@@ -14,9 +14,9 @@ try:
     import ruamel.yaml as YAML
 except ImportError:
     try:
-        import ruamel_yaml as YAML
+        import ruamel_yaml as YAML  # type: ignore
     except ImportError:
-        import yaml as YAML
+        import yaml as YAML  # type: ignore
 
 from pymatgen import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import (
@@ -28,7 +28,6 @@ from pymatgen.io.lammps.data import (
     lattice_2_lmpbox,
     structure_2_lmpdata,
 )
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
