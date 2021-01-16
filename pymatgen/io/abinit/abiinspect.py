@@ -13,17 +13,11 @@ from collections import OrderedDict
 from collections.abc import Iterable, Iterator, Mapping
 
 import numpy as np
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore
-    except ImportError:
-        import yaml  # type: ignore
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from tabulate import tabulate
 
+from pymatgen import yaml
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 

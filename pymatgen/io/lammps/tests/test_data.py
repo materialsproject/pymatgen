@@ -10,15 +10,8 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore
-    except ImportError:
-        import yaml  # type: ignore
 
-from pymatgen import Element, Lattice, Molecule, Structure
+from pymatgen import Element, Lattice, Molecule, Structure, yaml
 from pymatgen.io.lammps.data import (
     CombinedData,
     ForceField,

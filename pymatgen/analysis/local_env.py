@@ -20,18 +20,11 @@ from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
 import numpy as np
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore
-    except ImportError:
-        import yaml  # type: ignore
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
-from pymatgen import Element, IStructure, Structure
+from pymatgen import Element, IStructure, Structure, yaml
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite, Site

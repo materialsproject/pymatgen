@@ -9,17 +9,10 @@ from typing import Dict, List, Tuple, Union, Sequence
 
 import numpy as np
 import plotly.graph_objects as go
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore
-    except ImportError:
-        import yaml  # type: ignore
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
 
-from pymatgen import Composition, Element
+from pymatgen import Composition, Element, yaml
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 

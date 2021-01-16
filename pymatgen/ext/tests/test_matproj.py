@@ -6,15 +6,7 @@ import re
 import unittest
 import warnings
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore
-    except ImportError:
-        import yaml  # type: ignore
-
-from pymatgen import SETTINGS, SETTINGS_FILE
+from pymatgen import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen import __version__ as pmg_version
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
