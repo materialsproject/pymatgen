@@ -6,7 +6,13 @@ import re
 import unittest
 import warnings
 
-import ruamel.yaml as yaml
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore
+    except ImportError:
+        import yaml  # type: ignore
 
 from pymatgen import SETTINGS, SETTINGS_FILE
 from pymatgen import __version__ as pmg_version

@@ -10,7 +10,13 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from ruamel.yaml import YAML
+try:
+    import ruamel.yaml as YAML
+except ImportError:
+    try:
+        import ruamel_yaml as YAML
+    except ImportError:
+        import yaml as YAML
 
 from pymatgen import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import (

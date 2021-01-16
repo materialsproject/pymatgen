@@ -12,7 +12,13 @@ import os
 import warnings
 from fnmatch import fnmatch
 
-import ruamel.yaml as yaml
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore
+    except ImportError:
+        import yaml  # type: ignore
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 __author__ = "Pymatgen Development Team"

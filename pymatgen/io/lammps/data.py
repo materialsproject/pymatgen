@@ -29,7 +29,13 @@ import pandas as pd
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
-from ruamel.yaml import YAML
+try:
+    import ruamel.yaml as YAML
+except ImportError:
+    try:
+        import ruamel_yaml as YAML  # type: ignore
+    except ImportError:
+        import yaml as YAML  # type: ignore
 
 from pymatgen import Element, Lattice, Molecule, Structure, SymmOp
 from pymatgen.util.io_utils import clean_lines

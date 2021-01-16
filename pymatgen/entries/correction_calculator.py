@@ -9,7 +9,13 @@ from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import plotly.graph_objects as go
-import ruamel.yaml
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore
+    except ImportError:
+        import yaml  # type: ignore
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
 
@@ -499,32 +505,32 @@ class CorrectionCalculator:
 
         fn = name + "Compatibility.yaml"
         file = open(fn, "w")
-        yaml = ruamel.yaml.YAML()
-        yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
-        yaml.default_flow_style = False
-        contents = yaml.load(outline)
+        yml = yaml.YAML()
+        yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
+        yml.default_flow_style = False
+        contents = yml.load(outline)
 
         contents["Name"] = name
 
         # make CommentedMap so comments can be added
         contents["Corrections"]["GGAUMixingCorrections"][
             "O"
-        ] = ruamel.yaml.comments.CommentedMap(o)
+        ] = yaml.comments.CommentedMap(o)
         contents["Corrections"]["GGAUMixingCorrections"][
             "F"
-        ] = ruamel.yaml.comments.CommentedMap(f)
+        ] = yaml.comments.CommentedMap(f)
         contents["Corrections"][
             "CompositionCorrections"
-        ] = ruamel.yaml.comments.CommentedMap(comp_corr)
+        ] = yaml.comments.CommentedMap(comp_corr)
         contents["Uncertainties"]["GGAUMixingCorrections"][
             "O"
-        ] = ruamel.yaml.comments.CommentedMap(o_error)
+        ] = yaml.comments.CommentedMap(o_error)
         contents["Uncertainties"]["GGAUMixingCorrections"][
             "F"
-        ] = ruamel.yaml.comments.CommentedMap(f_error)
+        ] = yaml.comments.CommentedMap(f_error)
         contents["Uncertainties"][
             "CompositionCorrections"
-        ] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
+        ] = yaml.comments.CommentedMap(comp_corr_error)
 
         contents["Corrections"].yaml_set_start_comment(
             "Energy corrections in eV/atom", indent=2

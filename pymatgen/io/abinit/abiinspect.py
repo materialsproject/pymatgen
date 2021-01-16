@@ -13,7 +13,13 @@ from collections import OrderedDict
 from collections.abc import Iterable, Iterator, Mapping
 
 import numpy as np
-import ruamel.yaml as yaml
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore
+    except ImportError:
+        import yaml  # type: ignore
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from tabulate import tabulate
