@@ -392,12 +392,7 @@ class CorrectionCalculator:
         diffs_cpy = self.diffs.copy()
         num = len(labels_species)
 
-        if (
-            specie == "oxide"
-            or specie == "peroxide"
-            or specie == "superoxide"
-            or specie == "S"
-        ):
+        if specie in ('oxide', 'peroxide', 'superoxide', 'S'):
             if specie == "oxide":
                 compounds = self.oxides
             elif specie == "peroxide":
