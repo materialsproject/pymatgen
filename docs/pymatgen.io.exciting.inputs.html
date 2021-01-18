@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.feff package" href="pymatgen.io.feff.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -290,8 +287,7 @@ where N is number of sites. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>celltype</strong> (<em>str</em>) – Choice of unit cell. Can be either the unit cell</p></li>
 <li><p><strong>self.structure</strong> (<em>from</em>) – </p></li>
-<li><p><strong>(</strong><strong>&quot;conventional&quot;</strong><strong>)</strong> (<em>&quot;primitive&quot;</em>) – </p></li>
-<li><p><strong>the primitive unit cell</strong> (<em>or</em>) – </p></li>
+<li><p><strong>or the primitive unit cell</strong> (<em>(</em><em>&quot;conventional&quot;</em><em>)</em><em>,</em>) – </p></li>
 <li><p><strong>cartesian</strong> (<em>bool</em>) – Whether the atomic positions are provided in</p></li>
 <li><p><strong>or unit-cell coordinates. Default is False.</strong> (<em>Cartesian</em>) – </p></li>
 <li><p><strong>bandstr</strong> (<em>bool</em>) – Whether the bandstructure path along the</p></li>
@@ -318,8 +314,7 @@ where N is number of sites. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>celltype</strong> (<em>str</em>) – Choice of unit cell. Can be either the unit cell</p></li>
 <li><p><strong>self.structure</strong> (<em>from</em>) – </p></li>
-<li><p><strong>(</strong><strong>&quot;conventional&quot;</strong><strong>)</strong> (<em>&quot;primitive&quot;</em>) – </p></li>
-<li><p><strong>the primitive unit cell</strong> (<em>or</em>) – </p></li>
+<li><p><strong>or the primitive unit cell</strong> (<em>(</em><em>&quot;conventional&quot;</em><em>)</em><em>,</em>) – </p></li>
 <li><p><strong>filename</strong> (<em>str</em>) – Filename for exciting input.</p></li>
 <li><p><strong>cartesian</strong> (<em>bool</em>) – Whether the atomic positions are provided in</p></li>
 <li><p><strong>or unit-cell coordinates. Default is False.</strong> (<em>Cartesian</em>) – </p></li>
@@ -344,8 +339,7 @@ where N is number of sites. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>celltype</strong> (<em>str</em>) – Choice of unit cell. Can be either the unit cell</p></li>
 <li><p><strong>self.structure</strong> (<em>from</em>) – </p></li>
-<li><p><strong>(</strong><strong>&quot;conventional&quot;</strong><strong>)</strong> (<em>&quot;primitive&quot;</em>) – </p></li>
-<li><p><strong>the primitive unit cell</strong> (<em>or</em>) – </p></li>
+<li><p><strong>or the primitive unit cell</strong> (<em>(</em><em>&quot;conventional&quot;</em><em>)</em><em>,</em>) – </p></li>
 <li><p><strong>cartesian</strong> (<em>bool</em>) – Whether the atomic positions are provided in</p></li>
 <li><p><strong>or unit-cell coordinates. Default is False.</strong> (<em>Cartesian</em>) – </p></li>
 <li><p><strong>bandstr</strong> (<em>bool</em>) – Whether the bandstructure path along the</p></li>
@@ -378,19 +372,11 @@ where N is number of sites. Defaults to None.</p></li>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -401,6 +387,7 @@ where N is number of sites. Defaults to None.</p></li>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

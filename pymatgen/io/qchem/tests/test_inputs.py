@@ -705,6 +705,54 @@ $end
         qcinp = QCInput.from_string(str_molecule)
         self.assertEqual(str_molecule, str(qcinp))
 
+    def test_read_plots(self):
+        str_molecule = """$molecule
+ 0 2
+ O      1.6159947668      0.3522275191      0.3343192028
+ O     -0.5921658045      1.4368355787      1.2632324885
+ C      0.4160355545     -0.4617433561      0.2180766834
+ C     -0.7655230468      0.4776728409      0.1826587618
+ C      2.8437090411     -0.3853724291      0.0935770045
+ C     -1.7918488579      2.2003569978      1.5593659974
+ H      0.4649228147     -1.0347597878     -0.7097270414
+ H      3.6714833661      0.3051154983      0.2509025369
+ H      2.8395611019     -0.7401009356     -0.9372741555
+ H     -2.1017802975      2.7482577804      0.6678359687
+ H     -1.5445030956      2.8894960726      2.3658396091
+ Mg      1.2856817013      1.9249743897      1.4285694502
+$end
+
+$rem
+   job_type = sp
+   basis = def2-tzvppd
+   max_scf_cycles = 200
+   gen_scfman = true
+   xc_grid = 3
+   scf_algorithm = gdm
+   resp_charges = true
+   symmetry = false
+   sym_ignore = true
+   method = wb97xv
+   solvent_method = smd
+   ideriv = 1
+   thresh = 14
+   scf_guess_always = true
+   plots = true
+   make_cube_files = true
+$end
+
+$smx
+   solvent thf
+$end
+
+$plots
+   grid_spacing 0.05
+   total_density 0
+$end
+"""
+        qcinp = QCInput.from_string(str_molecule)
+        self.assertEqual(str_molecule, str(qcinp))
+
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet
 

@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.defects.corrections module" href="pymatgen.analysis.defects.corrections.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -263,7 +260,7 @@ used to generate multiplicity.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.defects.core.Defect.generate_defect_structure">
-<em class="property">abstract </em><code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">(1, 1, 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L102-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L102-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given structure and defect_site (and type of defect) should return a defect_structure that is charged
 :param supercell: supercell integer, vector, or scaling matrix
 :type supercell: int, [3x1], or [[]] (3x3)</p>
@@ -562,7 +559,7 @@ significant relaxation.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.defects.core.Interstitial.generate_defect_structure">
-<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">(1, 1, 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L381-L418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L381-L418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Defective Interstitial structure, decorated with charge
 If bulk structure had any site properties, all of these properties are
 removed in the resulting defect structure</p>
@@ -622,7 +619,7 @@ used to generate multiplicity.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.defects.core.Substitution.generate_defect_structure">
-<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">(1, 1, 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L245-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L245-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Defective Substitution structure, decorated with charge.
 If bulk structure had any site properties, all of these properties are
 removed in the resulting defect structure.</p>
@@ -683,7 +680,7 @@ used to generate multiplicity.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.defects.core.Vacancy.generate_defect_structure">
-<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">(1, 1, 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L159-L187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generate_defect_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">supercell</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/defects/core.py#L159-L187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.generate_defect_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Defective Vacancy structure, decorated with charge
 :param supercell: supercell integer, vector, or scaling matrix
 :type supercell: int, [3x1], or [[]] (3x3)</p>
@@ -742,19 +739,11 @@ but ensuring space group is maintained</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -765,6 +754,7 @@ but ensuring space group is maintained</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

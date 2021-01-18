@@ -2407,7 +2407,7 @@ class IStructure(SiteCollection, MSONable):
             s = Prismatic(self).to_string()
             return s
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            import ruamel.yaml as yaml
+            from pymatgen import yaml
 
             if filename:
                 with zopen(filename, "wt") as f:
@@ -2460,7 +2460,7 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt == "yaml":
-            import ruamel.yaml as yaml
+            from pymatgen import yaml
 
             d = yaml.safe_load(input_string)
             s = Structure.from_dict(d)
@@ -3141,7 +3141,7 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
-            import ruamel.yaml as yaml
+            from pymatgen import yaml
 
             if filename:
                 with zopen(fname, "wt", encoding="utf8") as f:
@@ -3187,8 +3187,7 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
-            import ruamel.yaml as yaml
-
+            from pymatgen import yaml
             d = yaml.safe_load(input_string)
             return cls.from_dict(d)
         else:

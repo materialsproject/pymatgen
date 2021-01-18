@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.cp2k.utils module" href="pymatgen.io.cp2k.utils.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -375,13 +372,9 @@ will cover on a reference grid defined by REL_CUTOFF.</p>
 </p></li>
 <li><p><strong>progression_factor</strong> (<em>int</em>) – Divisor of CUTOFF to get the cutoff for the next level of the multigrid.</p></li>
 <li><p><strong>for the cutoffs</strong> (<em>Takeaway</em>) – <a class="reference external" href="https://www.cp2k.org/howto:converging_cutoff">https://www.cp2k.org/howto:converging_cutoff</a></p></li>
-<li><p><strong>CUTOFF is too low</strong> (<em>If</em>) – </p></li>
-<li><p><strong>all grids will be coarse and the calculation may become inaccurate; and if</strong> (<em>then</em>) – </p></li>
-<li><p><strong>is too low</strong> (<em>REL_CUTOFF</em>) – </p></li>
-<li><p><strong>even if you have a high CUTOFF</strong> (<em>then</em>) – </p></li>
-<li><p><strong>Gaussians will be mapped onto the coarsest</strong> (<em>all</em>) – </p></li>
-<li><p><strong>of the multi-grid</strong> (<em>level</em>) – </p></li>
-<li><p><strong>thus the effective integration grid for the calculation may still be too</strong> (<em>and</em>) – </p></li>
+<li><p><strong>CUTOFF is too low</strong><strong>, </strong><strong>then all grids will be coarse and the calculation may become inaccurate; and if</strong> (<em>If</em>) – </p></li>
+<li><p><strong>is too low</strong><strong>, </strong><strong>then even if you have a high CUTOFF</strong><strong>, </strong><strong>all Gaussians will be mapped onto the coarsest</strong> (<em>REL_CUTOFF</em>) – </p></li>
+<li><p><strong>of the multi-grid</strong><strong>, </strong><strong>and thus the effective integration grid for the calculation may still be too</strong> (<em>level</em>) – </p></li>
 <li><p><strong>coarse.</strong> – </p></li>
 </ul>
 </dd>
@@ -684,19 +677,11 @@ and uses structure object to build the subsystem.</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -707,6 +692,7 @@ and uses structure object to build the subsystem.</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

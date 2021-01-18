@@ -2,8 +2,6 @@ import os
 import unittest
 import warnings
 
-import ruamel.yaml as yaml
-
 from pymatgen import (
     SETTINGS,
     SETTINGS_FILE,

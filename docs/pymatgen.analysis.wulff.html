@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.apps package" href="pymatgen.apps.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -421,7 +418,7 @@ Wulffshape is approximated as a sphere.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.wulff.WulffShape.get_plot">
-<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">color_set</span><span class="o">=</span><span class="default_value">'PuBu'</span></em>, <em class="sig-param"><span class="n">grid_off</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">axis_off</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_area</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">off_color</span><span class="o">=</span><span class="default_value">'red'</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bar_pos</span><span class="o">=</span><span class="default_value">(0.75, 0.15, 0.05, 0.65)</span></em>, <em class="sig-param"><span class="n">bar_on</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">units_in_JPERM2</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">legend_on</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">aspect_ratio</span><span class="o">=</span><span class="default_value">(8, 8)</span></em>, <em class="sig-param"><span class="n">custom_colors</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/wulff.py#L403-L545"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">color_set</span><span class="o">=</span><span class="default_value">'PuBu'</span></em>, <em class="sig-param"><span class="n">grid_off</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">axis_off</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_area</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">off_color</span><span class="o">=</span><span class="default_value">'red'</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bar_pos</span><span class="o">=</span><span class="default_value">0.75, 0.15, 0.05, 0.65</span></em>, <em class="sig-param"><span class="n">bar_on</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">units_in_JPERM2</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">legend_on</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">aspect_ratio</span><span class="o">=</span><span class="default_value">8, 8</span></em>, <em class="sig-param"><span class="n">custom_colors</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/wulff.py#L403-L545"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Wulff shape plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -437,17 +434,7 @@ Wulffshape is approximated as a sphere.</p>
 <li><p><strong>bar_on</strong> (<em>bool</em>) – default is False</p></li>
 <li><p><strong>legend_on</strong> (<em>bool</em>) – default is True</p></li>
 <li><p><strong>aspect_ratio</strong> – default is (8, 8)</p></li>
-<li><p><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
-facet with a dictionary. The key is the corresponding Miller
-index and value is the color. Undefined facets will use default
-color site. Note: If you decide to set your own colors, it
-probably won’t make any sense to have the color bar on.</p></li>
-<li><p><strong>k</strong> – [r,g,b,alpha}): Customize color of each
-facet with a dictionary. The key is the corresponding Miller
-index and value is the color. Undefined facets will use default
-color site. Note: If you decide to set your own colors, it
-probably won’t make any sense to have the color bar on.</p></li>
-<li><p><strong>l}</strong> – [r,g,b,alpha}): Customize color of each
+<li><p><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l}</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
 facet with a dictionary. The key is the corresponding Miller
 index and value is the color. Undefined facets will use default
 color site. Note: If you decide to set your own colors, it
@@ -472,17 +459,7 @@ Joules per square meter (True)</p></li>
 <li><p><strong>color_set</strong> – default is ‘PuBu’</p></li>
 <li><p><strong>alpha</strong> (<em>float</em>) – chosen from 0 to 1 (float), default is 1</p></li>
 <li><p><strong>off_color</strong> – Default color for facets not present on the Wulff shape.</p></li>
-<li><p><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
-facet with a dictionary. The key is the corresponding Miller
-index and value is the color. Undefined facets will use default
-color site. Note: If you decide to set your own colors, it
-probably won’t make any sense to have the color bar on.</p></li>
-<li><p><strong>k</strong> – [r,g,b,alpha}): Customize color of each
-facet with a dictionary. The key is the corresponding Miller
-index and value is the color. Undefined facets will use default
-color site. Note: If you decide to set your own colors, it
-probably won’t make any sense to have the color bar on.</p></li>
-<li><p><strong>l}</strong> – [r,g,b,alpha}): Customize color of each
+<li><p><strong>(</strong><strong>{</strong><strong>(</strong><strong>h</strong><strong>,</strong><strong>k</strong><strong>,</strong><strong>l}</strong> (<em>custom_colors</em>) – [r,g,b,alpha}): Customize color of each
 facet with a dictionary. The key is the corresponding Miller
 index and value is the color. Undefined facets will use default
 color site. Note: If you decide to set your own colors, it
@@ -631,19 +608,11 @@ Agrs:</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -654,6 +623,7 @@ Agrs:</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

@@ -17,13 +17,12 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
-from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -1119,7 +1118,6 @@ class Fatband:
             with zopen(filename, "rt") as f:
                 contents = f.read().split("\n")
 
-            # TODO: could be replaced for future versions of Lobster, get atomname from filename
             atomnames.append(os.path.split(filename)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
             atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
@@ -1488,3 +1486,223 @@ class Grosspop:
         }
         new_struct = struct.copy(site_properties=site_properties)
         return new_struct
+
+
+class Wavefunction:
+    """
+    Class to read in wave function files from Lobster and transfer them into an object of the type VolumetricData
+
+    .. attribute: grid
+
+        grid for the wave function [Nx+1,Ny+1,Nz+1]
+
+    .. attribute: points
+
+        list of points
+
+    .. attribute: real
+
+        list of real part of wave function
+
+    .. attribute: imaginary
+
+        list of imaginary part of wave function
+
+    .. attribute: distance
+
+        list of distance to first point in wave function file
+
+
+    """
+
+    def __init__(self, filename, structure):
+        """
+
+        Args:
+            filename: filename of wavecar file from Lobster
+            structure: Structure object (e.g., created by Structure.from_file(""))
+        """
+
+        self.filename = filename
+        self.structure = structure
+
+        (
+            self.grid,
+            self.points,
+            self.real,
+            self.imaginary,
+            self.distance,
+        ) = Wavefunction._parse_file(filename)
+
+    @staticmethod
+    def _parse_file(filename):
+        with zopen(filename, "rt") as f:
+            contents = f.read().split("\n")
+        points = []
+        distance = []
+        real = []
+        imaginary = []
+        splitline = contents[0].split()
+        grid = [int(splitline[7]), int(splitline[8]), int(splitline[9])]
+        for line in contents[1:]:
+            splitline = line.split()
+            if len(splitline) >= 6:
+                points.append(
+                    [float(splitline[0]), float(splitline[1]), float(splitline[2])]
+                )
+                distance.append(float(splitline[3]))
+                real.append(float(splitline[4]))
+                imaginary.append(float(splitline[5]))
+
+        if not len(real) == grid[0] * grid[1] * grid[2]:
+            raise ValueError("Something went wrong while reading the file")
+        if not len(imaginary) == grid[0] * grid[1] * grid[2]:
+            raise ValueError("Something went wrong while reading the file")
+        return grid, points, real, imaginary, distance
+
+    def set_volumetric_data(self, grid, structure):
+        """
+        Will create the VolumetricData Objects
+
+        Args:
+            grid: grid on which wavefunction was calculated, e.g. [1,2,2]
+            structure: Structure object
+
+        Returns:
+
+        """
+        Nx = grid[0] - 1
+        Ny = grid[1] - 1
+        Nz = grid[2] - 1
+        a = structure.lattice.matrix[0]
+        b = structure.lattice.matrix[1]
+        c = structure.lattice.matrix[2]
+        new_x = []
+        new_y = []
+        new_z = []
+        new_real = []
+        new_imaginary = []
+        new_density = []
+
+        runner = 0
+        for x in range(0, Nx + 1):
+            for y in range(0, Ny + 1):
+                for z in range(0, Nz + 1):
+                    x_here = (
+                        x / float(Nx) * a[0]
+                        + y / float(Ny) * b[0]
+                        + z / float(Nz) * c[0]
+                    )
+                    y_here = (
+                        x / float(Nx) * a[1]
+                        + y / float(Ny) * b[1]
+                        + z / float(Nz) * c[1]
+                    )
+                    z_here = (
+                        x / float(Nx) * a[2]
+                        + y / float(Ny) * b[2]
+                        + z / float(Nz) * c[2]
+                    )
+
+                    if x != Nx:
+                        if y != Ny:
+                            if z != Nz:
+                                if not np.isclose(self.points[runner][0], x_here, 1e-3):
+                                    if not np.isclose(
+                                        self.points[runner][1], y_here, 1e-3
+                                    ):
+                                        if not np.isclose(
+                                            self.points[runner][2], z_here, 1e-3
+                                        ):
+                                            raise ValueError(
+                                                "The provided wavefunction from Lobster does not contain all relevant"
+                                                " points. "
+                                                "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
+                                                "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
+                                            )
+
+                                new_x.append(x_here)
+                                new_y.append(y_here)
+                                new_z.append(z_here)
+
+                                new_real.append(self.real[runner])
+                                new_imaginary.append(self.imaginary[runner])
+                                new_density.append(
+                                    self.real[runner] ** 2 + self.imaginary[runner] ** 2
+                                )
+
+                    runner += 1
+
+        self.final_real = np.reshape(new_real, [Nx, Ny, Nz])
+        self.final_imaginary = np.reshape(new_imaginary, [Nx, Ny, Nz])
+        self.final_density = np.reshape(new_density, [Nx, Ny, Nz])
+
+        self.volumetricdata_real = VolumetricData(structure, {"total": self.final_real})
+        self.volumetricdata_imaginary = VolumetricData(
+            structure, {"total": self.final_imaginary}
+        )
+        self.volumetricdata_density = VolumetricData(
+            structure, {"total": self.final_density}
+        )
+
+    def get_volumetricdata_real(self):
+        """
+        will return a VolumetricData object including the real part of the wave function
+
+        Returns: VolumetricData object
+        """
+
+        if not hasattr(self, "volumetricdata_real"):
+            self.set_volumetric_data(self.grid, self.structure)
+        return self.volumetricdata_real
+
+    def get_volumetricdata_imaginary(self):
+        """
+        will return a VolumetricData object including the imaginary part of the wave function
+
+        Returns: VolumetricData object
+        """
+        if not hasattr(self, "volumetricdata_imaginary"):
+            self.set_volumetric_data(self.grid, self.structure)
+        return self.volumetricdata_imaginary
+
+    def get_volumetricdata_density(self):
+        """
+        will return a VolumetricData object including the imaginary part of the wave function
+
+        Returns: VolumetricData object
+
+        """
+        if not hasattr(self, "volumetricdata_density"):
+            self.set_volumetric_data(self.grid, self.structure)
+        return self.volumetricdata_density
+
+    def write_file(self, filename="WAVECAR.vasp", part="real"):
+        """
+        will save the wavefunction in a file format that can be read by VESTA
+        This will only work if the wavefunction from lobster was constructed with:
+        "printLCAORealSpaceWavefunction kpoint 1 coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 2 3 4
+        5 6 "
+        or similar (the whole unit cell has to be covered!)
+
+        Args:
+            filename: Filename for the output, e.g., WAVECAR.vasp
+            part: which part of the wavefunction will be saved ("real" or "imaginary")
+
+        Returns:
+
+        """
+        if not (
+            hasattr(self, "volumetricdata_real")
+            and hasattr(self, "volumetricdata_imaginary")
+            and hasattr(self, "volumetricdata_density")
+        ):
+            self.set_volumetric_data(self.grid, self.structure)
+        if part == "real":
+            self.volumetricdata_real.write_file(filename)
+        elif part == "imaginary":
+            self.volumetricdata_imaginary.write_file(filename)
+        elif part == "density":
+            self.volumetricdata_density.write_file(filename)
+        else:
+            raise ValueError('part can be only "real" or "imaginary" or "density"')

@@ -3264,12 +3264,6 @@ class Outcar:
             The average core potential of the 2nd atom of the structure at the
             last ionic step is: [-1][1]
         """
-
-        def pairwise(iterable):
-            """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
-            a = iter(iterable)
-            return zip(a, a)
-
         with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
             aps = []
@@ -3285,11 +3279,16 @@ class Outcar:
                         if "E-fermi" in line:
                             aps.append(ap)
                             break
-                        data = line.split()
+
                         # the average core potentials of up to 5 elements are
-                        # given per line
-                        for i, pot in pairwise(data):
-                            ap.append(float(pot))
+                        # given per line; the potentials are separated by several
+                        # spaces and numbered from 1 to natoms; the potentials are
+                        # parsed in a fixed width format
+                        npots = int((len(line) - 1) / 17)
+                        for i in range(npots):
+                            start = i * 17
+                            ap.append(float(line[start + 8:start + 17]))
+
         return aps
 
     def as_dict(self):

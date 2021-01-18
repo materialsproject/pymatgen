@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.molecule_matcher module" href="pymatgen.analysis.molecule_matcher.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -645,7 +642,7 @@ objects?</p>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.local_env.CrystalNN">
-<em class="property">class </em><code class="sig-name descname">CrystalNN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weighted_cn</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">cation_anion</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">distance_cutoffs</span><span class="o">=</span><span class="default_value">(0.5, 1)</span></em>, <em class="sig-param"><span class="n">x_diff_weight</span><span class="o">=</span><span class="default_value">3.0</span></em>, <em class="sig-param"><span class="n">porous_adjustment</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">search_cutoff</span><span class="o">=</span><span class="default_value">7</span></em>, <em class="sig-param"><span class="n">fingerprint_length</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/local_env.py#L4009-L4358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CrystalNN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weighted_cn</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">cation_anion</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">distance_cutoffs</span><span class="o">=</span><span class="default_value">0.5, 1</span></em>, <em class="sig-param"><span class="n">x_diff_weight</span><span class="o">=</span><span class="default_value">3.0</span></em>, <em class="sig-param"><span class="n">porous_adjustment</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">search_cutoff</span><span class="o">=</span><span class="default_value">7</span></em>, <em class="sig-param"><span class="n">fingerprint_length</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/analysis/local_env.py#L4009-L4358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>This is custom near neighbor method intended for use in all kinds of
 periodic structures (metals, minerals, porous structures, etc). It is based
@@ -835,15 +832,12 @@ defined for a Null/Empty NN class.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cut_off_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em>) – a dictionary</p></li>
-<li><p><strong>cut-off distances</strong> (<em>of</em>) – 2.0} for</p></li>
-<li><p><strong>{</strong> (<em>'Fe2+'</em><em>, </em><em>'O2-'</em>) – 2.0} for</p></li>
+<li><p><strong>cut-off distances</strong><strong>, </strong><strong>e.g. {</strong> (<em>of</em>) – 2.0} for</p></li>
 <li><p><strong>maximum Fe-O bond length of 2.0 Angstroms.</strong> (<em>a</em>) – </p></li>
 <li><p><strong>that if your structure is oxidation state</strong> (<em>Note</em>) – </p></li>
-<li><p><strong>decorated</strong> – </p></li>
-<li><p><strong>cut-off distances will have to</strong> (<em>the</em>) – </p></li>
-<li><p><strong>include the oxidation state</strong> (<em>explicitly</em>) – </p></li>
-<li><p><strong>e.g.</strong> – </p></li>
-<li><p><strong>{</strong> – 2.0}</p></li>
+<li><p><strong>the cut-off distances will have to</strong> (<em>decorated</em><em>,</em>) – </p></li>
+<li><p><strong>include the oxidation state</strong><strong>, </strong><strong>e.g.</strong> (<em>explicitly</em>) – </p></li>
+<li><p><strong>{</strong> (<em>'Fe2+'</em><em>, </em><em>'O2-'</em>) – 2.0}</p></li>
 </ul>
 </dd>
 </dl>
@@ -2436,10 +2430,7 @@ are <em>not</em> generated from pymatgen, and are found in
 ‘okeeffe_params.json’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>el1</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – two Element objects</p></li>
-<li><p><strong>el2</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a>) – two Element objects</p></li>
-</ul>
+<dd class="field-odd"><p><strong>el2</strong> (<em>el1</em><em>,</em>) – two Element objects</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>a float value of the predicted bond length</p>
@@ -2572,19 +2563,11 @@ vt2, vt3 and vt4.
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -2595,6 +2578,7 @@ vt2, vt3 and vt4.
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

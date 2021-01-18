@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,9 +19,7 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,6 +32,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.abinit.abitimer module" href="pymatgen.io.abinit.abitimer.html" />
@@ -62,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -89,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -176,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -297,7 +294,7 @@ that returns a dictionary with the abinit variables.</p>
 <p>Initialize object.</p>
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/serialization.py#L556-L559"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/serialization.py#L556-L559"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.ElectronsAlgorithm.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert object to dict.</p>
 </dd></dl>
 
@@ -452,7 +449,7 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.automatic_density">
-<em class="property">classmethod </em><code class="sig-name descname">automatic_density</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">kppa</span></em>, <em class="sig-param"><span class="n">chksymbreak</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_symmetries</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_time_reversal</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">shifts</span><span class="o">=</span><span class="default_value">(0.5, 0.5, 0.5)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/abinit/abiobjects.py#L956-L1003"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.automatic_density" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">automatic_density</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">kppa</span></em>, <em class="sig-param"><span class="n">chksymbreak</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_symmetries</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_time_reversal</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">shifts</span><span class="o">=</span><span class="default_value">0.5, 0.5, 0.5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/abinit/abiobjects.py#L956-L1003"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.automatic_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an automatic Kpoint object based on a structure and a kpoint
 density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.</p>
 <dl class="simple">
@@ -484,7 +481,7 @@ reciprocal lattice vector proportional to its length.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.gamma_centered">
-<em class="property">classmethod </em><code class="sig-name descname">gamma_centered</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpts</span><span class="o">=</span><span class="default_value">(1, 1, 1)</span></em>, <em class="sig-param"><span class="n">use_symmetries</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_time_reversal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/abinit/abiobjects.py#L808-L831"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">gamma_centered</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpts</span><span class="o">=</span><span class="default_value">1, 1, 1</span></em>, <em class="sig-param"><span class="n">use_symmetries</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_time_reversal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/abinit/abiobjects.py#L808-L831"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.gamma_centered" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for an automatic Gamma centered Kpoint grid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -516,7 +513,7 @@ to reduce the number of independent k-points.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiobjects.KSampling.monkhorst">
-<em class="property">classmethod </em><code class="sig-name descname">monkhorst</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ngkpt</span></em>, <em class="sig-param"><span class="n">shiftk</span><span class="o">=</span><span class="default_value">(0.5, 0.5, 0.5)</span></em>, <em class="sig-param"><span class="n">chksymbreak</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_symmetries</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_time_reversal</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/abinit/abiobjects.py#L833-L864"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">monkhorst</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ngkpt</span></em>, <em class="sig-param"><span class="n">shiftk</span><span class="o">=</span><span class="default_value">0.5, 0.5, 0.5</span></em>, <em class="sig-param"><span class="n">chksymbreak</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_symmetries</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_time_reversal</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/abinit/abiobjects.py#L833-L864"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.KSampling.monkhorst" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for a Monkhorst-Pack mesh.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -846,7 +843,7 @@ a <cite>Smearing</cite> object is via the class method Smearing.as_smearing(stri
 <p>Build object with occopt and tsmear</p>
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiobjects.Smearing.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/serialization.py#L513-L516"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/serialization.py#L513-L516"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.Smearing.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>json friendly dict representation of Smearing</p>
 </dd></dl>
 
@@ -909,7 +906,7 @@ One can use as_spinmode to construct the object via SpinMode.as_spinmode
 <p>Create new instance of SpinMode(mode, nsppol, nspinor, nspden)</p>
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiobjects.SpinMode.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/serialization.py#L402-L405"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/util/serialization.py#L402-L405"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiobjects.SpinMode.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert object to dict.</p>
 </dd></dl>
 
@@ -1024,19 +1021,11 @@ Used to change the default ordering.</p></li>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1047,6 +1036,7 @@ Used to change the default ordering.</p></li>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

@@ -409,7 +409,10 @@ class QCOutput(MSONable):
             for ii, entry in enumerate(temp_geom):
                 species += [entry[0]]
                 for jj in range(3):
-                    geometry[ii, jj] = float(entry[jj + 1])
+                    if "*" in entry[jj + 1]:
+                        geometry[ii, jj] = 10000000000.0
+                    else:
+                        geometry[ii, jj] = float(entry[jj + 1])
             self.data["species"] = species
             self.data["initial_geometry"] = geometry
             if (
@@ -702,6 +705,8 @@ class QCOutput(MSONable):
         for scf in self.data["SCF"]:
             if abs(scf[0][0] - scf[1][0]) > 10.0:
                 self.data["warnings"]["bad_roothaan"] = True
+                if abs(scf[0][0] - scf[1][0]) > 100.0:
+                    self.data["warnings"]["very_bad_roothaan"] = True
 
     def _read_geometries(self):
         """
@@ -1116,7 +1121,7 @@ class QCOutput(MSONable):
         temp_dict = read_pattern(
             self.text,
             {
-                "final_energy": r"\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
+                "final_energy": r"\s*Total\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
             },
         )
 
@@ -1253,11 +1258,23 @@ class QCOutput(MSONable):
         ).get("key") == [[]]:
             self.data["errors"] += ["licensing_error"]
         elif read_pattern(
-            self.text,
-            {"key": r"Could not open driver file in ReadDriverFromDisk"},
-            terminate_on_match=True,
-        ).get("key") == [[]]:
+                self.text, {
+                    "key": r"Unable to validate license"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["licensing_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Could not open driver file in ReadDriverFromDisk"
+                },
+                terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["driver_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["gdm_neg_precon_error"]
         else:
             tmp_failed_line_searches = read_pattern(
                 self.text,

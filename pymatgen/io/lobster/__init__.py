@@ -20,4 +20,5 @@ from .outputs import (
     Grosspop,
     Icohplist,
     Lobsterout,
-)
+    Wavefunction
+    )

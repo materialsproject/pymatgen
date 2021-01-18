@@ -5,15 +5,14 @@ entries given to the CorrectionCalculator constructor.
 
 import warnings
 from collections import OrderedDict
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Sequence
 
 import numpy as np
 import plotly.graph_objects as go
-import ruamel.yaml
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
 
-from pymatgen import Composition, Element
+from pymatgen import Composition, Element, yaml
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 
@@ -44,7 +43,7 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: List[str] = [
+        species: Sequence[str] = (
             "oxide",
             "peroxide",
             "superoxide",
@@ -67,10 +66,10 @@ class CorrectionCalculator:
             "W",
             "Mo",
             "H",
-        ],
+        ),
         max_error: float = 0.1,
         allow_unstable: Union[float, bool] = 0.1,
-        exclude_polyanions: List[str] = [
+        exclude_polyanions: Sequence[str] = (
             "SO4",
             "CO3",
             "NO3",
@@ -79,7 +78,7 @@ class CorrectionCalculator:
             "SeO3",
             "TiO3",
             "TiO4",
-        ],
+        ),
     ) -> None:
         """
         Initializes a CorrectionCalculator.
@@ -386,12 +385,7 @@ class CorrectionCalculator:
         diffs_cpy = self.diffs.copy()
         num = len(labels_species)
 
-        if (
-            specie == "oxide"
-            or specie == "peroxide"
-            or specie == "superoxide"
-            or specie == "S"
-        ):
+        if specie in ('oxide', 'peroxide', 'superoxide', 'S'):
             if specie == "oxide":
                 compounds = self.oxides
             elif specie == "peroxide":
@@ -499,32 +493,32 @@ class CorrectionCalculator:
 
         fn = name + "Compatibility.yaml"
         file = open(fn, "w")
-        yaml = ruamel.yaml.YAML()
-        yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
-        yaml.default_flow_style = False
-        contents = yaml.load(outline)
+        yml = yaml.YAML()
+        yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
+        yml.default_flow_style = False
+        contents = yml.load(outline)
 
         contents["Name"] = name
 
         # make CommentedMap so comments can be added
         contents["Corrections"]["GGAUMixingCorrections"][
             "O"
-        ] = ruamel.yaml.comments.CommentedMap(o)
+        ] = yaml.comments.CommentedMap(o)
         contents["Corrections"]["GGAUMixingCorrections"][
             "F"
-        ] = ruamel.yaml.comments.CommentedMap(f)
+        ] = yaml.comments.CommentedMap(f)
         contents["Corrections"][
             "CompositionCorrections"
-        ] = ruamel.yaml.comments.CommentedMap(comp_corr)
+        ] = yaml.comments.CommentedMap(comp_corr)
         contents["Uncertainties"]["GGAUMixingCorrections"][
             "O"
-        ] = ruamel.yaml.comments.CommentedMap(o_error)
+        ] = yaml.comments.CommentedMap(o_error)
         contents["Uncertainties"]["GGAUMixingCorrections"][
             "F"
-        ] = ruamel.yaml.comments.CommentedMap(f_error)
+        ] = yaml.comments.CommentedMap(f_error)
         contents["Uncertainties"][
             "CompositionCorrections"
-        ] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
+        ] = yaml.comments.CommentedMap(comp_corr_error)
 
         contents["Corrections"].yaml_set_start_comment(
             "Energy corrections in eV/atom", indent=2

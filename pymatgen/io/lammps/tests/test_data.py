@@ -10,9 +10,8 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from ruamel.yaml import YAML
 
-from pymatgen import Element, Lattice, Molecule, Structure
+from pymatgen import Element, Lattice, Molecule, Structure, yaml
 from pymatgen.io.lammps.data import (
     CombinedData,
     ForceField,
@@ -22,7 +21,6 @@ from pymatgen.io.lammps.data import (
     lattice_2_lmpbox,
     structure_2_lmpdata,
 )
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
@@ -297,7 +295,7 @@ class LammpsDataTest(unittest.TestCase):
         virus = self.virus.get_string()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
-        self.assertEqual(pairij_coeff.strip(), "1  4  1  1.000  1.12250")
+        self.assertEqual(pairij_coeff.strip().split(), ["1", "4", "1", "1.000", "1.12250"])
 
     def test_write_file(self):
         filename1 = "test1.data"
@@ -821,9 +819,9 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
-        yaml = YAML(typ="safe")
+        yml = yaml.YAML(typ="safe")
         with open(filename, "r") as f:
-            d = yaml.load(f)
+            d = yml.load(f)
         self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
         self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)
 
