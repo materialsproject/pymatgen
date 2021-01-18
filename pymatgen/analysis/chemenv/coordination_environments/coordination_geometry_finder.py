@@ -1953,18 +1953,19 @@ class LocalGeometryFinder:
         sepplane,
         local_plane,
         plane_separations,
-        dist_tolerances=DIST_TOLERANCES,
+        dist_tolerances=None,
         testing=False,
         tested_permutations=False,
         points_perfect=None,
     ):
         argref_separation = sepplane.argsorted_ref_separation_perm
         plane_found = False
+        permutations = []
+        permutations_symmetry_measures = []
+        if testing:
+            separation_permutations = []
+        dist_tolerances = dist_tolerances or DIST_TOLERANCES
         for dist_tolerance in dist_tolerances:
-            permutations = []
-            permutations_symmetry_measures = []
-            if testing:
-                separation_permutations = []
             algo = "NOT_FOUND"
             separation = local_plane.indices_separate(
                 self.local_geometry._coords, dist_tolerance
