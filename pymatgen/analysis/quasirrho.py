@@ -39,7 +39,8 @@ bohr2angs = 0.52917721092
 
 class QuasiRRHO:
     """
-    Class to calculate thermochemistry using Grimme's Quasi-RRHO approximation
+    Class to calculate thermochemistry using Grimme's Quasi-RRHO approximation.
+    All outputs are in atomic units.
     """
 
     def __init__(self, output: Union[GaussianOutput, QCOutput, dict],
@@ -67,6 +68,10 @@ class QuasiRRHO:
         self.press = press
         self.conc = conc
         self.v0 = v0
+
+        self.entropy_quasiRRHO = None # Ha/K
+        self.free_energy_quasiRRHO = None # Ha
+        self.concentration_corrected_g_quasiRRHO = None # Ha
 
         if isinstance(output, GaussianOutput):
             mult = output.spin_multiplicity
