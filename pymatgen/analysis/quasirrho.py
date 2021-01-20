@@ -69,9 +69,9 @@ class QuasiRRHO:
         self.conc = conc
         self.v0 = v0
 
-        self.entropy_quasiRRHO = None # Ha/K
-        self.free_energy_quasiRRHO = None # Ha
-        self.concentration_corrected_g_quasiRRHO = None # Ha
+        self.entropy_quasiRRHO = None  # Ha/K
+        self.free_energy_quasiRRHO = None  # Ha
+        self.concentration_corrected_g_quasiRRHO = None  # Ha
 
         if isinstance(output, GaussianOutput):
             mult = output.spin_multiplicity
