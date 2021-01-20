@@ -44,7 +44,7 @@ def package_files(directory, extensions):
             if any([filename.endswith(ext) for ext in extensions]):
                 paths.append(os.path.join('..', path, filename))
     return paths
-json_yaml_csv_files = package_files('pymatgen', ['yaml', 'json', 'csv'])
+json_yaml_csv_files = package_files('pymatgen', ['yaml', 'json', 'csv', 'yaml.gz', 'json.gz', 'csv.gz'])
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
