@@ -929,7 +929,7 @@ class BSPlotter:
             plt.legend(handles=handles)
         return plt
 
-    def plot_brillouin(self):
+    def plot_brillouin(self, ax=None):
         """
         plot the Brillouin zone
         """
@@ -949,7 +949,7 @@ class BSPlotter:
                 ]
             )
 
-        plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
+        plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels, ax=ax)
 
 
 class BSPlotterProjected(BSPlotter):

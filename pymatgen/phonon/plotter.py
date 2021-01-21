@@ -529,7 +529,7 @@ class PhononBSPlotter:
 
         return plt
 
-    def plot_brillouin(self):
+    def plot_brillouin(self, ax=None):
         """
         plot the Brillouin zone
         """
@@ -549,7 +549,7 @@ class PhononBSPlotter:
                 ]
             )
 
-        plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
+        plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels, ax=ax)
 
 
 class ThermoPlotter:
