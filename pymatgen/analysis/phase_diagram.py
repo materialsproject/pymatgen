@@ -1498,7 +1498,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         entries,
         elements=None,
         keep_all_spaces=False,
-        workers=1,
+        workers=0,
     ):
         """
         Args:
@@ -1512,15 +1512,13 @@ class PatchedPhaseDiagram(PhaseDiagram):
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
                 that are subspaces of other spaces.
             workers (int): Number of cores to use for applying transformations.
-                Uses multiprocessing.Pool. Default is `1`, which implies
+                Uses multiprocessing.Pool. Default is `0`, which implies
                 serial. Setting the number of workers to `-1` will use the maximum
                 number of cpu cores available.
         """
         # TODO replace with if not x
         assert isinstance(workers, int), "only integer numbers of workers allowed"
 
-        if workers == -1:
-            workers = cpu_count()
 
         assert workers <= cpu_count() and workers > 0, "workers must satisfy 0 < workers <= cores"
 
@@ -1561,9 +1559,12 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         func = partial(_get_pd_for_space, **{"entries": min_entries})
 
-        if workers == 1:
+        if workers == 0:
             results = [func(space) for space in spaces]
         else:
+            if workers == -1:
+                workers = cpu_count()
+
             with Pool(workers) as p:
                 results = p.map(
                     func=func,
@@ -1588,12 +1589,12 @@ class PatchedPhaseDiagram(PhaseDiagram):
         return "".join(output)
 
     @classmethod
-    def from_dict(cls, d, workers=1):
+    def from_dict(cls, d, workers=0):
         """
         Args:
             d (dict): dictionary representation of PatchedPhaseDiagram
             workers (int): Number of cores to use for applying transformations.
-                Uses multiprocessing.Pool. Default is `1`, which implies
+                Uses multiprocessing.Pool. Default is `0`, which implies
                 serial. Setting the number of workers to `-1` will use the maximum
                 number of cpu cores available.
 
@@ -1641,7 +1642,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 entry_pds[space] = self.pds[space]
 
         if not entry_pds:
-            raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
+            raise ValueError(
+                "No suitable PhaseDiagrams found for {}.".format(entry)
+            )
 
         return entry_pds
 
@@ -1717,7 +1720,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`_get_facet_and_simplex` not implemented for PatchedPhaseDiagram"
+            "`_get_all_facets_and_simplexes` not implemented for PatchedPhaseDiagram"
         )
 
     def _get_facet_chempots(self):
