@@ -323,6 +323,14 @@ class PhaseDiagramTest(unittest.TestCase):
             "Novel scaled duplicates of stable entries should have same decomposition energy!",
         )
 
+        comp_entry = ComputedEntry("Li", 0.0, 0.0, entry_id="test")
+        self.assertRaises(
+            ValueError,
+            self.pd.get_quasi_e_to_hull,
+            comp_entry,
+            msg="`get_quasi_e_to_hull` not compatible with `ComputedEntry`"
+        )
+
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
             self.assertEqual(

@@ -25,6 +25,7 @@ from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, get_el_sp
 from pymatgen.entries import Entry
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify
@@ -626,7 +627,8 @@ class BasePhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
+        # NOTE scaled duplicates of stable_entries will not be caught.
+        if entry not in self.stable_entries:
             raise ValueError(
                 "{} is unstable, the equilibrium reaction energy is"
                 "available only for stable entries.".format(entry)
@@ -635,11 +637,7 @@ class BasePhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        entries = [
-            e
-            for e in self.stable_entries
-            if e.normalize(inplace=False) != entry.normalize(inplace=False)
-        ]
+        entries = [e for e in self.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
@@ -686,6 +684,13 @@ class BasePhaseDiagram(MSONable):
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The energy is given per atom.
         """
+        # NOTE doesn't work due to differences in how __hash__ and __eq__ are
+        # handled between PDEntry and ComputedEntry
+        if isinstance(entry, ComputedEntry):
+            raise ValueError(
+            "`get_quasi_e_to_hull` is not compatible with `ComputedEntry`"
+        )
+
         # For unstable or novel materials use simplex approach
         if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
@@ -771,6 +776,13 @@ class BasePhaseDiagram(MSONable):
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0.
         """
+        # NOTE doesn't work due to differences in how __hash__ and __eq__ are
+        # handled between PDEntry and ComputedEntry
+        if isinstance(entry, ComputedEntry):
+            raise ValueError(
+            "`get_quasi_e_to_hull` is not compatible with `ComputedEntry`"
+        )
+
         # Handle unstable and novel materials
         if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
