@@ -688,8 +688,8 @@ class BasePhaseDiagram(MSONable):
         # handled between PDEntry and ComputedEntry
         if isinstance(entry, ComputedEntry):
             raise ValueError(
-            "`get_quasi_e_to_hull` is not compatible with `ComputedEntry`"
-        )
+                "`get_quasi_e_to_hull` is not compatible with `ComputedEntry`"
+            )
 
         # For unstable or novel materials use simplex approach
         if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
@@ -780,8 +780,8 @@ class BasePhaseDiagram(MSONable):
         # handled between PDEntry and ComputedEntry
         if isinstance(entry, ComputedEntry):
             raise ValueError(
-            "`get_quasi_e_to_hull` is not compatible with `ComputedEntry`"
-        )
+                "`get_quasi_e_to_hull` is not compatible with `ComputedEntry`"
+            )
 
         # Handle unstable and novel materials
         if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
