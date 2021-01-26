@@ -87,14 +87,14 @@ _runl2tolname = {
 
 # Tolerances for the different levels of accuracy.
 
-Tolerance = namedtuple("Tolerance", "low normal high")
+T = namedtuple("T", "low normal high")
 _tolerances = {
-    "toldfe": Tolerance(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolvrs": Tolerance(1.0e-7, 1.0e-8, 1.0e-9),
-    "tolwfr": Tolerance(1.0e-15, 1.0e-17, 1.0e-19),
-    "tolrff": Tolerance(0.04, 0.02, 0.01),
+    "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
+    "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
+    "tolwfr": T(1.0e-15, 1.0e-17, 1.0e-19),
+    "tolrff": T(0.04, 0.02, 0.01),
 }
-del Tolerance
+del T
 
 
 # Default values used if user does not specify them

@@ -342,7 +342,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         # Get hints from dojoreport. Try first in hints then in ppgen_hints.
         if "hints" in self.dojo_report:
             return Hint.from_dict(self.dojo_report["hints"][accuracy])
-        if "ppgen_hints" in self.dojo_report:
+        elif "ppgen_hints" in self.dojo_report:
             return Hint.from_dict(self.dojo_report["ppgen_hints"][accuracy])
         return Hint(ecut=0.0, pawecutdg=0.0)
 
@@ -586,7 +586,8 @@ class Hint:
     def __str__(self):
         if self.pawecutdg is not None:
             return "ecut: %s, pawecutdg: %s" % (self.ecut, self.pawecutdg)
-        return "ecut: %s" % (self.ecut)
+        else:
+            return "ecut: %s" % (self.ecut)
 
     @pmg_serialize
     def as_dict(self):
@@ -683,10 +684,11 @@ def _int_from_str(string):
     int_num = int(float_num)
     if float_num == int_num:
         return int_num
-    # Needed to handle pseudos with fractional charge
-    int_num = np.rint(float_num)
-    logger.warning("Converting float %s to int %s" % (float_num, int_num))
-    return int_num
+    else:
+        # Needed to handle pseudos with fractional charge
+        int_num = np.rint(float_num)
+        logger.warning("Converting float %s to int %s" % (float_num, int_num))
+        return int_num
 
 
 class NcAbinitHeader(AbinitHeader):
@@ -1135,45 +1137,48 @@ class PseudoParser:
         if filename.endswith(".xml"):
             raise self.Error("XML pseudo not supported yet")
 
-        # Assume file with the abinit header.
-        lines = _read_nlines(filename, 80)
-        for lineno, line in enumerate(lines):
-            if lineno == 2:
-                try:
-                    tokens = line.split()
-                    pspcod, pspxc = map(int, tokens[:2])
-                except Exception:
-                    msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (
-                        filename,
-                        line,
-                    )
-                    logger.critical(msg)
-                    return None
+        else:
+            # Assume file with the abinit header.
+            lines = _read_nlines(filename, 80)
 
-                # if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
-                #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
-                #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                #    return None
+            for lineno, line in enumerate(lines):
 
-                if pspcod not in self._PSPCODES:
-                    raise self.Error(
-                        "%s: Don't know how to handle pspcod %s\n"
-                        % (filename, pspcod)
-                    )
+                if lineno == 2:
+                    try:
+                        tokens = line.split()
+                        pspcod, pspxc = map(int, tokens[:2])
+                    except Exception:
+                        msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (
+                            filename,
+                            line,
+                        )
+                        logger.critical(msg)
+                        return None
 
-                ppdesc = self._PSPCODES[pspcod]
-
-                if pspcod == 7:
-                    # PAW -> need to know the format pspfmt
-                    tokens = lines[lineno + 1].split()
-                    pspfmt, creatorID = tokens[:2]
-                    # if tokens[-1].strip() != "pspfmt,creatorID":
-                    #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
+                    # if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
+                    #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
+                    #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
                     #    return None
 
-                    ppdesc = ppdesc._replace(format=pspfmt)
+                    if pspcod not in self._PSPCODES:
+                        raise self.Error(
+                            "%s: Don't know how to handle pspcod %s\n"
+                            % (filename, pspcod)
+                        )
 
-                return ppdesc
+                    ppdesc = self._PSPCODES[pspcod]
+
+                    if pspcod == 7:
+                        # PAW -> need to know the format pspfmt
+                        tokens = lines[lineno + 1].split()
+                        pspfmt, creatorID = tokens[:2]
+                        # if tokens[-1].strip() != "pspfmt,creatorID":
+                        #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
+                        #    return None
+
+                        ppdesc = ppdesc._replace(format=pspfmt)
+
+                    return ppdesc
 
             return None
 
@@ -1226,20 +1231,11 @@ class PseudoParser:
 
 # TODO use RadialFunction from pseudo_dojo.
 class RadialFunction(namedtuple("RadialFunction", "mesh values")):
-    """
-    A RadialFunction class.
-    """
     pass
 
 
 class PawXmlSetup(Pseudo, PawPseudo):
-    """
-    Setup class for PawXml.
-    """
     def __init__(self, filepath):
-        """
-        :param filepath:
-        """
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1310,11 +1306,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
 
+    @lazy_property
     def root(self):
-        """
-        :return: Root of the tree.
-        """
         from xml.etree import cElementTree as Et
+
         tree = Et.parse(self.filepath)
         return tree.getroot()
 
@@ -1698,7 +1693,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
             for znum in iterator_from_slice(Z):
                 pseudos.extend(self._pseudos_with_z[znum])
             return self.__class__(pseudos)
-        return self.__class__(self._pseudos_with_z[Z])
+        else:
+            return self.__class__(self._pseudos_with_z[Z])
 
     def __len__(self):
         return len(list(self.__iter__()))
@@ -1808,7 +1804,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
         if not allow_multi:
             return pseudos[0]
-        return pseudos
+        else:
+            return pseudos
 
     def pseudos_with_symbols(self, symbols):
         """
@@ -1870,7 +1867,8 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
         if ret_list:
             return pseudos
-        return self.__class__(pseudos)
+        else:
+            return self.__class__(pseudos)
 
     def get_pseudos_for_structure(self, structure):
         """
