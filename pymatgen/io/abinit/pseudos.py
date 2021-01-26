@@ -1310,13 +1310,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
 
-    @lazy_property
     def root(self):
         """
         :return: Root of the tree.
         """
         from xml.etree import cElementTree as Et
-
         tree = Et.parse(self.filepath)
         return tree.getroot()
 
