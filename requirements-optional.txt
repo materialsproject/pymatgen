@@ -1,4 +1,4 @@
-pybtex==0.23.0
+pybtex==0.24.0
 tqdm==4.56.0
 ase==3.19.0
 chemview==0.6
