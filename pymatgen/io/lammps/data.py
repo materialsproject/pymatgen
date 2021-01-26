@@ -29,8 +29,8 @@ import pandas as pd
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
-from ruamel.yaml import YAML
 
+from pymatgen import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -1326,9 +1326,9 @@ class ForceField(MSONable):
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        yaml = YAML(typ="safe")
+        yml = yaml.YAML(typ="safe")
         with open(filename, "w") as f:
-            yaml.dump(d, f)
+            yml.dump(d, f)
 
     @classmethod
     def from_file(cls, filename):
@@ -1339,9 +1339,9 @@ class ForceField(MSONable):
             filename (str): Filename.
 
         """
-        yaml = YAML(typ="safe")
+        yml = yaml.YAML(typ="safe")
         with open(filename, "r") as f:
-            d = yaml.load(f)
+            d = yml.load(f)
         return cls.from_dict(d)
 
     @classmethod

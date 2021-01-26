@@ -36,7 +36,7 @@ class ChemicalShielding(SquareTensor):
     """
 
     HaeberlenNotation = namedtuple(
-        "HaeberlenNotion", "sigma_iso, delta_sigma_iso, zeta, eta"
+        "HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta"
     )
     MehringNotation = namedtuple(
         "MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33"

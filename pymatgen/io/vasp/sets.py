@@ -308,6 +308,7 @@ class DictSet(VaspInputSet):
         standardize=False,
         sym_prec=0.1,
         international_monoclinic=True,
+        validate_magmom=True,
     ):
         """
         Args:
@@ -372,11 +373,15 @@ class DictSet(VaspInputSet):
             sym_prec (float): Tolerance for symmetry finding.
             international_monoclinic (bool): Whether to use international convention
                 (vs Curtarolo) for monoclinic. Defaults True.
+            validate_magmom (bool): Ensure that the missing magmom values are filled
+                in with the vasp default value of 1.0
         """
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
             structure = structure.get_sorted_structure()
+        if validate_magmom:
+            get_valid_magmom_struct(structure, spin_mode="auto", inplace=True)
 
         self._structure = structure
         self._config_dict = deepcopy(config_dict)
@@ -3187,3 +3192,57 @@ _dummy_structure = Structure(
     [[0, 0, 0]],
     site_properties={"magmom": [[0, 0, 1]]},
 )
+
+
+def get_valid_magmom_struct(structure, inplace=True, spin_mode="auto"):
+    """
+    Make sure that the structure is valid magmoms based on the kind of caculation
+    Fill in missing Magmom values
+
+    Args:
+        structure: The input structure
+        inplace: True - edit the magmom of the input structurel; False - return new structure
+        spin_mode: "scalar"/"vector"/"none"/"auto" only first letter (s/v/n) is needed.
+            dictates how the spin configuration will be determined.
+
+            - auto: read the existing magmom values and decide
+            - scalar: use a single scalar value (for spin up/down)
+            - vector: use a vector value for spin-orbit systems
+            - none: Remove all the magmom information
+
+    Returns:
+        New structure if inplace == False
+    """
+    default_values = {"s": 1.0, "v": [1.0, 1.0, 1.0], "n": None}
+    if spin_mode[0].lower() == "a":
+        mode = "n"
+        for isite in structure.sites:
+            if "magmom" not in isite.properties or isite.properties["magmom"] is None:
+                pass
+            elif isinstance(isite.properties["magmom"], float):
+                if mode == "v":
+                    raise TypeError("Magmom type conflict")
+                mode = "s"
+            elif len(isite.properties["magmom"]) == 3:
+                if mode == "s":
+                    raise TypeError("Magmom type conflict")
+                mode = "v"
+            else:
+                raise TypeError("Unrecognized Magmom Value")
+    else:
+        mode = spin_mode[0].lower()
+
+    if not inplace:
+        new_struct = structure.copy()
+    else:
+        new_struct = structure
+    for isite in new_struct.sites:
+        if mode == "n":
+            if "magmom" in isite.properties:
+                isite.properties.pop("magmom")
+        elif "magmom" not in isite.properties or isite.properties["magmom"] is None:
+            isite.properties["magmom"] = default_values[mode]
+
+    if not inplace:
+        return new_struct
+    return None

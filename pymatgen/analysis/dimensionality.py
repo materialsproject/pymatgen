@@ -456,7 +456,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
         for j in range(i + 1, n_atoms):
             max_bond_length = ldict[species[i]] + ldict[species[j]] + tolerance
             frac_diff = fc_diff[j] - fc_copy[i]
-            distance_ij = np.dot(latmat.T, frac_diff)
+            distance_ij = np.dot(latmat.Tolerance, frac_diff)
             # print(np.linalg.norm(distance_ij,axis=0))
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
                 connected_matrix[i, j] = 1

@@ -454,13 +454,13 @@ class EnumerateStructureTransformation(AbstractTransformation):
             )
             try:
                 adaptor.run()
+                structures = adaptor.structures
+                if structures:
+                    break
             except EnumError:
                 warnings.warn(
                     "Unable to enumerate for max_cell_size = {}".format(max_cell_size)
                 )
-            structures = adaptor.structures
-            if structures:
-                break
 
         if structures is None:
             raise ValueError("Unable to enumerate")
@@ -2027,7 +2027,7 @@ def _proj(b, a):
     Returns vector projection (np.ndarray) of vector b (np.ndarray)
     onto vector a (np.ndarray)
     """
-    return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
+    return (b.Tolerance @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
 
 
 class SQSTransformation(AbstractTransformation):

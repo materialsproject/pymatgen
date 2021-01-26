@@ -202,7 +202,7 @@ class CifIOTest(PymatgenTest):
             self.assertEqual(
                 s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
             )
-        cif_str = """#\#CIF1.1
+        cif_str = r"""#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file
 #               Produced by PyCifRW module

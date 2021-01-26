@@ -16,8 +16,6 @@ __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
 __date__ = "June 22, 2017"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class JhuTest(PymatgenTest):
     _multiprocess_shared_ = True

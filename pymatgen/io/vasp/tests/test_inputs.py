@@ -32,7 +32,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class PoscarTest(PymatgenTest):
     def test_init(self):
-        filepath = self.TEST_FILES_DIR / "POSCAR"
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
@@ -88,7 +88,7 @@ direct
         self.selective_poscar = poscar
 
     def test_from_file(self):
-        filepath = self.TEST_FILES_DIR / "POSCAR.symbols_natoms_multilines"
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR.symbols_natoms_multilines"
         poscar = Poscar.from_file(
             filepath, check_for_POTCAR=False, read_velocities=False
         )
@@ -273,7 +273,7 @@ direct
 
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
-        p = Poscar.from_file(self.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
+        p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
         self.assertAlmostEqual(np.sum(np.array(p.velocities)), 0.0065417961324)
         self.assertEqual(p.predictor_corrector[0][0][0], 0.33387820e00)
         self.assertEqual(p.predictor_corrector[0][1][1], -0.10583589e-02)
@@ -281,7 +281,7 @@ direct
     def test_write_MD_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         # And writing a new POSCAR from the new structure
-        p = Poscar.from_file(self.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
+        p = Poscar.from_file(PymatgenTest.TEST_FILES_DIR / "CONTCAR.MD", check_for_POTCAR=False)
 
         tempfname = Path("POSCAR.testing.md")
         p.write_file(tempfname)
@@ -298,7 +298,7 @@ direct
         tempfname.unlink()
 
     def test_setattr(self):
-        filepath = self.TEST_FILES_DIR / "POSCAR"
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, "velocities", [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -387,7 +387,7 @@ direct
         )
 
     def test_write(self):
-        filepath = self.TEST_FILES_DIR / "POSCAR"
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         tempfname = Path("POSCAR.testing")
         poscar.write_file(tempfname)
@@ -400,7 +400,7 @@ direct
 
 class IncarTest(PymatgenTest):
     def setUp(self):
-        file_name = self.TEST_FILES_DIR / "INCAR"
+        file_name = PymatgenTest.TEST_FILES_DIR / "INCAR"
         self.incar = Incar.from_file(file_name)
 
     def test_init(self):
@@ -412,11 +412,11 @@ class IncarTest(PymatgenTest):
 
     def test_diff(self):
         incar = self.incar
-        filepath1 = self.TEST_FILES_DIR / "INCAR"
+        filepath1 = PymatgenTest.TEST_FILES_DIR / "INCAR"
         incar1 = Incar.from_file(filepath1)
-        filepath2 = self.TEST_FILES_DIR / "INCAR.2"
+        filepath2 = PymatgenTest.TEST_FILES_DIR / "INCAR.2"
         incar2 = Incar.from_file(filepath2)
-        filepath3 = self.TEST_FILES_DIR / "INCAR.3"
+        filepath3 = PymatgenTest.TEST_FILES_DIR / "INCAR.3"
         incar3 = Incar.from_file(filepath2)
         self.assertEqual(
             incar1.diff(incar2),
@@ -751,10 +751,10 @@ SIGMA = 0.1"""
 
 class KpointsTest(PymatgenTest):
     def test_init(self):
-        filepath = self.TEST_FILES_DIR / "KPOINTS.auto"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.kpts, [[10]], "Wrong kpoint lattice read")
-        filepath = self.TEST_FILES_DIR / "KPOINTS.cartesian"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.cartesian"
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(
             kpoints.kpts,
@@ -763,19 +763,19 @@ class KpointsTest(PymatgenTest):
         )
         self.assertEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5], "Wrong kpoint shift read")
 
-        filepath = self.TEST_FILES_DIR / "KPOINTS"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.kpoints = kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 6]])
 
-        filepath = self.TEST_FILES_DIR / "KPOINTS.band"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.band"
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Line_mode)
         kpoints_str = str(kpoints)
         self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
 
-        filepath = self.TEST_FILES_DIR / "KPOINTS.explicit"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.explicit"
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.kpts_weights)
         self.assertEqual(
@@ -789,12 +789,12 @@ Cartesian
 0.5 0.5 0.5 4 None""",
         )
 
-        filepath = self.TEST_FILES_DIR / "KPOINTS.explicit_tet"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.explicit_tet"
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.tet_connections, [(6, [1, 2, 3, 4])])
 
     def test_style_setter(self):
-        filepath = self.TEST_FILES_DIR / "KPOINTS"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Monkhorst)
         kpoints.style = "G"
@@ -810,7 +810,7 @@ Cartesian
         kpoints = Kpoints.automatic(100)
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Automatic)
         self.assertEqual(kpoints.kpts, [[100]])
-        filepath = self.TEST_FILES_DIR / "POSCAR"
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[1, 3, 3]])
@@ -845,7 +845,7 @@ G
         self.assertEqual(k.kpts_shift, k2.kpts_shift)
 
     def test_kpt_bands_as_dict_from_dict(self):
-        file_name = self.TEST_FILES_DIR / "KPOINTS.band"
+        file_name = PymatgenTest.TEST_FILES_DIR / "KPOINTS.band"
         k = Kpoints.from_file(file_name)
         d = k.as_dict()
         import json
@@ -884,7 +884,7 @@ class PotcarSingleTest(PymatgenTest):
 
     def setUp(self):
         self.psingle = PotcarSingle.from_file(
-            self.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Mn_pv.gz"
+            PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Mn_pv.gz"
         )
 
     def test_keywords(self):
@@ -968,7 +968,7 @@ class PotcarSingleTest(PymatgenTest):
         self.assertEqual(self.psingle.potential_type, "PAW")
 
         psingle = PotcarSingle.from_file(
-            self.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz"
+            PymatgenTest.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz"
         )
 
         self.assertEqual(psingle.functional, "Perdew-Zunger81")
@@ -978,7 +978,7 @@ class PotcarSingleTest(PymatgenTest):
         self.assertEqual(psingle.potential_type, "PAW")
 
     def test_identify_potcar(self):
-        filename = self.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
+        filename = PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz"
 
         with pytest.warns(None) as warning:
             psingle = PotcarSingle.from_file(filename)
@@ -988,7 +988,7 @@ class PotcarSingleTest(PymatgenTest):
 
     def test_potcar_hash_warning(self):
         filename = (
-            self.TEST_FILES_DIR
+            PymatgenTest.TEST_FILES_DIR
             / "modified_potcars_data"
             / "POT_GGA_PAW_PBE"
             / "POTCAR.Fe_pv"
@@ -998,7 +998,7 @@ class PotcarSingleTest(PymatgenTest):
 
     def test_potcar_file_hash_warning(self):
         filename = (
-            self.TEST_FILES_DIR
+            PymatgenTest.TEST_FILES_DIR
             / "modified_potcars_header"
             / "POT_GGA_PAW_PBE"
             / "POTCAR.Fe_pv"
@@ -1018,8 +1018,8 @@ class PotcarSingleTest(PymatgenTest):
 class PotcarTest(PymatgenTest):
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in os.environ:
-            os.environ["PMG_VASP_PSP_DIR"] = str(self.TEST_FILES_DIR)
-        filepath = self.TEST_FILES_DIR / "POTCAR"
+            os.environ["PMG_VASP_PSP_DIR"] = str(PymatgenTest.TEST_FILES_DIR)
+        filepath = PymatgenTest.TEST_FILES_DIR / "POTCAR"
         self.potcar = Potcar.from_file(filepath)
 
     def test_init(self):
@@ -1031,7 +1031,7 @@ class PotcarTest(PymatgenTest):
 
     def test_potcar_map(self):
         fe_potcar = (
-            zopen(self.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz")
+            zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz")
             .read()
             .decode("utf-8")
         )
@@ -1080,15 +1080,15 @@ class PotcarTest(PymatgenTest):
 
 class VaspInputTest(PymatgenTest):
     def setUp(self):
-        filepath = self.TEST_FILES_DIR / "INCAR"
+        filepath = PymatgenTest.TEST_FILES_DIR / "INCAR"
         incar = Incar.from_file(filepath)
-        filepath = self.TEST_FILES_DIR / "POSCAR"
+        filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
-            os.environ["PMG_VASP_PSP_DIR"] = str(self.TEST_FILES_DIR)
-        filepath = self.TEST_FILES_DIR / "POTCAR"
+            os.environ["PMG_VASP_PSP_DIR"] = str(PymatgenTest.TEST_FILES_DIR)
+        filepath = PymatgenTest.TEST_FILES_DIR / "POTCAR"
         potcar = Potcar.from_file(filepath)
-        filepath = self.TEST_FILES_DIR / "KPOINTS.auto"
+        filepath = PymatgenTest.TEST_FILES_DIR / "KPOINTS.auto"
         kpoints = Kpoints.from_file(filepath)
         self.vinput = VaspInput(incar, kpoints, poscar, potcar)
 
@@ -1121,7 +1121,7 @@ class VaspInputTest(PymatgenTest):
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(
-            self.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar}
+            PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar}
         )
         self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
         self.assertIn("CONTCAR.Li2O", vi)

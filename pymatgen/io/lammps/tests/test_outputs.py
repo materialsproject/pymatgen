@@ -9,10 +9,9 @@ import numpy as np
 import pandas as pd
 
 from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
 class LammpsDumpTest(unittest.TestCase):

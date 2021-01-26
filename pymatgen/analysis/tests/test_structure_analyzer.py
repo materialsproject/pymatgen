@@ -25,14 +25,12 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class VoronoiAnalyzerTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.ss = Xdatcar(os.path.join(test_dir, "XDATCAR.MD")).structures
+        self.ss = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD")).structures
         self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4.0)
 
@@ -59,11 +57,11 @@ class VoronoiAnalyzerTest(PymatgenTest):
 class RelaxationAnalyzerTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.Li2O"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O"), check_for_POTCAR=False
         )
         s1 = p.structure
         p = Poscar.from_file(
-            os.path.join(test_dir, "CONTCAR.Li2O"), check_for_POTCAR=False
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "CONTCAR.Li2O"), check_for_POTCAR=False
         )
         s2 = p.structure
         self.analyzer = RelaxationAnalyzer(s1, s2)
@@ -102,7 +100,7 @@ class VoronoiConnectivityTest(PymatgenTest):
 
 class MiscFunctionTest(PymatgenTest):
     def test_average_coordination_number(self):
-        xdatcar = Xdatcar(os.path.join(test_dir, "XDATCAR.MD"))
+        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD"))
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
         self.assertAlmostEqual(
             coordination_numbers["Fe"],

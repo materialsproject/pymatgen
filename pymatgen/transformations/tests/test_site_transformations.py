@@ -20,7 +20,9 @@ from pymatgen.transformations.site_transformations import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-enumlib_present = which("multienum.x") and which("makestr.x")
+enum_cmd = which("enum.x") or which("multienum.x")
+makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
+enumlib_present = enum_cmd and makestr_cmd
 
 
 class TranslateSitesTransformationTest(PymatgenTest):

@@ -20,8 +20,6 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class TransformedStructureTest(PymatgenTest):
     def setUp(self):
@@ -74,7 +72,7 @@ class TransformedStructureTest(PymatgenTest):
         )
 
     def test_from_dict(self):
-        d = json.load(open(os.path.join(test_dir, "transformations.json"), "r"))
+        d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json"), "r"))
         d["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(d)
         ts.other_parameters["author"] = "Will"

@@ -21,12 +21,10 @@ from pymatgen.electronic_structure.dos import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class DosTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
@@ -58,7 +56,7 @@ class DosTest(unittest.TestCase):
 
 class FermiDosTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
         self.dos = FermiDos(self.dos)
 
@@ -105,7 +103,7 @@ class FermiDosTest(unittest.TestCase):
 
 class CompleteDosTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
             self.dos = CompleteDos.from_dict(json.load(f))
 
     def test_get_gap(self):
@@ -200,7 +198,7 @@ class CompleteDosTest(unittest.TestCase):
 
 class DOSTest(PymatgenTest):
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
             d = json.load(f)
             y = list(zip(d["densities"]["1"], d["densities"]["-1"]))
             self.dos = DOS(d["energies"], y, d["efermi"])
@@ -231,7 +229,7 @@ class DOSTest(PymatgenTest):
 
 class SpinPolarizationTest(unittest.TestCase):
     def test_spin_polarization(self):
-        dos_path = os.path.join(test_dir, "dos_spin_polarization_mp-865805.json")
+        dos_path = os.path.join(PymatgenTest.TEST_FILES_DIR, "dos_spin_polarization_mp-865805.json")
         dos = loadfn(dos_path)
         self.assertAlmostEqual(dos.spin_polarization, 0.6460514663341762)
 
@@ -239,31 +237,31 @@ class SpinPolarizationTest(unittest.TestCase):
 class LobsterCompleteDosTest(unittest.TestCase):
     def setUp(self):
 
-        with open(os.path.join(test_dir, "LobsterCompleteDos_spin.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_spin.json"), "r") as f:
             data_spin = json.load(f)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(os.path.join(test_dir, "LobsterCompleteDos_nonspin.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_nonspin.json"), "r") as f:
             data_nonspin = json.load(f)
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(os.path.join(test_dir, "structure_KF.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_KF.json"), "r") as f:
             data_structure = json.load(f)
         self.structure = Structure.from_dict(data_structure)
 
-        with open(os.path.join(test_dir, "LobsterCompleteDos_MnO.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_MnO.json"), "r") as f:
             data_MnO = json.load(f)
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
         with open(
-            os.path.join(test_dir, "LobsterCompleteDos_MnO_nonspin.json"), "r"
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "LobsterCompleteDos_MnO_nonspin.json"), "r"
         ) as f:
             data_MnO_nonspin = json.load(f)
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(
             data_MnO_nonspin
         )
 
-        with open(os.path.join(test_dir, "structure_MnO.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_MnO.json"), "r") as f:
             data_MnO = json.load(f)
         self.structure_MnO = Structure.from_dict(data_MnO)
 

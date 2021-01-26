@@ -298,7 +298,7 @@ class Polarization:
         # convert polarizations and lattice lengths prior to adjustment
         if convert_to_muC_per_cm2 and not all_in_polar:
             # Convert the total polarization
-            p_tot = np.multiply(units.T[:, np.newaxis], p_tot)
+            p_tot = np.multiply(units.Tolerance[:, np.newaxis], p_tot)
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]

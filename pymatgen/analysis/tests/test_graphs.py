@@ -26,11 +26,8 @@ try:
     from openbabel import openbabel as ob
 except ImportError:
     ob = None
-try:
-    import networkx as nx
-    import networkx.algorithms.isomorphism as iso
-except ImportError:
-    nx = None
+import networkx as nx
+import networkx.algorithms.isomorphism as iso
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -183,7 +180,6 @@ class StructureGraphTest(PymatgenTest):
         self.assertEqual(len(nacl_graph.get_connected_sites(1)), 12)
         self.assertEqual(len(nacl_graph.graph.get_edge_data(1, 1)), 12)
 
-    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_set_node_attributes(self):
         self.square_sg.set_node_attributes()
 
@@ -472,7 +468,7 @@ from    to  to_image
             "bc_square_single.pdf",
             "bc_square.pdf",
             "MoS2_premul.pdf",
-            "MOS2_single.pdf",
+            "MoS2_single.pdf",
             "MoS2_twice_mul.pdf",
             "MoS2.pdf",
             "square_single.pdf",
@@ -753,7 +749,6 @@ class MoleculeGraphTest(unittest.TestCase):
             str(self.cyclohexene.get_connected_sites(0)[0].site.specie), "H"
         )
 
-    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_set_node_attributes(self):
         self.ethylene.set_node_attributes()
 
@@ -817,7 +812,6 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(eth_copy.graph.number_of_nodes(), 5)
         self.assertEqual(eth_copy.graph.number_of_edges(), 2)
 
-    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_split(self):
         bonds = [(0, 1), (4, 5)]
         alterations = {
@@ -882,7 +876,6 @@ class MoleculeGraphTest(unittest.TestCase):
                     atom = split_mg.molecule[j]
                     self.assertEqual(species[j], str(atom.specie))
 
-    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_build_unique_fragments(self):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc, edges)

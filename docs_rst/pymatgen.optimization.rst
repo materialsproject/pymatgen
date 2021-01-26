@@ -17,7 +17,11 @@ Submodules
    pymatgen.optimization.linear_assignment
    pymatgen.optimization.linear_assignment
    pymatgen.optimization.linear_assignment
+   pymatgen.optimization.linear_assignment
+   pymatgen.optimization.linear_assignment
    pymatgen.optimization.linear_assignment_numpy
+   pymatgen.optimization.neighbors
+   pymatgen.optimization.neighbors
    pymatgen.optimization.neighbors
    pymatgen.optimization.neighbors
    pymatgen.optimization.neighbors

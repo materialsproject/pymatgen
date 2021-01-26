@@ -32,7 +32,7 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     site_is_of_motif_type,
-    solid_angle,
+    solid_angle, IsayevNN,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -42,8 +42,6 @@ try:
 except ImportError:
     pb = None
     ob = None
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
@@ -303,10 +301,22 @@ class JmolNNTest(PymatgenTest):
         del self.jmol_update
 
 
+class TestIsayevNN(PymatgenTest):
+
+    def test_get_nn(self):
+        inn = IsayevNN()
+        s = self.get_structure("LiFePO4")
+
+        self.assertEqual(inn.get_cn(s, 0), 2)
+        self.assertEqual(inn.get_cn(s, 5), 6)
+        self.assertEqual(inn.get_cn(s, 10), 4)
+        self.assertEqual(len(inn.get_nn(s, 0)), 2)
+
+
 class OpenBabelNNTest(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
-        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+        self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
     @unittest.skipIf(
         (not (ob and pb)) or (not which("babel")), "OpenBabel not installed."
@@ -352,8 +362,8 @@ class OpenBabelNNTest(PymatgenTest):
 
 class CovalentBondNNTest(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
-        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+        self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
     def test_nn_orders(self):
         strat = CovalentBondNN()

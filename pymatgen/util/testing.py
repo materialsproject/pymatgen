@@ -33,7 +33,13 @@ class PymatgenTest(unittest.TestCase):
     _multiprocess_shared_ = True
     MODULE_DIR = Path(__file__).absolute().parent
     STRUCTURES_DIR = MODULE_DIR / "structures"
-    TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
+    try:
+        TEST_FILES_DIR = Path(SETTINGS["PMG_TEST_FILES_DIR"])
+    except KeyError:
+        import warnings
+        warnings.warn("It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
+                      "Now using a fallback location based on relative path from this module.")
+        TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """
     Dict for test structures to aid testing.
     """

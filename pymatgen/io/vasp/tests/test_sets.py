@@ -144,7 +144,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
-        p = MITRelaxSet(structure, potcar_functional="LDA").potcar
+        p = MITRelaxSet(structure, user_potcar_functional="LDA").potcar
         self.assertEqual(p.functional, "LDA")
 
     def test_nelect(self):
@@ -449,6 +449,46 @@ class MITMPRelaxSetTest(PymatgenTest):
         vis = MPRelaxSet(self.structure, user_potcar_settings={"Fe": "Fe"})
         potcar = vis.potcar
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
+
+    def test_valid_magmom_struct(self):
+        # First test the helper function
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
+        props = [isite.properties for isite in struct.sites]
+        self.assertEquals(props, [{"magmom": [1.0, 1.0, 1.0]}] * len(props))
+
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
+        props = [isite.properties for isite in struct.sites]
+        self.assertEquals(props, [{"magmom": 1.0}] * len(props))
+        struct.insert(0, "Li", [0, 0, 0])
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
+        props = [isite.properties for isite in struct.sites]
+        self.assertEquals(props, [{"magmom": 1.0}] * len(props))
+
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="v")
+        struct.insert(0, "Li", [0, 0, 0], properties={"magmom": 10.0})
+        with self.assertRaises(TypeError) as context:
+            get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="a")
+        self.assertTrue("Magmom type conflict" in str(context.exception))
+
+        # Test the behavior of MPRelaxSet to atomacically fill in the missing magmom
+        struct = self.structure.copy()
+        get_valid_magmom_struct(structure=struct, inplace=True, spin_mode="s")
+        struct.insert(0, "Li", [0, 0, 0])
+
+        vis = MPRelaxSet(
+            struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=False
+        )
+        with self.assertRaises(TypeError) as context:
+            print(vis.get_vasp_input())
+
+        self.assertTrue("argument must be a string" in str(context.exception))
+        vis = MPRelaxSet(
+            struct, user_potcar_settings={"Fe": "Fe"}, validate_magmom=True
+        )
+        self.assertEqual(vis.get_vasp_input()["INCAR"]["MAGMOM"], [1.0] * len(struct))
 
 
 class MPStaticSetTest(PymatgenTest):
@@ -1212,7 +1252,7 @@ class MVLScanRelaxSetTest(PymatgenTest):
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_scan_set = MVLScanRelaxSet(
-            self.struct, potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
+            self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
         )
         warnings.simplefilter("ignore")
 
@@ -1233,11 +1273,11 @@ class MVLScanRelaxSetTest(PymatgenTest):
     def test_potcar(self):
         self.assertEqual(self.mvl_scan_set.potcar.functional, "PBE_52")
 
-        test_potcar_set_1 = MVLScanRelaxSet(self.struct, potcar_functional="PBE_54")
+        test_potcar_set_1 = MVLScanRelaxSet(self.struct, user_potcar_functional="PBE_54")
         self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
 
         self.assertRaises(
-            ValueError, MVLScanRelaxSet, self.struct, potcar_functional="PBE"
+            ValueError, MVLScanRelaxSet, self.struct, user_potcar_functional="PBE"
         )
 
     def test_as_from_dict(self):
@@ -1254,7 +1294,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mp_scan_set = MPScanRelaxSet(
-            self.struct, potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
+            self.struct, user_potcar_functional="PBE_52", user_incar_settings={"NSW": 500}
         )
         warnings.simplefilter("ignore")
 
@@ -1276,7 +1316,7 @@ class MPScanRelaxSetTest(PymatgenTest):
     def test_scan_substitute(self):
         mp_scan_sub = MPScanRelaxSet(
             self.struct,
-            potcar_functional="PBE_52",
+            user_potcar_functional="PBE_52",
             user_incar_settings={"METAGGA": "SCAN"},
         )
         incar = mp_scan_sub.incar
@@ -1326,7 +1366,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
 
         self.assertRaises(
-            ValueError, MPScanRelaxSet, self.struct, potcar_functional="PBE"
+            ValueError, MPScanRelaxSet, self.struct, user_potcar_functional="PBE"
         )
 
     def test_as_from_dict(self):
@@ -1512,7 +1552,7 @@ class MVLRelax52SetTest(PymatgenTest):
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
         self.mvl_rlx_set = MVLRelax52Set(
-            self.struct, potcar_functional="PBE_54", user_incar_settings={"NSW": 500}
+            self.struct, user_potcar_functional="PBE_54", user_incar_settings={"NSW": 500}
         )
         warnings.simplefilter("ignore")
 
@@ -1529,11 +1569,11 @@ class MVLRelax52SetTest(PymatgenTest):
         self.assertIn("Fe", self.mvl_rlx_set.potcar.symbols)
 
         self.struct.remove_species(["Fe"])
-        test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
+        test_potcar_set_1 = MVLRelax52Set(self.struct, user_potcar_functional="PBE_52")
         self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_52")
 
         self.assertRaises(
-            ValueError, MVLRelax52Set, self.struct, potcar_functional="PBE"
+            ValueError, MVLRelax52Set, self.struct, user_potcar_functional="PBE"
         )
 
     def test_potcar_functional_warning(self):

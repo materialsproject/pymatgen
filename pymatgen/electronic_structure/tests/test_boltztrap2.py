@@ -11,6 +11,7 @@ from monty.serialization import loadfn
 
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from pymatgen.electronic_structure.boltztrap2 import (
@@ -28,9 +29,8 @@ except Exception:
 
 # BOLTZTRAP2_PRESENT = False
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files/boltztrap2/"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap2")
+
 
 vrunfile = os.path.join(test_dir, "vasprun.xml")
 vrun = Vasprun(vrunfile, parse_projected_eigen=True)

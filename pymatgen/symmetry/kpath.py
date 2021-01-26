@@ -1103,13 +1103,10 @@ class KPathSeek(KPathBase):
 class KPathLatimerMunro(KPathBase):
     """
     This class looks for a path along high symmetry lines in the
-    Brillouin zone.
-    It is based on the derived symmetry of the energy spectrum
-    for a crystalline solid given by A P Cracknell in J. Phys. C:
-    Solid State Phys. Vol. 6 (1973), pp. 826-840 ('Van Hove
-    singularities and zero-slope points in crystals') and pp. 841-
-    854 ('Van Hove singularities and zero-slope points in magnetic
-    crystals').
+    Brillouin zone. It is based on the method outlined in:
+
+    npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+
     The user should ensure that the lattice of the input structure
     is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
@@ -1217,9 +1214,9 @@ class KPathLatimerMunro(KPathBase):
         # 1: Get lattices of real and reciprocal structures, and reciprocal
         # point group, and Brillouin zone (BZ)
 
-        V = self._latt.matrix.T  # fractional real space to cartesian real space
+        V = self._latt.matrix.Tolerance  # fractional real space to cartesian real space
         # fractional reciprocal space to cartesian reciprocal space
-        W = self._rec_lattice.matrix.T
+        W = self._rec_lattice.matrix.Tolerance
         # fractional real space to fractional reciprocal space
         A = np.dot(np.linalg.inv(W), V)
 
@@ -2024,7 +2021,7 @@ class KPathLatimerMunro(KPathBase):
     def _get_IRBZ(self, recip_point_group, W, key_points, face_center_inds, atol):
         rpgdict = self._get_reciprocal_point_group_dict(recip_point_group, atol)
 
-        g = np.dot(W.T, W)  # just using change of basis matrix rather than
+        g = np.dot(W.Tolerance, W)  # just using change of basis matrix rather than
         # Lattice.get_cartesian_coordinates for conciseness
         ginv = np.linalg.inv(g)
         D = np.linalg.det(W)

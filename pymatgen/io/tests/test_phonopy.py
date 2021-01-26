@@ -19,9 +19,7 @@ if sys.version_info >= (3, 0):
 else:
     Phonopy = None
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "phonopy"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
 
 
 class PhonopyParserTest(PymatgenTest):

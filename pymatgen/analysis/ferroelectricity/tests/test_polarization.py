@@ -1,22 +1,14 @@
 import os
 import unittest
 
-import numpy as np
-
 from pymatgen.analysis.ferroelectricity.polarization import *
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files/BTO_221_99_polarization",
-)
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "BTO_221_99_polarization")
 bto_folders = ["nonpolar_polarization"]
 bto_folders += ["interpolation_{}_polarization".format(str(i)) for i in range(1, 9)][
     ::-1

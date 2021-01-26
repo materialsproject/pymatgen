@@ -178,6 +178,10 @@ class Critic2Caller:
 
         input_script = "\n".join(input_script)
 
+        # store if examining the input script is useful,
+        # not otherwise used
+        self._input_script = input_script
+
         with ScratchDir(".") as temp_dir:
 
             os.chdir(temp_dir)

@@ -24,11 +24,10 @@ from enum import Enum, unique
 from time import sleep
 
 import requests
-import ruamel.yaml as yaml
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, SETTINGS_FILE
+from pymatgen import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen import __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
