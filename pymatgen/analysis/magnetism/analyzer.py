@@ -1270,8 +1270,8 @@ def magnetic_deformation(
     # and ferromagnetic, as in Bocarsly paper, or e.g. 'FM-AFM'
     type_str = "{}-{}".format(ordering_a.value, ordering_b.value)
 
-    lattice_a = structure_A.lattice.matrix.Tolerance
-    lattice_b = structure_B.lattice.matrix.Tolerance
+    lattice_a = structure_A.lattice.matrix.T
+    lattice_b = structure_B.lattice.matrix.T
     lattice_a_inv = np.linalg.inv(lattice_a)
     p = np.dot(lattice_a_inv, lattice_b)
     eta = 0.5 * (np.dot(p.T, p) - np.identity(3))

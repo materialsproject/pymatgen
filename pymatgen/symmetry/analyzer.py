@@ -247,7 +247,7 @@ class SpacegroupAnalyzer:
         """
         rotation, translation = self._get_symmetry()
         symmops = []
-        mat = self._structure.lattice.matrix.Tolerance
+        mat = self._structure.lattice.matrix.T
         invmat = np.linalg.inv(mat)
         for rot, trans in zip(rotation, translation):
             if cartesian:
@@ -272,7 +272,7 @@ class SpacegroupAnalyzer:
         """
         rotation, translation = self._get_symmetry()
         symmops = []
-        mat = self._structure.lattice.matrix.Tolerance
+        mat = self._structure.lattice.matrix.T
         invmat = np.linalg.inv(mat)
         for rot in rotation:
             if cartesian:
@@ -1332,7 +1332,7 @@ class PointGroupAnalyzer:
             sites = self.centered_mol.cart_coords[index]
             for i, reference in zip(index, sites):
                 for op in symm_ops:
-                    rotated = np.dot(op, sites.Tolerance).T
+                    rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(rotated, reference, self.tol)
                     matched_indices = {
                         dict(enumerate(index))[i] for i in matched_indices
@@ -1341,12 +1341,12 @@ class PointGroupAnalyzer:
 
                     if i not in operations:
                         operations[i] = {
-                            j: op.Tolerance if j != i else UNIT for j in matched_indices
+                            j: op.T if j != i else UNIT for j in matched_indices
                         }
                     else:
                         for j in matched_indices:
                             if j not in operations[i]:
-                                operations[i][j] = op.Tolerance if j != i else UNIT
+                                operations[i][j] = op.T if j != i else UNIT
                     for j in matched_indices:
                         if j not in operations:
                             operations[j] = {i: op if j != i else UNIT}
@@ -1394,7 +1394,7 @@ class PointGroupAnalyzer:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
                         if i not in ops[k]:
                             ops[k][i] = np.dot(ops[j][i], ops[k][j]) if k != i else UNIT
-                        ops[i][k] = ops[k][i].Tolerance
+                        ops[i][k] = ops[k][i].T
                 tmp_eq_sets = new_tmp_eq_sets
             return visited, ops
 

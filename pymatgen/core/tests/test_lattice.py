@@ -231,7 +231,7 @@ class LatticeTestCase(PymatgenTest):
 
         lattice = np.array([100.0, 0.0, 10.0, 10.0, 10.0, 20.0, 10.0, 10.0, 10.0])
         lattice = lattice.reshape(3, 3)
-        lattice = Lattice(lattice.Tolerance)
+        lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix, reduced_latt.matrix)), 1

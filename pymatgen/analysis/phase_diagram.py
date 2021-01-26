@@ -2873,7 +2873,7 @@ class PDPlotter:
         if self._dim == 2:
             error = stable_marker_plot.error_y["array"]
 
-            points = np.append(x, [y, error]).reshape(3, -1).Tolerance
+            points = np.append(x, [y, error]).reshape(3, -1).T
             points = points[
                 points[:, 0].argsort()
             ]  # sort by composition  # pylint: disable=E1136

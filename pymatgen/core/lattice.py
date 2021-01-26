@@ -722,7 +722,7 @@ class Lattice(MSONable):
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
         # pylint: disable=E1136,E1137
-        a = self._matrix.copy().Tolerance
+        a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
@@ -731,8 +731,8 @@ class Lattice(MSONable):
         b[:, 0] = a[:, 0]
         m[0] = dot(b[:, 0], b[:, 0])
         for i in range(1, 3):
-            u[i, 0:i] = dot(a[:, i].Tolerance, b[:, 0:i]) / m[0:i]
-            b[:, i] = a[:, i] - dot(b[:, 0:i], u[i, 0:i].Tolerance)
+            u[i, 0:i] = dot(a[:, i].T, b[:, 0:i]) / m[0:i]
+            b[:, i] = a[:, i] - dot(b[:, 0:i], u[i, 0:i].T)
             m[i] = dot(b[:, i], b[:, i])
 
         k = 2
@@ -771,10 +771,10 @@ class Lattice(MSONable):
                 # Update the Gram-Schmidt coefficients
                 for s in range(k - 1, k + 1):
                     u[s - 1, 0 : (s - 1)] = (
-                            dot(a[:, s - 1].Tolerance, b[:, 0: (s - 1)]) / m[0: (s - 1)]
+                            dot(a[:, s - 1].T, b[:, 0: (s - 1)]) / m[0: (s - 1)]
                     )
                     b[:, s - 1] = a[:, s - 1] - dot(
-                        b[:, 0 : (s - 1)], u[s - 1, 0 : (s - 1)].Tolerance
+                        b[:, 0 : (s - 1)], u[s - 1, 0 : (s - 1)].T
                     )
                     m[s - 1] = dot(b[:, s - 1], b[:, s - 1])
 
@@ -782,12 +782,12 @@ class Lattice(MSONable):
                     k -= 1
                 else:
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
-                    p = dot(a[:, k:3].Tolerance, b[:, (k - 2): k])
+                    p = dot(a[:, k:3].T, b[:, (k - 2): k])
                     q = np.diag(m[(k - 2) : k])
-                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].Tolerance  # type: ignore
+                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
                     u[k:3, (k - 2) : k] = result
 
-        return a.Tolerance, mapping.T
+        return a.T, mapping.T
 
     def get_lll_frac_coords(self, frac_coords: Vector3Like) -> np.ndarray:
         """

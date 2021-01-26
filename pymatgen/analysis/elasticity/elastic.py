@@ -980,7 +980,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
     for i in range(1, order):
         cvec, carr = get_symbol_list(i + 1)
-        svec = np.ravel(dei_dsi[i - 1].Tolerance)
+        svec = np.ravel(dei_dsi[i - 1].T)
         cmap = dict(zip(cvec, np.dot(m[i - 1], svec)))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
