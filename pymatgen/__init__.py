@@ -23,6 +23,9 @@ __version__ = "2020.12.31"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
+lazy_import.lazy_module("scipy")
+lazy_import.lazy_module("networkx")
+
 def _load_pmg_settings():
     try:
         with open(SETTINGS_FILE, "rt") as f:
