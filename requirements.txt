@@ -14,4 +14,3 @@ dataclasses>=0.6; python_version < '3.7'
 plotly==4.10.0
 beautifulsoup4==4.9.1
 uncertainties==3.1.4
-lazy_import==0.2.2

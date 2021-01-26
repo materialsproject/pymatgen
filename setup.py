@@ -114,7 +114,7 @@ setup(
                       "monty>=3.0.2", "scipy>=1.5.0",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
                       "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
-                      "plotly>=4.5.0", "uncertainties>=3.1.4", "lazy_import"],
+                      "plotly>=4.5.0", "uncertainties>=3.1.4"],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
