@@ -2027,7 +2027,7 @@ def _proj(b, a):
     Returns vector projection (np.ndarray) of vector b (np.ndarray)
     onto vector a (np.ndarray)
     """
-    return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
+    return (b.Tolerance @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))
 
 
 class SQSTransformation(AbstractTransformation):

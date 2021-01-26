@@ -60,6 +60,6 @@ class PiezoTensor(Tensor):
         for dim in range(rank):
             for pos in range(len(voigt_map)):
                 pt[dim][voigt_map[pos]] = input_vasp_array[dim][pos]
-                pt[dim].T[voigt_map[pos]] = input_vasp_array[dim][pos]
+                pt[dim].Tolerance[voigt_map[pos]] = input_vasp_array[dim][pos]
 
         return cls(pt)

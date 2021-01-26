@@ -1391,7 +1391,7 @@ class GrainBoundaryGenerator:
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
         if reduce(gcd, r_axis) != 1:
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
-        r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
+        r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.Tolerance), r_matrix), trans_cry.Tolerance)
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
         eye = np.eye(3, dtype=np.int)
@@ -1401,7 +1401,7 @@ class GrainBoundaryGenerator:
                 k = h + 1 if h + 1 < 3 else abs(2 - h)
                 l = h + 2 if h + 2 < 3 else abs(1 - h)
                 break
-        trans = eye.T
+        trans = eye.Tolerance
         new_rot = np.array(r_matrix)
 
         # with the rotation matrix to construct the CSL lattice, check reference for details
@@ -1422,7 +1422,7 @@ class GrainBoundaryGenerator:
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[k, l] = n_final
         # each row of mat_csl is the CSL lattice vector
-        csl_init = np.rint(np.dot(np.dot(r_matrix, trans), scale)).astype(int).T
+        csl_init = np.rint(np.dot(np.dot(r_matrix, trans), scale)).astype(int).Tolerance
         if abs(r_axis[h]) > 1:
             csl_init = GrainBoundaryGenerator.reduce_mat(
                 np.array(csl_init), r_axis[h], r_matrix
@@ -2434,13 +2434,13 @@ class GrainBoundaryGenerator:
         # set the transform matrix in real space
         trans = trans_cry
         # transform matrix in reciprocal space
-        ctrans = np.linalg.inv(trans.T)
+        ctrans = np.linalg.inv(trans.Tolerance)
 
         t_matrix = csl.copy()
         # vectors constructed from csl that perpendicular to surface
         ab_vector = []
         # obtain the miller index of surface in terms of csl.
-        miller = np.matmul(surface, csl.T)
+        miller = np.matmul(surface, csl.Tolerance)
         if reduce(gcd, miller) != 1:
             miller = [int(round(x / reduce(gcd, miller))) for x in miller]
         miller_nonzero = []
@@ -2670,7 +2670,7 @@ class GrainBoundaryGenerator:
                 if all([np.round(x, 5).is_integer() for x in list(temp / mag)]):
                     mat_copy = mat.copy()
                     mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])
-                    new_mat = np.dot(mat_copy, np.linalg.inv(r_matrix.T))
+                    new_mat = np.dot(mat_copy, np.linalg.inv(r_matrix.Tolerance))
                     if all(
                         [np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]
                     ):

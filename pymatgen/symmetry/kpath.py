@@ -1214,9 +1214,9 @@ class KPathLatimerMunro(KPathBase):
         # 1: Get lattices of real and reciprocal structures, and reciprocal
         # point group, and Brillouin zone (BZ)
 
-        V = self._latt.matrix.T  # fractional real space to cartesian real space
+        V = self._latt.matrix.Tolerance  # fractional real space to cartesian real space
         # fractional reciprocal space to cartesian reciprocal space
-        W = self._rec_lattice.matrix.T
+        W = self._rec_lattice.matrix.Tolerance
         # fractional real space to fractional reciprocal space
         A = np.dot(np.linalg.inv(W), V)
 
@@ -2021,7 +2021,7 @@ class KPathLatimerMunro(KPathBase):
     def _get_IRBZ(self, recip_point_group, W, key_points, face_center_inds, atol):
         rpgdict = self._get_reciprocal_point_group_dict(recip_point_group, atol)
 
-        g = np.dot(W.T, W)  # just using change of basis matrix rather than
+        g = np.dot(W.Tolerance, W)  # just using change of basis matrix rather than
         # Lattice.get_cartesian_coordinates for conciseness
         ginv = np.linalg.inv(g)
         D = np.linalg.det(W)

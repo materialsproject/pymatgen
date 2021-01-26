@@ -435,7 +435,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     )
 
     phonon.run_qpoints(kpoints)
-    frequencies = phonon.qpoints.get_frequencies().T
+    frequencies = phonon.qpoints.get_frequencies().Tolerance
 
     labels_dict = dict([(a, k) for a, k in zip(labels, kpoints) if a != ""])
 

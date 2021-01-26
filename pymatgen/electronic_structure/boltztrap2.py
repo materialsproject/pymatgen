@@ -112,7 +112,7 @@ class VasprunBSLoader:
         else:
             self.dosweight = 2.0
 
-        self.lattvec = self.atoms.get_cell().T * units.Angstrom
+        self.lattvec = self.atoms.get_cell().Tolerance * units.Angstrom
         self.mommat_all = None  # not implemented yet
         self.mommat = None  # not implemented yet
         self.magmom = None  # not implemented yet
@@ -156,7 +156,7 @@ class VasprunBSLoader:
         try:
             self.lattvec
         except AttributeError:
-            self.lattvec = self.atoms.get_cell().T * units.Angstrom
+            self.lattvec = self.atoms.get_cell().Tolerance * units.Angstrom
         return self.lattvec
 
     def get_volume(self):
@@ -243,7 +243,7 @@ class BandstructureLoader:
         else:
             self.dosweight = 2.0
 
-        self.lattvec = self.atoms.get_cell().T * units.Angstrom
+        self.lattvec = self.atoms.get_cell().Tolerance * units.Angstrom
         self.mommat_all = mommat  # not implemented yet
         self.mommat = mommat  # not implemented yet
         self.magmom = magmom  # not implemented yet
@@ -276,7 +276,7 @@ class BandstructureLoader:
         try:
             self.lattvec
         except AttributeError:
-            self.lattvec = self.atoms.get_cell().T * units.Angstrom
+            self.lattvec = self.atoms.get_cell().Tolerance * units.Angstrom
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
@@ -364,7 +364,7 @@ class VasprunLoader:
             elif len(vrun_obj.eigenvalues) == 2:
                 raise BoltztrapError("spin bs case not implemented")
 
-            self.lattvec = self.atoms.get_cell().T * units.Angstrom
+            self.lattvec = self.atoms.get_cell().Tolerance * units.Angstrom
 
             # TODO: read mommat from vasprun
             self.mommat = None
@@ -405,7 +405,7 @@ class VasprunLoader:
         try:
             self.lattvec
         except AttributeError:
-            self.lattvec = self.atoms.get_cell().T * units.Angstrom
+            self.lattvec = self.atoms.get_cell().Tolerance * units.Angstrom
         return self.lattvec
 
     def bandana(self, emin=-np.inf, emax=np.inf):
@@ -673,7 +673,7 @@ class BztInterpolator:
                     if orb not in pdoss[site]:
                         pdoss[site][orb] = {}
 
-                    self.data.ebands = self.data.proj[spin][:, :, isite, iorb].T
+                    self.data.ebands = self.data.proj[spin][:, :, isite, iorb].Tolerance
                     coeffs = fite.fitde3D(self.data, self.equivalences)
                     proj, vvproj, cproj = fite.getBTPbands(
                         self.equivalences, coeffs, self.data.lattvec

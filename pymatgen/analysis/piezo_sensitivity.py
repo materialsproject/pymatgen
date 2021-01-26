@@ -271,7 +271,7 @@ class InternalStrainTensor:
             if len(self.IST_operations[atom]) == 0:
                 temp_tensor = Tensor(np.random.rand(3, 3, 3) - 0.5)
                 for dim in range(3):
-                    temp_tensor[dim] = (temp_tensor[dim] + temp_tensor[dim].T) / 2
+                    temp_tensor[dim] = (temp_tensor[dim] + temp_tensor[dim].Tolerance) / 2
                 temp_tensor = sum(
                     [temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]
                 ) / len(self.pointops[atom])
@@ -392,7 +392,7 @@ class ForceConstantMatrix:
                         self.fcm[relations[entry][2]][relations[entry][3]]
                     )
                     if np.allclose(
-                        new.T,
+                        new.Tolerance,
                         self.fcm[relations[entry][0]][relations[entry][1]],
                         atol=opstol,
                     ):
@@ -445,7 +445,7 @@ class ForceConstantMatrix:
 
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                ].T
+                ].Tolerance
                 continue
             else:
                 temp_tensor = Tensor(np.random.rand(3, 3) - 0.5) * max_force
@@ -515,7 +515,7 @@ class ForceConstantMatrix:
                     ] / len(op[4])
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                ].T
+                ].Tolerance
                 continue
             else:
 
@@ -659,7 +659,7 @@ class ForceConstantMatrix:
                         ] / len(op[4])
                     D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ].T
+                    ].Tolerance
                     continue
                 else:
                     # Get the difference in the sum up to this point

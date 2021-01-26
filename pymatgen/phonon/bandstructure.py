@@ -44,7 +44,7 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
     """
     A function to order the phonon eigenvectors taken from phonopy
     """
-    metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
+    metric = np.abs(np.dot(prev_eigvecs.conjugate().Tolerance, eigvecs))
     connection_order = []
     for overlaps in metric:
         maxval = 0
@@ -619,8 +619,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             old_eiv = eigenvectors_from_displacements(eiv[:, nq - 1], atomic_masses)
             new_eiv = eigenvectors_from_displacements(eiv[:, nq], atomic_masses)
             order[nq] = estimate_band_connection(
-                old_eiv.reshape([nphonons, nphonons]).T,
-                new_eiv.reshape([nphonons, nphonons]).T,
+                old_eiv.reshape([nphonons, nphonons]).Tolerance,
+                new_eiv.reshape([nphonons, nphonons]).Tolerance,
                 order[nq - 1],
             )
 

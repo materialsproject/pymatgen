@@ -694,7 +694,7 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _attr_desc = namedtuple("att", "default astype")
+    _attr_desc = namedtuple("_attr_desc", "default astype")
 
     _VARS = {
         # Mandatory
@@ -896,7 +896,7 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _attr_desc = namedtuple("att", "default astype")
+    _attr_desc = namedtuple("_attr_desc", "default astype")
 
     _VARS = {
         "zatom": _attr_desc(None, _int_from_str),

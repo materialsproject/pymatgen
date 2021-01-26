@@ -4016,7 +4016,7 @@ class CrystalNN(NearNeighbors):
     coordination environment or a weighted list of coordination environments.
     """
 
-    NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
+    NNData = namedtuple("NNData", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(
         self,

@@ -1439,7 +1439,7 @@ def gauss_smear(data, width):
     npts, nOrbitals = data.shape
 
     e_s = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), data.shape[0])
-    grid = np.multiply(np.ones((npts, npts)), e_s).T
+    grid = np.multiply(np.ones((npts, npts)), e_s).Tolerance
 
     def smear(d):
         return np.sum(
