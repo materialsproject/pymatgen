@@ -37,6 +37,8 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+molecule_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                            "test_files", "molecules")
 
 
 class StructureGraphTest(PymatgenTest):
@@ -811,6 +813,49 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_copy.remove_nodes([1, 2])
         self.assertEqual(eth_copy.graph.number_of_nodes(), 5)
         self.assertEqual(eth_copy.graph.number_of_edges(), 2)
+
+    def test_get_disconnected(self):
+        disconnected = Molecule(["C", "H", "H", "H", "H", "He"],
+            [
+                [0.0000, 0.0000, 0.0000],
+                [-0.3633, -0.5138, -0.8900],
+                [1.0900, 0.0000, 0.0000],
+                [-0.3633, 1.0277, 0.0000],
+                [-0.3633, -0.5138, -0.8900],
+                [5.0000, 5.0000, 5.0000]
+            ],
+        )
+
+        no_he = Molecule(["C", "H", "H", "H", "H"],
+            [
+                [0.0000, 0.0000, 0.0000],
+                [-0.3633, -0.5138, -0.8900],
+                [1.0900, 0.0000, 0.0000],
+                [-0.3633, 1.0277, 0.0000],
+                [-0.3633, -0.5138, -0.8900]
+            ]
+        )
+
+        just_he = Molecule(["He"], [[5.0000, 5.0000, 5.0000]])
+
+        dis_mg = MoleculeGraph.with_empty_graph(disconnected)
+        dis_mg.add_edge(0, 1)
+        dis_mg.add_edge(0, 2)
+        dis_mg.add_edge(0, 3)
+        dis_mg.add_edge(0, 4)
+
+        fragments = dis_mg.get_disconnected_fragments()
+        self.assertEqual(len(fragments), 2)
+        self.assertEqual(fragments[0].molecule, no_he)
+        self.assertEqual(fragments[1].molecule, just_he)
+
+        con_mg = MoleculeGraph.with_empty_graph(no_he)
+        con_mg.add_edge(0, 1)
+        con_mg.add_edge(0, 2)
+        con_mg.add_edge(0, 3)
+        con_mg.add_edge(0, 4)
+        fragments = con_mg.get_disconnected_fragments()
+        self.assertEqual(len(fragments), 1)
 
     def test_split(self):
         bonds = [(0, 1), (4, 5)]

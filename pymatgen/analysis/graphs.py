@@ -2148,6 +2148,79 @@ class MoleculeGraph(MSONable):
         nx.relabel_nodes(self.graph, mapping, copy=False)
         self.set_node_attributes()
 
+    def get_disconnected_fragments(self):
+        """
+        Determine if the MoleculeGraph is connected. If it is not, separate the
+        MoleculeGraph into different MoleculeGraphs, where each resulting
+        MoleculeGraph is a disconnected subgraph of the original.
+        Currently, this function naively assigns the charge
+        of the total molecule to a single submolecule. A
+        later effort will be to actually accurately assign
+        charge.
+        NOTE: This function does not modify the original
+        MoleculeGraph. It creates a copy, modifies that, and
+        returns two or more new MoleculeGraph objects.
+        :return: list of MoleculeGraphs
+        """
+
+        if nx.is_weakly_connected(self.graph):
+            return [copy.deepcopy(self)]
+        else:
+            original = copy.deepcopy(self)
+            sub_mols = list()
+
+            # Had to use nx.weakly_connected_components because of deprecation
+            # of nx.weakly_connected_component_subgraphs
+            subgraphs = [original.graph.subgraph(c)
+                         for c in nx.weakly_connected_components(original.graph)]
+
+            for subg in subgraphs:
+
+                nodes = sorted(list(subg.nodes))
+
+                # Molecule indices are essentially list-based, so node indices
+                # must be remapped, incrementing from 0
+                mapping = {}
+                for i in range(len(nodes)):
+                    mapping[nodes[i]] = i
+
+                # just give charge to whatever subgraph has node with index 0
+                # TODO: actually figure out how to distribute charge
+                if 0 in nodes:
+                    charge = self.molecule.charge
+                else:
+                    charge = 0
+
+                # relabel nodes in graph to match mapping
+                new_graph = nx.relabel_nodes(subg, mapping)
+
+                species = nx.get_node_attributes(new_graph, "specie")
+                coords = nx.get_node_attributes(new_graph, "coords")
+                raw_props = nx.get_node_attributes(new_graph, "properties")
+
+                properties = {}
+                for prop_set in raw_props.values():
+                    for prop in prop_set.keys():
+                        if prop in properties:
+                            properties[prop].append(prop_set[prop])
+                        else:
+                            properties[prop] = [prop_set[prop]]
+
+                # Site properties must be present for all atoms in the molecule
+                # in order to be used for Molecule instantiation
+                for k, v in properties.items():
+                    if len(v) != len(species):
+                        del properties[k]
+
+                new_mol = Molecule(species, coords, charge=charge,
+                                   site_properties=properties)
+                graph_data = json_graph.adjacency_data(new_graph)
+
+                # create new MoleculeGraph
+                sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
+
+            return sub_mols
+
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
         """
         Split MoleculeGraph into two or more MoleculeGraphs by
@@ -2156,7 +2229,7 @@ class MoleculeGraph(MSONable):
         disjoint graphs (two or more separate molecules).
         This function does not only alter the graph
         information, but also changes the underlying
-        Moledules.
+        Molecules.
         If the bonds parameter does not include sufficient
         bonds to separate two molecule fragments, then this
         function will fail.
@@ -2167,7 +2240,6 @@ class MoleculeGraph(MSONable):
         NOTE: This function does not modify the original
         MoleculeGraph. It creates a copy, modifies that, and
         returns two or more new MoleculeGraph objects.
-
         :param bonds: list of tuples (from_index, to_index)
             representing bonds to be broken to split the MoleculeGraph.
         :param alterations: a dict {(from_index, to_index): alt},
@@ -2180,86 +2252,32 @@ class MoleculeGraph(MSONable):
         """
 
         self.set_node_attributes()
-
         original = copy.deepcopy(self)
 
         for bond in bonds:
             original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
-            raise MolGraphSplitError(
-                "Cannot split molecule; MoleculeGraph is still connected."
-            )
+            raise MolGraphSplitError("Cannot split molecule; \
+                                MoleculeGraph is still connected.")
 
-        # alter any bonds before partition, to avoid remapping
-        if alterations is not None:
-            for (u, v) in alterations.keys():
-                if "weight" in alterations[(u, v)]:
-                    weight = alterations[(u, v)]["weight"]
-                    del alterations[(u, v)]["weight"]
-                    edge_properties = (
-                        alterations[(u, v)] if len(alterations[(u, v)]) != 0 else None
-                    )
-                    original.alter_edge(
-                        u, v, new_weight=weight, new_edge_properties=edge_properties
-                    )
-                else:
-                    original.alter_edge(u, v, new_edge_properties=alterations[(u, v)])
+        else:
 
-        sub_mols = []
-
-        # Had to use nx.weakly_connected_components because of deprecation
-        # of nx.weakly_connected_component_subgraphs
-        subgraphs = [
-            original.graph.subgraph(c)
-            for c in nx.weakly_connected_components(original.graph)
-        ]
-
-        for subg in subgraphs:
-
-            nodes = sorted(list(subg.nodes))
-
-            # Molecule indices are essentially list-based, so node indices
-            # must be remapped, incrementing from 0
-            mapping = {n: i for i, n in enumerate(nodes)}
-
-            # just give charge to whatever subgraph has node with index 0
-            # TODO: actually figure out how to distribute charge
-            if 0 in nodes:
-                charge = self.molecule.charge
-            else:
-                charge = 0
-
-            # relabel nodes in graph to match mapping
-            new_graph = nx.relabel_nodes(subg, mapping)
-
-            species = nx.get_node_attributes(new_graph, "specie")
-            coords = nx.get_node_attributes(new_graph, "coords")
-            raw_props = nx.get_node_attributes(new_graph, "properties")
-
-            properties = {}
-            for prop_set in raw_props.values():
-                for prop in prop_set.keys():
-                    if prop in properties:
-                        properties[prop].append(prop_set[prop])
+            # alter any bonds before partition, to avoid remapping
+            if alterations is not None:
+                for (u, v) in alterations.keys():
+                    if "weight" in alterations[(u, v)]:
+                        weight = alterations[(u, v)]["weight"]
+                        del alterations[(u, v)]["weight"]
+                        edge_properties = alterations[(u, v)] \
+                            if len(alterations[(u, v)]) != 0 else None
+                        original.alter_edge(u, v, new_weight=weight,
+                                            new_edge_properties=edge_properties)
                     else:
-                        properties[prop] = [prop_set[prop]]
+                        original.alter_edge(u, v,
+                                            new_edge_properties=alterations[(u, v)])
 
-            # Site properties must be present for all atoms in the molecule
-            # in order to be used for Molecule instantiation
-            for k, v in properties.items():
-                if len(v) != len(species):
-                    del properties[k]
-
-            new_mol = Molecule(
-                species, coords, charge=charge, site_properties=properties
-            )
-            graph_data = json_graph.adjacency_data(new_graph)
-
-            # create new MoleculeGraph
-            sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
-
-        return sub_mols
+            return original.get_disconnected_fragments()
 
     def build_unique_fragments(self):
         """

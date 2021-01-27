@@ -33,7 +33,7 @@ except ImportError:
 
 from .utils import process_parsed_coords, read_pattern, read_table_pattern
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
@@ -253,6 +253,15 @@ class QCOutput(MSONable):
         if self.data.get("optimization", []):
             self._read_optimization_data()
 
+        # Check if the calculation is a transition state optimization. If so, parse the relevant output
+        # Note: for now, TS calculations are treated the same as optimization calculations
+        self.data["transition_state"] = read_pattern(
+            self.text, {
+                "key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*ts"
+            }).get('key')
+        if self.data.get('transition_state', list()):
+            self._read_optimization_data()
+
         # Check if the calculation contains a constraint in an $opt section.
         self.data["opt_constraint"] = read_pattern(
             self.text, {"key": r"\$opt\s+CONSTRAINT"}
@@ -308,6 +317,14 @@ class QCOutput(MSONable):
         ).get("key")
         if self.data.get("force", []):
             self._read_force_data()
+
+        self.data["scan_job"] = read_pattern(
+            self.text, {
+                "key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*pes_scan"
+            },
+            terminate_on_match=True).get("key")
+        if self.data.get("scan_job", []):
+            self._read_scan_data()
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get("completion", []) and self.data.get("errors") == []:
@@ -742,10 +759,10 @@ class QCOutput(MSONable):
         table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s+Z-matrix Print:"
 
-        parsed_optimized_geometry = read_table_pattern(
+        parsed_optimized_geometries = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern
         )
-        if parsed_optimized_geometry == [] or None:
+        if parsed_optimized_geometries == [] or None:
             self.data["optimized_geometry"] = None
             header_pattern = (
                 r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
@@ -762,8 +779,10 @@ class QCOutput(MSONable):
             )
         else:
             self.data["optimized_geometry"] = process_parsed_coords(
-                parsed_optimized_geometry[0]
+                parsed_optimized_geometries[0]
             )
+            self.data["optimized_geometries"] = [process_parsed_coords(i)
+                                                 for i in parsed_optimized_geometries]
             if self.data.get("charge") is not None:
                 self.data["molecule_from_optimized_geometry"] = Molecule(
                     species=self.data.get("species"),
@@ -771,6 +790,14 @@ class QCOutput(MSONable):
                     charge=self.data.get("charge"),
                     spin_multiplicity=self.data.get("multiplicity"),
                 )
+                self.data["molecules_from_optimized_geometries"] = list()
+                for geom in self.data["optimized_geometries"]:
+                    mol = Molecule(
+                        species=self.data.get('species'),
+                        coords=geom,
+                        charge=self.data.get('charge'),
+                        spin_multiplicity=self.data.get('multiplicity'))
+                    self.data["molecules_from_optimized_geometries"].append(mol)
 
     def _get_grad_format_length(self, header):
         """
@@ -1134,6 +1161,95 @@ class QCOutput(MSONable):
 
     def _read_force_data(self):
         self._read_gradients()
+
+    def _read_scan_data(self):
+        temp_energy_trajectory = read_pattern(
+            self.text, {
+                "key": r"\sEnergy\sis\s+([\d\-\.]+)"
+            }).get('key')
+        if temp_energy_trajectory is None:
+            self.data["energy_trajectory"] = []
+        else:
+            real_energy_trajectory = np.zeros(len(temp_energy_trajectory))
+            for ii, entry in enumerate(temp_energy_trajectory):
+                real_energy_trajectory[ii] = float(entry[0])
+            self.data["energy_trajectory"] = real_energy_trajectory
+
+        self._read_geometries()
+        self._read_gradients()
+
+        if len(self.data.get("errors")) == 0:
+            if read_pattern(
+                    self.text, {
+                        "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
+                    },
+                    terminate_on_match=True).get('key') == [[]]:
+                self.data["errors"] += ["out_of_opt_cycles"]
+            elif read_pattern(
+                    self.text, {
+                        "key": r"UNABLE TO DETERMINE Lamda IN FormD"
+                    },
+                    terminate_on_match=True).get('key') == [[]]:
+                self.data["errors"] += ["unable_to_determine_lamda"]
+
+        header_pattern = r"\s*\-+ Summary of potential scan\: \-+\s*"
+        row_pattern_single = r"\s*([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n"
+        row_pattern_double = r"\s*([\-\.0-9]+)\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*\n"
+        footer_pattern = r"\s*\-+"
+
+        single_data = read_table_pattern(self.text,
+                                         header_pattern=header_pattern,
+                                         row_pattern=row_pattern_single,
+                                         footer_pattern=footer_pattern)
+
+        self.data["scan_energies"] = list()
+        if len(single_data) == 0:
+            double_data = read_table_pattern(self.text,
+                                             header_pattern=header_pattern,
+                                             row_pattern=row_pattern_double,
+                                             footer_pattern=footer_pattern)
+            if len(double_data) == 0:
+                self.data["scan_energies"] = None
+            else:
+                for line in double_data[0]:
+                    params = tuple([float(line[0]), float(line[1])])
+                    energy = float(line[2])
+                    self.data["scan_energies"].append((params, energy))
+        else:
+            for line in single_data[0]:
+                param = float(line[0])
+                energy = float(line[1])
+                self.data["scan_energies"].append((param, energy))
+
+        constraint_head = r"\s+Constraints and their Current Values\s*\n\s+Value\s+Constraint"
+        constraint_row = r"\s*(Distance\(Angs\))|(Angle)|(Dihedral)\:(?:([0-9]+)\s+)+([\.0-9]+)\s+([\.0-9]+)"
+        constraint_foot = r"\s*Hessian updated using BFGS update"
+
+        constraint_sets = read_table_pattern(self.text,
+                                             header_pattern=constraint_head,
+                                             row_pattern=constraint_row,
+                                             footer_pattern=constraint_foot)
+
+        self.data["scan_constraint_sets"] = list()
+        for constraint_set in constraint_sets:
+            const = {"stre": list(), "bend": list(), "tors": list()}
+            for row in constraint_set:
+                atoms = tuple([int(a) for a in row[1:-2]])
+                values = tuple([float(v) for v in row[-2:]])
+                if row[0] == "Distance(Angs)":
+                    const["stre"].append((atoms, values))
+                elif row[0] == "Angle":
+                    const["bend"].append((atoms, values))
+                elif row[0] == "Dihedral":
+                    const["tors"].append((atoms, values))
+            self.data["scan_constraint_sets"].append(const)
+
+        self.data["scan_variables"] = dict()
+        if len(self.data["scan_constraint_sets"]) > 0:
+            for var_type, val_list in self.data["scan_constraint_sets"][0]:
+                self.data["scan_variables"][var_type] = list()
+                for val_set in val_list:
+                    self.data["scan_variables"][var_type].append(val_set[:-2])
 
     def _read_pcm_information(self):
         """

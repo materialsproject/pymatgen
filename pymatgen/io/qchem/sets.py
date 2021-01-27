@@ -14,7 +14,7 @@ from monty.io import zopen
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
@@ -36,6 +36,8 @@ class QChemDictSet(QCInput):
         pcm_dielectric=None,
         smd_solvent=None,
         custom_smd=None,
+        opt_variables=None,
+        scan_variables=None,
         max_scf_cycles=200,
         geom_opt_max_cycles=200,
         plot_cubes=False,
@@ -68,6 +70,8 @@ class QChemDictSet(QCInput):
         self.pcm_dielectric = pcm_dielectric
         self.smd_solvent = smd_solvent
         self.custom_smd = custom_smd
+        self.opt_variables = opt_variables
+        self.scan_variables = scan_variables
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
@@ -83,11 +87,21 @@ class QChemDictSet(QCInput):
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
-        mypcm = {}
-        mysolvent = {}
-        mysmx = {}
-        myplots = {}
-        myrem = {}
+        if self.opt_variables is None:
+            myopt = dict()
+        else:
+            myopt = self.opt_variables
+
+        if self.scan_variables is None:
+            myscan = dict()
+        else:
+            myscan = self.scan_variables
+
+        mypcm = dict()
+        mysolvent = dict()
+        mysmx = dict()
+        myplots = dict()
+        myrem = dict()
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = self.max_scf_cycles
@@ -112,7 +126,7 @@ class QChemDictSet(QCInput):
         else:
             raise ValueError("dft_rung should be between 1 and 5!")
 
-        if self.job_type.lower() == "opt":
+        if self.job_type.lower() in ["opt", "ts", "pes_scan"]:
             myrem["geom_opt_max_cycles"] = self.geom_opt_max_cycles
 
         if self.pcm_dielectric is not None and self.smd_solvent is not None:
@@ -162,13 +176,18 @@ class QChemDictSet(QCInput):
                     temp_smx = lower_and_check_unique(sec_dict)
                     for k, v in temp_smx.items():
                         mysmx[k] = v
+                if sec == "scan":
+                    temp_scan = lower_and_check_unique(sec_dict)
+                    for k, v in temp_scan.items():
+                        myscan[k] = v
                 if sec == "plots":
                     temp_plots = lower_and_check_unique(sec_dict)
                     for k, v in temp_plots.items():
                         myplots[k] = v
 
         super().__init__(
-            self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx, plots=myplots
+            self.molecule, rem=myrem, opt=myopt, pcm=mypcm, solvent=mysolvent,
+            smx=mysmx, scan=myscan, plots=myplots
         )
 
     def write(self, input_file):
@@ -182,58 +201,6 @@ class QChemDictSet(QCInput):
                 os.path.join(os.path.dirname(input_file), "solvent_data"), "wt"
             ) as f:
                 f.write(self.custom_smd)
-
-
-class OptSet(QChemDictSet):
-    """
-    QChemDictSet for a geometry optimization
-    """
-
-    def __init__(
-        self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        geom_opt_max_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
-    ):
-        """
-        Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            geom_opt_max_cycles ():
-            overwrite_inputs ():
-        """
-        self.basis_set = basis_set
-        self.scf_algorithm = scf_algorithm
-        self.max_scf_cycles = max_scf_cycles
-        self.geom_opt_max_cycles = geom_opt_max_cycles
-        super().__init__(
-            molecule=molecule,
-            job_type="opt",
-            dft_rung=dft_rung,
-            pcm_dielectric=pcm_dielectric,
-            smd_solvent=smd_solvent,
-            custom_smd=custom_smd,
-            basis_set=self.basis_set,
-            scf_algorithm=self.scf_algorithm,
-            max_scf_cycles=self.max_scf_cycles,
-            geom_opt_max_cycles=self.geom_opt_max_cycles,
-            plot_cubes=plot_cubes,
-            overwrite_inputs=overwrite_inputs,
-        )
 
 
 class SinglePointSet(QChemDictSet):
@@ -285,6 +252,130 @@ class SinglePointSet(QChemDictSet):
         )
 
 
+class OptSet(QChemDictSet):
+    """
+    QChemDictSet for a geometry optimization
+    """
+
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        opt_variables=None,
+        geom_opt_max_cycles=200,
+        plot_cubes=False,
+        overwrite_inputs=None,
+    ):
+        """
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            geom_opt_max_cycles ():
+            overwrite_inputs ():
+        """
+        self.basis_set = basis_set
+        self.scf_algorithm = scf_algorithm
+        self.max_scf_cycles = max_scf_cycles
+        self.geom_opt_max_cycles = geom_opt_max_cycles
+        super().__init__(
+            molecule=molecule,
+            job_type="opt",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
+            custom_smd=custom_smd,
+            opt_variables=opt_variables,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            geom_opt_max_cycles=self.geom_opt_max_cycles,
+            plot_cubes=plot_cubes,
+            overwrite_inputs=overwrite_inputs,
+        )
+
+
+
+class TransitionStateSet(QChemDictSet):
+    """
+    QChemDictSet for a transition-state search
+    """
+
+    def __init__(self,
+                 molecule,
+                 dft_rung=3,
+                 basis_set="def2-tzvppd",
+                 pcm_dielectric=None,
+                 smd_solvent=None,
+                 custom_smd=None,
+                 opt_variables=None,
+                 scf_algorithm="diis",
+                 max_scf_cycles=200,
+                 geom_opt_max_cycles=200,
+                 plot_cubes=False,
+                 overwrite_inputs=None):
+        self.basis_set = basis_set
+        self.scf_algorithm = scf_algorithm
+        self.max_scf_cycles = max_scf_cycles
+        self.geom_opt_max_cycles = geom_opt_max_cycles
+        super(TransitionStateSet, self).__init__(
+            molecule=molecule,
+            job_type="ts",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
+            custom_smd=custom_smd,
+            opt_variables=opt_variables,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            geom_opt_max_cycles=self.geom_opt_max_cycles,
+            plot_cubes=plot_cubes,
+            overwrite_inputs=overwrite_inputs)
+
+
+class ForceSet(QChemDictSet):
+    """
+    QChemDictSet for a force (gradient) calculation
+    """
+
+    def __init__(self,
+                 molecule,
+                 dft_rung=3,
+                 basis_set="def2-tzvppd",
+                 pcm_dielectric=None,
+                 smd_solvent=None,
+                 custom_smd=None,
+                 scf_algorithm="diis",
+                 max_scf_cycles=200,
+                 overwrite_inputs=None):
+        self.basis_set = basis_set
+        self.scf_algorithm = scf_algorithm
+        self.max_scf_cycles = max_scf_cycles
+        super().__init__(
+            molecule=molecule,
+            job_type="force",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
+            custom_smd=custom_smd,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            overwrite_inputs=overwrite_inputs)
+
+
 class FreqSet(QChemDictSet):
     """
     QChemDictSet for a frequency calculation
@@ -331,3 +422,49 @@ class FreqSet(QChemDictSet):
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
         )
+
+
+class PESScanSet(QChemDictSet):
+    """
+    QChemDictSet for a potential energy surface scan (PES_SCAN) calculation,
+    used primarily to identify possible transition states or to sample different
+    geometries.
+    Note: Because there are no defaults that can be used for a PES scan (the
+    variables are completely dependent on the molecular structure), by default
+    scan_variables = None. However, a PES Scan job should not be run with less
+    than one variable (or more than two variables).
+    """
+
+    def __init__(self,
+                 molecule,
+                 dft_rung=3,
+                 basis_set="def2-tzvppd",
+                 pcm_dielectric=None,
+                 smd_solvent=None,
+                 custom_smd=None,
+                 opt_variables=None,
+                 scan_variables=None,
+                 scf_algorithm="diis",
+                 max_scf_cycles=200,
+                 overwrite_inputs=None):
+        self.basis_set = basis_set
+        self.scf_algorithm = scf_algorithm
+        self.max_scf_cycles = max_scf_cycles
+
+        if scan_variables is None:
+            raise ValueError("Cannot run a pes_scan job without some variable "
+                             "to scan over!")
+
+        super(PESScanSet, self).__init__(
+            molecule=molecule,
+            job_type="pes_scan",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            smd_solvent=smd_solvent,
+            custom_smd=custom_smd,
+            opt_variables=opt_variables,
+            scan_variables=scan_variables,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            overwrite_inputs=overwrite_inputs)
