@@ -5,6 +5,7 @@
 
 import json
 import os
+import copy
 import unittest
 from collections import defaultdict
 
@@ -167,11 +168,12 @@ class ComputedEntryTest(unittest.TestCase):
         normed_entry = entry.normalize(inplace=False)
         entry.normalize()
 
-        self.assertEqual(normed_entry.as_dict(), entry.as_dict())
+        self.assertEqual(normed_entry, entry)
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
+        self.assertEqual(self.entry, e)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
@@ -262,6 +264,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedStructureEntry.from_dict(d)
+        self.assertEqual(self.entry, e)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
     def test_str(self):
@@ -463,10 +466,19 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         test_entry = self.temp_entries[300]
         d = test_entry.as_dict()
         e = GibbsComputedStructureEntry.from_dict(d)
+        self.assertEqual(test_entry, e)
         self.assertAlmostEqual(e.energy, test_entry.energy)
 
     def test_str(self):
         self.assertIsNotNone(str(self.temp_entries[300]))
+
+    def test_normalize(self):
+        for e in self.temp_entries.values():
+            entry = copy.deepcopy(e)
+            test = entry.normalize(mode="atom", inplace=False)
+            self.assertAlmostEqual(entry.gibbs_correction, test.gibbs_correction * 25, 11)
+            entry.normalize(mode="atom")
+            self.assertEqual(entry.gibbs_correction, test.gibbs_correction)
 
 
 if __name__ == "__main__":
