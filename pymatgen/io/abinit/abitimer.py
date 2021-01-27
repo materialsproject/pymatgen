@@ -28,7 +28,7 @@ def alternate(*iterables):
     """
     items = []
     for tup in zip(*iterables):
-        items.extend([item for item in tup])
+        items.extend(tup)
     return items
 
 
@@ -209,8 +209,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         if filename is not None:
             return [self._timers[filename][mpi_rank]]
-        else:
-            return [self._timers[filename][mpi_rank] for filename in self._filenames]
+        return [self._timers[filename][mpi_rank] for filename in self._filenames]
 
     def section_names(self, ordkey="wall_time"):
         """
@@ -498,8 +497,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         bottom = np.zeros(n)
         for idx, vals in enumerate(values):
             color = colors[idx]
-            bar = ax.bar(ind, vals, width, color=color, bottom=bottom)
-            bars.append(bar)
+            bar_ = ax.bar(ind, vals, width, color=color, bottom=bottom)
+            bars.append(bar_)
             bottom += vals
 
         ax.set_ylabel(key)
@@ -511,7 +510,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.set_xticklabels(labels, rotation=15)
 
         # Add legend.
-        ax.legend([bar[0] for bar in bars], names, loc="best")
+        ax.legend([bar_[0] for bar_ in bars], names, loc="best")
 
         return fig
 
@@ -780,11 +779,10 @@ class AbinitTimer:
         """
         if is_string(keys):
             return [s.__dict__[keys] for s in self.sections]
-        else:
-            values = []
-            for k in keys:
-                values.append([s.__dict__[k] for s in self.sections])
-            return values
+        values = []
+        for k in keys:
+            values.append([s.__dict__[k] for s in self.sections])
+        return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):
         """
@@ -831,7 +829,7 @@ class AbinitTimer:
 
         if sorted:
             # Sort new_values and rearrange new_names.
-            nandv = [nv for nv in zip(new_names, new_values)]
+            nandv = list(zip(new_names, new_values))
             nandv.sort(key=lambda t: t[1])
             new_names, new_values = [n[0] for n in nandv], [n[1] for n in nandv]
 

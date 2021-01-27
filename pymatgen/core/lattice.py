@@ -771,7 +771,7 @@ class Lattice(MSONable):
                 # Update the Gram-Schmidt coefficients
                 for s in range(k - 1, k + 1):
                     u[s - 1, 0 : (s - 1)] = (
-                        dot(a[:, s - 1].T, b[:, 0 : (s - 1)]) / m[0 : (s - 1)]
+                            dot(a[:, s - 1].T, b[:, 0: (s - 1)]) / m[0: (s - 1)]
                     )
                     b[:, s - 1] = a[:, s - 1] - dot(
                         b[:, 0 : (s - 1)], u[s - 1, 0 : (s - 1)].T
@@ -782,7 +782,7 @@ class Lattice(MSONable):
                     k -= 1
                 else:
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
-                    p = dot(a[:, k:3].T, b[:, (k - 2) : k])
+                    p = dot(a[:, k:3].T, b[:, (k - 2): k])
                     q = np.diag(m[(k - 2) : k])
                     result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
                     u[k:3, (k - 2) : k] = result

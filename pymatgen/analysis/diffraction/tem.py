@@ -555,7 +555,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         positions = self.get_positions(structure, points)
         for plane in cell_intensity.keys():
             dot = namedtuple(
-                "TEM_dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"]
+                "dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"]
             )
             position = positions[plane]
             hkl = plane

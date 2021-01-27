@@ -7,9 +7,11 @@ generate high-symmetry k-paths using different conventions.
 """
 
 import itertools
+from warnings import warn
 
 import networkx as nx
 import numpy as np
+
 
 from pymatgen.symmetry.kpath import (
     KPathBase,
@@ -231,6 +233,12 @@ class HighSymmKpath(KPathBase):
         tmat = bs._tmat
         for key in kpoints:
             kpoints[key] = np.dot(np.transpose(np.linalg.inv(tmat)), kpoints[key])
+
+        bs.kpath["kpoints"] = kpoints
+        self._rec_lattice = self._structure.lattice.reciprocal_lattice
+
+        warn("K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
+of the input structure. Use `KPathSeek` for the path in the original author-intended basis.")
 
         return bs
 

@@ -36,7 +36,7 @@ class ChemicalShielding(SquareTensor):
     """
 
     HaeberlenNotation = namedtuple(
-        "HaeberlenNotion", "sigma_iso, delta_sigma_iso, zeta, eta"
+        "HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta"
     )
     MehringNotation = namedtuple(
         "MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33"
@@ -62,8 +62,9 @@ class ChemicalShielding(SquareTensor):
 
         if t_array.shape == (3,):
             return super().__new__(cls, np.diag(cs_matrix), vscale)
-        elif t_array.shape == (3, 3):
+        if t_array.shape == (3, 3):
             return super().__new__(cls, cs_matrix, vscale)
+        return None
 
     @property
     def principal_axis_system(self):
@@ -157,8 +158,9 @@ class ElectricFieldGradient(SquareTensor):
 
         if t_array.shape == (3,):
             return super().__new__(cls, np.diag(efg_matrix), vscale)
-        elif t_array.shape == (3, 3):
+        if t_array.shape == (3, 3):
             return super().__new__(cls, efg_matrix, vscale)
+        return None
 
     @property
     def principal_axis_system(self):
