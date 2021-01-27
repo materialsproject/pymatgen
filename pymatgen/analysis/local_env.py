@@ -24,6 +24,7 @@ from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
+from pymatgen import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
