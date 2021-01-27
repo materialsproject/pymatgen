@@ -1242,6 +1242,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         :param filepath:
         """
+        # pylint: disable=E1101
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1395,6 +1396,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_radfunc(self, func_name):
         """Parse the first occurence of func_name in the XML file."""
+        # pylint: disable=E1101
         node = self.root.find(func_name)
         grid = node.attrib["grid"]
         values = np.array([float(s) for s in node.text.split()])
@@ -1403,6 +1405,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_all_radfuncs(self, func_name):
         """Parse all the nodes with tag func_name in the XML file."""
+        # pylint: disable=E1101
         for node in self.root.findall(func_name):
             grid = node.attrib["grid"]
             values = np.array([float(s) for s in node.text.split()])
@@ -1500,6 +1503,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         Returns: `matplotlib` figure
         """
+        # pylint: disable=E1101
         ax, fig, plt = get_ax_fig_plt(ax)
 
         ax.grid(True)
@@ -1533,6 +1537,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         Returns: `matplotlib` figure
         """
+        # pylint: disable=E1101
         ax, fig, plt = get_ax_fig_plt(ax)
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
