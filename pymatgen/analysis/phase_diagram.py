@@ -1515,19 +1515,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 Uses multiprocessing.Pool. Default is `0`, which implies
                 serial. Setting the number of workers to `-1` will use the maximum
                 number of cpu cores available.
+
         """
-        # TODO replace with if not x
-        assert isinstance(workers, int), "only integer numbers of workers allowed"
-
-
-        assert workers <= cpu_count() and workers > 0, "workers must satisfy 0 < workers <= cores"
+        if not isinstance(workers, int):
+            raise ValueError("only integer numbers of `workers` allowed")
 
         if elements is None:
-            elements = set().union(
-                [els for e in entries for els in e.composition.elements]
-            )
+            elements = sorted({
+                els for e in entries
+                for els in e.composition.elements
+            })
 
-        elements = sorted(list(elements))
+        elements = list(elements)
 
         dim = len(elements)
 
@@ -1541,7 +1540,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
             )
 
         # Get all chemical spaces
-        spaces = set([e.composition.chemical_system for e in min_entries if not e.is_element])
+        spaces = {
+            e.composition.chemical_system for e in min_entries
+            if not e.is_element
+        }
 
         # Remove redundant chemical spaces
         if not keep_all_spaces:
@@ -1549,11 +1551,15 @@ class PatchedPhaseDiagram(PhaseDiagram):
             max_size = max([len(s) for s in systems])
 
             spaces = []
-            # NOTE reduce the number of comparisons by only comparing to larger sets
+            # NOTE reduce the number of comparisons by only comparing to
+            # larger sets
             for i in range(2, max_size+1):
                 test = [s for s in systems if len(s) == i]
                 refer = [set(s) for s in systems if len(s) > i]
-                spaces.extend(["-".join(t) for t in test if not any([set(t).issubset(r) for r in refer])])
+                spaces.extend([
+                    "-".join(t) for t in test
+                    if not any([set(t).issubset(r) for r in refer])
+                ])
 
         spaces.sort(key=len)
 
@@ -1566,10 +1572,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 workers = cpu_count()
 
             with Pool(workers) as p:
-                results = p.map(
-                    func=func,
-                    iterable=spaces
-                )
+                results = p.map(func=func, iterable=spaces)
 
         pds = dict(results)
 
@@ -1578,8 +1581,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.all_entries = all_entries
         self.el_refs = el_refs
         self.elements = elements
-        self.qhull_entries = set().union(*[pd.qhull_entries for pd in pds.values()])
-        self._stable_entries = set().union(*[pd.stable_entries for pd in pds.values()])
+        # NOTE qhull_entries for ppd is not in the same order as obtained in pd
+        self.qhull_entries = list({e for pd in pds.values() for e in pd.qhull_entries})
+        self._stable_entries = {se for pd in pds.values() for se in pd.stable_entries}
+
 
     def __repr__(self):
         output = [

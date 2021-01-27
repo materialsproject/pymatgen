@@ -691,6 +691,14 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
     def test_get_stable_entries(self):
         self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
 
+    def test_get_qhull_entries(self):
+        # NOTE qhull_entry is an unusually sorted list due to it's construction
+        # the order doesn't matter therefore just test if sorted versions are equal.
+        self.assertEqual(
+            sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
+            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition)
+        )
+
     def test_get_decomposition(self):
         for c in self.novel_comps:
             pd_decomp = self.pd.get_decomposition(c)
@@ -714,6 +722,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
                 self.ppd.get_equilibrium_reaction_energy(e), 7
             )
 
+
 class ReactionDiagramTest(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -725,8 +734,9 @@ class ReactionDiagramTest(unittest.TestCase):
         for e in self.entries:
             if e.composition.reduced_formula == "VPO5":
                 entry1 = e
-            elif e.composition.reduced_formula == "H4(CO)3":
+            if e.composition.reduced_formula == "H4(CO)3":
                 entry2 = e
+
         self.rd = ReactionDiagram(
             entry1=entry1, entry2=entry2, all_entries=self.entries[2:]
         )
