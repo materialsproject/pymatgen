@@ -567,11 +567,6 @@ class BasePhaseDiagram(MSONable):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
         ]
 
-        # all_facets = []
-        # for f, s in zip(self.facets, self.simplexes):
-        #     if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
-        #         all_facets.append(f)
-
         if not len(all_facets):
             raise RuntimeError("No facets found for comp = {}".format(comp))
 
@@ -1513,8 +1508,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 that are subspaces of other spaces.
             workers (int): Number of cores to use for applying transformations.
                 Uses multiprocessing.Pool. Default is `0`, which implies
-                serial. Setting the number of workers to `-1` will use the maximum
-                number of cpu cores available.
+                serial. Setting the number of workers to a negative number will
+                use the maximum number of cpu cores available.
 
         """
         if not isinstance(workers, int):
@@ -1533,6 +1528,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
         el_refs, min_entries, all_entries = _get_useful_entries(entries)
+
+        self.min_entries = min_entries
 
         if len(el_refs) != dim:
             raise PhaseDiagramError(
@@ -1561,18 +1558,17 @@ class PatchedPhaseDiagram(PhaseDiagram):
                     if not any([set(t).issubset(r) for r in refer])
                 ])
 
-        spaces.sort(key=len)
-
-        func = partial(_get_pd_for_space, **{"entries": min_entries})
+        # Calculate pds for higher dimension spaces first
+        spaces.sort(key=len, reverse=True)
 
         if workers == 0:
-            results = [func(space) for space in spaces]
+            results = [self._get_pd_for_space(space) for space in spaces]
         else:
-            if workers == -1:
+            if workers < 0:
                 workers = cpu_count()
 
             with Pool(workers) as p:
-                results = p.map(func=func, iterable=spaces)
+                results = p.map(func=self._get_pd_for_space, iterable=spaces)
 
         pds = dict(results)
 
@@ -1584,7 +1580,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # NOTE qhull_entries for ppd is not in the same order as obtained in pd
         self.qhull_entries = list({e for pd in pds.values() for e in pd.qhull_entries})
         self._stable_entries = {se for pd in pds.values() for se in pd.stable_entries}
-
 
     def __repr__(self):
         output = [
@@ -1624,6 +1619,22 @@ class PatchedPhaseDiagram(PhaseDiagram):
     #     get_decomp_and_e_above_hull(),
     #     get_decomp_and_quasi_e_to_hull(),
     #     get_quasi_e_to_hull()
+
+    def _get_pd_for_space(self, space):
+        """
+        Args:
+            space (str): chemical space of the form A-B-X
+
+        Returns:
+            PhaseDiagram for the given chemical space
+        """
+        space_entries = [
+            e for e in self.min_entries if set(space.split("-")).issuperset(
+                e.composition.chemical_system.split("-")
+            )
+        ]
+
+        return space, PhaseDiagram(space_entries)
 
     def get_pds_for_entry(self, entry):
         """
@@ -2048,8 +2059,8 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
         maxiter (int): maximum number of SLSQP iterations
 
     Returns:
-        scipy.optimize.minimize result. If sucessful this gives the linear combination of
-            competing entrys that minimizes the competing formation energy
+            decomposition as a dict of {PDEntry: amount} where amount
+            is the amount of the fractional composition.
     """
     if not isinstance(comp, Composition):
         comp = comp.composition
@@ -2137,25 +2148,6 @@ def _get_useful_entries(entries):
 
     # NOTE all_entries is just entries reordered? can we remove it?
     return el_refs, min_entries, all_entries
-
-
-def _get_pd_for_space(space, entries):
-    """
-    Args:
-        space (str): chemical space of the form A-B-X
-        entries ([PDEntry, ]): list of all entries to consider as
-            potentially being in the PhaseDiagram
-
-    Returns:
-        PhaseDiagram for the given chemical space
-    """
-    space_entries = [
-        e for e in entries if set(space.split("-")).issuperset(
-            e.composition.chemical_system.split("-")
-        )
-    ]
-
-    return space, PhaseDiagram(space_entries)
 
 
 class PDPlotter:
