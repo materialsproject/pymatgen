@@ -48,8 +48,6 @@ from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 
 logger = logging.getLogger(__name__)
 
-#MDF-COMMENT 
-import pdb
 
 def _parse_parameters(val_type, val):
     """
@@ -5527,7 +5525,6 @@ class Eigenval:
                         sl = list(map(float, f.readline().split()))
                         #MDF-COMMENT add the option for sl having 2 components,
                         #MDF-COMMENT which is true for non spin polaized calculations.
-                        pdb.set_trace()
                         if len(sl) == 2:
                             self.eigenvalues[Spin.up][ikpt, i, 0] = sl[1]
                         if len(sl) == 3:

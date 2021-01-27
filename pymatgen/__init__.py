@@ -7,11 +7,6 @@ Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. This is the root package.
 """
 
-#MDF-COMMENT my version for test
-
-import sys
-sys.path.insert(0, '/home/mariano/git/pymatgen/')
-
 import os
 import warnings
 from fnmatch import fnmatch
