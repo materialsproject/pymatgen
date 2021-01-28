@@ -1891,7 +1891,7 @@ class IStructure(SiteCollection, MSONable):
             # u is unitary (rotation), p is stretch
             u, p = polar(
                 np.dot(
-                    end_structure.lattice.matrix.Tolerance, np.linalg.inv(self.lattice.matrix.T)
+                    end_structure.lattice.matrix.T, np.linalg.inv(self.lattice.matrix.T)
                 )
             )
             lvec = p - np.identity(3)
@@ -3025,7 +3025,7 @@ class IMolecule(SiteCollection, MSONable):
                         angle=random.uniform(-180, 180),
                     )
                     m = op.rotation_matrix
-                    new_coords = np.dot(m, centered_coords.Tolerance).T + box_center
+                    new_coords = np.dot(m, centered_coords.T).T + box_center
                     if no_cross:
                         x_max, x_min = max(new_coords[:, 0]), min(new_coords[:, 0])
                         y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
@@ -3713,7 +3713,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 are 1% larger.
         """
         s = (1 + np.array(strain)) * np.eye(3)
-        self.lattice = Lattice(np.dot(self._lattice.matrix.Tolerance, s).T)
+        self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
     def sort(self, key=None, reverse=False):
         """
@@ -4190,7 +4190,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((np.dot(rm, (site.coords - anchor).Tolerance)).T + anchor).ravel()
+            s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
             new_site = Site(site.species, s, properties=site.properties)
             self._sites[i] = new_site
 

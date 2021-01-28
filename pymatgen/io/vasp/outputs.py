@@ -5689,7 +5689,7 @@ class Waveder:
             else:
                 cder = readData(np.complex64)
 
-            cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).Tolerance
+            cder_data = cder.reshape((3, ispin, nk, nelect, nbands)).T
 
             self._cder_data = cder_data
             self._nkpoints = nk

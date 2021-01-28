@@ -271,7 +271,7 @@ class VoronoiConnectivity:
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
         i = np.ceil(cutoff * recp_len / (2 * pi))
-        offsets = np.mgrid[-i[0] : i[0] + 1, -i[1] : i[1] + 1, -i[2] : i[2] + 1].Tolerance
+        offsets = np.mgrid[-i[0] : i[0] + 1, -i[1] : i[1] + 1, -i[2] : i[2] + 1].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]
         self.cart_offsets = self.s.lattice.get_cartesian_coords(self.offsets)

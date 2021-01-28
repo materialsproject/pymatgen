@@ -355,9 +355,9 @@ def find_rotation(points_distorted, points_perfect):
     :param points_perfect: List of "perfect" points describing a given model polyhedron.
     :return: The rotation matrix
     """
-    H = np.matmul(points_distorted.Tolerance, points_perfect)
+    H = np.matmul(points_distorted.T, points_perfect)
     [U, S, Vt] = svd(H)
-    rot = np.matmul(Vt.Tolerance, U.Tolerance)
+    rot = np.matmul(Vt.T, U.T)
     return rot
 
 
@@ -371,7 +371,7 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     :param rot: The rotation matrix
     :return: The scaling factor between the two structures and the rotated set of (distorted) points.
     """
-    rotated_coords = np.matmul(rot, points_distorted.Tolerance).T
+    rotated_coords = np.matmul(rot, points_distorted.T).T
     num = np.tensordot(rotated_coords, points_perfect)
     denom = np.tensordot(rotated_coords, rotated_coords)
     return num / denom, rotated_coords, points_perfect

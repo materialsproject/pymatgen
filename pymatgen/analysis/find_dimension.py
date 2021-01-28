@@ -69,7 +69,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
             for move_cell in itertools.product([0, 1, -1], [0, 1, -1], [0, 1, -1]):
                 if not add_ij:
                     frac_diff = fc[j] + move_cell - fc[i]
-                    distance_ij = np.dot(latmat.Tolerance, frac_diff)
+                    distance_ij = np.dot(latmat.T, frac_diff)
                     if np.linalg.norm(distance_ij) < max_bond_length:
                         add_ij = True
             if add_ij:

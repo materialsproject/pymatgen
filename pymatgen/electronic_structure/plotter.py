@@ -692,7 +692,7 @@ class BSPlotter:
                     energies = np.hsplit(energies, steps)
 
                 for dist, ene in zip(distances, energies):
-                    plt.plot(dist, ene.Tolerance, c=colors[ibs], ls=ls)
+                    plt.plot(dist, ene.T, c=colors[ibs], ls=ls)
 
             # plot markers for vbm and cbm
             if vbm_cbm_marker:

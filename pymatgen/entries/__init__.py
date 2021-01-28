@@ -11,8 +11,12 @@ and PDEntry inherit from this class.
 """
 
 import copy
-from abc import ABCMeta, abstractmethod
+
+from numbers import Number
 from typing import Optional
+from abc import ABCMeta, abstractmethod
+
+import numpy as np
 
 from monty.json import MSONable
 
@@ -36,7 +40,11 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     """
 
-    def __init__(self, composition: Composition, energy: float):
+    def __init__(
+        self,
+        composition: Composition,
+        energy: float,
+    ):
         """
         Initializes an Entry.
 
@@ -47,15 +55,25 @@ class Entry(MSONable, metaclass=ABCMeta):
                 a string formula, and others.
             energy (float): Energy of the entry.
         """
+        self._composition = Composition(composition)
         self._energy = energy
-        self.composition = Composition(composition)
 
     @property
     def is_element(self) -> bool:
         """
         :return: Whether composition of entry is an element.
         """
-        return self.composition.is_element
+        # NOTE _composition rather than composition as GrandPDEntry
+        # edge case exists if we have a compound where chempots are
+        # given for all bar one element type
+        return self._composition.is_element
+
+    @property
+    def composition(self) -> Composition:
+        """
+        :return: the composition of the entry.
+        """
+        return self._composition
 
     @property
     @abstractmethod
@@ -70,6 +88,11 @@ class Entry(MSONable, metaclass=ABCMeta):
         :return: the energy per atom of the entry.
         """
         return self.energy / self.composition.num_atoms
+
+    def __repr__(self):
+        return "{} : {} with energy = {:.4f}".format(
+            self.__class__.__name__, self.composition, self.energy
+        )
 
     def __str__(self):
         return self.__repr__()
@@ -89,21 +112,27 @@ class Entry(MSONable, metaclass=ABCMeta):
         """
         if inplace:
             factor = self._normalization_factor(mode)
-            self.composition /= factor
+            self._composition /= factor
             self._energy /= factor
             return None
-        else:
-            entry = copy.deepcopy(self)
-            factor = entry._normalization_factor(mode)
-            entry.composition /= factor
-            entry._energy /= factor
-            return entry
+
+        entry = copy.deepcopy(self)
+        entry.normalize(mode, inplace=True)
+        return entry
 
     def _normalization_factor(self, mode: str = "formula_unit") -> float:
+        # NOTE here we use composition rather than _composition in order to ensure
+        # that we have the expected behaviour downstream in cases where composition
+        # is overwritten (GrandPotPDEntry, TransformedPDEntry)
         if mode == "atom":
             factor = self.composition.num_atoms
+        elif mode == "formula_unit":
+            factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            comp, factor = self.composition.get_reduced_composition_and_factor()
+            raise ValueError(
+                "`{}` is not an allowed option for normalization".format(mode)
+            )
+
         return factor
 
     def as_dict(self) -> dict:
@@ -114,5 +143,52 @@ class Entry(MSONable, metaclass=ABCMeta):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "energy": self._energy,
-            "composition": self.composition.as_dict(),
+            "composition": self._composition.as_dict()
         }
+
+    def __eq__(self, other):
+        # NOTE Scaled duplicates i.e. physically equivalent materials
+        # are not equal unless normalized separately
+        if self is other:
+            return True
+
+        if isinstance(other, self.__class__):
+            return self._is_dict_eq(other)
+
+        return False
+
+    def _is_dict_eq(self, other):
+        """
+        Check if entry dicts are equal using a robust check for
+        numerical values.
+        """
+        self_dict = self.as_dict()
+        other_dict = other.as_dict()
+
+        # NOTE use implicit generator to allow all() to short-circuit
+        return all(_is_robust_eq(other_dict[k], v) for k, v in self_dict.items())
+
+    def __hash__(self):
+        # NOTE truncate _energy to 8 dp to ensure same robustness
+        # as np.allclose
+        return hash(
+            f"{self.__class__.__name__}"
+            f"{self._composition.formula}"
+            f"{self._energy:.8f}"
+        )
+
+
+def _is_robust_eq(v_self, v_other):
+    """
+    Use np.allclose for numerical values for robustness
+    otherwise use default __eq__.
+
+    NOTE robustness doesn't reach to nested structures i.e. For a
+    ComputedStructureEntry where parameters stores the Incar this would
+    not be robust to fp changes in that Incar dictionary. For a
+    GrandPotPDEntry it will not be robust to fp changes in the chempots
+    """
+    if isinstance(v_self, Number) and isinstance(v_other, Number):
+        return np.allclose(v_self, v_other, atol=1e-8)
+
+    return v_self == v_other

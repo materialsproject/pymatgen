@@ -8,6 +8,7 @@ import unittest
 import warnings
 from numbers import Number
 from pathlib import Path
+from collections import OrderedDict
 
 import numpy as np
 
@@ -43,6 +44,9 @@ class PDEntryTest(unittest.TestCase):
     def test_get_energy(self):
         self.assertEqual(self.entry.energy, 53, "Wrong energy!")
         self.assertEqual(self.gpentry.energy, 50, "Wrong energy!")
+
+    def test_get_chemical_energy(self):
+        self.assertEqual(self.gpentry.chemical_energy, 3, "Wrong energy!")
 
     def test_get_energy_per_atom(self):
         self.assertEqual(self.entry.energy_per_atom, 53.0 / 4, "Wrong energy per atom!")
@@ -90,30 +94,36 @@ class PDEntryTest(unittest.TestCase):
     def test_read_csv(self):
         entries = EntrySet.from_csv(str(module_dir / "pdentries_test.csv"))
         self.assertEqual(entries.chemsys, {"Li", "Fe", "O"}, "Wrong elements!")
-        self.assertEqual(len(entries), 492, "Wrong number of entries!")
+        self.assertEqual(len(entries), 490, "Wrong number of entries!")
 
 
 class TransformedPDEntryTest(unittest.TestCase):
     def setUp(self):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
-        self.transformed_entry = TransformedPDEntry(
-            {DummySpecies("Xa"): 1, DummySpecies("Xb"): 1}, entry
-        )
+
+        terminal_compositions = ["Li2O", "FeO", "LiO8"]
+        terminal_compositions = [Composition(c) for c in terminal_compositions]
+
+        sp_mapping = OrderedDict()
+        for i, comp in enumerate(terminal_compositions):
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
+
+        self.transformed_entry = TransformedPDEntry(entry, sp_mapping)
 
     def test_get_energy(self):
         self.assertEqual(self.transformed_entry.energy, 53, "Wrong energy!")
-        self.assertEqual(self.transformed_entry.original_entry.energy, 53.0)
+        self.assertAlmostEqual(self.transformed_entry.original_entry.energy, 53.0, 11)
 
     def test_get_energy_per_atom(self):
-        self.assertEqual(self.transformed_entry.energy_per_atom, 53.0 / 2)
+        self.assertAlmostEqual(self.transformed_entry.energy_per_atom, 53.0 / (23 / 15), 11)
 
     def test_get_name(self):
         self.assertEqual(self.transformed_entry.name, "LiFeO2", "Wrong name!")
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
-        expected_comp = Composition({DummySpecies("Xa"): 1, DummySpecies("Xb"): 1})
+        expected_comp = Composition({DummySpecies("Xf"): 14/30, DummySpecies("Xg"): 1., DummySpecies("Xh"): 2/30})
         self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_is_element(self):
@@ -123,10 +133,15 @@ class TransformedPDEntryTest(unittest.TestCase):
         d = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(d)
         self.assertEqual(entry.name, "LiFeO2", "Wrong name!")
-        self.assertEqual(entry.energy_per_atom, 53.0 / 2)
+        self.assertAlmostEqual(entry.energy_per_atom, 53.0 / (23 / 15), 11)
 
     def test_str(self):
         self.assertIsNotNone(str(self.transformed_entry))
+
+    def test_normalize(self):
+        norm_entry = self.transformed_entry.normalize(mode="atom", inplace=False)
+        expected_comp = Composition({DummySpecies("Xf"): 7/23, DummySpecies("Xg"): 15/23, DummySpecies("Xh"): 1/23})
+        self.assertEqual(norm_entry.composition, expected_comp, "Wrong composition!")
 
 
 class PhaseDiagramTest(unittest.TestCase):
@@ -222,7 +237,7 @@ class PhaseDiagramTest(unittest.TestCase):
             self.assertAlmostEqual(energy, stable_formation_energies[formula], 7)
 
     def test_all_entries_hulldata(self):
-        self.assertEqual(len(self.pd.all_entries_hulldata), 492)
+        self.assertEqual(len(self.pd.all_entries_hulldata), 490)
 
     def test_planar_inputs(self):
         e1 = PDEntry("H", 0)
@@ -288,9 +303,13 @@ class PhaseDiagramTest(unittest.TestCase):
                 )
             else:
                 self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
-                    0,
-                    "Stable entries should have negative decomposition energy!",
+                    self.pd.get_quasi_e_to_hull(entry), 0,
+                    "Stable entries should have negative decomposition energy!")
+                self.assertAlmostEqual(
+                    self.pd.get_quasi_e_to_hull(entry, stable_only=True),
+                    self.pd.get_equilibrium_reaction_energy(entry), 7,
+                    ("Using `stable_only=True` should give decomposition energy equal to "
+                        "equilibrium reaction energy!")
                 )
 
         novel_stable_entry = PDEntry("Li5FeO4", -999)
@@ -577,7 +596,8 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
         expected_stable = ["Li5FeO4", "Li2FeO3", "LiFeO2", "Fe2O3", "Li2O2"]
         for formula in expected_stable:
             self.assertTrue(
-                formula in stable_formulas, formula + " not in stable entries!"
+                formula in stable_formulas,
+                "{} not in stable entries!".format(formula)
             )
         self.assertEqual(len(self.pd6.stable_entries), 4)
 
@@ -598,7 +618,7 @@ class GrandPotentialPhaseDiagramTest(unittest.TestCase):
                 energy,
                 stable_formation_energies[formula],
                 7,
-                "Calculated formation for " + formula + " is not correct!",
+                "Calculated formation for {} is not correct!".format(formula),
             )
 
     def test_str(self):

@@ -1075,7 +1075,7 @@ class BoltztrapAnalyzer:
 
             bands_dict = {
                 Spin.up: (self._bz_bands * Energy(1, "Ry").to("eV") + efermi)
-                .Tolerance[:, idx_list[:, 1]]
+                .T[:, idx_list[:, 1]]
                 .tolist()
             }
             # bz_kpoints = bz_kpoints[idx_list[:,1]].tolist()
