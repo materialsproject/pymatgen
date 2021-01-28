@@ -3,24 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 
-import itertools
-import numpy as np
-import math
-from . import coord_cython as cuc
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Nov 27, 2011"
+import itertools
+import math
 
+import numpy as np
+
+from . import coord_cython as cuc
 
 # array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
@@ -92,15 +86,17 @@ def coord_list_mapping(subset, superset, atol=1e-8):
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
-    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol),
-                           axis=2))[1]
+    inds = np.where(
+        np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol), axis=2)
+    )[1]
     result = c2[inds]
     if not np.allclose(c1, result, atol=atol):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates "
-                         "in superset")
+        raise ValueError(
+            "Something wrong with the inputs, likely duplicates " "in superset"
+        )
     return inds
 
 
@@ -115,7 +111,8 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    atol = np.array([1., 1. ,1.]) * atol
+    # pylint: disable=I1101
+    atol = np.array([1.0, 1.0, 1.0]) * atol
     return cuc.coord_list_mapping_pbc(subset, superset, atol)
 
 
@@ -186,8 +183,7 @@ def pbc_diff(fcoords1, fcoords2):
     return fdist - np.round(fdist)
 
 
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None,
-                         return_d2=False):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -207,8 +203,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None,
         array of displacement vectors from fcoords1 to fcoords2
         first index is fcoords1 index, second is fcoords2 index
     """
-    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask,
-                                    return_d2)
+    # pylint: disable=I1101
+    return cuc.pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask, return_d2)
 
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
@@ -262,6 +258,7 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     Returns:
         True if all of subset is in superset.
     """
+    # pylint: disable=I1101
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
     if mask is not None:
@@ -285,27 +282,34 @@ def lattice_points_in_supercell(supercell_matrix):
         numpy array of the fractional coordinates
     """
     diagonals = np.array(
-        [[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1],
-         [1, 1, 0], [1, 1, 1]])
+        [
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 1, 0],
+            [0, 1, 1],
+            [1, 0, 0],
+            [1, 0, 1],
+            [1, 1, 0],
+            [1, 1, 1],
+        ]
+    )
     d_points = np.dot(diagonals, supercell_matrix)
 
     mins = np.min(d_points, axis=0)
     maxes = np.max(d_points, axis=0) + 1
 
-    ar = np.arange(mins[0], maxes[0])[:, None] * \
-         np.array([1, 0, 0])[None, :]
-    br = np.arange(mins[1], maxes[1])[:, None] * \
-         np.array([0, 1, 0])[None, :]
-    cr = np.arange(mins[2], maxes[2])[:, None] * \
-         np.array([0, 0, 1])[None, :]
+    ar = np.arange(mins[0], maxes[0])[:, None] * np.array([1, 0, 0])[None, :]
+    br = np.arange(mins[1], maxes[1])[:, None] * np.array([0, 1, 0])[None, :]
+    cr = np.arange(mins[2], maxes[2])[:, None] * np.array([0, 0, 1])[None, :]
 
     all_points = ar[:, None, None] + br[None, :, None] + cr[None, None, :]
     all_points = all_points.reshape((-1, 3))
 
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
-    tvects = frac_points[np.all(frac_points < 1 - 1e-10, axis=1)
-                         & np.all(frac_points >= -1e-10, axis=1)]
+    tvects = frac_points[
+        np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)
+    ]
     assert len(tvects) == round(abs(np.linalg.det(supercell_matrix)))
     return tvects
 
@@ -326,8 +330,7 @@ def barycentric_coords(coords, simplex):
     coords = np.atleast_2d(coords)
 
     t = np.transpose(simplex[:-1, :]) - np.transpose(simplex[-1, :])[:, None]
-    all_but_one = np.transpose(
-        np.linalg.solve(t, np.transpose(coords - simplex[-1])))
+    all_but_one = np.transpose(np.linalg.solve(t, np.transpose(coords - simplex[-1])))
     last_coord = 1 - np.sum(all_but_one, axis=-1)[:, None]
     return np.append(all_but_one, last_coord, axis=-1)
 
@@ -350,10 +353,9 @@ def get_angle(v1, v2, units="degrees"):
     angle = math.acos(d)
     if units == "degrees":
         return math.degrees(angle)
-    elif units == "radians":
+    if units == "radians":
         return angle
-    else:
-        raise ValueError("Invalid units {}".format(units))
+    raise ValueError("Invalid units {}".format(units))
 
 
 class Simplex:
@@ -382,8 +384,7 @@ class Simplex:
         self.origin = self._coords[-1]
         if self.space_dim == self.simplex_dim + 1:
             # precompute augmented matrix for calculating bary_coords
-            self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))],
-                                       axis=-1)
+            self._aug = np.concatenate([coords, np.ones((self.space_dim, 1))], axis=-1)
             self._aug_inv = np.linalg.inv(self._aug)
 
     @property
@@ -394,16 +395,30 @@ class Simplex:
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
+        """
+        Args:
+            point (): Point coordinates.
+
+        Returns:
+            Barycentric coordinations.
+        """
         try:
             return np.dot(np.concatenate([point, [1]]), self._aug_inv)
         except AttributeError:
-            raise ValueError('Simplex is not full-dimensional')
+            raise ValueError("Simplex is not full-dimensional")
 
     def point_from_bary_coords(self, bary_coords):
+        """
+        Args:
+            bary_coords (): Barycentric coordinates
+
+        Returns:
+            Point coordinates
+        """
         try:
             return np.dot(bary_coords, self._aug[:, :-1])
         except AttributeError:
-            raise ValueError('Simplex is not full-dimensional')
+            raise ValueError("Simplex is not full-dimensional")
 
     def in_simplex(self, point, tolerance=1e-8):
         """
@@ -464,9 +479,10 @@ class Simplex:
         return len(self._coords)
 
     def __repr__(self):
-        output = ["{}-simplex in {}D space".format(self.simplex_dim,
-                                                   self.space_dim),
-                  "Vertices:"]
+        output = [
+            "{}-simplex in {}D space".format(self.simplex_dim, self.space_dim),
+            "Vertices:",
+        ]
         for coord in self._coords:
             output.append("\t({})".format(", ".join(map(str, coord))))
         return "\n".join(output)

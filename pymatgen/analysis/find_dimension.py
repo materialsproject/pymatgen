@@ -2,52 +2,63 @@
 
 
 """
-This module provides functions for finding the dimensions of connected subunits in a crystal structure.
-This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
-See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
-
+This module provides functions for finding the dimensions of connected subunits
+in a crystal structure.
+This method finds the dimensionality of the material even when the material is
+not layered along low-index planes, or does not have flat layers/molecular wires.
+See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.;
+Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly
+Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
 """
+
+import copy
+import itertools
+
+import numpy as np
+from monty.dev import deprecated
+
+from pymatgen.analysis.local_env import JmolNN
+from pymatgen.core.periodic_table import Species
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Gowoon Cheon"
 __version__ = "1.0"
 __email__ = "gcheon@stanford.edu"
 
-import numpy as np
-import itertools
-import copy
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.local_env import JmolNN
-from pymatgen.core.periodic_table import Specie
-from monty.dev import deprecated
-
-
-@deprecated(message=("find_connected_atoms has been moved to "
-                     "pymatgen.analysis.dimensionality.find_connected_atoms. "
-                     "This method will be removed in pymatgen v2019.1.1."))
+@deprecated(
+    message=(
+        "find_connected_atoms has been moved to "
+        "pymatgen.analysis.dimensionality.find_connected_atoms. "
+        "This method will be removed in pymatgen v2019.1.1."
+    )
+)
 def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     """
     Finds the list of bonded atoms.
 
     Args:
         struct (Structure): Input structure
-        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the value used by JMol and Cheon et al.
+        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of
+            atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the
+            value used by JMol and Cheon et al.
         ldict: dictionary of bond lengths used in finding bonded atoms. Values from JMol are used as default
         standardize: works with conventional standard structures if True. It is recommended to keep this as True.
 
     Returns:
         connected_list: A numpy array of shape (number of bonded pairs, 2); each row of is of the form [atomi, atomj].
         atomi and atomj are the indices of the atoms in the input structure.
-        If any image of atomj is bonded to atomi with periodic boundary conditions, [atomi, atomj] is included in the list.
+        If any image of atomj is bonded to atomi with periodic boundary conditions, [atomi, atomj] is included in the
+        list.
         If atomi is bonded to multiple images of atomj, it is only counted once.
     """
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
     species = list(map(str, struct.species))
-    #in case of charged species
-    for i,item in enumerate(species):
-        if not item in ldict.keys():
-            species[i]=str(Specie.from_string(item).element)
+    # in case of charged species
+    for i, item in enumerate(species):
+        if item not in ldict.keys():
+            species[i] = str(Species.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_list = []
 
@@ -66,9 +77,13 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     return np.array(connected_list)
 
 
-@deprecated(message=("find_clusters has been moved to"
-                     "pymatgen.analysis.dimensionality.find_clusters. "
-                     "This method will be removed in pymatgen v2019.1.1."))
+@deprecated(
+    message=(
+        "find_clusters has been moved to"
+        "pymatgen.analysis.dimensionality.find_clusters. "
+        "This method will be removed in pymatgen v2019.1.1."
+    )
+)
 def find_clusters(struct, connected_list):
     """
     Finds bonded clusters of atoms in the structure with periodic boundary conditions.
@@ -121,26 +136,39 @@ def find_clusters(struct, connected_list):
     return [max_cluster, min_cluster, clusters]
 
 
-@deprecated(message=("find_dimension has been moved to"
-                     "pymatgen.analysis.dimensionality.get_dimensionality_cheon. "
-                     "This method will be removed in pymatgen v2019.1.1."))
-def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, standardize=True):
+@deprecated(
+    message=(
+        "find_dimension has been moved to"
+        "pymatgen.analysis.dimensionality.get_dimensionality_cheon. "
+        "This method will be removed in pymatgen v2019.1.1."
+    )
+)
+def find_dimension(
+    structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, standardize=True
+):
     """
     Algorithm for finding the dimensions of connected subunits in a crystal structure.
-    This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
-    See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
+    This method finds the dimensionality of the material even when the material is not layered along low-index planes,
+    or does not have flat layers/molecular wires.
+    See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed, E. J. Data Mining for
+    New Two- and One-Dimensional Weakly Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
 
     Args:
         structure (Structure): Input structure
-        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the value used by JMol and Cheon et al.
+        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of
+            atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the
+            value used by JMol and Cheon et al.
         ldict: dictionary of bond lengths used in finding bonded atoms. Values from JMol are used as default
         standardize: works with conventional standard structures if True. It is recommended to keep this as True.
 
     Returns:
-        dim: dimension of the largest cluster as a string. If there are ions or molecules it returns 'intercalated ion/molecule'
+        dim: dimension of the largest cluster as a string. If there are ions or molecules it returns 'intercalated
+        ion/molecule'
     """
     if standardize:
-        structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
+        structure = SpacegroupAnalyzer(
+            structure_raw
+        ).get_conventional_standard_structure()
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, clusters1 = find_clusters(structure, connected_list1)
@@ -148,30 +176,32 @@ def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, stan
     connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max2, min2, clusters2 = find_clusters(structure, connected_list2)
     if min2 == 1:
-        dim = 'intercalated ion'
+        dim = "intercalated ion"
     elif min2 == min1:
         if max2 == max1:
-            dim = '0D'
+            dim = "0D"
         else:
-            dim = 'intercalated molecule'
+            dim = "intercalated molecule"
     else:
         dim = np.log2(float(max2) / max1)
         if dim == int(dim):
-            dim = str(int(dim)) + 'D'
+            dim = str(int(dim)) + "D"
         else:
-            structure=copy.copy(structure_save)
+            structure = copy.copy(structure_save)
             structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-            connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
+            connected_list3 = find_connected_atoms(
+                structure, tolerance=tolerance, ldict=ldict
+            )
             max3, min3, clusters3 = find_clusters(structure, connected_list3)
             if min3 == min2:
                 if max3 == max2:
-                    dim = '0D'
+                    dim = "0D"
                 else:
-                    dim = 'intercalated molecule'
+                    dim = "intercalated molecule"
             else:
                 dim = np.log2(float(max3) / max1) / np.log2(3)
                 if dim == int(dim):
-                    dim = str(int(dim)) + 'D'
+                    dim = str(int(dim)) + "D"
                 else:
-                    return
+                    return None
     return dim

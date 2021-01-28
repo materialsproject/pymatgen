@@ -5,11 +5,14 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.io.abinit
+   pymatgen.io.cp2k
    pymatgen.io.exciting
    pymatgen.io.feff
    pymatgen.io.lammps
+   pymatgen.io.lobster
    pymatgen.io.qchem
    pymatgen.io.vasp
 
@@ -17,6 +20,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.io.adf
    pymatgen.io.aiida
@@ -25,16 +29,17 @@ Submodules
    pymatgen.io.babel
    pymatgen.io.cif
    pymatgen.io.cssr
+   pymatgen.io.cube
    pymatgen.io.fiesta
    pymatgen.io.gaussian
+   pymatgen.io.jarvis
    pymatgen.io.lmto
-   pymatgen.io.lobster
    pymatgen.io.nwchem
    pymatgen.io.phonopy
    pymatgen.io.prismatic
    pymatgen.io.pwscf
-   pymatgen.io.qchem_deprecated
    pymatgen.io.shengbte
+   pymatgen.io.wannier90
    pymatgen.io.xcrysden
    pymatgen.io.xr
    pymatgen.io.xyz

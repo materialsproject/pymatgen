@@ -1,24 +1,26 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
+import logging
 import os.path
 import warnings
-import numpy as np
-
 from collections import OrderedDict
-from monty.dev import requires
+
+import numpy as np
 from monty.collections import AttrDict
+from monty.dev import requires
 from monty.functools import lazy_property
 from monty.string import marquee
+
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.core.structure import Structure
 
-import logging
 logger = logging.getLogger(__name__)
-
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -41,14 +43,17 @@ try:
     import netCDF4
 except ImportError as exc:
     netCDF4 = None
-    warnings.warn("""\
+    warnings.warn(
+        """\
 `import netCDF4` failed with the following error:
 
 %s
 
 Please install netcdf4 with `conda install netcdf4`
 If the conda version does not work, uninstall it with `conda uninstall hdf4 hdf5 netcdf4`
-and use `pip install netcdf4`""" % str(exc))
+and use `pip install netcdf4`"""
+        % str(exc)
+    )
 
 
 def _asreader(file, cls):
@@ -68,6 +73,7 @@ def as_ncreader(file):
 
 
 def as_etsfreader(file):
+    """Return an ETSF_Reader. Accepts filename or ETSF_Reader."""
     return _asreader(file, ETSF_Reader)
 
 
@@ -86,6 +92,7 @@ class NetcdfReader:
     Additional documentation available at:
         http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
     """
+
     Error = NetcdfReaderError
 
     @requires(netCDF4 is not None, "netCDF4 must be installed to use this class")
@@ -100,11 +107,11 @@ class NetcdfReader:
 
         self.ngroups = len(list(self.walk_tree()))
 
-        #self.path2group = OrderedDict()
-        #for children in self.walk_tree():
-        #   for child in children:
-        #       #print(child.group,  child.path)
-        #       self.path2group[child.path] = child.group
+        # Always return non-masked numpy arrays.
+        # Slicing a ncvar returns a MaskedArrray and this is really annoying
+        # because it can lead to unexpected behaviour in e.g. calls to np.matmul!
+        # See also https://github.com/Unidata/netcdf4-python/issues/785
+        self.rootgrp.set_auto_mask(False)
 
     def __enter__(self):
         """Activated when used in the with statement."""
@@ -115,6 +122,7 @@ class NetcdfReader:
         self.rootgrp.close()
 
     def close(self):
+        """Close the file."""
         try:
             self.rootgrp.close()
         except Exception as exc:
@@ -135,6 +143,7 @@ class NetcdfReader:
                 yield children
 
     def print_tree(self):
+        """Print all the groups in the file."""
         for children in self.walk_tree():
             for child in children:
                 print(child)
@@ -153,16 +162,16 @@ class NetcdfReader:
             dim = self._read_dimensions(dimname, path=path)[0]
             return len(dim)
         except self.Error:
-            if default is NO_DEFAULT: raise
+            if default is NO_DEFAULT:
+                raise
             return default
 
     def read_varnames(self, path="/"):
         """List of variable names stored in the group specified by path."""
         if path == "/":
             return self.rootgrp.variables.keys()
-        else:
-            group = self.path2group[path]
-            return group.variables.keys()
+        group = self.path2group[path]
+        return group.variables.keys()
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """
@@ -174,7 +183,7 @@ class NetcdfReader:
             cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
             default: returns default if varname is not present.
-                self.Error is raised if default is default is NO_DEFAULT
+                self.Error is raised if default is set to NO_DEFAULT
 
         Returns:
             numpy array if varname represents an array, scalar otherwise.
@@ -182,7 +191,8 @@ class NetcdfReader:
         try:
             var = self.read_variable(varname, path=path)
         except self.Error:
-            if default is NO_DEFAULT: raise
+            if default is NO_DEFAULT:
+                raise
             return default
 
         if cmode is None:
@@ -193,12 +203,10 @@ class NetcdfReader:
             except IndexError:
                 return var.getValue() if not var.shape else var[:]
 
-        else:
-            assert var.shape[-1] == 2
-            if cmode == "c":
-                return var[...,0] + 1j*var[...,1]
-            else:
-                raise ValueError("Wrong value for cmode %s" % cmode)
+        assert var.shape[-1] == 2
+        if cmode == "c":
+            return var[..., 0] + 1j * var[..., 1]
+        raise ValueError("Wrong value for cmode %s" % cmode)
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
@@ -209,26 +217,28 @@ class NetcdfReader:
         try:
             if path == "/":
                 return [self.rootgrp.dimensions[dname] for dname in dimnames]
-            else:
-                group = self.path2group[path]
-                return [group.dimensions[dname] for dname in dimnames]
+            group = self.path2group[path]
+            return [group.dimensions[dname] for dname in dimnames]
 
         except KeyError:
-            raise self.Error("In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" %
-                             (self.path, dimnames, kwargs))
+            raise self.Error(
+                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`"
+                % (self.path, dimnames, kwargs)
+            )
 
     def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
         try:
             if path == "/":
                 return [self.rootgrp.variables[vname] for vname in varnames]
-            else:
-                group = self.path2group[path]
-                return [group.variables[vname] for vname in varnames]
+            group = self.path2group[path]
+            return [group.variables[vname] for vname in varnames]
 
         except KeyError:
-            raise self.Error("In file %s:\nError while reading variables: `%s` with kwargs `%s`." %
-                             (self.path, varnames, kwargs))
+            raise self.Error(
+                "In file %s:\nError while reading variables: `%s` with kwargs `%s`."
+                % (self.path, varnames, kwargs)
+            )
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
@@ -256,6 +266,7 @@ class ETSF_Reader(NetcdfReader):
 
     We assume that the netcdf file contains at least the crystallographic section.
     """
+
     @lazy_property
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
@@ -302,14 +313,18 @@ class ETSF_Reader(NetcdfReader):
                 raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
             # Convert scalars to (well) scalars.
             if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
-                d[hvar.name] = np.asscalar(d[hvar.name])
+                d[hvar.name] = np.asarray(d[hvar.name]).item()
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
+                    d[hvar.name] = "".join(
+                        bs.decode("utf-8").strip() for bs in d[hvar.name]
+                    )
                 else:
-                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip()
-                            for astr in d[hvar.name]]
+                    d[hvar.name] = [
+                        "".join(bs.decode("utf-8") for bs in astr).strip()
+                        for astr in d[hvar.name]
+                    ]
 
         return AbinitHeader(d)
 
@@ -354,6 +369,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     # I need an abipy structure since I need to_abivars and other methods.
     try:
         from abipy.core.structure import Structure as AbipyStructure
+
         structure.__class__ = AbipyStructure
     except ImportError:
         pass
@@ -363,91 +379,114 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
     return structure
 
+
 class _H:
     __slots__ = ["name", "doc", "etsf_name"]
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
 
+
 _HDR_VARIABLES = (
-  # Scalars
-  _H("bantot", "total number of bands (sum of nband on all kpts and spins)"),
-  _H("date", "starting date"),
-  _H("headform", "format of the header"),
-  _H("intxc", "input variable"),
-  _H("ixc", "input variable"),
-  _H("mband", "maxval(hdr%nband)", etsf_name="max_number_of_states"),
-  _H("natom", "input variable", etsf_name="number_of_atoms"),
-  _H("nkpt", "input variable", etsf_name="number_of_kpoints"),
-  _H("npsp", "input variable"),
-  _H("nspden", "input variable", etsf_name="number_of_components"),
-  _H("nspinor", "input variable", etsf_name="number_of_spinor_components"),
-  _H("nsppol", "input variable", etsf_name="number_of_spins"),
-  _H("nsym", "input variable", etsf_name="number_of_symmetry_operations"),
-  _H("ntypat", "input variable", etsf_name="number_of_atom_species"),
-  _H("occopt", "input variable"),
-  _H("pertcase", "the index of the perturbation, 0 if GS calculation"),
-  _H("usepaw", "input variable (0=norm-conserving psps, 1=paw)"),
-  _H("usewvl", "input variable (0=plane-waves, 1=wavelets)"),
-  _H("kptopt", "input variable (defines symmetries used for k-point sampling)"),
-  _H("pawcpxocc", "input variable"),
-  _H("nshiftk_orig", "original number of shifts given in input (changed in inkpts, the actual value is nshiftk)"),
-  _H("nshiftk", "number of shifts after inkpts."),
-  _H("icoulomb", "input variable."),
-  _H("ecut", "input variable", etsf_name="kinetic_energy_cutoff"),
-  _H("ecutdg", "input variable (ecut for NC psps, pawecutdg for paw)"),
-  _H("ecutsm", "input variable"),
-  _H("ecut_eff", "ecut*dilatmx**2 (dilatmx is an input variable)"),
-  _H("etot", "EVOLVING variable"),
-  _H("fermie", "EVOLVING variable", etsf_name="fermi_energy"),
-  _H("residm", "EVOLVING variable"),
-  _H("stmbias", "input variable"),
-  _H("tphysel", "input variable"),
-  _H("tsmear", "input variable"),
-  _H("nelect", "number of electrons (computed from pseudos and charge)"),
-  _H("charge", "input variable"),
-  # Arrays
-  _H("qptn", "qptn(3) the wavevector, in case of a perturbation"),
-  #_H("rprimd", "rprimd(3,3) EVOLVING variables", etsf_name="primitive_vectors"),
-  #_H(ngfft, "ngfft(3) input variable",  number_of_grid_points_vector1"
-  #_H("nwvlarr", "nwvlarr(2) the number of wavelets for each resolution.", etsf_name="number_of_wavelets"),
-  _H("kptrlatt_orig", "kptrlatt_orig(3,3) Original kptrlatt"),
-  _H("kptrlatt", "kptrlatt(3,3) kptrlatt after inkpts."),
-  _H("istwfk", "input variable istwfk(nkpt)"),
-  _H("lmn_size", "lmn_size(npsp) from psps"),
-  _H("nband", "input variable nband(nkpt*nsppol)", etsf_name="number_of_states"),
-  _H("npwarr", "npwarr(nkpt) array holding npw for each k point", etsf_name="number_of_coefficients"),
-  _H("pspcod", "pscod(npsp) from psps"),
-  _H("pspdat", "psdat(npsp) from psps"),
-  _H("pspso", "pspso(npsp) from psps"),
-  _H("pspxc", "pspxc(npsp) from psps"),
-  _H("so_psp", "input variable so_psp(npsp)"),
-  _H("symafm", "input variable symafm(nsym)"),
-  #_H(symrel="input variable symrel(3,3,nsym)",  etsf_name="reduced_symmetry_matrices"),
-  _H("typat", "input variable typat(natom)", etsf_name="atom_species"),
-  _H("kptns", "input variable kptns(nkpt, 3)", etsf_name="reduced_coordinates_of_kpoints"),
-  _H("occ", "EVOLVING variable occ(mband, nkpt, nsppol)", etsf_name="occupations"),
-  _H("tnons", "input variable tnons(nsym, 3)", etsf_name="reduced_symmetry_translations"),
-  _H("wtk", "weight of kpoints wtk(nkpt)", etsf_name="kpoint_weights"),
-  _H("shiftk_orig", "original shifts given in input (changed in inkpts)."),
-  _H("shiftk", "shiftk(3,nshiftk), shiftks after inkpts"),
-  _H("amu", "amu(ntypat) ! EVOLVING variable"),
-  #_H("xred", "EVOLVING variable xred(3,natom)", etsf_name="reduced_atom_positions"),
-  _H("zionpsp", "zionpsp(npsp) from psps"),
-  _H("znuclpsp", "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp"),
-  _H("znucltypat", "znucltypat(ntypat) from alchemy", etsf_name="atomic_numbers"),
-  _H("codvsn", "version of the code"),
-  _H("title", "title(npsp) from psps"),
-  _H("md5_pseudos", "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)"),
-  #_H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
+    # Scalars
+    _H("bantot", "total number of bands (sum of nband on all kpts and spins)"),
+    _H("date", "starting date"),
+    _H("headform", "format of the header"),
+    _H("intxc", "input variable"),
+    _H("ixc", "input variable"),
+    _H("mband", "maxval(hdr%nband)", etsf_name="max_number_of_states"),
+    _H("natom", "input variable", etsf_name="number_of_atoms"),
+    _H("nkpt", "input variable", etsf_name="number_of_kpoints"),
+    _H("npsp", "input variable"),
+    _H("nspden", "input variable", etsf_name="number_of_components"),
+    _H("nspinor", "input variable", etsf_name="number_of_spinor_components"),
+    _H("nsppol", "input variable", etsf_name="number_of_spins"),
+    _H("nsym", "input variable", etsf_name="number_of_symmetry_operations"),
+    _H("ntypat", "input variable", etsf_name="number_of_atom_species"),
+    _H("occopt", "input variable"),
+    _H("pertcase", "the index of the perturbation, 0 if GS calculation"),
+    _H("usepaw", "input variable (0=norm-conserving psps, 1=paw)"),
+    _H("usewvl", "input variable (0=plane-waves, 1=wavelets)"),
+    _H("kptopt", "input variable (defines symmetries used for k-point sampling)"),
+    _H("pawcpxocc", "input variable"),
+    _H(
+        "nshiftk_orig",
+        "original number of shifts given in input (changed in inkpts, the actual value is nshiftk)",
+    ),
+    _H("nshiftk", "number of shifts after inkpts."),
+    _H("icoulomb", "input variable."),
+    _H("ecut", "input variable", etsf_name="kinetic_energy_cutoff"),
+    _H("ecutdg", "input variable (ecut for NC psps, pawecutdg for paw)"),
+    _H("ecutsm", "input variable"),
+    _H("ecut_eff", "ecut*dilatmx**2 (dilatmx is an input variable)"),
+    _H("etot", "EVOLVING variable"),
+    _H("fermie", "EVOLVING variable", etsf_name="fermi_energy"),
+    _H("residm", "EVOLVING variable"),
+    _H("stmbias", "input variable"),
+    _H("tphysel", "input variable"),
+    _H("tsmear", "input variable"),
+    _H("nelect", "number of electrons (computed from pseudos and charge)"),
+    _H("charge", "input variable"),
+    # Arrays
+    _H("qptn", "qptn(3) the wavevector, in case of a perturbation"),
+    # _H("rprimd", "rprimd(3,3) EVOLVING variables", etsf_name="primitive_vectors"),
+    # _H(ngfft, "ngfft(3) input variable",  number_of_grid_points_vector1"
+    # _H("nwvlarr", "nwvlarr(2) the number of wavelets for each resolution.", etsf_name="number_of_wavelets"),
+    _H("kptrlatt_orig", "kptrlatt_orig(3,3) Original kptrlatt"),
+    _H("kptrlatt", "kptrlatt(3,3) kptrlatt after inkpts."),
+    _H("istwfk", "input variable istwfk(nkpt)"),
+    _H("lmn_size", "lmn_size(npsp) from psps"),
+    _H("nband", "input variable nband(nkpt*nsppol)", etsf_name="number_of_states"),
+    _H(
+        "npwarr",
+        "npwarr(nkpt) array holding npw for each k point",
+        etsf_name="number_of_coefficients",
+    ),
+    _H("pspcod", "pscod(npsp) from psps"),
+    _H("pspdat", "psdat(npsp) from psps"),
+    _H("pspso", "pspso(npsp) from psps"),
+    _H("pspxc", "pspxc(npsp) from psps"),
+    _H("so_psp", "input variable so_psp(npsp)"),
+    _H("symafm", "input variable symafm(nsym)"),
+    # _H(symrel="input variable symrel(3,3,nsym)",  etsf_name="reduced_symmetry_matrices"),
+    _H("typat", "input variable typat(natom)", etsf_name="atom_species"),
+    _H(
+        "kptns",
+        "input variable kptns(nkpt, 3)",
+        etsf_name="reduced_coordinates_of_kpoints",
+    ),
+    _H("occ", "EVOLVING variable occ(mband, nkpt, nsppol)", etsf_name="occupations"),
+    _H(
+        "tnons",
+        "input variable tnons(nsym, 3)",
+        etsf_name="reduced_symmetry_translations",
+    ),
+    _H("wtk", "weight of kpoints wtk(nkpt)", etsf_name="kpoint_weights"),
+    _H("shiftk_orig", "original shifts given in input (changed in inkpts)."),
+    _H("shiftk", "shiftk(3,nshiftk), shiftks after inkpts"),
+    _H("amu", "amu(ntypat) ! EVOLVING variable"),
+    # _H("xred", "EVOLVING variable xred(3,natom)", etsf_name="reduced_atom_positions"),
+    _H("zionpsp", "zionpsp(npsp) from psps"),
+    _H(
+        "znuclpsp",
+        "znuclpsp(npsp) from psps. Note the difference between (znucl|znucltypat) and znuclpsp",
+    ),
+    _H("znucltypat", "znucltypat(ntypat) from alchemy", etsf_name="atomic_numbers"),
+    _H("codvsn", "version of the code"),
+    _H("title", "title(npsp) from psps"),
+    _H(
+        "md5_pseudos",
+        "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)",
+    ),
+    # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])
+_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
 
 
 class AbinitHeader(AttrDict):
     """Stores the values reported in the Abinit header."""
 
-    #def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
     #    super().__init__(*args, **kwargs)
     #    for k, v in self.items():
     #        v.__doc__ = _HDR_VARIABLES[k].doc
@@ -464,6 +503,7 @@ class AbinitHeader(AttrDict):
             title: Title string.
         """
         from pprint import pformat
+
         s = pformat(self, **kwargs)
         if title is not None:
             return "\n".join([marquee(title, mark="="), s])

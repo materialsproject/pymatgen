@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.corrections &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.defects.corrections &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.defects.corrections</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.defects.corrections</h1><div class="highlight"><pre>
@@ -49,12 +49,16 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implementation of defect correction methods.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">DefectCorrection</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="k">import</span> <span class="n">ang_to_bohr</span><span class="p">,</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="n">eV_to_k</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">DefectCorrection</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="kn">import</span> <span class="n">ang_to_bohr</span><span class="p">,</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="n">eV_to_k</span><span class="p">,</span> \
     <span class="n">generate_reciprocal_vectors_squared</span><span class="p">,</span> <span class="n">QModel</span><span class="p">,</span> <span class="n">converge</span><span class="p">,</span> <span class="n">tune_for_gamma</span><span class="p">,</span> \
     <span class="n">generate_R_and_G_vecs</span><span class="p">,</span> <span class="n">kumagai_to_V</span>
 
@@ -79,7 +83,7 @@
 <span class="sd">    doi: 10.1103/PhysRevLett.102.016402</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dielectric_const</span><span class="p">,</span> <span class="n">q_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="o">=</span><span class="mi">520</span><span class="p">,</span> <span class="n">madetol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dielectric_const</span><span class="p">,</span> <span class="n">q_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="o">=</span><span class="mi">520</span><span class="p">,</span> <span class="n">madetol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the FreysoldtCorrection class</span>
 <span class="sd">        Args:</span>
@@ -196,15 +200,14 @@
 
         <span class="k">def</span> <span class="nf">e_iso</span><span class="p">(</span><span class="n">encut</span><span class="p">):</span>
             <span class="n">gcut</span> <span class="o">=</span> <span class="n">eV_to_k</span><span class="p">(</span><span class="n">encut</span><span class="p">)</span>  <span class="c1"># gcut is in units of 1/A</span>
-            <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">integrate</span><span class="o">.</span><span class="n">quad</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">gcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">integrate</span><span class="o">.</span><span class="n">quad</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">gcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
         <span class="k">def</span> <span class="nf">e_per</span><span class="p">(</span><span class="n">encut</span><span class="p">):</span>
             <span class="n">eper</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">g2</span> <span class="ow">in</span> <span class="n">generate_reciprocal_vectors_squared</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">encut</span><span class="p">):</span>
-                <span class="n">eper</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">g2</span>
-            <span class="n">eper</span> <span class="o">*=</span> <span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="n">vol</span>
-            <span class="n">eper</span> <span class="o">+=</span> <span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> \
-                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec_limit0</span> <span class="o">/</span> <span class="n">vol</span>
+                <span class="n">eper</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">g2</span>
+            <span class="n">eper</span> <span class="o">*=</span> <span class="p">(</span><span class="n">q</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="n">vol</span>
+            <span class="n">eper</span> <span class="o">+=</span> <span class="p">(</span><span class="n">q</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec_limit0</span> <span class="o">/</span> <span class="n">vol</span>
             <span class="k">return</span> <span class="n">eper</span>
 
         <span class="n">eiso</span> <span class="o">=</span> <span class="n">converge</span><span class="p">(</span><span class="n">e_iso</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">madetol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_cutoff</span><span class="p">)</span>
@@ -292,7 +295,7 @@
 
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v_R</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">madetol</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;imaginary part found to be </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v_R</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
-        <span class="n">v_R</span> <span class="o">/=</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">ang_to_bohr</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">v_R</span> <span class="o">/=</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">ang_to_bohr</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
         <span class="n">v_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v_R</span><span class="p">)</span> <span class="o">*</span> <span class="n">hart_to_ev</span>
 
         <span class="c1"># get correction</span>
@@ -361,7 +364,7 @@
         <span class="n">ymin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">v_R</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">dft_diff</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">final_shift</span><span class="p">))</span>
         <span class="n">ymax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">v_R</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">dft_diff</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">final_shift</span><span class="p">))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span> <span class="o">+</span> <span class="n">ymin</span><span class="p">,</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="n">ymax</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;distance along axis ($\AA$)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;distance along axis ($\AA$)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Potential (V)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
@@ -385,7 +388,7 @@
 <span class="sd">    NOTE that equations 8 and 9 from Kumagai et al. reference are divided by (4 pi) to get SI units</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">dielectric_tensor</span><span class="p">,</span>
                  <span class="n">sampling_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -429,7 +432,8 @@
 <span class="sd">                        bulk and defect site structures EXCLUDING the defect site itself</span>
 <span class="sd">                        (ex. [[bulk structure site index, defect structure&quot;s corresponding site index], ... ]</span>
 
-<span class="sd">                    initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect structure</span>
+<span class="sd">                    initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect</span>
+<span class="sd">                        structure</span>
 
 <span class="sd">                    defect_frac_sc_coords (array): Defect Position in fractional coordinates of the supercell</span>
 <span class="sd">                        given in bulk_structure</span>
@@ -448,27 +452,29 @@
         <span class="n">q</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">charge</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tune_for_gamma</span><span class="p">(</span> <span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tune_for_gamma</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
 
         <span class="n">prec_set</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
-        <span class="n">g_vecs</span><span class="p">,</span> <span class="n">recip_summation</span><span class="p">,</span> <span class="n">r_vecs</span><span class="p">,</span> <span class="n">real_summation</span> <span class="o">=</span> <span class="n">generate_R_and_G_vecs</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">],</span>
-                                                                                 <span class="n">prec_set</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
+        <span class="n">g_vecs</span><span class="p">,</span> <span class="n">recip_summation</span><span class="p">,</span> <span class="n">r_vecs</span><span class="p">,</span> <span class="n">real_summation</span> <span class="o">=</span> <span class="n">generate_R_and_G_vecs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">],</span>
+                                                                                <span class="n">prec_set</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
 
-        <span class="n">pot_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potential_shift</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">],</span> <span class="n">volume</span><span class="p">)</span>
-        <span class="n">si</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_self_interaction</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">])</span>
+        <span class="n">pot_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potential_shift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">],</span> <span class="n">volume</span><span class="p">)</span>
+        <span class="n">si</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_self_interaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">])</span>
         <span class="n">es_corr</span> <span class="o">=</span> <span class="p">[(</span><span class="n">real_summation</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">+</span> <span class="n">recip_summation</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">+</span> <span class="n">pot_shift</span> <span class="o">+</span> <span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
 
-        <span class="c1"># increase precision if correction is not converged yet (TODO: allow for larger prec_set to be tried if this fails)</span>
+        <span class="c1"># increase precision if correction is not converged yet</span>
+        <span class="c1"># TODO: allow for larger prec_set to be tried if this fails</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">es_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">es_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.0001</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Es_corr summation not converged! (</span><span class="si">{}</span><span class="s2"> vs. </span><span class="si">{}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">Trying a larger prec_set...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">es_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">es_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Es_corr summation not converged! (</span><span class="si">{}</span><span class="s2"> vs. </span><span class="si">{}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">Trying a larger prec_set...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">es_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                                            <span class="n">es_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="n">prec_set</span> <span class="o">=</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">35</span><span class="p">]</span>
-            <span class="n">g_vecs</span><span class="p">,</span> <span class="n">recip_summation</span><span class="p">,</span> <span class="n">r_vecs</span><span class="p">,</span> <span class="n">real_summation</span> <span class="o">=</span> <span class="n">generate_R_and_G_vecs</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">],</span>
-                                                                                     <span class="n">prec_set</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
+            <span class="n">g_vecs</span><span class="p">,</span> <span class="n">recip_summation</span><span class="p">,</span> <span class="n">r_vecs</span><span class="p">,</span> <span class="n">real_summation</span> <span class="o">=</span> <span class="n">generate_R_and_G_vecs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;gamma&quot;</span><span class="p">],</span>
+                                                                                    <span class="n">prec_set</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
             <span class="n">es_corr</span> <span class="o">=</span> <span class="p">[(</span><span class="n">real_summation</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">+</span> <span class="n">recip_summation</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">+</span> <span class="n">pot_shift</span> <span class="o">+</span> <span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">es_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">es_corr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.0001</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Correction still not converged after trying prec_sets up to 35... serious error.&quot;</span><span class="p">)</span>
 
-        <span class="n">es_corr</span> <span class="o">=</span> <span class="n">es_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="p">(</span><span class="n">q</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">/</span> <span class="mf">2.</span> <span class="c1"># [eV]</span>
+        <span class="n">es_corr</span> <span class="o">=</span> <span class="n">es_corr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="p">(</span><span class="n">q</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">/</span> <span class="mf">2.</span>  <span class="c1"># [eV]</span>
 
         <span class="c1"># if no sampling radius specified for pot align, then assuming Wigner-Seitz radius:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;sampling_radius&quot;</span><span class="p">]:</span>
@@ -512,11 +518,10 @@
         <span class="n">recip_summation</span> <span class="o">=</span> <span class="n">recip_summation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">real_summation</span> <span class="o">=</span> <span class="n">real_summation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">es_corr</span> <span class="o">=</span> <span class="n">recip_summation</span> <span class="o">+</span> <span class="n">real_summation</span> <span class="o">+</span> \
-                  <span class="bp">self</span><span class="o">.</span><span class="n">get_potential_shift</span><span class="p">(</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span> <span class="o">+</span> \
-                  <span class="bp">self</span><span class="o">.</span><span class="n">get_self_interaction</span><span class="p">(</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="n">es_corr</span> <span class="o">=</span> <span class="p">(</span><span class="n">recip_summation</span> <span class="o">+</span> <span class="n">real_summation</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potential_shift</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span> <span class="o">+</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">get_self_interaction</span><span class="p">(</span><span class="n">gamma</span><span class="p">))</span>
 
-        <span class="n">es_corr</span> <span class="o">*=</span>  <span class="o">-</span><span class="p">(</span><span class="n">charge</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">/</span> <span class="mf">2.</span> <span class="c1"># [eV]</span>
+        <span class="n">es_corr</span> <span class="o">*=</span> <span class="o">-</span><span class="p">(</span><span class="n">charge</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">/</span> <span class="mf">2.</span>  <span class="c1"># [eV]</span>
 
         <span class="k">return</span> <span class="n">es_corr</span></div>
 
@@ -550,17 +555,17 @@
 <span class="sd">            Potential alignment contribution to Kumagai Correction (float)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">volume</span> <span class="o">=</span> <span class="n">defect_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span>
-        <span class="n">potential_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potential_shift</span><span class="p">(</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span>
+        <span class="n">potential_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_potential_shift</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span>
 
         <span class="n">pot_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># keys will be site index in the defect structure</span>
         <span class="n">for_correction</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># region to sample for correction</span>
 
-        <span class="c1">#for each atom, do the following:</span>
+        <span class="c1"># for each atom, do the following:</span>
         <span class="c1"># (a) get relative_vector from defect_site to site in defect_supercell structure</span>
         <span class="c1"># (b) recalculate the recip and real summation values based on this r_vec</span>
         <span class="c1"># (c) get information needed for pot align</span>
         <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">Vqb</span> <span class="ow">in</span> <span class="n">site_list</span><span class="p">:</span>
-            <span class="n">dist</span><span class="p">,</span> <span class="n">jimage</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image_from_frac_coords</span><span class="p">(</span> <span class="n">defect_frac_coords</span><span class="p">)</span>
+            <span class="n">dist</span><span class="p">,</span> <span class="n">jimage</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_and_image_from_frac_coords</span><span class="p">(</span><span class="n">defect_frac_coords</span><span class="p">)</span>
             <span class="n">vec_defect_to_site</span> <span class="o">=</span> <span class="n">defect_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">-</span>
                                                                                <span class="n">jimage</span> <span class="o">-</span> <span class="n">defect_frac_coords</span><span class="p">)</span>
             <span class="n">dist_to_defect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec_defect_to_site</span><span class="p">)</span>
@@ -569,12 +574,12 @@
 
             <span class="n">relative_real_vectors</span> <span class="o">=</span> <span class="p">[</span><span class="n">r_vec</span> <span class="o">-</span> <span class="n">vec_defect_to_site</span> <span class="k">for</span> <span class="n">r_vec</span> <span class="ow">in</span> <span class="n">r_vecs</span><span class="p">[:]]</span>
 
-            <span class="n">real_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_real_summation</span><span class="p">(</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">relative_real_vectors</span><span class="p">)</span>
-            <span class="n">recip_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_recip_summation</span><span class="p">(</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">g_vecs</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">vec_defect_to_site</span><span class="p">[:])</span>
+            <span class="n">real_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_real_summation</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">relative_real_vectors</span><span class="p">)</span>
+            <span class="n">recip_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_recip_summation</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="n">g_vecs</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">vec_defect_to_site</span><span class="p">[:])</span>
 
             <span class="n">Vpc</span> <span class="o">=</span> <span class="p">(</span><span class="n">real_sum</span> <span class="o">+</span> <span class="n">recip_sum</span> <span class="o">+</span> <span class="n">potential_shift</span><span class="p">)</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">*</span> <span class="n">q</span>
 
-            <span class="n">defect_struct_index</span> <span class="o">=</span> <span class="n">defect_structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="n">site</span><span class="p">)</span>
+            <span class="n">defect_struct_index</span> <span class="o">=</span> <span class="n">defect_structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
             <span class="n">pot_dict</span><span class="p">[</span><span class="n">defect_struct_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;Vpc&quot;</span><span class="p">:</span> <span class="n">Vpc</span><span class="p">,</span>
                 <span class="s2">&quot;Vqb&quot;</span><span class="p">:</span> <span class="n">Vqb</span><span class="p">,</span>
@@ -582,12 +587,12 @@
             <span class="p">}</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;For atom </span><span class="si">{}</span><span class="se">\n\t</span><span class="s2">bulk/defect DFT potential difference = &quot;</span>
-                         <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">defect_struct_index</span><span class="p">,</span> <span class="n">Vqb</span><span class="p">))</span>
+                         <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">defect_struct_index</span><span class="p">,</span> <span class="n">Vqb</span><span class="p">))</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">anisotropic model charge: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Vpc</span><span class="p">))</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">reciprocal part: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">recip_sum</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">*</span> <span class="n">q</span><span class="p">))</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">real part: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">real_sum</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">*</span> <span class="n">q</span><span class="p">))</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">self interaction part: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">potential_shift</span> <span class="o">*</span> <span class="n">kumagai_to_V</span> <span class="o">*</span> <span class="n">q</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">relative_vector to defect: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">vec_defect_to_site</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">relative_vector to defect: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vec_defect_to_site</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">dist_to_defect</span> <span class="o">&gt;</span> <span class="n">sampling_radius</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">distance to defect is </span><span class="si">{}</span><span class="s2"> which is outside minimum sampling &quot;</span>
@@ -631,7 +636,7 @@
 
         <span class="k">for</span> <span class="n">r_vec</span> <span class="ow">in</span> <span class="n">real_vectors</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">r_vec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
-                <span class="n">loc_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r_vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">invepsilon</span><span class="p">,</span> <span class="n">r_vec</span><span class="p">)))</span>
+                <span class="n">loc_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r_vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">invepsilon</span><span class="p">,</span> <span class="n">r_vec</span><span class="p">)))</span>
                 <span class="n">nmr</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">loc_res</span><span class="p">)</span>
                 <span class="n">real_part</span> <span class="o">+=</span> <span class="n">nmr</span> <span class="o">/</span> <span class="n">loc_res</span>
 
@@ -639,18 +644,17 @@
 
         <span class="k">return</span> <span class="n">real_part</span></div>
 
-<div class="viewcode-block" id="KumagaiCorrection.get_recip_summation"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_recip_summation">[docs]</a>    <span class="k">def</span> <span class="nf">get_recip_summation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">recip_vectors</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]):</span>
+<div class="viewcode-block" id="KumagaiCorrection.get_recip_summation"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_recip_summation">[docs]</a>    <span class="k">def</span> <span class="nf">get_recip_summation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">recip_vectors</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get Reciprocal summation term from list of reciprocal-space vectors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">recip_part</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="n">g_vec</span> <span class="ow">in</span> <span class="n">recip_vectors</span><span class="p">:</span>
-            <span class="c1">#dont need to avoid G=0, because it will not be</span>
+            <span class="c1"># dont need to avoid G=0, because it will not be</span>
             <span class="c1"># in recip list (if generate_R_and_G_vecs is used)</span>
             <span class="n">Gdotdiel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g_vec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">,</span> <span class="n">g_vec</span><span class="p">))</span>
-            <span class="n">summand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Gdotdiel</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>\
-                      <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g_vec</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span> <span class="o">/</span> <span class="n">Gdotdiel</span>
+            <span class="n">summand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Gdotdiel</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g_vec</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span> <span class="o">/</span> <span class="n">Gdotdiel</span>
             <span class="n">recip_part</span> <span class="o">+=</span> <span class="n">summand</span>
 
         <span class="n">recip_part</span> <span class="o">/=</span> <span class="n">volume</span>
@@ -658,11 +662,26 @@
         <span class="k">return</span> <span class="n">recip_part</span></div>
 
 <div class="viewcode-block" id="KumagaiCorrection.get_self_interaction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction">[docs]</a>    <span class="k">def</span> <span class="nf">get_self_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
-        <span class="n">determ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            gamma ():</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Self-interaction energy of defect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">determ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span> <span class="n">gamma</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">determ</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="KumagaiCorrection.get_potential_shift"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift">[docs]</a>    <span class="k">def</span> <span class="nf">get_potential_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
-        <span class="k">return</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">/</span> <span class="p">(</span><span class="n">volume</span> <span class="o">*</span> <span class="n">gamma</span><span class="o">**</span><span class="mf">2.</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            gamma (float): Gamma</span>
+<span class="sd">            volume (float): Volume.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Potential shift for defect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">/</span> <span class="p">(</span><span class="n">volume</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="KumagaiCorrection.plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saved</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -720,7 +739,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">])</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">])</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Distance from defect ($\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Distance from defect ($\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Potential (V)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; atomic site potential plot&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 
@@ -735,7 +754,7 @@
 <span class="sd">    A class for BandFillingCorrection class. Largely adapted from PyCDT code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the Bandfilling correction</span>
 
@@ -826,8 +845,10 @@
                     <span class="k">if</span> <span class="p">(</span><span class="n">occu</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eig</span> <span class="o">&gt;</span> <span class="n">shifted_cbm</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">)):</span>  <span class="c1"># donor MB correction</span>
                         <span class="n">bf_corr</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="n">occu</span> <span class="o">*</span> <span class="p">(</span><span class="n">eig</span> <span class="o">-</span> <span class="n">shifted_cbm</span><span class="p">)</span>  <span class="c1"># &quot;move the electrons down&quot;</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="n">occu</span>
-                    <span class="k">elif</span> <span class="p">(</span><span class="n">occu</span> <span class="o">!=</span> <span class="n">core_occupation_value</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eig</span> <span class="o">&lt;=</span> <span class="n">shifted_vbm</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">):</span>  <span class="c1"># acceptor MB correction</span>
-                        <span class="n">bf_corr</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="p">(</span><span class="n">core_occupation_value</span> <span class="o">-</span> <span class="n">occu</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">shifted_vbm</span> <span class="o">-</span> <span class="n">eig</span><span class="p">)</span>  <span class="c1"># &quot;move the holes up&quot;</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">occu</span> <span class="o">!=</span> <span class="n">core_occupation_value</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                            <span class="n">eig</span> <span class="o">&lt;=</span> <span class="n">shifted_vbm</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">):</span>  <span class="c1"># acceptor MB correction</span>
+                        <span class="n">bf_corr</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="p">(</span><span class="n">core_occupation_value</span> <span class="o">-</span> <span class="n">occu</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+                                <span class="n">shifted_vbm</span> <span class="o">-</span> <span class="n">eig</span><span class="p">)</span>  <span class="c1"># &quot;move the holes up&quot;</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;num_hole_vbm&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="p">(</span><span class="n">core_occupation_value</span> <span class="o">-</span> <span class="n">occu</span><span class="p">)</span>
 
         <span class="n">bf_corr</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># need to take negative of this shift for energetic correction</span>
@@ -840,7 +861,7 @@
 <span class="sd">    A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the BandEdgeShiftingCorrection class</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -890,22 +911,8 @@
         <span class="p">}</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -918,15 +925,16 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.defects.corrections</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

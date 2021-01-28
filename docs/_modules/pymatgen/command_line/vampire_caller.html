@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.command_line.vampire_caller &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,33 +33,21 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.vampire_caller</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.command_line.vampire_caller</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
-
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.heisenberg</span> <span class="k">import</span> <span class="n">HeisenbergMapper</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.analyzer</span> <span class="k">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements an interface to the VAMPIRE code for atomistic</span>
@@ -70,11 +58,22 @@
 <span class="sd">follow the instructions to compile the executable.</span>
 
 <span class="sd">If you use this module, please cite the following:</span>
-<span class="sd">    </span>
+
 <span class="sd">&quot;Atomistic spin model simulations of magnetic nanomaterials.&quot;</span>
-<span class="sd">R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis </span>
+<span class="sd">R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis</span>
 <span class="sd">and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism.heisenberg</span> <span class="kn">import</span> <span class="n">HeisenbergMapper</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ncfrey&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
@@ -87,31 +86,34 @@
 
 
 <div class="viewcode-block" id="VampireCaller"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireCaller">[docs]</a><span class="k">class</span> <span class="nc">VampireCaller</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical</span>
+<span class="sd">    temperature with classical Monte Carlo.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@requires</span><span class="p">(</span>
         <span class="n">VAMPEXE</span><span class="p">,</span>
         <span class="s2">&quot;VampireCaller requires vampire-serial to be in the path.&quot;</span>
         <span class="s2">&quot;Please follow the instructions at https://vampire.york.ac.uk/download/.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ordered_structures</span><span class="p">,</span>
-        <span class="n">energies</span><span class="p">,</span>
-        <span class="n">mc_box_size</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
-        <span class="n">equil_timesteps</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
-        <span class="n">mc_timesteps</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
-        <span class="n">save_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">user_input_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">ordered_structures</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">energies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">mc_box_size</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+            <span class="n">equil_timesteps</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+            <span class="n">mc_timesteps</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
+            <span class="n">save_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">user_input_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.</span>
-
 <span class="sd">        user_input_settings is a dictionary that can contain:</span>
 <span class="sd">        * start_t (int): Start MC sim at this temp, defaults to 0 K.</span>
 <span class="sd">        * end_t (int): End MC sim at this temp, defaults to 1500 K.</span>
 <span class="sd">        * temp_increment (int): Temp step size, defaults to 25 K.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            ordered_structures (list): Structure objects with magmoms.</span>
 <span class="sd">            energies (list): Energies of each relaxed magnetic structure.</span>
@@ -119,8 +121,10 @@
 <span class="sd">            equil_timesteps (int): number of MC steps for equilibrating</span>
 <span class="sd">            mc_timesteps (int): number of MC steps for averaging</span>
 <span class="sd">            save_inputs (bool): if True, save scratch dir of vampire input files</span>
-<span class="sd">            hm (HeisenbergMapper): object already fit to low energy</span>
+<span class="sd">            hm (HeisenbergModel): object already fit to low energy</span>
 <span class="sd">                magnetic orderings.</span>
+<span class="sd">            avg (bool): If True, simply use &lt;J&gt; exchange parameter estimate.</span>
+<span class="sd">                If False, attempt to use NN, NNN, etc. interactions.</span>
 <span class="sd">            user_input_settings (dict): optional commands for VAMPIRE Monte Carlo</span>
 
 <span class="sd">        Parameters:</span>
@@ -143,35 +147,38 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">equil_timesteps</span> <span class="o">=</span> <span class="n">equil_timesteps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mc_timesteps</span> <span class="o">=</span> <span class="n">mc_timesteps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_inputs</span> <span class="o">=</span> <span class="n">save_inputs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span> <span class="o">=</span> <span class="n">user_input_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg</span> <span class="o">=</span> <span class="n">avg</span>
 
-        <span class="c1"># Sort by energy if not already sorted</span>
-        <span class="n">ordered_structures</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">s</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">ordered_structures</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="p">]</span>
-
-        <span class="n">energies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_input_settings</span><span class="p">:</span>  <span class="c1"># set to empty dict</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_input_settings</span> <span class="o">=</span> <span class="n">user_input_settings</span>
 
         <span class="c1"># Get exchange parameters and set instance variables</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">hm</span><span class="p">:</span>
-            <span class="n">hm</span> <span class="o">=</span> <span class="n">HeisenbergMapper</span><span class="p">(</span><span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">7.5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+            <span class="n">hmapper</span> <span class="o">=</span> <span class="n">HeisenbergMapper</span><span class="p">(</span>
+                <span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span>
+            <span class="p">)</span>
 
-        <span class="c1"># Instance attributes from HeisenbergMapper</span>
+            <span class="n">hm</span> <span class="o">=</span> <span class="n">hmapper</span><span class="o">.</span><span class="n">get_heisenberg_model</span><span class="p">()</span>
+
+        <span class="c1"># Attributes from HeisenbergModel</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hm</span> <span class="o">=</span> <span class="n">hm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">ordered_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ground state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ground state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sgraph</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">sgraphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># ground state graph</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">unique_site_ids</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nn_interactions</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">nn_interactions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dists</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">dists</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">tol</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">get_exchange</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">ex_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">javg</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">javg</span>
 
         <span class="c1"># Full structure name before reducing to only magnetic ions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hm</span><span class="o">.</span><span class="n">ordered_structures_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">formula</span>
 
         <span class="c1"># Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them</span>
-        <span class="c1"># with ScratchDir(&#39;/scratch&#39;, copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:</span>
-
+        <span class="c1"># with ScratchDir(&#39;/scratch&#39;, copy_from_current_on_enter=self.save_inputs,</span>
+        <span class="c1">#                 copy_to_current_on_exit=self.save_inputs) as temp_dir:</span>
         <span class="c1">#     os.chdir(temp_dir)</span>
 
         <span class="c1"># Create input files</span>
@@ -201,7 +208,8 @@
 
         <span class="c1"># Process output</span>
         <span class="n">nmats</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mat_id_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">VampireOutput</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">nmats</span><span class="p">)</span>
+        <span class="n">parsed_out</span><span class="p">,</span> <span class="n">critical_temp</span> <span class="o">=</span> <span class="n">VampireCaller</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">nmats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">VampireOutput</span><span class="p">(</span><span class="n">parsed_out</span><span class="p">,</span> <span class="n">nmats</span><span class="p">,</span> <span class="n">critical_temp</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_mat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -285,9 +293,6 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Todo:</span>
-<span class="sd">            * How to determine range and increment of simulation?</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
         <span class="n">mcbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mc_box_size</span>
@@ -372,8 +377,6 @@
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
         <span class="n">mat_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mat_name</span>
-        <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
-        <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
 
         <span class="n">abc</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
         <span class="n">ucx</span><span class="p">,</span> <span class="n">ucy</span><span class="p">,</span> <span class="n">ucz</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -421,7 +424,10 @@
                 <span class="n">dist</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
 
                 <span class="c1"># Look up J_ij between the sites</span>
-                <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hm</span><span class="o">.</span><span class="n">_get_j_exc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># Just use &lt;J&gt; estimate</span>
+                    <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hm</span><span class="o">.</span><span class="n">javg</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hm</span><span class="o">.</span><span class="n">_get_j_exc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
 
                 <span class="c1"># Convert J_ij from meV to Joules</span>
                 <span class="n">j_exc</span> <span class="o">*=</span> <span class="mf">1.6021766e-22</span>
@@ -435,27 +441,21 @@
         <span class="n">ucf_file_name</span> <span class="o">=</span> <span class="n">mat_name</span> <span class="o">+</span> <span class="s2">&quot;.ucf&quot;</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ucf_file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ucf</span><span class="p">)</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ucf</span><span class="p">)</span>
 
+<div class="viewcode-block" id="VampireCaller.parse_stdout"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse stdout from Vampire.</span>
 
-<div class="viewcode-block" id="VampireOutput"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireOutput">[docs]</a><span class="k">class</span> <span class="nc">VampireOutput</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This class processes results from a Vampire Monte Carlo simulation</span>
-<span class="sd">        and returns the critical temperature.</span>
-<span class="sd">        </span>
 <span class="sd">        Args:</span>
-<span class="sd">            vamp_stdout (txt file): stdout from running vampire-serial.</span>
+<span class="sd">            vamp_stdout (txt file): Vampire &#39;output&#39; file.</span>
+<span class="sd">            nmats (int): Num of materials in Vampire sim.</span>
 
-<span class="sd">        Attributes:</span>
-<span class="sd">            critical_temp (float): Monte Carlo Tc result.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            parsed_out (DataFrame): MSONable vampire output.</span>
+<span class="sd">            critical_temp (float): Calculated critical temp.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">vamp_stdout</span> <span class="o">=</span> <span class="n">vamp_stdout</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">critical_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_stdout</span><span class="p">(</span><span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">nmats</span><span class="p">):</span>
 
         <span class="n">names</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;m_total&quot;</span><span class="p">]</span>
@@ -466,30 +466,37 @@
         <span class="c1"># Parsing vampire MC output</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">vamp_stdout</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span>
         <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;vamp_out.txt&quot;</span><span class="p">)</span>
+
+        <span class="n">parsed_out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
 
         <span class="c1"># Max of susceptibility &lt;-&gt; critical temp</span>
-        <span class="n">T_crit</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">X_m</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()][</span><span class="s2">&quot;T&quot;</span><span class="p">]</span>
+        <span class="n">critical_temp</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">X_m</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()][</span><span class="s2">&quot;T&quot;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">critical_temp</span> <span class="o">=</span> <span class="n">T_crit</span></div>
+        <span class="k">return</span> <span class="n">parsed_out</span><span class="p">,</span> <span class="n">critical_temp</span></div></div>
+
+
+<div class="viewcode-block" id="VampireOutput"><a class="viewcode-back" href="../../../pymatgen.command_line.vampire_caller.html#pymatgen.command_line.vampire_caller.VampireOutput">[docs]</a><span class="k">class</span> <span class="nc">VampireOutput</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class processes results from a Vampire Monte Carlo simulation</span>
+<span class="sd">    and returns the critical temperature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parsed_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nmats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">critical_temp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            parsed_out (json): json rep of parsed stdout DataFrame.</span>
+<span class="sd">            nmats (int): Number of distinct materials (1 for each specie and up/down spin).</span>
+<span class="sd">            critical_temp (float): Monte Carlo Tc result.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_out</span> <span class="o">=</span> <span class="n">parsed_out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmats</span> <span class="o">=</span> <span class="n">nmats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">critical_temp</span> <span class="o">=</span> <span class="n">critical_temp</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -502,15 +509,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.vampire_caller</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

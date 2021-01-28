@@ -2,19 +2,25 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""Setup.py for pymatgen."""
+
 import sys
 import platform
+import os
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
 
 class build_ext(_build_ext):
+    """Extension builder that checks for numpy before install."""
     def finalize_options(self):
+        """Override finalize_options."""
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
         import builtins
         if hasattr(builtins, '__NUMPY_SETUP__'):
+            # pylint: disable=E1101
             del builtins.__NUMPY_SETUP__
         import importlib
         import numpy
@@ -25,6 +31,20 @@ class build_ext(_build_ext):
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
+    
+# thanks https://stackoverflow.com/a/36693250
+def package_files(directory, extensions):
+    """
+    Walk package directory to make sure we include all relevant files in 
+    package.
+    """
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            if any([filename.endswith(ext) for ext in extensions]):
+                paths.append(os.path.join('..', path, filename))
+    return paths
+json_yaml_csv_files = package_files('pymatgen', ['yaml', 'json', 'csv', 'yaml.gz', 'json.gz', 'csv.gz'])
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -47,7 +67,7 @@ library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://pymatgen.discourse.group).
+issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
 
 Why use pymatgen?
 =================
@@ -86,46 +106,35 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.7.21",
+    version="2020.12.31",
     cmdclass={'build_ext': build_ext},
-    setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
+    setup_requires=['numpy>=1.18.0', 'setuptools>=43.0.0'],
     python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=1.0.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
+                      "monty>=3.0.2", "scipy>=1.5.0",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
-                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas"],
+                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
+                      "plotly>=4.5.0", "uncertainties>=3.1.4"],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["apscheduler==2.1.0", "netcdf4"],
+        "abinit": ["netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
         ]},
-    package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["*.yaml", "*.json"],
-                  "pymatgen.analysis.cost": ["*.csv"],
-                  "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
-                  "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
-                  "pymatgen.analysis.hhi": ["*.csv"],
-                  "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
-                  "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
-                  "pymatgen.io": ["*.yaml"],
-                  "pymatgen.io.vasp": ["*.yaml"],
-                  "pymatgen.io.lammps": ["templates/*.*"],
-                  "pymatgen.io.feff": ["*.yaml"],
-                  "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
-                  "pymatgen.entries": ["*.yaml"],
-                  "pymatgen.vis": ["ElementColorSchemes.yaml"],
-                  "pymatgen.command_line": ["OxideTersoffPotentials"],
-                  "pymatgen.analysis.defects": ["*.json"],
-                  "pymatgen.analysis.diffraction": ["*.json"],
-                  "pymatgen.util": ["structures/*.json"]},
+    package_data={
+        "pymatgen": json_yaml_csv_files,
+        "pymatgen.core": ["py.typed"],
+        "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt"],
+        "pymatgen.symmetry": ["*.sqlite"],
+        "pymatgen.command_line": ["OxideTersoffPotentials"],
+    },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
-    url="http://www.pymatgen.org",
+    url="https://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
                 "analysis code that defines core object representations for "
@@ -140,9 +149,8 @@ setup(
               "crystal"],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -157,15 +165,17 @@ setup(
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_cython",
                            ["pymatgen/util/coord_cython.c"],
+                           extra_link_args=extra_link_args),
+                 Extension("pymatgen.optimization.neighbors",
+                           ["pymatgen/optimization/neighbors.c"],
                            extra_link_args=extra_link_args)],
     entry_points={
-          'console_scripts': [
-              'pmg = pymatgen.cli.pmg:main',
-              'feff_input_generation = pymatgen.cli.feff_input_generation:main',
-              'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
-              'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
-              'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
-              'get_environment = pymatgen.cli.get_environment:main',
-          ]
+        'console_scripts': [
+            'pmg = pymatgen.cli.pmg:main',
+            'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
+            'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
+            'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
+            'get_environment = pymatgen.cli.get_environment:main',
+        ]
     }
 )

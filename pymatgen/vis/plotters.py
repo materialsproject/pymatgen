@@ -2,20 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import collections
-import importlib
-from pymatgen.util.plotting import pretty_plot
-
 """
 This module defines generic plotters.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 10 2018"
+import collections
+import importlib
+
+from pymatgen.util.plotting import pretty_plot
 
 
 class SpectrumPlotter:
@@ -34,30 +28,31 @@ class SpectrumPlotter:
         # Alternatively, you can add a dict of DOSs. This is the typical
         # form returned by CompleteDos.get_spd/element/others_dos().
         plotter.add_spectra({"dos1": dos1, "dos2": dos2})
-
-    Args:
-        xshift (float): A shift that is applied to the x values. This is
-            commonly used to shift to an arbitrary zero. E.g., zeroing at the
-            Fermi energy in DOS, or at the absorption edge in XAS spectra. The
-            same xshift is applied to all spectra.
-        yshift (float): A shift that is applied to the y values. This is
-            commonly used to displace spectra for easier visualization.
-            Successive spectra are applied successive shifts.
-        stack (bool): Whether to stack plots rather than simply plot them.
-            For example, DOS plot can usually be stacked to look at the
-            contribution of each orbital.
-        color_cycle (str): Default color cycle to use. Note that this can be
-            overridden
     """
 
-    def __init__(self, xshift=0.0, yshift=0.0, stack=False,
-                 color_cycle=("qualitative", "Set1_9")):
+    def __init__(
+        self, xshift=0.0, yshift=0.0, stack=False, color_cycle=("qualitative", "Set1_9")
+    ):
+        """
+        Args:
+            xshift (float): A shift that is applied to the x values. This is
+                commonly used to shift to an arbitrary zero. E.g., zeroing at the
+                Fermi energy in DOS, or at the absorption edge in XAS spectra. The
+                same xshift is applied to all spectra.
+            yshift (float): A shift that is applied to the y values. This is
+                commonly used to displace spectra for easier visualization.
+                Successive spectra are applied successive shifts.
+            stack (bool): Whether to stack plots rather than simply plot them.
+                For example, DOS plot can usually be stacked to look at the
+                contribution of each orbital.
+            color_cycle (str): Default color cycle to use. Note that this can be
+                overridden
+        """
         self.xshift = xshift
         self.yshift = yshift
         self.stack = stack
 
-        mod = importlib.import_module("palettable.colorbrewer.%s" %
-                                      color_cycle[0])
+        mod = importlib.import_module("palettable.colorbrewer.%s" % color_cycle[0])
         self.colors_cycle = getattr(mod, color_cycle[1]).mpl_colors
         self.colors = []
         self._spectra = collections.OrderedDict()
@@ -75,8 +70,8 @@ class SpectrumPlotter:
         """
         self._spectra[label] = spectrum
         self.colors.append(
-            color or
-            self.colors_cycle[len(self._spectra) % len(self.colors_cycle)])
+            color or self.colors_cycle[len(self._spectra) % len(self.colors_cycle)]
+        )
 
     def add_spectra(self, spectra_dict, key_sort_func=None):
         """
@@ -109,12 +104,22 @@ class SpectrumPlotter:
         i = 0
         for key, sp in self._spectra.items():
             if not self.stack:
-                plt.plot(sp.x, sp.y + self.yshift * i, color=self.colors[i],
-                         label=str(key), linewidth=3)
+                plt.plot(
+                    sp.x,
+                    sp.y + self.yshift * i,
+                    color=self.colors[i],
+                    label=str(key),
+                    linewidth=3,
+                )
             else:
-                plt.fill_between(sp.x, base, sp.y + self.yshift * i,
-                                 color=self.colors[i],
-                                 label=str(key), linewidth=3)
+                plt.fill_between(
+                    sp.x,
+                    base,
+                    sp.y + self.yshift * i,
+                    color=self.colors[i],
+                    label=str(key),
+                    linewidth=3,
+                )
                 base = sp.y + base
             plt.xlabel(sp.XLABEL)
             plt.ylabel(sp.YLABEL)

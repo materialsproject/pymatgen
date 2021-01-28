@@ -3,13 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import os
 import json
+import os
+import unittest
 
-from pymatgen.core.periodic_table import Specie
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Species
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -19,32 +19,36 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                            'test_files', "struct_predictor")
-    json_file = os.path.join(data_dir, 'test_lambda.json')
+    data_dir = os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "..",
+        "..",
+        "test_files",
+        "struct_predictor",
+    )
+    json_file = os.path.join(data_dir, "test_lambda.json")
     with open(json_file) as f:
         lambda_table = json.load(f)
     return lambda_table
 
 
 class SubstitutorTest(PymatgenTest):
-
     def setUp(self):
-        self.s = Substitutor(threshold=1e-3, lambda_table=get_table(),
-                             alpha= -5.)
+        self.s = Substitutor(threshold=1e-3, lambda_table=get_table(), alpha=-5.0)
 
     def test_substitutor(self):
-        s_list = [Specie('O', -2), Specie('Li', 1)]
+        s_list = [Species("O", -2), Species("Li", 1)]
         subs = self.s.pred_from_list(s_list)
-        self.assertEqual(len(subs), 4
-                         , 'incorrect number of substitutions')
-        c = Composition({'O2-': 1, 'Li1+': 2})
+        self.assertEqual(len(subs), 4, "incorrect number of substitutions")
+        c = Composition({"O2-": 1, "Li1+": 2})
         subs = self.s.pred_from_comp(c)
-        self.assertEqual(len(subs), 4
-                         , 'incorrect number of substitutions')
+        self.assertEqual(len(subs), 4, "incorrect number of substitutions")
 
-        structures = [{"structure": PymatgenTest.get_structure("Li2O"),
-                       "id": "pmgtest"}]
+        structures = [
+            {"structure": PymatgenTest.get_structure("Li2O"), "id": "pmgtest"}
+        ]
         subs = self.s.pred_from_structures(["Na+", "O2-"], structures)
         self.assertEqual(subs[0].formula, "Na2 O1")
 

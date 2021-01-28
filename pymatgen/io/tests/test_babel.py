@@ -15,36 +15,35 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
-import unittest
-import os
 import copy
+import os
+import unittest
 import warnings
-from pymatgen.core.structure import Molecule
-from pymatgen.io.xyz import XYZ
-from pymatgen.analysis.molecule_matcher import MoleculeMatcher
-from pymatgen.analysis.graphs import MoleculeGraph
-from pymatgen.io.babel import BabelMolAdaptor
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files", "molecules")
+from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+from pymatgen.core.structure import Molecule
+from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.xyz import XYZ
+from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
 except ImportError:
-    pb = None
     ob = None
 
 
-@unittest.skipIf(not (pb and ob), "OpenBabel not present. Skipping...")
+@unittest.skipIf(not (ob), "OpenBabel not present. Skipping...")
 class BabelMolAdaptorTest(unittest.TestCase):
-
     def setUp(self):
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
         warnings.simplefilter("ignore")
 
@@ -61,9 +60,18 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_from_file(self):
         adaptor = BabelMolAdaptor.from_file(
-            os.path.join(test_dir, "Ethane_e.pdb"), "pdb")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/Ethane_e.pdb"), "pdb"
+        )
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
+
+    def test_from_file_return_all_molecules(self):
+        adaptors = BabelMolAdaptor.from_file(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz"),
+            "xyz",
+            return_all_molecules=True,
+        )
+        self.assertEqual(len(adaptors), 302)
 
     def test_from_molecule_graph(self):
         graph = MoleculeGraph.with_empty_graph(self.mol)
@@ -137,7 +145,8 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertGreaterEqual(len(conformers), 1)
         if len(conformers) > 1:
             self.assertNotAlmostEqual(
-                MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0)
+                MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0
+            )
 
 
 if __name__ == "__main__":

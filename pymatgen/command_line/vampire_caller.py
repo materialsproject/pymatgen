@@ -2,18 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import subprocess
-import logging
-import numpy as np
-import pandas as pd
-import os
-
-from monty.dev import requires
-from monty.os.path import which
-
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
-
 """
 This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
@@ -23,11 +11,21 @@ Please download at https://vampire.york.ac.uk/download/ and
 follow the instructions to compile the executable.
 
 If you use this module, please cite the following:
-    
+
 "Atomistic spin model simulations of magnetic nanomaterials."
-R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis 
+R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
+
+import logging
+import subprocess
+
+import pandas as pd
+from monty.dev import requires
+from monty.json import MSONable
+from monty.os.path import which
+
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -40,6 +38,11 @@ VAMPEXE = which("vampire-serial")
 
 
 class VampireCaller:
+    """
+    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+    temperature with classical Monte Carlo.
+    """
+
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
@@ -47,24 +50,22 @@ class VampireCaller:
     )
     def __init__(
         self,
-        ordered_structures,
-        energies,
+        ordered_structures=None,
+        energies=None,
         mc_box_size=4.0,
         equil_timesteps=2000,
         mc_timesteps=4000,
         save_inputs=False,
         hm=None,
+        avg=True,
         user_input_settings=None,
     ):
-
         """
-        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
-
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
         * end_t (int): End MC sim at this temp, defaults to 1500 K.
         * temp_increment (int): Temp step size, defaults to 25 K.
-        
+
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Energies of each relaxed magnetic structure.
@@ -72,8 +73,10 @@ class VampireCaller:
             equil_timesteps (int): number of MC steps for equilibrating
             mc_timesteps (int): number of MC steps for averaging
             save_inputs (bool): if True, save scratch dir of vampire input files
-            hm (HeisenbergMapper): object already fit to low energy
+            hm (HeisenbergModel): object already fit to low energy
                 magnetic orderings.
+            avg (bool): If True, simply use <J> exchange parameter estimate.
+                If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
         Parameters:
@@ -96,35 +99,38 @@ class VampireCaller:
         self.equil_timesteps = equil_timesteps
         self.mc_timesteps = mc_timesteps
         self.save_inputs = save_inputs
-        self.user_input_settings = user_input_settings
+        self.avg = avg
 
-        # Sort by energy if not already sorted
-        ordered_structures = [
-            s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
-        ]
-
-        energies = sorted(energies, reverse=False)
+        if not user_input_settings:  # set to empty dict
+            self.user_input_settings = {}
+        else:
+            self.user_input_settings = user_input_settings
 
         # Get exchange parameters and set instance variables
         if not hm:
-            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
+            hmapper = HeisenbergMapper(
+                ordered_structures, energies, cutoff=3.0, tol=0.02
+            )
 
-        # Instance attributes from HeisenbergMapper
+            hm = hmapper.get_heisenberg_model()
+
+        # Attributes from HeisenbergModel
         self.hm = hm
-        self.structure = hm.ordered_structures[0]  # ground state
+        self.structure = hm.structures[0]  # ground state
         self.sgraph = hm.sgraphs[0]  # ground state graph
         self.unique_site_ids = hm.unique_site_ids
         self.nn_interactions = hm.nn_interactions
         self.dists = hm.dists
         self.tol = hm.tol
-        self.ex_params = hm.get_exchange()
+        self.ex_params = hm.ex_params
+        self.javg = hm.javg
 
         # Full structure name before reducing to only magnetic ions
-        self.mat_name = str(hm.ordered_structures_[0].composition.reduced_formula)
+        self.mat_name = hm.formula
 
         # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
-        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:
-
+        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs,
+        #                 copy_to_current_on_exit=self.save_inputs) as temp_dir:
         #     os.chdir(temp_dir)
 
         # Create input files
@@ -154,7 +160,8 @@ class VampireCaller:
 
         # Process output
         nmats = max(self.mat_id_dict.values())
-        self.output = VampireOutput("output", nmats)
+        parsed_out, critical_temp = VampireCaller.parse_stdout("output", nmats)
+        self.output = VampireOutput(parsed_out, nmats, critical_temp)
 
     def _create_mat(self):
 
@@ -193,9 +200,9 @@ class VampireCaller:
                         mat_id_dict[site] = nmats
                     if m < 0 and m0 < 0:
                         mat_id_dict[site] = nmats
-                    if m > 0 and m0 < 0:
+                    if m > 0 > m0:
                         mat_id_dict[site] = nmats + 1
-                    if m < 0 and m0 > 0:
+                    if m < 0 < m0:
                         mat_id_dict[site] = nmats + 1
 
             # Increment index if two sublattices
@@ -238,9 +245,6 @@ class VampireCaller:
             f.write(mat_file)
 
     def _create_input(self):
-        """Todo:
-            * How to determine range and increment of simulation?
-        """
 
         structure = self.structure
         mcbs = self.mc_box_size
@@ -325,8 +329,6 @@ class VampireCaller:
 
         structure = self.structure
         mat_name = self.mat_name
-        tol = self.tol
-        dists = self.dists
 
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
@@ -374,7 +376,10 @@ class VampireCaller:
                 dist = round(c[-1], 2)
 
                 # Look up J_ij between the sites
-                j_exc = self.hm._get_j_exc(i, j, dist)
+                if self.avg is True:  # Just use <J> estimate
+                    j_exc = self.hm.javg
+                else:
+                    j_exc = self.hm._get_j_exc(i, j, dist)
 
                 # Convert J_ij from meV to Joules
                 j_exc *= 1.6021766e-22
@@ -390,25 +395,19 @@ class VampireCaller:
         with open(ucf_file_name, "w") as f:
             f.write(ucf)
 
+    @staticmethod
+    def parse_stdout(vamp_stdout, nmats):
+        """Parse stdout from Vampire.
 
-class VampireOutput:
-    def __init__(self, vamp_stdout, nmats):
-        """
-        This class processes results from a Vampire Monte Carlo simulation
-        and returns the critical temperature.
-        
         Args:
-            vamp_stdout (txt file): stdout from running vampire-serial.
+            vamp_stdout (txt file): Vampire 'output' file.
+            nmats (int): Num of materials in Vampire sim.
 
-        Attributes:
-            critical_temp (float): Monte Carlo Tc result.
+        Returns:
+            parsed_out (DataFrame): MSONable vampire output.
+            critical_temp (float): Calculated critical temp.
+
         """
-
-        self.vamp_stdout = vamp_stdout
-        self.critical_temp = np.nan
-        self._parse_stdout(vamp_stdout, nmats)
-
-    def _parse_stdout(self, vamp_stdout, nmats):
 
         names = (
             ["T", "m_total"]
@@ -419,9 +418,30 @@ class VampireOutput:
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
         df.drop("nan", axis=1, inplace=True)
-        df.to_csv("vamp_out.txt")
+
+        parsed_out = df.to_json()
 
         # Max of susceptibility <-> critical temp
-        T_crit = df.iloc[df.X_m.idxmax()]["T"]
+        critical_temp = df.iloc[df.X_m.idxmax()]["T"]
 
-        self.critical_temp = T_crit
+        return parsed_out, critical_temp
+
+
+class VampireOutput(MSONable):
+    """
+    This class processes results from a Vampire Monte Carlo simulation
+    and returns the critical temperature.
+    """
+
+    def __init__(self, parsed_out=None, nmats=None, critical_temp=None):
+        """
+        Args:
+            parsed_out (json): json rep of parsed stdout DataFrame.
+            nmats (int): Number of distinct materials (1 for each specie and up/down spin).
+            critical_temp (float): Monte Carlo Tc result.
+
+        """
+
+        self.parsed_out = parsed_out
+        self.nmats = nmats
+        self.critical_temp = critical_temp

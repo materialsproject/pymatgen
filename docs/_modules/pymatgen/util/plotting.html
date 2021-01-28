@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.plotting &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.util.plotting &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,31 +33,28 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.util.plotting</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.util.plotting</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
-
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">combinations</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Utilities for generating nicer plots.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
 
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
@@ -99,7 +96,7 @@
         <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;palettable.colorbrewer.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
                                       <span class="n">color_cycle</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">colors</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">color_cycle</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mpl_colors</span>
-        <span class="kn">from</span> <span class="nn">cycler</span> <span class="k">import</span> <span class="n">cycler</span>
+        <span class="kn">from</span> <span class="nn">cycler</span> <span class="kn">import</span> <span class="n">cycler</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
@@ -122,7 +119,7 @@
 
 
 <div class="viewcode-block" id="pretty_plot_two_axis"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.pretty_plot_two_axis">[docs]</a><span class="k">def</span> <span class="nf">pretty_plot_two_axis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y1label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y2label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                         <span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+                         <span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib</span>
 <span class="sd">    examples. Makes it easier to create plots with different axes.</span>
@@ -140,6 +137,8 @@
 <span class="sd">        height (float): Height of plot in inches. Defaults to width * golden</span>
 <span class="sd">            ratio.</span>
 <span class="sd">        dpi (int): Sets dot per inch for figure. Defaults to 300.</span>
+<span class="sd">        plot_kwargs: Passthrough kwargs to matplotlib&#39;s plot method. E.g.,</span>
+<span class="sd">            linewidth, etc.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.pyplot</span>
@@ -169,10 +168,10 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y1</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">styles</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">styles</span><span class="p">)],</span>
-                     <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+                     <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">c1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">xlabel</span><span class="p">:</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
@@ -202,7 +201,7 @@
 
 
 <div class="viewcode-block" id="pretty_polyfit_plot"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.pretty_polyfit_plot">[docs]</a><span class="k">def</span> <span class="nf">pretty_polyfit_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience method to plot data with trend lines based on polynomial fit.</span>
 
 <span class="sd">    Args:</span>
@@ -227,11 +226,11 @@
     <span class="k">return</span> <span class="n">plt</span></div>
 
 
-<div class="viewcode-block" id="periodic_table_heatmap"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.periodic_table_heatmap">[docs]</a><span class="k">def</span> <span class="nf">periodic_table_heatmap</span><span class="p">(</span><span class="n">elemental_data</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-                           <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrRd&quot;</span><span class="p">,</span> <span class="n">blank_color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="periodic_table_heatmap"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.periodic_table_heatmap">[docs]</a><span class="k">def</span> <span class="nf">periodic_table_heatmap</span><span class="p">(</span><span class="n">elemental_data</span><span class="p">,</span> <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">cbar_label_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+                           <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrRd&quot;</span><span class="p">,</span> <span class="n">cmap_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blank_color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span>
                            <span class="n">value_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_row</span><span class="o">=</span><span class="mi">9</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A static method that generates a heat map overlapped on a periodic table.</span>
+<span class="sd">    A static method that generates a heat map overlayed on a periodic table.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">         elemental_data (dict): A dictionary with the element as a key and a</span>
@@ -239,12 +238,15 @@
 <span class="sd">            Elements missing in the elemental_data will be grey by default</span>
 <span class="sd">            in the final table elemental_data={&quot;Fe&quot;: 4.2, &quot;O&quot;: 5.0}.</span>
 <span class="sd">         cbar_label (string): Label of the colorbar. Default is &quot;&quot;.</span>
-<span class="sd">         figure_name (string): Name of the plot (absolute path) being saved</span>
-<span class="sd">            if not None.</span>
+<span class="sd">         cbar_label_size (float): Font size for the colorbar label. Default is 14.</span>
+<span class="sd">         cmap_range (tuple): Minimum and maximum value of the colormap scale.</span>
+<span class="sd">            If None, the colormap will autotmatically scale to the range of the</span>
+<span class="sd">            data.</span>
 <span class="sd">         show_plot (bool): Whether to show the heatmap. Default is False.</span>
 <span class="sd">         value_format (str): Formatting string to show values. If None, no value</span>
 <span class="sd">            is shown. Example: &quot;%.4f&quot; shows float to four decimals.</span>
-<span class="sd">         cmap (string): Color scheme of the heatmap. Default is &#39;coolwarm&#39;.</span>
+<span class="sd">         cmap (string): Color scheme of the heatmap. Default is &#39;YlOrRd&#39;.</span>
+<span class="sd">            Refer to the matplotlib documentation for other options.</span>
 <span class="sd">         blank_color (string): Color assigned for the missing elements in</span>
 <span class="sd">            elemental_data. Default is &quot;grey&quot;.</span>
 <span class="sd">         max_row (integer): Maximum number of rows of the periodic table to be</span>
@@ -253,8 +255,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Convert primitive_elemental data in the form of numpy array for plotting.</span>
-    <span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-    <span class="n">min_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">cmap_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="n">cmap_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">min_val</span> <span class="o">=</span> <span class="n">cmap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">min_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">elemental_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
     <span class="n">max_row</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_row</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">max_row</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -264,7 +271,8 @@
     <span class="n">blank_value</span> <span class="o">=</span> <span class="n">min_val</span> <span class="o">-</span> <span class="mf">0.01</span>
 
     <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">Element</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">row</span> <span class="o">&gt;</span> <span class="n">max_row</span><span class="p">:</span> <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">el</span><span class="o">.</span><span class="n">row</span> <span class="o">&gt;</span> <span class="n">max_row</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">elemental_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">blank_value</span><span class="p">)</span>
         <span class="n">value_table</span><span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">group</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -276,13 +284,15 @@
     <span class="c1"># We set nan type values to masked values (ie blank spaces)</span>
     <span class="n">data_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">value_table</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
     <span class="n">heatmap</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolor</span><span class="p">(</span><span class="n">data_mask</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                        <span class="n">vmin</span><span class="o">=</span><span class="n">min_val</span><span class="o">-</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_val</span><span class="o">+</span><span class="mf">0.001</span><span class="p">)</span>
+                        <span class="n">vmin</span><span class="o">=</span><span class="n">min_val</span> <span class="o">-</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">max_val</span> <span class="o">+</span> <span class="mf">0.001</span><span class="p">)</span>
     <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">heatmap</span><span class="p">)</span>
 
     <span class="c1"># Grey out missing elements in input data</span>
     <span class="n">cbar</span><span class="o">.</span><span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">blank_color</span><span class="p">)</span>
-    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="c1"># Set the colorbar label and tick marks</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">cbar_label_size</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">cbar_label_size</span><span class="p">)</span>
 
     <span class="c1"># Refine and make the table look nice</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
@@ -292,7 +302,7 @@
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value_table</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">el</span><span class="p">):</span>
-                <span class="n">symbol</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_row_and_group</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">symbol</span>
+                <span class="n">symbol</span> <span class="o">=</span> <span class="n">Element</span><span class="o">.</span><span class="n">from_row_and_group</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">symbol</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span>
                          <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
                          <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
@@ -480,7 +490,7 @@
 <span class="sd">        plt: matplotlib pyplot module.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-    <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">axes3d</span>
+    <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">axes3d</span>
     <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">axes3d</span><span class="o">.</span><span class="n">Axes3D</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
@@ -532,7 +542,7 @@
 <span class="sd">    some sort of error/unexpected event.</span>
 <span class="sd">    See doc string below for the list of supported options.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+    <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -544,6 +554,7 @@
         <span class="n">tight_layout</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tight_layout&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">ax_grid</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ax_grid&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">ax_annotate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ax_annotate&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">fig_close</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fig_close&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
         <span class="c1"># Call func and return immediately if None is returned.</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -563,7 +574,7 @@
                 <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">ax_grid</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">ax_annotate</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">ascii_letters</span>
+            <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_letters</span>
             <span class="n">tags</span> <span class="o">=</span> <span class="n">ascii_letters</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">):</span>
                 <span class="n">tags</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">ascii_letters</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">))</span> <span class="o">*</span> <span class="n">ascii_letters</span>
@@ -581,9 +592,11 @@
         <span class="k">if</span> <span class="n">savefig</span><span class="p">:</span>
             <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">savefig</span><span class="p">)</span>
 
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fig_close</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="o">=</span><span class="n">fig</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span>
 
@@ -604,6 +617,7 @@
 <span class="s2">                          Default: None i.e. fig is left unchanged.</span>
 <span class="s2">        ax_annotate       Add labels to  subplots e.g. (a), (b).</span>
 <span class="s2">                          Default: False</span>
+<span class="s2">        fig_close         Close figure. Default: False.</span>
 <span class="s2">        ================  ====================================================</span>
 
 <span class="s2">&quot;&quot;&quot;</span>
@@ -618,22 +632,8 @@
     <span class="k">return</span> <span class="n">wrapper</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -646,15 +646,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.util.plotting</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

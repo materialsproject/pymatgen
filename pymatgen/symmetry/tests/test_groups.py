@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import unittest
-import numpy as np
 import warnings
+
+import numpy as np
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.groups import PointGroup, SpaceGroup, get_symm_data
+from pymatgen.symmetry.groups import PointGroup, SpaceGroup, _get_symm_data
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -16,7 +18,6 @@ __date__ = "4/10/14"
 
 
 class PointGroupTest(unittest.TestCase):
-
     def test_order(self):
         order = {"mmm": 8, "432": 24, "-6m2": 12}
         for k, v in order.items():
@@ -50,6 +51,17 @@ class PointGroupTest(unittest.TestCase):
 
 
 class SpaceGroupTest(unittest.TestCase):
+    def test_renamed_e_symbols(self):
+        sg = SpaceGroup.from_int_number(64)
+        assert sg.symbol == "Cmce"
+        for sym, num in (
+            ("Aem2", 39),
+            ("Aea2", 41),
+            ("Cmce", 64),
+            ("Cmme", 67),
+            ("Ccce", 68),
+        ):
+            assert SpaceGroup(sym).int_number == num
 
     def test_abbrev_symbols(self):
         sg = SpaceGroup("P2/c")
@@ -67,7 +79,7 @@ class SpaceGroupTest(unittest.TestCase):
             sg = SpaceGroup.from_int_number(i)
             self.assertTrue(hasattr(sg, "point_group"))
 
-        for symbol in get_symm_data("space_group_encoding"):
+        for symbol in _get_symm_data("space_group_encoding"):
             sg = SpaceGroup(symbol)
             self.assertTrue(hasattr(sg, "point_group"))
 
@@ -81,13 +93,27 @@ class SpaceGroupTest(unittest.TestCase):
             self.assertEqual(len(sg.symmetry_ops), sg.order)
 
     def test_get_settings(self):
-        self.assertEqual({'Fm-3m(a-1/4,b-1/4,c-1/4)', 'Fm-3m'},
-                         SpaceGroup.get_settings("Fm-3m"))
-        self.assertEqual({'Pmmn', 'Pmnm:1', 'Pnmm:2', 'Pmnm:2', 'Pnmm',
-                          'Pnmm:1', 'Pmmn:1', 'Pmnm', 'Pmmn:2'},
-                         SpaceGroup.get_settings("Pmmn"))
-        self.assertEqual({'Pnmb', 'Pman', 'Pncm', 'Pmna', 'Pcnm', 'Pbmn'},
-                         SpaceGroup.get_settings("Pmna"))
+        self.assertEqual(
+            {"Fm-3m(a-1/4,b-1/4,c-1/4)", "Fm-3m"}, SpaceGroup.get_settings("Fm-3m")
+        )
+        self.assertEqual(
+            {
+                "Pmmn",
+                "Pmnm:1",
+                "Pnmm:2",
+                "Pmnm:2",
+                "Pnmm",
+                "Pnmm:1",
+                "Pmmn:1",
+                "Pmnm",
+                "Pmmn:2",
+            },
+            SpaceGroup.get_settings("Pmmn"),
+        )
+        self.assertEqual(
+            {"Pnmb", "Pman", "Pncm", "Pmna", "Pcnm", "Pbmn"},
+            SpaceGroup.get_settings("Pmna"),
+        )
 
     def test_crystal_system(self):
         sg = SpaceGroup("R-3c")
@@ -150,8 +176,9 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_symmops(self):
         sg = SpaceGroup("Pnma")
-        op = SymmOp.from_rotation_and_translation([[1, 0, 0], [0, -1, 0],
-                                                   [0, 0, -1]], [0.5, 0.5, 0.5])
+        op = SymmOp.from_rotation_and_translation(
+            [[1, 0, 0], [0, -1, 0], [0, 0, -1]], [0.5, 0.5, 0.5]
+        )
         self.assertIn(op, sg.symmetry_ops)
 
     def test_other_settings(self):
@@ -163,10 +190,19 @@ class SpaceGroupTest(unittest.TestCase):
     def test_subgroup_supergroup(self):
         with warnings.catch_warnings() as w:
             warnings.simplefilter("ignore")
-            self.assertTrue(SpaceGroup('Pma2').is_subgroup(SpaceGroup('Pccm')))
-            self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(
-                SpaceGroup.from_int_number(230)))
+            self.assertTrue(SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm")))
+            self.assertFalse(
+                SpaceGroup.from_int_number(229).is_subgroup(
+                    SpaceGroup.from_int_number(230)
+                )
+            )
+
+    def test_hexagonal(self):
+        sgs = [146, 148, 155, 160, 161, 166, 167]
+        for sg in sgs:
+            s = SpaceGroup.from_int_number(sg, hexagonal=False)
+            self.assertTrue(not s.symbol.endswith("H"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

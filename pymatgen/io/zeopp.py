@@ -2,30 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import re
-
-from monty.io import zopen
-from monty.dev import requires
-from monty.tempfile import ScratchDir
-
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.cssr import Cssr
-from pymatgen.io.xyz import XYZ
-
-try:
-    from zeo.netstorage import AtomNetwork, VoronoiNetwork
-    from zeo.area_volume import volume, surface_area
-    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode, \
-        generate_simplified_highaccuracy_voronoi_network, \
-        prune_voronoi_network_close_node
-
-    zeo_found = True
-except ImportError:
-    zeo_found = False
-
 """
 Module implementing classes and functions to use Zeo++.
 
@@ -68,6 +44,27 @@ b) Go to pymatgen/analysis/defects/tests and run
    is not installed. But there should be no errors.
 """
 
+import os
+import re
+
+from monty.dev import requires
+from monty.io import zopen
+from monty.tempfile import ScratchDir
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.cssr import Cssr
+from pymatgen.io.xyz import XYZ
+
+try:
+    from zeo.area_volume import surface_area, volume
+    from zeo.cluster import prune_voronoi_network_close_node
+    from zeo.netstorage import AtomNetwork
+
+    zeo_found = True
+except ImportError:
+    zeo_found = False
+
 __author__ = "Bharat Medasani"
 __copyright = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -82,12 +79,13 @@ class ZeoCssr(Cssr):
     input CSSR format. The coordinate system is rorated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
-
-    Args:
-        structure: A structure to create ZeoCssr object
     """
 
     def __init__(self, structure):
+        """
+        Args:
+            structure: A structure to create ZeoCssr object
+        """
         super().__init__(structure)
 
     def __str__(self):
@@ -98,32 +96,30 @@ class ZeoCssr(Cssr):
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
-            "{:.4f} {:.4f} {:.4f}"
-                # .format(*self.structure.lattice.abc),
-                .format(self.structure.lattice.c,
-                        self.structure.lattice.a,
-                        self.structure.lattice.b),
-            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-                # .format(*self.structure.lattice.angles),
-                .format(self.structure.lattice.gamma,
-                        self.structure.lattice.alpha,
-                        self.structure.lattice.beta),
+            "{:.4f} {:.4f} {:.4f}".format(
+                self.structure.lattice.c,
+                self.structure.lattice.a,
+                self.structure.lattice.b,
+            ),
+            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1".format(
+                self.structure.lattice.gamma,
+                self.structure.lattice.alpha,
+                self.structure.lattice.beta,
+            ),
             "{} 0".format(len(self.structure)),
-            "0 {}".format(self.structure.formula)
+            "0 {}".format(self.structure.formula),
         ]
         for i, site in enumerate(self.structure.sites):
             # if not hasattr(site, 'charge'):
             #    charge = 0
             # else:
             #    charge = site.charge
-            charge = site.charge if hasattr(site, 'charge') else 0
+            charge = site.charge if hasattr(site, "charge") else 0
             # specie = site.specie.symbol
             specie = site.species_string
             output.append(
-                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(
+                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}".format(
                     i + 1, specie, site.c, site.a, site.b, charge
-                    # i+1, site.specie, site.a, site.b, site.c, site.charge
                 )
             )
 
@@ -150,22 +146,23 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        latt = Lattice.from_lengths_and_angles(lengths, angles)
+        latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
         chrg = []
         for l in lines[4:]:
-            m = re.match(r'\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+' +
-                         r'([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)', l.strip())
+            m = re.match(
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+"
+                + r"([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
+                l.strip(),
+            )
             if m:
                 sp.append(m.group(1))
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
                 coords.append([float(m.group(i)) for i in [3, 4, 2]])
                 chrg.append(m.group(5))
-        return ZeoCssr(
-            Structure(latt, sp, coords, site_properties={'charge': chrg})
-        )
+        return ZeoCssr(Structure(latt, sp, coords, site_properties={"charge": chrg}))
 
     @staticmethod
     def from_file(filename):
@@ -187,12 +184,13 @@ class ZeoVoronoiXYZ(XYZ):
     Class to read Voronoi Nodes from XYZ file written by Zeo++.
     The sites have an additional column representing the voronoi node radius.
     The voronoi node radius is represented by the site property voronoi_radius.
-
-    Args:
-        mol: Input molecule holding the voronoi node information
     """
 
     def __init__(self, mol):
+        """
+        Args:
+            mol: Input molecule holding the voronoi node information
+        """
         super().__init__(mol)
 
     @staticmethod
@@ -213,19 +211,17 @@ class ZeoVoronoiXYZ(XYZ):
         sp = []
         prop = []
         coord_patt = re.compile(
-            r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
-            r"([0-9\-\.]+)"
+            r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)"
         )
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                coords.append([float(j)
-                               for j in [m.group(i) for i in [3, 4, 2]]])
+                coords.append([float(j) for j in [m.group(i) for i in [3, 4, 2]]])
                 prop.append(float(m.group(5)))
         return ZeoVoronoiXYZ(
-            Molecule(sp, coords, site_properties={'voronoi_radius': prop})
+            Molecule(sp, coords, site_properties={"voronoi_radius": prop})
         )
 
     @staticmethod
@@ -243,22 +239,28 @@ class ZeoVoronoiXYZ(XYZ):
             return ZeoVoronoiXYZ.from_string(f.read())
 
     def __str__(self):
-        output = [str(len(self._mol)), self._mol.composition.formula]
+        output = [str(len(self._mols[0])), self._mols[0].composition.formula]
         fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(
             self.precision
         )
-        for site in self._mol:
-            output.append(fmtstr.format(
-                site.specie.symbol, site.z, site.x, site.y,
-                # site.specie, site.x, site.y, site.z,
-                site.properties['voronoi_radius']
-            ))
+        for site in self._mols[0]:
+            output.append(
+                fmtstr.format(
+                    site.specie.symbol,
+                    site.z,
+                    site.x,
+                    site.y,
+                    site.properties["voronoi_radius"],
+                )
+            )
         return "\n".join(output)
 
 
-@requires(zeo_found,
-          "get_voronoi_nodes requires Zeo++ cython extension to be "
-          "installed. Please contact developers of Zeo++ to obtain it.")
+@requires(
+    zeo_found,
+    "get_voronoi_nodes requires Zeo++ cython extension to be "
+    "installed. Please contact developers of Zeo++ to obtain it.",
+)
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -280,7 +282,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         unit cell defined by the lattice of input structure
     """
 
-    with ScratchDir('.'):
+    with ScratchDir("."):
         name = "temp_zeo1"
         zeo_inp_filename = name + ".cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
@@ -290,16 +292,20 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         if rad_dict:
             rad_file = name + ".rad"
             rad_flag = True
-            with open(rad_file, 'w+') as fp:
+            with open(rad_file, "w+") as fp:
                 for el in rad_dict.keys():
                     fp.write("{} {}\n".format(el, rad_dict[el].real))
 
         atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-        vornet, vor_edge_centers, vor_face_centers = \
-            atmnet.perform_voronoi_decomposition()
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
+        )
+        (
+            vornet,
+            vor_edge_centers,
+            vor_face_centers,
+        ) = atmnet.perform_voronoi_decomposition()
         vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
-        voro_out_filename = name + '_voro.xyz'
+        voro_out_filename = name + "_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol.sites)
@@ -307,31 +313,47 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     prop = []
     for site in voro_node_mol.sites:
         coords.append(list(site.coords))
-        prop.append(site.properties['voronoi_radius'])
+        prop.append(site.properties["voronoi_radius"])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(*structure.lattice.parameters)
     vor_node_struct = Structure(
-        lattice, species, coords, coords_are_cartesian=True,
-        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+        lattice,
+        species,
+        coords,
+        coords_are_cartesian=True,
+        to_unit_cell=True,
+        site_properties={"voronoi_radius": prop},
+    )
 
     # PMG-Zeo c<->a transformation for voronoi face centers
-    rot_face_centers = [(center[1], center[2], center[0]) for center in
-                        vor_face_centers]
-    rot_edge_centers = [(center[1], center[2], center[0]) for center in
-                        vor_edge_centers]
+    rot_face_centers = [
+        (center[1], center[2], center[0]) for center in vor_face_centers
+    ]
+    rot_edge_centers = [
+        (center[1], center[2], center[0]) for center in vor_edge_centers
+    ]
 
     species = ["X"] * len(rot_face_centers)
     prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc
     vor_facecenter_struct = Structure(
-        lattice, species, rot_face_centers, coords_are_cartesian=True,
-        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+        lattice,
+        species,
+        rot_face_centers,
+        coords_are_cartesian=True,
+        to_unit_cell=True,
+        site_properties={"voronoi_radius": prop},
+    )
 
     species = ["X"] * len(rot_edge_centers)
     prop = [0.0] * len(rot_edge_centers)  # Vor radius not evaluated for fc
     vor_edgecenter_struct = Structure(
-        lattice, species, rot_edge_centers, coords_are_cartesian=True,
-        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+        lattice,
+        species,
+        rot_edge_centers,
+        coords_are_cartesian=True,
+        to_unit_cell=True,
+        site_properties={"voronoi_radius": prop},
+    )
 
     return vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct
 
@@ -358,26 +380,26 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         unit cell defined by the lattice of input structure
     """
 
-    with ScratchDir('.'):
+    with ScratchDir("."):
         name = "temp_zeo1"
         zeo_inp_filename = name + ".cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_flag = True
         rad_file = name + ".rad"
-        with open(rad_file, 'w+') as fp:
+        with open(rad_file, "w+") as fp:
             for el in rad_dict.keys():
                 print("{} {}".format(el, rad_dict[el].real), file=fp)
 
         atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
+        )
         # vornet, vor_edge_centers, vor_face_centers = \
         #        atmnet.perform_voronoi_decomposition()
-        red_ha_vornet = \
-            prune_voronoi_network_close_node(atmnet)
+        red_ha_vornet = prune_voronoi_network_close_node(atmnet)
         # generate_simplified_highaccuracy_voronoi_network(atmnet)
         # get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
-        voro_out_filename = name + '_voro.xyz'
+        voro_out_filename = name + "_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol.sites)
@@ -385,20 +407,26 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     prop = []
     for site in voro_node_mol.sites:
         coords.append(list(site.coords))
-        prop.append(site.properties['voronoi_radius'])
+        prop.append(site.properties["voronoi_radius"])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(*structure.lattice.parameters)
     vor_node_struct = Structure(
-        lattice, species, coords, coords_are_cartesian=True,
-        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+        lattice,
+        species,
+        coords,
+        coords_are_cartesian=True,
+        to_unit_cell=True,
+        site_properties={"voronoi_radius": prop},
+    )
 
     return vor_node_struct
 
 
-@requires(zeo_found,
-          "get_voronoi_nodes requires Zeo++ cython extension to be "
-          "installed. Please contact developers of Zeo++ to obtain it.")
+@requires(
+    zeo_found,
+    "get_voronoi_nodes requires Zeo++ cython extension to be "
+    "installed. Please contact developers of Zeo++ to obtain it.",
+)
 def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -420,7 +448,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
         unit cell defined by the lattice of input structure
     """
 
-    with ScratchDir('.'):
+    with ScratchDir("."):
         name = "temp_zeo1"
         zeo_inp_filename = name + ".cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
@@ -430,12 +458,13 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
         if rad_dict:
             rad_file = name + ".rad"
             rad_flag = True
-            with open(rad_file, 'w+') as fp:
+            with open(rad_file, "w+") as fp:
                 for el in rad_dict.keys():
                     fp.write("{} {}\n".format(el, rad_dict[el].real))
 
         atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
+        )
         out_file = "temp.res"
         atmnet.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
@@ -446,15 +475,16 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
     fields = [val.strip() for val in output.split()][1:4]
     if len(fields) == 3:
         fields = [float(field) for field in fields]
-        free_sphere_params = {'inc_sph_max_dia': fields[0],
-                              'free_sph_max_dia': fields[1],
-                              'inc_sph_along_free_sph_path_max_dia': fields[2]}
+        free_sphere_params = {
+            "inc_sph_max_dia": fields[0],
+            "free_sph_max_dia": fields[1],
+            "inc_sph_along_free_sph_path_max_dia": fields[2],
+        }
     return free_sphere_params
 
 
 # Deprecated. Not needed anymore
-def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
-                             probe_rad=0.1):
+def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3, probe_rad=0.1):
     """
     Computes the volume and surface area of isolated void using Zeo++.
     Useful to compute the volume and surface area of vacant site.
@@ -469,7 +499,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
     Returns:
         volume: floating number representing the volume of void
     """
-    with ScratchDir('.'):
+    with ScratchDir("."):
         name = "temp_zeo"
         zeo_inp_filename = name + ".cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
@@ -477,7 +507,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
         rad_file = None
         if rad_dict:
             rad_file = name + ".rad"
-            with open(rad_file, 'w') as fp:
+            with open(rad_file, "w") as fp:
                 for el in rad_dict.keys():
                     fp.write("{0}     {1}".format(el, rad_dict[el]))
 

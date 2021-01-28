@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.magnetism.heisenberg &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.magnetism.heisenberg &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.magnetism.heisenberg</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.magnetism.heisenberg</h1><div class="highlight"><pre>
@@ -49,26 +49,29 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism</span> <span class="k">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">,</span> <span class="n">Ordering</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">StructureGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">MinimumDistanceNN</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">ElementComparator</span><span class="p">,</span> <span class="n">StructureMatcher</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">dumpfn</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements a simple algorithm for extracting nearest neighbor</span>
 <span class="sd">exchange parameters by mapping low energy magnetic orderings to a Heisenberg</span>
 <span class="sd">model.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">dumpfn</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">jsanitize</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.magnetism</span> <span class="kn">import</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">,</span> <span class="n">Ordering</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">MinimumDistanceNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ncfrey&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
@@ -79,9 +82,11 @@
 
 
 <div class="viewcode-block" id="HeisenbergMapper"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper">[docs]</a><span class="k">class</span> <span class="nc">HeisenbergMapper</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Compute exchange parameters from low energy magnetic orderings.</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to compute exchange parameters from low energy magnetic orderings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exchange parameters are computed by mapping to a classical Heisenberg</span>
 <span class="sd">        model. Strategy is the scheme for generating neighbors. Currently only</span>
 <span class="sd">        MinimumDistanceNN is implemented.</span>
@@ -92,14 +97,14 @@
 <span class="sd">        orderings and find the magnetic ground state. Then enumerate magnetic</span>
 <span class="sd">        states with the ground state as the input structure, find the subset</span>
 <span class="sd">        of supercells that map to the ground state, and do static calculations</span>
-<span class="sd">        for these orderings.  </span>
+<span class="sd">        for these orderings.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ordered_structures (list): Structure objects with magmoms.</span>
-<span class="sd">            energies (list): Energies of each relaxed magnetic structure.</span>
+<span class="sd">            energies (list): Total energies of each relaxed magnetic structure.</span>
 <span class="sd">            cutoff (float): Cutoff in Angstrom for nearest neighbor search.</span>
 <span class="sd">                Defaults to 0 (only NN, no NNN, etc.)</span>
-<span class="sd">            tol (float): Tolerance (in Angstrom) on nearest neighbor distances </span>
+<span class="sd">            tol (float): Tolerance (in Angstrom) on nearest neighbor distances</span>
 <span class="sd">                being equal.</span>
 
 <span class="sd">        Parameters:</span>
@@ -115,7 +120,7 @@
 <span class="sd">            dists (dict): NN, NNN, and NNNN interaction distances</span>
 <span class="sd">            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each</span>
 <span class="sd">                graph.</span>
-<span class="sd">            ex_params (dict): Exchange parameter values (meV/atom) </span>
+<span class="sd">            ex_params (dict): Exchange parameter values (meV/atom)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -123,8 +128,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures_</span> <span class="o">=</span> <span class="n">ordered_structures</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energies_</span> <span class="o">=</span> <span class="n">energies</span>
 
-        <span class="c1"># Sanitize inputs and order them by energy / magnetic moments</span>
-        <span class="n">hs</span> <span class="o">=</span> <span class="n">HeisenbergScreener</span><span class="p">(</span><span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span>
+        <span class="c1"># Sanitize inputs and optionally order them by energy / magnetic moments</span>
+        <span class="n">hs</span> <span class="o">=</span> <span class="n">HeisenbergScreener</span><span class="p">(</span><span class="n">ordered_structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">screen</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">ordered_structures</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">screened_structures</span>
         <span class="n">energies</span> <span class="o">=</span> <span class="n">hs</span><span class="o">.</span><span class="n">screened_energies</span>
 
@@ -193,7 +198,7 @@
 <span class="sd">            structure (Structure): ground state Structure object.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            unique_site_ids (dict): maps tuples of equivalent site indices to a </span>
+<span class="sd">            unique_site_ids (dict): maps tuples of equivalent site indices to a</span>
 <span class="sd">                unique int identifier</span>
 <span class="sd">            wyckoff_ids (dict): maps tuples of equivalent site indices to their</span>
 <span class="sd">                wyckoff symbols</span>
@@ -400,7 +405,7 @@
 
                 <span class="c1"># Ignore the row if it is a duplicate to avoid singular matrix</span>
                 <span class="k">if</span> <span class="n">ex_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ex_row</span><span class="p">)[</span><span class="n">j_columns</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span>
-                    <span class="n">ex_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ex_row</span><span class="p">)[</span><span class="n">j_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+                        <span class="n">ex_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ex_row</span><span class="p">)[</span><span class="n">j_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
                 <span class="p">):</span>
                     <span class="n">e_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sgraph</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
                     <span class="n">ex_row</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sgraph_index</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">e_index</span><span class="p">]</span>
@@ -420,7 +425,6 @@
             <span class="n">zeros</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ex_mat</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
             <span class="k">if</span> <span class="kc">True</span> <span class="ow">in</span> <span class="n">zeros</span><span class="p">:</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">ex_mat</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">zeros</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)]</span>
-                <span class="n">len_zeros</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
                 <span class="n">ex_mat</span> <span class="o">=</span> <span class="n">ex_mat</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)</span>
 
@@ -446,7 +450,6 @@
 
         <span class="c1"># Only 1 NN interaction</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">j_names</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-
             <span class="c1"># Estimate exchange by J ~ E_AFM - E_FM</span>
             <span class="n">j_avg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_exchange</span><span class="p">()</span>
             <span class="n">ex_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;&lt;J&gt;&quot;</span><span class="p">:</span> <span class="n">j_avg</span><span class="p">}</span>
@@ -485,7 +488,8 @@
         <span class="n">mag_max</span> <span class="o">=</span> <span class="mf">0.001</span>
         <span class="n">fm_e_min</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">afm_e_min</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">afm_threshold</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># total magnetization &lt; threshold -&gt; AFM, not FiM</span>
+
+        <span class="c1"># epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]</span>
 
         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">):</span>
 
@@ -537,6 +541,7 @@
         <span class="n">afm_struct</span> <span class="o">=</span> <span class="n">CollinearMagneticStructureAnalyzer</span><span class="p">(</span>
             <span class="n">afm_struct</span><span class="p">,</span> <span class="n">make_primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.0</span>
         <span class="p">)</span><span class="o">.</span><span class="n">get_structure_with_only_magnetic_atoms</span><span class="p">(</span><span class="n">make_primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">fm_struct</span><span class="p">,</span> <span class="n">afm_struct</span><span class="p">,</span> <span class="n">fm_e</span><span class="p">,</span> <span class="n">afm_e</span></div>
 
 <div class="viewcode-block" id="HeisenbergMapper.estimate_exchange"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_exchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fm_struct</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">afm_struct</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fm_e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">afm_e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -546,9 +551,9 @@
 <span class="sd">        Args:</span>
 <span class="sd">            fm_struct (Structure): fm structure with &#39;magmom&#39; site property</span>
 <span class="sd">            afm_struct (Structure): afm structure with &#39;magmom&#39; site property</span>
-<span class="sd">            fm_e (float): fm energy</span>
-<span class="sd">            afm_e (float): afm energy</span>
-<span class="sd">        </span>
+<span class="sd">            fm_e (float): fm energy/atom</span>
+<span class="sd">            afm_e (float): afm energy/atom</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            j_avg (float): Average exchange parameter (meV/atom)</span>
 
@@ -558,27 +563,25 @@
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">[</span><span class="n">fm_struct</span><span class="p">,</span> <span class="n">afm_struct</span><span class="p">,</span> <span class="n">fm_e</span><span class="p">,</span> <span class="n">afm_e</span><span class="p">]):</span>
             <span class="n">fm_struct</span><span class="p">,</span> <span class="n">afm_struct</span><span class="p">,</span> <span class="n">fm_e</span><span class="p">,</span> <span class="n">afm_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_low_energy_orderings</span><span class="p">()</span>
 
-        <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fm_struct</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">afm_struct</span><span class="p">))</span>  <span class="c1"># num of magnetic atoms</span>
-        <span class="c1"># fm_e *= n  # eV/ion -&gt; eV</span>
-        <span class="c1"># afm_e *= n</span>
-
         <span class="n">magmoms</span> <span class="o">=</span> <span class="n">fm_struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span>
-        <span class="n">afm_magmoms</span> <span class="o">=</span> <span class="n">afm_struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Normalize energies by number of magnetic ions</span>
+        <span class="c1"># fm_e = fm_e / len(magmoms)</span>
+        <span class="c1"># afm_e = afm_e / len(afm_magmoms)</span>
 
         <span class="n">m_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">])</span>
-        <span class="n">afm_m_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">afm_magmoms</span><span class="p">])</span>
 
         <span class="c1"># If m_avg for FM config is &lt; 1 we won&#39;t get sensibile results.</span>
         <span class="k">if</span> <span class="n">m_avg</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">iamthedanger</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; </span>
+            <span class="n">iamthedanger</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                Local magnetic moments are small (&lt; 1 muB / atom). The</span>
 <span class="s2">                exchange parameters may be wrong, but &lt;J&gt; and the mean</span>
-<span class="s2">                field critical temperature estimate may be OK. </span>
+<span class="s2">                field critical temperature estimate may be OK.</span>
 <span class="s2">                &quot;&quot;&quot;</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">iamthedanger</span><span class="p">)</span>
 
         <span class="n">delta_e</span> <span class="o">=</span> <span class="n">afm_e</span> <span class="o">-</span> <span class="n">fm_e</span>  <span class="c1"># J &gt; 0 -&gt; FM</span>
-        <span class="n">j_avg</span> <span class="o">=</span> <span class="n">delta_e</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">m_avg</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># eV / magnetic ion</span>
+        <span class="n">j_avg</span> <span class="o">=</span> <span class="n">delta_e</span> <span class="o">/</span> <span class="p">(</span><span class="n">m_avg</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># eV / magnetic ion</span>
         <span class="n">j_avg</span> <span class="o">*=</span> <span class="mi">1000</span>  <span class="c1"># meV / ion</span>
 
         <span class="k">return</span> <span class="n">j_avg</span></div>
@@ -622,7 +625,7 @@
             <span class="n">mft_t</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mft_t</span> <span class="o">&gt;</span> <span class="mi">1500</span><span class="p">:</span>  <span class="c1"># Not sensible!</span>
-            <span class="n">stayoutofmyterritory</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; </span>
+            <span class="n">stayoutofmyterritory</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                This mean field estimate is too high! Probably</span>
 <span class="s2">                the true low energy orderings were not given as inputs.</span>
 <span class="s2">                &quot;&quot;&quot;</span>
@@ -634,7 +637,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a StructureGraph with edges and weights that correspond to exchange</span>
 <span class="sd">        interactions and J_ij values, respectively.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): if not None, save interaction graph to filename.</span>
 <span class="sd">        Returns:</span>
@@ -643,9 +646,6 @@
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">sgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sgraphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">unique_site_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span>
-        <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
-        <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
 
         <span class="n">igraph</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span>
             <span class="n">structure</span><span class="p">,</span> <span class="n">edge_weight_name</span><span class="o">=</span><span class="s2">&quot;exchange_constant&quot;</span><span class="p">,</span> <span class="n">edge_weight_units</span><span class="o">=</span><span class="s2">&quot;meV&quot;</span>
@@ -656,16 +656,13 @@
 <span class="s2">                Only &lt;J&gt; is available. The interaction graph will not tell</span>
 <span class="s2">                you much.</span>
 <span class="s2">                &quot;&quot;&quot;</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
 
         <span class="c1"># J_ij exchange interaction matrix</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
             <span class="n">connections</span> <span class="o">=</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">get_connected_sites</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
                 <span class="n">jimage</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># relative integer coordinates of atom j</span>
-                <span class="n">dx</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">dy</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">dz</span> <span class="o">=</span> <span class="n">jimage</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">j</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># index of neighbor</span>
                 <span class="n">dist</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># i &lt;-&gt; j distance</span>
 
@@ -692,8 +689,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            i (int): index of ith site</span>
 <span class="sd">            j (int): index of jth site</span>
-<span class="sd">            dist (float): distance (Angstrom) between sites </span>
-<span class="sd">                (10E-2 precision) </span>
+<span class="sd">            dist (float): distance (Angstrom) between sites</span>
+<span class="sd">                (10E-2 precision)</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            j_exc (float): Exchange parameter in meV</span>
@@ -730,23 +727,73 @@
         <span class="k">if</span> <span class="s2">&quot;&lt;J&gt;&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span> <span class="ow">and</span> <span class="n">order</span> <span class="o">==</span> <span class="s2">&quot;-nn&quot;</span><span class="p">:</span>
             <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span><span class="p">[</span><span class="s2">&quot;&lt;J&gt;&quot;</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">j_exc</span></div>
+        <span class="k">return</span> <span class="n">j_exc</span>
+
+<div class="viewcode-block" id="HeisenbergMapper.get_heisenberg_model"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model">[docs]</a>    <span class="k">def</span> <span class="nf">get_heisenberg_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save results of mapping to a HeisenbergModel object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            hmodel (HeisenbergModel): MSONable object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Original formula unit with nonmagnetic ions</span>
+        <span class="n">hm_formula</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+
+        <span class="n">hm_structures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_structures</span>
+        <span class="n">hm_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">hm_cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span>
+        <span class="n">hm_tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
+        <span class="n">hm_sgraphs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sgraphs</span>
+        <span class="n">hm_usi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span>
+        <span class="n">hm_wids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_ids</span>
+        <span class="n">hm_nni</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn_interactions</span>
+        <span class="n">hm_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
+
+        <span class="c1"># Exchange matrix DataFrame in json format</span>
+        <span class="n">hm_em</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_mat</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+        <span class="n">hm_ep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_exchange</span><span class="p">()</span>
+        <span class="n">hm_javg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_exchange</span><span class="p">()</span>
+        <span class="n">hm_igraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_interaction_graph</span><span class="p">()</span>
+
+        <span class="n">hmodel</span> <span class="o">=</span> <span class="n">HeisenbergModel</span><span class="p">(</span>
+            <span class="n">hm_formula</span><span class="p">,</span>
+            <span class="n">hm_structures</span><span class="p">,</span>
+            <span class="n">hm_energies</span><span class="p">,</span>
+            <span class="n">hm_cutoff</span><span class="p">,</span>
+            <span class="n">hm_tol</span><span class="p">,</span>
+            <span class="n">hm_sgraphs</span><span class="p">,</span>
+            <span class="n">hm_usi</span><span class="p">,</span>
+            <span class="n">hm_wids</span><span class="p">,</span>
+            <span class="n">hm_nni</span><span class="p">,</span>
+            <span class="n">hm_d</span><span class="p">,</span>
+            <span class="n">hm_em</span><span class="p">,</span>
+            <span class="n">hm_ep</span><span class="p">,</span>
+            <span class="n">hm_javg</span><span class="p">,</span>
+            <span class="n">hm_igraph</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hmodel</span></div></div>
 
 
 <div class="viewcode-block" id="HeisenbergScreener"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener">[docs]</a><span class="k">class</span> <span class="nc">HeisenbergScreener</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Clean and screen magnetic orderings.</span>
-
-<span class="sd">        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy orderings with large and localized magnetic moments.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to clean and screen magnetic orderings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">screen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class pre-processes magnetic orderings and energies for</span>
+<span class="sd">        HeisenbergMapper. It prioritizes low-energy orderings with large and</span>
+<span class="sd">        localized magnetic moments.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            structures (list): Structure objects with magnetic moments.</span>
-<span class="sd">            energies (list): energies of magnetic orderings.</span>
+<span class="sd">            energies (list): Energies/atom of magnetic orderings.</span>
+<span class="sd">            screen (bool): Try to screen out high energy and low-spin configurations.</span>
 
 <span class="sd">        Attributes:</span>
 <span class="sd">            screened_structures (list): Sorted structures.</span>
 <span class="sd">            screened_energies (list): Sorted energies.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Cleanup</span>
@@ -756,7 +803,7 @@
 
         <span class="c1"># If there are more than 2 structures, we want to perform a</span>
         <span class="c1"># screening to prioritize well-behaved orderings</span>
-        <span class="k">if</span> <span class="n">n_structures</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">screen</span> <span class="ow">and</span> <span class="n">n_structures</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">structures</span><span class="p">,</span> <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_screen</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">screened_structures</span> <span class="o">=</span> <span class="n">structures</span>
@@ -768,8 +815,9 @@
 
 <span class="sd">        Takes magnetic structures and performs the following operations</span>
 <span class="sd">        - Erases nonmagnetic ions and gives all ions [&#39;magmom&#39;] site prop</span>
+<span class="sd">        - Converts total energies -&gt; energy / magnetic ion</span>
 <span class="sd">        - Checks for duplicate/degenerate orderings</span>
-<span class="sd">        - Sorts by energy </span>
+<span class="sd">        - Sorts by energy</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            structures (list): Structure objects with magmoms.</span>
@@ -791,11 +839,14 @@
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structures</span>
         <span class="p">]</span>
 
+        <span class="c1"># Convert to energies / magnetic ion</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">ordered_structures</span><span class="p">)]</span>
+
         <span class="c1"># Check for duplicate / degenerate states (sometimes different initial</span>
         <span class="c1"># configs relax to the same state)</span>
         <span class="n">remove_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">energies</span><span class="p">):</span>
-            <span class="n">e_tol</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># 10^-4 eV tol on equal energies</span>
+            <span class="n">e_tol</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># 10^-6 eV/atom tol on energies</span>
             <span class="n">e</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">e_tol</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">remove_list</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i_check</span><span class="p">,</span> <span class="n">e_check</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">energies</span><span class="p">):</span>
@@ -843,9 +894,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s2">&quot;magmom&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structures</span><span class="p">]</span>
-        <span class="n">mean_mm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
-        <span class="n">max_mm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
-        <span class="n">min_mm</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
         <span class="n">n_below_1ub</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ms</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -873,24 +921,211 @@
         <span class="n">screened_energies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">screened_structures</span><span class="p">,</span> <span class="n">screened_energies</span></div>
+
+
+<div class="viewcode-block" id="HeisenbergModel"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel">[docs]</a><span class="k">class</span> <span class="nc">HeisenbergModel</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Store a Heisenberg model fit to low-energy magnetic orderings.</span>
+<span class="sd">    Intended to be generated by HeisenbergMapper.get_heisenberg_model().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">formula</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">structures</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">energies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sgraphs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">unique_site_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wyckoff_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nn_interactions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dists</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ex_mat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ex_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">javg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">igraph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            formula (str): Reduced formula of compound.</span>
+<span class="sd">            structures (list): Structure objects with magmoms.</span>
+<span class="sd">            energies (list): Energies of each relaxed magnetic structure.</span>
+<span class="sd">            cutoff (float): Cutoff in Angstrom for nearest neighbor search.</span>
+<span class="sd">            tol (float): Tolerance (in Angstrom) on nearest neighbor distances being equal.</span>
+<span class="sd">            sgraphs (list): StructureGraph objects.</span>
+<span class="sd">            unique_site_ids (dict): Maps each site to its unique numerical</span>
+<span class="sd">                identifier.</span>
+<span class="sd">            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff</span>
+<span class="sd">                position.</span>
+<span class="sd">            nn_interacations (dict): {i: j} pairs of NN interactions</span>
+<span class="sd">                between unique sites.</span>
+<span class="sd">            dists (dict): NN, NNN, and NNNN interaction distances</span>
+<span class="sd">            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each</span>
+<span class="sd">                graph.</span>
+<span class="sd">            ex_params (dict): Exchange parameter values (meV/atom).</span>
+<span class="sd">            javg (float): &lt;J&gt; exchange param (meV/atom).</span>
+<span class="sd">            igraph (StructureGraph): Exchange interaction graph.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="n">formula</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sgraphs</span> <span class="o">=</span> <span class="n">sgraphs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span> <span class="o">=</span> <span class="n">unique_site_ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_ids</span> <span class="o">=</span> <span class="n">wyckoff_ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn_interactions</span> <span class="o">=</span> <span class="n">nn_interactions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dists</span> <span class="o">=</span> <span class="n">dists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ex_mat</span> <span class="o">=</span> <span class="n">ex_mat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span> <span class="o">=</span> <span class="n">ex_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">javg</span> <span class="o">=</span> <span class="n">javg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">igraph</span> <span class="o">=</span> <span class="n">igraph</span>
+
+<div class="viewcode-block" id="HeisenbergModel.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Because some dicts have tuple keys, some sanitization is required for json compatibility.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__version__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">formula</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;structures&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;tol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sgraphs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sgraph</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">sgraph</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sgraphs</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dists&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ex_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;javg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">javg</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;igraph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">igraph</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+
+        <span class="c1"># Sanitize tuple &amp; int keys</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ex_mat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ex_mat</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;nn_interactions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nn_interactions</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;unique_site_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;wyckoff_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_ids</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="HeisenbergModel.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a HeisenbergModel from a dict.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Reconstitute the site ids</span>
+        <span class="n">usids</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">wids</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">nnis</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;nn_interactions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">nn_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">k1</span><span class="p">,</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">k1</span><span class="p">)</span>
+                <span class="n">nn_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">v1</span>
+            <span class="n">nnis</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn_dict</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;unique_site_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                <span class="n">usids</span><span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="n">key</span><span class="p">])]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="n">usids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;wyckoff_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">wids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="c1"># Reconstitute the structure and graph objects</span>
+        <span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sgraphs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;structures&quot;</span><span class="p">]:</span>
+            <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sgraphs&quot;</span><span class="p">]:</span>
+            <span class="n">sgraphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StructureGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+
+        <span class="c1"># Interaction graph</span>
+        <span class="n">igraph</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;igraph&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Reconstitute the exchange matrix DataFrame</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ex_mat</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ex_mat&quot;</span><span class="p">])</span>
+            <span class="n">ex_mat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">ex_mat</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">SyntaxError</span><span class="p">:</span>  <span class="c1"># if ex_mat is empty</span>
+            <span class="n">ex_mat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;E0&quot;</span><span class="p">])</span>
+
+        <span class="n">hmodel</span> <span class="o">=</span> <span class="n">HeisenbergModel</span><span class="p">(</span>
+            <span class="n">formula</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;formula&quot;</span><span class="p">],</span>
+            <span class="n">structures</span><span class="o">=</span><span class="n">structures</span><span class="p">,</span>
+            <span class="n">energies</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">],</span>
+            <span class="n">cutoff</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">],</span>
+            <span class="n">tol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;tol&quot;</span><span class="p">],</span>
+            <span class="n">sgraphs</span><span class="o">=</span><span class="n">sgraphs</span><span class="p">,</span>
+            <span class="n">unique_site_ids</span><span class="o">=</span><span class="n">usids</span><span class="p">,</span>
+            <span class="n">wyckoff_ids</span><span class="o">=</span><span class="n">wids</span><span class="p">,</span>
+            <span class="n">nn_interactions</span><span class="o">=</span><span class="n">nnis</span><span class="p">,</span>
+            <span class="n">dists</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;dists&quot;</span><span class="p">],</span>
+            <span class="n">ex_mat</span><span class="o">=</span><span class="n">ex_mat</span><span class="p">,</span>
+            <span class="n">ex_params</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ex_params&quot;</span><span class="p">],</span>
+            <span class="n">javg</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;javg&quot;</span><span class="p">],</span>
+            <span class="n">igraph</span><span class="o">=</span><span class="n">igraph</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hmodel</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_j_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method for looking up exchange parameter between two sites.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): index of ith site</span>
+<span class="sd">            j (int): index of jth site</span>
+<span class="sd">            dist (float): distance (Angstrom) between sites +- tol</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            j_exc (float): Exchange parameter in meV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get unique site identifiers</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+                <span class="n">i_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+                <span class="n">j_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_site_ids</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="n">order</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># Determine order of interaction</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="s2">&quot;nn&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="s2">&quot;-nn&quot;</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="s2">&quot;nnn&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="s2">&quot;-nnn&quot;</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dists</span><span class="p">[</span><span class="s2">&quot;nnnn&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="s2">&quot;-nnnn&quot;</span>
+
+        <span class="n">j_ij</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i_index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j_index</span><span class="p">)</span> <span class="o">+</span> <span class="n">order</span>
+        <span class="n">j_ji</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">j_index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i_index</span><span class="p">)</span> <span class="o">+</span> <span class="n">order</span>
+
+        <span class="k">if</span> <span class="n">j_ij</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span><span class="p">:</span>
+            <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span><span class="p">[</span><span class="n">j_ij</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">j_ji</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span><span class="p">:</span>
+            <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span><span class="p">[</span><span class="n">j_ji</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">j_exc</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Check if only averaged NN &lt;J&gt; values are available</span>
+        <span class="k">if</span> <span class="s2">&quot;&lt;J&gt;&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span> <span class="ow">and</span> <span class="n">order</span> <span class="o">==</span> <span class="s2">&quot;-nn&quot;</span><span class="p">:</span>
+            <span class="n">j_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex_params</span><span class="p">[</span><span class="s2">&quot;&lt;J&gt;&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">j_exc</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -903,15 +1138,16 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.magnetism.heisenberg</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

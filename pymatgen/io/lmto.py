@@ -3,21 +3,23 @@
 # Distributed under the terms of the MIT License
 
 
-import re
-import numpy as np
-
-from monty.io import zopen
-from pymatgen.core.units import bohr_to_angstrom, Ry_to_eV
-from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.num import round_to_sigfigs
-
 """
 Module for implementing a CTRL file object class for the Stuttgart
 LMTO-ASA code. It will primarily be used to generate a pymatgen
 Structure object in the pymatgen.electronic_structure.cohp.py module.
 """
+
+
+import re
+
+import numpy as np
+from monty.io import zopen
+
+from pymatgen.core.structure import Structure
+from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.num import round_to_sigfigs
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -31,17 +33,19 @@ class LMTOCtrl:
     """
     Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
-
-    Args/attributes:
-        structure: The structure as a pymatgen Structure object.
-
-        header: The header for the CTRL file .
-                Defaults to None.
-
-        version: The LMTO version that is used for the VERS category.
-                 Defaults to the newest version (4.7).
     """
+
     def __init__(self, structure, header=None, version="LMASA-47"):
+        """
+        Args:
+            structure: The structure as a pymatgen Structure object.
+
+            header: The header for the CTRL file .
+                    Defaults to None.
+
+            version: The LMTO version that is used for the VERS category.
+                     Defaults to the newest version (4.7).
+        """
         self.structure = structure
         self.header = header
         self.version = version
@@ -67,13 +71,13 @@ class LMTOCtrl:
         the mininmal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
-        lines = [] if "HEADER" not in ctrl_dict else \
-            ["HEADER".ljust(10) + self.header]
+        lines = [] if "HEADER" not in ctrl_dict else ["HEADER".ljust(10) + self.header]
         if "VERS" in ctrl_dict:
             lines.append("VERS".ljust(10) + self.version)
 
-        lines.append("STRUC".ljust(10) +
-                     "ALAT="+str(round(ctrl_dict["ALAT"], sigfigs)))
+        lines.append(
+            "STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs))
+        )
         for l, latt in enumerate(ctrl_dict["PLAT"]):
             if l == 0:
                 line = "PLAT=".rjust(15)
@@ -90,15 +94,15 @@ class LMTOCtrl:
                     line = [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
                     if token == "POS":
-                        line.append("POS=" +
-                                    " ".join([str(round(p, sigfigs))
-                                              for p in val]))
+                        line.append(
+                            "POS=" + " ".join([str(round(p, sigfigs)) for p in val])
+                        )
                     else:
                         line.append(token + "=" + str(val))
                 line = " ".join(line)
                 lines.append(line)
 
-        return "\n".join(lines)+"\n"
+        return "\n".join(lines) + "\n"
 
     def as_dict(self):
         """
@@ -109,15 +113,17 @@ class LMTOCtrl:
         a-lattice parameter as the scaling factor and not the a-lattice
         parameter of the primitive cell.
         """
-        ctrl_dict = {"@module": self.__class__.__module__,
-                     "@class": self.__class__.__name__}
+        ctrl_dict = {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
         if self.header is not None:
             ctrl_dict["HEADER"] = self.header
         if self.version is not None:
             ctrl_dict["VERS"] = self.version
         sga = SpacegroupAnalyzer(self.structure)
         alat = sga.get_conventional_standard_structure().lattice.a
-        plat = self.structure.lattice.matrix/alat
+        plat = self.structure.lattice.matrix / alat
 
         """
         The following is to find the classes (atoms that are not symmetry
@@ -126,7 +132,7 @@ class LMTOCtrl:
         "Bi2", etc.
         """
 
-        eq_atoms = sga.get_symmetry_dataset()['equivalent_atoms']
+        eq_atoms = sga.get_symmetry_dataset()["equivalent_atoms"]
         ineq_sites_index = list(set(eq_atoms))
         sites = []
         classes = []
@@ -142,13 +148,18 @@ class LMTOCtrl:
             else:
                 num_atoms[atom.symbol] = 1
                 classes.append({"ATOM": atom.symbol, "Z": atom.Z})
-            sites.append({"ATOM": classes[label_index]["ATOM"],
-                          "POS": site.coords/alat})
+            sites.append(
+                {"ATOM": classes[label_index]["ATOM"], "POS": site.coords / alat}
+            )
 
-        ctrl_dict.update({"ALAT": alat/bohr_to_angstrom,
-                          "PLAT": plat,
-                          "CLASS": classes,
-                          "SITE": sites})
+        ctrl_dict.update(
+            {
+                "ALAT": alat / bohr_to_angstrom,
+                "PLAT": plat,
+                "CLASS": classes,
+                "SITE": sites,
+            }
+        )
         return ctrl_dict
 
     def write_file(self, filename="CTRL", **kwargs):
@@ -188,8 +199,14 @@ class LMTOCtrl:
             An LMTOCtrl object.
         """
         lines = data.split("\n")[:-1]
-        struc_lines = {"HEADER": [], "VERS": [], "SYMGRP": [],
-                       "STRUC": [], "CLASS": [], "SITE": []}
+        struc_lines = {
+            "HEADER": [],
+            "VERS": [],
+            "SYMGRP": [],
+            "STRUC": [],
+            "CLASS": [],
+            "SITE": [],
+        }
         for line in lines:
             if line != "" and not line.isspace():
                 if not line[0].isspace():
@@ -201,20 +218,17 @@ class LMTOCtrl:
         for cat in struc_lines:
             struc_lines[cat] = " ".join(struc_lines[cat]).replace("= ", "=")
 
-        structure_tokens = {"ALAT": None,
-                            "PLAT": [],
-                            "CLASS": [],
-                            "SITE": []}
+        structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
         for cat in ["STRUC", "CLASS", "SITE"]:
-            fields = struc_lines[cat].split("=")
+            fields = struc_lines[cat].split("=")  # pylint: disable=E1101
             for f, field in enumerate(fields):
                 token = field.split()[-1]
                 if token == "ALAT":
-                    alat = round(float(fields[f+1].split()[0]), sigfigs)
+                    alat = round(float(fields[f + 1].split()[0]), sigfigs)
                     structure_tokens["ALAT"] = alat
                 elif token == "ATOM":
-                    atom = fields[f+1].split()[0]
+                    atom = fields[f + 1].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
                             structure_tokens["CLASS"].append(atom)
@@ -224,11 +238,16 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array([round(float(i), sigfigs)
-                                       for i in fields[f+1].split()])
+                        arr = np.array(
+                            [round(float(i), sigfigs) for i in fields[f + 1].split()]
+                        )
                     except ValueError:
-                        arr = np.array([round(float(i), sigfigs)
-                                       for i in fields[f+1].split()[:-1]])
+                        arr = np.array(
+                            [
+                                round(float(i), sigfigs)
+                                for i in fields[f + 1].split()[:-1]
+                            ]
+                        )
                     if token == "PLAT":
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
@@ -239,17 +258,17 @@ class LMTOCtrl:
                     pass
         try:
             spcgrp_index = struc_lines["SYMGRP"].index("SPCGRP")
-            spcgrp = struc_lines["SYMGRP"][spcgrp_index:spcgrp_index+12]
+            spcgrp = struc_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
             structure_tokens["SPCGRP"] = spcgrp.split("=")[1].split()[0]
         except ValueError:
             pass
 
         for token in ["HEADER", "VERS"]:
-                try:
-                    value = re.split(token + r"\s*", struc_lines[token])[1]
-                    structure_tokens[token] = value.strip()
-                except IndexError:
-                    pass
+            try:
+                value = re.split(token + r"\s*", struc_lines[token])[1]
+                structure_tokens[token] = value.strip()
+            except IndexError:
+                pass
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
@@ -289,20 +308,23 @@ class LMTOCtrl:
         # Only check if the structure is to be generated from the space
         # group if the number of sites is the same as the number of classes.
         # If lattice and the spacegroup don't match, assume it's primitive.
-        if "CLASS" in d and "SPCGRP" in d \
-           and len(d["SITE"]) == len(d["CLASS"]):
+        if "CLASS" in d and "SPCGRP" in d and len(d["SITE"]) == len(d["CLASS"]):
             try:
-                structure = Structure.from_spacegroup(d["SPCGRP"], plat,
-                                                      species, positions,
-                                                      coords_are_cartesian=True)
+                structure = Structure.from_spacegroup(
+                    d["SPCGRP"], plat, species, positions, coords_are_cartesian=True
+                )
             except ValueError:
-                structure = Structure(plat, species, positions,
-                                      coords_are_cartesian=True,
-                                      to_unit_cell=True)
+                structure = Structure(
+                    plat,
+                    species,
+                    positions,
+                    coords_are_cartesian=True,
+                    to_unit_cell=True,
+                )
         else:
-            structure = Structure(plat, species, positions,
-                                  coords_are_cartesian=True,
-                                  to_unit_cell=True)
+            structure = Structure(
+                plat, species, positions, coords_are_cartesian=True, to_unit_cell=True
+            )
 
         return cls(structure, header=d["HEADER"], version=d["VERS"])
 
@@ -310,13 +332,6 @@ class LMTOCtrl:
 class LMTOCopl:
     """
     Class for reading COPL files, which contain COHP data.
-
-    Args:
-        filename: filename of the COPL file. Defaults to "COPL".
-
-        to_eV: LMTO-ASA gives energies in Ry. To convert energies into
-          eV, set to True. Defaults to False for energies in Ry.
-
 
     .. attribute: cohp_data
 
@@ -339,6 +354,12 @@ class LMTOCopl:
     """
 
     def __init__(self, filename="COPL", to_eV=False):
+        """
+        Args:
+            filename: filename of the COPL file. Defaults to "COPL".
+            to_eV: LMTO-ASA gives energies in Ry. To convert energies into
+              eV, set to True. Defaults to False for energies in Ry.
+        """
 
         # COPL files have an extra trailing blank line
         with zopen(filename, "rt") as f:
@@ -356,30 +377,42 @@ class LMTOCopl:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float)
-                        for row in contents[num_bonds+2:]]).transpose()
+        data = np.array(
+            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 2 :]]
+        ).transpose()
         if to_eV:
             # LMTO energies have 5 sig figs
-            self.energies = np.array([round_to_sigfigs(energy, 5)
-                                     for energy in data[0] * Ry_to_eV],
-                                     dtype=float)
-            self.efermi = round_to_sigfigs(float(parameters[-1])*Ry_to_eV, 5)
+            self.energies = np.array(
+                [round_to_sigfigs(energy, 5) for energy in data[0] * Ry_to_eV],
+                dtype=float,
+            )
+            self.efermi = round_to_sigfigs(float(parameters[-1]) * Ry_to_eV, 5)
         else:
             self.energies = data[0]
             self.efermi = float(parameters[-1])
 
         cohp_data = {}
         for bond in range(num_bonds):
-            label, length, sites = self._get_bond_data(contents[2+bond])
-            cohp = {spin: data[2*(bond+s*num_bonds)+1]
-                    for s, spin in enumerate(spins)}
+            label, length, sites = self._get_bond_data(contents[2 + bond])
+            cohp = {
+                spin: data[2 * (bond + s * num_bonds) + 1]
+                for s, spin in enumerate(spins)
+            }
             if to_eV:
-                icohp = {spin: np.array([round_to_sigfigs(i, 5) for i in
-                                        data[2*(bond+s*num_bonds)+2] * Ry_to_eV])
-                         for s, spin in enumerate(spins)}
+                icohp = {
+                    spin: np.array(
+                        [
+                            round_to_sigfigs(i, 5)
+                            for i in data[2 * (bond + s * num_bonds) + 2] * Ry_to_eV
+                        ]
+                    )
+                    for s, spin in enumerate(spins)
+                }
             else:
-                icohp = {spin: data[2*(bond+s*num_bonds)+2]
-                         for s, spin in enumerate(spins)}
+                icohp = {
+                    spin: data[2 * (bond + s * num_bonds) + 2]
+                    for s, spin in enumerate(spins)
+                }
 
             # This takes care of duplicate labels
             if label in cohp_data:
@@ -390,8 +423,12 @@ class LMTOCopl:
                     lab = "%s-%d" % (label, i)
                 label = lab
 
-            cohp_data[label] = {"COHP": cohp, "ICOHP": icohp,
-                                "length": length, "sites": sites}
+            cohp_data[label] = {
+                "COHP": cohp,
+                "ICOHP": icohp,
+                "length": length,
+                "sites": sites,
+            }
         self.cohp_data = cohp_data
 
     @staticmethod
@@ -417,6 +454,10 @@ class LMTOCopl:
         sites = line[0].replace("/", "-").split("-")
         site_indices = tuple(int(ind) - 1 for ind in sites[1:4:2])
         species = tuple(re.split(r"\d+", spec)[0] for spec in sites[0:3:2])
-        label = "%s%d-%s%d" % (species[0], site_indices[0] + 1,
-                               species[1], site_indices[1] + 1)
+        label = "%s%d-%s%d" % (
+            species[0],
+            site_indices[0] + 1,
+            species[1],
+            site_indices[1] + 1,
+        )
         return label, length, site_indices

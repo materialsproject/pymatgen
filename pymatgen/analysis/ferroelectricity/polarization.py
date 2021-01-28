@@ -2,24 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-import numpy as np
-
-"""
-This module provides the classes needed to analyze the change in polarization
-from a nonpolar reference phase to a polar ferroelectric phase.
-"""
-
-__author__ = "Tess Smidt"
-__copyright__ = "Copyright 2017, The Materials Project"
-__version__ = "1.0"
-__email__ = "tsmidt@berkeley.edu"
-__status__ = "Development"
-__date__ = "April 15, 2017"
-
-"""
+r"""
 This module contains classes useful for analyzing ferroelectric candidates.
 The Polarization class can recover the spontaneous polarization using
 multiple calculations along a nonpolar to polar ferroelectric distortion.
@@ -29,23 +12,23 @@ the distortion.
 See Nicola Spaldin's "A beginner's guide to the modern theory of polarization"
 (https://arxiv.org/abs/1202.1831) for an introduction to crystal polarization.
 
-VASP reports dipole moment values (used to derive polarization) along Cartesian 
+VASP reports dipole moment values (used to derive polarization) along Cartesian
 directions (see pead.F around line 970 in the VASP source to confirm this).
 However, it is most convenient to perform the adjustments necessary to recover
 a same branch polarization by expressing the polarization along lattice directions.
 For this reason, calc_ionic calculates ionic contributions to the polarization
-along lattice directions. We provide the means to convert Cartesian direction 
-polarizations to lattice direction polarizations in the Polarization class. 
+along lattice directions. We provide the means to convert Cartesian direction
+polarizations to lattice direction polarizations in the Polarization class.
 
 We recommend using our calc_ionic function for calculating the ionic
 polarization rather than the values from OUTCAR. We find that the ionic
-dipole moment reported in OUTCAR differ from the naive calculation of 
-\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the 
+dipole moment reported in OUTCAR differ from the naive calculation of
+\\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the
 pseudopotential file, and r is the distance in Angstroms along the lattice vectors.
 Note, this difference is not simply due to VASP using Cartesian directions and
-calc_ionic using lattice direction but rather how the ionic polarization is 
+calc_ionic using lattice direction but rather how the ionic polarization is
 computed. Compare calc_ionic to VASP SUBROUTINE POINT_CHARGE_DIPOL in dipol.F in
-the VASP source to see the differences. We are able to recover a smooth same 
+the VASP source to see the differences. We are able to recover a smooth same
 branch polarization more frequently using the naive calculation in calc_ionic
 than using the ionic dipole moment reported in the OUTCAR.
 
@@ -63,6 +46,19 @@ By symmetry the polarization of a nonpolar material modulo the quantum
 of polarization can only be zero or 1/2. We use a nonpolar structure to help
 determine the spontaneous polarization because it serves as a reference point.
 """
+
+
+import numpy as np
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
+__author__ = "Tess Smidt"
+__copyright__ = "Copyright 2017, The Materials Project"
+__version__ = "1.0"
+__email__ = "tsmidt@berkeley.edu"
+__status__ = "Development"
+__date__ = "April 15, 2017"
 
 
 def zval_dict_from_potcar(potcar):
@@ -88,7 +84,7 @@ def calc_ionic(site, structure, zval):
 
     Returns polarization in electron Angstroms.
     """
-    norms = structure.lattice.lengths_and_angles[0]
+    norms = structure.lattice.lengths
     return np.multiply(norms, -site.frac_coords * zval)
 
 
@@ -110,6 +106,10 @@ def get_total_ionic_dipole(structure, zval_dict):
 
 
 class PolarizationLattice(Structure):
+    """
+    Why is a Lattice inheriting a structure? This is ridiculous.
+    """
+
     def get_nearest_site(self, coords, site, r=None):
         """
         Given coords and a site, find closet site to coords.
@@ -150,7 +150,14 @@ class Polarization:
 
     """
 
-    def __init__(self, p_elecs, p_ions, structures, p_elecs_in_cartesian=True, p_ions_in_cartesian=False):
+    def __init__(
+        self,
+        p_elecs,
+        p_ions,
+        structures,
+        p_elecs_in_cartesian=True,
+        p_ions_in_cartesian=False,
+    ):
         """
         p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]
         p_ions: np.array of ionic contribution to the polarization with shape [N, 3]
@@ -162,20 +169,30 @@ class Polarization:
         """
         if len(p_elecs) != len(p_ions) or len(p_elecs) != len(structures):
             raise ValueError(
-                "The number of electronic polarization and ionic polarization values must be equal.")
+                "The number of electronic polarization and ionic polarization values must be equal."
+            )
         if p_elecs_in_cartesian:
             p_elecs = np.array(
-                [struct.lattice.get_vector_along_lattice_directions(p_elecs[i]) for i, struct in enumerate(structures)])
+                [
+                    struct.lattice.get_vector_along_lattice_directions(p_elecs[i])
+                    for i, struct in enumerate(structures)
+                ]
+            )
         if p_ions_in_cartesian:
             p_ions = np.array(
-                [struct.lattice.get_vector_along_lattice_directions(p_ions[i]) for i, struct in enumerate(structures)])
+                [
+                    struct.lattice.get_vector_along_lattice_directions(p_ions[i])
+                    for i, struct in enumerate(structures)
+                ]
+            )
         self.p_elecs = np.array(p_elecs)
         self.p_ions = np.array(p_ions)
         self.structures = structures
 
     @classmethod
-    def from_outcars_and_structures(cls, outcars, structures,
-                                    calc_ionic_from_zval=False):
+    def from_outcars_and_structures(
+        cls, outcars, structures, calc_ionic_from_zval=False
+    ):
         """
         Create Polarization object from list of Outcars and Structures in order
         of nonpolar to polar.
@@ -190,8 +207,7 @@ class Polarization:
         for i, o in enumerate(outcars):
             p_elecs.append(o.p_elec)
             if calc_ionic_from_zval:
-                p_ions.append(
-                    get_total_ionic_dipole(structures[i], o.zval_dict))
+                p_ions.append(get_total_ionic_dipole(structures[i], o.zval_dict))
             else:
                 p_ions.append(o.p_ion)
         return cls(p_elecs, p_ions, structures)
@@ -224,8 +240,10 @@ class Polarization:
 
             return p_elecs, p_ions
 
-    def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
+    def get_same_branch_polarization_data(
+        self, convert_to_muC_per_cm2=True, all_in_polar=True
+    ):
+        r"""
         Get same branch dipole moment (convert_to_muC_per_cm2=False)
         or polarization for given polarization data (convert_to_muC_per_cm2=True).
 
@@ -284,9 +302,11 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                l, a = lattice.lengths_and_angles
-                lattices[i] = Lattice.from_lengths_and_angles(
-                    np.array(l) * units.ravel()[i], a)
+                l = lattice.lengths
+                a = lattice.angles
+                lattices[i] = Lattice.from_parameters(
+                    *(np.array(l) * units.ravel()[i]), *a
+                )
         #  convert polarizations to polar lattice
         elif convert_to_muC_per_cm2 and all_in_polar:
             abc = [lattice.abc for lattice in lattices]
@@ -295,17 +315,18 @@ class Polarization:
             p_tot *= abc[-1] / volumes[-1] * e_to_muC * cm2_to_A2  # to muC / cm^2
             for i in range(L):
                 lattice = lattices[-1]  # Use polar lattice
-                l, a = lattice.lengths_and_angles
-                lattices[i] = Lattice.from_lengths_and_angles(
-                    np.array(l) * units.ravel()[-1], a)  # Use polar units (volume)
-
+                l = lattice.lengths
+                a = lattice.angles
+                # Use polar units (volume)
+                lattices[i] = Lattice.from_parameters(
+                    *(np.array(l) * units.ravel()[-1]), *a
+                )
 
         d_structs = []
         sites = []
         for i in range(L):
             l = lattices[i]
-            frac_coord = np.divide(np.array([p_tot[i]]),
-                                   np.array([l.a, l.b, l.c]))
+            frac_coord = np.divide(np.array([p_tot[i]]), np.array([l.a, l.b, l.c]))
             d = PolarizationLattice(l, ["C"], [np.array(frac_coord).ravel()])
             d_structs.append(d)
             site = d[0]
@@ -322,7 +343,8 @@ class Polarization:
         for s, d in zip(sites, d_structs):
             l = d.lattice
             adjust_pol.append(
-                np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel())
+                np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel()
+            )
         adjust_pol = np.array(adjust_pol)
 
         return adjust_pol
@@ -347,18 +369,21 @@ class Polarization:
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
-                l, a = lattice.lengths_and_angles
-                lattices[i] = Lattice.from_lengths_and_angles(
-                    np.array(l) * units.ravel()[i], a)
+                l = lattice.lengths
+                a = lattice.angles
+                lattices[i] = Lattice.from_parameters(
+                    *(np.array(l) * units.ravel()[i]), *a
+                )
         elif convert_to_muC_per_cm2 and all_in_polar:
             for i in range(L):
                 lattice = lattices[-1]
-                l, a = lattice.lengths_and_angles
-                lattices[i] = Lattice.from_lengths_and_angles(
-                    np.array(l) * units.ravel()[-1], a)
+                l = lattice.lengths
+                a = lattice.angles
+                lattices[i] = Lattice.from_parameters(
+                    *(np.array(l) * units.ravel()[-1]), *a
+                )
 
-        quanta = np.array(
-            [np.array(l.lengths_and_angles[0]) for l in lattices])
+        quanta = np.array([np.array(l.lengths) for l in lattices])
 
         return quanta
 
@@ -367,22 +392,25 @@ class Polarization:
         Get difference between nonpolar and polar same branch polarization.
         """
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+        )
         # reshape to preserve backwards compatibility due to changes
         # when switching from np.matrix to np.array
-        return (tot[-1] - tot[0]).reshape((1,  3))
+        return (tot[-1] - tot[0]).reshape((1, 3))
 
-    def get_polarization_change_norm(self, convert_to_muC_per_cm2=True, all_in_polar=True):
+    def get_polarization_change_norm(
+        self, convert_to_muC_per_cm2=True, all_in_polar=True
+    ):
         """
         Get magnitude of difference between nonpolar and polar same branch
         polarization.
         """
         polar = self.structures[-1]
         a, b, c = polar.lattice.matrix
-        a, b, c = a / np.linalg.norm(a), b / np.linalg.norm(
-            b), c / np.linalg.norm(c)
-        P = self.get_polarization_change(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
-                                         all_in_polar=all_in_polar).ravel()
+        a, b, c = a / np.linalg.norm(a), b / np.linalg.norm(b), c / np.linalg.norm(c)
+        P = self.get_polarization_change(
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+        ).ravel()
         P_norm = np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
         return P_norm
 
@@ -392,20 +420,22 @@ class Polarization:
         in the same branch polarizaiton.
         """
         from scipy.interpolate import UnivariateSpline
+
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+        )
         L = tot.shape[0]
         try:
             sp_a = UnivariateSpline(range(L), tot[:, 0].ravel())
-        except:
+        except Exception:
             sp_a = None
         try:
             sp_b = UnivariateSpline(range(L), tot[:, 1].ravel())
-        except:
+        except Exception:
             sp_b = None
         try:
             sp_c = UnivariateSpline(range(L), tot[:, 2].ravel())
-        except:
+        except Exception:
             sp_c = None
         return sp_a, sp_b, sp_c
 
@@ -414,13 +444,17 @@ class Polarization:
         Get maximum difference between spline and same branch polarization data.
         """
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
-        sps = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
-                                       all_in_polar=all_in_polar)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+        )
+        sps = self.same_branch_splines(
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+        )
         max_jumps = [None, None, None]
         for i, sp in enumerate(sps):
-            if sp != None:
-                max_jumps[i] = max(tot[:, i].ravel() - sp(range(len(tot[:, i].ravel()))))
+            if sp is not None:
+                max_jumps[i] = max(
+                    tot[:, i].ravel() - sp(range(len(tot[:, i].ravel())))
+                )
         return max_jumps
 
     def smoothness(self, convert_to_muC_per_cm2=True, all_in_polar=True):
@@ -428,12 +462,14 @@ class Polarization:
         Get rms average difference between spline and same branch polarization data.
         """
         tot = self.get_same_branch_polarization_data(
-            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
+            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+        )
         L = tot.shape[0]
         try:
-            sp = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2,
-                                          all_in_polar=all_in_polar)
-        except:
+            sp = self.same_branch_splines(
+                convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
+            )
+        except Exception:
             print("Something went wrong.")
             return None
         sp_latt = [sp[i](range(L)) for i in range(3)]
@@ -443,7 +479,14 @@ class Polarization:
 
 
 class EnergyTrend:
+    """
+    Class for fitting trends to energies.
+    """
+
     def __init__(self, energies):
+        """
+        :param energies: Energies
+        """
         self.energies = energies
 
     def spline(self):
@@ -451,6 +494,7 @@ class EnergyTrend:
         Fit spline to energy trend data.
         """
         from scipy.interpolate import UnivariateSpline
+
         sp = UnivariateSpline(range(len(self.energies)), self.energies, k=4)
         return sp
 
@@ -461,7 +505,7 @@ class EnergyTrend:
         energies = self.energies
         try:
             sp = self.spline()
-        except:
+        except Exception:
             print("Energy spline failed.")
             return None
         spline_energies = sp(range(len(energies)))
@@ -483,10 +527,12 @@ class EnergyTrend:
         energies = self.energies
         try:
             sp = self.spline()
-        except:
+        except Exception:
             print("Energy spline failed.")
             return None
         der = sp.derivative()
         der_energies = der(range(len(energies)))
-        return {"polar": abs(der_energies[-1]) <= slope_cutoff,
-                "nonpolar": abs(der_energies[0]) <= slope_cutoff}
+        return {
+            "polar": abs(der_energies[-1]) <= slope_cutoff,
+            "nonpolar": abs(der_energies[0]) <= slope_cutoff,
+        }

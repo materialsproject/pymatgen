@@ -2,36 +2,24 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import re
-import json
-import datetime
-from copy import deepcopy
-
-from monty.json import MontyDecoder, jsanitize
-
-from pymatgen.core.structure import Structure
-from pymatgen.io.cif import CifParser
-from pymatgen.io.vasp.inputs import Poscar
-from monty.json import MSONable
-
-from pymatgen.io.vasp.sets import MPRelaxSet
-
-from warnings import warn
-
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
 
-__author__ = "Shyue Ping Ong, Will Richards"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 2, 2012"
+import datetime
+import json
+import os
+import re
+from warnings import warn
+
+from monty.json import MontyDecoder, MSONable, jsanitize
+
+from pymatgen.core.structure import Structure
+from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.vasp.sets import MPRelaxSet
 
 dec = MontyDecoder()
 
@@ -45,8 +33,9 @@ class TransformedStructure(MSONable):
     associated transformation history.
     """
 
-    def __init__(self, structure, transformations=None, history=None,
-                 other_parameters=None):
+    def __init__(
+        self, structure, transformations=None, history=None, other_parameters=None
+    ):
         """
         Initializes a transformed structure from a structure.
 
@@ -75,9 +64,8 @@ class TransformedStructure(MSONable):
         """
         if len(self.history) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
-        if 'input_structure' not in self.history[-1]:
-            raise IndexError("Can't undo. Latest history has no "
-                             "input_structure")
+        if "input_structure" not in self.history[-1]:
+            raise IndexError("Can't undo. Latest history has no " "input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
         s = h["input_structure"]
@@ -99,14 +87,15 @@ class TransformedStructure(MSONable):
         self.final_structure = s
 
     def __getattr__(self, name):
-        s = object.__getattribute__(self, 'final_structure')
+        s = object.__getattribute__(self, "final_structure")
         return getattr(s, name)
 
     def __len__(self):
         return len(self.history)
 
-    def append_transformation(self, transformation, return_alternatives=False,
-                              clear_redo=True):
+    def append_transformation(
+        self, transformation, return_alternatives=False, clear_redo=True
+    ):
         """
         Appends a transformation to the TransformedStructure.
 
@@ -127,7 +116,8 @@ class TransformedStructure(MSONable):
 
         if return_alternatives and transformation.is_one_to_many:
             ranked_list = transformation.apply_transformation(
-                self.final_structure, return_ranked_list=return_alternatives)
+                self.final_structure, return_ranked_list=return_alternatives
+            )
 
             input_structure = self.final_structure.as_dict()
             alts = []
@@ -139,8 +129,8 @@ class TransformedStructure(MSONable):
                 hdict["output_parameters"] = x
                 self.final_structure = s
                 d = self.as_dict()
-                d['history'].append(hdict)
-                d['final_structure'] = s.as_dict()
+                d["history"].append(hdict)
+                d["final_structure"] = s.as_dict()
                 alts.append(TransformedStructure.from_dict(d))
 
             x = ranked_list[0]
@@ -152,13 +142,14 @@ class TransformedStructure(MSONable):
             self.history.append(hdict)
             self.final_structure = s
             return alts
-        else:
-            s = transformation.apply_transformation(self.final_structure)
-            hdict = transformation.as_dict()
-            hdict["input_structure"] = self.final_structure.as_dict()
-            hdict["output_parameters"] = {}
-            self.history.append(hdict)
-            self.final_structure = s
+
+        s = transformation.apply_transformation(self.final_structure)
+        hdict = transformation.as_dict()
+        hdict["input_structure"] = self.final_structure.as_dict()
+        hdict["output_parameters"] = {}
+        self.history.append(hdict)
+        self.final_structure = s
+        return None
 
     def append_filter(self, structure_filter):
         """
@@ -173,8 +164,7 @@ class TransformedStructure(MSONable):
         hdict["input_structure"] = self.final_structure.as_dict()
         self.history.append(hdict)
 
-    def extend_transformations(self, transformations,
-                               return_alternatives=False):
+    def extend_transformations(self, transformations, return_alternatives=False):
         """
         Extends a sequence of transformations to the TransformedStructure.
 
@@ -186,8 +176,7 @@ class TransformedStructure(MSONable):
                 total number of structures to return.
         """
         for t in transformations:
-            self.append_transformation(t,
-                                       return_alternatives=return_alternatives)
+            self.append_transformation(t, return_alternatives=return_alternatives)
 
     def get_vasp_input(self, vasp_input_set=MPRelaxSet, **kwargs):
         """
@@ -201,9 +190,10 @@ class TransformedStructure(MSONable):
         d["transformations.json"] = json.dumps(self.as_dict())
         return d
 
-    def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".",
-                         create_directory=True, **kwargs):
-        """
+    def write_vasp_input(
+        self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs
+    ):
+        r"""
         Writes VASP input to an output_dir.
 
         Args:
@@ -213,20 +203,24 @@ class TransformedStructure(MSONable):
             output_dir: Directory to output files
             create_directory: Create the directory if not present. Defaults to
                 True.
-            \\*\\*kwargs: All keyword args supported by the VASP input set.
+            **kwargs: All keyword args supported by the VASP input set.
         """
         vasp_input_set(self.final_structure, **kwargs).write_input(
-            output_dir, make_dir_if_not_present=create_directory)
+            output_dir, make_dir_if_not_present=create_directory
+        )
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
             json.dump(self.as_dict(), fp)
 
     def __str__(self):
-        output = ["Current structure", "------------",
-                  str(self.final_structure),
-                  "\nHistory",
-                  "------------"]
+        output = [
+            "Current structure",
+            "------------",
+            str(self.final_structure),
+            "\nHistory",
+            "------------",
+        ]
         for h in self.history:
-            h.pop('input_structure', None)
+            h.pop("input_structure", None)
             output.append(str(h))
         output.append("\nOther parameters")
         output.append("------------")
@@ -234,6 +228,12 @@ class TransformedStructure(MSONable):
         return "\n".join(output)
 
     def set_parameter(self, key, value):
+        """
+        Set a parameter
+
+        :param key: The string key
+        :param value: The value.
+        """
         self.other_parameters[key] = value
 
     @property
@@ -252,13 +252,17 @@ class TransformedStructure(MSONable):
         Copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        hstructs = [Structure.from_dict(s['input_structure'])
-                    for s in self.history if 'input_structure' in s]
+        hstructs = [
+            Structure.from_dict(s["input_structure"])
+            for s in self.history
+            if "input_structure" in s
+        ]
         return hstructs + [self.final_structure]
 
     @staticmethod
-    def from_cif_string(cif_string, transformations=None, primitive=True,
-                        occupancy_tolerance=1.):
+    def from_cif_string(
+        cif_string, transformations=None, primitive=True, occupancy_tolerance=1.0
+    ):
         """
         Generates TransformedStructure from a cif string.
 
@@ -281,7 +285,7 @@ class TransformedStructure(MSONable):
             TransformedStructure
         """
         parser = CifParser.from_string(cif_string, occupancy_tolerance)
-        raw_string = re.sub(r"'", "\"", cif_string)
+        raw_string = re.sub(r"'", '"', cif_string)
         cif_dict = parser.as_dict()
         cif_keys = list(cif_dict.keys())
         s = parser.get_structures(primitive)[0]
@@ -290,10 +294,12 @@ class TransformedStructure(MSONable):
             source = partial_cif["_database_code_ICSD"] + "-ICSD"
         else:
             source = "uploaded cif"
-        source_info = {"source": source,
-                       "datetime": str(datetime.datetime.now()),
-                       "original_file": raw_string,
-                       "cif_data": cif_dict[cif_keys[0]]}
+        source_info = {
+            "source": source,
+            "datetime": str(datetime.datetime.now()),
+            "original_file": raw_string,
+            "cif_data": cif_dict[cif_keys[0]],
+        }
         return TransformedStructure(s, transformations, history=[source_info])
 
     @staticmethod
@@ -308,13 +314,17 @@ class TransformedStructure(MSONable):
         """
         p = Poscar.from_string(poscar_string)
         if not p.true_names:
-            raise ValueError("Transformation can be craeted only from POSCAR "
-                             "strings with proper VASP5 element symbols.")
-        raw_string = re.sub(r"'", "\"", poscar_string)
+            raise ValueError(
+                "Transformation can be craeted only from POSCAR "
+                "strings with proper VASP5 element symbols."
+            )
+        raw_string = re.sub(r"'", '"', poscar_string)
         s = p.structure
-        source_info = {"source": "POSCAR",
-                       "datetime": str(datetime.datetime.now()),
-                       "original_file": raw_string}
+        source_info = {
+            "source": "POSCAR",
+            "datetime": str(datetime.datetime.now()),
+            "original_file": raw_string,
+        }
         return TransformedStructure(s, transformations, history=[source_info])
 
     def as_dict(self):
@@ -325,7 +335,6 @@ class TransformedStructure(MSONable):
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["history"] = jsanitize(self.history)
-        d["version"] = __version__
         d["last_modified"] = str(datetime.datetime.utcnow())
         d["other_parameters"] = jsanitize(self.other_parameters)
         return d
@@ -336,24 +345,38 @@ class TransformedStructure(MSONable):
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return cls(s, history=d["history"],
-                   other_parameters=d.get("other_parameters", None))
+        return cls(
+            s, history=d["history"], other_parameters=d.get("other_parameters", None)
+        )
 
-    def to_snl(self, authors, projects=None, references='', remarks=None,
-               data=None, created_at=None):
+    def to_snl(self, authors, **kwargs):
+        """
+        Generate SNL from TransformedStructure.
+
+        :param authors: List of authors
+        :param **kwargs: All kwargs supported by StructureNL.
+        :return: StructureNL
+        """
         if self.other_parameters:
-            warn('Data in TransformedStructure.other_parameters discarded '
-                 'during type conversion to SNL')
+            warn(
+                "Data in TransformedStructure.other_parameters discarded "
+                "during type conversion to SNL"
+            )
         hist = []
         for h in self.history:
-            snl_metadata = h.pop('_snl', {})
-            hist.append({'name': snl_metadata.pop('name', 'pymatgen'),
-                         'url': snl_metadata.pop(
-                             'url', 'http://pypi.python.org/pypi/pymatgen'),
-                         'description': h})
+            snl_metadata = h.pop("_snl", {})
+            hist.append(
+                {
+                    "name": snl_metadata.pop("name", "pymatgen"),
+                    "url": snl_metadata.pop(
+                        "url", "http://pypi.python.org/pypi/pymatgen"
+                    ),
+                    "description": h,
+                }
+            )
         from pymatgen.util.provenance import StructureNL
-        return StructureNL(self.final_structure, authors, projects, references,
-                           remarks, data, hist, created_at)
+
+        return StructureNL(self.final_structure, authors, history=hist, **kwargs)
 
     @classmethod
     def from_snl(cls, snl):
@@ -369,6 +392,6 @@ class TransformedStructure(MSONable):
         hist = []
         for h in snl.history:
             d = h.description
-            d['_snl'] = {'url': h.url, 'name': h.name}
+            d["_snl"] = {"url": h.url, "name": h.name}
             hist.append(d)
         return cls(snl.structure, history=hist)

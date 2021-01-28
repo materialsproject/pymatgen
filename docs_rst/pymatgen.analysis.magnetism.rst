@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.magnetism.analyzer
    pymatgen.analysis.magnetism.heisenberg

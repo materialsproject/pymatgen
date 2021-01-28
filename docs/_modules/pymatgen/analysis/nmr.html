@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.nmr &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.nmr &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.nmr</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.nmr</h1><div class="highlight"><pre>
@@ -49,18 +49,20 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="k">import</span> <span class="n">SquareTensor</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">FloatWithUnit</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Site</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">A module for NMR analysis</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="kn">import</span> <span class="n">SquareTensor</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Site</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
@@ -82,11 +84,11 @@
 <span class="sd">    Authors: Shyam Dwaraknath, Xiaohui Qu</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">HaeberlenNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s2">&quot;HaeberlenNotion&quot;</span><span class="p">,</span> <span class="n">field_names</span><span class="o">=</span><span class="s2">&quot;sigma_iso, delta_sigma_iso, zeta, eta&quot;</span><span class="p">)</span>
-    <span class="n">MehringNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s2">&quot;MehringNotation&quot;</span><span class="p">,</span> <span class="n">field_names</span><span class="o">=</span><span class="s2">&quot;sigma_iso, sigma_11, sigma_22, sigma_33&quot;</span><span class="p">)</span>
-    <span class="n">MarylandNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s2">&quot;MarylandNotation&quot;</span><span class="p">,</span> <span class="n">field_names</span><span class="o">=</span><span class="s2">&quot;sigma_iso, omega, kappa&quot;</span><span class="p">)</span>
+    <span class="n">HaeberlenNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;HaeberlenNotion&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma_iso, delta_sigma_iso, zeta, eta&quot;</span><span class="p">)</span>
+    <span class="n">MehringNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MehringNotation&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma_iso, sigma_11, sigma_22, sigma_33&quot;</span><span class="p">)</span>
+    <span class="n">MarylandNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MarylandNotation&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma_iso, omega, kappa&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cs_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cs_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Chemical Shielding tensor.</span>
 <span class="sd">        Note that the constructor uses __new__</span>
@@ -103,7 +105,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cs_matrix</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">t_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="n">t_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cs_matrix</span><span class="p">),</span> <span class="n">vscale</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">t_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cs_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="p">)</span>
@@ -121,14 +123,14 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns: the Chemical shielding tensor in Haeberlen Notation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span>
-        <span class="n">sigma_iso</span><span class="o">=</span><span class="n">pas</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span>
-        <span class="n">sigmas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)</span>
-        <span class="n">sigmas</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sigmas</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">sigma_iso</span><span class="p">))</span>
-        <span class="n">sigma_yy</span><span class="p">,</span> <span class="n">sigma_xx</span><span class="p">,</span> <span class="n">sigma_zz</span><span class="o">=</span><span class="n">sigmas</span>
-        <span class="n">delta_sigma</span><span class="o">=</span><span class="n">sigma_zz</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_xx</span> <span class="o">+</span> <span class="n">sigma_yy</span><span class="p">)</span>
-        <span class="n">zeta</span><span class="o">=</span><span class="n">sigma_zz</span> <span class="o">-</span> <span class="n">sigma_iso</span>
-        <span class="n">eta</span><span class="o">=</span><span class="p">(</span><span class="n">sigma_yy</span> <span class="o">-</span> <span class="n">sigma_xx</span><span class="p">)</span> <span class="o">/</span> <span class="n">zeta</span>
+        <span class="n">pas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span>
+        <span class="n">sigma_iso</span> <span class="o">=</span> <span class="n">pas</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="n">sigmas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)</span>
+        <span class="n">sigmas</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sigmas</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">sigma_iso</span><span class="p">))</span>
+        <span class="n">sigma_yy</span><span class="p">,</span> <span class="n">sigma_xx</span><span class="p">,</span> <span class="n">sigma_zz</span> <span class="o">=</span> <span class="n">sigmas</span>
+        <span class="n">delta_sigma</span> <span class="o">=</span> <span class="n">sigma_zz</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sigma_xx</span> <span class="o">+</span> <span class="n">sigma_yy</span><span class="p">)</span>
+        <span class="n">zeta</span> <span class="o">=</span> <span class="n">sigma_zz</span> <span class="o">-</span> <span class="n">sigma_iso</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma_yy</span> <span class="o">-</span> <span class="n">sigma_xx</span><span class="p">)</span> <span class="o">/</span> <span class="n">zeta</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HaeberlenNotation</span><span class="p">(</span><span class="n">sigma_iso</span><span class="p">,</span> <span class="n">delta_sigma</span><span class="p">,</span> <span class="n">zeta</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -136,9 +138,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns: the Chemical shielding tensor in Mehring Notation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span>
-        <span class="n">sigma_iso</span><span class="o">=</span><span class="n">pas</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span>
-        <span class="n">sigma_11</span><span class="p">,</span> <span class="n">sigma_22</span><span class="p">,</span> <span class="n">sigma_33</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)</span>
+        <span class="n">pas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span>
+        <span class="n">sigma_iso</span> <span class="o">=</span> <span class="n">pas</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="n">sigma_11</span><span class="p">,</span> <span class="n">sigma_22</span><span class="p">,</span> <span class="n">sigma_33</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MehringNotation</span><span class="p">(</span><span class="n">sigma_iso</span><span class="p">,</span> <span class="n">sigma_11</span><span class="p">,</span> <span class="n">sigma_22</span><span class="p">,</span> <span class="n">sigma_33</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -146,19 +148,30 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns: the Chemical shielding tensor in Maryland Notation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span>
-        <span class="n">sigma_iso</span><span class="o">=</span><span class="n">pas</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span>
-        <span class="n">omega</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span>
+        <span class="n">sigma_iso</span> <span class="o">=</span> <span class="n">pas</span><span class="o">.</span><span class="n">trace</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.</span>
         <span class="c1"># There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.</span>
-        <span class="n">kappa</span><span class="o">=</span><span class="mf">3.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sigma_iso</span><span class="p">)</span> <span class="o">/</span> <span class="n">omega</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pas</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sigma_iso</span><span class="p">)</span> <span class="o">/</span> <span class="n">omega</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MarylandNotation</span><span class="p">(</span><span class="n">sigma_iso</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ChemicalShielding.from_maryland_notation"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.ChemicalShielding.from_maryland_notation">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_maryland_notation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma_iso</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
-        <span class="n">sigma_22</span><span class="o">=</span><span class="n">sigma_iso</span> <span class="o">+</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="mf">3.0</span>
-        <span class="n">sigma_11</span><span class="o">=</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">omega</span> <span class="o">-</span> <span class="n">sigma_22</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
-        <span class="n">sigma_33</span><span class="o">=</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">sigma_22</span> <span class="o">-</span> <span class="n">sigma_11</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize from Maryland notation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sigma_iso ():</span>
+<span class="sd">            omega ():</span>
+<span class="sd">            kappa ():</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ChemicalShielding</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sigma_22</span> <span class="o">=</span> <span class="n">sigma_iso</span> <span class="o">+</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="mf">3.0</span>
+        <span class="n">sigma_11</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">omega</span> <span class="o">-</span> <span class="n">sigma_22</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">sigma_33</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">sigma_22</span> <span class="o">-</span> <span class="n">sigma_11</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="n">sigma_11</span><span class="p">,</span> <span class="n">sigma_22</span><span class="p">,</span> <span class="n">sigma_33</span><span class="p">]))</span></div></div>
 
 
@@ -170,7 +183,7 @@
 <span class="sd">    Authors: Shyam Dwaraknath, Xiaohui Qu</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">efg_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">efg_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Chemical Shielding tensor.</span>
 <span class="sd">        Note that the constructor uses __new__</span>
@@ -185,9 +198,9 @@
 <span class="sd">            vscale (6x1 array-like): 6x1 array-like scaling the</span>
 <span class="sd">                voigt-notation vector with the tensor entries</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">t_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">efg_matrix</span><span class="p">)</span>
+        <span class="n">t_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">efg_matrix</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">t_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="n">t_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">efg_matrix</span><span class="p">),</span> <span class="n">vscale</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">t_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">efg_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="p">)</span>
@@ -195,23 +208,33 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">principal_axis_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol components are non-zero</span>
+<span class="sd">        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol</span>
+<span class="sd">        components are non-zero</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">ElectricFieldGradient</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="bp">self</span><span class="p">))))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">V_xx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">diags</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: First diagonal element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">V_yy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">diags</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Second diagonal element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">V_zz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">diags</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Third diagonal element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -220,8 +243,8 @@
 <span class="sd">        Asymmetry of the electric field tensor defined as:</span>
 <span class="sd">            (V_yy - V_xx)/V_zz</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">diags</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
-        <span class="n">V</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)</span>
+        <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">V</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ElectricFieldGradient.coupling_constant"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.ElectricFieldGradient.coupling_constant">[docs]</a>    <span class="k">def</span> <span class="nf">coupling_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie</span><span class="p">):</span>
@@ -245,47 +268,33 @@
 
 <span class="sd">            the coupling constant as a FloatWithUnit in MHz</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">planks_constant</span><span class="o">=</span><span class="n">FloatWithUnit</span><span class="p">(</span><span class="mf">6.62607004E-34</span><span class="p">,</span> <span class="s2">&quot;m^2 kg s^-1&quot;</span><span class="p">)</span>
-        <span class="n">Vzz</span><span class="o">=</span><span class="n">FloatWithUnit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_zz</span><span class="p">,</span> <span class="s2">&quot;V ang^-2&quot;</span><span class="p">)</span>
-        <span class="n">e</span><span class="o">=</span><span class="n">FloatWithUnit</span><span class="p">(</span><span class="o">-</span><span class="mf">1.60217662E-19</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span>
+        <span class="n">planks_constant</span> <span class="o">=</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="mf">6.62607004E-34</span><span class="p">,</span> <span class="s2">&quot;m^2 kg s^-1&quot;</span><span class="p">)</span>
+        <span class="n">Vzz</span> <span class="o">=</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_zz</span><span class="p">,</span> <span class="s2">&quot;V ang^-2&quot;</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="o">-</span><span class="mf">1.60217662E-19</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span>
 
         <span class="c1"># Convert from string to Specie object</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1"># isotope was provided in string format</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">specie</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">isotope</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
-                <span class="n">specie</span><span class="o">=</span><span class="n">Specie</span><span class="p">(</span><span class="n">specie</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">Q</span><span class="o">=</span><span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">(</span><span class="n">isotope</span><span class="p">)</span>
+                <span class="n">isotope</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
+                <span class="n">specie</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">specie</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">Q</span> <span class="o">=</span> <span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">(</span><span class="n">isotope</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">specie</span><span class="o">=</span><span class="n">Specie</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
-                <span class="n">Q</span><span class="o">=</span><span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">()</span>
+                <span class="n">specie</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
+                <span class="n">Q</span> <span class="o">=</span> <span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="n">Site</span><span class="p">):</span>
-            <span class="n">specie</span><span class="o">=</span><span class="n">specie</span><span class="o">.</span><span class="n">specie</span>
-            <span class="n">Q</span><span class="o">=</span><span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">()</span>
+            <span class="n">specie</span> <span class="o">=</span> <span class="n">specie</span><span class="o">.</span><span class="n">specie</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="n">Specie</span><span class="p">):</span>
-            <span class="n">Q</span><span class="o">=</span><span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">()</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">specie</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid speciie provided for quadrupolar coupling constant calcuations&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">Q</span> <span class="o">*</span> <span class="n">Vzz</span> <span class="o">/</span> <span class="n">planks_constant</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;MHz&quot;</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -298,15 +307,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.nmr</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -2,39 +2,27 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import warnings
-import ruamel.yaml as yaml
-import os
-
 """
 This module provides classes to perform topological analyses of structures.
 """
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
-
-from math import pi, acos
-import numpy as np
-import itertools
 import collections
-
-from monty.dev import deprecated
-
+import itertools
+from math import acos, pi
 from warnings import warn
+
+import numpy as np
+from monty.dev import deprecated
 from scipy.spatial import Voronoi
-from pymatgen import PeriodicSite
-from pymatgen import Element, Specie, Composition
-from pymatgen.util.num import abs_cap
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from pymatgen import Composition, Element, PeriodicSite, Species
+from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.analysis.local_env import VoronoiNN, JmolNN
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.num import abs_cap
 
 
 def average_coordination_number(structures, freq=10):
@@ -42,9 +30,11 @@ def average_coordination_number(structures, freq=10):
     Calculates the ensemble averaged Voronoi coordination numbers
     of a list of Structures using VoronoiNN.
     Typically used for analyzing the output of a Molecular Dynamics run.
+
     Args:
         structures (list): list of Structures.
         freq (int): sampling frequency of coordination number [every freq steps].
+
     Returns:
         Dictionary of elements as keys and average coordination numbers as values.
     """
@@ -52,18 +42,17 @@ def average_coordination_number(structures, freq=10):
     for spec in structures[0].composition.as_dict().keys():
         coordination_numbers[spec] = 0.0
     count = 0
-    for t in range(len(structures)):
-        if t % freq != 0:
+    for i, s in enumerate(structures):
+        if i % freq != 0:
             continue
         count += 1
         vnn = VoronoiNN()
-        for atom in range(len(structures[0])):
-            cn = vnn.get_cn(structures[t], atom, use_weights=True)
-            coordination_numbers[structures[t][atom].species_string] += cn
+        for j, atom in enumerate(s):
+            cn = vnn.get_cn(s, j, use_weights=True)
+            coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
     for el in coordination_numbers:
-        coordination_numbers[el] = coordination_numbers[el] / elements[
-            el] / count
+        coordination_numbers[el] = coordination_numbers[el] / elements[el] / count
     return coordination_numbers
 
 
@@ -80,14 +69,15 @@ class VoronoiAnalyzer:
     See ref: Microstructure and its relaxation in Fe-B amorphous system
     simulated by molecular dynamics,
         Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.
-
-    Args:
-        cutoff (float): cutoff distance to search for neighbors of a given atom
-            (default = 5.0)
-        qhull_options (str): options to pass to qhull (optional)
     """
 
     def __init__(self, cutoff=5.0, qhull_options="Qbb Qc Qz"):
+        """
+        Args:
+            cutoff (float): cutoff distance to search for neighbors of a given atom
+                (default = 5.0)
+            qhull_options (str): options to pass to qhull (optional)
+        """
         self.cutoff = cutoff
         self.qhull_options = qhull_options
 
@@ -115,16 +105,14 @@ class VoronoiAnalyzer:
             if 0 in key:  # This means if the center atom is in key
                 if -1 in key:  # This means if an infinity point is in key
                     raise ValueError("Cutoff too short.")
-                else:
-                    try:
-                        vor_index[len(voro.ridge_dict[key]) - 3] += 1
-                    except IndexError:
-                        # If a facet has more than 10 edges, it's skipped here.
-                        pass
+                try:
+                    vor_index[len(voro.ridge_dict[key]) - 3] += 1
+                except IndexError:
+                    # If a facet has more than 10 edges, it's skipped here.
+                    pass
         return vor_index
 
-    def analyze_structures(self, structures, step_freq=10,
-                           most_frequent_polyhedra=15):
+    def analyze_structures(self, structures, step_freq=10, most_frequent_polyhedra=15):
         """
         Perform Voronoi analysis on a list of Structures.
         Note that this might take a significant amount of time depending on the
@@ -157,24 +145,31 @@ class VoronoiAnalyzer:
                     voro_dict[voro] += 1
                 else:
                     voro_dict[voro] = 1
-        return sorted(voro_dict.items(),
-                      key=lambda x: (x[1], x[0]),
-                      reverse=True)[:most_frequent_polyhedra]
+        return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[
+            :most_frequent_polyhedra
+        ]
 
     @staticmethod
     def plot_vor_analysis(voronoi_ensemble):
-        t = zip(*voronoi_ensemble)
+        """
+        Plot the Voronoi analysis.
+
+        :param voronoi_ensemble:
+        :return: matplotlib.pyplot
+        """
+        t = list(zip(*voronoi_ensemble))
         labels = t[0]
         val = list(t[1])
         tot = np.sum(val)
         val = [float(j) / tot for j in val]
-        pos = np.arange(len(val)) + .5  # the bar centers on the y axis
+        pos = np.arange(len(val)) + 0.5  # the bar centers on the y axis
         import matplotlib.pyplot as plt
+
         plt.figure()
-        plt.barh(pos, val, align='center', alpha=0.5)
+        plt.barh(pos, val, align="center", alpha=0.5)
         plt.yticks(pos, labels)
-        plt.xlabel('Count')
-        plt.title('Voronoi Spectra')
+        plt.xlabel("Count")
+        plt.title("Voronoi Spectra")
         plt.grid(True)
         return plt
 
@@ -197,8 +192,9 @@ class RelaxationAnalyzer:
                 calculation.
         """
         if final_structure.formula != initial_structure.formula:
-            raise ValueError("Initial and final structures have different " +
-                             "formulas!")
+            raise ValueError(
+                "Initial and final structures have different " + "formulas!"
+            )
         self.initial = initial_structure
         self.final = final_structure
 
@@ -224,8 +220,10 @@ class RelaxationAnalyzer:
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1
-             for l in ["a", "b", "c"]}
+        d = {
+            l: getattr(final_latt, l) / getattr(initial_latt, l) - 1
+            for l in ["a", "b", "c"]
+        }
         return d
 
     def get_percentage_bond_dist_changes(self, max_radius=3.0):
@@ -259,20 +257,19 @@ class VoronoiConnectivity:
     """
     Computes the solid angles swept out by the shared face of the voronoi
     polyhedron between two sites.
-
-    Args:
-        structure (Structure): Input structure
-        cutoff (float) Cutoff distance.
     """
 
-    # Radius in Angstrom cutoff to look for coordinating atoms
-
     def __init__(self, structure, cutoff=10):
+        """
+        Args:
+            structure (Structure): Input structure
+            cutoff (float) Cutoff distance.
+        """
         self.cutoff = cutoff
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
         i = np.ceil(cutoff * recp_len / (2 * pi))
-        offsets = np.mgrid[-i[0]:i[0] + 1, -i[1]:i[1] + 1, -i[2]:i[2] + 1].T
+        offsets = np.mgrid[-i[0] : i[0] + 1, -i[1] : i[1] + 1, -i[2] : i[2] + 1].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]
         self.cart_offsets = self.s.lattice.get_cartesian_coords(self.offsets)
@@ -319,9 +316,11 @@ class VoronoiConnectivity:
                 connectivity[atomj, atomi, imagei] = val
 
             if -10.101 in vts[v]:
-                warn('Found connectivity with infinite vertex. '
-                     'Cutoff is too low, and results may be '
-                     'incorrect')
+                warn(
+                    "Found connectivity with infinite vertex. "
+                    "Cutoff is too low, and results may be "
+                    "incorrect"
+                )
         return connectivity
 
     @property
@@ -382,8 +381,7 @@ def solid_angle(center, coords):
     n.append(np.cross(r[1], r[0]))
     vals = []
     for i in range(len(n) - 1):
-        v = -np.dot(n[i], n[i + 1]) \
-            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
+        v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
         vals.append(acos(abs_cap(v)))
     phi = sum(vals)
     return phi + (3 - len(r)) * pi
@@ -393,34 +391,45 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     """
     Provides max bond length estimates for a structure based on the JMol
     table and algorithms.
-    
+
     Args:
         structure: (structure)
         el_radius_updates: (dict) symbol->float to update atomic radii
-    
-    Returns: (dict) - (Element1, Element2) -> float. The two elements are 
+
+    Returns: (dict) - (Element1, Element2) -> float. The two elements are
         ordered by Z.
     """
-    #jmc = JMolCoordFinder(el_radius_updates)
+    # jmc = JMolCoordFinder(el_radius_updates)
     jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
     els = sorted(structure.composition.elements, key=lambda x: x.Z)
 
-    for i1 in range(len(els)):
+    for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
-            bonds_lens[els[i1], els[i1 + i2]] = jmnn.get_max_bond_distance(
-                els[i1].symbol, els[i1 + i2].symbol)
+            bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(
+                el1.symbol, els[i1 + i2].symbol
+            )
 
     return bonds_lens
 
 
-@deprecated(message=("find_dimension has been moved to"
-                     "pymatgen.analysis.dimensionality.get_dimensionality_gorai"
-                     " this method will be removed in pymatgen v2019.1.1."))
-def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
-                       min_slab_size=5, min_vacuum_size=5,
-                       standardize=True, bonds=None):
+@deprecated(
+    message=(
+        "find_dimension has been moved to"
+        "pymatgen.analysis.dimensionality.get_dimensionality_gorai"
+        " this method will be removed in pymatgen v2019.1.1."
+    )
+)
+def get_dimensionality(
+    structure,
+    max_hkl=2,
+    el_radius_updates=None,
+    min_slab_size=5,
+    min_vacuum_size=5,
+    standardize=True,
+    bonds=None,
+):
     """
     This method returns whether a structure is 3D, 2D (layered), or 1D (linear
     chains or molecules) according to the algorithm published in Gorai, P.,
@@ -455,8 +464,7 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
 
     """
     if standardize:
-        structure = SpacegroupAnalyzer(structure). \
-            get_conventional_standard_structure()
+        structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
 
     if not bonds:
         bonds = get_max_bond_lengths(structure, el_radius_updates)
@@ -466,9 +474,12 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         for k in range(max_hkl):
             for l in range(max_hkl):
                 if max([h, k, l]) > 0 and num_surfaces < 2:
-                    sg = SlabGenerator(structure, (h, k, l),
-                                       min_slab_size=min_slab_size,
-                                       min_vacuum_size=min_vacuum_size)
+                    sg = SlabGenerator(
+                        structure,
+                        (h, k, l),
+                        min_slab_size=min_slab_size,
+                        min_vacuum_size=min_vacuum_size,
+                    )
                     slabs = sg.get_slabs(bonds)
                     for _ in slabs:
                         num_surfaces += 1
@@ -489,26 +500,23 @@ def contains_peroxide(structure, relative_cutoff=1.1):
     Returns:
         Boolean indicating if structure contains a peroxide anion.
     """
-    ox_type = oxide_type(structure, relative_cutoff)
-    if ox_type == "peroxide":
-        return True
-    else:
-        return False
+    return oxide_type(structure, relative_cutoff) == "peroxide"
 
 
 class OxideType:
     """
     Separate class for determining oxide type.
-
-    Args:
-        structure: Input structure.
-        relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.
-            distance two O atoms must be from each other. Default value is
-            1.1. At most 1.1 is recommended, nothing larger, otherwise the
-            script cannot distinguish between superoxides and peroxides.
     """
 
     def __init__(self, structure, relative_cutoff=1.1):
+        """
+        Args:
+            structure: Input structure.
+            relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.
+                distance two O atoms must be from each other. Default value is
+                1.1. At most 1.1 is recommended, nothing larger, otherwise the
+                script cannot distinguish between superoxides and peroxides.
+        """
         self.structure = structure
         self.relative_cutoff = relative_cutoff
         self.oxide_type, self.nbonds = self.parse_oxide()
@@ -531,7 +539,7 @@ class OxideType:
 
         if isinstance(structure.composition.elements[0], Element):
             comp = structure.composition
-        elif isinstance(structure.composition.elements[0], Specie):
+        elif isinstance(structure.composition.elements[0], Species):
             elmap = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
@@ -548,13 +556,17 @@ class OxideType:
                 h_sites_frac_coords.append(site.frac_coords)
 
         if h_sites_frac_coords:
-            dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
-                                                    h_sites_frac_coords)
+            dist_matrix = lattice.get_all_distances(
+                o_sites_frac_coords, h_sites_frac_coords
+            )
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return "hydroxide", len(
-                    np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
-        dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
-                                                o_sites_frac_coords)
+                return (
+                    "hydroxide",
+                    len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0,
+                )
+        dist_matrix = lattice.get_all_distances(
+            o_sites_frac_coords, o_sites_frac_coords
+        )
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
         is_peroxide = False
@@ -600,19 +612,18 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
     ox_obj = OxideType(structure, relative_cutoff)
     if return_nbonds:
         return ox_obj.oxide_type, ox_obj.nbonds
-    else:
-        return ox_obj.oxide_type
+    return ox_obj.oxide_type
 
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/polysulfide
+    Determines if a structure is a sulfide/polysulfide/sulfate
 
     Args:
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide/sulfate
+        (str) sulfide/polysulfide or None if structure is a sulfate.
     """
     structure = structure.copy()
     structure.remove_oxidation_states()
@@ -623,8 +634,9 @@ def sulfide_type(structure):
 
     finder = SpacegroupAnalyzer(structure, symprec=0.1)
     symm_structure = finder.get_symmetrized_structure()
-    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if
-               sites[0].specie == s]
+    s_sites = [
+        sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s
+    ]
 
     def process_site(site):
 
@@ -635,27 +647,24 @@ def sulfide_type(structure):
         while len(neighbors) == 0:
             neighbors = structure.get_neighbors(site, search_radius)
             search_radius *= 2
-            if search_radius > max(structure.lattice.abc)*2:
+            if search_radius > max(structure.lattice.abc) * 2:
                 break
 
-        neighbors = sorted(neighbors, key=lambda n: n[1])
-        nn, dist = neighbors[0]
-        coord_elements = [site.specie for site, d in neighbors
-                          if d < dist + 0.4][:4]
+        neighbors = sorted(neighbors, key=lambda n: n.nn_distance)
+        dist = neighbors[0].nn_distance
+        coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][
+            :4
+        ]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"
-        elif avg_electroneg == s.X and s in coord_elements:
+        if avg_electroneg == s.X and s in coord_elements:
             return "polysulfide"
-        else:
-            return "sulfide"
-
-    types = set([process_site(site) for site in s_sites])
-    if "sulfate" in types:
-        return None
-    elif "polysulfide" in types:
-        return "polysulfide"
-    else:
         return "sulfide"
 
-
+    types = {process_site(site) for site in s_sites}
+    if "sulfate" in types:
+        return None
+    if "polysulfide" in types:
+        return "polysulfide"
+    return "sulfide"

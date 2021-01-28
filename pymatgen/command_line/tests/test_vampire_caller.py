@@ -2,22 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 import warnings
 
 import pandas as pd
-
 from monty.os.path import which
 
 import pymatgen.command_line.vampire_caller as vampirecaller
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-
 from pymatgen import Structure
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "magnetic_orderings"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 
 
 @unittest.skipIf(not which("vampire-serial"), "vampire executable not present")
@@ -55,13 +51,25 @@ class VampireCallerTest(unittest.TestCase):
                 structs,
                 energies,
                 mc_box_size=3.0,
-                equil_timesteps=1000,
-                mc_timesteps=2000,
+                equil_timesteps=1000,  # 1000
+                mc_timesteps=2000,  # 2000
                 user_input_settings=settings,
             )
 
-            critical_temp = vc.output.critical_temp
+            voutput = vc.output
+            critical_temp = voutput.critical_temp
             self.assertAlmostEqual(400, critical_temp, delta=100)
+
+        if os.path.exists("Mn3Al.mat"):
+            os.remove("Mn3Al.mat")
+        if os.path.exists("Mn3Al.ucf"):
+            os.remove("Mn3Al.ucf")
+        if os.path.exists("input"):
+            os.remove("input")
+        if os.path.exists("log"):
+            os.remove("log")
+        if os.path.exists("output"):
+            os.remove("output")
 
 
 if __name__ == "__main__":

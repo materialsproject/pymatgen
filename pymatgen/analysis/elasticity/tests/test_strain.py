@@ -1,39 +1,48 @@
-
 import unittest
+import warnings
 
+import numpy as np
+
+from pymatgen.analysis.elasticity.strain import (
+    Deformation,
+    DeformedStructureSet,
+    Strain,
+    convert_strain_to_deformation,
+)
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
-from pymatgen.analysis.elasticity.strain import Strain, Deformation,\
-        convert_strain_to_deformation, DeformedStructureSet
 from pymatgen.util.testing import PymatgenTest
-import numpy as np
-import warnings
 
 
 class DeformationTest(PymatgenTest):
     def setUp(self):
         self.norm_defo = Deformation.from_index_amount((0, 0), 0.02)
         self.ind_defo = Deformation.from_index_amount((0, 1), 0.02)
-        self.non_ind_defo = Deformation([[1.0, 0.02, 0.02],
-                                         [0.0, 1.0, 0.0],
-                                         [0.0, 0.0, 1.0]])
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        self.structure = Structure(lattice, ["Si", "Si"], [[0, 0, 0],
-                                                           [0.75, 0.5, 0.75]])
+        self.non_ind_defo = Deformation(
+            [[1.0, 0.02, 0.02], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        )
+        lattice = Lattice(
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
+        )
+        self.structure = Structure(
+            lattice, ["Si", "Si"], [[0, 0, 0], [0.75, 0.5, 0.75]]
+        )
 
     def test_properties(self):
         # green_lagrange_strain
-        self.assertArrayAlmostEqual(self.ind_defo.green_lagrange_strain,
-                                    [[0., 0.01, 0.],
-                                     [0.01, 0.0002, 0.],
-                                     [0., 0., 0.]])
-        self.assertArrayAlmostEqual(self.non_ind_defo.green_lagrange_strain,
-                                    [[0., 0.01, 0.01],
-                                     [0.01, 0.0002, 0.0002],
-                                     [0.01, 0.0002, 0.0002]])
+        self.assertArrayAlmostEqual(
+            self.ind_defo.green_lagrange_strain,
+            [[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]],
+        )
+        self.assertArrayAlmostEqual(
+            self.non_ind_defo.green_lagrange_strain,
+            [[0.0, 0.01, 0.01], [0.01, 0.0002, 0.0002], [0.01, 0.0002, 0.0002]],
+        )
 
     def test_independence(self):
         self.assertFalse(self.non_ind_defo.is_independent())
@@ -44,80 +53,87 @@ class DeformationTest(PymatgenTest):
         strained_ind = self.ind_defo.apply_to_structure(self.structure)
         strained_non = self.non_ind_defo.apply_to_structure(self.structure)
         # Check lattices
-        self.assertArrayAlmostEqual(strained_norm.lattice.matrix,
-                                    [[3.9170018886, 0, 0],
-                                     [1.958500946136, 3.32571019, 0],
-                                     [0, -2.21713849, 3.13550906]])
-        self.assertArrayAlmostEqual(strained_ind.lattice.matrix,
-                                    [[3.84019793, 0, 0],
-                                     [1.9866132, 3.32571019, 0],
-                                     [-0.04434277, -2.21713849, 3.13550906]])
-        self.assertArrayAlmostEqual(strained_non.lattice.matrix,
-                                    [[3.84019793, 0, 0],
-                                     [1.9866132, 3.3257102, 0],
-                                     [0.0183674, -2.21713849, 3.13550906]])
+        self.assertArrayAlmostEqual(
+            strained_norm.lattice.matrix,
+            [
+                [3.9170018886, 0, 0],
+                [1.958500946136, 3.32571019, 0],
+                [0, -2.21713849, 3.13550906],
+            ],
+        )
+        self.assertArrayAlmostEqual(
+            strained_ind.lattice.matrix,
+            [
+                [3.84019793, 0, 0],
+                [1.9866132, 3.32571019, 0],
+                [-0.04434277, -2.21713849, 3.13550906],
+            ],
+        )
+        self.assertArrayAlmostEqual(
+            strained_non.lattice.matrix,
+            [
+                [3.84019793, 0, 0],
+                [1.9866132, 3.3257102, 0],
+                [0.0183674, -2.21713849, 3.13550906],
+            ],
+        )
         # Check coordinates
-        self.assertArrayAlmostEqual(strained_norm.sites[1].coords,
-                                    [3.91700189, 1.224e-06, 2.3516318])
-        self.assertArrayAlmostEqual(strained_ind.sites[1].coords,
-                                    [3.84019793, 1.224e-6, 2.3516318])
-        self.assertArrayAlmostEqual(strained_non.sites[1].coords,
-                                    [3.8872306, 1.224e-6, 2.3516318])
+        self.assertArrayAlmostEqual(
+            strained_norm.sites[1].coords, [3.91700189, 1.224e-06, 2.3516318]
+        )
+        self.assertArrayAlmostEqual(
+            strained_ind.sites[1].coords, [3.84019793, 1.224e-6, 2.3516318]
+        )
+        self.assertArrayAlmostEqual(
+            strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318]
+        )
 
         # Check convention for applying transformation
-        for vec, defo_vec in zip(self.structure.lattice.matrix,
-                strained_non.lattice.matrix):
+        for vec, defo_vec in zip(
+            self.structure.lattice.matrix, strained_non.lattice.matrix
+        ):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             self.assertArrayAlmostEqual(new_vec, defo_vec)
-        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
+        for coord, defo_coord in zip(
+            self.structure.cart_coords, strained_non.cart_coords
+        ):
             new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             self.assertArrayAlmostEqual(new_coord, defo_coord)
 
 
-
 class StrainTest(PymatgenTest):
     def setUp(self):
-        self.norm_str = Strain.from_deformation([[1.02, 0, 0],
-                                                 [0, 1, 0],
-                                                 [0, 0, 1]])
-        self.ind_str = Strain.from_deformation([[1, 0.02, 0],
-                                                [0, 1, 0],
-                                                [0, 0, 1]])
+        self.norm_str = Strain.from_deformation([[1.02, 0, 0], [0, 1, 0], [0, 0, 1]])
+        self.ind_str = Strain.from_deformation([[1, 0.02, 0], [0, 1, 0], [0, 0, 1]])
 
-        self.non_ind_str = Strain.from_deformation([[1, 0.02, 0.02],
-                                                    [0, 1, 0],
-                                                    [0, 0, 1]])
+        self.non_ind_str = Strain.from_deformation(
+            [[1, 0.02, 0.02], [0, 1, 0], [0, 0, 1]]
+        )
 
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
-            self.no_dfm = Strain([[0., 0.01, 0.],
-                                  [0.01, 0.0002, 0.],
-                                  [0., 0., 0.]])
+            self.no_dfm = Strain(
+                [[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]]
+            )
 
     def test_new(self):
-        test_strain = Strain([[0., 0.01, 0.],
-                              [0.01, 0.0002, 0.],
-                              [0., 0., 0.]])
+        test_strain = Strain([[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]])
         self.assertArrayAlmostEqual(
-            test_strain,
-            test_strain.get_deformation_matrix().green_lagrange_strain)
-        self.assertRaises(ValueError, Strain, [[0.1, 0.1, 0],
-                                               [0, 0, 0],
-                                               [0, 0, 0]])
+            test_strain, test_strain.get_deformation_matrix().green_lagrange_strain
+        )
+        self.assertRaises(ValueError, Strain, [[0.1, 0.1, 0], [0, 0, 0], [0, 0, 0]])
 
     def test_from_deformation(self):
-        self.assertArrayAlmostEqual(self.norm_str,
-                                    [[0.0202, 0, 0],
-                                     [0, 0, 0],
-                                     [0, 0, 0]])
-        self.assertArrayAlmostEqual(self.ind_str,
-                                    [[0., 0.01, 0.],
-                                     [0.01, 0.0002, 0.],
-                                     [0., 0., 0.]])
-        self.assertArrayAlmostEqual(self.non_ind_str,
-                                    [[0., 0.01, 0.01],
-                                     [0.01, 0.0002, 0.0002],
-                                     [0.01, 0.0002, 0.0002]])
+        self.assertArrayAlmostEqual(
+            self.norm_str, [[0.0202, 0, 0], [0, 0, 0], [0, 0, 0]]
+        )
+        self.assertArrayAlmostEqual(
+            self.ind_str, [[0.0, 0.01, 0.0], [0.01, 0.0002, 0.0], [0.0, 0.0, 0.0]]
+        )
+        self.assertArrayAlmostEqual(
+            self.non_ind_str,
+            [[0.0, 0.01, 0.01], [0.01, 0.0002, 0.0002], [0.01, 0.0002, 0.0002]],
+        )
 
     def test_from_index_amount(self):
         # From voigt index
@@ -133,22 +149,21 @@ class StrainTest(PymatgenTest):
 
     def test_properties(self):
         # deformation matrix
-        self.assertArrayAlmostEqual(self.ind_str.get_deformation_matrix(),
-                                    [[1, 0.02, 0],
-                                     [0, 1, 0],
-                                     [0, 0, 1]])
+        self.assertArrayAlmostEqual(
+            self.ind_str.get_deformation_matrix(), [[1, 0.02, 0], [0, 1, 0], [0, 0, 1]]
+        )
         symm_dfm = Strain(self.no_dfm).get_deformation_matrix(shape="symmetric")
-        self.assertArrayAlmostEqual(symm_dfm, [[0.99995,0.0099995, 0],
-                                               [0.0099995,1.00015, 0],
-                                               [0, 0, 1]])
-        self.assertArrayAlmostEqual(self.no_dfm.get_deformation_matrix(),
-                                    [[1, 0.02, 0],
-                                     [0, 1, 0],
-                                     [0, 0, 1]])
+        self.assertArrayAlmostEqual(
+            symm_dfm, [[0.99995, 0.0099995, 0], [0.0099995, 1.00015, 0], [0, 0, 1]]
+        )
+        self.assertArrayAlmostEqual(
+            self.no_dfm.get_deformation_matrix(), [[1, 0.02, 0], [0, 1, 0], [0, 0, 1]]
+        )
 
         # voigt
-        self.assertArrayAlmostEqual(self.non_ind_str.voigt,
-                                    [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
+        self.assertArrayAlmostEqual(
+            self.non_ind_str.voigt, [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02]
+        )
 
     def test_convert_strain_to_deformation(self):
         strain = Tensor(np.random.random((3, 3))).symmetrized
@@ -176,5 +191,5 @@ class DeformedStructureSetTest(PymatgenTest):
         self.assertEqual(len(dss_symm), 6)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

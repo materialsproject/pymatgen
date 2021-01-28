@@ -2,19 +2,26 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Determine functional groups present in a Molecule.
+"""
+
+
 import copy
 
-from pymatgen.core.structure import Molecule
-from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.core.structure import Molecule
+from pymatgen.io.babel import BabelMolAdaptor
 
 try:
     import networkx as nx
     import networkx.algorithms.isomorphism as iso
 except ImportError:
-    raise ImportError("pymatgen.analysis.functional_groups requires the "
-                      "NetworkX graph library to be installed.")
+    raise ImportError(
+        "pymatgen.analysis.functional_groups requires the "
+        "NetworkX graph library to be installed."
+    )
 
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
@@ -48,8 +55,7 @@ class FunctionalGroupExtractor:
         if isinstance(molecule, str):
             try:
                 if optimize:
-                    obmol = BabelMolAdaptor.from_file(molecule,
-                                                      file_format="mol")
+                    obmol = BabelMolAdaptor.from_file(molecule, file_format="mol")
                     # OBMolecule does not contain pymatgen Molecule information
                     # So, we need to wrap the obmol in a BabelMolAdapter
                     obmol.add_hydrogen()
@@ -59,8 +65,10 @@ class FunctionalGroupExtractor:
                 else:
                     self.molecule = Molecule.from_file(molecule)
             except OSError:
-                raise ValueError("Input must be a valid molecule file, a "
-                                 "Molecule object, or a MoleculeGraph object.")
+                raise ValueError(
+                    "Input must be a valid molecule file, a "
+                    "Molecule object, or a MoleculeGraph object."
+                )
 
         elif isinstance(molecule, Molecule):
             if optimize:
@@ -87,14 +95,15 @@ class FunctionalGroupExtractor:
                 self.molgraph = molecule
 
         else:
-            raise ValueError("Input to FunctionalGroupExtractor must be"
-                             "str, Molecule, or MoleculeGraph.")
+            raise ValueError(
+                "Input to FunctionalGroupExtractor must be"
+                "str, Molecule, or MoleculeGraph."
+            )
 
         if self.molgraph is None:
-            self.molgraph = MoleculeGraph.with_local_env_strategy(self.molecule,
-                                                                  OpenBabelNN(),
-                                                                  reorder=False,
-                                                                  extend_structure=False)
+            self.molgraph = MoleculeGraph.with_local_env_strategy(
+                self.molecule, OpenBabelNN()
+            )
 
         # Assign a specie and coordinates to each node in the graph,
         # corresponding to the Site in the Molecule object
@@ -146,8 +155,7 @@ class FunctionalGroupExtractor:
         specials = set()
 
         # For this function, only carbons are considered
-        carbons = [n for n in self.molgraph.graph.nodes if
-                 str(self.species[n]) == "C"]
+        carbons = [n for n in self.molgraph.graph.nodes if str(self.species[n]) == "C"]
 
         # Condition one: double/triple bonds to heteroatoms
         for node in carbons:
@@ -155,12 +163,14 @@ class FunctionalGroupExtractor:
 
             for neighbor, attributes in neighbors.items():
                 if elements is not None:
-                    if str(self.species[neighbor]) in elements and \
-                            int(attributes[0]["weight"]) in [2, 3]:
+                    if str(self.species[neighbor]) in elements and int(
+                        attributes[0]["weight"]
+                    ) in [2, 3]:
                         specials.add(node)
                 else:
-                    if str(self.species[neighbor]) not in ["C", "H"] and \
-                            int(attributes[0]["weight"]) in [2, 3]:
+                    if str(self.species[neighbor]) not in ["C", "H"] and int(
+                        attributes[0]["weight"]
+                    ) in [2, 3]:
                         specials.add(node)
 
         # Condition two: carbon-carbon double & triple bonds
@@ -168,8 +178,9 @@ class FunctionalGroupExtractor:
             neighbors = self.molgraph.graph[node]
 
             for neighbor, attributes in neighbors.items():
-                if str(self.species[neighbor]) == "C"\
-                        and int(attributes[0]["weight"]) in [2, 3]:
+                if str(self.species[neighbor]) == "C" and int(
+                    attributes[0]["weight"]
+                ) in [2, 3]:
                     specials.add(node)
                     specials.add(neighbor)
 
@@ -191,9 +202,11 @@ class FunctionalGroupExtractor:
         for ring in rings_indices:
             ring_spec = sorted([str(self.species[node]) for node in ring])
             # All rings of interest are three-member rings
-            if len(ring) == 3 and ring_spec in [["C", "C", "O"],
-                                                ["C", "C", "N"],
-                                                ["C", "C", "S"]]:
+            if len(ring) == 3 and ring_spec in [
+                ["C", "C", "O"],
+                ["C", "C", "N"],
+                ["C", "C", "S"],
+            ]:
                 for node in ring:
                     if node in carbons:
                         specials.add(node)
@@ -212,16 +225,15 @@ class FunctionalGroupExtractor:
         """
 
         # We will add hydrogens to functional groups
-        hydrogens = {n for n in self.molgraph.graph.nodes if
-                     str(self.species[n]) == "H"}
+        hydrogens = {
+            n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"
+        }
 
         # Graph representation of only marked atoms
         subgraph = self.molgraph.graph.subgraph(list(atoms)).to_undirected()
 
-        func_grps_no_h = [x for x in nx.connected_components(subgraph)]
-
         func_grps = []
-        for func_grp in func_grps_no_h:
+        for func_grp in nx.connected_components(subgraph):
             grp_hs = set()
             for node in func_grp:
                 neighbors = self.molgraph.graph[node]
@@ -252,11 +264,11 @@ class FunctionalGroupExtractor:
 
         strat = OpenBabelNN()
 
-        hydrogens = {n for n in self.molgraph.graph.nodes if
-                     str(self.species[n]) == "H"}
+        hydrogens = {
+            n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"
+        }
 
-        carbons = [n for n in self.molgraph.graph.nodes if
-                   str(self.species[n]) == "C"]
+        carbons = [n for n in self.molgraph.graph.nodes if str(self.species[n]) == "C"]
 
         if func_groups is None:
             func_groups = ["methyl", "phenyl"]
@@ -266,15 +278,16 @@ class FunctionalGroupExtractor:
         if "methyl" in func_groups:
             for node in carbons:
                 neighbors = strat.get_nn_info(self.molecule, node)
-                hs = {n["site_index"] for n in neighbors if n["site_index"] in hydrogens}
+                hs = {
+                    n["site_index"] for n in neighbors if n["site_index"] in hydrogens
+                }
                 # Methyl group is CH3, but this will also catch methane
                 if len(hs) >= 3:
                     hs.add(node)
                     results.append(hs)
 
         if "phenyl" in func_groups:
-            rings_indices = [set(sum(ring, ())) for ring in
-                             self.molgraph.find_rings()]
+            rings_indices = [set(sum(ring, ())) for ring in self.molgraph.find_rings()]
 
             possible_phenyl = [r for r in rings_indices if len(r) == 6]
 
@@ -284,8 +297,9 @@ class FunctionalGroupExtractor:
                 num_deviants = 0
                 for node in ring:
                     neighbors = strat.get_nn_info(self.molecule, node)
-                    neighbor_spec = sorted([str(self.species[n["site_index"]])
-                                            for n in neighbors])
+                    neighbor_spec = sorted(
+                        [str(self.species[n["site_index"]]) for n in neighbors]
+                    )
                     if neighbor_spec != ["C", "C", "H"]:
                         num_deviants += 1
 
@@ -303,8 +317,9 @@ class FunctionalGroupExtractor:
 
         return results
 
-    def get_all_functional_groups(self, elements=None, func_groups=None,
-                                  catch_basic=True):
+    def get_all_functional_groups(
+        self, elements=None, func_groups=None, catch_basic=True
+    ):
         """
         Identify all functional groups (or all within a certain subset) in the
         molecule, combining the methods described above.
@@ -354,12 +369,17 @@ class FunctionalGroupExtractor:
             smiles = adaptor.pybel_mol.write("can").strip()
 
             if smiles in categories:
-                this_subgraph = self.molgraph.graph.subgraph(list(group)).to_undirected()
+                this_subgraph = self.molgraph.graph.subgraph(
+                    list(group)
+                ).to_undirected()
                 for other in categories[smiles]["groups"]:
-                    other_subgraph = self.molgraph.graph.subgraph(list(other)).to_undirected()
+                    other_subgraph = self.molgraph.graph.subgraph(
+                        list(other)
+                    ).to_undirected()
 
-                    if not nx.is_isomorphic(this_subgraph, other_subgraph,
-                                            edge_match=em, node_match=nm):
+                    if not nx.is_isomorphic(
+                        this_subgraph, other_subgraph, edge_match=em, node_match=nm
+                    ):
                         break
 
                     if group not in categories[smiles]["groups"]:
@@ -367,7 +387,6 @@ class FunctionalGroupExtractor:
                         categories[smiles]["count"] += 1
 
             else:
-                categories[smiles] = {"groups": [group],
-                                      "count": 1}
+                categories[smiles] = {"groups": [group], "count": 1}
 
         return categories

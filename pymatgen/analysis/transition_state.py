@@ -2,25 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import glob
-
-import numpy as np
-from monty.json import jsanitize
-from monty.json import MSONable
-scipy_old_piecewisepolynomial = True
-try:
-    from scipy.interpolate import PiecewisePolynomial
-except ImportError:
-    from scipy.interpolate import CubicSpline
-    scipy_old_piecewisepolynomial = False
-
-from pymatgen.util.plotting import pretty_plot
-from pymatgen.io.vasp import Poscar, Outcar
-from pymatgen.analysis.structure_matcher import StructureMatcher
-import warnings
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -29,12 +10,16 @@ Henkelman's utilities will be added.
 This allows the usage and customization in Python.
 """
 
-__author__ = 'Shyue Ping Ong'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Shyue Ping Ong'
-__email__ = 'ongsp@ucsd.edu'
-__date__ = '6/1/15'
+import glob
+import os
+
+import numpy as np
+from monty.json import MSONable, jsanitize
+from scipy.interpolate import CubicSpline
+
+from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.io.vasp import Outcar, Poscar
+from pymatgen.util.plotting import pretty_plot
 
 
 class NEBAnalysis(MSONable):
@@ -62,8 +47,7 @@ class NEBAnalysis(MSONable):
         self.energies = np.array(energies)
         self.forces = np.array(forces)
         self.structures = structures
-        self.spline_options = spline_options if spline_options is not None \
-            else {}
+        self.spline_options = spline_options if spline_options is not None else {}
 
         # We do a piecewise interpolation between the points. Each spline (
         # cubic by default) is constrained by the boundary conditions of the
@@ -83,26 +67,23 @@ class NEBAnalysis(MSONable):
         """
         self.spline_options = spline_options
         relative_energies = self.energies - self.energies[0]
-        if scipy_old_piecewisepolynomial:
-            if self.spline_options:
-                raise RuntimeError('Option for saddle point not available with'
-                                   'old scipy implementation')
-            self.spline = PiecewisePolynomial(
-                self.r, np.array([relative_energies, -self.forces]).T,
-                orders=3)
+        if self.spline_options.get("saddle_point", "") == "zero_slope":
+            imax = np.argmax(relative_energies)
+            self.spline = CubicSpline(
+                x=self.r[: imax + 1],
+                y=relative_energies[: imax + 1],
+                bc_type=((1, 0.0), (1, 0.0)),
+            )
+            cspline2 = CubicSpline(
+                x=self.r[imax:],
+                y=relative_energies[imax:],
+                bc_type=((1, 0.0), (1, 0.0)),
+            )
+            self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
         else:
-            # New scipy implementation for scipy > 0.18.0
-            if self.spline_options.get('saddle_point', '') == 'zero_slope':
-                imax = np.argmax(relative_energies)
-                self.spline = CubicSpline(x=self.r[:imax + 1],
-                                          y=relative_energies[:imax + 1],
-                                          bc_type=((1, 0.0), (1, 0.0)))
-                cspline2 = CubicSpline(x=self.r[imax:], y=relative_energies[imax:],
-                                       bc_type=((1, 0.0), (1, 0.0)))
-                self.spline.extend(c=cspline2.c, x=cspline2.x[1:])
-            else:
-                self.spline = CubicSpline(x=self.r, y=relative_energies,
-                                          bc_type=((1, 0.0), (1, 0.0)))
+            self.spline = CubicSpline(
+                x=self.r, y=relative_energies, bc_type=((1, 0.0), (1, 0.0))
+            )
 
     @classmethod
     def from_outcars(cls, outcars, structures, **kwargs):
@@ -144,11 +125,12 @@ class NEBAnalysis(MSONable):
             if i in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                forces.append(o.data["tangent_force"]) 
+                forces.append(o.data["tangent_force"])
         forces = np.array(forces)
         r = np.array(r)
-        return cls(r=r, energies=energies, forces=forces,
-                   structures=structures, **kwargs)
+        return cls(
+            r=r, energies=energies, forces=forces, structures=structures, **kwargs
+        )
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
@@ -170,9 +152,9 @@ class NEBAnalysis(MSONable):
         min_extrema = []
         max_extrema = []
         for i in range(1, len(x) - 1):
-            if y[i] < y[i-1] and y[i] < y[i+1]:
+            if y[i] < y[i - 1] and y[i] < y[i + 1]:
                 min_extrema.append((x[i] * scale, y[i]))
-            elif y[i] > y[i-1] and y[i] > y[i+1]:
+            elif y[i] > y[i - 1] and y[i] > y[i + 1]:
                 max_extrema.append((x[i] * scale, y[i]))
         return min_extrema, max_extrema
 
@@ -194,19 +176,29 @@ class NEBAnalysis(MSONable):
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
         relative_energies = self.energies - self.energies[0]
-        plt.plot(self.r * scale, relative_energies * 1000, 'ro',
-                 x * scale, y, 'k-', linewidth=2, markersize=10)
+        plt.plot(
+            self.r * scale,
+            relative_energies * 1000,
+            "ro",
+            x * scale,
+            y,
+            "k-",
+            linewidth=2,
+            markersize=10,
+        )
         plt.xlabel("Reaction coordinate")
         plt.ylabel("Energy (meV)")
         plt.ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
         if label_barrier:
             data = zip(x * scale, y)
             barrier = max(data, key=lambda d: d[1])
-            plt.plot([0, barrier[0]], [barrier[1], barrier[1]], 'k--')
-            plt.annotate('%.0f meV' % (np.max(y) - np.min(y)),
-                         xy=(barrier[0] / 2, barrier[1] * 1.02),
-                         xytext=(barrier[0] / 2, barrier[1] * 1.02),
-                         horizontalalignment='center')
+            plt.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--")
+            plt.annotate(
+                "%.0f meV" % (np.max(y) - np.min(y)),
+                xy=(barrier[0] / 2, barrier[1] * 1.02),
+                xytext=(barrier[0] / 2, barrier[1] * 1.02),
+                horizontalalignment="center",
+            )
         plt.tight_layout()
         return plt
 
@@ -264,16 +256,14 @@ class NEBAnalysis(MSONable):
         if relaxation_dirs is not None:
             terminal_dirs.append(relaxation_dirs)
         terminal_dirs.append((neb_dirs[0][1], neb_dirs[-1][1]))
-        terminal_dirs.append([os.path.join(root_dir, d)
-                              for d in ["start", "end"]])
-        terminal_dirs.append([os.path.join(root_dir, d)
-                              for d in ["initial", "final"]])
+        terminal_dirs.append([os.path.join(root_dir, d) for d in ["start", "end"]])
+        terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
 
         for i, d in neb_dirs:
             outcar = glob.glob(os.path.join(d, "OUTCAR*"))
             contcar = glob.glob(os.path.join(d, "CONTCAR*"))
             poscar = glob.glob(os.path.join(d, "POSCAR*"))
-            terminal = i == 0 or i == neb_dirs[-1][0]
+            terminal = i in [0, neb_dirs[-1][0]]
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if i == 0 else ds[1]
@@ -283,8 +273,9 @@ class NEBAnalysis(MSONable):
                         outcars.append(Outcar(outcar[-1]))
                         break
                 else:
-                    raise ValueError("OUTCAR cannot be found for terminal "
-                                     "point %s" % d)
+                    raise ValueError(
+                        "OUTCAR cannot be found for terminal " "point %s" % d
+                    )
                 structures.append(Poscar.from_file(poscar[0]).structure)
             else:
                 outcars.append(Outcar(outcar[0]))
@@ -298,16 +289,17 @@ class NEBAnalysis(MSONable):
         Returns:
             JSON serializable dict representation.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                'r': jsanitize(self.r),
-                'energies': jsanitize(self.energies),
-                'forces': jsanitize(self.forces),
-                'structures': [s.as_dict() for s in self.structures]}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "r": jsanitize(self.r),
+            "energies": jsanitize(self.energies),
+            "forces": jsanitize(self.forces),
+            "structures": [s.as_dict() for s in self.structures],
+        }
 
 
-def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
-                      reverse_plot=False):
+def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=False):
     """
     neb_analyses: a list of NEBAnalysis objects
 
@@ -324,22 +316,21 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
     return: a NEBAnalysis object
     """
     x = StructureMatcher()
-    for neb_index in range(len(neb_analyses)):
+    for neb_index, neb in enumerate(neb_analyses):
         if neb_index == 0:
-            neb1 = neb_analyses[neb_index]
+            neb1 = neb
             neb1_energies = list(neb1.energies)
             neb1_structures = neb1.structures
             neb1_forces = neb1.forces
             neb1_r = neb1.r
             continue
 
-        neb2 = neb_analyses[neb_index]
+        neb2 = neb
         neb2_energies = list(neb2.energies)
 
         matching = 0
         for neb1_s in [neb1_structures[0], neb1_structures[-1]]:
-            if x.fit(neb1_s, neb2.structures[0]) or \
-                    x.fit(neb1_s, neb2.structures[-1]):
+            if x.fit(neb1_s, neb2.structures[0]) or x.fit(neb1_s, neb2.structures[-1]):
                 matching += 1
                 break
         if matching == 0:
@@ -347,60 +338,67 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
 
         neb1_start_e, neb1_end_e = neb1_energies[0], neb1_energies[-1]
         neb2_start_e, neb2_end_e = neb2_energies[0], neb2_energies[-1]
-        min_e_diff = min(([abs(neb1_start_e - neb2_start_e),
-                         abs(neb1_start_e - neb2_end_e),
-                         abs(neb1_end_e - neb2_start_e),
-                         abs(neb1_end_e - neb2_end_e)]))
+        min_e_diff = min(
+            (
+                [
+                    abs(neb1_start_e - neb2_start_e),
+                    abs(neb1_start_e - neb2_end_e),
+                    abs(neb1_end_e - neb2_start_e),
+                    abs(neb1_end_e - neb2_end_e),
+                ]
+            )
+        )
 
         if arranged_neb_analyses:
-            neb1_energies = neb1_energies[0:len(neb1_energies) - 1] \
-                            + [(neb1_energies[-1] + neb2_energies[0]) / 2] \
-                            + neb2_energies[
-                              1:]
+            neb1_energies = (
+                neb1_energies[0 : len(neb1_energies) - 1]
+                + [(neb1_energies[-1] + neb2_energies[0]) / 2]
+                + neb2_energies[1:]
+            )
             neb1_structures = neb1_structures + neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
-            neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in
-                                     list(neb2.r)[1:]]
+            neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
         elif abs(neb1_start_e - neb2_start_e) == min_e_diff:
             neb1_energies = list(reversed(neb1_energies[1:])) + neb2_energies
-            neb1_structures = list(
-                reversed((neb1_structures[1:]))) + neb2.structures
-            neb1_forces = list(reversed(list(neb1_forces)[1:])) + list(
-                neb2.forces)
-            neb1_r = list(reversed(
-                [i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)[1:]])) + [
-                         i + neb1_r[-1] for i in list(neb2.r)]
+            neb1_structures = list(reversed((neb1_structures[1:]))) + neb2.structures
+            neb1_forces = list(reversed(list(neb1_forces)[1:])) + list(neb2.forces)
+            neb1_r = list(
+                reversed([i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)[1:]])
+            ) + [i + neb1_r[-1] for i in list(neb2.r)]
 
         elif abs(neb1_start_e - neb2_end_e) == min_e_diff:
             neb1_energies = neb2_energies + neb1_energies[1:]
             neb1_structures = neb2.structures + neb1_structures[1:]
             neb1_forces = list(neb2.forces) + list(neb1_forces)[1:]
-            neb1_r = [i for i in list(neb2.r)] + \
-                     [i + list(neb2.r)[-1] for i in list(neb1_r)[1:]]
+            neb1_r = list(neb2.r) + [i + list(neb2.r)[-1] for i in list(neb1_r)[1:]]
 
         elif abs(neb1_end_e - neb2_start_e) == min_e_diff:
             neb1_energies = neb1_energies + neb2_energies[1:]
             neb1_structures = neb1_structures + neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
-            neb1_r = [i for i in list(neb1_r)] + \
-                     [i + neb1_r[-1] for i in list(neb2.r)[1:]]
+            neb1_r = list(neb1_r) + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
         else:
             neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]
-            neb1_structures = neb1_structures + list(
-                reversed((neb2.structures)))[1:]
-            neb1_forces = list(neb1_forces) + \
-                          list(reversed(list(neb2.forces)))[1:]
+            neb1_structures = neb1_structures + list(reversed((neb2.structures)))[1:]
+            neb1_forces = list(neb1_forces) + list(reversed(list(neb2.forces)))[1:]
             neb1_r = list(neb1_r) + list(
-                reversed([i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1]
-                          for i in list(neb2.r)[:-1]]))
+                reversed(
+                    [
+                        i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1]
+                        for i in list(neb2.r)[:-1]
+                    ]
+                )
+            )
 
     if reverse_plot:
         na = NEBAnalysis(
             list(reversed([i * -1 - neb1_r[-1] * -1 for i in list(neb1_r)])),
             list(reversed(neb1_energies)),
-            list(reversed(neb1_forces)), list(reversed(neb1_structures)))
+            list(reversed(neb1_forces)),
+            list(reversed(neb1_structures)),
+        )
     else:
         na = NEBAnalysis(neb1_r, neb1_energies, neb1_forces, neb1_structures)
     return na

@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,49 +33,21 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.ext.matproj</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.ext.matproj</h1><div class="highlight"><pre>
 <span></span><span class="c1"># coding: utf-8</span>
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
-
-
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
-
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MontyEncoder</span>
-
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pmg_version</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">get_symmetrically_equivalent_miller_indices</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
-    <span class="n">ComputedStructureEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.exp_entries</span> <span class="k">import</span> <span class="n">ExpEntry</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.util.sequence</span> <span class="k">import</span> <span class="n">get_chunks</span><span class="p">,</span> <span class="n">PBar</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides classes to interface with the Materials Project REST</span>
@@ -87,6 +59,35 @@
 <span class="sd">https://www.materialsproject.org/dashboard.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MontyEncoder</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pmg_version</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">get_symmetrically_equivalent_miller_indices</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
+    <span class="n">ComputedStructureEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MaterialsProjectCompatibility</span><span class="p">,</span> <span class="n">MaterialsProjectAqueousCompatibility</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.exp_entries</span> <span class="kn">import</span> <span class="n">ExpEntry</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.util.sequence</span> <span class="kn">import</span> <span class="n">get_chunks</span><span class="p">,</span> <span class="n">PBar</span>
+
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Shreyas Cholia&quot;</span>
 <span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Anubhav Jain&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -94,6 +95,25 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 22, 2013&quot;</span>
+
+
+<div class="viewcode-block" id="TaskType"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.TaskType">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">TaskType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;task types available in MP&quot;&quot;&quot;</span>
+    <span class="n">GGA_OPT</span> <span class="o">=</span> <span class="s2">&quot;GGA Structure Optimization&quot;</span>
+    <span class="n">GGAU_OPT</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Structure Optimization&quot;</span>
+    <span class="n">SCAN_OPT</span> <span class="o">=</span> <span class="s2">&quot;SCAN Structure Optimization&quot;</span>
+    <span class="n">GGA_LINE</span> <span class="o">=</span> <span class="s2">&quot;GGA NSCF Line&quot;</span>
+    <span class="n">GGAU_LINE</span> <span class="o">=</span> <span class="s2">&quot;GGA+U NSCF Line&quot;</span>
+    <span class="n">GGA_UNIFORM</span> <span class="o">=</span> <span class="s2">&quot;GGA NSCF Uniform&quot;</span>
+    <span class="n">GGAU_UNIFORM</span> <span class="o">=</span> <span class="s2">&quot;GGA+U NSCF Uniform&quot;</span>
+    <span class="n">GGA_STATIC</span> <span class="o">=</span> <span class="s2">&quot;GGA Static&quot;</span>
+    <span class="n">GGAU_STATIC</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Static&quot;</span>
+    <span class="n">GGA_STATIC_DIEL</span> <span class="o">=</span> <span class="s2">&quot;GGA Static Dielectric&quot;</span>
+    <span class="n">GGAU_STATIC_DIEL</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Static Dielectric&quot;</span>
+    <span class="n">GGA_DEF</span> <span class="o">=</span> <span class="s2">&quot;GGA Deformation&quot;</span>
+    <span class="n">GGAU_DEF</span> <span class="o">=</span> <span class="s2">&quot;GGA+U Deformation&quot;</span>
+    <span class="n">LDA_STATIC_DIEL</span> <span class="o">=</span> <span class="s2">&quot;LDA Static Dielectric&quot;</span></div>
 
 
 <div class="viewcode-block" id="MPRester"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester">[docs]</a><span class="k">class</span> <span class="nc">MPRester</span><span class="p">:</span>
@@ -110,24 +130,6 @@
 
 <span class="sd">    For more advanced uses of the Materials API, please consult the API</span>
 <span class="sd">    documentation at https://github.com/materialsproject/mapidoc.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        api_key (str): A String API key for accessing the MaterialsProject</span>
-<span class="sd">            REST interface. Please obtain your API key at</span>
-<span class="sd">            https://www.materialsproject.org/dashboard. If this is None,</span>
-<span class="sd">            the code will check if there is a &quot;PMG_MAPI_KEY&quot; setting.</span>
-<span class="sd">            If so, it will use that environment variable. This makes</span>
-<span class="sd">            easier for heavy users to simply add this environment variable to</span>
-<span class="sd">            their setups and MPRester can then be called without any arguments.</span>
-<span class="sd">        endpoint (str): Url of endpoint to access the MaterialsProject REST</span>
-<span class="sd">            interface. Defaults to the standard Materials Project REST</span>
-<span class="sd">            address at &quot;https://materialsproject.org/rest/v2&quot;, but</span>
-<span class="sd">            can be changed to other urls implementing a similar interface.</span>
-<span class="sd">        include_user_agent (bool): If True, will include a user agent with the</span>
-<span class="sd">            HTTP request including information on pymatgen and system version</span>
-<span class="sd">            making the API request. This helps MP support pymatgen users, and</span>
-<span class="sd">            is similar to what most web browsers send with each page request.</span>
-<span class="sd">            Set to False to disable the user agent.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">supported_properties</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span> <span class="s2">&quot;energy_per_atom&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">,</span>
@@ -148,7 +150,26 @@
                                  <span class="s2">&quot;is_compatible&quot;</span><span class="p">,</span> <span class="s2">&quot;spacegroup&quot;</span><span class="p">,</span>
                                  <span class="s2">&quot;band_gap&quot;</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="s2">&quot;icsd_id&quot;</span><span class="p">,</span> <span class="s2">&quot;cif&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_user_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_user_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            api_key (str): A String API key for accessing the MaterialsProject</span>
+<span class="sd">                REST interface. Please obtain your API key at</span>
+<span class="sd">                https://www.materialsproject.org/dashboard. If this is None,</span>
+<span class="sd">                the code will check if there is a &quot;PMG_MAPI_KEY&quot; setting.</span>
+<span class="sd">                If so, it will use that environment variable. This makes</span>
+<span class="sd">                easier for heavy users to simply add this environment variable to</span>
+<span class="sd">                their setups and MPRester can then be called without any arguments.</span>
+<span class="sd">            endpoint (str): Url of endpoint to access the MaterialsProject REST</span>
+<span class="sd">                interface. Defaults to the standard Materials Project REST</span>
+<span class="sd">                address at &quot;https://materialsproject.org/rest/v2&quot;, but</span>
+<span class="sd">                can be changed to other urls implementing a similar interface.</span>
+<span class="sd">            include_user_agent (bool): If True, will include a user agent with the</span>
+<span class="sd">                HTTP request including information on pymatgen and system version</span>
+<span class="sd">                making the API request. This helps MP support pymatgen users, and</span>
+<span class="sd">                is similar to what most web browsers send with each page request.</span>
+<span class="sd">                Set to False to disable the user agent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">api_key</span>
         <span class="k">else</span><span class="p">:</span>
@@ -162,33 +183,23 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preamble</span> <span class="o">!=</span> <span class="s2">&quot;https://materialsproject.org/rest/v2&quot;</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Non-default endpoint used: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preamble</span><span class="p">))</span>
 
-        <span class="kn">import</span> <span class="nn">requests</span>
-        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">pybtex</span> <span class="k">import</span> <span class="n">__version__</span>
-            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;If you query for structure data encoded using MP&#39;s &quot;</span>
-                              <span class="s2">&quot;Structure Notation Language (SNL) format and you use &quot;</span>
-                              <span class="s2">&quot;`mp_decode=True` (the default) for MPRester queries, &quot;</span>
-                              <span class="s2">&quot;you should install dependencies via &quot;</span>
-                              <span class="s2">&quot;`pip install pymatgen[matproj.snl]`.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x-api-key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">include_user_agent</span><span class="p">:</span>
-            <span class="n">pymatgen_info</span> <span class="o">=</span> <span class="s2">&quot;pymatgen/&quot;</span><span class="o">+</span><span class="n">pmg_version</span>
+            <span class="n">pymatgen_info</span> <span class="o">=</span> <span class="s2">&quot;pymatgen/&quot;</span> <span class="o">+</span> <span class="n">pmg_version</span>
             <span class="n">python_info</span> <span class="o">=</span> <span class="s2">&quot;Python/</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">minor</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">micro</span><span class="p">)</span>
             <span class="n">platform_info</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span> <span class="n">platform</span><span class="o">.</span><span class="n">release</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;user-agent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">pymatgen_info</span><span class="p">,</span> <span class="n">python_info</span><span class="p">,</span> <span class="n">platform_info</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Support for &quot;with&quot; context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Support for &quot;with&quot; context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -305,14 +316,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/</span><span class="si">%s</span><span class="s2">/doc&quot;</span> <span class="o">%</span> <span class="n">materials_id</span><span class="p">,</span>
                                   <span class="n">mp_decode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="MPRester.get_xas_data"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_xas_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_xas_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">,</span> <span class="n">absorbing_element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get X-ray absorption spectroscopy data for absorbing element in the </span>
-<span class="sd">        structure corresponding to a material_id. Only X-ray Absorption Near Edge </span>
+<span class="sd">        Get X-ray absorption spectroscopy data for absorbing element in the</span>
+<span class="sd">        structure corresponding to a material_id. Only X-ray Absorption Near Edge</span>
 <span class="sd">        Structure (XANES) for K-edge is supported.</span>
-<span class="sd">        </span>
-<span class="sd">        REST Endpoint: </span>
+
+<span class="sd">        REST Endpoint:</span>
 <span class="sd">        https://www.materialsproject.org/materials/&lt;mp-id&gt;/xas/&lt;absorbing_element&gt;.</span>
 
 <span class="sd">        Args:</span>
@@ -324,7 +335,7 @@
                                      <span class="n">prop</span><span class="o">=</span><span class="s2">&quot;elements&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">absorbing_element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">element_list</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> element not contained in corresponding structure with &quot;</span>\
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> element not contained in corresponding structure with &quot;</span>
                 <span class="s2">&quot;mp_id: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">absorbing_element</span><span class="p">,</span> <span class="n">material_id</span><span class="p">))</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span>
             <span class="s2">&quot;/materials/</span><span class="si">{}</span><span class="s2">/xas/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span> <span class="n">absorbing_element</span><span class="p">),</span>
@@ -381,7 +392,7 @@
 <span class="sd">            filename_or_structure: filename or Structure object</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A list of matching structures.</span>
+<span class="sd">            A list of matching materials project ids for structure.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            MPRestError</span>
@@ -464,7 +475,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">criteria</span> <span class="o">=</span> <span class="n">chemsys_formula_id_criteria</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
-        
+
         <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;potcar_symbols&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -495,14 +506,13 @@
                     <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">])</span>
             <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">compatible_only</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="k">import</span> \
-                <span class="n">MaterialsProjectCompatibility</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MaterialsProjectCompatibility</span>
             <span class="n">entries</span> <span class="o">=</span> <span class="n">MaterialsProjectCompatibility</span><span class="p">()</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sort_by_e_above_hull</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">entry</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_above_hull&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">entries</span></div>
 
-<div class="viewcode-block" id="MPRester.get_pourbaix_entries"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_pourbaix_entries">[docs]</a>    <span class="k">def</span> <span class="nf">get_pourbaix_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys</span><span class="p">):</span>
+<div class="viewcode-block" id="MPRester.get_pourbaix_entries"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_pourbaix_entries">[docs]</a>    <span class="k">def</span> <span class="nf">get_pourbaix_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys</span><span class="p">,</span> <span class="n">solid_compat</span><span class="o">=</span><span class="n">MaterialsProjectCompatibility</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A helper function to get all entries necessary to generate</span>
 <span class="sd">        a pourbaix diagram from the rest interface.</span>
@@ -510,12 +520,12 @@
 <span class="sd">        Args:</span>
 <span class="sd">            chemsys ([str]): A list of elements comprising the chemical</span>
 <span class="sd">                system, e.g. [&#39;Li&#39;, &#39;Fe&#39;]</span>
+<span class="sd">            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous</span>
+<span class="sd">                energy adjustments. Default: MaterialsProjectCompatibility().</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="k">import</span> <span class="n">PourbaixEntry</span><span class="p">,</span> <span class="n">IonEntry</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="k">import</span> <span class="n">Ion</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="k">import</span> \
-            <span class="n">MaterialsProjectAqueousCompatibility</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">PourbaixEntry</span><span class="p">,</span> <span class="n">IonEntry</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="kn">import</span> <span class="n">Ion</span>
 
         <span class="n">pbx_entries</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -529,41 +539,42 @@
         <span class="n">ion_ref_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">(</span>
             <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ion_ref_elts</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">])),</span>
             <span class="n">property_data</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;e_above_hull&#39;</span><span class="p">],</span> <span class="n">compatible_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">compat</span> <span class="o">=</span> <span class="n">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="s2">&quot;Advanced&quot;</span><span class="p">)</span>
+
+        <span class="c1"># suppress the warning about supplying the required energies; they will be calculated from the</span>
+        <span class="c1"># entries we get from MPRester</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;You did not provide the required O2 and H2O energies.&quot;</span><span class="p">)</span>
+            <span class="n">compat</span> <span class="o">=</span> <span class="n">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="n">solid_compat</span><span class="o">=</span><span class="n">solid_compat</span><span class="p">)</span>
         <span class="n">ion_ref_entries</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">ion_ref_entries</span><span class="p">)</span>
         <span class="n">ion_ref_pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">ion_ref_entries</span><span class="p">)</span>
 
         <span class="c1"># position the ion energies relative to most stable reference state</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">i_d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ion_data</span><span class="p">):</span>
-            <span class="n">ion_entry</span> <span class="o">=</span> <span class="n">IonEntry</span><span class="p">(</span><span class="n">Ion</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]),</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">])</span>
+            <span class="n">ion</span> <span class="o">=</span> <span class="n">Ion</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">])</span>
             <span class="n">refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ion_ref_entries</span>
                     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Reference Solid&#39;</span><span class="p">]]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">refs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reference solid not contained in entry list&quot;</span><span class="p">)</span>
             <span class="n">stable_ref</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;e_above_hull&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">rf</span> <span class="o">=</span> <span class="n">stable_ref</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">solid_diff</span> <span class="o">=</span> <span class="n">ion_ref_pd</span><span class="o">.</span><span class="n">get_form_energy</span><span class="p">(</span><span class="n">stable_ref</span><span class="p">)</span> \
-                         <span class="o">-</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Reference solid energy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">rf</span>
+            <span class="n">solid_diff</span> <span class="o">=</span> <span class="n">ion_ref_pd</span><span class="o">.</span><span class="n">get_form_energy</span><span class="p">(</span><span class="n">stable_ref</span><span class="p">)</span> <span class="o">-</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Reference solid energy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">rf</span>
             <span class="n">elt</span> <span class="o">=</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Major_Elements&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">correction_factor</span> <span class="o">=</span> <span class="n">ion_entry</span><span class="o">.</span><span class="n">ion</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> \
-                                <span class="o">/</span> <span class="n">stable_ref</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
-            <span class="n">ion_entry</span><span class="o">.</span><span class="n">energy</span> <span class="o">+=</span> <span class="n">solid_diff</span> <span class="o">*</span> <span class="n">correction_factor</span>
+            <span class="n">correction_factor</span> <span class="o">=</span> <span class="n">ion</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">/</span> <span class="n">stable_ref</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">solid_diff</span> <span class="o">*</span> <span class="n">correction_factor</span>
+            <span class="n">ion_entry</span> <span class="o">=</span> <span class="n">IonEntry</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
             <span class="n">pbx_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PourbaixEntry</span><span class="p">(</span><span class="n">ion_entry</span><span class="p">,</span> <span class="s1">&#39;ion-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
 
         <span class="c1"># Construct the solid pourbaix entries from filtered ion_ref entries</span>
         <span class="n">extra_elts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ion_ref_elts</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chemsys</span><span class="p">}</span> \
-                     <span class="o">-</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span>
+            <span class="o">-</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span>
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ion_ref_entries</span><span class="p">:</span>
             <span class="n">entry_elts</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
             <span class="c1"># Ensure no OH chemsys or extraneous elements from ion references</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">entry_elts</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span> <span class="ow">or</span> \
-                            <span class="n">extra_elts</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">entry_elts</span><span class="p">)):</span>
-                <span class="c1"># replace energy with formation energy, use dict to</span>
-                <span class="c1"># avoid messing with the ion_ref_pd and to keep all old params</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">entry_elts</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span> <span class="ow">or</span>
+                    <span class="n">extra_elts</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">entry_elts</span><span class="p">)):</span>
+                <span class="c1"># Create new computed entry</span>
                 <span class="n">form_e</span> <span class="o">=</span> <span class="n">ion_ref_pd</span><span class="o">.</span><span class="n">get_form_energy</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="n">new_entry</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="n">new_entry</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">form_e</span>
-                <span class="n">new_entry</span><span class="o">.</span><span class="n">correction</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">new_entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">form_e</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
                 <span class="n">pbx_entry</span> <span class="o">=</span> <span class="n">PourbaixEntry</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
                 <span class="n">pbx_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pbx_entry</span><span class="p">)</span>
 
@@ -710,8 +721,9 @@
 <span class="sd">        creating phase diagrams of entire chemical systems.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            elements ([str]): List of element symbols, e.g., [&quot;Li&quot;, &quot;Fe&quot;,</span>
-<span class="sd">                &quot;O&quot;].</span>
+<span class="sd">            elements (str or [str]): Chemical system string comprising element</span>
+<span class="sd">                symbols separated by dashes, e.g., &quot;Li-Fe-O&quot; or List of element</span>
+<span class="sd">                symbols, e.g., [&quot;Li&quot;, &quot;Fe&quot;, &quot;O&quot;].</span>
 <span class="sd">            compatible_only (bool): Whether to return only &quot;compatible&quot;</span>
 <span class="sd">                entries. Compatible entries are entries that have been</span>
 <span class="sd">                processed using the MaterialsProjectCompatibility class,</span>
@@ -731,16 +743,21 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of ComputedEntries.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+        <span class="n">all_chemsyses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)):</span>
             <span class="k">for</span> <span class="n">els</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">entries</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_entries</span><span class="p">(</span>
-                        <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">els</span><span class="p">),</span> <span class="n">compatible_only</span><span class="o">=</span><span class="n">compatible_only</span><span class="p">,</span>
-                        <span class="n">inc_structure</span><span class="o">=</span><span class="n">inc_structure</span><span class="p">,</span>
-                        <span class="n">property_data</span><span class="o">=</span><span class="n">property_data</span><span class="p">,</span>
-                        <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="n">conventional_unit_cell</span><span class="p">))</span>
+                <span class="n">all_chemsyses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">els</span><span class="p">)))</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entries</span><span class="p">({</span><span class="s2">&quot;chemsys&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="n">all_chemsyses</span><span class="p">}},</span>
+                                   <span class="n">compatible_only</span><span class="o">=</span><span class="n">compatible_only</span><span class="p">,</span>
+                                   <span class="n">inc_structure</span><span class="o">=</span><span class="n">inc_structure</span><span class="p">,</span>
+                                   <span class="n">property_data</span><span class="o">=</span><span class="n">property_data</span><span class="p">,</span>
+                                   <span class="n">conventional_unit_cell</span><span class="o">=</span><span class="n">conventional_unit_cell</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">entries</span></div>
 
 <div class="viewcode-block" id="MPRester.get_exp_thermo_data"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_exp_thermo_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_exp_thermo_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formula</span><span class="p">):</span>
@@ -773,7 +790,7 @@
 
 <div class="viewcode-block" id="MPRester.query"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">max_tries_per_chunk</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
               <span class="n">mp_decode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Performs an advanced query using MongoDB-like syntax for directly</span>
 <span class="sd">        querying the Materials Project database. This allows one to perform</span>
@@ -807,8 +824,8 @@
 
 <span class="sd">                Other syntax examples:</span>
 <span class="sd">                mp-1234: Interpreted as a Materials ID.</span>
-<span class="sd">                Fe2O3 or \\*2O3: Interpreted as reduced formulas.</span>
-<span class="sd">                Li-Fe-O or \\*-Fe-O: Interpreted as chemical systems.</span>
+<span class="sd">                Fe2O3 or *2O3: Interpreted as reduced formulas.</span>
+<span class="sd">                Li-Fe-O or *-Fe-O: Interpreted as chemical systems.</span>
 
 <span class="sd">                You can mix and match with spaces, which are interpreted as</span>
 <span class="sd">                &quot;OR&quot;. E.g. &quot;mp-1234 FeO&quot; means query for all compounds with</span>
@@ -921,7 +938,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of inserted submission ids.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="k">import</span> <span class="n">StructureNL</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="kn">import</span> <span class="n">StructureNL</span>
         <span class="n">snl_list</span> <span class="o">=</span> <span class="n">StructureNL</span><span class="o">.</span><span class="n">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="p">,</span>
                                                <span class="n">references</span><span class="p">,</span> <span class="n">remarks</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
                                                <span class="n">histories</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
@@ -1079,8 +1096,8 @@
 <span class="sd">            ncpus (int): Number of cpus to use in using BorgQueen to</span>
 <span class="sd">                assimilate. Defaults to None, which means serial.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="k">import</span> <span class="n">VaspToComputedEntryDrone</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="k">import</span> <span class="n">BorgQueen</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="kn">import</span> <span class="n">VaspToComputedEntryDrone</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
         <span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                          <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span>
                                                <span class="s2">&quot;initial_structure&quot;</span><span class="p">])</span>
@@ -1146,18 +1163,17 @@
 <span class="sd">            Cohesive energy (eV).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entry_by_material_id</span><span class="p">(</span><span class="n">material_id</span><span class="p">)</span>
-        <span class="n">ebulk</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span> \
-                <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ebulk</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy</span> <span class="o">/</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">comp_dict</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
 
         <span class="n">isolated_atom_e_sum</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">comp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/element/</span><span class="si">%s</span><span class="s2">/tasks/isolated_atom&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">el</span><span class="p">),</span>
-                                  <span class="n">mp_decode</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                                   <span class="n">mp_decode</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">isolated_atom_e_sum</span> <span class="o">+=</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s2">&quot;final_energy_per_atom&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">comp_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
             <span class="n">n</span> <span class="o">+=</span> <span class="n">comp_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
         <span class="n">ecoh_per_formula</span> <span class="o">=</span> <span class="n">isolated_atom_e_sum</span> <span class="o">-</span> <span class="n">ebulk</span>
-        <span class="k">return</span> <span class="n">ecoh_per_formula</span><span class="o">/</span><span class="n">n</span> <span class="k">if</span> <span class="n">per_atom</span> <span class="k">else</span> <span class="n">ecoh_per_formula</span></div>
+        <span class="k">return</span> <span class="n">ecoh_per_formula</span> <span class="o">/</span> <span class="n">n</span> <span class="k">if</span> <span class="n">per_atom</span> <span class="k">else</span> <span class="n">ecoh_per_formula</span></div>
 
 <div class="viewcode-block" id="MPRester.get_reaction"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_reaction">[docs]</a>    <span class="k">def</span> <span class="nf">get_reaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1184,7 +1200,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            material_id (str): Materials Project material_id, e.g. &#39;mp-123&#39;.</span>
 <span class="sd">            orient (list) : substrate orientation to look for</span>
-<span class="sd">            number (int) : number of substrates to return;</span>
+<span class="sd">            number (int) : number of substrates to return</span>
 <span class="sd">                n=0 returns all available matches</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            list of dicts with substrate matches</span>
@@ -1251,8 +1267,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            pymatgen.analysis.wulff.WulffShape</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span><span class="p">,</span> <span class="n">hkl_tuple_to_str</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="kn">import</span> <span class="n">WulffShape</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="n">material_id</span><span class="p">)</span>
         <span class="n">surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_data</span><span class="p">(</span><span class="n">material_id</span><span class="p">)[</span><span class="s2">&quot;surfaces&quot;</span><span class="p">]</span>
@@ -1304,23 +1320,23 @@
                    <span class="s2">&quot;chemsys&quot;</span><span class="p">:</span> <span class="n">chemsys</span><span class="p">,</span>
                    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">,</span>
                    <span class="s2">&quot;gb_plane&quot;</span><span class="p">:</span> <span class="n">gb_plane</span><span class="p">,</span>
-                   <span class="s2">&quot;rotation_axis&quot;</span><span class="p">:</span><span class="n">rotation_axis</span><span class="p">}</span>
+                   <span class="s2">&quot;rotation_axis&quot;</span><span class="p">:</span> <span class="n">rotation_axis</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="n">include_work_of_separation</span> <span class="ow">and</span> <span class="n">material_id</span><span class="p">:</span>
             <span class="n">list_of_gbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/grain_boundaries&quot;</span><span class="p">,</span>
-                               <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+                                             <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">gb_dict</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_of_gbs</span><span class="p">):</span>
                 <span class="n">gb_energy</span> <span class="o">=</span> <span class="n">gb_dict</span><span class="p">[</span><span class="s1">&#39;gb_energy&#39;</span><span class="p">]</span>
                 <span class="n">gb_plane_int</span> <span class="o">=</span> <span class="n">gb_dict</span><span class="p">[</span><span class="s1">&#39;gb_plane&#39;</span><span class="p">]</span>
                 <span class="n">surface_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_data</span><span class="p">(</span><span class="n">material_id</span><span class="o">=</span><span class="n">material_id</span><span class="p">,</span>
                                                        <span class="n">miller_index</span><span class="o">=</span><span class="n">gb_plane_int</span><span class="p">)[</span><span class="s1">&#39;surface_energy&#39;</span><span class="p">]</span>
-                <span class="n">wsep</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">surface_energy</span> <span class="o">-</span> <span class="n">gb_energy</span> <span class="c1"># calculate the work of separation</span>
+                <span class="n">wsep</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">surface_energy</span> <span class="o">-</span> <span class="n">gb_energy</span>  <span class="c1"># calculate the work of separation</span>
                 <span class="n">gb_dict</span><span class="p">[</span><span class="s1">&#39;work_of_separation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wsep</span>
             <span class="k">return</span> <span class="n">list_of_gbs</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/grain_boundaries&quot;</span><span class="p">,</span>
-                                  <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span></div>
+                                      <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MPRester.get_interface_reactions"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_interface_reactions">[docs]</a>    <span class="k">def</span> <span class="nf">get_interface_reactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactant1</span><span class="p">,</span> <span class="n">reactant2</span><span class="p">,</span>
                                 <span class="n">open_el</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1357,6 +1373,53 @@
                    <span class="s2">&quot;use_hull_energy&quot;</span><span class="p">:</span> <span class="n">use_hull_energy</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/interface_reactions&quot;</span><span class="p">,</span>
                                   <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MPRester.get_download_info"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_download_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_download_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_ids</span><span class="p">,</span> <span class="n">task_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_patterns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get a list of URLs to retrieve raw VASP output files from the NoMaD repository</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_ids (list): list of material identifiers (mp-id&#39;s)</span>
+<span class="sd">            task_types (list): list of task types to include in download (see TaskType Enum class)</span>
+<span class="sd">            file_patterns (list): list of wildcard file names to include for each task</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a tuple of 1) a dictionary mapping material_ids to task_ids and</span>
+<span class="sd">            task_types, and 2) a list of URLs to download zip archives from</span>
+<span class="sd">            NoMaD repository. Each zip archive will contain a manifest.json with</span>
+<span class="sd">            metadata info, e.g. the task/external_ids that belong to a directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># task_id&#39;s correspond to NoMaD external_id&#39;s</span>
+        <span class="n">task_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">task_types</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">TaskType</span><span class="p">)]</span> <span class="k">if</span> <span class="n">task_types</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">({</span><span class="s1">&#39;material_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">material_ids</span><span class="p">}},</span>
+                              <span class="p">[</span><span class="s1">&#39;material_id&#39;</span><span class="p">,</span> <span class="s1">&#39;blessed_tasks&#39;</span><span class="p">]):</span>
+
+            <span class="k">for</span> <span class="n">task_type</span><span class="p">,</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;blessed_tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">task_types</span> <span class="ow">and</span> <span class="n">task_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">task_types</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">meta</span><span class="p">[</span><span class="n">doc</span><span class="p">[</span><span class="s2">&quot;material_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s1">&#39;task_id&#39;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">,</span> <span class="s1">&#39;task_type&#39;</span><span class="p">:</span> <span class="n">task_type</span><span class="p">}</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No tasks found.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># return a list of URLs for NoMaD Downloads containing the list of files</span>
+        <span class="c1"># for every external_id in `task_ids`</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?&#39;</span>
+        <span class="k">if</span> <span class="n">file_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">file_pattern</span> <span class="ow">in</span> <span class="n">file_patterns</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;file_pattern=</span><span class="si">{</span><span class="n">file_pattern</span><span class="si">}</span><span class="s1">&amp;&#39;</span>
+        <span class="n">prefix</span> <span class="o">+=</span> <span class="s1">&#39;external_id=&#39;</span>
+
+        <span class="c1"># NOTE: IE has 2kb URL char limit</span>
+        <span class="n">nmax</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">2000</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span> <span class="o">/</span> <span class="mi">11</span><span class="p">)</span>  <span class="c1"># mp-&lt;7-digit&gt; + , = 11</span>
+        <span class="n">task_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">tl</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">]</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">get_chunks</span><span class="p">(</span><span class="n">task_ids</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nmax</span><span class="p">)</span>
+        <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tids</span><span class="p">)</span> <span class="k">for</span> <span class="n">tids</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">urls</span></div>
 
 <div class="viewcode-block" id="MPRester.parse_criteria"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.parse_criteria">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">parse_criteria</span><span class="p">(</span><span class="n">criteria_string</span><span class="p">):</span>
@@ -1443,22 +1506,8 @@
     <span class="k">pass</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1471,15 +1520,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.ext.matproj</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

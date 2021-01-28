@@ -2,20 +2,23 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-from math import sin, cos, asin, pi, degrees, radians
-import os
-
-import numpy as np
-import json
-
-from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
-    get_unique_families
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 """
 This module implements a neutron diffraction (ND) pattern calculator.
 """
+
+import json
+import os
+from math import asin, cos, degrees, pi, radians, sin
+
+import numpy as np
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from .core import (
+    AbstractDiffractionPatternCalculator,
+    DiffractionPattern,
+    get_unique_families,
+)
 
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -24,9 +27,9 @@ __maintainer__ = "Yuta Suzuki"
 __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
-
-with open(os.path.join(os.path.dirname(__file__),
-                       "neutron_scattering_length.json")) as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")
+) as f:
     # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
     ATOMIC_SCATTERING_LEN = json.load(f)
 
@@ -37,6 +40,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     This code is a slight modification of XRDCalculator in
     pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
     Main changes by using neutron instead of X-ray are as follows:
+
     1. Atomic scattering length is a constant.
     2. Polarization correction term of Lorentz factor is unnecessary.
 
@@ -46,8 +50,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
     """
 
-    def __init__(self, wavelength=1.54184, symprec=0,
-                 debye_waller_factors=None):
+    def __init__(self, wavelength=1.54184, symprec=0, debye_waller_factors=None):
         """
         Initializes the ND calculator with a given radiation.
 
@@ -92,13 +95,15 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
         # Obtained from Bragg condition. Note that reciprocal lattice
         # vector length is 1 / d_hkl.
-        min_r, max_r = (0, 2 / wavelength) if two_theta_range is None else \
-            [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
+        min_r, max_r = (
+            (0, 2 / wavelength)
+            if two_theta_range is None
+            else [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
+        )
 
         # Obtain crystallographic reciprocal lattice points within range
         recip_latt = latt.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere(
-            [[0, 0, 0]], [0, 0, 0], max_r)
+        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
@@ -117,9 +122,11 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 try:
                     c = ATOMIC_SCATTERING_LEN[sp.symbol]
                 except KeyError:
-                    raise ValueError("Unable to calculate ND pattern as "
-                                     "there is no scattering coefficients for"
-                                     " %s." % sp.symbol)
+                    raise ValueError(
+                        "Unable to calculate ND pattern as "
+                        "there is no scattering coefficients for"
+                        " %s." % sp.symbol
+                    )
                 coeffs.append(c)
                 dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
                 fcoords.append(site.frac_coords)
@@ -133,7 +140,8 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         two_thetas = []
 
         for hkl, g_hkl, ind, _ in sorted(
-                recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
+            recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])
+        ):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
@@ -148,7 +156,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * (s**2))
+                dw_correction = np.exp(-dwfactors * (s ** 2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
@@ -157,8 +165,9 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(coeffs * occus * np.exp(2j * pi * g_dot_r)
-                               * dw_correction)
+                f_hkl = np.sum(
+                    coeffs * occus * np.exp(2j * pi * g_dot_r) * dw_correction
+                )
 
                 # Lorentz polarization correction for hkl
                 lorentz_factor = 1 / (sin(theta) ** 2 * cos(theta))
@@ -170,16 +179,16 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
 
                 if is_hex:
                     # Use Miller-Bravais indices for hexagonal lattices.
-                    hkl = (hkl[0], hkl[1], - hkl[0] - hkl[1], hkl[2])
+                    hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
                 # Deal with floating point precision issues.
-                ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
-                               self.TWO_THETA_TOL)
+                ind = np.where(
+                    np.abs(np.subtract(two_thetas, two_theta)) < self.TWO_THETA_TOL
+                )
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
                 else:
-                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)],
-                                        d_hkl]
+                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
@@ -194,10 +203,11 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
             if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v[0])
-                hkls.append(fam)
+                hkls.append(
+                    [{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()]
+                )
                 d_hkls.append(v[2])
         nd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:
             nd.normalize(mode="max", value=100)
         return nd
-

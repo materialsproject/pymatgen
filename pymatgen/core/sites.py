@@ -2,29 +2,22 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import collections
-import numpy as np
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
-    get_el_sp
-from monty.json import MSONable
-from pymatgen.util.coord import pbc_diff
-from pymatgen.core.composition import Composition
-from monty.dev import deprecated
-
 """
 This module defines classes representing non-periodic and periodic sites.
 """
 
+import collections
+import json
+from typing import Dict, List, Tuple, Union
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 17, 2012"
+import numpy as np
+from monty.dev import deprecated
+from monty.json import MontyDecoder, MontyEncoder, MSONable
+
+from pymatgen.core.composition import Composition
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
+from pymatgen.util.coord import pbc_diff
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -38,49 +31,59 @@ class Site(collections.abc.Hashable, MSONable):
 
     position_atol = 1e-5
 
-    def __init__(self, atoms_n_occu, coords, properties=None):
+    def __init__(
+        self,
+        species: Union[str, Element, Species, DummySpecies, Dict, Composition],
+        coords: Union[Tuple, List, np.ndarray],
+        properties: dict = None,
+        skip_checks: bool = False,
+    ):
         """
-        Create a *non-periodic* site.
+        Creates a non-periodic Site.
 
-        Args:
-            atoms_n_occu: Species on the site. Can be:
-                i.  A Composition object (preferred)
-                ii. An  element / specie specified either as a string
-                    symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                    e.g., 3, 56, or actual Element or Specie objects.
-                iii.Dict of elements/species and occupancies, e.g.,
-                    {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
-                    disordered structures.
-            coords: Cartesian coordinates of site.
-            properties: Properties associated with the site as a dict, e.g.
-                {"magmom": 5}. Defaults to None.
+        :param species: Species on the site. Can be:
+            i.  A Composition-type object (preferred)
+            ii. An  element / species specified either as a string
+                symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
+                e.g., 3, 56, or actual Element or Species objects.
+            iii.Dict of elements/species and occupancies, e.g.,
+                {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
+                disordered structures.
+        :param coords: Cartesian coordinates of site.
+        :param properties: Properties associated with the site as a dict, e.g.
+            {"magmom": 5}. Defaults to None.
+        :param skip_checks: Whether to ignore all the usual checks and just
+            create the site. Use this if the Site is created in a controlled
+            manner and speed is desired.
         """
-        if isinstance(atoms_n_occu, Composition):
-            # Compositions are immutable, so don't need to copy (much faster)
-            species = atoms_n_occu
-        else:
-            try:
-                species = Composition({get_el_sp(atoms_n_occu): 1})
-            except TypeError:
-                species = Composition(atoms_n_occu)
-        totaloccu = species.num_atoms
-        if totaloccu > 1 + Composition.amount_tolerance:
-            raise ValueError("Species occupancies sum to more than 1!")
+        if not skip_checks:
+            if not isinstance(species, Composition):
+                try:
+                    species = Composition({get_el_sp(species): 1})
+                except TypeError:
+                    species = Composition(species)
+            totaloccu = species.num_atoms
+            if totaloccu > 1 + Composition.amount_tolerance:
+                raise ValueError("Species occupancies sum to more than 1!")
+            coords = np.array(coords)
         self._species = species
-        self.coords = np.array(coords)
+        self.coords = coords
         self.properties = properties or {}
 
     def __getattr__(self, a):
         # overriding getattr doens't play nice with pickle, so we
         # can't use self._properties
-        p = object.__getattribute__(self, 'properties')
+        p = object.__getattribute__(self, "properties")
         if a in p:
             return p[a]
         raise AttributeError(a)
 
     @property
-    def species(self):
-        return self._species
+    def species(self) -> Composition:
+        """
+        :return: The species on the site as a composition, e.g., Fe0.5Mn0.5.
+        """
+        return self._species  # type: ignore
 
     @species.setter
     def species(self, species):
@@ -102,8 +105,8 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[0]
 
     @x.setter
-    def x(self, x):
-        self.coords[0] = x
+    def x(self, x: float):
+        self.coords[0] = x  # type: ignore
 
     @property
     def y(self):
@@ -113,8 +116,8 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[1]
 
     @y.setter
-    def y(self, y):
-        self.coords[1] = y
+    def y(self, y: float):
+        self.coords[1] = y  # type: ignore
 
     @property
     def z(self):
@@ -124,8 +127,8 @@ class Site(collections.abc.Hashable, MSONable):
         return self.coords[2]
 
     @z.setter
-    def z(self, z):
-        self.coords[2] = z
+    def z(self, z: float):
+        self.coords[2] = z  # type: ignore
 
     def distance(self, other):
         """
@@ -158,13 +161,15 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if self.is_ordered:
             return list(self.species.keys())[0].__str__()
-        else:
-            sorted_species = sorted(self.species.keys())
-            return ", ".join(["{}:{:.3f}".format(sp, self.species[sp])
-                              for sp in sorted_species])
+        sorted_species = sorted(self.species.keys())
+        return ", ".join(
+            ["{}:{:.3f}".format(sp, self.species[sp]) for sp in sorted_species]
+        )
 
-    @property
-    @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
+    @property  # type: ignore
+    @deprecated(
+        message="Use site.species instead. This will be deprecated with effect from pymatgen 2020."
+    )
     def species_and_occu(self):
         """
         The species at the site, i.e., a Composition mapping type of
@@ -175,16 +180,17 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def specie(self):
         """
-        The Specie/Element at the site. Only works for ordered sites. Otherwise
+        The Species/Element at the site. Only works for ordered sites. Otherwise
         an AttributeError is raised. Use this property sparingly.  Robust
-        design should make use of the property species_and_occu instead.
+        design should make use of the property species instead. Note that the
+        singular of species is also species. So the choice of this variable
+        name is governed by programmatic concerns as opposed to grammar.
 
         Raises:
             AttributeError if Site is not ordered.
         """
         if not self.is_ordered:
-            raise AttributeError("specie property only works for ordered "
-                                 "sites!")
+            raise AttributeError("specie property only works for ordered " "sites!")
         return list(self.species.keys())[0]
 
     @property
@@ -210,10 +216,11 @@ class Site(collections.abc.Hashable, MSONable):
         """
         if other is None:
             return False
-        return (self.species == other.species and
-                np.allclose(self.coords, other.coords,
-                            atol=Site.position_atol) and
-                self.properties == other.properties)
+        return (
+            self.species == other.species
+            and np.allclose(self.coords, other.coords, atol=Site.position_atol)
+            and self.properties == other.properties
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -230,7 +237,8 @@ class Site(collections.abc.Hashable, MSONable):
 
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
-            self.species_string, *self.coords)
+            self.species_string, *self.coords
+        )
 
     def __lt__(self, other):
         """
@@ -262,31 +270,40 @@ class Site(collections.abc.Hashable, MSONable):
             del d["@class"]
             d["occu"] = occu
             species_list.append(d)
-        d = {"name": self.species_string, "species": species_list,
-             "xyz": [float(c) for c in self.coords],
-             "properties": self.properties,
-             "@module": self.__class__.__module__,
-             "@class": self.__class__.__name__}
+        d = {
+            "name": self.species_string,
+            "species": species_list,
+            "xyz": [float(c) for c in self.coords],
+            "properties": self.properties,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
         if self.properties:
             d["properties"] = self.properties
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict):
         """
         Create Site from dict representation
         """
         atoms_n_occu = {}
         for sp_occu in d["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(
-                    sp_occu["element"]):
-                sp = Specie.from_dict(sp_occu)
+                sp_occu["element"]
+            ):
+                sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
-                sp = DummySpecie.from_dict(sp_occu)
+                sp = DummySpecies.from_dict(sp_occu)
             else:
                 sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        if props is not None:
+            for key in props.keys():
+                props[key] = json.loads(
+                    json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder
+                )
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
@@ -296,58 +313,65 @@ class PeriodicSite(Site, MSONable):
     PeriodicSite includes a lattice system.
     """
 
-    def __init__(self, atoms_n_occu, coords, lattice, to_unit_cell=False,
-                 coords_are_cartesian=False, properties=None):
+    def __init__(
+        self,
+        species: Union[str, Element, Species, DummySpecies, Dict, Composition],
+        coords: Union[Tuple, List, np.ndarray],
+        lattice: Lattice,
+        to_unit_cell: bool = False,
+        coords_are_cartesian: bool = False,
+        properties: dict = None,
+        skip_checks: bool = False,
+    ):
         """
         Create a periodic site.
 
-        Args:
-            atoms_n_occu: Species on the site. Can be:
-
-                i.  A sequence of element / specie specified either as string
-                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
-                ii. List of dict of elements/species and occupancies, e.g.,
-                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
-                    disordered structures.
-            coords (3x1 array or sequence): Coordinates of site as fractional
-                or cartesian coordinates.
-            lattice: Lattice associated with the site
-            to_unit_cell (bool): Translates fractional coordinate to the
-                basic unit cell, i.e. all fractional coordinates satisfy 0
-                <= a < 1. Defaults to False.
-            coords_are_cartesian (bool): Set to True if you are providing
-                cartesian coordinates. Defaults to False.
-            properties (dict): Properties associated with the PeriodicSite,
-                e.g., {"magmom":5}. Defaults to None.
+        :param species: Species on the site. Can be:
+            i.  A Composition-type object (preferred)
+            ii. An  element / species specified either as a string
+                symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
+                e.g., 3, 56, or actual Element or Species objects.
+            iii.Dict of elements/species and occupancies, e.g.,
+                {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
+                disordered structures.
+        :param coords: Cartesian coordinates of site.
+        :param lattice: Lattice associated with the site.
+        :param to_unit_cell: Translates fractional coordinate to the
+            basic unit cell, i.e. all fractional coordinates satisfy 0
+            <= a < 1. Defaults to False.
+        :param coords_are_cartesian: Set to True if you are providing
+            cartesian coordinates. Defaults to False.
+        :param properties: Properties associated with the site as a dict, e.g.
+            {"magmom": 5}. Defaults to None.
+        :param skip_checks: Whether to ignore all the usual checks and just
+            create the site. Use this if the PeriodicSite is created in a
+            controlled manner and speed is desired.
         """
+
         if coords_are_cartesian:
             frac_coords = lattice.get_fractional_coords(coords)
-            cart_coords = coords
         else:
-            frac_coords = np.array(coords)
-            cart_coords = lattice.get_cartesian_coords(coords)
+            frac_coords = coords
 
         if to_unit_cell:
             frac_coords = np.mod(frac_coords, 1)
-            cart_coords = lattice.get_cartesian_coords(frac_coords)
-        if isinstance(atoms_n_occu, Composition):
-            # Compositions are immutable, so don't need to copy (much faster)
-            species = atoms_n_occu
-        else:
-            try:
-                species = Composition({get_el_sp(atoms_n_occu): 1})
-            except TypeError:
-                species = Composition(atoms_n_occu)
 
-        totaloccu = species.num_atoms
-        if totaloccu > 1 + Composition.amount_tolerance:
-            raise ValueError("Species occupancies sum to more than 1!")
+        if not skip_checks:
+            frac_coords = np.array(frac_coords)
+            if not isinstance(species, Composition):
+                try:
+                    species = Composition({get_el_sp(species): 1})
+                except TypeError:
+                    species = Composition(species)
+
+            totaloccu = species.num_atoms
+            if totaloccu > 1 + Composition.amount_tolerance:
+                raise ValueError("Species occupancies sum to more than 1!")
 
         self._lattice = lattice
         self._frac_coords = frac_coords
         self._species = species
-        self._coords = np.array(cart_coords)
+        self._coords = None
         self.properties = properties or {}
 
     def __hash__(self):
@@ -365,18 +389,20 @@ class PeriodicSite(Site, MSONable):
         return self._lattice
 
     @lattice.setter
-    def lattice(self, lattice):
+    def lattice(self, lattice: Lattice):
         """
         Sets Lattice associated with PeriodicSite
         """
         self._lattice = lattice
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
-    @property
-    def coords(self):
+    @property  # type: ignore
+    def coords(self) -> np.ndarray:  # type: ignore
         """
         Cartesian coordinates
         """
+        if self._coords is None:
+            self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
         return self._coords
 
     @coords.setter
@@ -387,8 +413,8 @@ class PeriodicSite(Site, MSONable):
         self._coords = np.array(coords)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
 
-    @property
-    def frac_coords(self):
+    @property  # type: ignore
+    def frac_coords(self) -> np.ndarray:
         """
         Fractional coordinates
         """
@@ -443,11 +469,11 @@ class PeriodicSite(Site, MSONable):
         """
         Cartesian x coordinate
         """
-        return self._coords[0]
+        return self.coords[0]
 
     @x.setter
     def x(self, x):
-        self._coords[0] = x
+        self.coords[0] = x
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     @property
@@ -455,11 +481,11 @@ class PeriodicSite(Site, MSONable):
         """
         Cartesian y coordinate
         """
-        return self._coords[1]
+        return self.coords[1]
 
     @y.setter
     def y(self, y):
-        self._coords[1] = y
+        self.coords[1] = y
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     @property
@@ -467,11 +493,11 @@ class PeriodicSite(Site, MSONable):
         """
         Cartesian z coordinate
         """
-        return self._coords[2]
+        return self.coords[2]
 
     @z.setter
     def z(self, z):
-        self._coords[2] = z
+        self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
     def to_unit_cell(self, in_place=False):
@@ -481,9 +507,10 @@ class PeriodicSite(Site, MSONable):
         frac_coords = np.mod(self.frac_coords, 1)
         if in_place:
             self.frac_coords = frac_coords
-        else:
-            return PeriodicSite(self.species, frac_coords, self.lattice,
-                                properties=self.properties)
+            return None
+        return PeriodicSite(
+            self.species, frac_coords, self.lattice, properties=self.properties
+        )
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
@@ -507,11 +534,12 @@ class PeriodicSite(Site, MSONable):
         return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
     def __eq__(self, other):
-        return self.species == other.species and \
-               self.lattice == other.lattice and \
-               np.allclose(self.coords, other.coords,
-                           atol=Site.position_atol) and \
-               self.properties == other.properties
+        return (
+            self.species == other.species
+            and self.lattice == other.lattice
+            and np.allclose(self.coords, other.coords, atol=Site.position_atol)
+            and self.properties == other.properties
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -537,8 +565,9 @@ class PeriodicSite(Site, MSONable):
             (distance, jimage): distance and periodic lattice translations
             of the other site for which the distance applies.
         """
-        return self.lattice.get_distance_and_image(self.frac_coords, fcoords,
-                                                   jimage=jimage)
+        return self.lattice.get_distance_and_image(
+            self.frac_coords, fcoords, jimage=jimage
+        )
 
     def distance_and_image(self, other, jimage=None):
         """
@@ -579,10 +608,16 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " \
-               "{:.4f}]".format(self.species_string, self.coords[0],
-                                self.coords[1], self.coords[2],
-                                *self._frac_coords)
+        return (
+            "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, "
+            "{:.4f}]".format(
+                self.species_string,
+                self.coords[0],
+                self.coords[1],
+                self.coords[2],
+                *self._frac_coords
+            )
+        )
 
     def as_dict(self, verbosity=0):
         """
@@ -601,17 +636,20 @@ class PeriodicSite(Site, MSONable):
             d["occu"] = occu
             species_list.append(d)
 
-        d = {"species": species_list,
-             "abc": [float(c) for c in self._frac_coords],
-             "lattice": self._lattice.as_dict(verbosity=verbosity),
-             "@module": self.__class__.__module__,
-             "@class": self.__class__.__name__}
+        d = {
+            "species": species_list,
+            "abc": [float(c) for c in self._frac_coords],
+            "lattice": self._lattice.as_dict(verbosity=verbosity),
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
         if verbosity > 0:
             d["xyz"] = [float(c) for c in self.coords]
             d["label"] = self.species_string
 
         d["properties"] = self.properties
+
         return d
 
     @classmethod
@@ -628,16 +666,22 @@ class PeriodicSite(Site, MSONable):
         Returns:
             PeriodicSite
         """
-        atoms_n_occu = {}
+        species = {}
         for sp_occu in d["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(
-                    sp_occu["element"]):
-                sp = Specie.from_dict(sp_occu)
+                sp_occu["element"]
+            ):
+                sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
-                sp = DummySpecie.from_dict(sp_occu)
+                sp = DummySpecies.from_dict(sp_occu)
             else:
                 sp = Element(sp_occu["element"])
-            atoms_n_occu[sp] = sp_occu["occu"]
+            species[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        if props is not None:
+            for key in props.keys():
+                props[key] = json.loads(
+                    json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder
+                )
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
-        return cls(atoms_n_occu, d["abc"], lattice, properties=props)
+        return cls(species, d["abc"], lattice, properties=props)

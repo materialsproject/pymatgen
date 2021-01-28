@@ -2,24 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 """
 Module containing class to create an ion
 """
 
-__author__ = "Sai Jayaraman"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.0"
-__maintainer__ = "Sai Jayaraman"
-__email__ = "sjayaram@mit.edu"
-__status__ = "Production"
-__date__ = "Dec 10, 2012"
-
 import re
+from copy import deepcopy
+
 import numpy as np
+from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
-from monty.json import MSONable
 from pymatgen.util.string import formula_double_format
 
 
@@ -30,6 +23,7 @@ class Ion(Composition, MSONable):
     The net charge can either be represented as Mn++, or Mn+2, or Mn[2+].
     Note the order of the sign and magnitude in each representation.
     """
+
     def __init__(self, composition, charge=0.0, properties=None):
         """
         Flexible Ion construction, similar to Composition.
@@ -39,7 +33,13 @@ class Ion(Composition, MSONable):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula):
+    def from_formula(cls, formula: str) -> "Ion":
+        """
+        Creates Ion from formula.
+
+        :param formula:
+        :return: Ion
+        """
         charge = 0.0
         f = formula
         m = re.search(r"\[([^\[\]]+)\]", f)
@@ -47,8 +47,7 @@ class Ion(Composition, MSONable):
             m_chg = re.search(r"([\.\d]*)([+-])", m.group(1))
             if m_chg:
                 if m_chg.group(1) != "":
-                    charge += float(m_chg.group(1)) * \
-                        (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
                 else:
                     charge += float(m_chg.group(2) + "1")
             f = f.replace(m.group(), "", 1)
@@ -90,9 +89,9 @@ class Ion(Composition, MSONable):
         chg = self._charge
         chg_str = ""
         if chg > 0:
-            chg_str += ("{}{}".format('+', str(int(chg))))
+            chg_str += "{}{}".format("+", str(int(chg)))
         elif chg < 0:
-            chg_str += ("{}{}".format('-', str(int(np.abs(chg)))))
+            chg_str += "{}{}".format("-", str(int(np.abs(chg))))
         return anon_formula + chg_str
 
     @property
@@ -111,8 +110,7 @@ class Ion(Composition, MSONable):
             if abs(charge) == 1:
                 chg_str = "[-]"
             else:
-                chg_str = "[{}-]".format(formula_double_format(abs(charge),
-                                                               False))
+                chg_str = "[{}-]".format(formula_double_format(abs(charge), False))
         else:
             chg_str = "(aq)"
         return reduced_formula + chg_str
@@ -143,7 +141,7 @@ class Ion(Composition, MSONable):
             dict with composition, as well as charge
         """
         d = super().as_dict()
-        d['charge'] = self.charge
+        d["charge"] = self.charge
         return d
 
     @classmethod
@@ -155,8 +153,9 @@ class Ion(Composition, MSONable):
             d:
                 {symbol: amount} dict.
         """
-        charge = d.pop('charge')
-        composition = Composition(d)
+        input = deepcopy(d)
+        charge = input.pop("charge")
+        composition = Composition(input)
         return Ion(composition, charge)
 
     @property
@@ -167,11 +166,12 @@ class Ion(Composition, MSONable):
             {"Fe": 2.0, "O":3.0}.
         """
         d = self.composition.to_reduced_dict
-        d['charge'] = self.charge
+        d["charge"] = self.charge
         return d
 
     @property
     def composition(self):
+        """Composition of ion."""
         return Composition(self._data)
 
     def __eq__(self, other):

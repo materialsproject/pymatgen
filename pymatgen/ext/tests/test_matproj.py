@@ -1,45 +1,36 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import platform
+import random
 import re
 import unittest
 import warnings
-import random
-import sys
-from pymatgen import SETTINGS, __version__ as pmg_version
-from pymatgen.ext.matproj import MPRester, MPRestError
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure, Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine, BandStructure)
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+
+from pymatgen import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen import __version__ as pmg_version
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
-from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
+from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Composition, Structure
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructure,
+    BandStructureSymmLine,
+)
+from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
-"""
-Created on Jun 9, 2012
-"""
 
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jun 9, 2012"
-
-
-@unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
-                 "PMG_MAPI_KEY environment variable not set.")
+@unittest.skipIf(
+    not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
+)
 class MPResterTest(PymatgenTest):
     _multiprocess_shared_ = True
 
@@ -49,6 +40,7 @@ class MPResterTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+        self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -59,45 +51,98 @@ class MPResterTest(PymatgenTest):
     def test_get_xas_data(self):
         # Test getting XAS data
         data = self.rester.get_xas_data("mp-19017", "Li")
-        self.assertEqual("mp-19017,Li", data['mid_and_el'])
-        self.assertAlmostEqual(data['spectrum']['x'][0], 55.178, places=2)
-        self.assertAlmostEqual(data['spectrum']['y'][0], 0.0164634, places=2)
-        
-    def test_get_data(self):
-        props = ["energy", "energy_per_atom", "formation_energy_per_atom",
-                 "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
-                 "elements", "nelements", "e_above_hull", "hubbards",
-                 "is_compatible", "task_ids",
-                 "density", "icsd_ids", "total_magnetization"]
-        # unicode literals have been reintroduced in py>3.2
+        self.assertEqual("mp-19017,Li", data["mid_and_el"])
+        self.assertAlmostEqual(data["spectrum"]["x"][0], 55.178, places=2)
+        self.assertAlmostEqual(data["spectrum"]["y"][0], 0.0164634, places=2)
 
-        expected_vals = [-191.3359011, -6.833425039285714, -2.5515769497278913,
-                         28, {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4},
-                         "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
-                         {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}, True,
-                         {'mp-19017', 'mp-540081', 'mp-601412'},
-                         3.464840709092822,
-                         [159107, 154117, 160776, 99860, 181272, 166815,
-                          260571, 92198, 165000, 155580, 38209, 161479, 153699,
-                          260569, 260570, 200155, 260572, 181341, 181342,
-                          72545, 56291, 97764, 162282, 155635],
-                         15.9996841]
+    def test_get_data(self):
+        props = [
+            "energy",
+            "energy_per_atom",
+            "formation_energy_per_atom",
+            "nsites",
+            "unit_cell_formula",
+            "pretty_formula",
+            "is_hubbard",
+            "elements",
+            "nelements",
+            "e_above_hull",
+            "hubbards",
+            "is_compatible",
+            "task_ids",
+            "density",
+            "icsd_ids",
+            "total_magnetization",
+        ]
+
+        expected_vals = [
+            -191.7661349,
+            -6.848790532142857,
+            -2.5571951564625857,
+            28,
+            {"P": 4, "Fe": 4, "O": 16, "Li": 4},
+            "LiFePO4",
+            True,
+            ["Li", "O", "P", "Fe"],
+            4,
+            0.0,
+            {"Fe": 5.3, "Li": 0.0, "O": 0.0, "P": 0.0},
+            True,
+            {"mp-19017", "mp-540081", "mp-601412"},
+            3.4708958823634912,
+            [
+                159107,
+                154117,
+                160776,
+                99860,
+                181272,
+                166815,
+                260571,
+                92198,
+                165000,
+                155580,
+                38209,
+                161479,
+                153699,
+                260569,
+                260570,
+                200155,
+                260572,
+                181341,
+                181342,
+                72545,
+                56291,
+                97764,
+                162282,
+                155635,
+            ],
+            0,
+        ]
 
         for (i, prop) in enumerate(props):
-            if prop not in ['hubbards', 'unit_cell_formula', 'elements',
-                            'icsd_ids', 'task_ids']:
+            if prop not in [
+                "hubbards",
+                "unit_cell_formula",
+                "elements",
+                "icsd_ids",
+                "task_ids",
+            ]:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                self.assertAlmostEqual(expected_vals[i], val, places=2)
+                self.assertAlmostEqual(
+                    expected_vals[i], val, 2, "Failed with property %s" % prop
+                )
             elif prop in ["elements", "icsd_ids", "task_ids"]:
                 upstream_vals = set(
-                    self.rester.get_data("mp-19017", prop=prop)[0][prop])
+                    self.rester.get_data("mp-19017", prop=prop)[0][prop]
+                )
                 self.assertLessEqual(set(expected_vals[i]), upstream_vals)
             else:
-                self.assertEqual(expected_vals[i],
-                                 self.rester.get_data("mp-19017",
-                                                      prop=prop)[0][prop])
+                self.assertEqual(
+                    expected_vals[i],
+                    self.rester.get_data("mp-19017", prop=prop)[0][prop],
+                )
 
-        props = ['structure', 'initial_structure', 'final_structure', 'entry']
+        props = ["structure", "initial_structure", "final_structure", "entry"]
         for prop in props:
             obj = self.rester.get_data("mp-19017", prop=prop)[0][prop]
             if prop.endswith("structure"):
@@ -107,18 +152,16 @@ class MPResterTest(PymatgenTest):
                 self.assertIsInstance(obj, ComputedEntry)
 
         # Test chemsys search
-        data = self.rester.get_data('Fe-Li-O', prop='unit_cell_formula')
+        data = self.rester.get_data("Fe-Li-O", prop="unit_cell_formula")
         self.assertTrue(len(data) > 1)
         elements = {Element("Li"), Element("Fe"), Element("O")}
         for d in data:
             self.assertTrue(
-                set(Composition(d['unit_cell_formula']).elements).issubset(
-                    elements))
+                set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
+            )
 
-        self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
-                          "badmethod")
+        self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3", "badmethod")
 
-    def test_get_data(self):
         # Test getting supported properties
         self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
         # Test aliasing
@@ -126,19 +169,20 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
 
     def test_get_materials_id_from_task_id(self):
-        self.assertEqual(self.rester.get_materials_id_from_task_id(
-            "mp-540081"), "mp-19017")
+        self.assertEqual(
+            self.rester.get_materials_id_from_task_id("mp-540081"), "mp-19017"
+        )
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_get_materials_id_references
         m = MPRester()
-        data = m.get_materials_id_references('mp-123')
+        data = m.get_materials_id_references("mp-123")
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_find_structure
         m = MPRester()
-        ciffile = self.TEST_FILES_DIR / 'Fe3O4.cif'
+        ciffile = self.TEST_FILES_DIR / "Fe3O4.cif"
         data = m.find_structure(str(ciffile))
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
@@ -147,15 +191,29 @@ class MPResterTest(PymatgenTest):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
+        syms2 = "Li-Fe-O"
         entries = self.rester.get_entries_in_chemsys(syms)
+        entries2 = self.rester.get_entries_in_chemsys(syms2)
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
             self.assertTrue(set(e.composition.elements).issubset(elements))
 
+        e1 = set([i.entry_id for i in entries])
+        e2 = set([i.entry_id for i in entries2])
+        self.assertTrue(e1 == e2)
+
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
+
+        # requesting via task-id instead of mp-id
+        self.assertWarns(Warning, self.rester.get_structure_by_material_id, "mp-698856")
+
+        # requesting unknown mp-id
+        self.assertRaises(
+            MPRestError, self.rester.get_structure_by_material_id, "mp-does-not-exist"
+        )
 
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
@@ -163,26 +221,23 @@ class MPResterTest(PymatgenTest):
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
     def test_query(self):
-        criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
-        props = ['pretty_formula', 'energy']
-        data = self.rester.query(
-            criteria=criteria, properties=props, chunk_size=0)
+        criteria = {"elements": {"$in": ["Li", "Na", "K"], "$all": ["O"]}}
+        props = ["pretty_formula", "energy"]
+        data = self.rester.query(criteria=criteria, properties=props, chunk_size=0)
         self.assertTrue(len(data) > 6)
-        data = self.rester.query(
-            criteria="*2O", properties=props, chunk_size=0)
+        data = self.rester.query(criteria="*2O", properties=props, chunk_size=0)
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
 
     def test_query_chunk_size(self):
         criteria = {"nelements": 2, "elements": "O"}
-        props = ['pretty_formula']
-        data1 = self.rester.query(
-            criteria=criteria, properties=props, chunk_size=0)
-        data2 = self.rester.query(
-            criteria=criteria, properties=props, chunk_size=500)
-        self.assertEqual({d['pretty_formula'] for d in data1},
-                         {d['pretty_formula'] for d in data2})
-        self.assertIn("Al2O3", {d['pretty_formula'] for d in data1})
+        props = ["pretty_formula"]
+        data1 = self.rester.query(criteria=criteria, properties=props, chunk_size=0)
+        data2 = self.rester.query(criteria=criteria, properties=props, chunk_size=500)
+        self.assertEqual(
+            {d["pretty_formula"] for d in data1}, {d["pretty_formula"] for d in data2}
+        )
+        self.assertIn("Al2O3", {d["pretty_formula"] for d in data1})
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -198,7 +253,8 @@ class MPResterTest(PymatgenTest):
         bs = self.rester.get_bandstructure_by_material_id("mp-2254")
         self.assertIsInstance(bs, BandStructureSymmLine)
         bs_unif = self.rester.get_bandstructure_by_material_id(
-            "mp-2254", line_mode=False)
+            "mp-2254", line_mode=False
+        )
         self.assertIsInstance(bs_unif, BandStructure)
         self.assertNotIsInstance(bs_unif, BandStructureSymmLine)
 
@@ -228,9 +284,9 @@ class MPResterTest(PymatgenTest):
         # all_entries = self.rester.get_entries("Fe", compatible_only=False)
         # entries = self.rester.get_entries("Fe", compatible_only=True)
         # self.assertTrue(len(entries) < len(all_entries))
-
-        entries = self.rester.get_entries("Fe", compatible_only=True,
-                                          property_data=["cif"])
+        entries = self.rester.get_entries(
+            "Fe", compatible_only=True, property_data=["cif"]
+        )
         self.assertIn("cif", entries[0].data)
 
         for e in self.rester.get_entries("CdO2", inc_structure=False):
@@ -238,7 +294,8 @@ class MPResterTest(PymatgenTest):
 
         # test if it will retrieve the conventional unit cell of Ni
         entry = self.rester.get_entry_by_material_id(
-            "mp-23", inc_structure=True, conventional_unit_cell=True)
+            "mp-23", inc_structure=True, conventional_unit_cell=True
+        )
         Ni = entry.structure
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
@@ -248,11 +305,13 @@ class MPResterTest(PymatgenTest):
 
         # Ensure energy per atom is same
         primNi = self.rester.get_entry_by_material_id(
-            "mp-23", inc_structure=True, conventional_unit_cell=False)
+            "mp-23", inc_structure=True, conventional_unit_cell=False
+        )
         self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
 
         Ni = self.rester.get_structure_by_material_id(
-            "mp-23", conventional_unit_cell=True)
+            "mp-23", conventional_unit_cell=True
+        )
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
         self.assertEqual(Ni.lattice.alpha, 90)
@@ -260,15 +319,15 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(Ni.lattice.gamma, 90)
 
         # Test case where convs are different from initial and final
-        th = self.rester.get_structure_by_material_id(
-            "mp-37", conventional_unit_cell=True)
-        th_entry = self.rester.get_entry_by_material_id(
-            "mp-37", inc_structure=True, conventional_unit_cell=True)
-        th_entry_initial = self.rester.get_entry_by_material_id(
-            "mp-37", inc_structure="initial", conventional_unit_cell=True)
-        self.assertEqual(th, th_entry.structure)
-        self.assertEqual(len(th_entry.structure), 4)
-        self.assertEqual(len(th_entry_initial.structure), 2)
+        # th = self.rester.get_structure_by_material_id(
+        #     "mp-37", conventional_unit_cell=True)
+        # th_entry = self.rester.get_entry_by_material_id(
+        #     "mp-37", inc_structure=True, conventional_unit_cell=True)
+        # th_entry_initial = self.rester.get_entry_by_material_id(
+        #     "mp-37", inc_structure="initial", conventional_unit_cell=True)
+        # self.assertEqual(th, th_entry.structure)
+        # self.assertEqual(len(th_entry.structure), 4)
+        # self.assertEqual(len(th_entry_initial.structure), 2)
 
         # Test if the polymorphs of Fe are properly sorted
         # by e_above_hull when sort_by_e_above_hull=True
@@ -276,39 +335,46 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
     def test_get_pourbaix_entries(self):
+        # test input chemsys as a list of elements
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+
+        # test input chemsys as a string
+        pbx_entries = self.rester.get_pourbaix_entries("Fe-Cr")
+        for pbx_entry in pbx_entries:
+            self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+
+        fe_two_plus = [e for e in pbx_entries if e.entry_id == "ion-0"][0]
+        self.assertAlmostEqual(fe_two_plus.energy, -1.6228450214319294)
+
+        feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
+        self.assertAlmostEqual(feo2.energy, 4.424365035000003)
+
+        # Test S, which has Na in reference solids
+        pbx_entries = self.rester.get_pourbaix_entries(["S"])
+        so4_two_minus = pbx_entries[9]
+        self.assertAlmostEqual(so4_two_minus.energy, 0.0644980568750011)
+
         # Ensure entries are pourbaix compatible
-        pbx = PourbaixDiagram(pbx_entries)
-
-        # Try binary system
-        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        #pbx = PourbaixDiagram(pbx_entries)
-
-        # TODO: Shyue Ping: I do not understand this test. You seem to
-        # be grabbing Zn-S system, but I don't see proper test for anything,
-        # including Na ref. This test also takes a long time.
-
-        # Test Zn-S, which has Na in reference solids
-        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        PourbaixDiagram(pbx_entries)
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
 
-    def test_submit_query_delete_snl(self):
-        s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-        # d = self.rester.submit_snl(
-        #     [s, s], remarks=["unittest"],
-        #     authors="Test User <test@materialsproject.com>")
-        # self.assertEqual(len(d), 2)
-        # data = self.rester.query_snl({"about.remarks": "unittest"})
-        # self.assertEqual(len(data), 2)
-        # snlids = [d["_id"] for d in data]
-        # self.rester.delete_snl(snlids)
-        # data = self.rester.query_snl({"about.remarks": "unittest"})
-        # self.assertEqual(len(data), 0)
+    # def test_submit_query_delete_snl(self):
+    # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+    # d = self.rester.submit_snl(
+    #     [s, s], remarks=["unittest"],
+    #     authors="Test User <test@materialsproject.com>")
+    # self.assertEqual(len(d), 2)
+    # data = self.rester.query_snl({"about.remarks": "unittest"})
+    # self.assertEqual(len(data), 2)
+    # snlids = [d["_id"] for d in data]
+    # self.rester.delete_snl(snlids)
+    # data = self.rester.query_snl({"about.remarks": "unittest"})
+    # self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
         entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
@@ -318,10 +384,13 @@ class MPResterTest(PymatgenTest):
             # than the corresponding entries.
             if entry.composition.reduced_formula == "Fe2O3":
                 modified_entries.append(
-                    ComputedEntry(entry.composition,
-                                  entry.uncorrected_energy + 0.01,
-                                  parameters=entry.parameters,
-                                  entry_id="mod_{}".format(entry.entry_id)))
+                    ComputedEntry(
+                        entry.composition,
+                        entry.uncorrected_energy + 0.01,
+                        parameters=entry.parameters,
+                        entry_id="mod_{}".format(entry.entry_id),
+                    )
+                )
         rest_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
         compat = MaterialsProjectCompatibility()
@@ -333,23 +402,22 @@ class MPResterTest(PymatgenTest):
                     if d["entry_id"] == e.entry_id:
                         data = d
                         break
-                self.assertAlmostEqual(pd.get_e_above_hull(e),
-                                       data["e_above_hull"])
+                self.assertAlmostEqual(pd.get_e_above_hull(e), data["e_above_hull"])
 
     def test_get_reaction(self):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
         self.assertIn("Li2O", rxn["Experimental_references"])
 
     def test_get_substrates(self):
-        substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
-        substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
+        substrate_data = self.rester.get_substrates("mp-123", 5, [1, 0, 0])
+        substrates = [sub_dict["sub_id"] for sub_dict in substrate_data]
         self.assertIn("mp-2534", substrates)
 
     def test_get_surface_data(self):
-        data = self.rester.get_surface_data("mp-126") # Pt
-        one_surf = self.rester.get_surface_data('mp-129', miller_index=[-2, -3, 1])
-        self.assertAlmostEqual(one_surf['surface_energy'], 2.99156963, places=2)
-        self.assertArrayAlmostEqual(one_surf['miller_index'], [3, 2, 1])
+        data = self.rester.get_surface_data("mp-126")  # Pt
+        one_surf = self.rester.get_surface_data("mp-129", miller_index=[-2, -3, 1])
+        self.assertAlmostEqual(one_surf["surface_energy"], 2.99156963, places=2)
+        self.assertArrayAlmostEqual(one_surf["miller_index"], [3, 2, 1])
         self.assertIn("surfaces", data)
         surfaces = data["surfaces"]
         self.assertTrue(len(surfaces) > 0)
@@ -369,25 +437,28 @@ class MPResterTest(PymatgenTest):
         self.assertTrue(ecoh, 5.04543279)
 
     def test_get_gb_data(self):
-        mo_gbs = self.rester.get_gb_data(chemsys='Mo')
+        mo_gbs = self.rester.get_gb_data(chemsys="Mo")
         self.assertEqual(len(mo_gbs), 10)
-        mo_gbs_s5 = self.rester.get_gb_data(pretty_formula='Mo', sigma=5)
+        mo_gbs_s5 = self.rester.get_gb_data(pretty_formula="Mo", sigma=5)
         self.assertEqual(len(mo_gbs_s5), 3)
-        mo_s3_112 = self.rester.get_gb_data(material_id='mp-129', sigma=3,
-                                            gb_plane=[1, -1, -2],
-                                            include_work_of_separation=True)
+        mo_s3_112 = self.rester.get_gb_data(
+            material_id="mp-129",
+            sigma=3,
+            gb_plane=[1, -1, -2],
+            include_work_of_separation=True,
+        )
         self.assertEqual(len(mo_s3_112), 1)
-        gb_f = mo_s3_112[0]['final_structure']
+        gb_f = mo_s3_112[0]["final_structure"]
         self.assertArrayAlmostEqual(gb_f.rotation_axis, [1, 1, 0])
         self.assertAlmostEqual(gb_f.rotation_angle, 109.47122, places=4)
-        self.assertAlmostEqual(mo_s3_112[0]['gb_energy'], 0.47965, places=2)
-        self.assertAlmostEqual(mo_s3_112[0]['work_of_separation'], 6.318144, places=2)
+        self.assertAlmostEqual(mo_s3_112[0]["gb_energy"], 0.47965, places=2)
+        self.assertAlmostEqual(mo_s3_112[0]["work_of_separation"], 6.318144, places=2)
         self.assertIn("Mo24", gb_f.formula)
-        hcp_s7 = self.rester.get_gb_data(material_id='mp-87', gb_plane=[0, 0, 0, 1],
-                                         include_work_of_separation=True)
-        self.assertAlmostEqual(hcp_s7[0]['gb_energy'], 1.12, places=2)
-        self.assertAlmostEqual(hcp_s7[0]['work_of_separation'], 2.46, places=2)
-
+        hcp_s7 = self.rester.get_gb_data(
+            material_id="mp-87", gb_plane=[0, 0, 0, 1], include_work_of_separation=True
+        )
+        self.assertAlmostEqual(hcp_s7[0]["gb_energy"], 1.12, places=2)
+        self.assertAlmostEqual(hcp_s7[0]["work_of_separation"], 2.47, places=2)
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
@@ -396,14 +467,40 @@ class MPResterTest(PymatgenTest):
         self.assertIn("energy", kink)
         self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
-        self.assertTrue(isinstance(kink['rxn'], Reaction))
+        self.assertTrue(isinstance(kink["rxn"], Reaction))
         kinks_open_O = self.rester.get_interface_reactions(
-            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
+            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1
+        )
         self.assertTrue(len(kinks_open_O) > 0)
         with warnings.catch_warnings(record=True) as w:
             warnings.filterwarnings("always", message="The reactant.+")
             self.rester.get_interface_reactions("LiCoO2", "MnO9")
             self.assertTrue("The reactant" in str(w[-1].message))
+
+    def test_download_info(self):
+        material_ids = ["mp-32800", "mp-23494"]
+        task_types = [TaskType.GGA_OPT, TaskType.GGA_UNIFORM]
+        file_patterns = ["vasprun*", "OUTCAR*"]
+        meta, urls = self.rester.get_download_info(
+            material_ids, task_types=task_types, file_patterns=file_patterns
+        )
+        self.assertDictEqual(
+            dict(meta),
+            {
+                "mp-23494": [
+                    {"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}
+                ],
+                "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
+            },
+        )
+        prefix = "http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?"
+        # previous test
+        # ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
+        ids = "mp-1752825,mp-739635"
+        self.assertEqual(
+            urls[0],
+            f"{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}",
+        )
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
@@ -428,7 +525,7 @@ class MPResterTest(PymatgenTest):
         comps = MPRester.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
         self.assertEqual(len(comps), 3, comps)
 
-        #Let's test some invalid symbols
+        # Let's test some invalid symbols
 
         self.assertRaises(ValueError, MPRester.parse_criteria, "li-fe")
         self.assertRaises(ValueError, MPRester.parse_criteria, "LO2")
@@ -440,16 +537,30 @@ class MPResterTest(PymatgenTest):
         headers = self.rester.session.headers
         self.assertIn("user-agent", headers, msg="Include user-agent header by default")
         m = re.match(
-            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
-            headers['user-agent'])
-        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers['user-agent']))
-        self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
-        self.assertEqual(
-            m.groups()[3:6],
-            tuple(str(n) for n in (sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+            r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            headers["user-agent"],
         )
+        self.assertIsNotNone(
+            m, msg="Unexpected user-agent value {}".format(headers["user-agent"])
+        )
+        self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
         self.rester = MPRester(include_user_agent=False)
-        self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
+        self.assertNotIn(
+            "user-agent", self.rester.session.headers, msg="user-agent header unwanted"
+        )
+
+    def test_database_version(self):
+
+        with MPRester(notify_db_version=True) as mpr:
+            db_version = mpr.get_database_version()
+
+        self.assertIsInstance(db_version, str)
+
+        with open(SETTINGS_FILE, "rt") as f:
+            d = yaml.safe_load(f)
+
+        self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
+        self.assertIsInstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
 
 if __name__ == "__main__":

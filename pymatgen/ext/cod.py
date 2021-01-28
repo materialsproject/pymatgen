@@ -30,21 +30,15 @@ stipulated by the COD developers)::
     Structure Database". American Mineralogist 88, 247-250.
 """
 
-import requests
+import re
 import subprocess
+
+import requests
 from monty.dev import requires
 from monty.os.path import which
 
-import re
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
-from pymatgen.util.string import formula_double_format
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
 
 
 class COD:
@@ -53,12 +47,21 @@ class COD:
     """
 
     def __init__(self):
-        pass
+        """
+        Blank __init__. No args required.
+        """
+        self.url = "www.crystallography.net"
 
-    def query(self, sql):
-        r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h",
-                                     "www.crystallography.net", "-e",
-                                     sql, "cod"])
+    def query(self, sql: str) -> str:
+        """
+        Perform a query.
+
+        :param sql: SQL string
+        :return: Response from SQL query.
+        """
+        r = subprocess.check_output(
+            ["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"]
+        )
         return r.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
@@ -77,8 +80,10 @@ class COD:
 
         # Standardize formula to the version used by COD.
 
-        sql = 'select file from data where formula="- %s -"' % \
-            Composition(formula).hill_formula
+        sql = (
+            'select file from data where formula="- %s -"'
+            % Composition(formula).hill_formula
+        )
         text = self.query(sql).split("\n")
         cod_ids = []
         for l in text:
@@ -99,7 +104,7 @@ class COD:
         Returns:
             A Structure.
         """
-        r = requests.get("http://www.crystallography.net/cod/%s.cif" % cod_id)
+        r = requests.get("http://%s/cod/%s.cif" % (self.url, cod_id))
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
@@ -118,22 +123,28 @@ class COD:
             [{"structure": Structure, "cod_id": cod_id, "sg": "P n m a"}]
         """
         structures = []
-        sql = 'select file, sg from data where formula="- %s -"' % \
-              Composition(formula).hill_formula
+        sql = (
+            'select file, sg from data where formula="- %s -"'
+            % Composition(formula).hill_formula
+        )
         text = self.query(sql).split("\n")
         text.pop(0)
         for l in text:
             if l.strip():
                 cod_id, sg = l.split("\t")
-                r = requests.get("http://www.crystallography.net/cod/%s.cif"
-                                 % cod_id.strip())
+                r = requests.get(
+                    "http://www.crystallography.net/cod/%s.cif" % cod_id.strip()
+                )
                 try:
                     s = Structure.from_str(r.text, fmt="cif", **kwargs)
-                    structures.append({"structure": s, "cod_id": int(cod_id),
-                                       "sg": sg})
+                    structures.append({"structure": s, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
                     import warnings
-                    warnings.warn("\nStructure.from_str failed while parsing CIF file:\n%s" % r.text)
+
+                    warnings.warn(
+                        "\nStructure.from_str failed while parsing CIF file:\n%s"
+                        % r.text
+                    )
                     raise
 
         return structures

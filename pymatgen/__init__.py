@@ -1,16 +1,31 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+# pylint: disable=C0413
 
-import sys
+"""
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library
+for materials analysis. This is the root package.
+"""
+
 import os
 import warnings
-import ruamel.yaml as yaml
 from fnmatch import fnmatch
 
-__author__ = "Pymatgen Development Team"
-__email__ ="pymatgen@googlegroups.com"
-__maintainer__ = "Shyue Ping Ong"
-__maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2019.7.21"
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore
+    except ImportError:
+        import yaml  # type: ignore
+from monty.json import MontyDecoder, MontyEncoder, MSONable
 
+__author__ = "Pymatgen Development Team"
+__email__ = "pymatgen@googlegroups.com"
+__maintainer__ = "Shyue Ping Ong"
+__maintainer_email__ = "shyuep@gmail.com"
+__version__ = "2020.12.31"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -28,25 +43,25 @@ def _load_pmg_settings():
                 d[k] = v
             elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
                 d["PMG_" + k] = v
+    d = d or {}
     return dict(d)
 
 
 SETTINGS = _load_pmg_settings()
 
-
-# Order of imports is important on some systems to avoid
-# failures when loading shared libraries.
-# import spglib
-# from . import optimization, util
-# del(spglib, optimization, util)
-
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
+# Note that these have to come after the SETTINGS have been loaded. Otherwise, import does not work.
 
-from pymatgen.core import *
-from .electronic_structure.core import Spin, Orbital
+from .core.composition import Composition
+from .core.lattice import Lattice
+from .core.operations import SymmOp
+from .core.periodic_table import DummySpecie, DummySpecies, Element, Specie, Species
+from .core.sites import PeriodicSite, Site
+from .core.structure import IMolecule, IStructure, Molecule, Structure
+from .core.units import ArrayWithUnit, FloatWithUnit, Unit
+from .electronic_structure.core import Orbital, Spin
 from .ext.matproj import MPRester
-from monty.json import MontyEncoder, MontyDecoder, MSONable
 
 
 def get_structure_from_mp(formula):
@@ -64,19 +79,14 @@ def get_structure_from_mp(formula):
     m = MPRester()
     entries = m.get_entries(formula, inc_structure="final")
     if len(entries) == 0:
-        raise ValueError("No structure with formula %s in Materials Project!" %
-                         formula)
-    elif len(entries) > 1:
-        warnings.warn("%d structures with formula %s found in Materials "
-                      "Project. The lowest energy structure will be returned." %
-                      (len(entries), formula))
+        raise ValueError("No structure with formula %s in Materials Project!" % formula)
+    if len(entries) > 1:
+        warnings.warn(
+            "%d structures with formula %s found in Materials "
+            "Project. The lowest energy structure will be returned."
+            % (len(entries), formula)
+        )
     return min(entries, key=lambda e: e.energy_per_atom).structure
-
-
-if sys.version_info < (3, 5):
-    warnings.warn("""
-Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
-at https://www.pymatgen.org for more details.""")
 
 
 def loadfn(fname):
@@ -93,12 +103,18 @@ def loadfn(fname):
         (Vasprun) *vasprun*
         (obj) if *json* (passthrough to monty.serialization.loadfn)
     """
-    if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or
-            ".cif" in fname.lower()) or fnmatch(fname, "*.vasp"):
+    if (
+        fnmatch(fname, "*POSCAR*")
+        or fnmatch(fname, "*CONTCAR*")
+        or ".cif" in fname.lower()
+    ) or fnmatch(fname, "*.vasp"):
         return Structure.from_file(fname)
-    elif fnmatch(fname, "*vasprun*"):
+    if fnmatch(fname, "*vasprun*"):
         from pymatgen.io.vasp import Vasprun
+
         return Vasprun(fname)
-    elif fnmatch(fname, "*.json*"):
+    if fnmatch(fname, "*.json*"):
         from monty.serialization import loadfn
+
         return loadfn(fname)
+    raise ValueError("Unable to determine how to process %s." % fname)

@@ -2,42 +2,32 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-"""
-Created on Apr 17, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 17, 2012"
-
-import unittest
 import os
+import unittest
+
+import numpy as np
+import pandas as pd
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.xyz import XYZ
 from pymatgen.io.vasp.inputs import Poscar
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+from pymatgen.io.xyz import XYZ
+from pymatgen.util.testing import PymatgenTest
 
 
 class XYZTest(unittest.TestCase):
-
     def setUp(self):
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
         coords2 = [[x + 10.0 for x in atom] for atom in coords]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.multi_mols = [Molecule(["C", "H", "H", "H", "H"], coords)
-                           for coords in [coords, coords2]]
+        self.multi_mols = [
+            Molecule(["C", "H", "H", "H", "H"], coords) for coords in [coords, coords2]
+        ]
         self.xyz = XYZ(self.mol)
         self.multi_xyz = XYZ(self.multi_mols)
 
@@ -96,6 +86,16 @@ C 1.16730636786 -1.38166622735 -2.77112970359e-06
         self.assertTrue(abs(mol[0].z) < 1e-5)
         self.assertTrue(abs(mol[1].z) < 1e-5)
 
+        mol_str = """2
+Random, Alternate Scientific Notation
+C 2.39132145462 -0.700993488928 -7.222*^-06
+C 1.16730636786 -1.38166622735 -2.771*^-06
+"""
+        xyz = XYZ.from_string(mol_str)
+        mol = xyz.molecule
+        self.assertEqual(mol[0].z, -7.222e-06)
+        self.assertEqual(mol[1].z, -2.771e-06)
+
         mol_str = """3
 Random
 C   0.000000000000E+00  2.232615992397E+01  0.000000000000E+00
@@ -110,20 +110,40 @@ C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
         self.assertAlmostEqual(mol[2].y, -11.16307996198)
         # self.assertTrue(abs(mol[1].z) < 1e-5)
 
+        mol_str = """    5
+C32-C2-1                                                                        
+ C     2.70450   1.16090  -0.14630     1     3    23     2
+ C     1.61930   1.72490  -0.79330     2     1     5    26
+ C     2.34210   1.02670   1.14620     3     1     8     6
+ C    -0.68690   2.16170  -0.13790     4     5    18     7
+ C     0.67160   2.15830   0.14350     5     4     2     6
+ """
+        xyz = XYZ.from_string(mol_str)
+        mol = xyz.molecule
+        self.assertAlmostEqual(mol[0].x, 2.70450)
+        self.assertAlmostEqual(mol[1].y, 1.72490)
+        self.assertAlmostEqual(mol[2].x, 2.34210)
+        self.assertAlmostEqual(mol[3].z, -0.13790)
 
     def test_from_file(self):
-        filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz")
         mxyz = XYZ.from_file(filepath)
         self.assertEqual(len(mxyz.all_molecules), 302)
-        self.assertEqual(list(mxyz.all_molecules[0].cart_coords[0]),
-                         [0.20303525080000001, 2.8569761204000002, 0.44737723190000001])
-        self.assertEqual(list(mxyz.all_molecules[-1].cart_coords[-1]),
-                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
-        self.assertEqual(list(mxyz.molecule.cart_coords[-1]),
-                         [5.5355550720000002, 0.0282305931, -0.30993102189999999])
+        self.assertEqual(
+            list(mxyz.all_molecules[0].cart_coords[0]),
+            [0.20303525080000001, 2.8569761204000002, 0.44737723190000001],
+        )
+        self.assertEqual(
+            list(mxyz.all_molecules[-1].cart_coords[-1]),
+            [5.5355550720000002, 0.0282305931, -0.30993102189999999],
+        )
+        self.assertEqual(
+            list(mxyz.molecule.cart_coords[-1]),
+            [5.5355550720000002, 0.0282305931, -0.30993102189999999],
+        )
 
     def test_init_from_structure(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         poscar = Poscar.from_file(filepath)
         struct = poscar.structure
         xyz = XYZ(struct)
@@ -154,6 +174,36 @@ O 8.686436 5.787643 3.401208
 O 9.405548 4.550379 1.231183
 O 9.960184 1.516793 1.393875"""
         self.assertEqual(str(xyz), ans)
+
+    def test_as_dataframe(self):
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
+        test_df = pd.DataFrame(coords, columns=["x", "y", "z"])
+        test_df.insert(0, "atom", ["C", "H", "H", "H", "H"])
+        test_df.index += 1
+        coords2 = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, 0.363000],
+            [0.513360, 0.889165, 0.363000],
+            [0.513360, 0.889165, 0.363000],
+        ]
+        test_df2 = pd.DataFrame(coords2, columns=["x", "y", "z"])
+        test_df2.insert(0, "atom", ["C", "H", "H", "H", "H"])
+        test_df2.index += 1
+        mol_df = self.xyz.as_dataframe()
+
+        # body tests
+        pd.testing.assert_frame_equal(mol_df, test_df)
+
+        # index tests
+        np.testing.assert_array_equal(mol_df.columns, test_df.columns)
+        np.testing.assert_array_equal(mol_df.index, test_df.index)
 
 
 if __name__ == "__main__":

@@ -2,18 +2,22 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
-import errno
-import os
-import tempfile
-import codecs
-from monty.io import zopen
-
 """
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
+
+import codecs
+import errno
+import os
+import re
+import tempfile
+
+from monty.io import zopen
+
+__author__ = (
+    "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
+)
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -23,6 +27,14 @@ __date__ = "Sep 23, 2011"
 
 
 def ask_yesno(question, default=True):
+    """
+    Args:
+        question ():
+        default ():
+
+    Returns:
+
+    """
     try:
         answer = input(question)
         return answer.lower().strip() in ["y", "yes"]
@@ -45,11 +57,11 @@ def clean_lines(string_list, remove_empty_lines=True):
 
     for s in string_list:
         clean_s = s
-        if '#' in s:
-            ind = s.index('#')
+        if "#" in s:
+            ind = s.index("#")
             clean_s = s[:ind]
         clean_s = clean_s.strip()
-        if (not remove_empty_lines) or clean_s != '':
+        if (not remove_empty_lines) or clean_s != "":
             yield clean_s
 
 
@@ -91,8 +103,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
         for line in f:
             for entry in search:
                 match = re.search(entry[0], line)
-                if match and (entry[1] is None
-                              or entry[1](results, line)):
+                if match and (entry[1] is None or entry[1](results, line)):
                     if debug is not None:
                         debug(results, match)
                     entry[2](results, match)
@@ -146,7 +157,15 @@ class AtomicFile:
     If an ``encoding`` argument is specified, codecs.open will be called to open
     the file in the wanted encoding.
     """
+
     def __init__(self, name, mode="w+b", createmode=None, encoding=None):
+        """
+        Args:
+            name ():
+            mode ():
+            createmode ():
+            encoding ():
+        """
         self.__name = name  # permanent name
         self._tempname = _maketemp(name, createmode=createmode)
         if encoding:
@@ -167,17 +186,23 @@ class AtomicFile:
         self.close()
 
     def close(self):
+        """
+        Close the file.
+        """
         if not self._fp.closed:
             self._fp.close()
             # This to avoid:
             #   FileExistsError: [WinError 183] Cannot create a file when that file already exists:
             # On Windows, if dst already exists, OSError will be raised even if it is a file;
             # there may be no way to implement an atomic rename when dst names an existing file.
-            if os.name == 'nt' and os.path.exists(self.__name):
+            if os.name == "nt" and os.path.exists(self.__name):
                 os.remove(self.__name)
             os.rename(self._tempname, self.__name)
 
     def discard(self):
+        """
+        Discard the file.
+        """
         if not self._fp.closed:
             try:
                 os.unlink(self._tempname)

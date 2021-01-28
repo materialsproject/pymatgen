@@ -1,30 +1,29 @@
 # coding: utf-8
 
-import unittest
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.coord import in_coord_list
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.wulff import WulffShape
-
 import json
 import os
+import unittest
 
-__author__ = 'Zihan Xu, Richard Tran, Balachandran Radhakrishnan'
-__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
-__version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
-__email__ = 'zix009@eng.ucsd.edu'
-__date__ = 'May 05 2016'
+from pymatgen.analysis.wulff import WulffShape
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.coord import in_coord_list
+from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
+__copyright__ = "Copyright 2013, The Materials Virtual Lab"
+__version__ = "0.1"
+__maintainer__ = "Zihan Xu"
+__email__ = "zix009@eng.ucsd.edu"
+__date__ = "May 05 2016"
 
 
 class WulffShapeTest(PymatgenTest):
     def setUp(self):
 
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(
-                os.path.join(module_dir, "surface_samples.json")) as data_file:
+        with open(os.path.join(module_dir, "surface_samples.json")) as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -45,26 +44,36 @@ class WulffShapeTest(PymatgenTest):
         # In the case of a hcp material
         # Ti: mp-72
         latt_Ti = Lattice.hexagonal(4.6000, 2.8200)
-        self.ucell_Nb = Structure(latt_Nb, ["Nb", "Nb", "Nb", "Nb"],
-                                  [[0, 0, 0], [0, 0.5, 0.5],
-                                   [0.5, 0, 0.5], [0.5, 0.5, 0]])
-        self.wulff_Nb = WulffShape(latt_Nb, miller_indices["mp-8636"],
-                                   surface_energies["mp-8636"])
+        self.ucell_Nb = Structure(
+            latt_Nb,
+            ["Nb", "Nb", "Nb", "Nb"],
+            [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]],
+        )
+        self.wulff_Nb = WulffShape(
+            latt_Nb, miller_indices["mp-8636"], surface_energies["mp-8636"]
+        )
 
-        self.ucell_Ir = Structure(latt_Nb, ["Ir", "Ir", "Ir", "Ir"],
-                                  [[0, 0, 0], [0, 0.5, 0.5],
-                                   [0.5, 0, 0.5], [0.5, 0.5, 0]])
-        self.wulff_Ir = WulffShape(latt_Ir, miller_indices["mp-101"],
-                                   surface_energies["mp-101"])
+        self.ucell_Ir = Structure(
+            latt_Nb,
+            ["Ir", "Ir", "Ir", "Ir"],
+            [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]],
+        )
+        self.wulff_Ir = WulffShape(
+            latt_Ir, miller_indices["mp-101"], surface_energies["mp-101"]
+        )
 
-        self.ucell_Ti = Structure(latt_Ti, ["Ti", "Ti", "Ti"],
-                                  [[0, 0, 0], [0.333333, 0.666667, 0.5],
-                                   [0.666667, 0.333333, 0.5]])
-        self.wulff_Ti = WulffShape(latt_Ti, miller_indices["mp-72"],
-                                   surface_energies["mp-72"])
-        self.cube = WulffShape(Lattice.cubic(1), [(1,0,0)], [1])
-        self.hex_prism =  WulffShape(Lattice.hexagonal(2.63, 5.21),
-                                     [(0,0,1), (1,0,0)], [0.35, 0.53])
+        self.ucell_Ti = Structure(
+            latt_Ti,
+            ["Ti", "Ti", "Ti"],
+            [[0, 0, 0], [0.333333, 0.666667, 0.5], [0.666667, 0.333333, 0.5]],
+        )
+        self.wulff_Ti = WulffShape(
+            latt_Ti, miller_indices["mp-72"], surface_energies["mp-72"]
+        )
+        self.cube = WulffShape(Lattice.cubic(1), [(1, 0, 0)], [1])
+        self.hex_prism = WulffShape(
+            Lattice.hexagonal(2.63, 5.21), [(0, 0, 1), (1, 0, 0)], [0.35, 0.53]
+        )
 
         self.surface_properties = surface_properties
 
@@ -74,6 +83,13 @@ class WulffShapeTest(PymatgenTest):
         self.wulff_Ti.get_plot()
         self.wulff_Nb.get_plot()
         self.wulff_Ir.get_plot()
+
+    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
+    def test_get_plotly(self):
+        # Basic test, not really a unittest.
+        self.wulff_Ti.get_plotly()
+        self.wulff_Nb.get_plotly()
+        self.wulff_Ir.get_plotly()
 
     def symm_check(self, ucell, wulff_vertices):
         """
@@ -90,8 +106,7 @@ class WulffShapeTest(PymatgenTest):
         """
 
         space_group_analyzer = SpacegroupAnalyzer(ucell)
-        symm_ops = space_group_analyzer.get_point_group_operations(
-            cartesian=True)
+        symm_ops = space_group_analyzer.get_point_group_operations(cartesian=True)
         for point in wulff_vertices:
             for op in symm_ops:
                 symm_point = op.operate(point)
@@ -113,8 +128,7 @@ class WulffShapeTest(PymatgenTest):
         fractional_areas = self.wulff_Ir.area_fraction_dict
         miller_list = [hkl for hkl in fractional_areas.keys()]
         area_list = [fractional_areas[hkl] for hkl in fractional_areas.keys()]
-        self.assertEqual(miller_list[area_list.index(max(area_list))],
-                         (1, 1, 1))
+        self.assertEqual(miller_list[area_list.index(max(area_list))], (1, 1, 1))
 
         # Overall weighted surface energy of fcc Nb should be
         # equal to the energy of the (310) surface, ie. fcc Nb
@@ -128,8 +142,10 @@ class WulffShapeTest(PymatgenTest):
             else:
                 self.assertEqual(Nb_area_fraction_dict[hkl], 0)
 
-        self.assertEqual(self.wulff_Nb.miller_energy_dict[(3, 1, 0)],
-                         self.wulff_Nb.weighted_surface_energy)
+        self.assertEqual(
+            self.wulff_Nb.miller_energy_dict[(3, 1, 0)],
+            self.wulff_Nb.weighted_surface_energy,
+        )
 
     def symmetry_test(self):
 
@@ -138,12 +154,9 @@ class WulffShapeTest(PymatgenTest):
         # derived from. This test should pass for all subsequent
         # updates of the surface_properties collection
 
-        check_symmetry_Nb = self.symm_check(self.ucell_Nb,
-                                            self.wulff_Nb.wulff_pt_list)
-        check_symmetry_Ir = self.symm_check(self.ucell_Ir,
-                                            self.wulff_Ir.wulff_pt_list)
-        check_symmetry_Ti = self.symm_check(self.ucell_Ti,
-                                            self.wulff_Ti.wulff_pt_list)
+        check_symmetry_Nb = self.symm_check(self.ucell_Nb, self.wulff_Nb.wulff_pt_list)
+        check_symmetry_Ir = self.symm_check(self.ucell_Ir, self.wulff_Ir.wulff_pt_list)
+        check_symmetry_Ti = self.symm_check(self.ucell_Ti, self.wulff_Ti.wulff_pt_list)
         self.assertTrue(check_symmetry_Nb)
         self.assertTrue(check_symmetry_Ir)
         self.assertTrue(check_symmetry_Ti)
@@ -162,17 +175,24 @@ class WulffShapeTest(PymatgenTest):
         # Simple test to check if the values of some
         # properties are consistent with what we already have
 
-        wulff_shapes = {"mp-8636": self.wulff_Nb, "mp-72": self.wulff_Ti,
-                        "mp-101": self.wulff_Ir}
+        wulff_shapes = {
+            "mp-8636": self.wulff_Nb,
+            "mp-72": self.wulff_Ti,
+            "mp-101": self.wulff_Ir,
+        }
         for mpid in wulff_shapes.keys():
             properties = self.surface_properties[mpid]
             wulff = wulff_shapes[mpid]
-            self.assertEqual(round(wulff.weighted_surface_energy, 3),
-                             round(properties["weighted_surface_energy"], 3))
-            self.assertEqual(round(wulff.shape_factor, 3),
-                             round(properties["shape_factor"], 3))
-            self.assertEqual(round(wulff.anisotropy, 3),
-                             round(properties["surface_anisotropy"], 3))
+            self.assertEqual(
+                round(wulff.weighted_surface_energy, 3),
+                round(properties["weighted_surface_energy"], 3),
+            )
+            self.assertEqual(
+                round(wulff.shape_factor, 3), round(properties["shape_factor"], 3)
+            )
+            self.assertEqual(
+                round(wulff.anisotropy, 3), round(properties["surface_anisotropy"], 3)
+            )
 
     def test_corner_and_edges(self):
 
@@ -181,6 +201,7 @@ class WulffShapeTest(PymatgenTest):
         self.assertArrayEqual(self.cube.tot_edges, 12)
         self.assertArrayEqual(self.hex_prism.tot_corner_sites, 12)
         self.assertArrayEqual(self.hex_prism.tot_edges, 18)
+
 
 if __name__ == "__main__":
     unittest.main()

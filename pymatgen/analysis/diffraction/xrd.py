@@ -2,29 +2,23 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements an XRD pattern calculator.
+"""
 
-import os
 import json
-from math import sin, cos, asin, pi, degrees, radians
+import os
+from math import asin, cos, degrees, pi, radians, sin
 
 import numpy as np
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
-    get_unique_families
-
-"""
-This module implements an XRD pattern calculator.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "5/22/14"
-
+from .core import (
+    AbstractDiffractionPatternCalculator,
+    DiffractionPattern,
+    get_unique_families,
+)
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -54,13 +48,14 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__),
-                       "atomic_scattering_params.json")) as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")
+) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
-    """
+    r"""
     Computes the XRD pattern of a crystal structure.
 
     This code is implemented by Shyue Ping Ong as part of UCSD's NANO106 -
@@ -170,13 +165,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
         # Obtained from Bragg condition. Note that reciprocal lattice
         # vector length is 1 / d_hkl.
-        min_r, max_r = (0, 2 / wavelength) if two_theta_range is None else \
-            [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
+        min_r, max_r = (
+            (0, 2 / wavelength)
+            if two_theta_range is None
+            else [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
+        )
 
         # Obtain crystallographic reciprocal lattice points within range
         recip_latt = latt.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere(
-            [[0, 0, 0]], [0, 0, 0], max_r)
+        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
@@ -197,9 +194,11 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 try:
                     c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
                 except KeyError:
-                    raise ValueError("Unable to calculate XRD pattern as "
-                                     "there is no scattering coefficients for"
-                                     " %s." % sp.symbol)
+                    raise ValueError(
+                        "Unable to calculate XRD pattern as "
+                        "there is no scattering coefficients for"
+                        " %s." % sp.symbol
+                    )
                 coeffs.append(c)
                 dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
                 fcoords.append(site.frac_coords)
@@ -214,7 +213,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         two_thetas = []
 
         for hkl, g_hkl, ind, _ in sorted(
-                recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
+            recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])
+        ):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
@@ -244,19 +244,20 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
                 fs = zs - 41.78214 * s2 * np.sum(
-                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1
+                )
 
                 dw_correction = np.exp(-dwfactors * s2)
 
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r)
-                               * dw_correction)
+                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r) * dw_correction)
 
                 # Lorentz polarization correction for hkl
-                lorentz_factor = (1 + cos(2 * theta) ** 2) / \
-                    (sin(theta) ** 2 * cos(theta))
+                lorentz_factor = (1 + cos(2 * theta) ** 2) / (
+                    sin(theta) ** 2 * cos(theta)
+                )
 
                 # Intensity for hkl is modulus square of structure factor.
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
@@ -265,16 +266,17 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
                 if is_hex:
                     # Use Miller-Bravais indices for hexagonal lattices.
-                    hkl = (hkl[0], hkl[1], - hkl[0] - hkl[1], hkl[2])
+                    hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
                 # Deal with floating point precision issues.
-                ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
-                               AbstractDiffractionPatternCalculator.TWO_THETA_TOL)
+                ind = np.where(
+                    np.abs(np.subtract(two_thetas, two_theta))
+                    < AbstractDiffractionPatternCalculator.TWO_THETA_TOL
+                )
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
                 else:
-                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)],
-                                        d_hkl]
+                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
@@ -286,11 +288,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         for k in sorted(peaks.keys()):
             v = peaks[k]
             fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
+            if (
+                v[0] / max_intensity * 100
+                > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL
+            ):
                 x.append(k)
                 y.append(v[0])
-                hkls.append([{"hkl": hkl, "multiplicity": mult}
-                             for hkl, mult in fam.items()])
+                hkls.append(
+                    [{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()]
+                )
                 d_hkls.append(v[2])
         xrd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:

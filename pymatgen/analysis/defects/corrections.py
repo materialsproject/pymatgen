@@ -2,16 +2,29 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Implementation of defect correction methods.
+"""
+
 import logging
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from scipy import stats
-from pymatgen.analysis.defects.core import DefectCorrection
-from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, \
-    generate_reciprocal_vectors_squared, QModel, converge, tune_for_gamma, \
-    generate_R_and_G_vecs, kumagai_to_V
 
-import matplotlib.pyplot as plt
+from pymatgen.analysis.defects.core import DefectCorrection
+from pymatgen.analysis.defects.utils import (
+    QModel,
+    ang_to_bohr,
+    converge,
+    eV_to_k,
+    generate_R_and_G_vecs,
+    generate_reciprocal_vectors_squared,
+    hart_to_ev,
+    kumagai_to_V,
+    tune_for_gamma,
+)
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -32,7 +45,14 @@ class FreysoldtCorrection(DefectCorrection):
     doi: 10.1103/PhysRevLett.102.016402
     """
 
-    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madetol=0.0001, axis=None):
+    def __init__(
+        self,
+        dielectric_const,
+        q_model=None,
+        energy_cutoff=520,
+        madetol=0.0001,
+        axis=None,
+    ):
         """
         Initializes the FreysoldtCorrection class
         Args:
@@ -50,8 +70,7 @@ class FreysoldtCorrection(DefectCorrection):
         self.madetol = madetol
         self.dielectric_const = dielectric_const
 
-        if isinstance(dielectric_const, int) or \
-                isinstance(dielectric_const, float):
+        if isinstance(dielectric_const, int) or isinstance(dielectric_const, float):
             self.dielectric = float(dielectric_const)
         else:
             self.dielectric = float(np.mean(np.diag(dielectric_const)))
@@ -97,15 +116,25 @@ class FreysoldtCorrection(DefectCorrection):
         if self.axis is None:
             list_axis_grid = np.array(entry.parameters["axis_grid"])
             list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
-            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
+            list_defect_plnr_avg_esp = np.array(
+                entry.parameters["defect_planar_averages"]
+            )
             list_axes = range(len(list_axis_grid))
         else:
             list_axes = np.array(self.axis)
-            list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp = [], [], []
+            list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp = (
+                [],
+                [],
+                [],
+            )
             for ax in list_axes:
                 list_axis_grid.append(np.array(entry.parameters["axis_grid"][ax]))
-                list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
-                list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
+                list_bulk_plnr_avg_esp.append(
+                    np.array(entry.parameters["bulk_planar_averages"][ax])
+                )
+                list_defect_plnr_avg_esp.append(
+                    np.array(entry.parameters["defect_planar_averages"][ax])
+                )
 
         lattice = entry.parameters["initial_defect_structure"].lattice.copy()
         defect_frac_coords = entry.parameters["defect_frac_sc_coords"]
@@ -116,19 +145,30 @@ class FreysoldtCorrection(DefectCorrection):
 
         pot_corr_tracker = []
 
-        for x, pureavg, defavg, axis in zip(list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp,
-                                            list_axes):
+        for x, pureavg, defavg, axis in zip(
+            list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp, list_axes
+        ):
             tmp_pot_corr = self.perform_pot_corr(
-                x, pureavg, defavg, lattice, entry.charge, defect_frac_coords,
-                axis, widthsample=1.0)
+                x,
+                pureavg,
+                defavg,
+                lattice,
+                entry.charge,
+                defect_frac_coords,
+                axis,
+                widthsample=1.0,
+            )
             pot_corr_tracker.append(tmp_pot_corr)
 
         pot_corr = np.mean(pot_corr_tracker)
 
         entry.parameters["freysoldt_meta"] = dict(self.metadata)
-        entry.parameters["potalign"] = pot_corr / (-q) if q else 0.
+        entry.parameters["potalign"] = pot_corr / (-q) if q else 0.0
 
-        return {"freysoldt_electrostatic": es_corr, "freysoldt_potential_alignment": pot_corr}
+        return {
+            "freysoldt_electrostatic": es_corr,
+            "freysoldt_potential_alignment": pot_corr,
+        }
 
     def perform_es_corr(self, lattice, q, step=1e-4):
         """
@@ -140,7 +180,10 @@ class FreysoldtCorrection(DefectCorrection):
         Return:
             Electrostatic Point Charge contribution to Freysoldt Correction (float)
         """
-        logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
+        logger.info(
+            "Running Freysoldt 2011 PC calculation (should be "
+            "equivalent to sxdefectalign)"
+        )
         logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
 
         [a1, a2, a3] = ang_to_bohr * np.array(lattice.get_cartesian_coords(1))
@@ -149,15 +192,20 @@ class FreysoldtCorrection(DefectCorrection):
 
         def e_iso(encut):
             gcut = eV_to_k(encut)  # gcut is in units of 1/A
-            return scipy.integrate.quad(lambda g: self.q_model.rho_rec(g * g)**2, step, gcut)[0] * (q**2) / np.pi
+            return (
+                scipy.integrate.quad(
+                    lambda g: self.q_model.rho_rec(g * g) ** 2, step, gcut
+                )[0]
+                * (q ** 2)
+                / np.pi
+            )
 
         def e_per(encut):
             eper = 0
             for g2 in generate_reciprocal_vectors_squared(a1, a2, a3, encut):
-                eper += (self.q_model.rho_rec(g2)**2) / g2
-            eper *= (q**2) * 2 * round(np.pi, 6) / vol
-            eper += (q**2) * 4 * round(np.pi, 6) \
-                * self.q_model.rho_rec_limit0 / vol
+                eper += (self.q_model.rho_rec(g2) ** 2) / g2
+            eper *= (q ** 2) * 2 * round(np.pi, 6) / vol
+            eper += (q ** 2) * 4 * round(np.pi, 6) * self.q_model.rho_rec_limit0 / vol
             return eper
 
         eiso = converge(e_iso, 5, self.madetol, self.energy_cutoff)
@@ -173,15 +221,17 @@ class FreysoldtCorrection(DefectCorrection):
         logger.info("Defect Correction without alignment %f (eV): ", es_corr)
         return es_corr
 
-    def perform_pot_corr(self,
-                         axis_grid,
-                         pureavg,
-                         defavg,
-                         lattice,
-                         q,
-                         defect_frac_position,
-                         axis,
-                         widthsample=1.0):
+    def perform_pot_corr(
+        self,
+        axis_grid,
+        pureavg,
+        defavg,
+        lattice,
+        q,
+        defect_frac_position,
+        axis,
+        widthsample=1.0,
+    ):
         """
         For performing planar averaging potential alignment
         Args:
@@ -245,17 +295,21 @@ class FreysoldtCorrection(DefectCorrection):
 
         if abs(np.imag(v_R).max()) > self.madetol:
             raise Exception("imaginary part found to be %s", repr(np.imag(v_R).max()))
-        v_R /= (lattice.volume * ang_to_bohr**3)
+        v_R /= lattice.volume * ang_to_bohr ** 3
         v_R = np.real(v_R) * hart_to_ev
 
         # get correction
-        short = (np.array(defavg) - np.array(pureavg) - np.array(v_R))
+        short = np.array(defavg) - np.array(pureavg) - np.array(v_R)
         checkdis = int((widthsample / 2) / (axis_grid[1] - axis_grid[0]))
         mid = int(len(short) / 2)
 
         tmppot = [short[i] for i in range(mid - checkdis, mid + checkdis + 1)]
         logger.debug("shifted defect position on axis (%s) to origin", repr(axbulkval))
-        logger.debug("means sampling region is (%f,%f)", axis_grid[mid - checkdis], axis_grid[mid + checkdis])
+        logger.debug(
+            "means sampling region is (%f,%f)",
+            axis_grid[mid - checkdis],
+            axis_grid[mid + checkdis],
+        )
 
         C = -np.mean(tmppot)
         logger.debug("C = %f", C)
@@ -263,7 +317,9 @@ class FreysoldtCorrection(DefectCorrection):
         v_R = [elmnt - C for elmnt in v_R]
 
         logger.info("C value is averaged to be %f eV ", C)
-        logger.info("Potentital alignment energy correction (-q*delta V):  %f (eV)", -q * C)
+        logger.info(
+            "Potentital alignment energy correction (-q*delta V):  %f (eV)", -q * C
+        )
         self.pot_corr = -q * C
 
         # log plotting data:
@@ -272,11 +328,14 @@ class FreysoldtCorrection(DefectCorrection):
             "x": axis_grid,
             "dft_diff": np.array(defavg) - np.array(pureavg),
             "final_shift": final_shift,
-            "check": [mid - checkdis, mid + checkdis + 1]
+            "check": [mid - checkdis, mid + checkdis + 1],
         }
 
         # log uncertainty:
-        self.metadata["pot_corr_uncertainty_md"][axis] = {"stats": stats.describe(tmppot)._asdict(), "potcorr": -q * C}
+        self.metadata["pot_corr_uncertainty_md"][axis] = {
+            "stats": stats.describe(tmppot)._asdict(),
+            "potcorr": -q * C,
+        }
 
         return self.pot_corr
 
@@ -293,13 +352,15 @@ class FreysoldtCorrection(DefectCorrection):
 
         """
         if not self.metadata["pot_plot_data"]:
-            raise ValueError("Cannot plot potential alignment before running correction!")
+            raise ValueError(
+                "Cannot plot potential alignment before running correction!"
+            )
 
-        x = self.metadata['pot_plot_data'][axis]['x']
-        v_R = self.metadata['pot_plot_data'][axis]['Vr']
-        dft_diff = self.metadata['pot_plot_data'][axis]['dft_diff']
-        final_shift = self.metadata['pot_plot_data'][axis]['final_shift']
-        check = self.metadata['pot_plot_data'][axis]['check']
+        x = self.metadata["pot_plot_data"][axis]["x"]
+        v_R = self.metadata["pot_plot_data"][axis]["Vr"]
+        dft_diff = self.metadata["pot_plot_data"][axis]["dft_diff"]
+        final_shift = self.metadata["pot_plot_data"][axis]["final_shift"]
+        check = self.metadata["pot_plot_data"][axis]["check"]
 
         plt.figure()
         plt.clf()
@@ -308,13 +369,15 @@ class FreysoldtCorrection(DefectCorrection):
         plt.plot(x, final_shift, c="blue", label="short range (aligned)")
 
         tmpx = [x[i] for i in range(check[0], check[1])]
-        plt.fill_between(tmpx, -100, 100, facecolor="red", alpha=0.15, label="sampling region")
+        plt.fill_between(
+            tmpx, -100, 100, facecolor="red", alpha=0.15, label="sampling region"
+        )
 
         plt.xlim(round(x[0]), round(x[-1]))
         ymin = min(min(v_R), min(dft_diff), min(final_shift))
         ymax = max(max(v_R), max(dft_diff), max(final_shift))
         plt.ylim(-0.2 + ymin, 0.2 + ymax)
-        plt.xlabel("distance along axis ($\AA$)", fontsize=15)
+        plt.xlabel(r"distance along axis ($\AA$)", fontsize=15)
         plt.ylabel("Potential (V)", fontsize=15)
         plt.legend(loc=9)
         plt.axhline(y=0, linewidth=0.2, color="black")
@@ -338,10 +401,7 @@ class KumagaiCorrection(DefectCorrection):
     NOTE that equations 8 and 9 from Kumagai et al. reference are divided by (4 pi) to get SI units
     """
 
-    def __init__(self,
-                 dielectric_tensor,
-                 sampling_radius=None,
-                 gamma=None):
+    def __init__(self, dielectric_tensor, sampling_radius=None, gamma=None):
         """
         Initializes the Kumagai Correction
         Args:
@@ -354,10 +414,13 @@ class KumagaiCorrection(DefectCorrection):
                 gamma (float): convergence parameter for gamma function.
                     Code will automatically determine this if set to None.
         """
-        self.metadata = {"gamma": gamma, "sampling_radius": sampling_radius, "potalign": None}
+        self.metadata = {
+            "gamma": gamma,
+            "sampling_radius": sampling_radius,
+            "potalign": None,
+        }
 
-        if isinstance(dielectric_tensor, int) or \
-                isinstance(dielectric_tensor, float):
+        if isinstance(dielectric_tensor, int) or isinstance(dielectric_tensor, float):
             self.dielectric = np.identity(3) * dielectric_tensor
         else:
             self.dielectric = np.array(dielectric_tensor)
@@ -382,7 +445,8 @@ class KumagaiCorrection(DefectCorrection):
                         bulk and defect site structures EXCLUDING the defect site itself
                         (ex. [[bulk structure site index, defect structure"s corresponding site index], ... ]
 
-                    initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect structure
+                    initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect
+                        structure
 
                     defect_frac_sc_coords (array): Defect Position in fractional coordinates of the supercell
                         given in bulk_structure
@@ -401,27 +465,42 @@ class KumagaiCorrection(DefectCorrection):
         q = entry.defect.charge
 
         if not self.metadata["gamma"]:
-            self.metadata["gamma"] = tune_for_gamma( lattice, self.dielectric)
+            self.metadata["gamma"] = tune_for_gamma(lattice, self.dielectric)
 
         prec_set = [25, 28]
-        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs( self.metadata["gamma"],
-                                                                                 prec_set, lattice, self.dielectric)
+        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(
+            self.metadata["gamma"], prec_set, lattice, self.dielectric
+        )
 
-        pot_shift = self.get_potential_shift( self.metadata["gamma"], volume)
-        si = self.get_self_interaction( self.metadata["gamma"])
-        es_corr = [(real_summation[ind] + recip_summation[ind] + pot_shift + si) for ind in range(2)]
+        pot_shift = self.get_potential_shift(self.metadata["gamma"], volume)
+        si = self.get_self_interaction(self.metadata["gamma"])
+        es_corr = [
+            (real_summation[ind] + recip_summation[ind] + pot_shift + si)
+            for ind in range(2)
+        ]
 
-        # increase precision if correction is not converged yet (TODO: allow for larger prec_set to be tried if this fails)
+        # increase precision if correction is not converged yet
+        # TODO: allow for larger prec_set to be tried if this fails
         if abs(es_corr[0] - es_corr[1]) > 0.0001:
-            logger.debug("Es_corr summation not converged! ({} vs. {})\nTrying a larger prec_set...".format( es_corr[0], es_corr[1]))
+            logger.debug(
+                "Es_corr summation not converged! ({} vs. {})\nTrying a larger prec_set...".format(
+                    es_corr[0], es_corr[1]
+                )
+            )
             prec_set = [30, 35]
-            g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs( self.metadata["gamma"],
-                                                                                     prec_set, lattice, self.dielectric)
-            es_corr = [(real_summation[ind] + recip_summation[ind] + pot_shift + si) for ind in range(2)]
+            g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(
+                self.metadata["gamma"], prec_set, lattice, self.dielectric
+            )
+            es_corr = [
+                (real_summation[ind] + recip_summation[ind] + pot_shift + si)
+                for ind in range(2)
+            ]
             if abs(es_corr[0] - es_corr[1]) < 0.0001:
-                raise ValueError("Correction still not converged after trying prec_sets up to 35... serious error.")
+                raise ValueError(
+                    "Correction still not converged after trying prec_sets up to 35... serious error."
+                )
 
-        es_corr = es_corr[0] * -(q ** 2.) * kumagai_to_V / 2. # [eV]
+        es_corr = es_corr[0] * -(q ** 2.0) * kumagai_to_V / 2.0  # [eV]
 
         # if no sampling radius specified for pot align, then assuming Wigner-Seitz radius:
         if not self.metadata["sampling_radius"]:
@@ -436,17 +515,30 @@ class KumagaiCorrection(DefectCorrection):
         # [[defect_site object, Vqb for site], .. repeat for all non defective sites]
         site_list = []
         for bs_ind, ds_ind in site_matching_indices:
-            Vqb = -(defect_atomic_site_averages[int(ds_ind)] - bulk_atomic_site_averages[int(bs_ind)])
+            Vqb = -(
+                defect_atomic_site_averages[int(ds_ind)]
+                - bulk_atomic_site_averages[int(bs_ind)]
+            )
             site_list.append([defect_sc_structure[int(ds_ind)], Vqb])
 
-        pot_corr = self.perform_pot_corr(defect_sc_structure, defect_frac_sc_coords, site_list,
-                                         self.metadata["sampling_radius"], q, r_vecs[0],
-                                         g_vecs[0], self.metadata["gamma"])
+        pot_corr = self.perform_pot_corr(
+            defect_sc_structure,
+            defect_frac_sc_coords,
+            site_list,
+            self.metadata["sampling_radius"],
+            q,
+            r_vecs[0],
+            g_vecs[0],
+            self.metadata["gamma"],
+        )
 
         entry.parameters["kumagai_meta"] = dict(self.metadata)
-        entry.parameters["potalign"] = pot_corr / (-q) if q else 0.
+        entry.parameters["potalign"] = pot_corr / (-q) if q else 0.0
 
-        return {"kumagai_electrostatic": es_corr, "kumagai_potential_alignment": pot_corr}
+        return {
+            "kumagai_electrostatic": es_corr,
+            "kumagai_potential_alignment": pot_corr,
+        }
 
     def perform_es_corr(self, gamma, prec, lattice, charge):
         """
@@ -461,20 +553,34 @@ class KumagaiCorrection(DefectCorrection):
         """
         volume = lattice.volume
 
-        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(gamma, [prec], lattice, self.dielectric)
+        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(
+            gamma, [prec], lattice, self.dielectric
+        )
         recip_summation = recip_summation[0]
         real_summation = real_summation[0]
 
-        es_corr = recip_summation + real_summation + \
-                  self.get_potential_shift( gamma, volume) + \
-                  self.get_self_interaction( gamma)
+        es_corr = (
+            recip_summation
+            + real_summation
+            + self.get_potential_shift(gamma, volume)
+            + self.get_self_interaction(gamma)
+        )
 
-        es_corr *=  -(charge ** 2.) * kumagai_to_V / 2. # [eV]
+        es_corr *= -(charge ** 2.0) * kumagai_to_V / 2.0  # [eV]
 
         return es_corr
 
-    def perform_pot_corr(self, defect_structure, defect_frac_coords, site_list,
-                         sampling_radius, q, r_vecs, g_vecs, gamma):
+    def perform_pot_corr(
+        self,
+        defect_structure,
+        defect_frac_coords,
+        site_list,
+        sampling_radius,
+        q,
+        r_vecs,
+        g_vecs,
+        gamma,
+    ):
         """
         For performing potential alignment in manner described by Kumagai et al.
         Args:
@@ -503,61 +609,75 @@ class KumagaiCorrection(DefectCorrection):
             Potential alignment contribution to Kumagai Correction (float)
         """
         volume = defect_structure.lattice.volume
-        potential_shift = self.get_potential_shift( gamma, volume)
+        potential_shift = self.get_potential_shift(gamma, volume)
 
         pot_dict = {}  # keys will be site index in the defect structure
         for_correction = []  # region to sample for correction
 
-        #for each atom, do the following:
+        # for each atom, do the following:
         # (a) get relative_vector from defect_site to site in defect_supercell structure
         # (b) recalculate the recip and real summation values based on this r_vec
         # (c) get information needed for pot align
         for site, Vqb in site_list:
-            dist, jimage = site.distance_and_image_from_frac_coords( defect_frac_coords)
-            vec_defect_to_site = defect_structure.lattice.get_cartesian_coords(site.frac_coords -
-                                                                               jimage - defect_frac_coords)
+            dist, jimage = site.distance_and_image_from_frac_coords(defect_frac_coords)
+            vec_defect_to_site = defect_structure.lattice.get_cartesian_coords(
+                site.frac_coords - jimage - defect_frac_coords
+            )
             dist_to_defect = np.linalg.norm(vec_defect_to_site)
             if abs(dist_to_defect - dist) > 0.001:
                 raise ValueError("Error in computing vector to defect")
 
             relative_real_vectors = [r_vec - vec_defect_to_site for r_vec in r_vecs[:]]
 
-            real_sum = self.get_real_summation( gamma, relative_real_vectors)
-            recip_sum = self.get_recip_summation( gamma, g_vecs, volume, r=vec_defect_to_site[:])
+            real_sum = self.get_real_summation(gamma, relative_real_vectors)
+            recip_sum = self.get_recip_summation(
+                gamma, g_vecs, volume, r=vec_defect_to_site[:]
+            )
 
             Vpc = (real_sum + recip_sum + potential_shift) * kumagai_to_V * q
 
-            defect_struct_index = defect_structure.index( site)
+            defect_struct_index = defect_structure.index(site)
             pot_dict[defect_struct_index] = {
                 "Vpc": Vpc,
                 "Vqb": Vqb,
-                "dist_to_defect": dist_to_defect
+                "dist_to_defect": dist_to_defect,
             }
 
-            logger.debug("For atom {}\n\tbulk/defect DFT potential difference = "
-                         "{}".format( defect_struct_index, Vqb))
+            logger.debug(
+                "For atom {}\n\tbulk/defect DFT potential difference = "
+                "{}".format(defect_struct_index, Vqb)
+            )
             logger.debug("\tanisotropic model charge: {}".format(Vpc))
             logger.debug("\t\treciprocal part: {}".format(recip_sum * kumagai_to_V * q))
             logger.debug("\t\treal part: {}".format(real_sum * kumagai_to_V * q))
-            logger.debug("\t\tself interaction part: {}".format(potential_shift * kumagai_to_V * q))
-            logger.debug("\trelative_vector to defect: {}".format( vec_defect_to_site))
+            logger.debug(
+                "\t\tself interaction part: {}".format(
+                    potential_shift * kumagai_to_V * q
+                )
+            )
+            logger.debug("\trelative_vector to defect: {}".format(vec_defect_to_site))
 
             if dist_to_defect > sampling_radius:
-                logger.debug("\tdistance to defect is {} which is outside minimum sampling "
-                             "radius {}".format(dist_to_defect,
-                                                sampling_radius))
+                logger.debug(
+                    "\tdistance to defect is {} which is outside minimum sampling "
+                    "radius {}".format(dist_to_defect, sampling_radius)
+                )
                 for_correction.append(Vqb - Vpc)
             else:
-                logger.debug("\tdistance to defect is {} which is inside minimum sampling "
-                             "radius {} (so will not include for correction)"
-                             "".format(dist_to_defect, sampling_radius))
+                logger.debug(
+                    "\tdistance to defect is {} which is inside minimum sampling "
+                    "radius {} (so will not include for correction)"
+                    "".format(dist_to_defect, sampling_radius)
+                )
 
         if len(for_correction):
             pot_alignment = np.mean(for_correction)
         else:
-            logger.info("No atoms sampled for_correction radius!"
-                        " Assigning potential alignment value of 0.")
-            pot_alignment = 0.
+            logger.info(
+                "No atoms sampled for_correction radius!"
+                " Assigning potential alignment value of 0."
+            )
+            pot_alignment = 0.0
 
         self.metadata["potalign"] = pot_alignment
         pot_corr = -q * pot_alignment
@@ -565,7 +685,7 @@ class KumagaiCorrection(DefectCorrection):
         # log uncertainty stats:
         self.metadata["pot_corr_uncertainty_md"] = {
             "stats": stats.describe(for_correction)._asdict(),
-            "number_sampled": len(for_correction)
+            "number_sampled": len(for_correction),
         }
         self.metadata["pot_plot_data"] = pot_dict
 
@@ -584,26 +704,29 @@ class KumagaiCorrection(DefectCorrection):
 
         for r_vec in real_vectors:
             if np.linalg.norm(r_vec) > 1e-8:
-                loc_res = np.sqrt( np.dot(r_vec, np.dot(invepsilon, r_vec)))
+                loc_res = np.sqrt(np.dot(r_vec, np.dot(invepsilon, r_vec)))
                 nmr = scipy.special.erfc(gamma * loc_res)
                 real_part += nmr / loc_res
 
-        real_part /= (4 * np.pi * rd_epsilon)
+        real_part /= 4 * np.pi * rd_epsilon
 
         return real_part
 
-    def get_recip_summation(self, gamma, recip_vectors, volume, r=[0.,0.,0.]):
+    def get_recip_summation(self, gamma, recip_vectors, volume, r=[0.0, 0.0, 0.0]):
         """
         Get Reciprocal summation term from list of reciprocal-space vectors
         """
         recip_part = 0
 
         for g_vec in recip_vectors:
-            #dont need to avoid G=0, because it will not be
+            # dont need to avoid G=0, because it will not be
             # in recip list (if generate_R_and_G_vecs is used)
             Gdotdiel = np.dot(g_vec, np.dot(self.dielectric, g_vec))
-            summand = np.exp(-Gdotdiel / (4 * (gamma**2)))\
-                      * np.cos(np.dot(g_vec, r)) / Gdotdiel
+            summand = (
+                np.exp(-Gdotdiel / (4 * (gamma ** 2)))
+                * np.cos(np.dot(g_vec, r))
+                / Gdotdiel
+            )
             recip_part += summand
 
         recip_part /= volume
@@ -611,11 +734,26 @@ class KumagaiCorrection(DefectCorrection):
         return recip_part
 
     def get_self_interaction(self, gamma):
-        determ = np.linalg.det( self.dielectric)
-        return - gamma / (2. * np.pi * np.sqrt(np.pi * determ))
+        """
+        Args:
+            gamma ():
+
+        Returns:
+            Self-interaction energy of defect.
+        """
+        determ = np.linalg.det(self.dielectric)
+        return -gamma / (2.0 * np.pi * np.sqrt(np.pi * determ))
 
     def get_potential_shift(self, gamma, volume):
-        return - 0.25 / (volume * gamma**2.)
+        """
+        Args:
+            gamma (float): Gamma
+            volume (float): Volume.
+
+        Returns:
+            Potential shift for defect.
+        """
+        return -0.25 / (volume * gamma ** 2.0)
 
     def plot(self, title=None, saved=False):
         """
@@ -623,7 +761,9 @@ class KumagaiCorrection(DefectCorrection):
         from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)
         """
         if "pot_plot_data" not in self.metadata.keys():
-            raise ValueError("Cannot plot potential alignment before running correction!")
+            raise ValueError(
+                "Cannot plot potential alignment before running correction!"
+            )
 
         sampling_radius = self.metadata["sampling_radius"]
         site_dict = self.metadata["pot_plot_data"]
@@ -648,33 +788,49 @@ class KumagaiCorrection(DefectCorrection):
             if dist > sampling_radius:
                 sample_region.append(Vqb - Vpc)
 
-        plt.plot(distances, Vqb_list,
-                 color='r', marker='^', linestyle='None',
-                 label='$V_{q/b}$')
+        plt.plot(
+            distances,
+            Vqb_list,
+            color="r",
+            marker="^",
+            linestyle="None",
+            label="$V_{q/b}$",
+        )
 
-        plt.plot(distances, Vpc_list,
-                 color='g', marker='o', linestyle='None',
-                 label='$V_{pc}$')
+        plt.plot(
+            distances,
+            Vpc_list,
+            color="g",
+            marker="o",
+            linestyle="None",
+            label="$V_{pc}$",
+        )
 
-        plt.plot(distances, diff_list, color='b', marker='x', linestyle='None',
-                 label='$V_{q/b}$ - $V_{pc}$')
+        plt.plot(
+            distances,
+            diff_list,
+            color="b",
+            marker="x",
+            linestyle="None",
+            label="$V_{q/b}$ - $V_{pc}$",
+        )
 
         x = np.arange(sampling_radius, max(distances) * 1.05, 0.01)
-        y_max = max(max(Vqb_list), max(Vpc_list), max(diff_list)) + .1
-        y_min = min(min(Vqb_list), min(Vpc_list), min(diff_list)) - .1
-        plt.fill_between(x, y_min, y_max, facecolor='red',
-                         alpha=0.15, label='sampling region')
-        plt.axhline(y=potalign, linewidth=0.5, color='red',
-                    label='pot. align. / -q')
+        y_max = max(max(Vqb_list), max(Vpc_list), max(diff_list)) + 0.1
+        y_min = min(min(Vqb_list), min(Vpc_list), min(diff_list)) - 0.1
+        plt.fill_between(
+            x, y_min, y_max, facecolor="red", alpha=0.15, label="sampling region"
+        )
+        plt.axhline(y=potalign, linewidth=0.5, color="red", label="pot. align. / -q")
 
         plt.legend(loc=0)
-        plt.axhline(y=0, linewidth=0.2, color='black')
+        plt.axhline(y=0, linewidth=0.2, color="black")
 
         plt.ylim([y_min, y_max])
         plt.xlim([0, max(distances) * 1.1])
 
-        plt.xlabel('Distance from defect ($\AA$)', fontsize=20)
-        plt.ylabel('Potential (V)', fontsize=20)
+        plt.xlabel(r"Distance from defect ($\AA$)", fontsize=20)
+        plt.ylabel("Potential (V)", fontsize=20)
         plt.title(str(title) + " atomic site potential plot", fontsize=20)
 
         if saved:
@@ -696,11 +852,7 @@ class BandFillingCorrection(DefectCorrection):
             resolution (float): energy resolution to maintain for gap states
         """
         self.resolution = resolution
-        self.metadata = {
-            "num_hole_vbm": None,
-            "num_elec_cbm": None,
-            "potalign": None
-        }
+        self.metadata = {"num_hole_vbm": None, "num_elec_cbm": None, "potalign": None}
 
     def get_correction(self, entry):
         """
@@ -740,7 +892,9 @@ class BandFillingCorrection(DefectCorrection):
         vbm = entry.parameters["vbm"]
         cbm = entry.parameters["cbm"]
 
-        bf_corr = self.perform_bandfill_corr(eigenvalues, kpoint_weights, potalign, vbm, cbm)
+        bf_corr = self.perform_bandfill_corr(
+            eigenvalues, kpoint_weights, potalign, vbm, cbm
+        )
 
         entry.parameters["bandfilling_meta"] = dict(self.metadata)
 
@@ -754,18 +908,20 @@ class BandFillingCorrection(DefectCorrection):
                correction with specified band shifts:
                 +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)
         """
-        bf_corr = 0.
+        bf_corr = 0.0
 
         self.metadata["potalign"] = potalign
-        self.metadata["num_hole_vbm"] = 0.
-        self.metadata["num_elec_cbm"] = 0.
+        self.metadata["num_hole_vbm"] = 0.0
+        self.metadata["num_elec_cbm"] = 0.0
 
-        core_occupation_value = list(eigenvalues.values())[0][0][0][1]  # get occupation of a core eigenvalue
+        core_occupation_value = list(eigenvalues.values())[0][0][0][
+            1
+        ]  # get occupation of a core eigenvalue
         if len(eigenvalues.keys()) == 1:
             # needed because occupation of non-spin calcs is sometimes still 1... should be 2
-            spinfctr = 2. if core_occupation_value == 1. else 1.
+            spinfctr = 2.0 if core_occupation_value == 1.0 else 1.0
         elif len(eigenvalues.keys()) == 2:
-            spinfctr = 1.
+            spinfctr = 1.0
         else:
             raise ValueError("Eigenvalue keys greater than 2")
 
@@ -776,12 +932,25 @@ class BandFillingCorrection(DefectCorrection):
         for spinset in eigenvalues.values():
             for kptset, weight in zip(spinset, kpoint_weights):
                 for eig, occu in kptset:  # eig is eigenvalue and occu is occupation
-                    if (occu and (eig > shifted_cbm - self.resolution)):  # donor MB correction
-                        bf_corr += weight * spinfctr * occu * (eig - shifted_cbm)  # "move the electrons down"
+                    if occu and (
+                        eig > shifted_cbm - self.resolution
+                    ):  # donor MB correction
+                        bf_corr += (
+                            weight * spinfctr * occu * (eig - shifted_cbm)
+                        )  # "move the electrons down"
                         self.metadata["num_elec_cbm"] += weight * spinfctr * occu
-                    elif (occu != core_occupation_value) and (eig <= shifted_vbm + self.resolution):  # acceptor MB correction
-                        bf_corr += weight * spinfctr * (core_occupation_value - occu) * (shifted_vbm - eig)  # "move the holes up"
-                        self.metadata["num_hole_vbm"] += weight * spinfctr * (core_occupation_value - occu)
+                    elif (occu != core_occupation_value) and (
+                        eig <= shifted_vbm + self.resolution
+                    ):  # acceptor MB correction
+                        bf_corr += (
+                            weight
+                            * spinfctr
+                            * (core_occupation_value - occu)
+                            * (shifted_vbm - eig)
+                        )  # "move the holes up"
+                        self.metadata["num_hole_vbm"] += (
+                            weight * spinfctr * (core_occupation_value - occu)
+                        )
 
         bf_corr *= -1  # need to take negative of this shift for energetic correction
 
@@ -798,8 +967,8 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         Initializes the BandEdgeShiftingCorrection class
         """
         self.metadata = {
-            "vbmshift": 0.,
-            "cbmshift": 0.,
+            "vbmshift": 0.0,
+            "cbmshift": 0.0,
         }
 
     def get_correction(self, entry):
@@ -831,13 +1000,15 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         vbm = entry.parameters["vbm"]
         cbm = entry.parameters["cbm"]
 
-        self.metadata["vbmshift"] = hybrid_vbm - vbm  # note vbmshift has UPWARD as positive convention
-        self.metadata["cbmshift"] = hybrid_cbm - cbm  # note cbmshift has UPWARD as positive convention
+        self.metadata["vbmshift"] = (
+            hybrid_vbm - vbm
+        )  # note vbmshift has UPWARD as positive convention
+        self.metadata["cbmshift"] = (
+            hybrid_cbm - cbm
+        )  # note cbmshift has UPWARD as positive convention
 
         charge = entry.charge
         bandedgeshifting_correction = charge * self.metadata["vbmshift"]
         entry.parameters["bandshift_meta"] = dict(self.metadata)
 
-        return {
-            "bandedgeshifting_correction": bandedgeshifting_correction
-        }
+        return {"bandedgeshifting_correction": bandedgeshifting_correction}

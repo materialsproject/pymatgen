@@ -9,12 +9,11 @@ strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.
 """
 
-import numpy as np
-import scipy
+import collections
 import itertools
 
-import collections
-from monty.dev import deprecated
+import numpy as np
+import scipy
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
@@ -33,6 +32,7 @@ class Deformation(SquareTensor):
     """
     Subclass of SquareTensor that describes the deformation gradient tensor
     """
+
     symbol = "d"
 
     def __new__(cls, deformation_gradient):
@@ -107,8 +107,9 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(self, structure, norm_strains=None, shear_strains=None,
-                 symmetry=False):
+    def __init__(
+        self, structure, norm_strains=None, shear_strains=None, symmetry=False
+    ):
         """
         constructs the deformed geometries of a structure.  Generates
         m + n deformed structures according to the supplied parameters.
@@ -143,8 +144,9 @@ class DeformedStructureSet(collections.abc.Sequence):
         if symmetry:
             self.sym_dict = symmetry_reduce(self.deformations, structure)
             self.deformations = list(self.sym_dict.keys())
-        self.deformed_structures = [defo.apply_to_structure(structure)
-                                    for defo in self.deformations]
+        self.deformed_structures = [
+            defo.apply_to_structure(structure) for defo in self.deformations
+        ]
 
     def __iter__(self):
         return iter(self.deformed_structures)
@@ -160,6 +162,7 @@ class Strain(SquareTensor):
     """
     Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
+
     symbol = "e"
 
     def __new__(cls, strain_matrix):
@@ -177,9 +180,11 @@ class Strain(SquareTensor):
         vscale[3:] *= 2
         obj = super().__new__(cls, strain_matrix, vscale=vscale)
         if not obj.is_symmetric():
-            raise ValueError("Strain objects must be initialized "
-                             "with a symmetric array or a voigt-notation "
-                             "vector with six entries.")
+            raise ValueError(
+                "Strain objects must be initialized "
+                "with a symmetric array or a voigt-notation "
+                "vector with six entries."
+            )
         return obj.view(cls)
 
     def __array_finalize__(self, obj):
@@ -217,21 +222,14 @@ class Strain(SquareTensor):
             v = np.zeros(6)
             v[idx] = amount
             return cls.from_voigt(v)
-        elif np.array(idx).ndim == 1:
+        if np.array(idx).ndim == 1:
             v = np.zeros((3, 3))
             for i in itertools.permutations(idx):
                 v[i] = amount
             return cls(v)
-        else:
-            raise ValueError("Index must either be 2-tuple or integer "
-                             "corresponding to full-tensor or voigt index")
-
-    @property
-    @deprecated(message="the deformation_matrix property is deprecated, and "
-                        "will be removed in pymatgen v2019.1.1, please use the "
-                        "get_deformation_matrix method instead.")
-    def deformation_matrix(self):
-        return self.get_deformation_matrix()
+        raise ValueError(
+            "Index must either be 2-tuple or integer corresponding to full-tensor or voigt index"
+        )
 
     def get_deformation_matrix(self, shape="upper"):
         """
@@ -244,9 +242,9 @@ class Strain(SquareTensor):
         """
         Equivalent strain to Von Mises Stress
         """
-        eps = self - 1/3 * np.trace(self) * np.identity(3)
+        eps = self - 1 / 3 * np.trace(self) * np.identity(3)
 
-        return np.sqrt(np.sum(eps * eps) * 2/3)
+        return np.sqrt(np.sum(eps * eps) * 2 / 3)
 
 
 def convert_strain_to_deformation(strain, shape="upper"):
@@ -262,11 +260,11 @@ def convert_strain_to_deformation(strain, shape="upper"):
             "symmetric" produces a symmetric defo
     """
     strain = SquareTensor(strain)
-    ftdotf = 2*strain + np.eye(3)
+    ftdotf = 2 * strain + np.eye(3)
     if shape == "upper":
         result = scipy.linalg.cholesky(ftdotf)
     elif shape == "symmetric":
         result = scipy.linalg.sqrtm(ftdotf)
     else:
-        raise ValueError("shape must be \"upper\" or \"symmetric\"")
+        raise ValueError('shape must be "upper" or "symmetric"')
     return Deformation(result)

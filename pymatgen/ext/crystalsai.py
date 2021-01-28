@@ -3,18 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
-import requests
-
-
 """
 This module provides an interface to the MaterialsVirtualLab's MEGNet REST API
 for rapid property prediction.
 """
 
-__author__ = "Shyue Ping Ong"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
+import requests
 
 
 class CrystalAIRester:
@@ -34,6 +28,9 @@ class CrystalAIRester:
     """
 
     def __init__(self):
+        """
+        Init for Rester.
+        """
         self.session = requests.Session()
         self.url = "http://megnet.crystals.ai"
 
@@ -76,11 +73,17 @@ class CrystalAIRester:
             response = self.session.get(url)
             if response.status_code in [200, 400]:
                 return response.json()
-            raise ValueError("REST query returned with error status code {}"
-                             .format(response.status_code))
+            raise ValueError(
+                "REST query returned with error status code {}".format(
+                    response.status_code
+                )
+            )
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) \
-                if hasattr(response, "content") else str(ex)
+            msg = (
+                "{}. Content: {}".format(str(ex), response.content)
+                if hasattr(response, "content")
+                else str(ex)
+            )
             raise ValueError(msg)
 
     def predict_structure(self, model_name, structure):
@@ -98,16 +101,19 @@ class CrystalAIRester:
         response = None
         url = self.url + "/predict_structure/%s" % model_name
         try:
-            data = {
-                "structure": structure.to(fmt="POSCAR"),
-                "fmt": "POSCAR"
-            }
+            data = {"structure": structure.to(fmt="POSCAR"), "fmt": "POSCAR"}
             response = self.session.post(url, data=data)
             if response.status_code in [200, 400]:
                 return response.json()
-            raise ValueError("REST query returned with error status code {}"
-                             .format(response.status_code))
+            raise ValueError(
+                "REST query returned with error status code {}".format(
+                    response.status_code
+                )
+            )
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) \
-                if hasattr(response, "content") else str(ex)
+            msg = (
+                "{}. Content: {}".format(str(ex), response.content)
+                if hasattr(response, "content")
+                else str(ex)
+            )
             raise ValueError(msg)

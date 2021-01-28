@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.bond_valence &#8212; pymatgen 2019.7.21 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.bond_valence &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.bond_valence</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.bond_valence</h1><div class="highlight"><pre>
@@ -49,23 +49,21 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements classes to perform bond valence analyses.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
 
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements classes to perform bond valence analyses.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -104,18 +102,16 @@
 <span class="sd">    Calculates the BV sum of a site.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        site:</span>
-<span class="sd">            The site</span>
-<span class="sd">        nn_list:</span>
-<span class="sd">            List of nearest neighbors in the format [(nn_site, dist), ...].</span>
-<span class="sd">        scale_factor:</span>
-<span class="sd">            A scale factor to be applied. This is useful for scaling distance,</span>
-<span class="sd">            esp in the case of calculation-relaxed structures which may tend</span>
-<span class="sd">            to under (GGA) or over bind (LDA).</span>
+<span class="sd">        site (PeriodicSite): The central site to calculate the bond valence</span>
+<span class="sd">        nn_list ([Neighbor]): A list of namedtuple Neighbors having &quot;distance&quot;</span>
+<span class="sd">            and &quot;site&quot; attributes</span>
+<span class="sd">        scale_factor (float): A scale factor to be applied. This is useful for</span>
+<span class="sd">            scaling distance, esp in the case of calculation-relaxed structures</span>
+<span class="sd">            which may tend to under (GGA) or over bind (LDA).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">el1</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
     <span class="n">bvsum</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nn_list</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">nn_list</span><span class="p">:</span>
         <span class="n">el2</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">el1</span> <span class="ow">in</span> <span class="n">ELECTRONEG</span> <span class="ow">or</span> <span class="n">el2</span> <span class="ow">in</span> <span class="n">ELECTRONEG</span><span class="p">)</span> <span class="ow">and</span> <span class="n">el1</span> <span class="o">!=</span> <span class="n">el2</span><span class="p">:</span>
             <span class="n">r1</span> <span class="o">=</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el1</span><span class="p">][</span><span class="s2">&quot;r&quot;</span><span class="p">]</span>
@@ -124,7 +120,7 @@
             <span class="n">c2</span> <span class="o">=</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el2</span><span class="p">][</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
             <span class="n">R</span> <span class="o">=</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> \
                 <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-            <span class="n">vij</span> <span class="o">=</span> <span class="n">exp</span><span class="p">((</span><span class="n">R</span> <span class="o">-</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.31</span><span class="p">)</span>
+            <span class="n">vij</span> <span class="o">=</span> <span class="n">exp</span><span class="p">((</span><span class="n">R</span> <span class="o">-</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.31</span><span class="p">)</span>
             <span class="n">bvsum</span> <span class="o">+=</span> <span class="n">vij</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">el1</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">el2</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">bvsum</span></div>
 
@@ -134,14 +130,12 @@
 <span class="sd">    Calculates the BV sum of a site for unordered structures.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        site:</span>
-<span class="sd">            The site</span>
-<span class="sd">        nn_list:</span>
-<span class="sd">            List of nearest neighbors in the format [(nn_site, dist), ...].</span>
-<span class="sd">        scale_factor:</span>
-<span class="sd">            A scale factor to be applied. This is useful for scaling distance,</span>
-<span class="sd">            esp in the case of calculation-relaxed structures which may tend</span>
-<span class="sd">            to under (GGA) or over bind (LDA).</span>
+<span class="sd">        site (PeriodicSite): The central site to calculate the bond valence</span>
+<span class="sd">        nn_list ([Neighbor]): A list of namedtuple Neighbors having &quot;distance&quot;</span>
+<span class="sd">            and &quot;site&quot; attributes</span>
+<span class="sd">        scale_factor (float): A scale factor to be applied. This is useful for</span>
+<span class="sd">            scaling distance, esp in the case of calculation-relaxed structures</span>
+<span class="sd">            which may tend to under (GGA) or over bind (LDA).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># If the site &quot;site&quot; has N partial occupations as : f_{site}_0,</span>
     <span class="c1"># f_{site}_1, ... f_{site}_N of elements</span>
@@ -154,7 +148,7 @@
     <span class="n">bvsum</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">specie1</span><span class="p">,</span> <span class="n">occu1</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">el1</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">specie1</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nn_list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">nn_list</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">specie2</span><span class="p">,</span> <span class="n">occu2</span> <span class="ow">in</span> <span class="n">nn</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">el2</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">specie2</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">el1</span> <span class="ow">in</span> <span class="n">ELECTRONEG</span> <span class="ow">or</span> <span class="n">el2</span> <span class="ow">in</span> <span class="n">ELECTRONEG</span><span class="p">)</span> <span class="ow">and</span> <span class="n">el1</span> <span class="o">!=</span> <span class="n">el2</span><span class="p">:</span>
@@ -164,7 +158,7 @@
                     <span class="n">c2</span> <span class="o">=</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el2</span><span class="p">][</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
                     <span class="n">R</span> <span class="o">=</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> \
                         <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
-                    <span class="n">vij</span> <span class="o">=</span> <span class="n">exp</span><span class="p">((</span><span class="n">R</span> <span class="o">-</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.31</span><span class="p">)</span>
+                    <span class="n">vij</span> <span class="o">=</span> <span class="n">exp</span><span class="p">((</span><span class="n">R</span> <span class="o">-</span> <span class="n">nn</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.31</span><span class="p">)</span>
                     <span class="n">bvsum</span> <span class="o">+=</span> <span class="n">occu1</span> <span class="o">*</span> <span class="n">occu2</span> <span class="o">*</span> <span class="n">vij</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">el1</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">el2</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">bvsum</span></div>
 
@@ -189,7 +183,7 @@
 
     <span class="n">CHARGE_NEUTRALITY_TOLERANCE</span> <span class="o">=</span> <span class="mf">0.00001</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symm_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_radius</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_permutations</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symm_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_radius</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_permutations</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
                  <span class="n">distance_scale_factor</span><span class="o">=</span><span class="mf">1.015</span><span class="p">,</span>
                  <span class="n">charge_neutrality_tolerance</span><span class="o">=</span><span class="n">CHARGE_NEUTRALITY_TOLERANCE</span><span class="p">,</span>
                  <span class="n">forbidden_species</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -445,10 +439,9 @@
                 <span class="k">if</span> <span class="n">max_diff</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="k">return</span>
 
-                <span class="n">score</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
-                    <span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span>
-                    <span class="p">[</span><span class="n">all_prob</span><span class="p">[</span><span class="n">attrib</span><span class="p">[</span><span class="n">iv</span><span class="p">]][</span><span class="n">elements</span><span class="p">[</span><span class="n">iv</span><span class="p">]][</span><span class="n">vv</span><span class="p">]</span>
-                     <span class="k">for</span> <span class="n">iv</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">v_set</span><span class="p">)])</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span>
+                                         <span class="p">[</span><span class="n">all_prob</span><span class="p">[</span><span class="n">attrib</span><span class="p">[</span><span class="n">iv</span><span class="p">]][</span><span class="n">elements</span><span class="p">[</span><span class="n">iv</span><span class="p">]][</span><span class="n">vv</span><span class="p">]</span>
+                                          <span class="k">for</span> <span class="n">iv</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">v_set</span><span class="p">)])</span>
                 <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_score</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_best_vset</span> <span class="o">=</span> <span class="n">v_set</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_best_score</span> <span class="o">=</span> <span class="n">score</span>
@@ -553,44 +546,29 @@
 
 
 <div class="viewcode-block" id="add_oxidation_state_by_site_fraction"><a class="viewcode-back" href="../../../pymatgen.analysis.bond_valence.html#pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction">[docs]</a><span class="k">def</span> <span class="nf">add_oxidation_state_by_site_fraction</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add oxidation states to a structure by fractional site.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add oxidation states to a structure by fractional site.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            oxidation_states (list): List of list of oxidation states for each</span>
-<span class="sd">                site fraction for each site.</span>
-<span class="sd">                E.g., [[2, 4], [3], [-2], [-2], [-2]]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
-                <span class="n">new_sp</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">occu</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">get_z_ordered_elmap</span><span class="p">(</span><span class="n">site</span>
-                        <span class="o">.</span><span class="n">species</span><span class="p">)):</span>
-                    <span class="n">specie</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-                    <span class="n">new_sp</span><span class="p">[</span><span class="n">specie</span><span class="p">]</span> <span class="o">+=</span> <span class="n">occu</span>
-                <span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_sp</span>
-            <span class="k">return</span> <span class="n">structure</span>
-        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Oxidation state of all sites must be &quot;</span>
-                             <span class="s2">&quot;specified in the list.&quot;</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        oxidation_states (list): List of list of oxidation states for each</span>
+<span class="sd">            site fraction for each site.</span>
+<span class="sd">            E.g., [[2, 4], [3], [-2], [-2], [-2]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+            <span class="n">new_sp</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">occu</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">get_z_ordered_elmap</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">)):</span>
+                <span class="n">specie</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">new_sp</span><span class="p">[</span><span class="n">specie</span><span class="p">]</span> <span class="o">+=</span> <span class="n">occu</span>
+            <span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_sp</span>
+        <span class="k">return</span> <span class="n">structure</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Oxidation state of all sites must be &quot;</span>
+                         <span class="s2">&quot;specified in the list.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -603,15 +581,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.bond_valence</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

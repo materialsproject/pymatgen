@@ -2,18 +2,23 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import numpy as np
-from fractions import Fraction
-from math import gcd, floor, cos
-from functools import reduce
-from pymatgen import Structure, Lattice
-from pymatgen.core.sites import PeriodicSite
-from monty.fractions import lcm
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-import itertools
+"""
+Module containing classes to generate grain boundaries.
+"""
 
+import itertools
 import logging
 import warnings
+from fractions import Fraction
+from functools import reduce
+from math import cos, floor, gcd
+
+import numpy as np
+from monty.fractions import lcm
+
+from pymatgen import Lattice, Structure
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.
@@ -43,10 +48,23 @@ class GrainBoundary(Structure):
      (though not necessary perpendicular to the surface.)
     """
 
-    def __init__(self, lattice, species, coords, rotation_axis, rotation_angle,
-                 gb_plane, join_plane, init_cell, vacuum_thickness, ab_shift,
-                 site_properties, oriented_unit_cell, validate_proximity=False,
-                 coords_are_cartesian=False):
+    def __init__(
+        self,
+        lattice,
+        species,
+        coords,
+        rotation_axis,
+        rotation_angle,
+        gb_plane,
+        join_plane,
+        init_cell,
+        vacuum_thickness,
+        ab_shift,
+        site_properties,
+        oriented_unit_cell,
+        validate_proximity=False,
+        coords_are_cartesian=False,
+    ):
         """
         Makes a gb structure, a structure object with additional information
         and methods pertaining to gbs.
@@ -57,12 +75,12 @@ class GrainBoundary(Structure):
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species ([Specie]): Sequence of species on each site. Can take in
+            species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
@@ -103,9 +121,13 @@ class GrainBoundary(Structure):
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
         super().__init__(
-            lattice, species, coords, validate_proximity=validate_proximity,
+            lattice,
+            species,
+            coords,
+            validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
-            site_properties=site_properties)
+            site_properties=site_properties,
+        )
 
     def copy(self):
         """
@@ -116,10 +138,20 @@ class GrainBoundary(Structure):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        return GrainBoundary(self.lattice, self.species_and_occu, self.frac_coords,
-                             self.rotation_axis, self.rotation_angle, self.gb_plane,
-                             self.join_plane, self.init_cell, self.vacuum_thickness,
-                             self.ab_shift, self.site_properties, self.oriented_unit_cell)
+        return GrainBoundary(
+            self.lattice,
+            self.species_and_occu,
+            self.frac_coords,
+            self.rotation_axis,
+            self.rotation_angle,
+            self.gb_plane,
+            self.join_plane,
+            self.init_cell,
+            self.vacuum_thickness,
+            self.ab_shift,
+            self.site_properties,
+            self.oriented_unit_cell,
+        )
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -136,10 +168,20 @@ class GrainBoundary(Structure):
         """
         sites = sorted(self, key=key, reverse=reverse)
         s = Structure.from_sites(sites)
-        return GrainBoundary(s.lattice, s.species_and_occu, s.frac_coords,
-                             self.rotation_axis, self.rotation_angle, self.gb_plane,
-                             self.join_plane, self.init_cell, self.vacuum_thickness,
-                             self.ab_shift, self.site_properties, self.oriented_unit_cell)
+        return GrainBoundary(
+            s.lattice,
+            s.species_and_occu,
+            s.frac_coords,
+            self.rotation_axis,
+            self.rotation_angle,
+            self.gb_plane,
+            self.join_plane,
+            self.init_cell,
+            self.vacuum_thickness,
+            self.ab_shift,
+            self.site_properties,
+            self.oriented_unit_cell,
+        )
 
     @property
     def sigma(self):
@@ -157,10 +199,10 @@ class GrainBoundary(Structure):
         each other, this property will not work.
         """
         num_coi = 0
-        if None in self.site_properties['grain_label']:
-            raise RuntimeError('Site were merged, this property do not work')
-        for tag in self.site_properties['grain_label']:
-            if 'incident' in tag:
+        if None in self.site_properties["grain_label"]:
+            raise RuntimeError("Site were merged, this property do not work")
+        for tag in self.site_properties["grain_label"]:
+            if "incident" in tag:
                 num_coi += 1
         return int(round(self.num_sites / num_coi))
 
@@ -170,8 +212,8 @@ class GrainBoundary(Structure):
         return the top grain (Structure) of the GB.
         """
         top_sites = []
-        for i, tag in enumerate(self.site_properties['grain_label']):
-            if 'top' in tag:
+        for i, tag in enumerate(self.site_properties["grain_label"]):
+            if "top" in tag:
                 top_sites.append(self.sites[i])
         return Structure.from_sites(top_sites)
 
@@ -181,8 +223,8 @@ class GrainBoundary(Structure):
         return the bottom grain (Structure) of the GB.
         """
         bottom_sites = []
-        for i, tag in enumerate(self.site_properties['grain_label']):
-            if 'bottom' in tag:
+        for i, tag in enumerate(self.site_properties["grain_label"]):
+            if "bottom" in tag:
                 bottom_sites.append(self.sites[i])
         return Structure.from_sites(bottom_sites)
 
@@ -192,8 +234,8 @@ class GrainBoundary(Structure):
         return the a list of coincident sites.
         """
         coincident_sites = []
-        for i, tag in enumerate(self.site_properties['grain_label']):
-            if 'incident' in tag:
+        for i, tag in enumerate(self.site_properties["grain_label"]):
+            if "incident" in tag:
                 coincident_sites.append(self.sites[i])
         return coincident_sites
 
@@ -207,20 +249,32 @@ class GrainBoundary(Structure):
             "GB plane: %s" % (self.gb_plane,),
             "Join plane: %s" % (self.join_plane,),
             "vacuum thickness: %s" % (self.vacuum_thickness,),
-            "ab_shift: %s" % (self.ab_shift,), ]
-        to_s = lambda x: "%0.6f" % x
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.angles]))
+            "ab_shift: %s" % (self.ab_shift,),
+        ]
+
+        def to_s(x, rjust=10):
+            return ("%0.6f" % x).rjust(rjust)
+
+        outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            outs.append(
+                " ".join(
+                    [
+                        str(i + 1),
+                        site.species_string,
+                        " ".join([to_s(j, 12) for j in site.frac_coords]),
+                    ]
+                )
+            )
         return "\n".join(outs)
 
     def as_dict(self):
+        """
+        Returns:
+            Dictionary representation of GrainBoundary object
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -236,13 +290,23 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Generates a GrainBoundary object from a dictionary created by as_dict().
+
+        Args:
+            d: dict
+
+        Returns:
+            GrainBoundary object
+        """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
 
         return GrainBoundary(
             lattice=lattice,
-            species=s.species_and_occu, coords=s.frac_coords,
+            species=s.species_and_occu,
+            coords=s.frac_coords,
             rotation_axis=d["rotation_axis"],
             rotation_angle=d["rotation_angle"],
             gb_plane=d["gb_plane"],
@@ -251,7 +315,8 @@ class GrainBoundary(Structure):
             vacuum_thickness=d["vacuum_thickness"],
             ab_shift=d["ab_shift"],
             oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
-            site_properties=s.site_properties)
+            site_properties=s.site_properties,
+        )
 
 
 class GrainBoundaryGenerator:
@@ -274,7 +339,6 @@ class GrainBoundaryGenerator:
     """
 
     def __init__(self, initial_structure, symprec=0.1, angle_tolerance=1):
-
         """
         initial_structure (Structure): Initial input structure. It can
                be conventional or primitive cell (primitive cell works for bcc and fcc).
@@ -293,7 +357,7 @@ class GrainBoundaryGenerator:
         """
         analyzer = SpacegroupAnalyzer(initial_structure, symprec, angle_tolerance)
         self.lat_type = analyzer.get_lattice_type()[0]
-        if (self.lat_type == 't'):
+        if self.lat_type == "t":
             # need to use the conventional cell for tetragonal
             initial_structure = analyzer.get_conventional_standard_structure()
             a, b, c = initial_structure.lattice.abc
@@ -305,33 +369,44 @@ class GrainBoundaryGenerator:
                 # b == c, rotate a to the third direction
                 else:
                     initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
-        elif (self.lat_type == 'h'):
+        elif self.lat_type == "h":
             alpha, beta, gamma = initial_structure.lattice.angles
             # c axis is not in the third direction
-            if (abs(gamma - 90) < angle_tolerance):
+            if abs(gamma - 90) < angle_tolerance:
                 # alpha = 120 or 60, rotate b, c to a, b vectors
-                if (abs(alpha - 90) > angle_tolerance):
+                if abs(alpha - 90) > angle_tolerance:
                     initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
                 # beta = 120 or 60, rotate c, a to a, b vectors
-                elif (abs(beta - 90) > angle_tolerance):
+                elif abs(beta - 90) > angle_tolerance:
                     initial_structure.make_supercell([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
-        elif (self.lat_type == 'r'):
+        elif self.lat_type == "r":
             # need to use primitive cell for rhombohedra
             initial_structure = analyzer.get_primitive_standard_structure()
-        elif (self.lat_type == 'o'):
+        elif self.lat_type == "o":
             # need to use the conventional cell for orthorombic
             initial_structure = analyzer.get_conventional_standard_structure()
         self.initial_structure = initial_structure
 
-    def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                           ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20,
-                           tol_coi=1.e-8, rm_ratio=0.7, quick_gen=False):
-
+    def gb_from_parameters(
+        self,
+        rotation_axis,
+        rotation_angle,
+        expand_times=4,
+        vacuum_thickness=0.0,
+        ab_shift=[0, 0],
+        normal=False,
+        ratio=None,
+        plane=None,
+        max_search=20,
+        tol_coi=1.0e-8,
+        rm_ratio=0.7,
+        quick_gen=False,
+    ):
         """
         Args:
-           rotation_axis (list): Rotation axis of GB in the form of a list of integer
+            rotation_axis (list): Rotation axis of GB in the form of a list of integer
                 e.g.: [1, 1, 0]
-           rotation_angle (float, in unit of degree): rotation angle used to generate GB.
+            rotation_angle (float, in unit of degree): rotation angle used to generate GB.
                 Make sure the angle is accurate enough. You can use the enum* functions
                 in this class to extract the accurate angle.
                 e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
@@ -339,10 +414,10 @@ class GrainBoundaryGenerator:
                 If you do not know the rotation angle, but know the sigma value, we have
                 provide the function get_rotation_angle_from_sigma which is able to return
                 all the rotation angles of sigma value you provided.
-           expand_times (int): The multiple times used to expand one unit grain to larger grain.
+            expand_times (int): The multiple times used to expand one unit grain to larger grain.
                 This is used to tune the grain length of GB to warrant that the two GBs in one
                 cell do not interact with each other. Default set to 4.
-           vacuum_thickness (float, in angstrom): The thickness of vacuum that you want to insert
+            vacuum_thickness (float, in angstrom): The thickness of vacuum that you want to insert
                 between two grains of the GB. Default to 0.
             ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
             normal (logic):
@@ -350,21 +425,21 @@ class GrainBoundaryGenerator:
                 perperdicular to the surface or not.
                 default to false.
             ratio (list of integers):
-                    lattice axial ratio.
-                    For cubic system, ratio is not needed.
-                    For tetragonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                    For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
-                    that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
-                    e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
-                    For rhombohedral system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
-                    If irrational, set it to None.
-                    For hexagonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                    This code also supplies a class method to generate the ratio from the
-                    structure (get_ratio). User can also make their own approximation and
-                    input the ratio directly.
+                lattice axial ratio.
+                For cubic system, ratio is not needed.
+                For tetragonal system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+                that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
+                e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+                For rhombohedral system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
+                If irrational, set it to None.
+                For hexagonal system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                This code also supplies a class method to generate the ratio from the
+                structure (get_ratio). User can also make their own approximation and
+                input the ratio directly.
             plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
                 to the rotation axis.
@@ -391,61 +466,71 @@ class GrainBoundaryGenerator:
         # calculate the transformation matrix from its conventional cell
         # to primitive cell, basically for bcc and fcc systems.
         trans_cry = np.eye(3)
-        if lat_type == 'c':
+        if lat_type == "c":
             analyzer = SpacegroupAnalyzer(self.initial_structure)
             convention_cell = analyzer.get_conventional_standard_structure()
             vol_ratio = self.initial_structure.volume / convention_cell.volume
             # bcc primitive cell, belong to cubic system
-            if abs(vol_ratio - 0.5) < 1.e-3:
-                trans_cry = np.array([[0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, 0.5]])
+            if abs(vol_ratio - 0.5) < 1.0e-3:
+                trans_cry = np.array(
+                    [[0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, 0.5]]
+                )
                 logger.info("Make sure this is for cubic with bcc primitive cell")
             # fcc primitive cell, belong to cubic system
-            elif abs(vol_ratio - 0.25) < 1.e-3:
+            elif abs(vol_ratio - 0.25) < 1.0e-3:
                 trans_cry = np.array([[0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]])
                 logger.info("Make sure this is for cubic with fcc primitive cell")
             else:
                 logger.info("Make sure this is for cubic with conventional cell")
-        elif lat_type == 't':
+        elif lat_type == "t":
             logger.info("Make sure this is for tetragonal system")
             if ratio is None:
-                logger.info('Make sure this is for irrational c2/a2')
+                logger.info("Make sure this is for irrational c2/a2")
             elif len(ratio) != 2:
-                raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
-        elif lat_type == 'o':
-            logger.info('Make sure this is for orthorhombic system')
+                raise RuntimeError("Tetragonal system needs correct c2/a2 ratio")
+        elif lat_type == "o":
+            logger.info("Make sure this is for orthorhombic system")
             if ratio is None:
-                raise RuntimeError('CSL does not exist if all axial ratios are irrational '
-                                   'for an orthorhombic system')
-            elif len(ratio) != 3:
-                raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
-        elif lat_type == 'h':
-            logger.info('Make sure this is for hexagonal system')
+                raise RuntimeError(
+                    "CSL does not exist if all axial ratios are irrational "
+                    "for an orthorhombic system"
+                )
+            if len(ratio) != 3:
+                raise RuntimeError("Orthorhombic system needs correct c2:b2:a2 ratio")
+        elif lat_type == "h":
+            logger.info("Make sure this is for hexagonal system")
             if ratio is None:
-                logger.info('Make sure this is for irrational c2/a2')
+                logger.info("Make sure this is for irrational c2/a2")
             elif len(ratio) != 2:
-                raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
-        elif lat_type == 'r':
-            logger.info('Make sure this is for rhombohedral system')
+                raise RuntimeError("Hexagonal system needs correct c2/a2 ratio")
+        elif lat_type == "r":
+            logger.info("Make sure this is for rhombohedral system")
             if ratio is None:
-                logger.info('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
+                logger.info(
+                    "Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio"
+                )
             elif len(ratio) != 2:
-                raise RuntimeError('Rhombohedral system needs correct '
-                                   '(1+2*cos(alpha)/cos(alpha) ratio')
+                raise RuntimeError(
+                    "Rhombohedral system needs correct "
+                    "(1+2*cos(alpha)/cos(alpha) ratio"
+                )
         else:
-            raise RuntimeError('Lattice type not implemented. This code works for cubic, '
-                               'tetragonal, orthorhombic, rhombehedral, hexagonal systems')
+            raise RuntimeError(
+                "Lattice type not implemented. This code works for cubic, "
+                "tetragonal, orthorhombic, rhombehedral, hexagonal systems"
+            )
 
         # transform four index notation to three index notation for hexagonal and rhombohedral
         if len(rotation_axis) == 4:
             u1 = rotation_axis[0]
             v1 = rotation_axis[1]
             w1 = rotation_axis[3]
-            if lat_type.lower() == 'h':
+            if lat_type.lower() == "h":
                 u = 2 * u1 + v1
                 v = 2 * v1 + u1
                 w = w1
                 rotation_axis = [u, v, w]
-            elif lat_type.lower() == 'r':
+            elif lat_type.lower() == "r":
                 u = 2 * u1 + v1 + w1
                 v = v1 + w1 - u1
                 w = w1 - 2 * v1 - u1
@@ -453,7 +538,9 @@ class GrainBoundaryGenerator:
 
         # make sure gcd(rotation_axis)==1
         if reduce(gcd, rotation_axis) != 1:
-            rotation_axis = [int(round(x / reduce(gcd, rotation_axis))) for x in rotation_axis]
+            rotation_axis = [
+                int(round(x / reduce(gcd, rotation_axis))) for x in rotation_axis
+            ]
         # transform four index notation to three index notation for plane
         if plane is not None:
             if len(plane) == 4:
@@ -463,36 +550,46 @@ class GrainBoundaryGenerator:
                 plane = [u1, v1, w1]
         # set the plane for grain boundary when plane is None.
         if plane is None:
-            if lat_type.lower() == 'c':
+            if lat_type.lower() == "c":
                 plane = rotation_axis
             else:
-                if lat_type.lower() == 'h':
+                if lat_type.lower() == "h":
                     if ratio is None:
                         c2_a2_ratio = 1
                     else:
                         c2_a2_ratio = ratio[0] / ratio[1]
                     metric = np.array([[1, -0.5, 0], [-0.5, 1, 0], [0, 0, c2_a2_ratio]])
-                elif lat_type.lower() == 'r':
+                elif lat_type.lower() == "r":
                     if ratio is None:
                         cos_alpha = 0.5
                     else:
                         cos_alpha = 1.0 / (ratio[0] / ratio[1] - 2)
-                    metric = np.array([[1, cos_alpha, cos_alpha], [cos_alpha, 1, cos_alpha],
-                                       [cos_alpha, cos_alpha, 1]])
-                elif lat_type.lower() == 't':
+                    metric = np.array(
+                        [
+                            [1, cos_alpha, cos_alpha],
+                            [cos_alpha, 1, cos_alpha],
+                            [cos_alpha, cos_alpha, 1],
+                        ]
+                    )
+                elif lat_type.lower() == "t":
                     if ratio is None:
                         c2_a2_ratio = 1
                     else:
                         c2_a2_ratio = ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
-                elif lat_type.lower() == 'o':
+                elif lat_type.lower() == "o":
                     for i in range(3):
                         if ratio[i] is None:
                             ratio[i] = 1
-                    metric = np.array([[1, 0, 0], [0, ratio[1] / ratio[2], 0],
-                                       [0, 0, ratio[0] / ratio[2]]])
+                    metric = np.array(
+                        [
+                            [1, 0, 0],
+                            [0, ratio[1] / ratio[2], 0],
+                            [0, 0, ratio[0] / ratio[2]],
+                        ]
+                    )
                 else:
-                    raise RuntimeError('Lattice type has not implemented.')
+                    raise RuntimeError("Lattice type has not implemented.")
 
                 plane = np.matmul(rotation_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in plane]
@@ -503,44 +600,59 @@ class GrainBoundaryGenerator:
             index = reduce(gcd, plane)
             plane = [int(round(x / index)) for x in plane]
 
-        t1, t2 = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=normal,
-                                    trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
-                                    surface=plane, max_search=max_search, quick_gen=quick_gen)
+        t1, t2 = self.get_trans_mat(
+            r_axis=rotation_axis,
+            angle=rotation_angle,
+            normal=normal,
+            trans_cry=trans_cry,
+            lat_type=lat_type,
+            ratio=ratio,
+            surface=plane,
+            max_search=max_search,
+            quick_gen=quick_gen,
+        )
 
         # find the join_plane
-        if lat_type.lower() != 'c':
-            if lat_type.lower() == 'h':
+        if lat_type.lower() != "c":
+            if lat_type.lower() == "h":
                 if ratio is None:
                     mu, mv = [1, 1]
                 else:
                     mu, mv = ratio
-                trans_cry1 = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0],
-                                       [0, 0, np.sqrt(mu / mv)]])
-            elif lat_type.lower() == 'r':
+                trans_cry1 = np.array(
+                    [[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0], [0, 0, np.sqrt(mu / mv)]]
+                )
+            elif lat_type.lower() == "r":
                 if ratio is None:
                     c2_a2_ratio = 1
                 else:
                     mu, mv = ratio
                     c2_a2_ratio = 3.0 / (2 - 6 * mv / mu)
-                trans_cry1 = np.array([[0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
-                                       [-0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
-                                       [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
+                trans_cry1 = np.array(
+                    [
+                        [0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                        [-0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                        [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                    ]
+                )
             else:
-                if lat_type.lower() == 't':
+                if lat_type.lower() == "t":
                     if ratio is None:
                         mu, mv = [1, 1]
                     else:
                         mu, mv = ratio
                     lam = mv
-                elif lat_type.lower() == 'o':
+                elif lat_type.lower() == "o":
                     new_ratio = [1 if v is None else v for v in ratio]
                     mu, lam, mv = new_ratio
-                trans_cry1 = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
+                trans_cry1 = np.array(
+                    [[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]]
+                )
         else:
             trans_cry1 = trans_cry
         grain_matrix = np.dot(t2, trans_cry1)
         plane_init = np.cross(grain_matrix[0], grain_matrix[1])
-        if lat_type.lower() != 'c':
+        if lat_type.lower() != "c":
             plane_init = np.dot(plane_init, trans_cry1.T)
         join_plane = self.vec_to_surface(plane_init)
 
@@ -559,15 +671,23 @@ class GrainBoundaryGenerator:
 
         # obtain the smallest oriended cell
         if normal and not quick_gen:
-            t_temp = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=False,
-                                        trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
-                                        surface=plane, max_search=max_search)
+            t_temp = self.get_trans_mat(
+                r_axis=rotation_axis,
+                angle=rotation_angle,
+                normal=False,
+                trans_cry=trans_cry,
+                lat_type=lat_type,
+                ratio=ratio,
+                surface=plane,
+                max_search=max_search,
+            )
             oriended_unit_cell = fix_pbc(parent_structure * t_temp[0])
             t_matrix = oriended_unit_cell.lattice.matrix
             normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
             unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
-            unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) \
-                             / np.dot(unit_normal_v, t_matrix[2])
+            unit_ab_adjust = (
+                t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v
+            ) / np.dot(unit_normal_v, t_matrix[2])
         else:
             oriended_unit_cell = top_grain.copy()
             unit_ab_adjust = 0.0
@@ -577,28 +697,40 @@ class GrainBoundaryGenerator:
 
         # label both grains with 'top','bottom','top_incident','bottom_incident'
         n_sites = top_grain.num_sites
-        t_and_b = Structure(top_grain.lattice, top_grain.species + bottom_grain.species,
-                            list(top_grain.frac_coords) + list(bottom_grain.frac_coords))
-        t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:n_sites],
-                                                        t_and_b.frac_coords[n_sites:n_sites * 2])
+        t_and_b = Structure(
+            top_grain.lattice,
+            top_grain.species + bottom_grain.species,
+            list(top_grain.frac_coords) + list(bottom_grain.frac_coords),
+        )
+        t_and_b_dis = t_and_b.lattice.get_all_distances(
+            t_and_b.frac_coords[0:n_sites], t_and_b.frac_coords[n_sites : n_sites * 2]
+        )
         index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
 
         top_labels = []
         for i in range(n_sites):
             if i in index_incident[0]:
-                top_labels.append('top_incident')
+                top_labels.append("top_incident")
             else:
-                top_labels.append('top')
+                top_labels.append("top")
         bottom_labels = []
         for i in range(n_sites):
             if i in index_incident[1]:
-                bottom_labels.append('bottom_incident')
+                bottom_labels.append("bottom_incident")
             else:
-                bottom_labels.append('bottom')
-        top_grain = Structure(Lattice(top_grain.lattice.matrix), top_grain.species,
-                              top_grain.frac_coords, site_properties={'grain_label': top_labels})
-        bottom_grain = Structure(Lattice(bottom_grain.lattice.matrix), bottom_grain.species,
-                                 bottom_grain.frac_coords, site_properties={'grain_label': bottom_labels})
+                bottom_labels.append("bottom")
+        top_grain = Structure(
+            Lattice(top_grain.lattice.matrix),
+            top_grain.species,
+            top_grain.frac_coords,
+            site_properties={"grain_label": top_labels},
+        )
+        bottom_grain = Structure(
+            Lattice(bottom_grain.lattice.matrix),
+            bottom_grain.species,
+            bottom_grain.frac_coords,
+            site_properties={"grain_label": bottom_labels},
+        )
 
         # expand both grains
         top_grain.make_supercell([1, 1, expand_times])
@@ -631,41 +763,70 @@ class GrainBoundaryGenerator:
 
         # construct the coords, move top grain with translation_v
         all_coords = []
-        grain_labels = bottom_grain.site_properties['grain_label'] \
-                       + top_grain.site_properties['grain_label']
+        grain_labels = (
+            bottom_grain.site_properties["grain_label"]
+            + top_grain.site_properties["grain_label"]
+        )
         for site in bottom_grain:
             all_coords.append(site.coords)
         for site in top_grain:
-            all_coords.append(site.coords + half_lattice.matrix[2] * (1 + c_adjust) +
-                              unit_ab_adjust * np.linalg.norm(half_lattice.matrix[2] * (1 + c_adjust)) +
-                              translation_v + ab_shift[0] * whole_matrix_with_vac[0] +
-                              ab_shift[1] * whole_matrix_with_vac[1])
+            all_coords.append(
+                site.coords
+                + half_lattice.matrix[2] * (1 + c_adjust)
+                + unit_ab_adjust
+                * np.linalg.norm(half_lattice.matrix[2] * (1 + c_adjust))
+                + translation_v
+                + ab_shift[0] * whole_matrix_with_vac[0]
+                + ab_shift[1] * whole_matrix_with_vac[1]
+            )
 
-        gb_with_vac = Structure(whole_lat, all_species, all_coords,
-                                coords_are_cartesian=True,
-                                site_properties={'grain_label': grain_labels})
+        gb_with_vac = Structure(
+            whole_lat,
+            all_species,
+            all_coords,
+            coords_are_cartesian=True,
+            site_properties={"grain_label": grain_labels},
+        )
         # merge closer atoms. extract near gb atoms.
         cos_c_norm_plane = np.dot(unit_normal_v, whole_matrix_with_vac[2]) / whole_lat.c
         range_c_len = abs(bond_length / cos_c_norm_plane / whole_lat.c)
         sites_near_gb = []
         sites_away_gb = []
         for site in gb_with_vac.sites:
-            if site.frac_coords[2] < range_c_len or site.frac_coords[2] > 1 - range_c_len \
-                    or (site.frac_coords[2] > 0.5 - range_c_len and site.frac_coords[2] < 0.5 + range_c_len):
+            if (
+                site.frac_coords[2] < range_c_len
+                or site.frac_coords[2] > 1 - range_c_len
+                or (
+                    site.frac_coords[2] > 0.5 - range_c_len
+                    and site.frac_coords[2] < 0.5 + range_c_len
+                )
+            ):
                 sites_near_gb.append(site)
             else:
                 sites_away_gb.append(site)
         if len(sites_near_gb) >= 1:
             s_near_gb = Structure.from_sites(sites_near_gb)
-            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode='d')
+            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode="d")
             all_sites = sites_away_gb + s_near_gb.sites
             gb_with_vac = Structure.from_sites(all_sites)
 
-        return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
-                             rotation_angle, plane, join_plane, self.initial_structure,
-                             vacuum_thickness, ab_shift, site_properties=gb_with_vac.site_properties,
-                             oriented_unit_cell=oriended_unit_cell,
-                             coords_are_cartesian=True)
+        # move coordinates into the periodic cell.
+        gb_with_vac = fix_pbc(gb_with_vac, whole_lat.matrix)
+        return GrainBoundary(
+            whole_lat,
+            gb_with_vac.species,
+            gb_with_vac.cart_coords,
+            rotation_axis,
+            rotation_angle,
+            plane,
+            join_plane,
+            self.initial_structure,
+            vacuum_thickness,
+            ab_shift,
+            site_properties=gb_with_vac.site_properties,
+            oriented_unit_cell=oriended_unit_cell,
+            coords_are_cartesian=True,
+        )
 
     def get_ratio(self, max_denominator=5, index_none=None):
         """
@@ -674,14 +835,14 @@ class GrainBoundaryGenerator:
             max_denominator (int): the maximum denominator for
                 the computed ratio, default to be 5.
             index_none (int): specify the irrational axis.
-                0-a, 1-b, 2-c. Only may be needed for orthorombic system.
+                0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
         Returns:
                axial ratio needed for GB generator (list of integers).
 
         """
         structure = self.initial_structure
         lat_type = self.lat_type
-        if lat_type == 't' or lat_type == 'h':
+        if lat_type in ("t", "h"):
             # For tetragonal and hexagonal system, ratio = c2 / a2.
             a, c = (structure.lattice.a, structure.lattice.c)
             if c > a:
@@ -690,12 +851,14 @@ class GrainBoundaryGenerator:
             else:
                 frac = Fraction(a ** 2 / c ** 2).limit_denominator(max_denominator)
                 ratio = [frac.denominator, frac.numerator]
-        elif lat_type == 'r':
+        elif lat_type == "r":
             # For rhombohedral system, ratio = (1 + 2 * cos(alpha)) / cos(alpha).
             cos_alpha = cos(structure.lattice.alpha / 180 * np.pi)
-            frac = Fraction((1 + 2 * cos_alpha) / cos_alpha).limit_denominator(max_denominator)
+            frac = Fraction((1 + 2 * cos_alpha) / cos_alpha).limit_denominator(
+                max_denominator
+            )
             ratio = [frac.numerator, frac.denominator]
-        elif lat_type == 'o':
+        elif lat_type == "o":
             # For orthorhombic system, ratio = c2:b2:a2.If irrational for one axis, set it to None.
             ratio = [None] * 3
             lat = (structure.lattice.c, structure.lattice.b, structure.lattice.a)
@@ -703,31 +866,53 @@ class GrainBoundaryGenerator:
             if index_none is None:
                 min_index = np.argmin(lat)
                 index.pop(min_index)
-                frac1 = Fraction(lat[index[0]] ** 2 / lat[min_index] ** 2).limit_denominator(max_denominator)
-                frac2 = Fraction(lat[index[1]] ** 2 / lat[min_index] ** 2).limit_denominator(max_denominator)
+                frac1 = Fraction(
+                    lat[index[0]] ** 2 / lat[min_index] ** 2
+                ).limit_denominator(max_denominator)
+                frac2 = Fraction(
+                    lat[index[1]] ** 2 / lat[min_index] ** 2
+                ).limit_denominator(max_denominator)
                 com_lcm = lcm(frac1.denominator, frac2.denominator)
                 ratio[min_index] = com_lcm
-                ratio[index[0]] = frac1.numerator * int(round((com_lcm / frac1.denominator)))
-                ratio[index[1]] = frac2.numerator * int(round((com_lcm / frac2.denominator)))
+                ratio[index[0]] = frac1.numerator * int(
+                    round((com_lcm / frac1.denominator))
+                )
+                ratio[index[1]] = frac2.numerator * int(
+                    round((com_lcm / frac2.denominator))
+                )
             else:
                 index.pop(index_none)
-                if (lat[index[0]] > lat[index[1]]):
-                    frac = Fraction(lat[index[0]] ** 2 / lat[index[1]] ** 2).limit_denominator(max_denominator)
+                if lat[index[0]] > lat[index[1]]:
+                    frac = Fraction(
+                        lat[index[0]] ** 2 / lat[index[1]] ** 2
+                    ).limit_denominator(max_denominator)
                     ratio[index[0]] = frac.numerator
                     ratio[index[1]] = frac.denominator
                 else:
-                    frac = Fraction(lat[index[1]] ** 2 / lat[index[0]] ** 2).limit_denominator(max_denominator)
+                    frac = Fraction(
+                        lat[index[1]] ** 2 / lat[index[0]] ** 2
+                    ).limit_denominator(max_denominator)
                     ratio[index[1]] = frac.numerator
                     ratio[index[0]] = frac.denominator
-        elif lat_type == 'c':
-            raise RuntimeError('Cubic system does not need axial ratio.')
+        elif lat_type == "c":
+            # Cubic system does not need axial ratio.
+            return None
         else:
-            raise RuntimeError('Lattice type not implemented.')
+            raise RuntimeError("Lattice type not implemented.")
         return ratio
 
     @staticmethod
-    def get_trans_mat(r_axis, angle, normal=False, trans_cry=np.eye(3), lat_type='c',
-                      ratio=None, surface=None, max_search=20, quick_gen=False):
+    def get_trans_mat(
+        r_axis,
+        angle,
+        normal=False,
+        trans_cry=np.eye(3),
+        lat_type="c",
+        ratio=None,
+        surface=None,
+        max_search=20,
+        quick_gen=False,
+    ):
         """
         Find the two transformation matrix for each grain from given rotation axis,
         GB plane, rotation angle and corresponding ratio (see explanation for ratio
@@ -791,12 +976,12 @@ class GrainBoundaryGenerator:
             u1 = r_axis[0]
             v1 = r_axis[1]
             w1 = r_axis[3]
-            if lat_type.lower() == 'h':
+            if lat_type.lower() == "h":
                 u = 2 * u1 + v1
                 v = 2 * v1 + u1
                 w = w1
                 r_axis = [u, v, w]
-            elif lat_type.lower() == 'r':
+            elif lat_type.lower() == "r":
                 u = 2 * u1 + v1 + w1
                 v = v1 + w1 - u1
                 w = w1 - 2 * v1 - u1
@@ -814,36 +999,46 @@ class GrainBoundaryGenerator:
                 surface = [u1, v1, w1]
         # set the surface for grain boundary.
         if surface is None:
-            if lat_type.lower() == 'c':
+            if lat_type.lower() == "c":
                 surface = r_axis
             else:
-                if lat_type.lower() == 'h':
+                if lat_type.lower() == "h":
                     if ratio is None:
                         c2_a2_ratio = 1
                     else:
                         c2_a2_ratio = ratio[0] / ratio[1]
                     metric = np.array([[1, -0.5, 0], [-0.5, 1, 0], [0, 0, c2_a2_ratio]])
-                elif lat_type.lower() == 'r':
+                elif lat_type.lower() == "r":
                     if ratio is None:
                         cos_alpha = 0.5
                     else:
                         cos_alpha = 1.0 / (ratio[0] / ratio[1] - 2)
-                    metric = np.array([[1, cos_alpha, cos_alpha], [cos_alpha, 1, cos_alpha],
-                                       [cos_alpha, cos_alpha, 1]])
-                elif lat_type.lower() == 't':
+                    metric = np.array(
+                        [
+                            [1, cos_alpha, cos_alpha],
+                            [cos_alpha, 1, cos_alpha],
+                            [cos_alpha, cos_alpha, 1],
+                        ]
+                    )
+                elif lat_type.lower() == "t":
                     if ratio is None:
                         c2_a2_ratio = 1
                     else:
                         c2_a2_ratio = ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
-                elif lat_type.lower() == 'o':
+                elif lat_type.lower() == "o":
                     for i in range(3):
                         if ratio[i] is None:
                             ratio[i] = 1
-                    metric = np.array([[1, 0, 0], [0, ratio[1] / ratio[2], 0],
-                                       [0, 0, ratio[0] / ratio[2]]])
+                    metric = np.array(
+                        [
+                            [1, 0, 0],
+                            [0, ratio[1] / ratio[2], 0],
+                            [0, 0, ratio[0] / ratio[2]],
+                        ]
+                    )
                 else:
-                    raise RuntimeError('Lattice type has not implemented.')
+                    raise RuntimeError("Lattice type has not implemented.")
 
                 surface = np.matmul(r_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in surface]
@@ -854,7 +1049,7 @@ class GrainBoundaryGenerator:
             index = reduce(gcd, surface)
             surface = [int(round(x / index)) for x in surface]
 
-        if lat_type.lower() == 'h':
+        if lat_type.lower() == "h":
             # set the value for u,v,w,mu,mv,m,n,d,x
             # check the reference for the meaning of these parameters
             u, v, w = r_axis
@@ -863,8 +1058,10 @@ class GrainBoundaryGenerator:
                 mu, mv = [1, 1]
                 if w != 0:
                     if u != 0 or (v != 0):
-                        raise RuntimeError('For irrational c2/a2, CSL only exist for [0,0,1] '
-                                           'or [u,v,0] and m = 0')
+                        raise RuntimeError(
+                            "For irrational c2/a2, CSL only exist for [0,0,1] "
+                            "or [u,v,0] and m = 0"
+                        )
             else:
                 mu, mv = ratio
             if gcd(mu, mv) != 1:
@@ -872,48 +1069,57 @@ class GrainBoundaryGenerator:
                 mu = int(round(mu / temp))
                 mv = int(round(mv / temp))
             d = (u ** 2 + v ** 2 - u * v) * mv + w ** 2 * mu
-            if abs(angle - 180.0) < 1.e0:
+            if abs(angle - 180.0) < 1.0e0:
                 m = 0
                 n = 1
             else:
-                fraction = Fraction(np.tan(angle / 2 / 180.0 * np.pi) /
-                                    np.sqrt(float(d) / 3.0 / mu)).limit_denominator()
+                fraction = Fraction(
+                    np.tan(angle / 2 / 180.0 * np.pi) / np.sqrt(float(d) / 3.0 / mu)
+                ).limit_denominator()
                 m = fraction.denominator
                 n = fraction.numerator
 
             # construct the rotation matrix, check reference for details
-            r_list = [(u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                      2 * w * mu * m * n + 3 * mu * m ** 2,
-                      (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                      2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                      (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                      (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 -
-                      2 * w * mu * m * n + 3 * mu * m ** 2,
-                      2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                      (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                      (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                      (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) *
-                      n ** 2 + 3 * mu * m ** 2]
+            r_list = [
+                (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2
+                + 2 * w * mu * m * n
+                + 3 * mu * m ** 2,
+                (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
+                2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
+                (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
+                (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2
+                - 2 * w * mu * m * n
+                + 3 * mu * m ** 2,
+                2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
+                (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
+                (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
+                (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2
+                + 3 * mu * m ** 2,
+            ]
             m = -1 * m
-            r_list_inv = [(u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                          2 * w * mu * m * n + 3 * mu * m ** 2,
-                          (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                          2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                          (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                          (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 -
-                          2 * w * mu * m * n + 3 * mu * m ** 2,
-                          2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                          (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                          (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                          (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) *
-                          n ** 2 + 3 * mu * m ** 2]
+            r_list_inv = [
+                (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2
+                + 2 * w * mu * m * n
+                + 3 * mu * m ** 2,
+                (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
+                2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
+                (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
+                (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2
+                - 2 * w * mu * m * n
+                + 3 * mu * m ** 2,
+                2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
+                (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
+                (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
+                (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2
+                + 3 * mu * m ** 2,
+            ]
             m = -1 * m
             F = 3 * mu * m ** 2 + d * n ** 2
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
-        elif lat_type.lower() == 'r':
+        elif lat_type.lower() == "r":
             # set the value for u,v,w,mu,mv,m,n,d
             # check the reference for the meaning of these parameters
             u, v, w = r_axis
@@ -922,69 +1128,131 @@ class GrainBoundaryGenerator:
                 mu, mv = [1, 1]
                 if u + v + w != 0:
                     if u != v or u != w:
-                        raise RuntimeError('For irrational ratio_alpha, CSL only exist for [1,1,1]'
-                                           'or [u, v, -(u+v)] and m =0')
+                        raise RuntimeError(
+                            "For irrational ratio_alpha, CSL only exist for [1,1,1]"
+                            "or [u, v, -(u+v)] and m =0"
+                        )
             else:
                 mu, mv = ratio
             if gcd(mu, mv) != 1:
                 temp = gcd(mu, mv)
                 mu = int(round(mu / temp))
                 mv = int(round(mv / temp))
-            d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + \
-                2 * mv * (v * w + w * u + u * v)
-            if abs(angle - 180.0) < 1.e0:
+            d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + 2 * mv * (
+                v * w + w * u + u * v
+            )
+            if abs(angle - 180.0) < 1.0e0:
                 m = 0
                 n = 1
             else:
-                fraction = Fraction(np.tan(angle / 2 / 180.0 * np.pi) /
-                                    np.sqrt(float(d) / mu)).limit_denominator()
+                fraction = Fraction(
+                    np.tan(angle / 2 / 180.0 * np.pi) / np.sqrt(float(d) / mu)
+                ).limit_denominator()
                 m = fraction.denominator
                 n = fraction.numerator
 
             # construct the rotation matrix, check reference for details
-            r_list = [(mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2 +
-                      2 * mv * (v - w) * m * n - 2 * mv * v * w * n ** 2 +
-                      mu * m ** 2,
-                      2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) *
-                           m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                      2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) *
-                           m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                      2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) *
-                           m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                      (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2 +
-                      2 * mv * (w - u) * m * n - 2 * mv * u * w * n ** 2 +
-                      mu * m ** 2,
-                      2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) *
-                           m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                      2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) *
-                           m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                      2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) *
-                           m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                      (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2 +
-                      2 * mv * (u - v) * m * n - 2 * mv * u * v * n ** 2 +
-                      mu * m ** 2]
+            r_list = [
+                (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                + 2 * mv * (v - w) * m * n
+                - 2 * mv * v * w * n ** 2
+                + mu * m ** 2,
+                2
+                * (
+                    mv * u * n * (w * n + u * n - m)
+                    - (mu - mv) * m * w * n
+                    + (mu - 2 * mv) * u * v * n ** 2
+                ),
+                2
+                * (
+                    mv * u * n * (v * n + u * n + m)
+                    + (mu - mv) * m * v * n
+                    + (mu - 2 * mv) * w * u * n ** 2
+                ),
+                2
+                * (
+                    mv * v * n * (w * n + v * n + m)
+                    + (mu - mv) * m * w * n
+                    + (mu - 2 * mv) * u * v * n ** 2
+                ),
+                (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                + 2 * mv * (w - u) * m * n
+                - 2 * mv * u * w * n ** 2
+                + mu * m ** 2,
+                2
+                * (
+                    mv * v * n * (v * n + u * n - m)
+                    - (mu - mv) * m * u * n
+                    + (mu - 2 * mv) * w * v * n ** 2
+                ),
+                2
+                * (
+                    mv * w * n * (w * n + v * n - m)
+                    - (mu - mv) * m * v * n
+                    + (mu - 2 * mv) * w * u * n ** 2
+                ),
+                2
+                * (
+                    mv * w * n * (w * n + u * n + m)
+                    + (mu - mv) * m * u * n
+                    + (mu - 2 * mv) * w * v * n ** 2
+                ),
+                (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                + 2 * mv * (u - v) * m * n
+                - 2 * mv * u * v * n ** 2
+                + mu * m ** 2,
+            ]
             m = -1 * m
-            r_list_inv = [(mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2 +
-                          2 * mv * (v - w) * m * n - 2 * mv * v * w * n ** 2 +
-                          mu * m ** 2,
-                          2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) *
-                               m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                          2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) *
-                               m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                          2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) *
-                               m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                          (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2 +
-                          2 * mv * (w - u) * m * n - 2 * mv * u * w * n ** 2 +
-                          mu * m ** 2,
-                          2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) *
-                               m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                          2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) *
-                               m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                          2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) *
-                               m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                          (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2 +
-                          2 * mv * (u - v) * m * n - 2 * mv * u * v * n ** 2 +
-                          mu * m ** 2]
+            r_list_inv = [
+                (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                + 2 * mv * (v - w) * m * n
+                - 2 * mv * v * w * n ** 2
+                + mu * m ** 2,
+                2
+                * (
+                    mv * u * n * (w * n + u * n - m)
+                    - (mu - mv) * m * w * n
+                    + (mu - 2 * mv) * u * v * n ** 2
+                ),
+                2
+                * (
+                    mv * u * n * (v * n + u * n + m)
+                    + (mu - mv) * m * v * n
+                    + (mu - 2 * mv) * w * u * n ** 2
+                ),
+                2
+                * (
+                    mv * v * n * (w * n + v * n + m)
+                    + (mu - mv) * m * w * n
+                    + (mu - 2 * mv) * u * v * n ** 2
+                ),
+                (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                + 2 * mv * (w - u) * m * n
+                - 2 * mv * u * w * n ** 2
+                + mu * m ** 2,
+                2
+                * (
+                    mv * v * n * (v * n + u * n - m)
+                    - (mu - mv) * m * u * n
+                    + (mu - 2 * mv) * w * v * n ** 2
+                ),
+                2
+                * (
+                    mv * w * n * (w * n + v * n - m)
+                    - (mu - mv) * m * v * n
+                    + (mu - 2 * mv) * w * u * n ** 2
+                ),
+                2
+                * (
+                    mv * w * n * (w * n + u * n + m)
+                    + (mu - mv) * m * u * n
+                    + (mu - 2 * mv) * w * v * n ** 2
+                ),
+                (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                + 2 * mv * (u - v) * m * n
+                - 2 * mv * u * v * n ** 2
+                + mu * m ** 2,
+            ]
             m = -1 * m
             F = mu * m ** 2 + d * n ** 2
             all_list = r_list_inv + r_list + [F]
@@ -993,26 +1261,28 @@ class GrainBoundaryGenerator:
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
         else:
             u, v, w = r_axis
-            if lat_type.lower() == 'c':
+            if lat_type.lower() == "c":
                 mu = 1
                 lam = 1
                 mv = 1
-            elif lat_type.lower() == 't':
+            elif lat_type.lower() == "t":
                 if ratio is None:
                     mu, mv = [1, 1]
                     if w != 0:
                         if u != 0 or (v != 0):
-                            raise RuntimeError('For irrational c2/a2, CSL only exist for [0,0,1] '
-                                               'or [u,v,0] and m = 0')
+                            raise RuntimeError(
+                                "For irrational c2/a2, CSL only exist for [0,0,1] "
+                                "or [u,v,0] and m = 0"
+                            )
                 else:
                     mu, mv = ratio
                 lam = mv
-            elif lat_type.lower() == 'o':
+            elif lat_type.lower() == "o":
                 if None in ratio:
                     mu, lam, mv = ratio
                     non_none = [i for i in ratio if i is not None]
                     if len(non_none) < 2:
-                        raise RuntimeError('No CSL exist for two irrational numbers')
+                        raise RuntimeError("No CSL exist for two irrational numbers")
                     non1, non2 = non_none
                     if mu is None:
                         lam = non1
@@ -1020,24 +1290,30 @@ class GrainBoundaryGenerator:
                         mu = 1
                         if w != 0:
                             if u != 0 or (v != 0):
-                                raise RuntimeError('For irrational c2, CSL only exist for [0,0,1] '
-                                                   'or [u,v,0] and m = 0')
+                                raise RuntimeError(
+                                    "For irrational c2, CSL only exist for [0,0,1] "
+                                    "or [u,v,0] and m = 0"
+                                )
                     elif lam is None:
                         mu = non1
                         mv = non2
                         lam = 1
                         if v != 0:
                             if u != 0 or (w != 0):
-                                raise RuntimeError('For irrational b2, CSL only exist for [0,1,0] '
-                                                   'or [u,0,w] and m = 0')
+                                raise RuntimeError(
+                                    "For irrational b2, CSL only exist for [0,1,0] "
+                                    "or [u,0,w] and m = 0"
+                                )
                     elif mv is None:
                         mu = non1
                         lam = non2
                         mv = 1
                         if u != 0:
                             if w != 0 or (v != 0):
-                                raise RuntimeError('For irrational a2, CSL only exist for [1,0,0] '
-                                                   'or [0,v,w] and m = 0')
+                                raise RuntimeError(
+                                    "For irrational a2, CSL only exist for [1,0,0] "
+                                    "or [0,v,w] and m = 0"
+                                )
                 else:
                     mu, lam, mv = ratio
                     if u == 0 and v == 0:
@@ -1054,39 +1330,44 @@ class GrainBoundaryGenerator:
                 mv = int(round(mv / temp))
                 lam = int(round(lam / temp))
             d = (mv * u ** 2 + lam * v ** 2) * mv + w ** 2 * mu * mv
-            if abs(angle - 180.0) < 1.e0:
+            if abs(angle - 180.0) < 1.0e0:
                 m = 0
                 n = 1
             else:
-                fraction = Fraction(np.tan(angle / 2 / 180.0 * np.pi) /
-                                    np.sqrt(d / mu / lam)).limit_denominator()
+                fraction = Fraction(
+                    np.tan(angle / 2 / 180.0 * np.pi) / np.sqrt(d / mu / lam)
+                ).limit_denominator()
                 m = fraction.denominator
                 n = fraction.numerator
-            r_list = [(u ** 2 * mv * mv - lam * v ** 2 * mv -
-                       w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                      2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                      2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                      2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                      (v ** 2 * mv * lam - u ** 2 * mv * mv -
-                       w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                      2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                      2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                      2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                      (w ** 2 * mu * mv - u ** 2 * mv * mv -
-                       v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2]
+            r_list = [
+                (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv) * n ** 2
+                + lam * mu * m ** 2,
+                2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
+                2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
+                2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
+                (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv) * n ** 2
+                + lam * mu * m ** 2,
+                2 * mv * mu * (v * w * n ** 2 - u * m * n),
+                2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
+                2 * lam * mv * (v * w * n ** 2 + u * m * n),
+                (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam) * n ** 2
+                + lam * mu * m ** 2,
+            ]
             m = -1 * m
-            r_list_inv = [(u ** 2 * mv * mv - lam * v ** 2 * mv -
-                           w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                          2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                          2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                          2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                          (v ** 2 * mv * lam - u ** 2 * mv * mv -
-                           w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                          2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                          2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                          2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                          (w ** 2 * mu * mv - u ** 2 * mv * mv -
-                           v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2]
+            r_list_inv = [
+                (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv) * n ** 2
+                + lam * mu * m ** 2,
+                2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
+                2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
+                2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
+                (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv) * n ** 2
+                + lam * mu * m ** 2,
+                2 * mv * mu * (v * w * n ** 2 - u * m * n),
+                2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
+                2 * lam * mv * (v * w * n ** 2 + u * m * n),
+                (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam) * n ** 2
+                + lam * mu * m ** 2,
+            ]
             m = -1 * m
             F = mu * lam * m ** 2 + d * n ** 2
             all_list = r_list + r_list_inv + [F]
@@ -1094,9 +1375,11 @@ class GrainBoundaryGenerator:
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
-        if (sigma > 1000):
-            raise RuntimeError('Sigma >1000 too large. Are you sure what you are doing, '
-                               'Please check the GB if exist')
+        if sigma > 1000:
+            raise RuntimeError(
+                "Sigma >1000 too large. Are you sure what you are doing, "
+                "Please check the GB if exist"
+            )
         # transform surface, r_axis, r_matrix in terms of primitive lattice
         surface = np.matmul(surface, np.transpose(trans_cry))
         fractions = [Fraction(x).limit_denominator() for x in surface]
@@ -1136,12 +1419,14 @@ class GrainBoundaryGenerator:
         try:
             n_final
         except NameError:
-            raise RuntimeError('Something is wrong. Check if this GB exists or not')
+            raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[k, l] = n_final
         # each row of mat_csl is the CSL lattice vector
         csl_init = np.rint(np.dot(np.dot(r_matrix, trans), scale)).astype(int).T
         if abs(r_axis[h]) > 1:
-            csl_init = GrainBoundaryGenerator.reduce_mat(np.array(csl_init), r_axis[h], r_matrix)
+            csl_init = GrainBoundaryGenerator.reduce_mat(
+                np.array(csl_init), r_axis[h], r_matrix
+            )
         csl = np.rint(Lattice(csl_init).get_niggli_reduced_lattice().matrix).astype(int)
 
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
@@ -1149,23 +1434,33 @@ class GrainBoundaryGenerator:
 
         # now trans_cry is the transformation matrix from crystal to cartesian coordinates.
         # for cubic, do not need to change.
-        if lat_type.lower() != 'c':
-            if lat_type.lower() == 'h':
-                trans_cry = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0],
-                                      [0, 0, np.sqrt(mu / mv)]])
-            elif lat_type.lower() == 'r':
+        if lat_type.lower() != "c":
+            if lat_type.lower() == "h":
+                trans_cry = np.array(
+                    [[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0], [0, 0, np.sqrt(mu / mv)]]
+                )
+            elif lat_type.lower() == "r":
                 if ratio is None:
                     c2_a2_ratio = 1
                 else:
                     c2_a2_ratio = 3.0 / (2 - 6 * mv / mu)
-                trans_cry = np.array([[0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
-                                      [-0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
-                                      [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
+                trans_cry = np.array(
+                    [
+                        [0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                        [-0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                        [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                    ]
+                )
             else:
-                trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
-        t1_final = GrainBoundaryGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search,
-                                                        quick_gen=quick_gen)
-        t2_final = np.array(np.rint(np.dot(t1_final, np.linalg.inv(r_matrix.T)))).astype(int)
+                trans_cry = np.array(
+                    [[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]]
+                )
+        t1_final = GrainBoundaryGenerator.slab_from_csl(
+            csl, surface, normal, trans_cry, max_search=max_search, quick_gen=quick_gen
+        )
+        t2_final = np.array(
+            np.rint(np.dot(t1_final, np.linalg.inv(r_matrix.T)))
+        ).astype(int)
         return t1_final, t2_final
 
     @staticmethod
@@ -1227,21 +1522,35 @@ class GrainBoundaryGenerator:
                         a = 2
                     else:
                         a = 1
-                    sigma = int(round((m ** 2 + n ** 2 * sum(np.array(r_axis) ** 2)) / a))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    sigma = int(
+                        round((m ** 2 + n ** 2 * sum(np.array(r_axis) ** 2)) / a)
+                    )
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n * np.sqrt(sum(np.array(r_axis) ** 2)) / m) \
-                                        / np.pi * 180
+                                angle = (
+                                    2
+                                    * np.arctan(
+                                        n * np.sqrt(sum(np.array(r_axis) ** 2)) / m
+                                    )
+                                    / np.pi
+                                    * 180
+                                )
                             sigmas[sigma] = [angle]
                         else:
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n * np.sqrt(sum(np.array(r_axis) ** 2)) / m) \
-                                        / np.pi * 180
+                                angle = (
+                                    2
+                                    * np.arctan(
+                                        n * np.sqrt(sum(np.array(r_axis) ** 2)) / m
+                                    )
+                                    / np.pi
+                                    * 180
+                                )
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
         return sigmas
@@ -1295,8 +1604,10 @@ class GrainBoundaryGenerator:
             mu, mv = [1, 1]
             if w != 0:
                 if u != 0 or (v != 0):
-                    raise RuntimeError('For irrational c2/a2, CSL only exist for [0,0,1] '
-                                       'or [u,v,0] and m = 0')
+                    raise RuntimeError(
+                        "For irrational c2/a2, CSL only exist for [0,0,1] "
+                        "or [u,v,0] and m = 0"
+                    )
         else:
             mu, mv = c2_a2_ratio
             if gcd(mu, mv) != 1:
@@ -1319,32 +1630,40 @@ class GrainBoundaryGenerator:
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
-                    R_list = [(u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                              2 * w * mu * m * n + 3 * mu * m ** 2,
-                              (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                              2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                              (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                              (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 -
-                              2 * w * mu * m * n + 3 * mu * m ** 2,
-                              2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                              (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                              (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                              (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) *
-                              n ** 2 + 3 * mu * m ** 2]
+                    R_list = [
+                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2
+                        + 2 * w * mu * m * n
+                        + 3 * mu * m ** 2,
+                        (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
+                        2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
+                        (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
+                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2
+                        - 2 * w * mu * m * n
+                        + 3 * mu * m ** 2,
+                        2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
+                        (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
+                        (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
+                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2
+                        + 3 * mu * m ** 2,
+                    ]
                     m = -1 * m
                     # inverse of the rotation matrix
-                    R_list_inv = [(u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                                  2 * w * mu * m * n + 3 * mu * m ** 2,
-                                  (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
-                                  2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
-                                  (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
-                                  (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 -
-                                  2 * w * mu * m * n + 3 * mu * m ** 2,
-                                  2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
-                                  (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
-                                  (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
-                                  (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) *
-                                  n ** 2 + 3 * mu * m ** 2]
+                    R_list_inv = [
+                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2
+                        + 2 * w * mu * m * n
+                        + 3 * mu * m ** 2,
+                        (2 * v - u) * u * mv * n ** 2 - 4 * w * mu * m * n,
+                        2 * u * w * mu * n ** 2 + 2 * (2 * v - u) * mu * m * n,
+                        (2 * u - v) * v * mv * n ** 2 + 4 * w * mu * m * n,
+                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2
+                        - 2 * w * mu * m * n
+                        + 3 * mu * m ** 2,
+                        2 * v * w * mu * n ** 2 - 2 * (2 * u - v) * mu * m * n,
+                        (2 * u - v) * w * mv * n ** 2 - 3 * v * mv * m * n,
+                        (2 * v - u) * w * mv * n ** 2 + 3 * u * mv * m * n,
+                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv + u * v * mv) * n ** 2
+                        + 3 * mu * m ** 2,
+                    ]
                     m = -1 * m
                     F = 3 * mu * m ** 2 + d * n ** 2
                     all_list = R_list_inv + R_list + [F]
@@ -1352,20 +1671,28 @@ class GrainBoundaryGenerator:
                     # and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round((3 * mu * m ** 2 + d * n ** 2) / com_fac))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / 3.0 / mu)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2
+                                    * np.arctan(n / m * np.sqrt(d / 3.0 / mu))
+                                    / np.pi
+                                    * 180
+                                )
                             sigmas[sigma] = [angle]
                         else:
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / 3.0 / mu)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2
+                                    * np.arctan(n / m * np.sqrt(d / 3.0 / mu))
+                                    / np.pi
+                                    * 180
+                                )
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1421,8 +1748,10 @@ class GrainBoundaryGenerator:
             mu, mv = [1, 1]
             if u + v + w != 0:
                 if u != v or u != w:
-                    raise RuntimeError('For irrational ratio_alpha, CSL only exist for [1,1,1]'
-                                       'or [u, v, -(u+v)] and m =0')
+                    raise RuntimeError(
+                        "For irrational ratio_alpha, CSL only exist for [1,1,1]"
+                        "or [u, v, -(u+v)] and m =0"
+                    )
         else:
             mu, mv = ratio_alpha
             if gcd(mu, mv) != 1:
@@ -1431,8 +1760,9 @@ class GrainBoundaryGenerator:
                 mv = int(round(mv / temp))
 
         # refer to the meaning of d in reference
-        d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + \
-            2 * mv * (v * w + w * u + u * v)
+        d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + 2 * mv * (
+            v * w + w * u + u * v
+        )
         # Compute the max n we need to enumerate.
         n_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv))) / abs(d)))
 
@@ -1441,54 +1771,114 @@ class GrainBoundaryGenerator:
             if ratio_alpha is None and u + v + w == 0:
                 m_max = 0
             else:
-                m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n ** 2 * d) / (mu)))
+                m_max = int(
+                    np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n ** 2 * d) / (mu))
+                )
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
-                    R_list = [(mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2 +
-                              2 * mv * (v - w) * m * n - 2 * mv * v * w * n ** 2 +
-                              mu * m ** 2,
-                              2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) *
-                                   m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                              2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) *
-                                   m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                              2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) *
-                                   m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                              (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2 +
-                              2 * mv * (w - u) * m * n - 2 * mv * u * w * n ** 2 +
-                              mu * m ** 2,
-                              2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) *
-                                   m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                              2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) *
-                                   m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                              2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) *
-                                   m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                              (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2 +
-                              2 * mv * (u - v) * m * n - 2 * mv * u * v * n ** 2 +
-                              mu * m ** 2]
+                    R_list = [
+                        (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                        + 2 * mv * (v - w) * m * n
+                        - 2 * mv * v * w * n ** 2
+                        + mu * m ** 2,
+                        2
+                        * (
+                            mv * u * n * (w * n + u * n - m)
+                            - (mu - mv) * m * w * n
+                            + (mu - 2 * mv) * u * v * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * u * n * (v * n + u * n + m)
+                            + (mu - mv) * m * v * n
+                            + (mu - 2 * mv) * w * u * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * v * n * (w * n + v * n + m)
+                            + (mu - mv) * m * w * n
+                            + (mu - 2 * mv) * u * v * n ** 2
+                        ),
+                        (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                        + 2 * mv * (w - u) * m * n
+                        - 2 * mv * u * w * n ** 2
+                        + mu * m ** 2,
+                        2
+                        * (
+                            mv * v * n * (v * n + u * n - m)
+                            - (mu - mv) * m * u * n
+                            + (mu - 2 * mv) * w * v * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * w * n * (w * n + v * n - m)
+                            - (mu - mv) * m * v * n
+                            + (mu - 2 * mv) * w * u * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * w * n * (w * n + u * n + m)
+                            + (mu - mv) * m * u * n
+                            + (mu - 2 * mv) * w * v * n ** 2
+                        ),
+                        (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                        + 2 * mv * (u - v) * m * n
+                        - 2 * mv * u * v * n ** 2
+                        + mu * m ** 2,
+                    ]
                     m = -1 * m
                     # inverse of the rotation matrix
-                    R_list_inv = [(mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2 +
-                                  2 * mv * (v - w) * m * n - 2 * mv * v * w * n ** 2 +
-                                  mu * m ** 2,
-                                  2 * (mv * u * n * (w * n + u * n - m) - (mu - mv) *
-                                       m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                                  2 * (mv * u * n * (v * n + u * n + m) + (mu - mv) *
-                                       m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                                  2 * (mv * v * n * (w * n + v * n + m) + (mu - mv) *
-                                       m * w * n + (mu - 2 * mv) * u * v * n ** 2),
-                                  (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2 +
-                                  2 * mv * (w - u) * m * n - 2 * mv * u * w * n ** 2 +
-                                  mu * m ** 2,
-                                  2 * (mv * v * n * (v * n + u * n - m) - (mu - mv) *
-                                       m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                                  2 * (mv * w * n * (w * n + v * n - m) - (mu - mv) *
-                                       m * v * n + (mu - 2 * mv) * w * u * n ** 2),
-                                  2 * (mv * w * n * (w * n + u * n + m) + (mu - mv) *
-                                       m * u * n + (mu - 2 * mv) * w * v * n ** 2),
-                                  (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2 +
-                                  2 * mv * (u - v) * m * n - 2 * mv * u * v * n ** 2 +
-                                  mu * m ** 2]
+                    R_list_inv = [
+                        (mu - 2 * mv) * (u ** 2 - v ** 2 - w ** 2) * n ** 2
+                        + 2 * mv * (v - w) * m * n
+                        - 2 * mv * v * w * n ** 2
+                        + mu * m ** 2,
+                        2
+                        * (
+                            mv * u * n * (w * n + u * n - m)
+                            - (mu - mv) * m * w * n
+                            + (mu - 2 * mv) * u * v * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * u * n * (v * n + u * n + m)
+                            + (mu - mv) * m * v * n
+                            + (mu - 2 * mv) * w * u * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * v * n * (w * n + v * n + m)
+                            + (mu - mv) * m * w * n
+                            + (mu - 2 * mv) * u * v * n ** 2
+                        ),
+                        (mu - 2 * mv) * (v ** 2 - w ** 2 - u ** 2) * n ** 2
+                        + 2 * mv * (w - u) * m * n
+                        - 2 * mv * u * w * n ** 2
+                        + mu * m ** 2,
+                        2
+                        * (
+                            mv * v * n * (v * n + u * n - m)
+                            - (mu - mv) * m * u * n
+                            + (mu - 2 * mv) * w * v * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * w * n * (w * n + v * n - m)
+                            - (mu - mv) * m * v * n
+                            + (mu - 2 * mv) * w * u * n ** 2
+                        ),
+                        2
+                        * (
+                            mv * w * n * (w * n + u * n + m)
+                            + (mu - mv) * m * u * n
+                            + (mu - 2 * mv) * w * v * n ** 2
+                        ),
+                        (mu - 2 * mv) * (w ** 2 - u ** 2 - v ** 2) * n ** 2
+                        + 2 * mv * (u - v) * m * n
+                        - 2 * mv * u * v * n ** 2
+                        + mu * m ** 2,
+                    ]
                     m = -1 * m
                     F = mu * m ** 2 + d * n ** 2
                     all_list = R_list_inv + R_list + [F]
@@ -1496,20 +1886,25 @@ class GrainBoundaryGenerator:
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round(abs(F / com_fac)))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
+                                )
                             sigmas[sigma] = [angle]
                         else:
                             if m == 0:
                                 angle = 180
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) \
-                                        / np.pi * 180.0
+                                angle = (
+                                    2
+                                    * np.arctan(n / m * np.sqrt(d / mu))
+                                    / np.pi
+                                    * 180.0
+                                )
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1556,8 +1951,10 @@ class GrainBoundaryGenerator:
             mu, mv = [1, 1]
             if w != 0:
                 if u != 0 or (v != 0):
-                    raise RuntimeError('For irrational c2/a2, CSL only exist for [0,0,1] '
-                                       'or [u,v,0] and m = 0')
+                    raise RuntimeError(
+                        "For irrational c2/a2, CSL only exist for [0,0,1] "
+                        "or [u,v,0] and m = 0"
+                    )
         else:
             mu, mv = c2_a2_ratio
             if gcd(mu, mv) != 1:
@@ -1580,32 +1977,36 @@ class GrainBoundaryGenerator:
             for m in range(0, m_max + 1):
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
-                    R_list = [(u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                              mu * m ** 2,
-                              2 * v * u * mv * n ** 2 - 2 * w * mu * m * n,
-                              2 * u * w * mu * n ** 2 + 2 * v * mu * m * n,
-                              2 * u * v * mv * n ** 2 + 2 * w * mu * m * n,
-                              (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                              mu * m ** 2,
-                              2 * v * w * mu * n ** 2 - 2 * u * mu * m * n,
-                              2 * u * w * mv * n ** 2 - 2 * v * mv * m * n,
-                              2 * v * w * mv * n ** 2 + 2 * u * mv * m * n,
-                              (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv) * n ** 2 +
-                              mu * m ** 2]
+                    R_list = [
+                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2
+                        + mu * m ** 2,
+                        2 * v * u * mv * n ** 2 - 2 * w * mu * m * n,
+                        2 * u * w * mu * n ** 2 + 2 * v * mu * m * n,
+                        2 * u * v * mv * n ** 2 + 2 * w * mu * m * n,
+                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2
+                        + mu * m ** 2,
+                        2 * v * w * mu * n ** 2 - 2 * u * mu * m * n,
+                        2 * u * w * mv * n ** 2 - 2 * v * mv * m * n,
+                        2 * v * w * mv * n ** 2 + 2 * u * mv * m * n,
+                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv) * n ** 2
+                        + mu * m ** 2,
+                    ]
                     m = -1 * m
                     # inverse of rotation matrix
-                    R_list_inv = [(u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                                  mu * m ** 2,
-                                  2 * v * u * mv * n ** 2 - 2 * w * mu * m * n,
-                                  2 * u * w * mu * n ** 2 + 2 * v * mu * m * n,
-                                  2 * u * v * mv * n ** 2 + 2 * w * mu * m * n,
-                                  (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2 +
-                                  mu * m ** 2,
-                                  2 * v * w * mu * n ** 2 - 2 * u * mu * m * n,
-                                  2 * u * w * mv * n ** 2 - 2 * v * mv * m * n,
-                                  2 * v * w * mv * n ** 2 + 2 * u * mv * m * n,
-                                  (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv) * n ** 2 +
-                                  mu * m ** 2]
+                    R_list_inv = [
+                        (u ** 2 * mv - v ** 2 * mv - w ** 2 * mu) * n ** 2
+                        + mu * m ** 2,
+                        2 * v * u * mv * n ** 2 - 2 * w * mu * m * n,
+                        2 * u * w * mu * n ** 2 + 2 * v * mu * m * n,
+                        2 * u * v * mv * n ** 2 + 2 * w * mu * m * n,
+                        (v ** 2 * mv - u ** 2 * mv - w ** 2 * mu) * n ** 2
+                        + mu * m ** 2,
+                        2 * v * w * mu * n ** 2 - 2 * u * mu * m * n,
+                        2 * u * w * mv * n ** 2 - 2 * v * mv * m * n,
+                        2 * v * w * mv * n ** 2 + 2 * u * mv * m * n,
+                        (w ** 2 * mu - u ** 2 * mv - v ** 2 * mv) * n ** 2
+                        + mu * m ** 2,
+                    ]
                     m = -1 * m
                     F = mu * m ** 2 + d * n ** 2
                     all_list = R_list + R_list_inv + [F]
@@ -1613,20 +2014,22 @@ class GrainBoundaryGenerator:
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round((mu * m ** 2 + d * n ** 2) / com_fac))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
+                                )
                             sigmas[sigma] = [angle]
                         else:
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2 * np.arctan(n / m * np.sqrt(d / mu)) / np.pi * 180
+                                )
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1674,7 +2077,7 @@ class GrainBoundaryGenerator:
             mu, lam, mv = c2_b2_a2_ratio
             non_none = [i for i in c2_b2_a2_ratio if i is not None]
             if len(non_none) < 2:
-                raise RuntimeError('No CSL exist for two irrational numbers')
+                raise RuntimeError("No CSL exist for two irrational numbers")
             non1, non2 = non_none
             if reduce(gcd, non_none) != 1:
                 temp = reduce(gcd, non_none)
@@ -1686,24 +2089,30 @@ class GrainBoundaryGenerator:
                 mu = 1
                 if w != 0:
                     if u != 0 or (v != 0):
-                        raise RuntimeError('For irrational c2, CSL only exist for [0,0,1] '
-                                           'or [u,v,0] and m = 0')
+                        raise RuntimeError(
+                            "For irrational c2, CSL only exist for [0,0,1] "
+                            "or [u,v,0] and m = 0"
+                        )
             elif lam is None:
                 mu = non1
                 mv = non2
                 lam = 1
                 if v != 0:
                     if u != 0 or (w != 0):
-                        raise RuntimeError('For irrational b2, CSL only exist for [0,1,0] '
-                                           'or [u,0,w] and m = 0')
+                        raise RuntimeError(
+                            "For irrational b2, CSL only exist for [0,1,0] "
+                            "or [u,0,w] and m = 0"
+                        )
             elif mv is None:
                 mu = non1
                 lam = non2
                 mv = 1
                 if u != 0:
                     if w != 0 or (v != 0):
-                        raise RuntimeError('For irrational a2, CSL only exist for [1,0,0] '
-                                           'or [0,v,w] and m = 0')
+                        raise RuntimeError(
+                            "For irrational a2, CSL only exist for [1,0,0] "
+                            "or [0,v,w] and m = 0"
+                        )
         else:
             mu, lam, mv = c2_b2_a2_ratio
             if reduce(gcd, c2_b2_a2_ratio) != 1:
@@ -1725,42 +2134,56 @@ class GrainBoundaryGenerator:
         # Enumerate all possible n, m to give possible sigmas within the cutoff.
         for n in range(1, n_max + 1):
             mu_temp, lam_temp, mv_temp = c2_b2_a2_ratio
-            if (mu_temp is None and w == 0) or (lam_temp is None and v == 0) \
-                    or (mv_temp is None and u == 0):
+            if (
+                (mu_temp is None and w == 0)
+                or (lam_temp is None and v == 0)
+                or (mv_temp is None and u == 0)
+            ):
                 m_max = 0
             else:
-                m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv -
-                                     n ** 2 * d) / mu / lam))
+                m_max = int(
+                    np.sqrt((cutoff * 4 * mu * mv * lam * mv - n ** 2 * d) / mu / lam)
+                )
             for m in range(0, m_max + 1):
 
                 if gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
-                    R_list = [(u ** 2 * mv * mv - lam * v ** 2 * mv -
-                               w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                              2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                              2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                              2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                              (v ** 2 * mv * lam - u ** 2 * mv * mv -
-                               w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                              2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                              2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                              2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                              (w ** 2 * mu * mv - u ** 2 * mv * mv -
-                               v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2]
+                    R_list = [
+                        (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv)
+                        * n ** 2
+                        + lam * mu * m ** 2,
+                        2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
+                        2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
+                        2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
+                        (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv)
+                        * n ** 2
+                        + lam * mu * m ** 2,
+                        2 * mv * mu * (v * w * n ** 2 - u * m * n),
+                        2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
+                        2 * lam * mv * (v * w * n ** 2 + u * m * n),
+                        (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam)
+                        * n ** 2
+                        + lam * mu * m ** 2,
+                    ]
                     m = -1 * m
                     # inverse of rotation matrix
-                    R_list_inv = [(u ** 2 * mv * mv - lam * v ** 2 * mv -
-                                   w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                                  2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
-                                  2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
-                                  2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
-                                  (v ** 2 * mv * lam - u ** 2 * mv * mv -
-                                   w ** 2 * mu * mv) * n ** 2 + lam * mu * m ** 2,
-                                  2 * mv * mu * (v * w * n ** 2 - u * m * n),
-                                  2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
-                                  2 * lam * mv * (v * w * n ** 2 + u * m * n),
-                                  (w ** 2 * mu * mv - u ** 2 * mv * mv -
-                                   v ** 2 * mv * lam) * n ** 2 + lam * mu * m ** 2]
+                    R_list_inv = [
+                        (u ** 2 * mv * mv - lam * v ** 2 * mv - w ** 2 * mu * mv)
+                        * n ** 2
+                        + lam * mu * m ** 2,
+                        2 * lam * (v * u * mv * n ** 2 - w * mu * m * n),
+                        2 * mu * (u * w * mv * n ** 2 + v * lam * m * n),
+                        2 * mv * (u * v * mv * n ** 2 + w * mu * m * n),
+                        (v ** 2 * mv * lam - u ** 2 * mv * mv - w ** 2 * mu * mv)
+                        * n ** 2
+                        + lam * mu * m ** 2,
+                        2 * mv * mu * (v * w * n ** 2 - u * m * n),
+                        2 * mv * (u * w * mv * n ** 2 - v * lam * m * n),
+                        2 * lam * mv * (v * w * n ** 2 + u * m * n),
+                        (w ** 2 * mu * mv - u ** 2 * mv * mv - v ** 2 * mv * lam)
+                        * n ** 2
+                        + lam * mu * m ** 2,
+                    ]
                     m = -1 * m
                     F = mu * lam * m ** 2 + d * n ** 2
                     all_list = R_list + R_list_inv + [F]
@@ -1768,20 +2191,28 @@ class GrainBoundaryGenerator:
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round((mu * lam * m ** 2 + d * n ** 2) / com_fac))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu / lam)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2
+                                    * np.arctan(n / m * np.sqrt(d / mu / lam))
+                                    / np.pi
+                                    * 180
+                                )
                             sigmas[sigma] = [angle]
                         else:
                             if m == 0:
                                 angle = 180.0
                             else:
-                                angle = 2 * np.arctan(n / m * np.sqrt(d / mu / lam)) \
-                                        / np.pi * 180
+                                angle = (
+                                    2
+                                    * np.arctan(n / m * np.sqrt(d / mu / lam))
+                                    / np.pi
+                                    * 180
+                                )
                             if angle not in sigmas[sigma]:
                                 sigmas[sigma].append(angle)
             if m_max == 0:
@@ -1808,10 +2239,10 @@ class GrainBoundaryGenerator:
                      (GB plane and joining plane).
         """
         all_combinations = {}
-        all_combinations['Symmetric tilt'] = []
-        all_combinations['Twist'] = []
-        all_combinations['Normal tilt'] = []
-        all_combinations['Mixed'] = []
+        all_combinations["Symmetric tilt"] = []
+        all_combinations["Twist"] = []
+        all_combinations["Normal tilt"] = []
+        all_combinations["Mixed"] = []
         sym_plane = symm_group_cubic([[1, 0, 0], [1, 1, 0]])
         j = np.arange(0, plane_cutoff + 1)
         combination = []
@@ -1831,33 +2262,49 @@ class GrainBoundaryGenerator:
         miller = miller[np.argsort(np.linalg.norm(miller, axis=1))]
         for i, val in enumerate(miller):
             if reduce(gcd, val) == 1:
-                matrix = GrainBoundaryGenerator.get_trans_mat(r_axis, r_angle, surface=val, quick_gen=True)
+                matrix = GrainBoundaryGenerator.get_trans_mat(
+                    r_axis, r_angle, surface=val, quick_gen=True
+                )
                 vec = np.cross(matrix[1][0], matrix[1][1])
                 miller2 = GrainBoundaryGenerator.vec_to_surface(vec)
                 if np.all(np.abs(np.array(miller2)) <= plane_cutoff):
-                    cos_1 = abs(np.dot(val, r_axis) / np.linalg.norm(val) / np.linalg.norm(r_axis))
-                    if 1 - cos_1 < 1.e-5:
-                        all_combinations['Twist'].append([list(val), miller2])
-                    elif cos_1 < 1.e-8:
+                    cos_1 = abs(
+                        np.dot(val, r_axis)
+                        / np.linalg.norm(val)
+                        / np.linalg.norm(r_axis)
+                    )
+                    if 1 - cos_1 < 1.0e-5:
+                        all_combinations["Twist"].append([list(val), miller2])
+                    elif cos_1 < 1.0e-8:
                         sym_tilt = False
                         if np.sum(np.abs(val)) == np.sum(np.abs(miller2)):
                             ave = (np.array(val) + np.array(miller2)) / 2
                             ave1 = (np.array(val) - np.array(miller2)) / 2
                             for plane in sym_plane:
-                                cos_2 = abs(np.dot(ave, plane) / np.linalg.norm(ave) / np.linalg.norm(plane))
-                                cos_3 = abs(np.dot(ave1, plane) / np.linalg.norm(ave1) / np.linalg.norm(plane))
-                                if 1 - cos_2 < 1.e-5 or 1 - cos_3 < 1.e-5:
-                                    all_combinations['Symmetric tilt'].append([list(val), miller2])
+                                cos_2 = abs(
+                                    np.dot(ave, plane)
+                                    / np.linalg.norm(ave)
+                                    / np.linalg.norm(plane)
+                                )
+                                cos_3 = abs(
+                                    np.dot(ave1, plane)
+                                    / np.linalg.norm(ave1)
+                                    / np.linalg.norm(plane)
+                                )
+                                if 1 - cos_2 < 1.0e-5 or 1 - cos_3 < 1.0e-5:
+                                    all_combinations["Symmetric tilt"].append(
+                                        [list(val), miller2]
+                                    )
                                     sym_tilt = True
                                     break
                         if not sym_tilt:
-                            all_combinations['Normal tilt'].append([list(val), miller2])
+                            all_combinations["Normal tilt"].append([list(val), miller2])
                     else:
-                        all_combinations['Mixed'].append([list(val), miller2])
+                        all_combinations["Mixed"].append([list(val), miller2])
         return all_combinations
 
     @staticmethod
-    def get_rotation_angle_from_sigma(sigma, r_axis, lat_type='C', ratio=None):
+    def get_rotation_angle_from_sigma(sigma, r_axis, lat_type="C", ratio=None):
         """
         Find all possible rotation angle for the given sigma value.
 
@@ -1893,48 +2340,66 @@ class GrainBoundaryGenerator:
             If the sigma value is not correct, return the rotation angle corresponding
             to the correct possible sigma value right smaller than the wrong sigma value provided.
         """
-        if lat_type.lower() == 'c':
-            logger.info('Make sure this is for cubic system')
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
-        elif lat_type.lower() == 't':
-            logger.info('Make sure this is for tetragonal system')
+        if lat_type.lower() == "c":
+            logger.info("Make sure this is for cubic system")
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(
+                cutoff=sigma, r_axis=r_axis
+            )
+        elif lat_type.lower() == "t":
+            logger.info("Make sure this is for tetragonal system")
             if ratio is None:
-                logger.info('Make sure this is for irrational c2/a2 ratio')
+                logger.info("Make sure this is for irrational c2/a2 ratio")
             elif len(ratio) != 2:
-                raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
-        elif lat_type.lower() == 'o':
-            logger.info('Make sure this is for orthorhombic system')
+                raise RuntimeError("Tetragonal system needs correct c2/a2 ratio")
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(
+                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio
+            )
+        elif lat_type.lower() == "o":
+            logger.info("Make sure this is for orthorhombic system")
             if len(ratio) != 3:
-                raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
-        elif lat_type.lower() == 'h':
-            logger.info('Make sure this is for hexagonal system')
+                raise RuntimeError("Orthorhombic system needs correct c2:b2:a2 ratio")
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(
+                cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio
+            )
+        elif lat_type.lower() == "h":
+            logger.info("Make sure this is for hexagonal system")
             if ratio is None:
-                logger.info('Make sure this is for irrational c2/a2 ratio')
+                logger.info("Make sure this is for irrational c2/a2 ratio")
             elif len(ratio) != 2:
-                raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
-        elif lat_type.lower() == 'r':
-            logger.info('Make sure this is for rhombohedral system')
+                raise RuntimeError("Hexagonal system needs correct c2/a2 ratio")
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(
+                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio
+            )
+        elif lat_type.lower() == "r":
+            logger.info("Make sure this is for rhombohedral system")
             if ratio is None:
-                logger.info('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
+                logger.info(
+                    "Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio"
+                )
             elif len(ratio) != 2:
-                raise RuntimeError('Rhombohedral system needs correct '
-                                   '(1+2*cos(alpha)/cos(alpha) ratio')
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
+                raise RuntimeError(
+                    "Rhombohedral system needs correct "
+                    "(1+2*cos(alpha)/cos(alpha) ratio"
+                )
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(
+                cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio
+            )
         else:
-            raise RuntimeError('Lattice type not implemented')
+            raise RuntimeError("Lattice type not implemented")
 
         sigmas = list(sigma_dict.keys())
         if not sigmas:
-            raise RuntimeError('This is a wriong sigma value, and no sigma exists smaller than this value.')
+            raise RuntimeError(
+                "This is a wriong sigma value, and no sigma exists smaller than this value."
+            )
         if sigma in sigmas:
             rotation_angles = sigma_dict[sigma]
         else:
             sigmas.sort()
-            warnings.warn("This is not the possible sigma value according to the rotation axis!"
-                          "The nearest neighbor sigma and its corresponding angle are returned")
+            warnings.warn(
+                "This is not the possible sigma value according to the rotation axis!"
+                "The nearest neighbor sigma and its corresponding angle are returned"
+            )
             rotation_angles = sigma_dict[sigmas[-1]]
         rotation_angles.sort()
         return rotation_angles
@@ -1992,10 +2457,16 @@ class GrainBoundaryGenerator:
                 index_len = len(miller_nonzero)
                 for i in range(index_len):
                     for j in range(i + 1, index_len):
-                        lcm_miller = lcm(miller[miller_nonzero[i]], miller[miller_nonzero[j]])
+                        lcm_miller = lcm(
+                            miller[miller_nonzero[i]], miller[miller_nonzero[j]]
+                        )
                         l = [0, 0, 0]
-                        l[miller_nonzero[i]] = -int(round(lcm_miller / miller[miller_nonzero[i]]))
-                        l[miller_nonzero[j]] = int(round(lcm_miller / miller[miller_nonzero[j]]))
+                        l[miller_nonzero[i]] = -int(
+                            round(lcm_miller / miller[miller_nonzero[i]])
+                        )
+                        l[miller_nonzero[j]] = int(
+                            round(lcm_miller / miller[miller_nonzero[j]])
+                        )
                         scale_factor.append(l)
                         if len(scale_factor) == 2:
                             break
@@ -2003,7 +2474,7 @@ class GrainBoundaryGenerator:
             t_matrix[1] = np.array(np.dot(scale_factor[1], csl))
             t_matrix[2] = csl[miller_nonzero[0]]
             if abs(np.linalg.det(t_matrix)) > 1000:
-                warnings.warn('Too large matrix. Suggest to use quick_gen=False')
+                warnings.warn("Too large matrix. Suggest to use quick_gen=False")
             return t_matrix
 
         for i, j in enumerate(miller):
@@ -2034,8 +2505,7 @@ class GrainBoundaryGenerator:
                 t_matrix[1] = ab_vector[1]
                 t_matrix[2] = csl[c_index]
                 return t_matrix
-            else:
-                max_j = abs(miller_nonzero[0])
+            max_j = abs(miller_nonzero[0])
         if max_j > max_search:
             max_j = max_search
         # area of a, b vectors
@@ -2046,11 +2516,10 @@ class GrainBoundaryGenerator:
         c_length = np.abs(np.dot(t_matrix[2], surface))
         # check if the init c vector perpendicular to the surface
         if normal:
-            c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
-            if np.linalg.norm(c_cross) < 1.e-8:
-                normal_init = True
-            else:
-                normal_init = False
+            c_cross = np.cross(
+                np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans)
+            )
+            normal_init = np.linalg.norm(c_cross) < 1e-8
 
         j = np.arange(0, max_j + 1)
         combination = []
@@ -2069,7 +2538,7 @@ class GrainBoundaryGenerator:
         for i in combination:
             if reduce(gcd, i) == 1:
                 temp = np.dot(np.array(i), csl)
-                if abs(np.dot(temp, surface) - 0) < 1.e-8:
+                if abs(np.dot(temp, surface) - 0) < 1.0e-8:
                     ab_vector.append(temp)
                 else:
                     # c vector length along the direction perpendicular to surface
@@ -2077,8 +2546,10 @@ class GrainBoundaryGenerator:
                     # c vector length itself
                     c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
                     if normal:
-                        c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
-                        if np.linalg.norm(c_cross) < 1.e-8:
+                        c_cross = np.cross(
+                            np.matmul(temp, trans), np.matmul(surface, ctrans)
+                        )
+                        if np.linalg.norm(c_cross) < 1.0e-8:
                             if normal_init:
                                 if c_norm_temp < c_norm:
                                     t_matrix[2] = temp
@@ -2088,17 +2559,20 @@ class GrainBoundaryGenerator:
                                 normal_init = True
                                 t_matrix[2] = temp
                     else:
-                        if c_len_temp < c_length or \
-                                (abs(c_len_temp - c_length) < 1.e-8 and c_norm_temp < c_norm):
+                        if c_len_temp < c_length or (
+                            abs(c_len_temp - c_length) < 1.0e-8 and c_norm_temp < c_norm
+                        ):
                             t_matrix[2] = temp
                             c_norm = c_norm_temp
                             c_length = c_len_temp
 
         if normal and (not normal_init):
-            logger.info('Did not find the perpendicular c vector, increase max_j')
-            while (not normal_init):
+            logger.info("Did not find the perpendicular c vector, increase max_j")
+            while not normal_init:
                 if max_j == max_search:
-                    warnings.warn('Cannot find the perpendicular c vector, please increase max_search')
+                    warnings.warn(
+                        "Cannot find the perpendicular c vector, please increase max_search"
+                    )
                     break
                 max_j = 3 * max_j
                 if max_j > max_search:
@@ -2120,9 +2594,11 @@ class GrainBoundaryGenerator:
                 for i in combination:
                     if reduce(gcd, i) == 1:
                         temp = np.dot(np.array(i), csl)
-                        if abs(np.dot(temp, surface) - 0) > 1.e-8:
-                            c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
-                            if np.linalg.norm(c_cross) < 1.e-8:
+                        if abs(np.dot(temp, surface) - 0) > 1.0e-8:
+                            c_cross = np.cross(
+                                np.matmul(temp, trans), np.matmul(surface, ctrans)
+                            )
+                            if np.linalg.norm(c_cross) < 1.0e-8:
                                 # c vetor length itself
                                 c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
                                 if normal_init:
@@ -2134,15 +2610,17 @@ class GrainBoundaryGenerator:
                                     normal_init = True
                                     t_matrix[2] = temp
                 if normal_init:
-                    logger.info('Found perpendicular c vector')
+                    logger.info("Found perpendicular c vector")
 
         # find the best a, b vectors with their formed area smallest and average norm of a,b smallest.
         for i in itertools.combinations(ab_vector, 2):
-            area_temp = np.linalg.norm(np.cross(np.matmul(i[0], trans),
-                                                np.matmul(i[1], trans)))
-            if abs(area_temp - 0) > 1.e-8:
-                ab_norm_temp = np.linalg.norm(np.matmul(i[0], trans)) + \
-                               np.linalg.norm(np.matmul(i[1], trans))
+            area_temp = np.linalg.norm(
+                np.cross(np.matmul(i[0], trans), np.matmul(i[1], trans))
+            )
+            if abs(area_temp - 0) > 1.0e-8:
+                ab_norm_temp = np.linalg.norm(np.matmul(i[0], trans)) + np.linalg.norm(
+                    np.matmul(i[1], trans)
+                )
                 if area is None:
                     area = area_temp
                     ab_norm = ab_norm_temp
@@ -2153,7 +2631,7 @@ class GrainBoundaryGenerator:
                     t_matrix[1] = i[1]
                     area = area_temp
                     ab_norm = ab_norm_temp
-                elif abs(area - area_temp) < 1.e-8 and ab_norm_temp < ab_norm:
+                elif abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm:
                     t_matrix[0] = i[0]
                     t_matrix[1] = i[1]
                     area = area_temp
@@ -2164,7 +2642,7 @@ class GrainBoundaryGenerator:
             t_matrix *= -1
 
         if normal and abs(np.linalg.det(t_matrix)) > 1000:
-            warnings.warn('Too large matrix. Suggest to use Normal=False')
+            warnings.warn("Too large matrix. Suggest to use Normal=False")
         return t_matrix
 
     @staticmethod
@@ -2193,7 +2671,9 @@ class GrainBoundaryGenerator:
                     mat_copy = mat.copy()
                     mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])
                     new_mat = np.dot(mat_copy, np.linalg.inv(r_matrix.T))
-                    if all([np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]):
+                    if all(
+                        [np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]
+                    ):
                         reduced = True
                         mat[h] = np.array([int(round(ele / mag)) for ele in temp])
                         break
@@ -2201,7 +2681,9 @@ class GrainBoundaryGenerator:
                 break
 
         if not reduced:
-            warnings.warn("Matrix reduction not performed, may lead to non-primitive gb cell.")
+            warnings.warn(
+                "Matrix reduction not performed, may lead to non-primitive gb cell."
+            )
         return mat
 
     @staticmethod
@@ -2217,7 +2699,7 @@ class GrainBoundaryGenerator:
         miller = [None] * 3
         index = []
         for i, value in enumerate(vec):
-            if abs(value) < 1.e-8:
+            if abs(value) < 1.0e-8:
                 miller[i] = 0
             else:
                 index.append(i)
@@ -2229,15 +2711,21 @@ class GrainBoundaryGenerator:
             index.pop(min_index)
             frac = []
             for i, value in enumerate(index):
-                frac.append(Fraction(vec[value] / vec[true_index]).limit_denominator(100))
+                frac.append(
+                    Fraction(vec[value] / vec[true_index]).limit_denominator(100)
+                )
             if len(index) == 1:
                 miller[true_index] = frac[0].denominator
                 miller[index[0]] = frac[0].numerator
             else:
                 com_lcm = lcm(frac[0].denominator, frac[1].denominator)
                 miller[true_index] = com_lcm
-                miller[index[0]] = frac[0].numerator * int(round((com_lcm / frac[0].denominator)))
-                miller[index[1]] = frac[1].numerator * int(round((com_lcm / frac[1].denominator)))
+                miller[index[0]] = frac[0].numerator * int(
+                    round((com_lcm / frac[0].denominator))
+                )
+                miller[index[1]] = frac[1].numerator * int(
+                    round((com_lcm / frac[1].denominator))
+                )
         return miller
 
 
@@ -2250,8 +2738,12 @@ def factors(n):
     Returns:
         a set of integers that are the factors of the input integer.
     """
-    return set(reduce(list.__add__,
-                      ([i, n // i] for i in range(1, int(np.sqrt(n)) + 1) if n % i == 0)))
+    return set(
+        reduce(
+            list.__add__,
+            ([i, n // i] for i in range(1, int(np.sqrt(n)) + 1) if n % i == 0),
+        )
+    )
 
 
 def fix_pbc(structure, matrix=None):
