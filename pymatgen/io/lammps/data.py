@@ -30,7 +30,11 @@ from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen import Element, Lattice, Molecule, Structure, SymmOp, yaml
+from pymatgen import yaml
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.operations import SymmOp
 from pymatgen.util.io_utils import clean_lines
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"

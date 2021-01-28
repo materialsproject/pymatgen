@@ -11,7 +11,7 @@ from io import open
 
 from monty.serialization import loadfn
 
-from pymatgen import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
     Kpoint,

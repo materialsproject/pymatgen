@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Molecule, Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 
 """

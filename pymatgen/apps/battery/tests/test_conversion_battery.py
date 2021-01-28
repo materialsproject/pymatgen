@@ -9,7 +9,7 @@ import unittest
 
 from monty.json import MontyDecoder
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.conversion_battery import (
     ConversionElectrode,
     ConversionVoltagePair,

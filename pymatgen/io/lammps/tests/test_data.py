@@ -11,7 +11,10 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from pymatgen import Element, Lattice, Molecule, Structure, yaml
+from pymatgen import yaml
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import (
     CombinedData,
     ForceField,

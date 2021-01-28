@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.io.lammps.data import Topology
 from pymatgen.io.lammps.utils import Polymer
 from pymatgen.util.testing import PymatgenTest

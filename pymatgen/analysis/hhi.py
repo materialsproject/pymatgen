@@ -17,7 +17,8 @@ import os
 
 from monty.design_patterns import singleton
 
-from pymatgen import Composition, Element
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 
 __author__ = "Anubhav Jain"
 __copyright__ = "Copyright 2014, The Materials Project"

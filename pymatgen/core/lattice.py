@@ -725,7 +725,7 @@ class Lattice(MSONable):
         a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
-        u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
+        u = np.zeros((3, 3))  # Gram-Schmidt coefficients
         m = np.zeros(3)  # These are the norm squared of each vec.
 
         b[:, 0] = a[:, 0]
@@ -1441,7 +1441,7 @@ class Lattice(MSONable):
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
         # pylint: disable=C0415
-        from pymatgen import Structure
+        from pymatgen.core.structure import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])

@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.interface_reactions import InterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction

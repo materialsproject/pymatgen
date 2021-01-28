@@ -8,7 +8,8 @@ from copy import deepcopy
 import numpy as np
 from scipy.misc import central_diff_weights
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
     ElasticTensor,

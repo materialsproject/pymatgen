@@ -8,7 +8,10 @@ import warnings
 
 import numpy as np
 
-from pymatgen import Composition, DummySpecies, Element, Lattice, Species, Structure
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import DummySpecies, Element, Species
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter

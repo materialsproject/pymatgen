@@ -16,7 +16,9 @@ import numpy as np
 import pytest
 from monty.tempfile import ScratchDir
 
-from pymatgen import Lattice, Orbital, Spin, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.electronic_structure.core import Orbital, Spin
+from pymatgen.core.structure import Structure
 from pymatgen.core import Element
 from pymatgen.electronic_structure.core import Magmom, OrbitalType
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility

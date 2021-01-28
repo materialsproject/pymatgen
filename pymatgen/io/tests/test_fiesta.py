@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
 from pymatgen.util.testing import PymatgenTest
 

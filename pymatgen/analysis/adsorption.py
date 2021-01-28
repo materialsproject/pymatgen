@@ -17,7 +17,8 @@ from matplotlib.path import Path
 from monty.serialization import loadfn
 from scipy.spatial import Delaunay
 
-from pymatgen import Structure, vis
+import pymatgen.vis as vis
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.operations import SymmOp

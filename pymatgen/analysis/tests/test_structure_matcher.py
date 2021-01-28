@@ -11,7 +11,9 @@ import unittest
 import numpy as np
 from monty.json import MontyDecoder
 
-from pymatgen import Element, Lattice, Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
 from pymatgen.analysis.structure_matcher import (
     ElementComparator,

@@ -7,7 +7,7 @@ import json
 import os
 import unittest
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,

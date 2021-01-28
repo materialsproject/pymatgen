@@ -17,7 +17,8 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen import Element, Orbital, Spin
+from pymatgen.core.periodic_table import Element
+from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.io.feff import Header, Potential, Tags
 

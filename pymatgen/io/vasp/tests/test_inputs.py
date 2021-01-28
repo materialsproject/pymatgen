@@ -14,7 +14,8 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.tempfile import ScratchDir
 
-from pymatgen import Composition, Structure
+from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     BadIncarWarning,

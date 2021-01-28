@@ -10,7 +10,7 @@ from math import isnan
 
 import numpy as np
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.reaction_calculator import (
     BalancedReaction,
     ComputedReaction,

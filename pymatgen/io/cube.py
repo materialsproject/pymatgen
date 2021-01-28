@@ -40,7 +40,8 @@ each voxel is 0.283459 units wide and the volume is aligned with the coordinate 
 import numpy as np
 from monty.io import zopen
 
-from pymatgen import Site, Structure
+from pymatgen.core.sites import Site
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_angstrom
 
 

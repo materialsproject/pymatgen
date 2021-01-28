@@ -8,7 +8,9 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Element, Lattice, Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,

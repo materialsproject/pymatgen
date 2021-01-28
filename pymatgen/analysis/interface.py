@@ -13,7 +13,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, reduce_vectors
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite

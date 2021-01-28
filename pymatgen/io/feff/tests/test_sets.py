@@ -9,7 +9,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet

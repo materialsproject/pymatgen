@@ -9,7 +9,7 @@ import warnings
 
 import numpy as np
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.gb.grain import GrainBoundary, GrainBoundaryGenerator
 from pymatgen.util.testing import PymatgenTest
 

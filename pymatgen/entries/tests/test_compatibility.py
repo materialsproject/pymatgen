@@ -24,7 +24,10 @@ from math import sqrt
 import pytest
 from monty.json import MontyDecoder
 
-from pymatgen import Composition, Element, Lattice, Structure
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.entries.compatibility import (
     MU_H2O,
     AqueousCorrection,

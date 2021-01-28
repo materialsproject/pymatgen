@@ -16,7 +16,8 @@ from math import cos, floor, gcd
 import numpy as np
 from monty.fractions import lcm
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
