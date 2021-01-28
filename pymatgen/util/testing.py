@@ -24,6 +24,7 @@ from monty.serialization import loadfn
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester
 
+
 class PymatgenTest(unittest.TestCase):
     """
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
