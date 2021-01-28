@@ -7,6 +7,7 @@ import warnings
 from math import pi
 
 import numpy as np
+import pytest
 from monty.os.path import which
 
 from pymatgen import Element, Lattice, Molecule, Structure
@@ -33,13 +34,6 @@ from pymatgen.analysis.local_env import (
     solid_angle, IsayevNN,
 )
 from pymatgen.util.testing import PymatgenTest
-
-try:
-    from openbabel import openbabel as ob
-    from openbabel import pybel as pb
-except ImportError:
-    pb = None
-    ob = None
 
 
 class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
@@ -312,16 +306,14 @@ class TestIsayevNN(PymatgenTest):
 
 
 class OpenBabelNNTest(PymatgenTest):
+
     def setUp(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
         self.acetylene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "acetylene.xyz"))
 
-    @unittest.skipIf(
-        (not (ob and pb)) or (not which("babel")), "OpenBabel not installed."
-    )
     def test_nn_orders(self):
         strat = OpenBabelNN()
-
         acetylene = strat.get_nn_info(self.acetylene, 0)
         self.assertEqual(acetylene[0]["weight"], 3)
         self.assertEqual(acetylene[1]["weight"], 1)
@@ -335,9 +327,6 @@ class OpenBabelNNTest(PymatgenTest):
             strat.get_nn_info(self.benzene, 1)[0]["weight"],
         )
 
-    @unittest.skipIf(
-        (not (ob and pb)) or (not which("babel")), "OpenBabel not installed."
-    )
     def test_nn_length(self):
         strat = OpenBabelNN(order=False)
 

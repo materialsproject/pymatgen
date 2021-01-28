@@ -2,19 +2,15 @@
 
 
 import os
-import time
 import unittest
+
+import pytest
 
 from pymatgen.analysis.fragmenter import Fragmenter, metal_edge_extender
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import PymatgenTest
-
-try:
-    from openbabel import openbabel as ob
-except ImportError:
-    ob = None
 
 __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
@@ -72,13 +68,13 @@ class TestFragmentMolecule(PymatgenTest):
         )
         self.assertEqual(fragmenter.total_unique_fragments, 12)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_PC_frag1(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         fragmenter = Fragmenter(molecule=self.pc_frag1, depth=0)
         self.assertEqual(fragmenter.total_unique_fragments, 12)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_PC_old_defaults(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
         self.assertEqual(fragmenter.open_rings, True)
         self.assertEqual(fragmenter.opt_steps, 10000)
@@ -88,8 +84,8 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(fragmenter.mol_graph, default_mol_graph)
         self.assertEqual(fragmenter.total_unique_fragments, 13)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_PC_defaults(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         fragmenter = Fragmenter(molecule=self.pc)
         self.assertEqual(fragmenter.open_rings, False)
         self.assertEqual(fragmenter.opt_steps, 10000)
@@ -118,13 +114,13 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.tfsi, edges=self.tfsi_edges, depth=0)
         self.assertEqual(fragmenter.total_unique_fragments, 156)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_TFSI(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         fragmenter = Fragmenter(molecule=self.tfsi, depth=0)
         self.assertEqual(fragmenter.total_unique_fragments, 156)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_PC_with_RO_depth_0_vs_depth_10(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         fragmenter0 = Fragmenter(
             molecule=self.pc, depth=0, open_rings=True, opt_steps=1000
         )
@@ -174,8 +170,8 @@ class TestFragmentMolecule(PymatgenTest):
         )
         self.assertEqual(frag2.new_unique_fragments, 295 - 12)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_PC_then_EC_depth_10(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)
         fragEC = Fragmenter(
             molecule=self.ec,

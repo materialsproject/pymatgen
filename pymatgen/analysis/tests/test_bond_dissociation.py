@@ -5,21 +5,18 @@
 
 import os
 import unittest
+import pytest
 
 from monty.serialization import loadfn
-
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
-try:
-    from openbabel import openbabel as ob
-except ImportError:
-    ob = None
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
 class BondDissociationTest(unittest.TestCase):
     def setUp(self):
+        pytest.importorskip("openbabel", reason="OpenBabel not installed")
         self.PC_65_principle = loadfn(os.path.join(module_dir, "PC_65_principle.json"))
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle[
             "initial_molecule"
@@ -556,22 +553,16 @@ class BondDissociationTest(unittest.TestCase):
             ],
         ]
 
-    def tearDown(self):
-        pass
-
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_tfsi_neg_no_pcm(self):
         BDE = BondDissociationEnergies(self.neg_TFSI_principle, self.neg_TFSI_fragments)
         self.assertEqual(len(BDE.filtered_entries), 16)
         self.assertEqual(BDE.bond_dissociation_energies, self.TFSI_correct)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_pc_neutral_pcm_65(self):
         BDE = BondDissociationEnergies(self.PC_65_principle, self.PC_65_fragments)
         self.assertEqual(len(BDE.filtered_entries), 36)
         self.assertEqual(BDE.bond_dissociation_energies, self.PC_correct)
 
-    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_ec_neg_pcm_40(self):
         BDE = BondDissociationEnergies(
             self.neg_EC_40_principle, self.neg_EC_40_fragments

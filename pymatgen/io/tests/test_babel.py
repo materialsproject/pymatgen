@@ -2,23 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-"""
-Created on Apr 28, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Qi Wang"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 28, 2012"
-
 import copy
 import os
 import unittest
 import warnings
+
+import pytest
+
+openbabel = pytest.importorskip("openbabel", reason="OpenBabel not installed")
+from openbabel import openbabel as ob
+from openbabel import pybel as pb
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
@@ -27,14 +20,8 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    from openbabel import openbabel as ob
-    from openbabel import pybel as pb
-except ImportError:
-    ob = None
 
 
-@unittest.skipIf(not (ob), "OpenBabel not present. Skipping...")
 class BabelMolAdaptorTest(unittest.TestCase):
     def setUp(self):
         coords = [
