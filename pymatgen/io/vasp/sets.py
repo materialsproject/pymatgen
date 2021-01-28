@@ -632,20 +632,12 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        # if structure is not sorted this can cause problems, so must take
-        # care to remove redundant symbols when counting electrons
-        site_symbols = list(set(self.poscar.site_symbols))
-        structure = self.structure
-        nelect = 0.0
-        for ps in self.potcar:
-            if ps.element in site_symbols:
-                site_symbols.remove(ps.element)
-                nelect += (
-                    structure.composition.element_composition[ps.element] * ps.ZVAL
-                )
+        nelectrons_by_element = {p.element: p.nelectrons for p in self.potcar}
+        nelect = sum([num_atoms * nelectrons_by_element[str(el)]
+                      for el, num_atoms in self.structure.composition.element_composition.items()])
 
         if self.use_structure_charge:
-            return nelect - structure.charge
+            return nelect - self.structure.charge
         return nelect
 
     @property
@@ -707,6 +699,28 @@ class DictSet(VaspInputSet):
             "reciprocal_density: for KPoints.automatic_density_by_vol "
             "generation, and length  : for Kpoints.automatic generation"
         )
+
+    def estimate_nbands(self) -> int:
+        """
+        Estimate the number of bands that VASP will initialize a
+        calculation with by default. Note that in practice this
+        can depend on # of cores (if not set explicitly)
+        """
+
+        nions = len(self.structure)
+
+        # from VASP's point of view, the number of magnetic atoms are
+        # the number of atoms with non-zero magmoms, so use Incar as
+        # source of truth
+        nmag = len([m for m in self.incar['MAGMOM'] if not np.allclose(m, 0)])
+
+        # by definition, if non-spin polarized ignore nmag
+        if (not nmag) or (self.incar['ISPIN'] == 1):
+            nbands = np.ceil(self.nelect / 2 + nions / 2)
+        else:
+            nbands = np.ceil(0.6 * self.nelect + nmag)
+
+        return int(nbands)
 
     def __str__(self):
         return self.__class__.__name__

@@ -153,6 +153,15 @@ class MITMPRelaxSetTest(PymatgenTest):
         s = Structure(lattice, ["Si", "Si", "Fe"], coords)
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
 
+        # Test estimate of number of bands (function of nelect) with nmag>0
+        self.assertAlmostEqual(MITRelaxSet(s).estimate_nbands(), 13)
+        self.assertAlmostEqual(MPRelaxSet(s).estimate_nbands(), 17)
+
+        # Test estimate of number of bands (function of nelect) with nmag==0
+        s = Structure(lattice, ["Si", "Si", "Si"], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).estimate_nbands(), 11)
+        self.assertAlmostEqual(MPRelaxSet(s).estimate_nbands(), 11)
+
         # Check that it works even when oxidation states are present. Was a bug
         # previously.
         s = Structure(lattice, ["Si4+", "Si4+", "Fe2+"], coords)
