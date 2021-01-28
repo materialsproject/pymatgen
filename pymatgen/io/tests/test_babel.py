@@ -9,10 +9,6 @@ import warnings
 
 import pytest
 
-openbabel = pytest.importorskip("openbabel", reason="OpenBabel not installed")
-from openbabel import openbabel as ob
-from openbabel import pybel as pb
-
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core.structure import Molecule
@@ -20,6 +16,7 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import PymatgenTest
 
+pytest.importorskip("openbabel", reason="OpenBabel not installed")
 
 
 class BabelMolAdaptorTest(unittest.TestCase):
@@ -83,12 +80,14 @@ class BabelMolAdaptorTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_make3d(self):
+        from openbabel import pybel as pb
         mol_0d = pb.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.make3d()
         self.assertEqual(mol_0d.GetDimension(), 3)
 
     def add_hydrogen(self):
+        from openbabel import pybel as pb
         mol_0d = pb.readstring("smi", "CCCC").OBMol
         self.assertEqual(len(pb.Molecule(mol_0d).atoms), 2)
         adaptor = BabelMolAdaptor(mol_0d)
@@ -124,6 +123,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_confab_conformers(self):
+        from openbabel import pybel as pb
         mol = pb.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)
         adaptor.make3d()

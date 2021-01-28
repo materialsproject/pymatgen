@@ -6,6 +6,8 @@ import re
 import unittest
 import warnings
 
+import requests
+
 from pymatgen import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen import __version__ as pmg_version
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -28,8 +30,12 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import PymatgenTest
 
 
+website_is_up = requests.get("https://www.materialsproject.org").status_code == 200
+
+
 @unittest.skipIf(
-    not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
+    (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
+    "PMG_MAPI_KEY environment variable not set or MP is down."
 )
 class MPResterTest(PymatgenTest):
     _multiprocess_shared_ = True
