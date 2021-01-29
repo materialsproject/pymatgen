@@ -454,8 +454,7 @@ def dilute_solution_model(
         if x:
             mu_vals = [float(mu_val) for mu_val in x]
             return mu_vals
-        else:
-            return get_next_mu_val(i + 1)
+        return get_next_mu_val(i + 1)
 
     def get_prev_mu_val(i):
         if i <= 0:
@@ -466,11 +465,10 @@ def dilute_solution_model(
         if x:
             mu_vals = [float(mu_val) for mu_val in x]
             return mu_vals
-        else:
-            return get_next_mu_val(i - 1)
+        return get_next_mu_val(i - 1)
 
     # Try to get better trial mus for failed cases
-    for j in range(len(failed_y)):
+    for j, y in enumerate(failed_y):
         i = failed_i[j]
 
         prev_mu_val = get_prev_mu_val(i)
@@ -480,7 +478,6 @@ def dilute_solution_model(
         if not next_mu_val:
             continue
 
-        y = failed_y[j]
         vector_func = [y - c_ratio[0]]
         vector_func.append(omega)
         trial_mu = list(
@@ -755,7 +752,7 @@ def compute_defect_density(
             series.append({"data": xy, "name": name})
         hgh_chrt_data["series"] = series
         return hgh_chrt_data
-    elif plot_style == "gnuplot":
+    if plot_style == "gnuplot":
 
         def data_to_rows(inp_data):
             rows = []
@@ -778,6 +775,7 @@ def compute_defect_density(
         mu_rows = data_to_rows(mu_data)
 
         return conc_rows, en_rows, mu_rows
+    raise ValueError("Invalid plot_style")
 
 
 # solute_site_preference_finder is based on dilute_solution_model and so most
@@ -863,14 +861,12 @@ def solute_site_preference_finder(
     # Generate specie->mu map and use it for site->mu map
     specie_order = []  # Contains hash for site->mu map    Eg: [Al, Ni]
     site_specie_set = set()  # Eg: {Ni, Al}
-    for i in range(len(site_species)):
-        site_specie = site_species[i]
+    for site_specie in site_species:
         if site_specie not in site_specie_set:
             site_specie_set.add(site_specie)
             specie_order.append(site_specie)
     site_mu_map = []  # Eg: [mu0,mu0,mu0,mu1] where mu0->Al, and mu1->Ni
-    for i in range(len(site_species)):
-        site_specie = site_species[i]
+    for site_specie in site_species:
         j = specie_order.index(site_specie)
         site_mu_map.append(j)
     specie_site_index_map = []  # Eg: [(0,3),(3,4)] for Al & Ni
@@ -1424,7 +1420,7 @@ def solute_defect_density(
             series.append({"data": xy, "name": name})
         hgh_chrt_data["series"] = series
         return hgh_chrt_data
-    elif plot_style == "gnuplot":
+    if plot_style == "gnuplot":
 
         def data_to_rows(inp_data, y_lbl_flg):
             rows = []
@@ -1448,3 +1444,5 @@ def solute_defect_density(
         pt_def_conc_rows = data_to_rows(def_conc_data, False)
         # return solute_site_pref_rows, pt_def_conc_rows
         return pt_def_conc_rows
+
+    raise ValueError("Invalid plot_style.")

@@ -70,7 +70,7 @@ class FreysoldtCorrection(DefectCorrection):
         self.madetol = madetol
         self.dielectric_const = dielectric_const
 
-        if isinstance(dielectric_const, int) or isinstance(dielectric_const, float):
+        if isinstance(dielectric_const, (int, float)):
             self.dielectric = float(dielectric_const)
         else:
             self.dielectric = float(np.mean(np.diag(dielectric_const)))
@@ -385,9 +385,8 @@ class FreysoldtCorrection(DefectCorrection):
         plt.xlim(0, max(x))
         if saved:
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")
-            return
-        else:
-            return plt
+            return None
+        return plt
 
 
 class KumagaiCorrection(DefectCorrection):
@@ -420,7 +419,7 @@ class KumagaiCorrection(DefectCorrection):
             "potalign": None,
         }
 
-        if isinstance(dielectric_tensor, int) or isinstance(dielectric_tensor, float):
+        if isinstance(dielectric_tensor, (int, float)):
             self.dielectric = np.identity(3) * dielectric_tensor
         else:
             self.dielectric = np.array(dielectric_tensor)
@@ -705,7 +704,7 @@ class KumagaiCorrection(DefectCorrection):
         for r_vec in real_vectors:
             if np.linalg.norm(r_vec) > 1e-8:
                 loc_res = np.sqrt(np.dot(r_vec, np.dot(invepsilon, r_vec)))
-                nmr = scipy.special.erfc(gamma * loc_res)
+                nmr = scipy.special.erfc(gamma * loc_res)  # pylint: disable=E1101
                 real_part += nmr / loc_res
 
         real_part /= 4 * np.pi * rd_epsilon
@@ -744,7 +743,8 @@ class KumagaiCorrection(DefectCorrection):
         determ = np.linalg.det(self.dielectric)
         return -gamma / (2.0 * np.pi * np.sqrt(np.pi * determ))
 
-    def get_potential_shift(self, gamma, volume):
+    @staticmethod
+    def get_potential_shift(gamma, volume):
         """
         Args:
             gamma (float): Gamma
@@ -835,8 +835,8 @@ class KumagaiCorrection(DefectCorrection):
 
         if saved:
             plt.savefig(str(title) + "KumagaiESPavgPlot.pdf")
-        else:
-            return plt
+            return None
+        return plt
 
 
 class BandFillingCorrection(DefectCorrection):

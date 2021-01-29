@@ -252,7 +252,7 @@ class DefectPhaseDiagram(MSONable):
                 }
 
                 stable_entries[track_name] = list(
-                    set([defects[i] for dual in facets for i in dual])
+                    {defects[i] for dual in facets for i in dual}
                 )
 
                 finished_charges[track_name] = [defect.charge for defect in defects]
@@ -292,17 +292,16 @@ class DefectPhaseDiagram(MSONable):
                                 cb_list,
                             )
                         )
-                    else:
-                        logger.info(
-                            "{} is only stable defect out of {}".format(
-                                name_stable_below_vbm, name_set
-                            )
+                    logger.info(
+                        "{} is only stable defect out of {}".format(
+                            name_stable_below_vbm, name_set
                         )
-                        transition_level_map[track_name] = {}
-                        stable_entries[track_name] = list([defects[vbm_def_index]])
-                        finished_charges[track_name] = [
-                            one_def.charge for one_def in defects
-                        ]
+                    )
+                    transition_level_map[track_name] = {}
+                    stable_entries[track_name] = list([defects[vbm_def_index]])
+                    finished_charges[track_name] = [
+                        one_def.charge for one_def in defects
+                    ]
                 else:
                     transition_level_map[track_name] = {}
 
@@ -459,19 +458,19 @@ class DefectPhaseDiagram(MSONable):
 
                 if entry.parameters.get("is_compatible", True):
                     continue
-                else:
-                    # consider if transition level is within
-                    # tolerance of band edges
-                    suggest_bigger_supercell = True
-                    for tl, chgset in self.transition_level_map[def_type].items():
-                        sorted_chgset = list(chgset)
-                        sorted_chgset.sort(reverse=True)
-                        if charge == sorted_chgset[0] and tl < tolerance:
-                            suggest_bigger_supercell = False
-                        elif charge == sorted_chgset[1] and tl > (
-                            self.band_gap - tolerance
-                        ):
-                            suggest_bigger_supercell = False
+
+                # consider if transition level is within
+                # tolerance of band edges
+                suggest_bigger_supercell = True
+                for tl, chgset in self.transition_level_map[def_type].items():
+                    sorted_chgset = list(chgset)
+                    sorted_chgset.sort(reverse=True)
+                    if charge == sorted_chgset[0] and tl < tolerance:
+                        suggest_bigger_supercell = False
+                    elif charge == sorted_chgset[1] and tl > (
+                        self.band_gap - tolerance
+                    ):
+                        suggest_bigger_supercell = False
 
                 if suggest_bigger_supercell:
                     if def_type not in recommendations:
@@ -556,8 +555,6 @@ class DefectPhaseDiagram(MSONable):
 
         return bisect(_get_total_q, -1.0, self.band_gap + 1.0)
 
-        return
-
     def get_dopability_limits(self, chemical_potentials):
         """
         Find Dopability limits for a given chemical potential.
@@ -599,7 +596,7 @@ class DefectPhaseDiagram(MSONable):
                     )
                 )
                 return None, None
-            elif np.sign(min_fl_formen) != np.sign(max_fl_formen):
+            if np.sign(min_fl_formen) != np.sign(max_fl_formen):
                 x_crossing = min_fl_range - (min_fl_formen / def_entry.charge)
                 if min_fl_formen < 0.0:
                     if lower_lim is None or lower_lim < x_crossing:
@@ -721,9 +718,9 @@ class DefectPhaseDiagram(MSONable):
             ylim = (min(y_range_vals) - spacer, max(y_range_vals) + spacer)
 
         if len(xy) <= 8:
-            colors = cm.Dark2(np.linspace(0, 1, len(xy)))
+            colors = cm.Dark2(np.linspace(0, 1, len(xy)))  # pylint: disable=E1101
         else:
-            colors = cm.gist_rainbow(np.linspace(0, 1, len(xy)))
+            colors = cm.gist_rainbow(np.linspace(0, 1, len(xy)))  # pylint: disable=E1101
 
         plt.figure()
         plt.clf()
@@ -759,14 +756,14 @@ class DefectPhaseDiagram(MSONable):
         legends_txt = []
         for dfct in for_legend:
             flds = dfct.name.split("_")
-            if "Vac" == flds[0]:
+            if flds[0] == "Vac":
                 base = "$Vac"
                 sub_str = "_{" + flds[1] + "}$"
-            elif "Sub" == flds[0]:
+            elif flds[0] == "Sub":
                 flds = dfct.name.split("_")
                 base = "$" + flds[1]
                 sub_str = "_{" + flds[3] + "}$"
-            elif "Int" == flds[0]:
+            elif flds[0] == "Int":
                 base = "$" + flds[1]
                 sub_str = "_{inter}$"
             else:
@@ -811,3 +808,5 @@ class DefectPhaseDiagram(MSONable):
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")
         else:
             return plt
+
+        return None

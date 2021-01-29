@@ -144,8 +144,7 @@ class SubstitutionGenerator(DefectGenerator):
         """
         if len(self.equiv_sub) > 0:
             return self.equiv_sub.pop(0)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class InterstitialGenerator(DefectGenerator):
@@ -199,8 +198,7 @@ class InterstitialGenerator(DefectGenerator):
             self.count_def += 1
             site_name = "InFiT" + str(self.count_def)
             return Interstitial(self.structure, inter_site, site_name=site_name)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class VoronoiInterstitialGenerator(DefectGenerator):
@@ -263,8 +261,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             self.count_def += 1
             site_name = "Voronoi" + str(self.count_def)
             return Interstitial(self.structure, inter_site, site_name=site_name)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class SimpleChargeGenerator(DefectGenerator):
@@ -319,5 +316,4 @@ class SimpleChargeGenerator(DefectGenerator):
             defect = self.defect.copy()
             defect.set_charge(charge)
             return defect
-        else:
-            raise StopIteration
+        raise StopIteration
