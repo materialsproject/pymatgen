@@ -1701,7 +1701,7 @@ class PointGroupOperations(list):
     def __repr__(self):
         return self.__str__()
 
-class MagneticSpaceGroupAnalyzer:
+class MagneticSpacegroupAnalyzer:
     """
     Takes a pymatgen.core.structure.Structure object, symprec and angle_tolarance.
 
@@ -1735,11 +1735,15 @@ class MagneticSpaceGroupAnalyzer:
       self._symprec   = symprec
       self._angle_tol = angle_tolerance
 
-      a = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
-      self._space_group_data = a._space_group_data
+      self._spacegroupAnalyzer = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
+      self._space_group_data = self._spacegroupAnalyzer._space_group_data
 
-      g = SpaceGroup.from_int_number( int(self._space_group_data["number"]) )
-      self._oplist = g.symmetry_ops
+      if np.any(np.abs(self._structure._lattice.matrix-self._spacegroupAnalyzer._cell[0])>1e-12): exit("Error in the definitions of the primitive cell")
+
+      ### pure translations are included in self._spacegroupAnalyzer._space_group_data['***'] in the conventional cell case ###
+      ### self._spacegroupAnalyzer.get_symmetry_operations does not work in the primitive cell case (Bug?) ###
+
+      self._oplist = self.get_paramag_symmetry_operations()
 
       # apply mag space group op and check if it is symm
       mspg_list = []
@@ -1748,13 +1752,50 @@ class MagneticSpaceGroupAnalyzer:
           mop = MagSymmOp.from_symmop( op, i )
           trans = [ApplyMagSymmOpTransformation(mop)]
           s_new = TransformedStructure(self._structure, trans )
-
-          if self._same_struc( s_new.final_structure,  self._structure  ):
+          if self._same_MagneticStructure( s_new.final_structure,  self._structure  )[0]:
             mspg_list.append( mop )
       self.magsymmetry_ops = mspg_list
 
+      # extend list of obtained symmetry operations by choices of origin
+      choices_of_origin = self.origin_centering( self._spacegroupAnalyzer._space_group_data['international'] )
+      if choices_of_origin!=[]:
+        for xyzt_string in choices_of_origin:
+          self.magsymmetry_ops.append( MagSymmOp.from_xyzt_string(xyzt_string) )
+      
       # find magnetic space group corresponding to symm ops in msg_list
       self._MagneticSpaceGroup = self._brows4MagneticSpaceGroup( [mop.as_xyzt_string() for mop in self.magsymmetry_ops] )
+
+    def get_paramag_symmetry_operations(self, cartesian=False):
+        """
+        Return symmetry operations as a list of SymmOp objects.
+        By default returns fractional coord symmops for primitive structure.
+        But cartesian can be returned too.
+
+        Returns:
+            ([SymmOp]): List of symmetry operations.
+        """
+        rotation = self._spacegroupAnalyzer._space_group_data['rotations']
+        translation = self._spacegroupAnalyzer._space_group_data['translations']
+        
+        prim2cart = np.transpose(self._spacegroupAnalyzer._cell[0])
+        prim2cart_inv = np.linalg.inv(prim2cart)
+        prim2conv = self._spacegroupAnalyzer._space_group_data["transformation_matrix"]
+        prim2conv_inv = np.linalg.inv(prim2conv)
+        symmops = []
+        for rot, trans in zip(rotation, translation):
+          if cartesian:
+            rot_cart = prim2cart.dot( rot.dot(prim2cart_inv) )
+            trans_cart = prim2cart.dot( trans )
+            op = SymmOp.from_rotation_and_translation(rot_cart, trans_cart)
+
+          else:
+            rot_conv = prim2conv.dot( rot.dot(prim2conv_inv)).round(8)
+            trans_conv = prim2conv.dot( trans ).round(8)
+            op = SymmOp.from_rotation_and_translation(rot_conv, trans_conv)
+
+          symmops.append(op)
+
+        return symmops
 
     def get_pointgroup_info(self):
       """
@@ -1800,6 +1841,51 @@ class MagneticSpaceGroupAnalyzer:
       """
       og_label = self._MagneticSpaceGroup._data["og_label"] 
       return ( og_label, self.og_no )  
+
+    def _same_MagneticStructure( self, struc1, struc2, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
+      """
+      Compare two pymatgen.core.structure.Structure objects, struc1 and struc2,
+      with respect to their sites and magnetic moment.
+      """
+      same = False
+      nsite = len(struc1.sites)
+      if nsite != len(struc2.sites):
+        res= "number of sites differ"
+        pass
+      else:
+        sites1_prim = [np.mod(i.frac_coords + (10+1e-9)*np.array([1,1,1]), np.array([1,1,1])) - 1e-9*np.array([1,1,1]) for i in struc1._sites]
+        sites1_prim = [tuple(k) for k in sites1_prim]
+        sites2_prim = [np.mod(i.frac_coords + (10+1e-9)*np.array([1,1,1]), np.array([1,1,1])) - 1e-9*np.array([1,1,1]) for i in struc2._sites]
+        sites2_prim = [tuple(k) for k in sites2_prim]
+        
+        magms1_cart = [i.properties["magmom"].moment for i in struc1._sites]
+        magms1_cart = [tuple(k.round(3)) for k in magms1_cart]
+        magms2_cart = [i.properties["magmom"].moment for i in struc2._sites]
+        magms2_cart = [tuple(k.round(3)) for k in magms2_cart]
+        species1 = [i._species for i in struc1._sites]
+        species2 = [i._species for i in struc2._sites]
+      
+        sitesmagms_set1 = set(tuple([tuple([species1[i],sites1_prim[i],magms1_cart[i]]) for i in range(nsite)]))
+        sitesmagms_set2 = set(tuple([tuple([species2[i],sites2_prim[i],magms2_cart[i]]) for i in range(nsite)]))
+        res = self._difference( sitesmagms_set1, sitesmagms_set2 , pos_tolerance=pos_tolerance, magmom_tolerance=magmom_tolerance )
+        if res == set():
+          same = True
+      
+      return same, res
+
+    def _difference( self, sitesmagms_set, sitesmagms_set_i, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
+      res_sitesmagms_i = sitesmagms_set_i - sitesmagms_set
+      res_sitesmagms_new = sitesmagms_set - sitesmagms_set_i
+      res = []
+      for t1 in res_sitesmagms_new:
+        t1_equal2_t2 = False
+        for t2 in res_sitesmagms_i:
+          if t1[0] == t2[0]:
+            if np.all( np.mod( np.abs( np.array(t1[1]) - np.array(t2[1]) ) , 1 )  <= pos_tolerance ):
+              if np.all( np.abs( np.array(t1[2]) - np.array(t2[2])) <= magmom_tolerance ):
+                t1_equal2_t2 = True
+        if not t1_equal2_t2: res.append( t1 )
+      return set( res ) 
 
     def _same_struc( self, struc1, struc2 ):
       """
@@ -1847,6 +1933,23 @@ class MagneticSpaceGroupAnalyzer:
       self.og_no = [int(x) for x in og_no.split(".")]
 
       return MagneticSpaceGroup.from_og( self.og_no )
+
+    def origin_centering( self, international_symbol ):
+    
+      if international_symbol[0] == "F":
+        return [ "x, y+1/2, z+1/2, +1", "x+1/2, y, z+1/2, +1", "x+1/2, y+1/2, z, +1" ]
+      elif international_symbol[0] == "I":
+        return [ "x+1/2, y+1/2, z+1/2, +1" ]
+      elif international_symbol[0] == "R":
+        return [ "x+1/3, y+2/3, z+2/3, +1", "x+2/3, y+1/3, z+1/3, +1" ]
+      elif international_symbol[0] == "C":
+        return [ "x+1/2, y+1/2, z, +1" ]
+      elif international_symbol[0] == "A":
+        return [ "x, y+1/2, z+1/2, +1" ]
+      elif international_symbol[0] == "P":
+        return []
+      else:
+        exit("Error: International symbol wrong. Argument given ", international_symbol)
 
     # TODO: add a function get_refined_structure(self) analogous to SpacegroupAnalyzer
     # TODO: add function to return Magnetic Laue group
