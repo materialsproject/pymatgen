@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module contains the classes for configuration of the chemenv package.
+"""
+
 import json
 from os import makedirs
 from os.path import exists, expanduser
@@ -9,9 +13,6 @@ from os.path import exists, expanduser
 from pymatgen import SETTINGS
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 
-"""
-This module contains the classes for configuration of the chemenv package.
-"""
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -52,6 +53,9 @@ class ChemEnvConfig:
     }
 
     def __init__(self, package_options=None):
+        """
+        :param package_options:
+        """
         if SETTINGS.get("PMG_MAPI_KEY", "") != "":
             self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY", "")
         else:
@@ -63,6 +67,9 @@ class ChemEnvConfig:
             self.package_options = package_options
 
     def setup(self):
+        """
+        Setup the class.
+        """
         while True:
             print("\n=> Configuration of the ChemEnv package <=")
             print("Current configuration :")
@@ -94,9 +101,16 @@ class ChemEnvConfig:
 
     @property
     def has_materials_project_access(self):
+        """
+        Whether MP access is enabled.
+        :return:
+        """
         return self.materials_project_configuration is not None
 
     def setup_package_options(self):
+        """
+        Setup the package options.
+        """
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup.keys())
@@ -136,6 +150,9 @@ class ChemEnvConfig:
                         print("Wrong input for option {}".format(option))
 
     def package_options_description(self):
+        """
+        Describe package options.
+        """
         out = "Package options :\n"
         out += " - Maximum distance factor : {:.4f}\n".format(
             self.package_options["default_max_distance_factor"]
@@ -156,6 +173,10 @@ class ChemEnvConfig:
         return out
 
     def save(self, root_dir=None):
+        """
+        Save the options.
+        :param root_dir:
+        """
         if root_dir is None:
             home = expanduser("~")
             root_dir = "{}/.chemenv".format(home)
@@ -178,6 +199,10 @@ class ChemEnvConfig:
 
     @classmethod
     def auto_load(cls, root_dir=None):
+        """
+        Autoload options.
+        :param root_dir:
+        """
         if root_dir is None:
             home = expanduser("~")
             root_dir = "{}/.chemenv".format(home)

@@ -29,6 +29,9 @@ STATS_ENV_PAPER = (
 
 
 def chemenv_citations():
+    """
+    :return:
+    """
     out = ""
     out += "\nIf you use the ChemEnv tool for your research, please consider citing the following reference(s) :\n"
     out += "==================================================================================================\n"
@@ -37,6 +40,9 @@ def chemenv_citations():
 
 
 class AdditionalConditions:
+    """
+    Class for additional conditions.
+    """
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
     NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
@@ -63,20 +69,26 @@ class AdditionalConditions:
     ALL = [NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB]
 
     def check_condition(self, condition, structure, parameters):
+        """
+        :param condition:
+        :param structure:
+        :param parameters:
+        :return:
+        """
         if condition == self.NONE:
             return True
-        elif condition == self.ONLY_ACB:
+        if condition == self.ONLY_ACB:
             valences = parameters["valences"]
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
             return is_anion_cation_bond(valences, ii, jj)
-        elif condition == self.NO_E2SEB:
+        if condition == self.NO_E2SEB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
             elmts_ii = [sp.symbol for sp in structure[ii].species]
             elmts_jj = [sp.symbol for sp in structure[jj].species]
             return len(set(elmts_ii) & set(elmts_jj)) == 0
-        elif condition == self.ONLY_ACB_AND_NO_E2SEB:
+        if condition == self.ONLY_ACB_AND_NO_E2SEB:
             valences = parameters["valences"]
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
@@ -85,7 +97,7 @@ class AdditionalConditions:
             return len(set(elmts_ii) & set(elmts_jj)) == 0 and is_anion_cation_bond(
                 valences, ii, jj
             )
-        elif condition == self.ONLY_E2OB:
+        if condition == self.ONLY_E2OB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
             elmts_ii = [sp.symbol for sp in structure[ii].species]
@@ -93,3 +105,4 @@ class AdditionalConditions:
             return ("O" in elmts_jj and "O" not in elmts_ii) or (
                 "O" in elmts_ii and "O" not in elmts_jj
             )
+        return None
