@@ -70,7 +70,7 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __str__(self):
-        return
+        return ""
 
 
 class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
@@ -909,9 +909,9 @@ class CoordinationGeometry:
         """
         if self.permutations_safe_override:
             return factorial(self.coordination)
-        elif self.permutations is None:
+        if self.permutations is None:  # pylint: disable=E1101
             return factorial(self.coordination)
-        return len(self.permutations)
+        return len(self.permutations)  # pylint: disable=E1101
 
     def ref_permutation(self, permutation):
         """
@@ -978,8 +978,7 @@ class CoordinationGeometry:
         """
         if permutation is None:
             return self._solid_angles
-        else:
-            return [self._solid_angles[ii] for ii in permutation]
+        return [self._solid_angles[ii] for ii in permutation]
 
     def get_pmeshes(self, sites, permutation=None):
         """
@@ -1020,10 +1019,10 @@ class CoordinationGeometry:
             elif len(face) == 4:
                 out += "5\n"
             else:
-                for ii in range(len(face)):
+                for ii, f in enumerate(face):
                     out += "4\n"
                     out += "{:d}\n".format(len(_vertices) + iface)
-                    out += "{:d}\n".format(face[ii])
+                    out += "{:d}\n".format(f)
                     out += "{:d}\n".format(face[np.mod(ii + 1, len(face))])
                     out += "{:d}\n".format(len(_vertices) + iface)
             if len(face) in [3, 4]:

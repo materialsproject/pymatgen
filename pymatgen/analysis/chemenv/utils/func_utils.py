@@ -28,9 +28,17 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
 
 
 class AbstractRatioFunction:
+    """
+    #TODO: Missing doc
+    """
     ALLOWED_FUNCTIONS = {}  # type: Dict[str, list]
 
     def __init__(self, function, options_dict=None):
+        """
+        #TODO: Missing doc
+        :param function:
+        :param options_dict:
+        """
         if function not in self.ALLOWED_FUNCTIONS:
             raise ValueError(
                 'Function "{}" is not allowed in RatioFunction of '
@@ -41,6 +49,11 @@ class AbstractRatioFunction:
         self.setup_parameters(options_dict=options_dict)
 
     def setup_parameters(self, options_dict):
+        """
+        #TODO: Missing doc
+        :param options_dict:
+        :return:
+        """
         function_options = self.ALLOWED_FUNCTIONS[self.function]
         if len(function_options) > 0:
             # Check if there are missing options
@@ -92,14 +105,27 @@ class AbstractRatioFunction:
                 self.__setattr__(key, val)
 
     def evaluate(self, value):
+        """
+        #TODO: Missing doc
+        :param value:
+        :return:
+        """
         return self.eval(value)
 
     @classmethod
     def from_dict(cls, dd):
+        """
+        #TODO: Missing doc
+        :param dd:
+        :return:
+        """
         return cls(function=dd["function"], options_dict=dd["options"])
 
 
 class RatioFunction(AbstractRatioFunction):
+    """
+    #TODO: Missing doc
+    """
     ALLOWED_FUNCTIONS = {
         "power2_decreasing_exp": ["max", "alpha"],
         "smoothstep": ["lower", "upper"],
@@ -111,36 +137,74 @@ class RatioFunction(AbstractRatioFunction):
     }
 
     def power2_decreasing_exp(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return power2_decreasing_exp(
             vals, edges=[0.0, self.__dict__["max"]], alpha=self.__dict__["alpha"]
         )
 
     def smootherstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smootherstep(
             vals, edges=[self.__dict__["lower"], self.__dict__["upper"]]
         )
 
     def smoothstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smoothstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]])
 
     def inverse_smootherstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smootherstep(
             vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True
         )
 
     def inverse_smoothstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smoothstep(
             vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True
         )
 
     def power2_inverse_decreasing(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return power2_inverse_decreasing(vals, edges=[0.0, self.__dict__["max"]])
 
     def power2_inverse_power2_decreasing(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return power2_inverse_power2_decreasing(vals, edges=[0.0, self.__dict__["max"]])
 
 
 class CSMFiniteRatioFunction(AbstractRatioFunction):
+    """
+    #TODO: Missing doc
+    """
     ALLOWED_FUNCTIONS = {
         "power2_decreasing_exp": ["max_csm", "alpha"],
         "smoothstep": ["lower_csm", "upper_csm"],
@@ -148,11 +212,21 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     }
 
     def power2_decreasing_exp(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return power2_decreasing_exp(
             vals, edges=[0.0, self.__dict__["max_csm"]], alpha=self.__dict__["alpha"]
         )
 
     def smootherstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smootherstep(
             vals,
             edges=[self.__dict__["lower_csm"], self.__dict__["upper_csm"]],
@@ -160,6 +234,11 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         )
 
     def smoothstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smootherstep(
             vals,
             edges=[self.__dict__["lower_csm"], self.__dict__["upper_csm"]],
@@ -167,43 +246,69 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         )
 
     def fractions(self, data):
+        """
+        #TODO: Missing doc
+        :param data:
+        :return:
+        """
         if len(data) == 0:
             return None
         total = np.sum([self.eval(dd) for dd in data])
         if total > 0.0:
             return [self.eval(dd) / total for dd in data]
-        else:
-            return None
+        return None
 
     def mean_estimator(self, data):
+        """
+        #TODO: Missing doc
+        :param data:
+        :return:
+        """
         if len(data) == 0:
             return None
-        elif len(data) == 1:
+        if len(data) == 1:
             return data[0]
-        else:
-            fractions = self.fractions(data)
-            if fractions is None:
-                return None
-            return np.sum(np.array(fractions) * np.array(data))
+        fractions = self.fractions(data)
+        if fractions is None:
+            return None
+        return np.sum(np.array(fractions) * np.array(data))
 
     ratios = fractions
 
 
 class CSMInfiniteRatioFunction(AbstractRatioFunction):
+    """
+    #TODO: Missing doc
+    """
     ALLOWED_FUNCTIONS = {
         "power2_inverse_decreasing": ["max_csm"],
         "power2_inverse_power2_decreasing": ["max_csm"],
     }
 
     def power2_inverse_decreasing(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return power2_inverse_decreasing(vals, edges=[0.0, self.__dict__["max_csm"]])
 
     def power2_inverse_power2_decreasing(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return power2_inverse_power2_decreasing(
             vals, edges=[0.0, self.__dict__["max_csm"]]
         )
 
     def fractions(self, data):
+        """
+        #TODO: Missing doc
+        :param data:
+        :return:
+        """
         if len(data) == 0:
             return None
         close_to_zero = np.isclose(data, 0.0, atol=1e-10).tolist()
@@ -212,36 +317,46 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
             fractions = [0.0] * len(data)
             fractions[close_to_zero.index(True)] = 1.0
             return fractions
-        elif nzeros > 1:
+        if nzeros > 1:
             raise RuntimeError(
                 "Should not have more than one continuous symmetry measure with value equal to 0.0"
             )
-        else:
-            fractions = self.eval(np.array(data))
-            total = np.sum(fractions)
-            if total > 0.0:
-                return fractions / total
-            else:
-                return None
+        fractions = self.eval(np.array(data))
+        total = np.sum(fractions)
+        if total > 0.0:
+            return fractions / total
+        return None
 
     def mean_estimator(self, data):
+        """
+        #TODO: Missing doc
+        :param data:
+        :return:
+        """
         if len(data) == 0:
             return None
-        elif len(data) == 1:
+        if len(data) == 1:
             return data[0]
-        else:
-            fractions = self.fractions(data)
-            if fractions is None:
-                return None
-            return np.sum(np.array(fractions) * np.array(data))
+        fractions = self.fractions(data)
+        if fractions is None:
+            return None
+        return np.sum(np.array(fractions) * np.array(data))
 
     ratios = fractions
 
 
 class DeltaCSMRatioFunction(AbstractRatioFunction):
+    """
+    #TODO: Missing doc
+    """
     ALLOWED_FUNCTIONS = {"smootherstep": ["delta_csm_min", "delta_csm_max"]}
 
     def smootherstep(self, vals):
+        """
+        #TODO: Missing doc
+        :param vals:
+        :return:
+        """
         return smootherstep(
             vals, edges=[self.__dict__["delta_csm_min"], self.__dict__["delta_csm_max"]]
         )

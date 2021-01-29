@@ -36,13 +36,10 @@ def get_delta_image(isite1, isite2, data1, data2):
     if data1["start"] == isite1:
         if data2["start"] == isite2:
             return np.array(data1["delta"]) - np.array(data2["delta"])
-        else:
-            return np.array(data1["delta"]) + np.array(data2["delta"])
-    else:
-        if data2["start"] == isite2:
-            return -np.array(data1["delta"]) - np.array(data2["delta"])
-        else:
-            return -np.array(data1["delta"]) + np.array(data2["delta"])
+        return np.array(data1["delta"]) + np.array(data2["delta"])
+    if data2["start"] == isite2:
+        return -np.array(data1["delta"]) - np.array(data2["delta"])
+    return -np.array(data1["delta"]) + np.array(data2["delta"])
 
 
 class StructureConnectivity(MSONable):

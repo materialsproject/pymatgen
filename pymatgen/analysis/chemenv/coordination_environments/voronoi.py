@@ -661,9 +661,7 @@ class DetailedVoronoiContainer(MSONable):
             max_dist=max_dist,
         )
         maps_and_surfaces = []
-        for cn, value in self._unique_coordinated_neighbors_parameters_indices[
-            isite
-        ].items():
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
                 for (idp, iap, iacb) in list_parameters_indices:
@@ -701,9 +699,7 @@ class DetailedVoronoiContainer(MSONable):
             isite=isite, surface_calculation_options=surface_calculation_options
         )
         maps_and_surfaces = []
-        for cn, value in self._unique_coordinated_neighbors_parameters_indices[
-            isite
-        ].items():
+        for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
                 thissurf = 0.0
                 for (idp, iap, iacb) in list_parameters_indices:
@@ -857,11 +853,9 @@ class DetailedVoronoiContainer(MSONable):
                 if nb is None:
                     if other.voronoi_list2[isite] is None:
                         continue
-                    else:
-                        return False
-                else:
-                    if other.voronoi_list2[isite] is None:
-                        return False
+                    return False
+                if other.voronoi_list2[isite] is None:
+                    return False
                 nb_other = None
                 for inb2, nb2 in enumerate(other.voronoi_list2[isite]):
                     if nb["site"] == nb2["site"]:

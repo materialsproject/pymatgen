@@ -1,3 +1,7 @@
+"""
+Module implementing connectivity finding.
+"""
+
 import logging
 
 import numpy as np
@@ -15,7 +19,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "June 25, 2019"
 
 
-class ConnectivityFinder(object):
+class ConnectivityFinder:
     """
     Main class used to find the structure connectivity of a structure
     """
@@ -53,7 +57,7 @@ class ConnectivityFinder(object):
                         "Local environment of site {:d} is a mix and "
                         "nothing is asked about it".format(isite)
                     )
-                elif self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
+                if self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
                     imax = np.argmax(
                         [
                             ee["ce_fraction"]
@@ -79,6 +83,6 @@ class ConnectivityFinder(object):
             if multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
                 raise ValueError(
                     'Option "{}" for multiple_environments_choice is '
-                    "not allowed".format(self.multiple_environments_choice)
+                    "not allowed".format(multiple_environments_choice)
                 )
         self.multiple_environments_choice = multiple_environments_choice

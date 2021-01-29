@@ -20,7 +20,7 @@ from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
     """
-
+    #TODO: Missing doc
     Args:
         env_graph ():
         pos ():
@@ -209,10 +209,10 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 new_data["start"], new_data["end"], key=key, attr_dict=new_data
             )
         return supergraph
-    else:
-        raise NotImplementedError(
-            "make_supergraph not yet implemented for 2- and 3-periodic graphs"
-        )
+
+    raise NotImplementedError(
+        "make_supergraph not yet implemented for 2- and 3-periodic graphs"
+    )
 
 
 class ConnectedComponent(MSONable):
@@ -587,7 +587,7 @@ class ConnectedComponent(MSONable):
                 continue
             if len(self._connected_subgraph[n1][n2]) == 1:
                 continue
-            elif len(self._connected_subgraph[n1][n2]) > 1:
+            if len(self._connected_subgraph[n1][n2]) > 1:
                 for iedge1, iedge2 in itertools.combinations(
                     self._connected_subgraph[n1][n2], 2
                 ):
@@ -741,7 +741,7 @@ class ConnectedComponent(MSONable):
         """
         for ipv, pv in enumerate(vectors):
             nonzeros = np.nonzero(pv)[0]
-            if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
+            if pv[nonzeros[0]] < 0 < len(nonzeros):
                 vectors[ipv] = -pv
         return sorted(vectors, key=lambda x: x.tolist())
 
@@ -898,25 +898,12 @@ class ConnectedComponent(MSONable):
                                 edata["start"] == node_neighbor.isite
                                 and edata["end"] != node_neighbor.isite
                             ):
-                                centered_connected_subgraph[n1][n2][key][
-                                    "delta"
-                                ] = tuple(
-                                    [
-                                        ii
-                                        for ii in np.array(edata["delta"], np.int)
-                                        + myddelta
-                                    ]
-                                )
+                                centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
+                                    np.array(edata["delta"], np.int) + myddelta)
                             elif edata["end"] == node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key][
                                     "delta"
-                                ] = tuple(
-                                    [
-                                        ii
-                                        for ii in np.array(edata["delta"], np.int)
-                                        - myddelta
-                                    ]
-                                )
+                                ] = tuple(np.array(edata["delta"], np.int) - myddelta)
                             else:
                                 raise ValueError("DUHH")
                             logging.debug(
@@ -957,7 +944,7 @@ class ConnectedComponent(MSONable):
     def _edgekey_to_edgedictkey(key):
         if isinstance(key, int):
             return str(key)
-        elif isinstance(key, str):
+        if isinstance(key, str):
             try:
                 int(key)
                 raise RuntimeError(
@@ -966,16 +953,15 @@ class ConnectedComponent(MSONable):
                 )
             except ValueError:
                 return key
-        else:
-            raise ValueError("Edge key should be either a str or an int.")
+        raise ValueError("Edge key should be either a str or an int.")
 
     @staticmethod
     def _edgedictkey_to_edgekey(key):
         if isinstance(key, int):
             return key
-        elif isinstance(key, str):
+        if isinstance(key, str):
             try:
-                int(key)
+                return int(key)
             except ValueError:
                 return key
         else:

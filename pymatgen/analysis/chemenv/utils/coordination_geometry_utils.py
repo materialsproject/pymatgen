@@ -27,6 +27,11 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 
 def get_lower_and_upper_f(surface_calculation_options):
+    """
+    #TODO: Missing doc
+    :param surface_calculation_options:
+    :return:
+    """
     mindist = surface_calculation_options["distance_bounds"]["lower"]
     maxdist = surface_calculation_options["distance_bounds"]["upper"]
     minang = surface_calculation_options["angle_bounds"]["lower"]
@@ -58,36 +63,35 @@ def get_lower_and_upper_f(surface_calculation_options):
 
 def function_comparison(f1, f2, x1, x2, numpoints_check=500):
     """
-        Method that compares two functions
+    Method that compares two functions
 
-        Args:
-            f1: First function to compare
-            f2: Second function to compare
-            x1: Lower bound of the interval to compare
-            x2: Upper bound of the interval to compare
-            numpoints_check: Number of points used to compare the functions
+    Args:
+        f1: First function to compare
+        f2: Second function to compare
+        x1: Lower bound of the interval to compare
+        x2: Upper bound of the interval to compare
+        numpoints_check: Number of points used to compare the functions
 
-        Returns:
-            Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
-             f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
-             interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
-             functions that do not cross...)
-        """
+    Returns:
+        Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
+         f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+         interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+         functions that do not cross...)
+    """
     xx = np.linspace(x1, x2, num=numpoints_check)
     y1 = f1(xx)
     y2 = f2(xx)
     if np.all(y1 < y2):
         return "<"
-    elif np.all(y1 > y2):
+    if np.all(y1 > y2):
         return ">"
-    elif np.all(y1 == y2):
+    if np.all(y1 == y2):
         return "="
-    elif np.all(y1 <= y2):
+    if np.all(y1 <= y2):
         return "<="
-    elif np.all(y1 >= y2):
+    if np.all(y1 >= y2):
         return ">="
-    else:
-        raise RuntimeError("Error in comparing functions f1 and f2 ...")
+    raise RuntimeError("Error in comparing functions f1 and f2 ...")
 
 
 def quarter_ellipsis_functions(xx, yy):
@@ -329,18 +333,17 @@ def rectangle_surface_intersection(
         elif bounds_upper is not None:
             if bounds_lower is None:
                 raise ValueError("Bounds are given for f_upper but not for f_lower")
-            else:
-                if "<" not in function_comparison(
-                    f1=f_lower,
-                    f2=f_upper,
-                    x1=bounds_lower[0],
-                    x2=bounds_lower[1],
-                    numpoints_check=numpoints_check,
-                ):
-                    raise RuntimeError(
-                        "Function f_lower is not allways lower or equal to function f_upper within "
-                        "the domain defined by the functions bounds."
-                    )
+            if "<" not in function_comparison(
+                f1=f_lower,
+                f2=f_upper,
+                x1=bounds_lower[0],
+                x2=bounds_lower[1],
+                numpoints_check=numpoints_check,
+            ):
+                raise RuntimeError(
+                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "the domain defined by the functions bounds."
+                )
         else:
             if "<" not in function_comparison(
                 f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check
@@ -351,29 +354,28 @@ def rectangle_surface_intersection(
                 )
     if bounds_lower is None:
         raise NotImplementedError("Bounds should be given right now ...")
+    if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
+        return 0.0, 0.0
+    if x1 < bounds_lower[0]:
+        xmin = bounds_lower[0]
     else:
-        if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
-            return (0.0, 0.0)
-        if x1 < bounds_lower[0]:
-            xmin = bounds_lower[0]
-        else:
-            xmin = x1
-        if x2 > bounds_lower[1]:
-            xmax = bounds_lower[1]
-        else:
-            xmax = x2
+        xmin = x1
+    if x2 > bounds_lower[1]:
+        xmax = bounds_lower[1]
+    else:
+        xmax = x2
 
-        def diff(x):
-            flwx = f_lower(x)
-            fupx = f_upper(x)
-            minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
-            maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
-            zeros = np.zeros_like(fupx)
-            upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
-            lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
-            return upper - lower
+    def diff(x):
+        flwx = f_lower(x)
+        fupx = f_upper(x)
+        minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
+        maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
+        zeros = np.zeros_like(fupx)
+        upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
+        lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
+        return upper - lower
 
-        return quad(diff, xmin, xmax)
+    return quad(diff, xmin, xmax)
 
 
 def my_solid_angle(center, coords):
@@ -546,12 +548,22 @@ def anticlockwise_sort_indices(pps):
 
 
 def sort_separation(separation):
+    """
+    #TODO: Missing doc
+    :param separation:
+    :return:
+    """
     if len(separation[0]) > len(separation[2]):
         return [sorted(separation[2]), sorted(separation[1]), sorted(separation[0])]
     return [sorted(separation[0]), sorted(separation[1]), sorted(separation[2])]
 
 
 def sort_separation_tuple(separation):
+    """
+    #TODO: Missing doc
+    :param separation:
+    :return:
+    """
     if len(separation[0]) > len(separation[2]):
         return (
             tuple(sorted(separation[2])),
@@ -662,6 +674,12 @@ class Plane:
         self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
+        """
+        #TODO: Missing doc
+        :param nonzeros:
+        :param zeros:
+        :return:
+        """
         if len(nonzeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float)
             self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float)
@@ -911,23 +929,48 @@ class Plane:
         return xypps
 
     def fit_error(self, points, fit="least_square_distance"):
+        """
+        #TODO: Missing doc
+        :param points:
+        :param fit:
+        :return:
+        """
         if fit == "least_square_distance":
             return self.fit_least_square_distance_error(points)
         if fit == "maximum_distance":
             return self.fit_maximum_distance_error(points)
+        return None
 
     def fit_least_square_distance_error(self, points):
+        """
+        #TODO: Missing doc
+        :param points:
+        :return:
+        """
         return np.sum([self.distance_to_point(pp) ** 2.0 for pp in points])
 
     def fit_maximum_distance_error(self, points):
+        """
+        #TODO: Missing doc
+        :param points:
+        :return:
+        """
         return np.max([self.distance_to_point(pp) for pp in points])
 
     @property
     def coefficients(self):
+        """
+        #TODO: Missing doc
+        :return:
+        """
         return np.copy(self._coefficients)
 
     @property
     def abcd(self):
+        """
+        #TODO: Missing doc
+        :return:
+        """
         return (
             self._coefficients[0],
             self._coefficients[1],
@@ -937,34 +980,53 @@ class Plane:
 
     @property
     def a(self):
+        """#TODO: Missing doc"""
         return self._coefficients[0]
 
     @property
     def b(self):
+        """#TODO: Missing doc"""
         return self._coefficients[1]
 
     @property
     def c(self):
+        """#TODO: Missing doc"""
         return self._coefficients[2]
 
     @property
     def d(self):
+        """#TODO: Missing doc"""
         return self._coefficients[3]
 
     @property
     def distance_to_origin(self):
+        """#TODO: Missing doc"""
         return self._coefficients[3]
 
     @property
     def crosses_origin(self):
+        """#TODO: Missing doc"""
         return self._crosses_origin
 
     @classmethod
     def from_2points_and_origin(cls, p1, p2):
+        """
+        #TODO: Missing doc
+        :param p1:
+        :param p2:
+        :return:
+        """
         return cls.from_3points(p1, p2, np.zeros(3))
 
     @classmethod
     def from_3points(cls, p1, p2, p3):
+        """
+        #TODO: Missing doc
+        :param p1:
+        :param p2:
+        :param p3:
+        :return:
+        """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
         nonzeros = np.argwhere(normal_vector != 0.0)
@@ -978,17 +1040,29 @@ class Plane:
 
     @classmethod
     def from_npoints(cls, points, best_fit="least_square_distance"):
+        """
+        #TODO: Missing doc
+        :param points:
+        :param best_fit:
+        :return:
+        """
         if len(points) == 2:
             return cls.from_2points_and_origin(points[0], points[1])
         if len(points) == 3:
             return cls.from_3points(points[0], points[1], points[2])
         if best_fit == "least_square_distance":
             return cls.from_npoints_least_square_distance(points)
-        elif best_fit == "maximum_distance":
+        if best_fit == "maximum_distance":
             return cls.from_npoints_maximum_distance(points)
+        return None
 
     @classmethod
     def from_npoints_least_square_distance(cls, points):
+        """
+        #TODO: Missing doc
+        :param points:
+        :return:
+        """
         mean_point = np.array(
             [sum([pp[ii] for pp in points]) for ii in range(3)], np.float
         )
@@ -1011,6 +1085,12 @@ class Plane:
 
     @classmethod
     def perpendicular_bisector(cls, p1, p2):
+        """
+        #TODO: Missing doc
+        :param p1:
+        :param p2:
+        :return:
+        """
         middle_point = 0.5 * (p1 + p2)
         normal_vector = p2 - p1
         dd = -np.dot(normal_vector, middle_point)
@@ -1022,6 +1102,11 @@ class Plane:
 
     @classmethod
     def from_npoints_maximum_distance(cls, points):
+        """
+        #TODO: Missing doc
+        :param points:
+        :return:
+        """
         convex_hull = ConvexHull(points)
         heights = []
         ipoints_heights = []
@@ -1051,4 +1136,12 @@ class Plane:
 
     @classmethod
     def from_coefficients(cls, a, b, c, d):
+        """
+        #TODO: Missing doc
+        :param a:
+        :param b:
+        :param c:
+        :param d:
+        :return:
+        """
         return cls(np.array([a, b, c, d], np.float))

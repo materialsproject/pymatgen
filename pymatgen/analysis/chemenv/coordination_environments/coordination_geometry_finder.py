@@ -681,7 +681,7 @@ class LocalGeometryFinder:
         if only_cations and self.valences != "undefined":
             sites_indices = [isite for isite in indices if self.valences[isite] >= 0]
         else:
-            sites_indices = [isite for isite in indices]
+            sites_indices = list(indices)
 
         # Include atoms that are in the list of "only_atoms" if it is provided
         if only_atoms is not None:
@@ -1087,7 +1087,7 @@ class LocalGeometryFinder:
         """
         if symbol_type == "IUPAC":
             cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)
-        elif symbol_type == "MP" or symbol_type == "mp_symbol":
+        elif symbol_type in ("MP", "mp_symbol"):
             cg = self.allcg.get_geometry_from_mp_symbol(symbol)
         elif symbol_type == "CoordinationGeometry":
             cg = symbol
@@ -1628,41 +1628,41 @@ class LocalGeometryFinder:
                 local2perfect_maps,
                 perfect2local_maps,
             )
-        else:
-            permutations_symmetry_measures = [None] * len(algo.permutations)
-            permutations = list()
-            algos = list()
-            local2perfect_maps = list()
-            perfect2local_maps = list()
-            for iperm, perm in enumerate(algo.permutations):
 
-                local2perfect_map = {}
-                perfect2local_map = {}
-                permutations.append(perm)
-                for iperfect, ii in enumerate(perm):
-                    perfect2local_map[iperfect] = ii
-                    local2perfect_map[ii] = iperfect
-                local2perfect_maps.append(local2perfect_map)
-                perfect2local_maps.append(perfect2local_map)
+        permutations_symmetry_measures = [None] * len(algo.permutations)
+        permutations = list()
+        algos = list()
+        local2perfect_maps = list()
+        perfect2local_maps = list()
+        for iperm, perm in enumerate(algo.permutations):
 
-                points_distorted = self.local_geometry.points_wcs_ctwcc(
-                    permutation=perm
-                )
+            local2perfect_map = {}
+            perfect2local_map = {}
+            permutations.append(perm)
+            for iperfect, ii in enumerate(perm):
+                perfect2local_map[iperfect] = ii
+                local2perfect_map[ii] = iperfect
+            local2perfect_maps.append(local2perfect_map)
+            perfect2local_maps.append(perfect2local_map)
 
-                sm_info = symmetry_measure(
-                    points_distorted=points_distorted, points_perfect=points_perfect
-                )
-                sm_info["translation_vector"] = self.local_geometry.centroid_with_centre
-
-                permutations_symmetry_measures[iperm] = sm_info
-                algos.append(str(algo))
-            return (
-                permutations_symmetry_measures,
-                permutations,
-                algos,
-                local2perfect_maps,
-                perfect2local_maps,
+            points_distorted = self.local_geometry.points_wcs_ctwcc(
+                permutation=perm
             )
+
+            sm_info = symmetry_measure(
+                points_distorted=points_distorted, points_perfect=points_perfect
+            )
+            sm_info["translation_vector"] = self.local_geometry.centroid_with_centre
+
+            permutations_symmetry_measures[iperm] = sm_info
+            algos.append(str(algo))
+        return (
+            permutations_symmetry_measures,
+            permutations,
+            algos,
+            local2perfect_maps,
+            perfect2local_maps,
+        )
 
     def coordination_geometry_symmetry_measures_separation_plane(
         self,
@@ -2073,23 +2073,19 @@ class LocalGeometryFinder:
                     algo,
                     separation_permutations,
                 )
-            else:
-                return (
-                    permutations_symmetry_measures,
-                    permutations,
-                    [sepplane.algorithm_type] * len(permutations),
-                )
-        else:
-            if plane_found:
-                if testing:
-                    return permutations_symmetry_measures, permutations, [], []
-                else:
-                    return permutations_symmetry_measures, permutations, []
-            else:
-                if testing:
-                    return None, None, None, None
-                else:
-                    return None, None, None
+
+            return (
+                permutations_symmetry_measures,
+                permutations,
+                [sepplane.algorithm_type] * len(permutations),
+            )
+        if plane_found:
+            if testing:
+                return permutations_symmetry_measures, permutations, [], []
+            return permutations_symmetry_measures, permutations, []
+        if testing:
+            return None, None, None, None
+        return None, None, None
 
     def _cg_csm_separation_plane_optim1(
         self,
@@ -2170,8 +2166,7 @@ class LocalGeometryFinder:
                 [sepplane.algorithm_type] * len(permutations),
                 stop_search,
             )
-        else:
-            return [], [], [], stop_search
+        return [], [], [], stop_search
 
     def _cg_csm_separation_plane_optim2(
         self,
@@ -2248,8 +2243,7 @@ class LocalGeometryFinder:
                 [sepplane.algorithm_type] * len(permutations),
                 stop_search,
             )
-        else:
-            return [], [], [], stop_search
+        return [], [], [], stop_search
 
     def coordination_geometry_symmetry_measures_fallback_random(
         self, coordination_geometry, NRANDOM=10, points_perfect=None

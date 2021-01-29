@@ -304,10 +304,9 @@ class StructureEnvironments(MSONable):
                 else:
                     if other_origins == "DO_NOTHING":
                         continue
-                    else:
-                        raise NotImplementedError(
-                            "Nothing implemented for other sources ..."
-                        )
+                    raise NotImplementedError(
+                        "Nothing implemented for other sources ..."
+                    )
             if len(mysrc) == 0:
                 return None
 
@@ -710,8 +709,7 @@ class StructureEnvironments(MSONable):
         cn = symbol_cn_mapping[mp_symbol]
         if cn not in self.ce_list[isite]:
             return []
-        else:
-            return [envs[mp_symbol] for envs in self.ce_list[isite][cn]]
+        return [envs[mp_symbol] for envs in self.ce_list[isite][cn]]
 
     def plot_csm_and_maps(self, isite, max_csm=8.0):
         """
@@ -729,11 +727,12 @@ class StructureEnvironments(MSONable):
             print(
                 'Plotting Chemical Environments requires matplotlib ... exiting "plot" function'
             )
-            return
+            return None
         fig = self.get_csm_and_maps(isite=isite, max_csm=max_csm)
         if fig is None:
-            return
+            return None
         plt.show()
+        return None
 
     def get_csm_and_maps(
         self, isite, max_csm=8.0, figsize=None, symmetry_measure_type=None
@@ -759,7 +758,7 @@ class StructureEnvironments(MSONable):
             print(
                 'Plotting Chemical Environments requires matplotlib ... exiting "plot" function'
             )
-            return
+            return None
 
         if symmetry_measure_type is None:
             symmetry_measure_type = "csm_wcs_ctwcc"
@@ -922,7 +921,7 @@ class StructureEnvironments(MSONable):
             print(
                 'Plotting Chemical Environments requires matplotlib ... exiting "plot" function'
             )
-            return
+            return None
 
         # Initializes the figure
         if figsize is None:
@@ -938,7 +937,7 @@ class StructureEnvironments(MSONable):
                 "angle_parameter": ("initial_normalized_inverted", None),
             }
         if colormap is None:
-            mycm = cm.jet
+            mycm = cm.jet  # pylint: disable=E1101
         else:
             mycm = colormap
         mymin = 0.0
@@ -1243,39 +1242,38 @@ class StructureEnvironments(MSONable):
                     }
                 )
                 return differences
-            else:
-                differences.append(
-                    {
-                        "difference": "voronoi",
-                        "comparison": "is_close_to",
-                        "self": self.voronoi,
-                        "other": other.voronoi,
-                    }
-                )
-                # TODO: make it possible to have "close" voronoi's
-                differences.append(
-                    {
-                        "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
-                        "comparison": "differences_wrt",
-                    }
-                )
-                return differences
+
+            differences.append(
+                {
+                    "difference": "voronoi",
+                    "comparison": "is_close_to",
+                    "self": self.voronoi,
+                    "other": other.voronoi,
+                }
+            )
+            # TODO: make it possible to have "close" voronoi's
+            differences.append(
+                {
+                    "difference": "PREVIOUS DIFFERENCE IS DISMISSIVE",
+                    "comparison": "differences_wrt",
+                }
+            )
+            return differences
         for isite, self_site_nb_sets in enumerate(self.neighbors_sets):
             other_site_nb_sets = other.neighbors_sets[isite]
             if self_site_nb_sets is None:
                 if other_site_nb_sets is None:
                     continue
-                else:
-                    differences.append(
-                        {
-                            "difference": "neighbors_sets[isite={:d}]".format(isite),
-                            "comparison": "has_neighbors",
-                            "self": "None",
-                            "other": set(other_site_nb_sets.keys()),
-                        }
-                    )
-                    continue
-            elif other_site_nb_sets is None:
+                differences.append(
+                    {
+                        "difference": "neighbors_sets[isite={:d}]".format(isite),
+                        "comparison": "has_neighbors",
+                        "self": "None",
+                        "other": set(other_site_nb_sets.keys()),
+                    }
+                )
+                continue
+            if other_site_nb_sets is None:
                 differences.append(
                     {
                         "difference": "neighbors_sets[isite={:d}]".format(isite),
@@ -2054,7 +2052,7 @@ class LightStructureEnvironments(MSONable):
         if self.statistics_dict is None:
             self.setup_statistic_lists()
         if statistics_fields == "ALL":
-            statistics_fields = [key for key in self.statistics_dict]
+            statistics_fields = list(self.statistics_dict.keys())
         if bson_compatible:
             dd = jsanitize(
                 {field: self.statistics_dict[field] for field in statistics_fields}
@@ -2164,13 +2162,11 @@ class LightStructureEnvironments(MSONable):
             if self.coordination_environments[isite] is None:
                 if skip_none:
                     continue
-                else:
-                    return False
+                return False
             if len(self.coordination_environments[isite]) == 0:
                 if skip_empty:
                     continue
-                else:
-                    return False
+                return False
             if not self.site_has_clear_environment(isite=isite, conditions=conditions):
                 return False
         return True
@@ -2399,7 +2395,7 @@ class ChemicalEnvironments(MSONable):
         """
         if len(self.coord_geoms) == 0:
             return None
-        cglist = [cg for cg in self.coord_geoms]
+        cglist = list(self.coord_geoms)
         if symmetry_measure_type is None:
             csms = np.array(
                 [
@@ -2436,7 +2432,7 @@ class ChemicalEnvironments(MSONable):
         Raises:
             ValueError if no coordination geometry is found in this ChemicalEnvironments object.
         """
-        cglist = [cg for cg in self.coord_geoms]
+        cglist = list(self.coord_geoms)
         if symmetry_measure_type is None:
             csms = np.array(
                 [
@@ -2460,17 +2456,16 @@ class ChemicalEnvironments(MSONable):
                 return [
                     (cglist[ii], csmlist[ii]) for ii in isorted if csms[ii] <= max_csm
                 ]
-            else:
-                return [
-                    (cglist[ii], csmlist[ii])
-                    for ii in isorted[:n]
-                    if csms[ii] <= max_csm
-                ]
-        else:
-            if n is None:
-                return [(cglist[ii], csmlist[ii]) for ii in isorted]
-            else:
-                return [(cglist[ii], csmlist[ii]) for ii in isorted[:n]]
+
+            return [
+                (cglist[ii], csmlist[ii])
+                for ii in isorted[:n]
+                if csms[ii] <= max_csm
+            ]
+
+        if n is None:
+            return [(cglist[ii], csmlist[ii]) for ii in isorted]
+        return [(cglist[ii], csmlist[ii]) for ii in isorted[:n]]
 
     def add_coord_geom(
         self,
@@ -2520,18 +2515,18 @@ class ChemicalEnvironments(MSONable):
                 "add_coord_geom",
                 "This coordination geometry is already present and override is set to False",
             )
-        else:
-            self.coord_geoms[mp_symbol] = {
-                "symmetry_measure": float(symmetry_measure),
-                "algo": algo,
-                "permutation": [int(i) for i in permutation],
-                "local2perfect_map": local2perfect_map,
-                "perfect2local_map": perfect2local_map,
-                "detailed_voronoi_index": detailed_voronoi_index,
-                "other_symmetry_measures": other_symmetry_measures,
-                "rotation_matrix": rotation_matrix,
-                "scaling_factor": scaling_factor,
-            }
+
+        self.coord_geoms[mp_symbol] = {
+            "symmetry_measure": float(symmetry_measure),
+            "algo": algo,
+            "permutation": [int(i) for i in permutation],
+            "local2perfect_map": local2perfect_map,
+            "perfect2local_map": perfect2local_map,
+            "detailed_voronoi_index": detailed_voronoi_index,
+            "other_symmetry_measures": other_symmetry_measures,
+            "rotation_matrix": rotation_matrix,
+            "scaling_factor": scaling_factor,
+        }
 
     def __str__(self):
         """
