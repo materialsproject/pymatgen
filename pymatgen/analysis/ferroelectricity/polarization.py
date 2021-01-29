@@ -240,6 +240,8 @@ class Polarization:
 
             return p_elecs, p_ions
 
+        return None
+
     def get_same_branch_polarization_data(
         self, convert_to_muC_per_cm2=True, all_in_polar=True
     ):

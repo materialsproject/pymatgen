@@ -77,12 +77,11 @@ class ZSLGenerator:
         """
         if np.absolute(rel_strain(vec_set1[0], vec_set2[0])) > self.max_length_tol:
             return False
-        elif np.absolute(rel_strain(vec_set1[1], vec_set2[1])) > self.max_length_tol:
+        if np.absolute(rel_strain(vec_set1[1], vec_set2[1])) > self.max_length_tol:
             return False
-        elif np.absolute(rel_angle(vec_set1, vec_set2)) > self.max_angle_tol:
+        if np.absolute(rel_angle(vec_set1, vec_set2)) > self.max_angle_tol:
             return False
-        else:
-            return True
+        return True
 
     def generate_sl_transformation_sets(self, film_area, substrate_area):
         """
@@ -185,8 +184,8 @@ class ZSLGenerator:
             if lowest:
                 break
 
+    @staticmethod
     def match_as_dict(
-        self,
         film_sl_vectors,
         substrate_sl_vectors,
         film_vectors,
@@ -395,8 +394,7 @@ class SubstrateAnalyzer:
                 film.volume * energy_density / len(film.sites),
                 strain.von_mises_strain,
             )
-        else:
-            return film.volume * energy_density / len(film.sites)
+        return film.volume * energy_density / len(film.sites)
 
 
 def gen_sl_transform_matricies(area_multiple):

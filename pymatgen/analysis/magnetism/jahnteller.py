@@ -156,7 +156,7 @@ class JahnTellerAnalyzer:
                     motif = "unknown"
                     motif_order_parameter = None
 
-                if motif == "oct" or motif == "tet":
+                if motif in ["oct", "tet"]:
 
                     # guess spin of metal ion
                     if guesstimate_spin and "magmom" in site.properties:
@@ -182,7 +182,7 @@ class JahnTellerAnalyzer:
                             ligand.distance(structure[idx]) for ligand in ligands
                         ]
                         ligands_species = list(
-                            set([str(ligand.specie) for ligand in ligands])
+                            {str(ligand.specie) for ligand in ligands}
                         )
                         ligand_bond_length_spread = max(ligand_bond_lengths) - min(
                             ligand_bond_lengths
@@ -247,8 +247,7 @@ class JahnTellerAnalyzer:
                 analysis["strength"] = "weak"
             analysis["sites"] = jt_sites
             return analysis, structure
-        else:
-            return {"active": False, "sites": non_jt_sites}, structure
+        return {"active": False, "sites": non_jt_sites}, structure
 
     def get_analysis(
         self,
@@ -503,26 +502,24 @@ class JahnTellerAnalyzer:
         mu_so_low = JahnTellerAnalyzer.mu_so(species, motif=motif, spin_state="low")
         if mu_so_high == mu_so_low:
             return "undefined"  # undefined or only one spin state possible
-        elif mu_so_high is None:
+        if mu_so_high is None:
             return "low"
-        elif mu_so_low is None:
+        if mu_so_low is None:
             return "high"
-        else:
-            diff = mu_so_high - mu_so_low
-            # WARNING! this heuristic has not been robustly tested or benchmarked
-            # using 'diff*0.25' as arbitrary measure, if known magmom is
-            # too far away from expected value, we don't try to classify it
-            if (
-                known_magmom > mu_so_high
-                or abs(mu_so_high - known_magmom) < diff * 0.25
-            ):
-                return "high"
-            elif (
-                known_magmom < mu_so_low or abs(mu_so_low - known_magmom) < diff * 0.25
-            ):
-                return "low"
-            else:
-                return "unknown"
+        diff = mu_so_high - mu_so_low
+        # WARNING! this heuristic has not been robustly tested or benchmarked
+        # using 'diff*0.25' as arbitrary measure, if known magmom is
+        # too far away from expected value, we don't try to classify it
+        if (
+            known_magmom > mu_so_high
+            or abs(mu_so_high - known_magmom) < diff * 0.25
+        ):
+            return "high"
+        if (
+            known_magmom < mu_so_low or abs(mu_so_low - known_magmom) < diff * 0.25
+        ):
+            return "low"
+        return "unknown"
 
     @staticmethod
     def mu_so(

@@ -488,7 +488,7 @@ class WulffShape:
         r_range = max([np.linalg.norm(x) for x in wulff_pt_list])
         ax.set_xlim([-r_range * 1.1, r_range * 1.1])
         ax.set_ylim([-r_range * 1.1, r_range * 1.1])
-        ax.set_zlim([-r_range * 1.1, r_range * 1.1])
+        ax.set_zlim([-r_range * 1.1, r_range * 1.1])  # pylint: disable=E1101
         # add legend
         if legend_on:
             color_proxy = color_proxy

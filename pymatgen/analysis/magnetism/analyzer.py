@@ -32,10 +32,6 @@ from pymatgen.transformations.standard_transformations import (
 )
 from pymatgen.util.typing import Vector3Like
 
-"""
-This module provides some useful functions for dealing with magnetic Structures
-(e.g. Structures with associated magmom tags).
-"""
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -200,7 +196,7 @@ class CollinearMagneticStructureAnalyzer:
                 "properties. This is ambiguous. Remove one or "
                 "the other."
             )
-        elif has_magmoms:
+        if has_magmoms:
             if None in structure.site_properties["magmom"]:
                 warnings.warn(
                     "Be careful with mixing types in your magmom "
@@ -473,8 +469,7 @@ class CollinearMagneticStructureAnalyzer:
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
             return tuple(sorted(structure.types_of_species))
-        else:
-            return tuple()
+        return tuple()
 
     @property
     def types_of_magnetic_specie(
@@ -579,12 +574,11 @@ class CollinearMagneticStructureAnalyzer:
 
         if total_magnetization > 0 and is_potentially_ferromagnetic:
             return Ordering.FM
-        elif total_magnetization > 0:
+        if total_magnetization > 0:
             return Ordering.FiM
-        elif max_magmom > 0:
+        if max_magmom > 0:
             return Ordering.AFM
-        else:
-            return Ordering.NM
+        return Ordering.NM
 
     def get_exchange_group_info(
         self, symprec: float = 1e-2, angle_tolerance: float = 5.0
@@ -647,12 +641,7 @@ class CollinearMagneticStructureAnalyzer:
         b_positive = b_positive.get_structure_with_spin()
         b_negative = b_negative.get_structure_with_spin()
 
-        if a.matches(b_positive) or a.matches(
-            b_negative
-        ):  # sometimes returns None (bug?)
-            return True
-        else:
-            return False
+        return a.matches(b_positive) or a.matches(b_negative)
 
     def __str__(self):
         """
@@ -916,9 +905,7 @@ class MagneticStructureEnumerator:
         ):
             for index in indices:
                 wyckoff[index] = symbol
-        is_magnetic_sites = [
-            True if site.specie in types_mag_species else False for site in structure
-        ]
+        is_magnetic_sites = [site.specie in types_mag_species for site in structure]
         # we're not interested in sites that we don't think are magnetic,
         # set these symbols to None to filter them out later
         wyckoff = [

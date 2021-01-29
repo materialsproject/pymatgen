@@ -2,9 +2,9 @@
 Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
 
 Forked and adjusted from :
-https://github.com/usnistgov/jarvis  
+https://github.com/usnistgov/jarvis
 
-References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  & 
+References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
             2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
 """
 

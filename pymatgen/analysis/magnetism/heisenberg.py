@@ -229,7 +229,7 @@ class HeisenbergMapper:
 
         all_dists = all_dists[:3]
         labels = ["nn", "nnn", "nnnn"]
-        dists = {l: d for (l, d) in zip(labels, all_dists)}
+        dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
         for k in unique_site_ids:
@@ -374,7 +374,7 @@ class HeisenbergMapper:
             ex_mat[["E0"]] = 1  # Nonmagnetic contribution
 
             # Check for singularities and delete columns with all zeros
-            zeros = [b for b in (ex_mat == 0).all(axis=0)]
+            zeros = list((ex_mat == 0).all(axis=0))
             if True in zeros:
                 c = ex_mat.columns[zeros.index(True)]
                 ex_mat = ex_mat.drop(columns=[c], axis=1)
@@ -557,7 +557,6 @@ class HeisenbergMapper:
 
         # Only 1 magnetic sublattice
         if num_sublattices == 1:
-
             mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
 
         else:  # multiple magnetic sublattices
@@ -566,7 +565,7 @@ class HeisenbergMapper:
             ex_params = {k: v for (k, v) in ex_params.items() if k != "E0"}  # ignore E0
             for k in ex_params:
                 # split into i, j unique site identifiers
-                sites = [elem for elem in k.split("-")]
+                sites = k.split("-")
                 sites = [int(num) for num in sites[:2]]  # cut 'nn' identifier
                 i, j = sites[0], sites[1]
                 omega[i, j] += ex_params[k]

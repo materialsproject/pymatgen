@@ -12,7 +12,7 @@ from pymatgen.io.vasp.outputs import Wavecar
 # from jarvis.io.vasp.outputs import Wavecar
 
 
-class SOCSpillage(object):
+class SOCSpillage:
     """
     Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
     The spillage criteria physically signifies number of band-inverted electrons.
@@ -21,7 +21,7 @@ class SOCSpillage(object):
 
     def __init__(self, wf_noso="", wf_so=""):
         """
-        Requires path to WAVECAR files with and without LSORBIT = .TRUE. 
+        Requires path to WAVECAR files with and without LSORBIT = .TRUE.
         Args:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling
@@ -30,16 +30,15 @@ class SOCSpillage(object):
         self.wf_noso = wf_noso
         self.wf_so = wf_so
 
-    def isclose(self, n1, n2, rel_tol=1e-7):
+    @staticmethod
+    def isclose(n1, n2, rel_tol=1e-7):
         """
         Checking if the numbers are close enoung
         """
-        if abs(n1 - n2) < rel_tol:
-            return True
-        else:
-            return False
+        return abs(n1 - n2) < rel_tol
 
-    def orth(self, A):
+    @staticmethod
+    def orth(A):
         """
         Helper function to create orthonormal basis
         """

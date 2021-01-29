@@ -2231,7 +2231,7 @@ class PDPlotter:
         ax.axis("off")
         ax.set_xlim(-0.1, 0.72)
         ax.set_ylim(0, 0.66)
-        ax.set_zlim(0, 0.56)
+        ax.set_zlim(0, 0.56)  # pylint: disable=E1101
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
