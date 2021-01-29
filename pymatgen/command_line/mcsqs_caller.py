@@ -8,7 +8,8 @@ import tempfile
 import warnings
 from pathlib import Path
 from subprocess import Popen, TimeoutExpired
-from typing import Dict, List, NamedTuple, Optional, Union
+from collections import namedtuple
+from typing import Dict, List, Optional, Union
 
 from monty.dev import requires
 from monty.os.path import which
@@ -16,16 +17,15 @@ from monty.os.path import which
 from pymatgen.core.structure import Structure
 
 
-class Sqs(NamedTuple):
-    """
-    Return type for run_mcsqs.
-    """
-
-    bestsqs: Structure
-    objective_function: Union[float, str]
-    allsqs: List
-    clusters: List
-    directory: str
+Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
+"""
+Return type for run_mcsqs.
+bestsqs: Structure
+objective_function: Union[float, str]
+allsqs: List
+clusters: List
+directory: str
+"""
 
 
 @requires(

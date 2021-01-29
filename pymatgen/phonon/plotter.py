@@ -155,7 +155,7 @@ class PhononDosPlotter:
 
         import palettable
 
-        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors  # pylint: disable=E1101
 
         y = None
         alldensities = []
@@ -281,26 +281,26 @@ class PhononBSPlotter:
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i in range(len(temp_ticks)):
+        for i, tt in enumerate(temp_ticks):
             if i == 0:
-                uniq_d.append(temp_ticks[i][0])
-                uniq_l.append(temp_ticks[i][1])
+                uniq_d.append(tt[0])
+                uniq_l.append(tt[1])
                 logger.debug(
                     "Adding label {l} at {d}".format(
-                        l=temp_ticks[i][0], d=temp_ticks[i][1]
+                        l=tt[0], d=tt[1]
                     )
                 )
             else:
-                if temp_ticks[i][1] == temp_ticks[i - 1][1]:
-                    logger.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
+                if tt[1] == temp_ticks[i - 1][1]:
+                    logger.debug("Skipping label {i}".format(i=tt[1]))
                 else:
                     logger.debug(
                         "Adding label {l} at {d}".format(
-                            l=temp_ticks[i][0], d=temp_ticks[i][1]
+                            l=tt[0], d=tt[1]
                         )
                     )
-                    uniq_d.append(temp_ticks[i][0])
-                    uniq_l.append(temp_ticks[i][1])
+                    uniq_d.append(tt[0])
+                    uniq_l.append(tt[1])
 
         logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
         plt.gca().set_xticks(uniq_d)

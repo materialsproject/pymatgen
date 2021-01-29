@@ -143,7 +143,7 @@ class BaderAnalysis:
             )
             self.natoms = self.chgcar.poscar.natoms
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
-            self.reference_used = True if chgref_filename else False
+            self.reference_used = bool(chgref_filename)
 
             # List of nelects for each atom from potcar
             potcar_indices = []
@@ -569,7 +569,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             "atomic_volume": [d["atomic_vol"] for d in ba.data],
             "vacuum_charge": ba.vacuum_charge,
             "vacuum_volume": ba.vacuum_volume,
-            "reference_used": True if chgref_path else False,
+            "reference_used": bool(chgref_path),
             "bader_version": ba.version,
         }
 
