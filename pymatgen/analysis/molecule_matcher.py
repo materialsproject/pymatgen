@@ -1241,8 +1241,8 @@ class GeneticOrderMatcher(KabschMatcher):
     The main idea here is that in each iteration (generation) we can check the match of all possible
     fragments and ignore those which are not feasible.
 
-    Although in the worst case this method has N! complexity (same as the brute force one), 
-    in practice it performs much faster because many of the combination can be eliminated 
+    Although in the worst case this method has N! complexity (same as the brute force one),
+    in practice it performs much faster because many of the combination can be eliminated
     during the fragment matching.
 
     Notes:
@@ -1253,7 +1253,7 @@ class GeneticOrderMatcher(KabschMatcher):
         This happens due to the nature of the average function
         used to calculate the RMSD for the fragments.
 
-        When aligning molecules, the atoms of the two molecules **must** have the 
+        When aligning molecules, the atoms of the two molecules **must** have the
         same number of atoms from the same species.
     """
 

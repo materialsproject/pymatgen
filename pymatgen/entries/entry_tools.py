@@ -8,12 +8,6 @@ This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Feb 24, 2012"
 
 import collections
 import csv
@@ -41,8 +35,7 @@ def _get_host(structure, species_to_remove):
         s = structure.copy()
         s.remove_species(species_to_remove)
         return s
-    else:
-        return structure
+    return structure
 
 
 def _perform_grouping(args):

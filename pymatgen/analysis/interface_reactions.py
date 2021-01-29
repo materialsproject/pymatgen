@@ -182,9 +182,8 @@ class InterfacialReactivity:
                 "calculation. "
             )
             return pd.get_hull_energy(composition)
-        else:
-            min_entry_energy = min(candidate)
-            return min_entry_energy * composition.num_atoms
+        min_entry_energy = min(candidate)
+        return min_entry_energy * composition.num_atoms
 
     def _get_grand_potential(self, composition):
         """
@@ -286,7 +285,7 @@ class InterfacialReactivity:
         """
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products.union(set([k.reduced_formula for k in react.products]))
+            products = products.union({k.reduced_formula for k in react.products})
         return list(products)
 
     @staticmethod

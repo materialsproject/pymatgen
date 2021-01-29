@@ -358,7 +358,7 @@ def get_phonon_dos_from_fc(
     )
 
     dos_raw = phonon.projected_dos.get_partial_dos()
-    pdoss = {s: dos for s, dos in zip(structure, dos_raw[1])}
+    pdoss = dict(zip(structure, dos_raw[1]))
 
     total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
     return CompletePhononDos(structure, total_dos, pdoss)
@@ -437,7 +437,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     phonon.run_qpoints(kpoints)
     frequencies = phonon.qpoints.get_frequencies().T
 
-    labels_dict = dict([(a, k) for a, k in zip(labels, kpoints) if a != ""])
+    labels_dict = {a: k for a, k in zip(labels, kpoints) if a != ""}
 
     return PhononBandStructureSymmLine(
         kpoints, frequencies, structure.lattice, labels_dict=labels_dict

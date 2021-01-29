@@ -244,15 +244,12 @@ class InterfaceTest(PymatgenTest):
 class InterfaceBuilderTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        print(1)
         si_struct = cls.get_structure("Si")
         sio2_struct = cls.get_structure("SiO2")
-        print(2)
         sga = SpacegroupAnalyzer(si_struct)
         si_conventional = sga.get_conventional_standard_structure()
         sga = SpacegroupAnalyzer(sio2_struct)
         sio2_conventional = sga.get_conventional_standard_structure()
-        print(3)
         cls.ibs = []
         Si_SiO2 = [si_conventional, sio2_conventional]
         random.shuffle(Si_SiO2)

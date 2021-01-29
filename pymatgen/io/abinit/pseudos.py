@@ -149,6 +149,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def to_string(self, verbose=0):
         """String representation."""
+        # pylint: disable=E1101
         lines = []
         app = lines.append
         app("<%s: %s>" % (self.__class__.__name__, self.basename))
@@ -177,11 +178,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def filepath(self):
         """Absolute path to pseudopotential file."""
+        # pylint: disable=E1101
         return os.path.abspath(self.path)
 
     @property
     def basename(self):
         """File basename."""
+        # pylint: disable=E1101
         return os.path.basename(self.filepath)
 
     @property
@@ -240,6 +243,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and erturn MD5 hash value."""
+        # pylint: disable=E1101
         import hashlib
 
         with open(self.path, "rt") as fh:
@@ -258,6 +262,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @pmg_serialize
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
+        # pylint: disable=E1101
         return dict(
             basename=self.basename,
             type=self.type,
@@ -293,6 +298,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             tmpdir: If None, a new temporary directory is created and files are copied here
                 else tmpdir is used.
         """
+        # pylint: disable=E1101
         import shutil
         import tempfile
 
@@ -316,11 +322,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
+        # pylint: disable=E1101
         return hasattr(self, "dojo_report") and bool(self.dojo_report)
 
     @property
     def djrepo_path(self):
         """The path of the djrepo file. None if file does not exist."""
+        # pylint: disable=E1101
         root, ext = os.path.splitext(self.filepath)
         path = root + ".djrepo"
         return path
@@ -336,6 +344,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         Args:
             accuracy: ["low", "normal", "high"]
         """
+        # pylint: disable=E1101
         if not self.has_dojo_report:
             return Hint(ecut=0.0, pawecutdg=0.0)
 
@@ -499,23 +508,28 @@ class AbinitPseudo(Pseudo):
 
     @property
     def Z(self):
+        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
+        # pylint: disable=E1101
         return self._zion
 
     @property
     def l_max(self):
+        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
+        # pylint: disable=E1101
         return self._lloc
 
     @property
     def supports_soc(self):
         # Treate ONCVPSP pseudos
+        # pylint: disable=E1101
         if self._pspcod == 8:
             switch = self.header["extension_switch"]
             if switch in (0, 1):
@@ -539,23 +553,28 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
 
     @property
     def Z(self):
+        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
         """Number of valence electrons."""
+        # pylint: disable=E1101
         return self._zion
 
     @property
     def l_max(self):
+        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
+        # pylint: disable=E1101
         return self._lloc
 
     @property
     def nlcc_radius(self):
+        # pylint: disable=E1101
         return self._rchrg
 
 
@@ -564,6 +583,7 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     @property
     def paw_radius(self):
+        # pylint: disable=E1101
         return self._r_cut
 
     # def orbitals(self):
