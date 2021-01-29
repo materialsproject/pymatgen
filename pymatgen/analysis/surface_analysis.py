@@ -163,7 +163,6 @@ class SlabEntry(ComputedStructureEntry):
         d["energy"] = self.energy
         d["miller_index"] = self.miller_index
         d["label"] = self.label
-        d["coverage"] = self.coverage
         d["adsorbates"] = self.adsorbates
         d["clean_entry"] = self.clean_entry
 
@@ -339,7 +338,6 @@ class SlabEntry(ComputedStructureEntry):
         energy = SlabEntry.from_dict(d["energy"])
         miller_index = d["miller_index"]
         label = d["label"]
-        coverage = d["coverage"]
         adsorbates = d["adsorbates"]
         clean_entry = d["clean_entry"]
 
@@ -348,7 +346,6 @@ class SlabEntry(ComputedStructureEntry):
             energy,
             miller_index,
             label=label,
-            coverage=coverage,
             adsorbates=adsorbates,
             clean_entry=clean_entry,
         )
@@ -691,14 +688,13 @@ class SurfaceEnergyPlotter:
             # Wulff shape regardless of chemical potential
             if all([a == 0 for a in hkl_area_dict[hkl]]):
                 continue
-            else:
-                plt.plot(
-                    all_chempots,
-                    hkl_area_dict[hkl],
-                    "--",
-                    color=self.color_dict[clean_entry],
-                    label=str(hkl),
-                )
+            plt.plot(
+                all_chempots,
+                hkl_area_dict[hkl],
+                "--",
+                color=self.color_dict[clean_entry],
+                label=str(hkl),
+            )
 
         # Make the figure look nice
         plt.ylabel(r"Fractional area $A^{Wulff}_{hkl}/A^{Wulff}$")
@@ -810,12 +806,10 @@ class SurfaceEnergyPlotter:
             if miller_index and hkl != tuple(miller_index):
                 continue
             if not no_clean:
-                entries_in_hkl.extend([clean for clean in self.all_slab_entries[hkl]])
+                entries_in_hkl.extend(self.all_slab_entries[hkl])
             if not no_doped:
                 for entry in self.all_slab_entries[hkl]:
-                    entries_in_hkl.extend(
-                        [ads_entry for ads_entry in self.all_slab_entries[hkl][entry]]
-                    )
+                    entries_in_hkl.extend(self.all_slab_entries[hkl][entry])
 
             for entry in entries_in_hkl:
                 stable_urange_dict[entry] = []
@@ -850,7 +844,7 @@ class SurfaceEnergyPlotter:
                     continue
 
                 # Now check if the solution is within the chempot range
-                if not (chempot_range[0] <= solution[ref_delu] <= chempot_range[1]):
+                if not chempot_range[0] <= solution[ref_delu] <= chempot_range[1]:
                     continue
 
                 for entry in pair:
@@ -892,8 +886,7 @@ class SurfaceEnergyPlotter:
 
         if return_se_dict:
             return stable_urange_dict, se_dict
-        else:
-            return stable_urange_dict
+        return stable_urange_dict
 
     def color_palette_dict(self, alpha=0.35):
         """
@@ -1189,8 +1182,9 @@ class SurfaceEnergyPlotter:
 
         return plt
 
+    @staticmethod
     def chempot_plot_addons(
-        self, plt, xrange, ref_el, axes, pad=2.4, rect=[-0.047, 0, 0.84, 1], ylim=[]
+        plt, xrange, ref_el, axes, pad=2.4, rect=[-0.047, 0, 0.84, 1], ylim=[]
     ):
         """
         Helper function to a chempot plot look nicer.
@@ -1969,7 +1963,8 @@ class NanoscaleStability:
 
         return e, new_r
 
-    def bulk_gform(self, bulk_entry):
+    @staticmethod
+    def bulk_gform(bulk_entry):
         """
         Returns the formation energy of the bulk
         Args:

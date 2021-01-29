@@ -112,5 +112,4 @@ class AflowPrototypeMatcher:
 
         if len(tags) == 0:
             return None
-        else:
-            return tags
+        return tags
