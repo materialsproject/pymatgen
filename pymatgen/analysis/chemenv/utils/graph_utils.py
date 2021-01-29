@@ -1,3 +1,7 @@
+"""
+This module contains some graph utils that are used in the chemenv package.
+"""
+
 import itertools
 import operator
 
@@ -9,18 +13,33 @@ __author__ = "waroquiers"
 
 
 def get_delta(node1, node2, edge_data):
+    """
+    Get the delta.
+    :param node1:
+    :param node2:
+    :param edge_data:
+    :return:
+    """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
         return np.array(edge_data["delta"], dtype=np.int)
-    elif node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
+    if node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
         return -np.array(edge_data["delta"], dtype=np.int)
-    else:
-        raise ValueError(
-            "Trying to find a delta between two nodes with an edge "
-            "that seems not to link these nodes."
-        )
+    raise ValueError(
+        "Trying to find a delta between two nodes with an edge "
+        "that seems not to link these nodes."
+    )
 
 
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
+    """
+    Get all the simple path and edges.
+    :param graph:
+    :param source:
+    :param target:
+    :param cutoff:
+    :param data:
+    :return:
+    """
     edge_paths = []
     if not graph.is_multigraph():
         for path in nx.all_simple_paths(graph, source, target, cutoff=cutoff):
@@ -45,11 +64,11 @@ def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
             for key, edge_data in graph[node1][node2].items():
                 for tmp_edge_path in current_edge_paths:
                     if data:
-                        new_path = [(n1, n2, k, d) for (n1, n2, k, d) in tmp_edge_path]
+                        new_path = list(tmp_edge_path)
                         new_path.append((node1, node2, key, edge_data))
                         new_edge_paths.append(new_path)
                     else:
-                        new_path = [(n1, n2, k) for (n1, n2, k) in tmp_edge_path]
+                        new_path = list(tmp_edge_path)
                         new_path.append((node1, node2, key))
                         new_edge_paths.append(new_path)
             current_edge_paths = new_edge_paths
@@ -128,6 +147,11 @@ class SimpleGraphCycle(MSONable):
     """
 
     def __init__(self, nodes, validate=True, ordered=None):
+        """
+        :param nodes:
+        :param validate:
+        :param ordered:
+        """
         self.nodes = tuple(nodes)
         if validate:
             self.validate()
@@ -146,9 +170,9 @@ class SimpleGraphCycle(MSONable):
         """
         if len(self.nodes) == 1:
             return True, ""
-        elif len(self.nodes) == 2:
+        if len(self.nodes) == 2:
             return False, "Simple graph cycle with 2 nodes is not valid."
-        elif len(self.nodes) == 0:
+        if len(self.nodes) == 0:
             return False, "Empty cycle is not valid."
         if len(self.nodes) != len(set(self.nodes)):  # Should not have duplicate nodes
             return False, "Duplicate nodes."
@@ -169,6 +193,10 @@ class SimpleGraphCycle(MSONable):
         return True, ""
 
     def validate(self, check_strict_ordering=False):
+        """
+        :param check_strict_ordering:
+        :return:
+        """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
             raise ValueError("SimpleGraphCycle is not valid : {}".format(msg))
@@ -268,7 +296,7 @@ class SimpleGraphCycle(MSONable):
                         remaining_edges.pop(ie)
                         nodes.append(e[1])
                         break
-                    elif prev_node == e[1]:
+                    if prev_node == e[1]:
                         remaining_edges.pop(ie)
                         nodes.append(e[0])
                         break
@@ -280,6 +308,9 @@ class SimpleGraphCycle(MSONable):
         return cls(nodes)
 
     def as_dict(self):
+        """
+        :return: MSONAble dict
+        """
         d = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
         d["nodes"] = list(d["nodes"])
@@ -287,6 +318,12 @@ class SimpleGraphCycle(MSONable):
 
     @classmethod
     def from_dict(cls, d, validate=False):
+        """
+        Serialize from dict.
+        :param d:
+        :param validate:
+        :return:
+        """
         return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
 
 
@@ -304,6 +341,12 @@ class MultiGraphCycle(MSONable):
     """
 
     def __init__(self, nodes, edge_indices, validate=True, ordered=None):
+        """
+        :param nodes:
+        :param edge_indices:
+        :param validate:
+        :param ordered:
+        """
         self.nodes = tuple(nodes)
         self.edge_indices = tuple(edge_indices)
         if validate:
@@ -356,6 +399,10 @@ class MultiGraphCycle(MSONable):
         return True, ""
 
     def validate(self, check_strict_ordering=False):
+        """
+        :param check_strict_ordering:
+        :return:
+        """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
             raise ValueError("MultiGraphCycle is not valid : {}".format(msg))
@@ -463,6 +510,10 @@ class MultiGraphCycle(MSONable):
 
 
 def get_all_elementary_cycles(graph):
+    """
+    :param graph:
+    :return:
+    """
     if not isinstance(graph, nx.Graph):
         raise TypeError("graph should be a networkx Graph object.")
 
@@ -508,7 +559,7 @@ def get_all_elementary_cycles(graph):
                 msg = ve.args[0]
                 if msg == "SimpleGraphCycle is not valid : Duplicate nodes.":
                     continue
-                elif msg == "Could not construct a cycle from edges.":
+                if msg == "Could not construct a cycle from edges.":
                     continue
                 raise
             elementary_cycles_list.append(sgc)

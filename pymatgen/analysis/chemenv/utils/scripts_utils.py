@@ -2,17 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-from pymatgen.ext.matproj import MPRester
-from pymatgen.io.cif import CifParser
-
-try:
-    from pymatgen.vis.structure_vtk import StructureVis
-
-    no_vis = False
-except ImportError:
-    StructureVis = None  # type: ignore
-    no_vis = True
+"""
+This module contains some script utils that are used in the chemenv package.
+"""
 
 
 import re
@@ -20,6 +12,14 @@ from collections import OrderedDict
 
 import numpy as np
 
+from pymatgen.ext.matproj import MPRester
+from pymatgen.io.cif import CifParser
+try:
+    from pymatgen.vis.structure_vtk import StructureVis
+    no_vis = False
+except ImportError:
+    StructureVis = None  # type: ignore
+    no_vis = True
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -39,9 +39,6 @@ from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
 
-"""
-This module contains some utils for the main script of the chemenv package.
-"""
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -73,6 +70,23 @@ def draw_cg(
     show_distorted=True,
     faces_color_override=None,
 ):
+    """
+    Draw cg.
+
+    :param vis:
+    :param site:
+    :param neighbors:
+    :param cg:
+    :param perm:
+    :param perfect2local_map:
+    :param show_perfect:
+    :param csm_info:
+    :param symmetry_measure_type:
+    :param perfect_radius:
+    :param show_distorted:
+    :param faces_color_override:
+    :return:
+    """
     if show_perfect:
         if csm_info is None:
             raise ValueError(
@@ -172,10 +186,19 @@ def draw_cg(
                 )
 
 
-# Visualizing a coordination geometry
 def visualize(
     cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None
 ):
+    """
+    Visualizing a coordination geometry
+    :param cg:
+    :param zoom:
+    :param vis:
+    :param myfactor:
+    :param view_index:
+    :param faces_color_override:
+    :return:
+    """
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     myspecies = ["O"] * (cg.coordination_number + 1)
@@ -204,17 +227,32 @@ def visualize(
 
 
 def welcome(chemenv_config):
+    """
+    Show welcome message.
+    :param chemenv_config:
+    :return:
+    """
     print("Chemical Environment package (ChemEnv)")
     print(chemenv_citations())
     print(chemenv_config.package_options_description())
 
 
 def thankyou():
+    """
+    Show thank you message.
+    :return:
+    """
     print("Thank you for using the ChemEnv package")
     print(chemenv_citations())
 
 
 def compute_environments(chemenv_configuration):
+    """
+    Compute the environments.
+
+    :param chemenv_configuration:
+    :return:
+    """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},
         "mp": {"string": "the Materials Project database", "regexp": r"mp-[0-9]+$"},
@@ -361,9 +399,7 @@ def compute_environments(chemenv_configuration):
                         for isite in indices:
                             if isite < 0:
                                 raise IndexError
-                            se.plot_environments(
-                                isite, additional_condition=se.AC.ONLY_ACB
-                            )
+                            se.plot_environments(isite)
                         break
                     except ValueError:
                         print("This is not a valid site")

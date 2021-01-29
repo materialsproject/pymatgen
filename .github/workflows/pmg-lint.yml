@@ -38,4 +38,4 @@ jobs:
         pydocstyle --count pymatgen
     - name: pylint
       run: |
-        pylint pymatgen --ignore=chemenv
+        pylint pymatgen
