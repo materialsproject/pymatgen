@@ -92,7 +92,7 @@ class Cp2kInputSet(Cp2kInput):
         multiplicity: int = 0,
         project_name: str = "CP2K",
         override_default_params: Dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -130,9 +130,7 @@ class Cp2kInputSet(Cp2kInput):
         self.insert(ForceEval())  # always present in cp2k
         self.basis_set_file_names = None  # need for dft
         self.potential_file_name = None  # need for dft
-        self.create_subsys(
-            self.structure
-        )  # assemble structure with atom types and pseudopotentials assigned
+        self.create_subsys(self.structure)  # assemble structure with atom types and pseudopotentials assigned
 
         if self.kwargs.get("print_forces", True):
             self.print_forces()
@@ -150,9 +148,7 @@ class Cp2kInputSet(Cp2kInput):
             subsys.insert(Cell(structure.lattice))
 
         # Decide what basis sets/pseudopotentials to use
-        basis_and_potential = get_basis_and_potential(
-            [str(s) for s in structure.species], self.potential_and_basis
-        )
+        basis_and_potential = get_basis_and_potential([str(s) for s in structure.species], self.potential_and_basis)
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
@@ -160,37 +156,25 @@ class Cp2kInputSet(Cp2kInput):
             kind = k.split("_")[0]
             kwargs = {}
             if "magmom" in self.structure.site_properties:
-                kwargs["magnetization"] = self.structure.site_properties["magmom"][
-                    unique_kinds[k][0]
-                ]
+                kwargs["magnetization"] = self.structure.site_properties["magmom"][unique_kinds[k][0]]
 
             if "ghost" in self.structure.site_properties:
-                kwargs["ghost"] = self.structure.site_properties["ghost"][
-                    unique_kinds[k][0]
-                ]
+                kwargs["ghost"] = self.structure.site_properties["ghost"][unique_kinds[k][0]]
 
             if "basis_set" in self.structure.site_properties:
-                basis_set = self.structure.site_properties["basis_set"][
-                    unique_kinds[k][0]
-                ]
+                basis_set = self.structure.site_properties["basis_set"][unique_kinds[k][0]]
             else:
                 basis_set = basis_and_potential[kind]["basis"]
 
             if "potential" in self.structure.site_properties:
-                potential = self.structure.site_properties["potential"][
-                    unique_kinds[k][0]
-                ]
+                potential = self.structure.site_properties["potential"][unique_kinds[k][0]]
             else:
                 potential = basis_and_potential[kind]["potential"]
 
             if "aux_basis" in self.structure.site_properties:
-                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][
-                    unique_kinds[k][0]
-                ]
+                kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][unique_kinds[k][0]]
 
-            subsys.insert(
-                Kind(kind, alias=k, basis_set=basis_set, potential=potential, **kwargs)
-            )
+            subsys.insert(Kind(kind, alias=k, basis_set=basis_set, potential=potential, **kwargs))
         coord = Coord(structure, aliases=unique_kinds)
         subsys.insert(coord)
         self["FORCE_EVAL"].insert(subsys)
@@ -212,9 +196,7 @@ class Cp2kInputSet(Cp2kInput):
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
         self["MOTION"].insert(Section("PRINT", subsections={}))
-        self["MOTION"]["PRINT"].insert(
-            Section("TRAJECTORY", section_parameters=["ON"], subsections={})
-        )
+        self["MOTION"]["PRINT"].insert(Section("TRAJECTORY", section_parameters=["ON"], subsections={}))
         self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("STRESS", subsections={}))
@@ -247,7 +229,7 @@ class DftSet(Cp2kInputSet):
         wfn_restart_file_name: str = None,
         kpoints: Union[Kpoints, None] = None,
         smearing: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -314,9 +296,7 @@ class DftSet(Cp2kInputSet):
 
         # Build the QS Section
         qs = QS(eps_default=eps_default)
-        max_scf = (
-            max_scf if max_scf else 20 if ot else 400
-        )  # If ot, max_scf is for inner loop
+        max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         # If there's a band gap, use OT, else use Davidson
@@ -343,9 +323,7 @@ class DftSet(Cp2kInputSet):
                     subsections={},
                     keywords={
                         "MAX_SCF": Keyword("MAX_SCF", kwargs.get("outer_max_scf", 20)),
-                        "EPS_SCF": Keyword(
-                            "EPS_SCF", kwargs.get("outer_eps_scf", eps_scf)
-                        ),
+                        "EPS_SCF": Keyword("EPS_SCF", kwargs.get("outer_eps_scf", eps_scf)),
                     },
                 )
             )
@@ -432,9 +410,7 @@ class DftSet(Cp2kInputSet):
         if not self.check("FORCE_EVAL/DFT/PRINT/PDOS"):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
-            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(
-                LDOS(i + 1, alias="LDOS {}".format(i + 1), verbose=False)
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(LDOS(i + 1, alias="LDOS {}".format(i + 1), verbose=False))
 
     def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
@@ -446,9 +422,7 @@ class DftSet(Cp2kInputSet):
             nhomo (int): Controls the number of homos that are printed and dumped as a cube (-1=all)
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/MO_CUBES"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
-                MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo)
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
 
     def print_mo(self):
         """
@@ -463,9 +437,7 @@ class DftSet(Cp2kInputSet):
         Note that by convention the potential has opposite sign than the expected physical one.
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
-                V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)})
-            )
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(keywords={"STRIDE": Keyword("STRIDE", *stride)}))
 
     def print_e_density(self):
         """
@@ -555,27 +527,17 @@ class DftSet(Cp2kInputSet):
         """
         if admm:
             aux_basis = aux_basis if aux_basis else {}
-            aux_basis = {
-                s: aux_basis[s] if s in aux_basis else None
-                for s in self.structure.symbol_set
-            }
+            aux_basis = {s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set}
             basis = get_aux_basis(basis_type=aux_basis)
-            if isinstance(
-                self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList
-            ):
+            if isinstance(self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"], KeywordList):
                 self["FORCE_EVAL"]["DFT"]["BASIS_SET_FILE_NAME"].extend(
-                    [
-                        Keyword("BASIS_SET_FILE_NAME", k)
-                        for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]
-                    ],
+                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]],
                 )
 
             for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
                 if v.name.upper() == "KIND":
                     kind = v["ELEMENT"].values[0]
-                    v.keywords["BASIS_SET"] += Keyword(
-                        "BASIS_SET", "AUX_FIT", basis[kind]
-                    )
+                    v.keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
 
             # Don't change unless you know what you're doing
             # Use NONE for accurate eigenvalues (static calcs)
@@ -600,9 +562,7 @@ class DftSet(Cp2kInputSet):
             keywords={
                 "EPS_SCHWARZ": Keyword("EPS_SCHWARZ", eps_schwarz),
                 "EPS_SCHWARZ_FORCES": Keyword("EPS_SCHWARZ_FORCES", eps_schwarz_forces),
-                "SCREEN_ON_INITIAL_P": Keyword(
-                    "SCREEN_ON_INITIAL_P", screen_on_initial_p
-                ),
+                "SCREEN_ON_INITIAL_P": Keyword("SCREEN_ON_INITIAL_P", screen_on_initial_p),
                 "SCREEN_P_FORCES": Keyword("SCREEN_P_FORCES", screen_p_forces),
             },
         )
@@ -636,9 +596,7 @@ class DftSet(Cp2kInputSet):
                     "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
                 }
             )
-        interaction_potential = Section(
-            "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
-        )
+        interaction_potential = Section("INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords)
 
         # Unlikely for users to override
         load_balance = Section(
@@ -721,16 +679,12 @@ class DftSet(Cp2kInputSet):
             "POISSON_SOLVER": Keyword("POISSON_SOLVER", "MT"),
             "PERIODIC": Keyword("PERIODIC", "NONE"),
         }
-        self["FORCE_EVAL"]["DFT"].insert(
-            Section("POISSON", subsections={}, keywords=kwds)
-        )
+        self["FORCE_EVAL"]["DFT"].insert(Section("POISSON", subsections={}, keywords=kwds))
         if not self.check("FORCE_EVAL/SUBSYS/CELL"):
             x = max([s.coords[0] for s in self.structure.sites])
             y = max([s.coords[1] for s in self.structure.sites])
             z = max([s.coords[2] for s in self.structure.sites])
-            self["FORCE_EVAL"]["SUBSYS"].insert(
-                Cell(lattice=Lattice([[x, 0, 0], [0, y, 0], [0, 0, z]]))
-            )
+            self["FORCE_EVAL"]["SUBSYS"].insert(Cell(lattice=Lattice([[x, 0, 0], [0, y, 0], [0, 0, z]])))
         self["FORCE_EVAL"]["SUBSYS"]["CELL"].add(Keyword("PERIODIC", "NONE"))
 
     def modify_dft_print_iters(self, iters, add_last="no"):
@@ -750,9 +704,7 @@ class DftSet(Cp2kInputSet):
         """
         assert add_last.lower() in ["no", "numeric", "symbolic"]
         if self.check("FORCE_EVAL/DFT/PRINT"):
-            run_type = (
-                self["global"].get("run_type", Keyword("run_type", "energy")).values[0]
-            )
+            run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0]
             for k, v in self["force_eval"]["dft"]["print"].subsections.items():
 
                 if v.name.upper() in [
@@ -788,7 +740,7 @@ class StaticSet(DftSet):
         project_name: str = "Static",
         run_type: str = "ENERGY_FORCE",
         override_default_params: Dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -823,7 +775,7 @@ class RelaxSet(DftSet):
         project_name: str = "Relax",
         optimizer: str = "BFGS",
         override_default_params: Dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -890,7 +842,7 @@ class CellOptSet(DftSet):
         structure: Union[Structure, Molecule],
         project_name: str = "CellOpt",
         override_default_params: Dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -951,7 +903,7 @@ class HybridStaticSet(StaticSet):
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -1025,7 +977,7 @@ class HybridRelaxSet(RelaxSet):
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -1099,7 +1051,7 @@ class HybridCellOptSet(CellOptSet):
         eps_schwarz_forces: float = 1e-6,
         screen_on_initial_p: bool = True,
         screen_p_forces: bool = True,
-        **kwargs
+        **kwargs,
     ):
         """
         Args:

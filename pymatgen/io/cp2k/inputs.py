@@ -146,9 +146,7 @@ class Keyword(MSONable):
             description = None
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
-        return Keyword(
-            *map(_postprocessor, s.split()), units=units[0], description=description
-        )
+        return Keyword(*map(_postprocessor, s.split()), units=units[0], description=description)
 
     def verbosity(self, v):
         """
@@ -174,11 +172,7 @@ class KeywordList(MSONable):
         Args:
             keywords: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert (
-            all(k.name.upper() == keywords[0].name.upper() for k in keywords)
-            if keywords
-            else True
-        )
+        assert all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
         self.name = keywords[0].name if keywords else None
         self.keywords = keywords
 
@@ -291,14 +285,10 @@ class Section(MSONable):
 
         for k in self.required_sections:
             if not self.check(k):
-                raise UserWarning(
-                    "WARNING: REQUIRED SECTION {} HAS NOT BEEN INITIALIZED".format(k)
-                )
+                raise UserWarning("WARNING: REQUIRED SECTION {} HAS NOT BEEN INITIALIZED".format(k))
         for k in self.required_keywords:
             if k not in self.keywords:
-                raise UserWarning(
-                    "WARNING: REQUIRED KEYWORD {} HAS NOT BEEN PROVIDED".format(k)
-                )
+                raise UserWarning("WARNING: REQUIRED KEYWORD {} HAS NOT BEEN PROVIDED".format(k))
 
     def __str__(self):
         return self.get_string()
@@ -312,9 +302,9 @@ class Section(MSONable):
 
     def __deepcopy__(self, memodict={}):
         c = copy.deepcopy(self.as_dict())
-        return getattr(
-            __import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]
-        ).from_dict(copy.deepcopy(self.as_dict()))
+        return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
+            copy.deepcopy(self.as_dict())
+        )
 
     def __getitem__(self, d):
         for k in self.keywords:
@@ -663,11 +653,7 @@ class Cp2kInput(Section):
                 current = "/".join(current.split("/")[:-1])
             elif line.startswith("&"):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
-                alias = (
-                    name + " " + " ".join(subsection_params)
-                    if subsection_params
-                    else None
-                )
+                alias = name + " " + " ".join(subsection_params) if subsection_params else None
                 s = Section(
                     name,
                     section_parameters=subsection_params,
@@ -685,9 +671,7 @@ class Cp2kInput(Section):
                     if isinstance(tmp, KeywordList):
                         self.by_path(current)[kwd.name].append(kwd)
                     else:
-                        self.by_path(current)[kwd.name] = KeywordList(
-                            keywords=[kwd, tmp]
-                        )
+                        self.by_path(current)[kwd.name] = KeywordList(keywords=[kwd, tmp])
                 else:
                     self.by_path(current).keywords[kwd.name] = kwd
 
@@ -713,9 +697,7 @@ class Global(Section):
     Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME
     """
 
-    def __init__(
-        self, project_name: str = "CP2K", run_type: str = "ENERGY_FORCE", **kwargs
-    ):
+    def __init__(self, project_name: str = "CP2K", run_type: str = "ENERGY_FORCE", **kwargs):
         """
         Initialize the global section
         """
@@ -762,9 +744,7 @@ class ForceEval(Section):
 
         keywords = {
             "METHOD": Keyword("METHOD", kwargs.get("METHOD", "QS")),
-            "STRESS_TENSOR": Keyword(
-                "STRESS_TENSOR", kwargs.get("STRESS_TENSOR", "ANALYTICAL")
-            ),
+            "STRESS_TENSOR": Keyword("STRESS_TENSOR", kwargs.get("STRESS_TENSOR", "ANALYTICAL")),
         }
 
         super().__init__(
@@ -812,17 +792,13 @@ class Dft(Section):
         description = "parameter needed by dft programs"
 
         keywords = {
-            "BASIS_SET_FILE_NAME": KeywordList(
-                [Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]
-            ),
+            "BASIS_SET_FILE_NAME": KeywordList([Keyword("BASIS_SET_FILE_NAME", k) for k in basis_set_filenames]),
             "POTENTIAL_FILE_NAME": Keyword("POTENTIAL_FILE_NAME", potential_filename),
             "UKS": Keyword("UKS", uks),
         }
 
         if wfn_restart_file_name:
-            keywords["WFN_RESTART_FILE_NAME"] = Keyword(
-                "WFN_RESTART_FILE_NAME", wfn_restart_file_name
-            )
+            keywords["WFN_RESTART_FILE_NAME"] = Keyword("WFN_RESTART_FILE_NAME", wfn_restart_file_name)
 
         super().__init__(
             "DFT",
@@ -846,9 +822,7 @@ class Subsys(Section):
         self.subsections = subsections if subsections else {}
         self.kwargs = kwargs
         description = "a subsystem: coordinates, topology, molecules and cell"
-        super().__init__(
-            "SUBSYS", description=description, subsections=subsections, **kwargs
-        )
+        super().__init__("SUBSYS", description=description, subsections=subsections, **kwargs)
 
 
 class QS(Section):
@@ -937,9 +911,7 @@ class Scf(Section):
         keywords = {
             "MAX_SCF": Keyword("MAX_SCF", max_scf),
             "EPS_SCF": Keyword("EPS_SCF", eps_scf),
-            "SCF_GUESS": Keyword(
-                "SCF_GUESS", scf_guess
-            ),  # Uses Restart file if present, and ATOMIC if not present
+            "SCF_GUESS": Keyword("SCF_GUESS", scf_guess),  # Uses Restart file if present, and ATOMIC if not present
             "MAX_ITER_LUMO": Keyword("MAX_ITER_LUMO", kwargs.get("max_iter_lumo", 400)),
         }
 
@@ -1206,9 +1178,7 @@ class Cell(Section):
             "C": Keyword("C", *lattice.matrix[2]),
         }
 
-        super().__init__(
-            "CELL", description=description, keywords=keywords, subsections={}, **kwargs
-        )
+        super().__init__("CELL", description=description, keywords=keywords, subsections={}, **kwargs)
 
 
 class Kind(Section):
@@ -1321,9 +1291,7 @@ class DftPlusU(Section):
 
         keywords = {
             "EPS_U_RAMPING": Keyword("EPS_U_RAMPING", eps_u_ramping),
-            "INIT_U_RAMPING_EACH_SCF": Keyword(
-                "INIT_U_RAMPING_EACH_SCF", init_u_ramping_each_scf
-            ),
+            "INIT_U_RAMPING_EACH_SCF": Keyword("INIT_U_RAMPING_EACH_SCF", init_u_ramping_each_scf),
             "L": Keyword("L", l),
             "U_MINUS_J": Keyword("U_MINUS_J", u_minus_j),
             "U_RAMPING": Keyword("U_RAMPING", u_ramping),
@@ -1371,19 +1339,10 @@ class Coord(Section):
             + "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
         )
         if aliases:
-            keywords = {
-                k: KeywordList([Keyword(k, *structure[i].coords) for i in aliases[k]])
-                for k in aliases
-            }
+            keywords = {k: KeywordList([Keyword(k, *structure[i].coords) for i in aliases[k]]) for k in aliases}
         else:
             keywords = {
-                ss: KeywordList(
-                    [
-                        Keyword(s.specie.symbol, *s.coords)
-                        for s in structure.sites
-                        if s.specie.symbol == ss
-                    ]
-                )
+                ss: KeywordList([Keyword(s.specie.symbol, *s.coords) for s in structure.sites if s.specie.symbol == ss])
                 for ss in structure.symbol_set
             }
 
@@ -1422,9 +1381,7 @@ class PDOS(Section):
             "COMPONENTS": Keyword("COMPONENTS"),
         }
 
-        super().__init__(
-            "PDOS", description=description, keywords=keywords, subsections={}, **kwargs
-        )
+        super().__init__("PDOS", description=description, keywords=keywords, subsections={}, **kwargs)
 
 
 class LDOS(Section):
@@ -1494,11 +1451,9 @@ class MO_Cubes(Section):
     Controls printing of the molecular orbital eigenvalues
     """
 
-    def __init__(
-        self, write_cube: bool = False, nhomo: int = 1, nlumo: int = 1, **kwargs
-    ):
+    def __init__(self, write_cube: bool = False, nhomo: int = 1, nlumo: int = 1, **kwargs):
         """
-            Initialize the MO_CUBES section
+        Initialize the MO_CUBES section
         """
 
         self.write_cube = write_cube
@@ -1581,9 +1536,7 @@ class Smear(Section):
         keywords = {
             "ELEC_TEMP": Keyword("ELEC_TEMP", elec_temp),
             "METHOD": Keyword("METHOD", method),
-            "FIXED_MAGNETIC_MOMENT": Keyword(
-                "FIXED_MAGNETIC_MOMENT", fixed_magnetic_moment
-            ),
+            "FIXED_MAGNETIC_MOMENT": Keyword("FIXED_MAGNETIC_MOMENT", fixed_magnetic_moment),
         }
 
         super().__init__(
@@ -1723,7 +1676,7 @@ class XC_FUNCTIONAL(Section):
 class PBE(Section):
 
     """
-        Info about the PBE functional.
+    Info about the PBE functional.
     """
 
     def __init__(
@@ -1827,9 +1780,7 @@ class Kpoints(Section):
         if len(kpts) == 1:
             keywords["SCHEME"] = Keyword("SCHEME", scheme, *kpts[0])
         elif len(kpts) > 1:
-            keywords["KPOINT"] = KeywordList(
-                [Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)]
-            )
+            keywords["KPOINT"] = KeywordList([Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)])
         else:
             raise ValueError("No k-points provided!")
 
@@ -1837,9 +1788,7 @@ class Kpoints(Section):
             {
                 "EPS_GEO": Keyword("EPS_GEO", eps_geo),
                 "FULL_GRID": Keyword("FULL_GRID", full_grid),
-                "PARALLEL_GROUP_SIZE": Keyword(
-                    "PARALLEL_GROUP_SIZE", parallel_group_size
-                ),
+                "PARALLEL_GROUP_SIZE": Keyword("PARALLEL_GROUP_SIZE", parallel_group_size),
                 "SYMMETRY": Keyword("SYMMETRY", symmetry),
                 "UNITS": Keyword("UNITS", units),
                 "VERBOSE": Keyword("VERBOSE", verbose),

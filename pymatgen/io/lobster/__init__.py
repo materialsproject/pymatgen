@@ -11,14 +11,4 @@ backwards compatibility.
 """
 
 from .inputs import Lobsterin
-from .outputs import (
-    Bandoverlaps,
-    Charge,
-    Cohpcar,
-    Doscar,
-    Fatband,
-    Grosspop,
-    Icohplist,
-    Lobsterout,
-    Wavefunction
-    )
+from .outputs import Bandoverlaps, Charge, Cohpcar, Doscar, Fatband, Grosspop, Icohplist, Lobsterout, Wavefunction

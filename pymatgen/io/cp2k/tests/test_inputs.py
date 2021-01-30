@@ -71,14 +71,10 @@ class InputTest(PymatgenTest):
         )
 
         # proper type retrieval
-        self.assertIsInstance(
-            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int
-        )
+        self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)
         # self.assertIsInstance(self.ci["FORCE_EVAL"]["SUBSYS"]["COORD"]["Si"], Sequence)
         self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)
-        self.assertIsInstance(
-            self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float
-        )
+        self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
 
         # description retrieval
         self.assertEqual(
@@ -122,9 +118,7 @@ class InputTest(PymatgenTest):
         self.assertTrue(self.ci.check("INCLUDE"))
         self.assertEqual(self.ci["INCLUDE"]["KEYWORD"], Keyword("KEYWORD", "VALUE"))
         self.assertEqual(self.ci["FORCE_EVAL"]["METHOD"], Keyword("METHOD", "QS"))
-        self.assertEqual(
-            self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"], Keyword("MAX_SCF", 20)
-        )
+        self.assertEqual(self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"], Keyword("MAX_SCF", 20))
 
     def test_mongo(self):
         s = """
