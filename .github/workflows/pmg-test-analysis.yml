@@ -32,8 +32,6 @@ jobs:
         echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
-        python3 -m venv test-env
-        source test-env/bin/activate
         pip install --upgrade pip
         pip install --force --upgrade numpy
         pip install -r requirements.txt

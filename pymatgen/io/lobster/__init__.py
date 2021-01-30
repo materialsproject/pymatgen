@@ -10,5 +10,15 @@ classes to be simply called as pymatgen.io.lobster.Lobsterin for example, to ret
 backwards compatibility.
 """
 
-from .inputs import Lobsterin
-from .outputs import Bandoverlaps, Charge, Cohpcar, Doscar, Fatband, Grosspop, Icohplist, Lobsterout, Wavefunction
+from .inputs import Lobsterin  # noqa
+from .outputs import (  # noqa
+    Bandoverlaps,  # noqa
+    Charge,  # noqa
+    Cohpcar,  # noqa
+    Doscar,  # noqa
+    Fatband,  # noqa
+    Grosspop,  # noqa
+    Icohplist,  # noqa
+    Lobsterout,  # noqa
+    Wavefunction,  # noqa
+)  # noqa
