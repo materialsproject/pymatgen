@@ -1177,7 +1177,7 @@ class ApplyMagSymmOpTransformation(AbstractTransformation):
     # apply xyz op
     new_structure.apply_operation( self.mag_op, fractional=self.fractional )
     # back to unit cell
-    new_structure.translate_sites( [ i for i, _ in enumerate(new_structure.sites)]  , [0,0,0] )
+    new_structure.translate_sites( [ i for i, _ in enumerate(new_structure.sites)]  , [1e-8,1e-8,1e-8] )
     # apply time rev symm
     new_magmom_list = []
     for site in new_structure.sites:
