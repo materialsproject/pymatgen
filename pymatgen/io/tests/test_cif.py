@@ -108,9 +108,7 @@ loop_
  _atom_site_attached_hydrogens
   C1  C0+  2  b  0  0  0.25  .  1.  0
   C2  C0+  2  c  0.3333  0.6667  0.25  .  1.  0"""
-        for l1, l2, l3 in zip(
-            str(c).split("\n"), cif_str.split("\n"), cif_str_2.split("\n")
-        ):
+        for l1, l2, l3 in zip(str(c).split("\n"), cif_str.split("\n"), cif_str_2.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
             self.assertEqual(l2.strip(), l3.strip())
 
@@ -199,9 +197,7 @@ class CifIOTest(PymatgenTest):
         # test for disordered structures
         parser = CifParser(self.TEST_FILES_DIR / "Li10GeP2S12.cif")
         for s in parser.get_structures(True):
-            self.assertEqual(
-                s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif."
-            )
+            self.assertEqual(s.formula, "Li20.2 Ge2.06 P3.94 S24", "Incorrectly parsed cif.")
         cif_str = r"""#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file
@@ -312,9 +308,7 @@ loop_
                 "in calculations unless hydrogens added.",
                 parser.warnings,
             )
-            parser = CifParser(
-                self.TEST_FILES_DIR / "cif_implicit_hydrogens_cod_1011130.cif"
-            )
+            parser = CifParser(self.TEST_FILES_DIR / "cif_implicit_hydrogens_cod_1011130.cif")
             s = parser.get_structures()[0]
             self.assertIn(
                 "Structure has implicit hydrogens defined, "
@@ -679,9 +673,7 @@ loop_
 
     def test_cifwrite_without_refinement(self):
         si2 = Structure.from_file(self.TEST_FILES_DIR / "abinit" / "si.cif")
-        writer = CifWriter(
-            si2, symprec=1e-3, significant_figures=10, refine_struct=False
-        )
+        writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
         s = str(writer)
         assert "Fd-3m" in s
         same_si2 = CifParser.from_string(s).get_structures()[0]
@@ -761,9 +753,7 @@ loop_
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             parser = CifParser(self.TEST_FILES_DIR / "P24Ru4H252C296S24N16.cif")
-            c = Composition(
-                {"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24}
-            )
+            c = Composition({"S0+": 24, "Ru0+": 4, "H0+": 252, "C0+": 296, "N0+": 16, "P0+": 24})
             for s in parser.get_structures(False):
                 self.assertEqual(s.composition, c)
 
@@ -917,8 +907,7 @@ loop_
             s = p.get_structures()[0]
             self.assertEqual(str(s.composition), "N5+24")
             self.assertIn(
-                "Some fractional co-ordinates rounded to ideal "
-                "values to avoid issues with finite precision.",
+                "Some fractional co-ordinates rounded to ideal " "values to avoid issues with finite precision.",
                 p.warnings,
             )
 
@@ -995,15 +984,9 @@ class MagCifTest(PymatgenTest):
     def setUp(self):
         warnings.filterwarnings("ignore")
         self.mcif = CifParser(self.TEST_FILES_DIR / "magnetic.example.NiO.mcif")
-        self.mcif_ncl = CifParser(
-            self.TEST_FILES_DIR / "magnetic.ncl.example.GdB4.mcif"
-        )
-        self.mcif_incom = CifParser(
-            self.TEST_FILES_DIR / "magnetic.incommensurate.example.Cr.mcif"
-        )
-        self.mcif_disord = CifParser(
-            self.TEST_FILES_DIR / "magnetic.disordered.example.CuMnO2.mcif"
-        )
+        self.mcif_ncl = CifParser(self.TEST_FILES_DIR / "magnetic.ncl.example.GdB4.mcif")
+        self.mcif_incom = CifParser(self.TEST_FILES_DIR / "magnetic.incommensurate.example.Cr.mcif")
+        self.mcif_disord = CifParser(self.TEST_FILES_DIR / "magnetic.disordered.example.CuMnO2.mcif")
         self.mcif_ncl2 = CifParser(self.TEST_FILES_DIR / "Mn3Ge_IR2.mcif")
 
     def tearDown(self):
@@ -1064,9 +1047,7 @@ Gd1 5.05 5.05 0.0"""
 
         # example with non-collinear spin
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
-        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(
-            primitive=False
-        )[0]
+        s_ncl_from_msg = CifParser.from_string(magcifstr).get_structures(primitive=False)[0]
         self.assertEqual(s_ncl.formula, "Gd4 B16")
         self.assertFalse(Magmom.are_collinear(s_ncl.site_properties["magmom"]))
 
@@ -1213,9 +1194,7 @@ loop_
         self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
 
         # test creating an structure without oxidation state doesn't raise errors
-        s_manual = Structure(
-            Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
-        )
+        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         s_manual.add_spin_by_site([1, -1])
         cw = CifWriter(s_manual, write_magmoms=True)
 

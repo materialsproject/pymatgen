@@ -41,9 +41,7 @@ class Xr:
                     Xr object.
         """
         if not structure.is_ordered:
-            raise ValueError(
-                "Xr file can only be constructed from ordered " "structure"
-            )
+            raise ValueError("Xr file can only be constructed from ordered " "structure")
         self.structure = structure
 
     def __str__(self):
@@ -56,17 +54,11 @@ class Xr:
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
         for i, site in enumerate(self.structure.sites):
-            output.append(
-                "{} {} {:.4f} {:.4f} {:.4f}".format(
-                    i + 1, site.specie, site.x, site.y, site.z
-                )
-            )
+            output.append("{} {} {:.4f} {:.4f} {:.4f}".format(i + 1, site.specie, site.x, site.y, site.z))
         mat = self.structure.lattice.matrix
         for i in range(2):
             for j in range(3):
-                output.append(
-                    "{:.4f} {:.4f} {:.4f}".format(mat[j][0], mat[j][1], mat[j][2])
-                )
+                output.append("{:.4f} {:.4f} {:.4f}".format(mat[j][0], mat[j][1], mat[j][2]))
         return "\n".join(output)
 
     def write_file(self, filename):
@@ -110,9 +102,7 @@ class Xr:
             toks2 = lines[4 + nsites + i + 3].split()
             for j, item in enumerate(toks):
                 if item != toks2[j]:
-                    raise RuntimeError(
-                        "expected both matrices" " to be the same in xr file"
-                    )
+                    raise RuntimeError("expected both matrices" " to be the same in xr file")
             mat[i] = np.array([float(w) for w in toks])
         lat = Lattice(mat)
         if (

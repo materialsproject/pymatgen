@@ -21,25 +21,25 @@ class FiestaInputTest(PymatgenTest):
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
         self.cellin = FiestaInput(
             mol,
-            correlation_grid={"dE_grid": u"0.500", "n_grid": u"14"},
-            Exc_DFT_option={"rdVxcpsi": u"1"},
+            correlation_grid={"dE_grid": "0.500", "n_grid": "14"},
+            Exc_DFT_option={"rdVxcpsi": "1"},
             COHSEX_options={
-                "eigMethod": u"C",
-                "mix_cohsex": u"0.500",
-                "nc_cohsex": u"0",
-                "nit_cohsex": u"0",
-                "nv_cohsex": u"0",
-                "resMethod": u"V",
-                "scf_cohsex_wf": u"0",
+                "eigMethod": "C",
+                "mix_cohsex": "0.500",
+                "nc_cohsex": "0",
+                "nit_cohsex": "0",
+                "nv_cohsex": "0",
+                "resMethod": "V",
+                "scf_cohsex_wf": "0",
             },
-            GW_options={"nc_corr": u"10", "nit_gw": u"3", "nv_corr": u"10"},
+            GW_options={"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"},
             BSE_TDDFT_options={
-                "do_bse": u"1",
-                "do_tddft": u"0",
-                "nc_bse": u"382",
-                "nit_bse": u"50",
-                "npsi_bse": u"1",
-                "nv_bse": u"21",
+                "do_bse": "1",
+                "do_tddft": "0",
+                "nc_bse": "382",
+                "nit_bse": "50",
+                "npsi_bse": "1",
+                "nv_bse": "21",
             },
         )
 
@@ -76,19 +76,19 @@ class FiestaOutputTest(PymatgenTest):
 
     def test_props(self):
         out = self.logfiesta
-        self.assertEqual(out.data[0]["Gaps"]["Egap_QP_Linear"], u"10.4135")
+        self.assertEqual(out.data[0]["Gaps"]["Egap_QP_Linear"], "10.4135")
         self.assertEqual(
             out.data[0]["HOMO"],
             {
-                "band": u"HOMO",
-                "eKS": u"-7.3029",
-                "eQP_Linear": u"-9.5142",
-                "eQP_SCF": u"-8.9264",
-                "eQP_old": u"-7.7188",
-                "eXX": u"-15.9483",
-                "sigma_c_Linear": u"-0.4587",
-                "sigma_c_SCF": u"0.3900",
-                "z": u"0.87",
+                "band": "HOMO",
+                "eKS": "-7.3029",
+                "eQP_Linear": "-9.5142",
+                "eQP_SCF": "-8.9264",
+                "eQP_old": "-7.7188",
+                "eXX": "-15.9483",
+                "sigma_c_Linear": "-0.4587",
+                "sigma_c_SCF": "0.3900",
+                "z": "0.87",
             },
         )
 

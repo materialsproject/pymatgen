@@ -60,8 +60,7 @@ class NwTask(MSONable):
         "mcscf": "Multiconfiguration SCF",
         "selci": "Selected CI with perturbation correction",
         "md": "Classical molecular dynamics simulation",
-        "pspw": "Pseudopotential plane-wave DFT for molecules and "
-        "insulating solids using NWPW",
+        "pspw": "Pseudopotential plane-wave DFT for molecules and " "insulating solids using NWPW",
         "band": "Pseudopotential plane-wave DFT for solids using NWPW",
         "tce": "Tensor Contraction Engine",
         "tddft": "Time Dependent DFT",
@@ -69,20 +68,16 @@ class NwTask(MSONable):
 
     operations = {
         "energy": "Evaluate the single point energy.",
-        "gradient": "Evaluate the derivative of the energy with "
-        "respect to nuclear coordinates.",
+        "gradient": "Evaluate the derivative of the energy with " "respect to nuclear coordinates.",
         "optimize": "Minimize the energy by varying the molecular " "structure.",
         "saddle": "Conduct a search for a transition state (or " "saddle point).",
         "hessian": "Compute second derivatives.",
-        "frequencies": "Compute second derivatives and print out an "
-        "analysis of molecular vibrations.",
+        "frequencies": "Compute second derivatives and print out an " "analysis of molecular vibrations.",
         "freq": "Same as frequencies.",
         "vscf": "Compute anharmonic contributions to the " "vibrational modes.",
         "property": "Calculate the properties for the wave " "function.",
         "dynamics": "Perform classical molecular dynamics.",
-        "thermodynamics": "Perform multi-configuration "
-        "thermodynamic integration using "
-        "classical MD.",
+        "thermodynamics": "Perform multi-configuration " "thermodynamic integration using " "classical MD.",
         "": "dummy",
     }
 
@@ -162,9 +157,7 @@ class NwTask(MSONable):
         for k in sorted(self.alternate_directives.keys()):
             theory_spec.append(k)
             for k2 in sorted(self.alternate_directives[k].keys()):
-                theory_spec.append(
-                    " {} {}".format(k2, self.alternate_directives[k][k2])
-                )
+                theory_spec.append(" {} {}".format(k2, self.alternate_directives[k][k2]))
             theory_spec.append("end")
 
         t = Template(
@@ -274,11 +267,7 @@ $theory_spec
                 example, to perform cosmo calculations with DFT, you'd supply
                 {'cosmo': "cosmo"}.
         """
-        title = (
-            title
-            if title is not None
-            else "{} {} {}".format(re.sub(r"\s", "", mol.formula), theory, operation)
-        )
+        title = title if title is not None else "{} {} {}".format(re.sub(r"\s", "", mol.formula), theory, operation)
 
         charge = charge if charge is not None else mol.charge
         nelectrons = -charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
@@ -718,25 +707,15 @@ class NwOutput:
         energy_patt = re.compile(r"Total \w+ energy\s+=\s+([.\-\d]+)")
         energy_gas_patt = re.compile(r"gas phase energy\s+=\s+([.\-\d]+)")
         energy_sol_patt = re.compile(r"sol phase energy\s+=\s+([.\-\d]+)")
-        coord_patt = re.compile(
-            r"\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)"
-        )
-        lat_vector_patt = re.compile(
-            r"a[123]=<\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)\s+>"
-        )
-        corrections_patt = re.compile(
-            r"([\w\-]+ correction to \w+)\s+=" r"\s+([.\-\d]+)"
-        )
+        coord_patt = re.compile(r"\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)")
+        lat_vector_patt = re.compile(r"a[123]=<\s+([.\-\d]+)\s+" r"([.\-\d]+)\s+([.\-\d]+)\s+>")
+        corrections_patt = re.compile(r"([\w\-]+ correction to \w+)\s+=" r"\s+([.\-\d]+)")
         preamble_patt = re.compile(
-            r"(No. of atoms|No. of electrons"
-            r"|SCF calculation type|Charge|Spin "
-            r"multiplicity)\s*:\s*(\S+)"
+            r"(No. of atoms|No. of electrons" r"|SCF calculation type|Charge|Spin " r"multiplicity)\s*:\s*(\S+)"
         )
         force_patt = re.compile(r"\s+(\d+)\s+(\w+)" + 6 * r"\s+([0-9\.\-]+)")
 
-        time_patt = re.compile(
-            r"\s+ Task \s+ times \s+ cpu: \s+   ([.\d]+)s .+ ", re.VERBOSE
-        )
+        time_patt = re.compile(r"\s+ Task \s+ times \s+ cpu: \s+   ([.\d]+)s .+ ", re.VERBOSE)
 
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
@@ -793,11 +772,7 @@ class NwOutput:
             if parse_geom:
                 if l.strip() == "Atomic Mass":
                     if lattice:
-                        structures.append(
-                            Structure(
-                                lattice, species, coords, coords_are_cartesian=True
-                            )
-                        )
+                        structures.append(Structure(lattice, species, coords, coords_are_cartesian=True))
                     else:
                         molecules.append(Molecule(species, coords))
                     species = []
@@ -808,14 +783,10 @@ class NwOutput:
                     m = coord_patt.search(l)
                     if m:
                         species.append(m.group(1).capitalize())
-                        coords.append(
-                            [float(m.group(2)), float(m.group(3)), float(m.group(4))]
-                        )
+                        coords.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
                     m = lat_vector_patt.search(l)
                     if m:
-                        lattice.append(
-                            [float(m.group(1)), float(m.group(2)), float(m.group(3))]
-                        )
+                        lattice.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
 
             if parse_force:
                 m = force_patt.search(l)
@@ -912,15 +883,11 @@ class NwOutput:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = dict()
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
-                    energies[-1].update(
-                        {"gas phase": Energy(m.group(1), "Ha").to("eV")}
-                    )
+                    energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies[-1].update(
-                        {"sol phase": Energy(m.group(1), "Ha").to("eV")}
-                    )
+                    energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:
@@ -947,9 +914,7 @@ class NwOutput:
                         parse_freq = True
                         if normal_frequencies is None:
                             normal_frequencies = []
-                        normal_frequencies.extend(
-                            [(float(freq), []) for freq in l.strip().split()[1:]]
-                        )
+                        normal_frequencies.extend([(float(freq), []) for freq in l.strip().split()[1:]])
 
                 elif l.find("MASS-WEIGHTED NUCLEAR HESSIAN") != -1:
                     parse_hess = True
@@ -960,27 +925,17 @@ class NwOutput:
                     if not projected_hessian:
                         projected_hessian = []
 
-                elif (
-                    l.find(
-                        "atom               coordinates                        gradient"
-                    )
-                    != -1
-                ):
+                elif l.find("atom               coordinates                        gradient") != -1:
                     parse_force = True
 
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
-                    if (
-                        job_type == "NWChem DFT Module"
-                        and "COSMO solvation results" in output
-                    ):
+                    if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
                 else:
                     m = corrections_patt.search(l)
                     if m:
-                        corrections[m.group(1)] = FloatWithUnit(
-                            m.group(2), "kJ mol^-1"
-                        ).to("eV atom^-1")
+                        corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
             for freq, mode in frequencies:

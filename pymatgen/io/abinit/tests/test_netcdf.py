@@ -16,9 +16,7 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"
-)
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit")
 
 
 def ref_file(filename):
@@ -47,9 +45,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
         ref_float_values = {
             "etotal": -8.85911566912484,
-            "primitive_vectors": np.reshape(
-                [0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3, 3)
-            ),
+            "primitive_vectors": np.reshape([0, 5.125, 5.125, 5.125, 0, 5.125, 5.125, 5.125, 0], (3, 3)),
         }
 
         with ETSF_Reader(path) as data:

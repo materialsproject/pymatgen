@@ -78,9 +78,7 @@ class PWInput:
         else:
             for species in self.structure.composition.keys():
                 if species.symbol not in pseudo:
-                    raise PWInputError(
-                        "Missing %s in pseudo specification!" % species.symbol
-                    )
+                    raise PWInputError("Missing %s in pseudo specification!" % species.symbol)
         self.pseudo = pseudo
 
         self.sections = sections
@@ -152,9 +150,7 @@ class PWInput:
         out.append("ATOMIC_POSITIONS crystal")
         if self.pseudo is not None:
             for site in self.structure:
-                out.append(
-                    "  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a, site.b, site.c)
-                )
+                out.append("  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a, site.b, site.c))
         else:
             for site in self.structure:
                 name = None
@@ -298,9 +294,7 @@ class PWInput:
 
                             site_properties[key] = []
                         else:
-                            sections[section][key][int(key_) - 1] = PWInput.proc_val(
-                                key, val
-                            )
+                            sections[section][key][int(key_) - 1] = PWInput.proc_val(key, val)
                     else:
                         sections[section][key] = PWInput.proc_val(key, val)
 
@@ -320,9 +314,7 @@ class PWInput:
                     kpoints_mode = mode[1]
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
-                m_p = re.match(
-                    r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line
-                )
+                m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
                     lattice += [
                         float(m_l.group(1)),
@@ -332,15 +324,11 @@ class PWInput:
                 elif m_p:
                     site_properties["pseudo"].append(pseudo[m_p.group(1)]["pseudopot"])
                     species += [pseudo[m_p.group(1)]["pseudopot"].split(".")[0]]
-                    coords += [
-                        [float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]
-                    ]
+                    coords += [[float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]]
 
                     for k, v in site_properties.items():
                         if k != "pseudo":
-                            site_properties[k].append(
-                                sections["system"][k][pseudo[m_p.group(1)]["index"]]
-                            )
+                            site_properties[k].append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
                 if mode[1] == "angstrom":
                     coords_are_cartesian = True
                 elif mode[1] == "crystal":
@@ -483,11 +471,7 @@ class PWInput:
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(
-                    re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())
-                    .group(0)
-                    .replace("d", "e")
-                )
+                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower()).group(0).replace("d", "e"))
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))
@@ -553,9 +537,7 @@ class PWOutput:
             else:
                 self.data[k] = float(v[0][0][0])
 
-    def read_pattern(
-        self, patterns, reverse=False, terminate_on_match=False, postprocess=str
-    ):
+    def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
         r"""
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.

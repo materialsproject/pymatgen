@@ -43,9 +43,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
 
     def test_from_file(self):
-        adaptor = BabelMolAdaptor.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/Ethane_e.pdb"), "pdb"
-        )
+        adaptor = BabelMolAdaptor.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/Ethane_e.pdb"), "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
 
@@ -81,6 +79,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_make3d(self):
         from openbabel import pybel as pb
+
         mol_0d = pb.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.make3d()
@@ -88,6 +87,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def add_hydrogen(self):
         from openbabel import pybel as pb
+
         mol_0d = pb.readstring("smi", "CCCC").OBMol
         self.assertEqual(len(pb.Molecule(mol_0d).atoms), 2)
         adaptor = BabelMolAdaptor(mol_0d)
@@ -124,6 +124,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
 
     def test_confab_conformers(self):
         from openbabel import pybel as pb
+
         mol = pb.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)
         adaptor.make3d()
@@ -131,9 +132,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEquals(adaptor.openbabel_mol.NumRotors(), 1)
         self.assertGreaterEqual(len(conformers), 1)
         if len(conformers) > 1:
-            self.assertNotAlmostEqual(
-                MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0
-            )
+            self.assertNotAlmostEqual(MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0)
 
 
 if __name__ == "__main__":

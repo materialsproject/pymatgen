@@ -147,9 +147,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 # v8.3 Added two columns at the end [Speedup, Efficacity]
                 ctime, cfract, wtime, wfract, ncalls, gflops, speedup, eff = vals
 
-            return AbinitTimerSection(
-                name, ctime, cfract, wtime, wfract, ncalls, gflops
-            )
+            return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
         sections, info, cpu_time, wall_time = None, None, None, None
         data = {}
@@ -270,14 +268,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # Compute the parallel efficiency (total and section efficiency)
         peff = {}
-        ctime_peff = [
-            (min_ncpus * ref_t.wall_time) / (t.wall_time * ncp)
-            for (t, ncp) in zip(timers, ncpus)
-        ]
-        wtime_peff = [
-            (min_ncpus * ref_t.cpu_time) / (t.cpu_time * ncp)
-            for (t, ncp) in zip(timers, ncpus)
-        ]
+        ctime_peff = [(min_ncpus * ref_t.wall_time) / (t.wall_time * ncp) for (t, ncp) in zip(timers, ncpus)]
+        wtime_peff = [(min_ncpus * ref_t.cpu_time) / (t.cpu_time * ncp) for (t, ncp) in zip(timers, ncpus)]
         n = len(timers)
 
         peff["total"] = {}
@@ -291,14 +283,8 @@ class AbinitTimerParser(collections.abc.Iterable):
             ref_sect = ref_t.get_section(sect_name)
             sects = [t.get_section(sect_name) for t in timers]
             try:
-                ctime_peff = [
-                    (min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp)
-                    for (s, ncp) in zip(sects, ncpus)
-                ]
-                wtime_peff = [
-                    (min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp)
-                    for (s, ncp) in zip(sects, ncpus)
-                ]
+                ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
+                wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
             except ZeroDivisionError:
                 ctime_peff = n * [-1]
                 wtime_peff = n * [-1]
@@ -330,25 +316,19 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         frame = pd.DataFrame(columns=colnames)
         for i, timer in enumerate(self.timers()):
-            frame = frame.append(
-                {k: getattr(timer, k) for k in colnames}, ignore_index=True
-            )
+            frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
         i = frame["tot_ncpus"].values.argmin()
         ref_wtime = frame.iloc[i]["wall_time"]
         ref_ncpus = frame.iloc[i]["tot_ncpus"]
-        frame["peff"] = (ref_ncpus * ref_wtime) / (
-            frame["wall_time"] * frame["tot_ncpus"]
-        )
+        frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
 
     @add_fig_kwargs
-    def plot_efficiency(
-        self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs
-    ):
+    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs):
         """
         Plot the parallel efficiency
 
@@ -623,9 +603,7 @@ class AbinitTimerSection:
         """Return a fake section. Mainly used to fill missing entries if needed."""
         return AbinitTimerSection("fake", 0.0, 0.0, 0.0, 0.0, -1, 0.0)
 
-    def __init__(
-        self, name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops
-    ):
+    def __init__(self, name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops):
         """
         Args:
             name: Name of the sections.
