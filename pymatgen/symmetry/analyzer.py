@@ -1746,30 +1746,44 @@ class MagneticSpacegroupAnalyzer:
       self._oplist = self.get_paramag_symmetry_operations()
 
       # apply mag space group op and check if it is symm
+      # consider all magnetic domains
+      domains = {}
       mspg_list = []
       for op in self._oplist:
         for i in [+1, -1]:
+          
           mop = MagSymmOp.from_symmop( op, i )
           trans = [ApplyMagSymmOpTransformation(mop)]
           s_new = TransformedStructure(self._structure, trans )
+         
+          new_domain = True
           if self._same_MagneticStructure( s_new.final_structure,  self._structure  )[0]:
             mspg_list.append( mop )
+            new_domain = False
+
+          for do in domains.values():
+            if self._same_MagneticStructure( s_new.final_structure, do )[0]:
+              new_domain = False
+
+          if new_domain: domains[mop] = s_new.final_structure
+
       self.magsymmetry_ops = mspg_list
+      self.domains = domains
 
       # extend list of obtained symmetry operations by choices of origin
-      choices_of_origin = self.origin_centering( self._spacegroupAnalyzer._space_group_data['international'] )
+      choices_of_origin = self.origin_centering( )
       if choices_of_origin!=[]:
-        for xyzt_string in choices_of_origin:
-          self.magsymmetry_ops.append( MagSymmOp.from_xyzt_string(xyzt_string) )
+        for origin_mop in choices_of_origin:
+          self.magsymmetry_ops.append( origin_mop )
       
       # find magnetic space group corresponding to symm ops in msg_list
       self._MagneticSpaceGroup = self._brows4MagneticSpaceGroup( [mop.as_xyzt_string() for mop in self.magsymmetry_ops] )
 
-    def get_paramag_symmetry_operations(self, cartesian=False):
+    def get_paramag_symmetry_operations(self, cartesian=False, primitive=True):
         """
         Return symmetry operations as a list of SymmOp objects.
-        By default returns fractional coord symmops for primitive structure.
-        But cartesian can be returned too.
+        By default returns fractional coord symmops for given primitive structure.
+        But cartesian coords and conventional structure can be used too.
 
         Returns:
             ([SymmOp]): List of symmetry operations.
@@ -1777,22 +1791,30 @@ class MagneticSpacegroupAnalyzer:
         rotation = self._spacegroupAnalyzer._space_group_data['rotations']
         translation = self._spacegroupAnalyzer._space_group_data['translations']
         
-        prim2cart = np.transpose(self._spacegroupAnalyzer._cell[0])
-        prim2cart_inv = np.linalg.inv(prim2cart)
-        prim2conv = self._spacegroupAnalyzer._space_group_data["transformation_matrix"]
-        prim2conv_inv = np.linalg.inv(prim2conv)
         symmops = []
         for rot, trans in zip(rotation, translation):
-          if cartesian:
-            rot_cart = prim2cart.dot( rot.dot(prim2cart_inv) )
-            trans_cart = prim2cart.dot( trans )
-            op = SymmOp.from_rotation_and_translation(rot_cart, trans_cart)
+          if primitive:
+            if cartesian:
+              prim2cart = np.transpose(self._spacegroupAnalyzer._cell[0])
+              prim2cart_inv = np.linalg.inv(prim2cart)
 
+              rot = prim2cart.dot( rot.dot(prim2cart_inv) )
+              trans = prim2cart.dot( trans )
+            else:
+              prim2conv = self._spacegroupAnalyzer._space_group_data["transformation_matrix"]
+              prim2conv_inv = np.linalg.inv(prim2conv)
+
+              rot = prim2conv.dot( rot.dot(prim2conv_inv)).round(8)
+              trans = prim2conv.dot( trans ).round(8)
           else:
-            rot_conv = prim2conv.dot( rot.dot(prim2conv_inv)).round(8)
-            trans_conv = prim2conv.dot( trans ).round(8)
-            op = SymmOp.from_rotation_and_translation(rot_conv, trans_conv)
+            if cartesian:
+              conv2cart = np.transpose(self._spacegroupAnalyzer._cell[0])
+              conv2cart_inv = np.linalg.inv(conv2cart)
 
+              rot = conv2cart.dot( rot.dot(conv2cart_inv) )
+              trans = conv2cart.dot( trans )
+          
+          op = SymmOp.from_rotation_and_translation(rot, trans)
           symmops.append(op)
 
         return symmops
@@ -1934,22 +1956,27 @@ class MagneticSpacegroupAnalyzer:
 
       return MagneticSpaceGroup.from_og( self.og_no )
 
-    def origin_centering( self, international_symbol ):
-    
+    def origin_centering( self ):
+      
+      international_symbol = self._spacegroupAnalyzer._space_group_data['international']
+      origins = []
+
       if international_symbol[0] == "F":
-        return [ "x, y+1/2, z+1/2, +1", "x+1/2, y, z+1/2, +1", "x+1/2, y+1/2, z, +1" ]
+        origings = [ "x, y+1/2, z+1/2, +1", "x+1/2, y, z+1/2, +1", "x+1/2, y+1/2, z, +1" ]
       elif international_symbol[0] == "I":
-        return [ "x+1/2, y+1/2, z+1/2, +1" ]
+        origings = [ "x+1/2, y+1/2, z+1/2, +1" ]
       elif international_symbol[0] == "R":
-        return [ "x+1/3, y+2/3, z+2/3, +1", "x+2/3, y+1/3, z+1/3, +1" ]
+        origings = [ "x+1/3, y+2/3, z+2/3, +1", "x+2/3, y+1/3, z+1/3, +1" ]
       elif international_symbol[0] == "C":
-        return [ "x+1/2, y+1/2, z, +1" ]
+        origings = [ "x+1/2, y+1/2, z, +1" ]
       elif international_symbol[0] == "A":
-        return [ "x, y+1/2, z+1/2, +1" ]
+        origings = [ "x, y+1/2, z+1/2, +1" ]
       elif international_symbol[0] == "P":
-        return []
+        pass
       else:
         exit("Error: International symbol wrong. Argument given ", international_symbol)
+
+      return [ MagSymmOp.from_xyzt_string(xyzt_string) for xyzt_string in origings ]
 
     # TODO: add a function get_refined_structure(self) analogous to SpacegroupAnalyzer
     # TODO: add function to return Magnetic Laue group
