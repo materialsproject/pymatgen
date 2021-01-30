@@ -141,11 +141,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 self._natoms += abs(v)
         self._data = elamt
         if strict and not self.valid:
-            raise ValueError(
-                "Composition is not valid, contains: {}".format(
-                    ", ".join(map(str, self.elements))
-                )
-            )
+            raise ValueError("Composition is not valid, contains: {}".format(", ".join(map(str, self.elements))))
 
     def __getitem__(self, item):
         try:
@@ -153,8 +149,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             return self._data.get(sp, 0)
         except ValueError as ex:
             raise TypeError(
-                "Invalid key {}, {} for Composition\n"
-                "ValueError exception:\n{}".format(item, type(item), ex)
+                "Invalid key {}, {} for Composition\n" "ValueError exception:\n{}".format(item, type(item), ex)
             )
 
     def __len__(self):
@@ -169,8 +164,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             return sp in self._data
         except ValueError as ex:
             raise TypeError(
-                "Invalid key {}, {} for Composition\n"
-                "ValueError exception:\n{}".format(item, type(item), ex)
+                "Invalid key {}, {} for Composition\n" "ValueError exception:\n{}".format(item, type(item), ex)
             )
 
     def __eq__(self, other):
@@ -233,18 +227,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         if not isinstance(other, numbers.Number):
             return NotImplemented
-        return Composition(
-            {el: self[el] * other for el in self}, allow_negative=self.allow_negative
-        )
+        return Composition({el: self[el] * other for el in self}, allow_negative=self.allow_negative)
 
     __rmul__ = __mul__
 
     def __truediv__(self, other):
         if not isinstance(other, numbers.Number):
             return NotImplemented
-        return Composition(
-            {el: self[el] / other for el in self}, allow_negative=self.allow_negative
-        )
+        return Composition({el: self[el] / other for el in self}, allow_negative=self.allow_negative)
 
     __div__ = __truediv__
 
@@ -399,9 +389,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        all_int = all(
-            abs(x - round(x)) < Composition.amount_tolerance for x in self.values()
-        )
+        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = {k: int(round(v)) for k, v in self.get_el_amt_dict().items()}
@@ -413,9 +401,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
         return formula, factor
 
-    def get_integer_formula_and_factor(
-        self, max_denominator=10000, iupac_ordering=False
-    ):
+    def get_integer_formula_and_factor(self, max_denominator=10000, iupac_ordering=False):
         """
         Calculates an integer formula and factor.
 
@@ -470,10 +456,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         if "C" in elements:
             elements = ["C"] + [el for el in elements if el != "C"]
 
-        formula = [
-            "%s%s" % (el, formula_double_format(c[el]) if c[el] != 1 else "")
-            for el in elements
-        ]
+        formula = ["%s%s" % (el, formula_double_format(c[el]) if c[el] != 1 else "") for el in elements]
         return " ".join(formula)
 
     @property
@@ -485,10 +468,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     def __str__(self):
         return " ".join(
-            [
-                "{}{}".format(k, formula_double_format(v, ignore_ones=False))
-                for k, v in self.as_dict().items()
-            ]
+            ["{}{}".format(k, formula_double_format(v, ignore_ones=False)) for k, v in self.as_dict().items()]
         )
 
     @property
@@ -504,9 +484,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         Total molecular weight of Composition
         """
-        return Mass(
-            sum([amount * el.atomic_mass for el, amount in self.items()]), "amu"
-        )
+        return Mass(sum([amount * el.atomic_mass for el, amount in self.items()]), "amu")
 
     def get_atomic_fraction(self, el):
         """
@@ -568,9 +546,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         )
 
         if category not in allowed_categories:
-            raise ValueError(
-                "Please pick a category from: {}".format(", ".join(allowed_categories))
-            )
+            raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
 
         if "block" in category:
             return any([category[0] in el.block for el in self.elements])
@@ -610,9 +586,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             if m.group(2) != "":
                 factor = float(m.group(2))
             unit_sym_dict = get_sym_dict(m.group(1), factor)
-            expanded_sym = "".join(
-                ["{}{}".format(el, amt) for el, amt in unit_sym_dict.items()]
-            )
+            expanded_sym = "".join(["{}{}".format(el, amt) for el, amt in unit_sym_dict.items()])
             expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
@@ -762,9 +736,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 composition is not charge balanced, an empty list is returned.
         """
 
-        return self._get_oxid_state_guesses(
-            all_oxi_states, max_sites, oxi_states_override, target_charge
-        )[0]
+        return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
     def add_charges_from_oxi_state_guesses(
         self,
@@ -837,9 +809,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
         return Composition(d)
 
-    def _get_oxid_state_guesses(
-        self, all_oxi_states, max_sites, oxi_states_override, target_charge
-    ):
+    def _get_oxid_state_guesses(self, all_oxi_states, max_sites, oxi_states_override, target_charge):
         """
         Utility operation for guessing oxidation states.
 
@@ -873,17 +843,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 return a list of [2,2,2,3,3,3] for the oxidation states of If the composition
                 is
 
-            """
+        """
         comp = self.copy()
         # reduce Composition if necessary
         if max_sites and max_sites < 0:
             comp = self.reduced_composition
 
             if max_sites < -1 and comp.num_atoms > abs(max_sites):
-                raise ValueError(
-                    "Composition {} cannot accommodate max_sites "
-                    "setting!".format(comp)
-                )
+                raise ValueError("Composition {} cannot accommodate max_sites " "setting!".format(comp))
 
         elif max_sites and comp.num_atoms > max_sites:
             reduced_comp, reduced_factor = self.get_reduced_composition_and_factor()
@@ -891,27 +858,17 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 reduced_comp *= max(1, int(max_sites / reduced_comp.num_atoms))
                 comp = reduced_comp  # as close to max_sites as possible
             if comp.num_atoms > max_sites:
-                raise ValueError(
-                    "Composition {} cannot accommodate max_sites "
-                    "setting!".format(comp)
-                )
+                raise ValueError("Composition {} cannot accommodate max_sites " "setting!".format(comp))
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not Composition.oxi_prob:
             module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-            all_data = loadfn(
-                os.path.join(module_dir, "..", "analysis", "icsd_bv.yaml")
-            )
-            Composition.oxi_prob = {
-                Species.from_string(sp): data
-                for sp, data in all_data["occurrence"].items()
-            }
+            all_data = loadfn(os.path.join(module_dir, "..", "analysis", "icsd_bv.yaml"))
+            Composition.oxi_prob = {Species.from_string(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
         # assert: Composition only has integer amounts
         if not all(amt == int(amt) for amt in comp.values()):
-            raise ValueError(
-                "Charge balance analysis requires integer " "values in Composition!"
-            )
+            raise ValueError("Charge balance analysis requires integer " "values in Composition!")
 
         # for each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
@@ -929,9 +886,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             elif all_oxi_states:
                 oxids = Element(el).oxidation_states
             else:
-                oxids = (
-                    Element(el).icsd_oxidation_states or Element(el).oxidation_states
-                )
+                oxids = Element(el).icsd_oxidation_states or Element(el).oxidation_states
 
             # get all possible combinations of oxidation states
             # and sum each combination
@@ -943,24 +898,18 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                     el_sums[idx].append(oxid_sum)
 
                 # Determine how probable is this combo?
-                score = sum(
-                    [Composition.oxi_prob.get(Species(el, o), 0) for o in oxid_combo]
-                )
+                score = sum([Composition.oxi_prob.get(Species(el, o), 0) for o in oxid_combo])
 
                 # If it is the most probable combo for a certain sum,
                 #   store the combination
-                if oxid_sum not in el_sum_scores[idx] or score > el_sum_scores[idx].get(
-                    oxid_sum, 0
-                ):
+                if oxid_sum not in el_sum_scores[idx] or score > el_sum_scores[idx].get(oxid_sum, 0):
                     el_sum_scores[idx][oxid_sum] = score
                     el_best_oxid_combo[idx][oxid_sum] = oxid_combo
 
         # Determine which combination of oxidation states for each element
         #    is the most probable
         all_sols = []  # will contain all solutions
-        all_oxid_combo = (
-            []
-        )  # will contain the best combination of oxidation states for each site
+        all_oxid_combo = []  # will contain the best combination of oxidation states for each site
         all_scores = []  # will contain a score for each solution
         for x in product(*el_sums):
             # each x is a trial of one possible oxidation sum for each element
@@ -978,12 +927,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 all_scores.append(score)
 
                 # collect the combination of oxidation states for each site
-                all_oxid_combo.append(
-                    dict(
-                        (e, el_best_oxid_combo[idx][v])
-                        for idx, (e, v) in enumerate(zip(els, x))
-                    )
-                )
+                all_oxid_combo.append(dict((e, el_best_oxid_combo[idx][v]) for idx, (e, v) in enumerate(zip(els, x))))
 
         # sort the solutions by highest to lowest score
         if all_scores:
@@ -1000,9 +944,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return all_sols, all_oxid_combo
 
     @staticmethod
-    def ranked_compositions_from_indeterminate_formula(
-        fuzzy_formula, lock_if_strict=True
-    ):
+    def ranked_compositions_from_indeterminate_formula(fuzzy_formula, lock_if_strict=True):
         """
         Takes in a formula where capitilization might not be correctly entered,
         and suggests a ranked list of potential Composition matches.
@@ -1035,9 +977,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         # remove duplicates
         all_matches = list(set(all_matches))
         # sort matches by rank descending
-        all_matches = sorted(
-            all_matches, key=lambda match: (match[1], match[0]), reverse=True
-        )
+        all_matches = sorted(all_matches, key=lambda match: (match[1], match[0]), reverse=True)
         all_matches = [m[0] for m in all_matches]
         return all_matches
 
@@ -1142,16 +1082,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 mp_factor = 1 if mp.group(2) == "" else float(mp.group(2))
                 # Match the stuff inside the parenthesis with the appropriate
                 # factor
-                for match in Composition._comps_from_fuzzy_formula(
-                    mp.group(1), mp_dict, mp_points, factor=mp_factor
-                ):
+                for match in Composition._comps_from_fuzzy_formula(mp.group(1), mp_dict, mp_points, factor=mp_factor):
                     only_me = True
                     # Match the stuff outside the parentheses and return the
                     # sum.
 
-                    for match2 in Composition._comps_from_fuzzy_formula(
-                        mp_form, mp_dict, mp_points, factor=1
-                    ):
+                    for match2 in Composition._comps_from_fuzzy_formula(mp_form, mp_dict, mp_points, factor=1):
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
                     # if the stuff inside the parenthesis is nothing, then just
@@ -1166,14 +1102,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 m_points1 = m_points
                 m_form1 = fuzzy_formula
                 m_dict1 = dict(m_dict)
-                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(
-                    m1, m_form1, m_dict1, m_points1
-                )
+                (m_form1, m_dict1, m_points1) = _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
                 if m_dict1:
                     # there was a real match
-                    for match in Composition._comps_from_fuzzy_formula(
-                        m_form1, m_dict1, m_points1, factor
-                    ):
+                    for match in Composition._comps_from_fuzzy_formula(m_form1, m_dict1, m_points1, factor):
                         yield match
 
             # try to match two-letter elements
@@ -1182,14 +1114,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 m_points2 = m_points
                 m_form2 = fuzzy_formula
                 m_dict2 = dict(m_dict)
-                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(
-                    m2, m_form2, m_dict2, m_points2
-                )
+                (m_form2, m_dict2, m_points2) = _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
                 if m_dict2:
                     # there was a real match
-                    for match in Composition._comps_from_fuzzy_formula(
-                        m_form2, m_dict2, m_points2, factor
-                    ):
+                    for match in Composition._comps_from_fuzzy_formula(m_form2, m_dict2, m_points2, factor):
                         yield match
 
 
@@ -1224,9 +1152,7 @@ def reduce_formula(sym_amt, iupac_ordering=False):
     # if the composition contains a poly anion
     if len(syms) >= 3 and get_el_sp(syms[-1]).X - get_el_sp(syms[-2]).X < 1.65:
         poly_sym_amt = {syms[i]: sym_amt[syms[i]] / factor for i in [-2, -1]}
-        (poly_form, poly_factor) = reduce_formula(
-            poly_sym_amt, iupac_ordering=iupac_ordering
-        )
+        (poly_form, poly_factor) = reduce_formula(poly_sym_amt, iupac_ordering=iupac_ordering)
 
         if poly_factor != 1:
             polyanion.append("({}){}".format(poly_form, int(poly_factor)))

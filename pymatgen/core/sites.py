@@ -162,14 +162,10 @@ class Site(collections.abc.Hashable, MSONable):
         if self.is_ordered:
             return list(self.species.keys())[0].__str__()
         sorted_species = sorted(self.species.keys())
-        return ", ".join(
-            ["{}:{:.3f}".format(sp, self.species[sp]) for sp in sorted_species]
-        )
+        return ", ".join(["{}:{:.3f}".format(sp, self.species[sp]) for sp in sorted_species])
 
     @property  # type: ignore
-    @deprecated(
-        message="Use site.species instead. This will be deprecated with effect from pymatgen 2020."
-    )
+    @deprecated(message="Use site.species instead. This will be deprecated with effect from pymatgen 2020.")
     def species_and_occu(self):
         """
         The species at the site, i.e., a Composition mapping type of
@@ -236,9 +232,7 @@ class Site(collections.abc.Hashable, MSONable):
         return el in self.species
 
     def __repr__(self):
-        return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
-            self.species_string, *self.coords
-        )
+        return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(self.species_string, *self.coords)
 
     def __lt__(self, other):
         """
@@ -289,9 +283,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         atoms_n_occu = {}
         for sp_occu in d["species"]:
-            if "oxidation_state" in sp_occu and Element.is_valid_symbol(
-                sp_occu["element"]
-            ):
+            if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
                 sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
@@ -301,9 +293,7 @@ class Site(collections.abc.Hashable, MSONable):
         props = d.get("properties", None)
         if props is not None:
             for key in props.keys():
-                props[key] = json.loads(
-                    json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder
-                )
+                props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
@@ -508,9 +498,7 @@ class PeriodicSite(Site, MSONable):
         if in_place:
             self.frac_coords = frac_coords
             return None
-        return PeriodicSite(
-            self.species, frac_coords, self.lattice, properties=self.properties
-        )
+        return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties)
 
     def is_periodic_image(self, other, tolerance=1e-8, check_lattice=True):
         """
@@ -565,9 +553,7 @@ class PeriodicSite(Site, MSONable):
             (distance, jimage): distance and periodic lattice translations
             of the other site for which the distance applies.
         """
-        return self.lattice.get_distance_and_image(
-            self.frac_coords, fcoords, jimage=jimage
-        )
+        return self.lattice.get_distance_and_image(self.frac_coords, fcoords, jimage=jimage)
 
     def distance_and_image(self, other, jimage=None):
         """
@@ -608,15 +594,8 @@ class PeriodicSite(Site, MSONable):
         return self.distance_and_image(other, jimage)[0]
 
     def __repr__(self):
-        return (
-            "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, "
-            "{:.4f}]".format(
-                self.species_string,
-                self.coords[0],
-                self.coords[1],
-                self.coords[2],
-                *self._frac_coords
-            )
+        return "PeriodicSite: {} ({:.4f}, {:.4f}, {:.4f}) [{:.4f}, {:.4f}, " "{:.4f}]".format(
+            self.species_string, self.coords[0], self.coords[1], self.coords[2], *self._frac_coords
         )
 
     def as_dict(self, verbosity=0):
@@ -668,9 +647,7 @@ class PeriodicSite(Site, MSONable):
         """
         species = {}
         for sp_occu in d["species"]:
-            if "oxidation_state" in sp_occu and Element.is_valid_symbol(
-                sp_occu["element"]
-            ):
+            if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
                 sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
@@ -680,8 +657,6 @@ class PeriodicSite(Site, MSONable):
         props = d.get("properties", None)
         if props is not None:
             for key in props.keys():
-                props[key] = json.loads(
-                    json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder
-                )
+                props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)

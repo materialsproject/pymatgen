@@ -389,12 +389,7 @@ class ElementBase(Enum):
                                     unit = toks[1]
                                 val = FloatWithUnit(toks[0], unit)
                             else:
-                                unit = (
-                                    toks[1]
-                                    .replace("<sup>", "^")
-                                    .replace("</sup>", "")
-                                    .replace("&Omega;", "ohm")
-                                )
+                                unit = toks[1].replace("<sup>", "^").replace("</sup>", "").replace("&Omega;", "ohm")
                                 units = Unit(unit)
                                 if set(units.keys()).issubset(SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(toks[0], unit)
@@ -465,10 +460,7 @@ class ElementBase(Enum):
         {oxidation state: ionic radii}. Radii are given in ang.
         """
         if "Ionic radii" in self._data:
-            return {
-                int(k): FloatWithUnit(v, "ang")
-                for k, v in self._data["Ionic radii"].items()
-            }
+            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
         return {}
 
     @property
@@ -555,11 +547,7 @@ class ElementBase(Enum):
             if ne < (2 * l + 1) * 2:
                 valence.append((l, ne))
             # check for full last shell (e.g. column 2)
-            elif (
-                (n, l_symbol, ne) == last_orbital
-                and ne == (2 * l + 1) * 2
-                and len(valence) == 0
-            ):
+            elif (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0:
                 valence.append((l, ne))
         if len(valence) > 1:
             raise ValueError("Ambiguous valence")
@@ -603,9 +591,7 @@ class ElementBase(Enum):
             L, S = min(comb_counter)
 
             J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
-            term_symbols.append(
-                [str(int(2 * (abs(S)) + 1)) + L_symbols[abs(L)] + str(j) for j in J]
-            )
+            term_symbols.append([str(int(2 * (abs(S)) + 1)) + L_symbols[abs(L)] + str(j) for j in J])
             # Without J
             # term_symbols.append(str(int(2 * (abs(S)) + 1)) \
             #                     + L_symbols[abs(L)])
@@ -641,17 +627,11 @@ class ElementBase(Enum):
 
         multi = [int(item["multiplicity"]) for terms, item in term_symbol_flat.items()]
         max_multi_terms = {
-            symbol: item
-            for symbol, item in term_symbol_flat.items()
-            if item["multiplicity"] == max(multi)
+            symbol: item for symbol, item in term_symbol_flat.items() if item["multiplicity"] == max(multi)
         }
 
         Ls = [item["L"] for terms, item in max_multi_terms.items()]
-        max_L_terms = {
-            symbol: item
-            for symbol, item in term_symbol_flat.items()
-            if item["L"] == max(Ls)
-        }
+        max_L_terms = {symbol: item for symbol, item in term_symbol_flat.items() if item["L"] == max(Ls)}
 
         J_sorted_terms = sorted(max_L_terms.items(), key=lambda k: k[1]["J"])
         L, v_e = self.valence
@@ -909,10 +889,7 @@ class ElementBase(Enum):
         Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes
         """
-        return {
-            k: FloatWithUnit(v, "mbarn")
-            for k, v in self.data.get("NMR Quadrupole Moment", {}).items()
-        }
+        return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
     @property
     def iupac_ordering(self):
@@ -1190,11 +1167,7 @@ class Species(MSONable):
             # We then sort by symbol.
             return self.symbol < other.symbol
         if self.oxi_state:
-            other_oxi = (
-                0
-                if (isinstance(other, Element) or other.oxi_state is None)
-                else other.oxi_state
-            )
+            other_oxi = 0 if (isinstance(other, Element) or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
         if getattr(self, "spin", False):
             other_spin = getattr(other, "spin", 0)
@@ -1351,9 +1324,7 @@ class Species(MSONable):
             data = radii[spin]
         return data["%s_radius" % radius_type]
 
-    def get_crystal_field_spin(
-        self, coordination: str = "oct", spin_config: str = "high"
-    ):
+    def get_crystal_field_spin(self, coordination: str = "oct", spin_config: str = "high"):
         """
         Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
@@ -1374,16 +1345,10 @@ class Species(MSONable):
             raise ValueError("Invalid coordination or spin config.")
         elec = self.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
-            raise AttributeError(
-                "Invalid element {} for crystal field calculation.".format(self.symbol)
-            )
+            raise AttributeError("Invalid element {} for crystal field calculation.".format(self.symbol))
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if nelectrons < 0 or nelectrons > 10:
-            raise AttributeError(
-                "Invalid oxidation state {} for element {}".format(
-                    self.oxi_state, self.symbol
-                )
-            )
+            raise AttributeError("Invalid oxidation state {} for element {}".format(self.oxi_state, self.symbol))
         if spin_config == "high":
             if nelectrons <= 5:
                 return nelectrons
@@ -1479,10 +1444,7 @@ class DummySpecies(Species):
 
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
-                raise ValueError(
-                    "{} contains {}, which is a valid element "
-                    "symbol.".format(symbol, symbol[:i])
-                )
+                raise ValueError("{} contains {}, which is a valid element " "symbol.".format(symbol, symbol[:i]))
 
         # Set required attributes for DummySpecies to function like a Species in
         # most instances.
@@ -1701,7 +1663,4 @@ def get_el_sp(obj):
             try:
                 return DummySpecies.from_string(obj)
             except Exception:
-                raise ValueError(
-                    "Can't parse Element or String from type"
-                    " %s: %s." % (type(obj), obj)
-                )
+                raise ValueError("Can't parse Element or String from type" " %s: %s." % (type(obj), obj))

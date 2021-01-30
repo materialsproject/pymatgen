@@ -78,9 +78,7 @@ class SymmOp(MSONable):
         if rotation_matrix.shape != (3, 3):
             raise ValueError("Rotation Matrix must be a 3x3 numpy array.")
         if translation_vec.shape != (3,):
-            raise ValueError(
-                "Translation vector must be a rank 1 numpy array " "with 3 elements."
-            )
+            raise ValueError("Translation vector must be a rank 1 numpy array " "with 3 elements.")
         affine_matrix = np.eye(4)
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec
@@ -128,9 +126,7 @@ class SymmOp(MSONable):
             Numpy array of coordinates after operation
         """
         points = np.array(points)
-        affine_points = np.concatenate(
-            [points, np.ones(points.shape[:-1] + (1,))], axis=-1
-        )
+        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector):
@@ -215,9 +211,7 @@ class SymmOp(MSONable):
         return SymmOp(invr)
 
     @staticmethod
-    def from_axis_angle_and_translation(
-        axis, angle, angle_in_radians=False, translation_vec=(0, 0, 0)
-    ):
+    def from_axis_angle_and_translation(axis, angle, angle_in_radians=False, translation_vec=(0, 0, 0)):
         """
         Generates a SymmOp for a rotation about a given axis plus translation.
 
@@ -361,9 +355,7 @@ class SymmOp(MSONable):
         mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0], [0, 0, 0, 1]]
 
         if np.linalg.norm(origin) > 1e-6:
-            mirror_mat = np.dot(
-                np.linalg.inv(translation), np.dot(mirror_mat, translation)
-            )
+            mirror_mat = np.dot(np.linalg.inv(translation), np.dot(mirror_mat, translation))
         return SymmOp(mirror_mat)
 
     @staticmethod
@@ -422,9 +414,7 @@ class SymmOp(MSONable):
         if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
             warnings.warn("Rotation matrix should be integer")
 
-        return transformation_to_string(
-            self.rotation_matrix, translation_vec=self.translation_vector, delim=", "
-        )
+        return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
 
     @staticmethod
     def from_xyz_string(xyz_string):
@@ -445,21 +435,13 @@ class SymmOp(MSONable):
             for m in re_rot.finditer(tok):
                 factor = -1 if m.group(1) == "-" else 1
                 if m.group(2) != "":
-                    factor *= (
-                        float(m.group(2)) / float(m.group(3))
-                        if m.group(3) != ""
-                        else float(m.group(2))
-                    )
+                    factor *= float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
                 j = ord(m.group(4)) - 120
                 rot_matrix[i, j] = factor
             # build the translation vector
             for m in re_trans.finditer(tok):
                 factor = -1 if m.group(1) == "-" else 1
-                num = (
-                    float(m.group(2)) / float(m.group(3))
-                    if m.group(3) != ""
-                    else float(m.group(2))
-                )
+                num = float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
                 trans[i] = num * factor
         return SymmOp.from_rotation_and_translation(rot_matrix, trans)
 
@@ -498,9 +480,7 @@ class MagSymmOp(SymmOp):
         SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
         if time_reversal not in (-1, 1):
             raise Exception(
-                "Time reversal operator not well defined: {0}, {1}".format(
-                    time_reversal, type(time_reversal)
-                )
+                "Time reversal operator not well defined: {0}, {1}".format(time_reversal, type(time_reversal))
             )
         self.time_reversal = time_reversal
 
@@ -547,9 +527,7 @@ class MagSymmOp(SymmOp):
         magmom = Magmom(magmom)  # type casting to handle lists as input
 
         transformed_moment = (
-            self.apply_rotation_only(magmom.global_moment)
-            * np.linalg.det(self.rotation_matrix)
-            * self.time_reversal
+            self.apply_rotation_only(magmom.global_moment) * np.linalg.det(self.rotation_matrix) * self.time_reversal
         )
 
         # retains input spin axis if different from default

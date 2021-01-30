@@ -91,12 +91,7 @@ class Spectrum(MSONable):
         if len(self.ydim) == 1:
             self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
         else:
-            self.y = np.array(
-                [
-                    gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
-                    for k in range(self.ydim[1])
-                ]
-            ).T
+            self.y = np.array([gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step) for k in range(self.ydim[1])]).T
 
     def get_interpolated_value(self, x):
         """
@@ -110,10 +105,7 @@ class Spectrum(MSONable):
         """
         if len(self.ydim) == 1:
             return get_linear_interpolated_value(self.x, self.y, x)
-        return [
-            get_linear_interpolated_value(self.x, self.y[:, k], x)
-            for k in range(self.ydim[1])
-        ]
+        return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
     def copy(self):
         """
@@ -175,9 +167,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(
-            self.x, self.y.__truediv__(other), *self._args, **self._kwargs
-        )
+        return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
         """
@@ -188,9 +178,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(
-            self.x, self.y.__floordiv__(other), *self._args, **self._kwargs
-        )
+        return self.__class__(self.x, self.y.__floordiv__(other), *self._args, **self._kwargs)
 
     __div__ = __truediv__
 

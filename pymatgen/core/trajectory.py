@@ -137,14 +137,10 @@ class Trajectory(MSONable):
         Converts position coordinates of trajectory into displacements between consecutive frames
         """
         if not self.coords_are_displacement:
-            displacements = np.subtract(
-                self.frac_coords, np.roll(self.frac_coords, 1, axis=0)
-            )
+            displacements = np.subtract(self.frac_coords, np.roll(self.frac_coords, 1, axis=0))
             displacements[0] = np.zeros(np.shape(self.frac_coords[0]))
             # Deal with PBC
-            displacements = [
-                np.subtract(item, np.round(item)) for item in displacements
-            ]
+            displacements = [np.subtract(item, np.round(item)) for item in displacements]
 
             self.frac_coords = displacements
             self.coords_are_displacement = True
@@ -156,17 +152,10 @@ class Trajectory(MSONable):
             trajectory (Trajectory): Trajectory to add
         """
         if self.time_step != trajectory.time_step:
-            raise ValueError(
-                "Trajectory not extended: Time steps of trajectories is incompatible"
-            )
+            raise ValueError("Trajectory not extended: Time steps of trajectories is incompatible")
 
-        if (
-            len(self.species) != len(trajectory.species)
-            and self.species != trajectory.species
-        ):
-            raise ValueError(
-                "Trajectory not extended: species in trajectory do not match"
-            )
+        if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
+            raise ValueError("Trajectory not extended: species in trajectory do not match")
 
         # Ensure both trajectories are in positions before combining
         self.to_positions()
@@ -185,9 +174,7 @@ class Trajectory(MSONable):
             np.shape(trajectory.frac_coords)[0],
         )
 
-        self.frac_coords = np.concatenate(
-            (self.frac_coords, trajectory.frac_coords), axis=0
-        )
+        self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
         self.lattice, self.constant_lattice = self._combine_lattice(
             self.lattice,
             trajectory.lattice,
@@ -223,13 +210,9 @@ class Trajectory(MSONable):
                 return [self.frac_coords[i] for i in range(start, stop, step)]
             if isinstance(frames, (list, np.ndarray)):
                 # For list input, return a list of the displacements
-                pruned_frames = [
-                    i for i in frames if i < len(self)
-                ]  # Get rid of frames that exceed trajectory length
+                pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
                 if len(pruned_frames) < len(frames):
-                    warnings.warn(
-                        "Some or all selected frames exceed trajectory length"
-                    )
+                    warnings.warn("Some or all selected frames exceed trajectory length")
                 return [self.frac_coords[i] for i in pruned_frames]
             raise Exception("Given accessor is not of type int, slice, list, or array")
 
@@ -239,12 +222,8 @@ class Trajectory(MSONable):
                 raise ValueError("Selected frame exceeds trajectory length")
             # For integer input, return the structure at that timestep
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
-            site_properties = (
-                self.site_properties[frames] if self.site_properties else None
-            )
-            site_properties = (
-                self.site_properties[frames] if self.site_properties else None
-            )
+            site_properties = self.site_properties[frames] if self.site_properties else None
+            site_properties = self.site_properties[frames] if self.site_properties else None
             return Structure(
                 Lattice(lattice),
                 self.species,
@@ -256,11 +235,7 @@ class Trajectory(MSONable):
             # For slice input, return a trajectory of the sliced time
             start, stop, step = frames.indices(len(self))
             pruned_frames = range(start, stop, step)
-            lattice = (
-                self.lattice
-                if self.constant_lattice
-                else [self.lattice[i] for i in pruned_frames]
-            )
+            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
             frac_coords = [self.frac_coords[i] for i in pruned_frames]
             if self.site_properties is not None:
                 site_properties = [self.site_properties[i] for i in pruned_frames]
@@ -285,16 +260,10 @@ class Trajectory(MSONable):
             )
         if isinstance(frames, (list, np.ndarray)):
             # For list input, return a trajectory of the specified times
-            pruned_frames = [
-                i for i in frames if i < len(self)
-            ]  # Get rid of frames that exceed trajectory length
+            pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
             if len(pruned_frames) < len(frames):
                 warnings.warn("Some or all selected frames exceed trajectory length")
-            lattice = (
-                self.lattice
-                if self.constant_lattice
-                else [self.lattice[i] for i in pruned_frames]
-            )
+            lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
             frac_coords = [self.frac_coords[i] for i in pruned_frames]
             if self.site_properties is not None:
                 site_properties = [self.site_properties[i] for i in pruned_frames]
@@ -317,9 +286,7 @@ class Trajectory(MSONable):
                 coords_are_displacement=False,
                 base_positions=self.base_positions,
             )
-        raise Exception(
-            "Given accessor is not of type int, slice, tuple, list, or array"
-        )
+        raise Exception("Given accessor is not of type int, slice, tuple, list, or array")
 
     def copy(self):
         """
@@ -388,9 +355,7 @@ class Trajectory(MSONable):
         else:
             raise ValueError("Unsupported file")
 
-        return cls.from_structures(
-            structures, constant_lattice=constant_lattice, **kwargs
-        )
+        return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     def as_dict(self):
         """
@@ -424,12 +389,8 @@ class Trajectory(MSONable):
             attribute = np.concatenate((attr_1, attr_2), axis=0)
             attribute_constant = False
         else:
-            attribute = (
-                [attr_1.copy()] * len_1 if isinstance(attr_1, list) else attr_1.copy()
-            )
-            attribute.extend(
-                [attr_2.copy()] * len_2 if isinstance(attr_2, list) else attr_2.copy()
-            )
+            attribute = [attr_1.copy()] * len_1 if isinstance(attr_1, list) else attr_1.copy()
+            attribute.extend([attr_2.copy()] * len_2 if isinstance(attr_2, list) else attr_2.copy())
             attribute_constant = False
         return attribute, attribute_constant
 

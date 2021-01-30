@@ -169,9 +169,7 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     all_lengths = obtain_all_bond_lengths(sp1, sp2, default_bl)
     # Transform bond lengths dict to list assuming bond data is successive
     # and add an imaginary bond 0 length
-    lengths_list = [all_lengths[1] * (1 + tol)] + [
-        all_lengths[idx + 1] for idx in range(len(all_lengths))
-    ]
+    lengths_list = [all_lengths[1] * (1 + tol)] + [all_lengths[idx + 1] for idx in range(len(all_lengths))]
     trial_bond_order = 0
     while trial_bond_order < len(lengths_list):
         if lengths_list[trial_bond_order] < dist:
@@ -184,9 +182,7 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
     if dist < lengths_list[-1] * (1 - tol):  # too short
-        warnings.warn(
-            "%.2f angstrom distance is too short for %s and %s" % (dist, sp1, sp2)
-        )
+        warnings.warn("%.2f angstrom distance is too short for %s and %s" % (dist, sp1, sp2))
     # return the highest bond order
     return trial_bond_order - 1
 
