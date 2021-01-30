@@ -86,17 +86,13 @@ def coord_list_mapping(subset, superset, atol=1e-8):
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
-    inds = np.where(
-        np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol), axis=2)
-    )[1]
+    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :], atol=atol), axis=2))[1]
     result = c2[inds]
     if not np.allclose(c1, result, atol=atol):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
-        raise ValueError(
-            "Something wrong with the inputs, likely duplicates " "in superset"
-        )
+        raise ValueError("Something wrong with the inputs, likely duplicates " "in superset")
     return inds
 
 
@@ -307,9 +303,7 @@ def lattice_points_in_supercell(supercell_matrix):
 
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
-    tvects = frac_points[
-        np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)
-    ]
+    tvects = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
     assert len(tvects) == round(abs(np.linalg.det(supercell_matrix)))
     return tvects
 
