@@ -56,21 +56,13 @@ def _perform_grouping(args):
     unmatched = list(zip(entries, hosts))
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
-        logger.info(
-            "Reference tid = {}, formula = {}".format(
-                unmatched[0][0].entry_id, ref_host.formula
-            )
-        )
+        logger.info("Reference tid = {}, formula = {}".format(unmatched[0][0].entry_id, ref_host.formula))
         ref_formula = ref_host.composition.reduced_formula
         logger.info("Reference host = {}".format(ref_formula))
         matches = [unmatched[0]]
         for i in range(1, len(unmatched)):
             test_host = unmatched[i][1]
-            logger.info(
-                "Testing tid = {}, formula = {}".format(
-                    unmatched[i][0].entry_id, test_host.formula
-                )
-            )
+            logger.info("Testing tid = {}, formula = {}".format(unmatched[i][0].entry_id, test_host.formula))
             test_formula = test_host.composition.reduced_formula
             logger.info("Test host = {}".format(test_formula))
             m = StructureMatcher(
@@ -128,9 +120,7 @@ def group_entries_by_structure(
     """
     start = datetime.datetime.now()
     logger.info("Started at {}".format(start))
-    entries_host = [
-        (entry, _get_host(entry.structure, species_to_remove)) for entry in entries
-    ]
+    entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
         symm_entries = collections.defaultdict(list)
         for entry, host in entries_host:
@@ -189,9 +179,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     subsets, dumping into files, etc.
     """
 
-    def __init__(
-        self, entries: Iterable[Union[PDEntry, ComputedEntry, ComputedStructureEntry]]
-    ):
+    def __init__(self, entries: Iterable[Union[PDEntry, ComputedEntry, ComputedStructureEntry]]):
         """
         Args:
             entries: All the entries.
@@ -241,9 +229,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         """
         entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
         ground_states = set()
-        for _, g in itertools.groupby(
-            entries, key=lambda e: e.composition.reduced_formula
-        ):
+        for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
             ground_states.add(min(g, key=lambda e: e.energy_per_atom))
         self.entries = ground_states
 
@@ -301,11 +287,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         )
         writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
         for entry in self.entries:
-            row = [
-                entry.name
-                if not latexify_names
-                else re.sub(r"([0-9]+)", r"_{\1}", entry.name)
-            ]
+            row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
             row.extend([entry.composition[el] for el in elements])
             row.append(str(entry.energy))
             writer.writerow(row)

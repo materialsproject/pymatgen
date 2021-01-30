@@ -70,17 +70,12 @@ def test_composition_energy_adjustment():
 
 
 def test_temp_energy_adjustment():
-    ea = TemperatureEnergyAdjustment(
-        -0.1, 298, 5, uncertainty_per_deg=0, name="entropy"
-    )
+    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
     assert ea.temp == 298
-    assert (
-        ea.explain
-        == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
-    )
+    assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
     ead = ea.as_dict()
     ea2 = TemperatureEnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())
@@ -115,9 +110,7 @@ class ComputedEntryTest(unittest.TestCase):
 
     def test_per_atom_props(self):
         entry = ComputedEntry("Fe6O9", 6.9)
-        entry.energy_adjustments.append(
-            CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O")
-        )
+        entry.energy_adjustments.append(CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O"))
         self.assertAlmostEqual(entry.energy, 2.4)
         self.assertAlmostEqual(entry.energy_per_atom, 2.4 / 15)
         self.assertAlmostEqual(entry.uncorrected_energy, 6.9)
@@ -183,9 +176,7 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry6.as_dict()
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertEqual(
-            e.energy_adjustments[0].value, self.entry6.energy_adjustments[0].value
-        )
+        self.assertEqual(e.energy_adjustments[0].value, self.entry6.energy_adjustments[0].value)
 
     def test_to_from_dict_with_adjustment_2(self):
         """
@@ -194,9 +185,7 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry7.as_dict()
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertEqual(
-            e.energy_adjustments[0].value, self.entry7.energy_adjustments[0].value
-        )
+        self.assertEqual(e.energy_adjustments[0].value, self.entry7.energy_adjustments[0].value)
 
     def test_to_from_dict_with_adjustment_3(self):
         """
@@ -249,9 +238,7 @@ class ComputedEntryTest(unittest.TestCase):
 
 class ComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
-        self.entry = ComputedStructureEntry(
-            vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar
-        )
+        self.entry = ComputedStructureEntry(vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)

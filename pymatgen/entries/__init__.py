@@ -90,16 +90,12 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
-        return "{} : {} with energy = {:.4f}".format(
-            self.__class__.__name__, self.composition, self.energy
-        )
+        return "{} : {} with energy = {:.4f}".format(self.__class__.__name__, self.composition, self.energy)
 
     def __str__(self):
         return self.__repr__()
 
-    def normalize(
-        self, mode: str = "formula_unit", inplace: bool = True
-    ) -> Optional["Entry"]:
+    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["Entry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -129,9 +125,7 @@ class Entry(MSONable, metaclass=ABCMeta):
         elif mode == "formula_unit":
             factor = self.composition.get_reduced_composition_and_factor()[1]
         else:
-            raise ValueError(
-                "`{}` is not an allowed option for normalization".format(mode)
-            )
+            raise ValueError("`{}` is not an allowed option for normalization".format(mode))
 
         return factor
 
@@ -143,7 +137,7 @@ class Entry(MSONable, metaclass=ABCMeta):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "energy": self._energy,
-            "composition": self._composition.as_dict()
+            "composition": self._composition.as_dict(),
         }
 
     def __eq__(self, other):
@@ -171,11 +165,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __hash__(self):
         # NOTE truncate _energy to 8 dp to ensure same robustness
         # as np.allclose
-        return hash(
-            f"{self.__class__.__name__}"
-            f"{self._composition.formula}"
-            f"{self._energy:.8f}"
-        )
+        return hash(f"{self.__class__.__name__}" f"{self._composition.formula}" f"{self._energy:.8f}")
 
 
 def _is_robust_eq(v_self, v_other):
