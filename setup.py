@@ -113,10 +113,9 @@ setup(
     packages=find_packages(),
     version="2021.1.28",
     cmdclass={"build_ext": build_ext},
-    setup_requires=["numpy>=1.18.0", "setuptools>=43.0.0"],
     python_requires=">=3.6",
     install_requires=[
-        "numpy>=1.14.3",
+        "numpy>=1.18.0",
         "requests",
         "ruamel.yaml>=0.15.6",
         "monty>=3.0.2",
