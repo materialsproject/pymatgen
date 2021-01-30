@@ -78,18 +78,10 @@ class CoordUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(all_distances(coords1, coords2), result, 4)
 
     def test_pbc_diff(self):
-        self.assertArrayAlmostEqual(
-            pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2]
-        )
-        self.assertArrayAlmostEqual(
-            pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11]
-        )
-        self.assertArrayAlmostEqual(
-            pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11]
-        )
-        self.assertArrayAlmostEqual(
-            pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3]
-        )
+        self.assertArrayAlmostEqual(pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
+        self.assertArrayAlmostEqual(pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
+        self.assertArrayAlmostEqual(pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
+        self.assertArrayAlmostEqual(pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]

@@ -76,13 +76,9 @@ class Polymer:
         self.link_distance = link_distance
         self.linear_chain = linear_chain
         # translate monomers so that head atom is at the origin
-        start_monomer.translate_sites(
-            range(len(start_monomer)), -monomer.cart_coords[s_head]
-        )
+        start_monomer.translate_sites(range(len(start_monomer)), -monomer.cart_coords[s_head])
         monomer.translate_sites(range(len(monomer)), -monomer.cart_coords[head])
-        end_monomer.translate_sites(
-            range(len(end_monomer)), -monomer.cart_coords[e_head]
-        )
+        end_monomer.translate_sites(range(len(end_monomer)), -monomer.cart_coords[e_head])
         self.mon_vector = monomer.cart_coords[tail] - monomer.cart_coords[head]
         self.moves = {
             1: [1, 0, 0],
@@ -100,9 +96,7 @@ class Polymer:
         self._create(self.monomer, self.mon_vector)
         # terminate the chain with the end_monomer
         self.n_units += 1
-        end_mon_vector = (
-            end_monomer.cart_coords[e_tail] - end_monomer.cart_coords[e_head]
-        )
+        end_mon_vector = end_monomer.cart_coords[e_tail] - end_monomer.cart_coords[e_head]
         self._create(end_monomer, end_mon_vector)
         self.molecule = Molecule.from_sites(self.molecule.sites)
 
@@ -160,9 +154,7 @@ class Polymer:
             move_direction (numpy.array): direction along which the monomer
                 will be positioned
         """
-        translate_by = (
-            self.molecule.cart_coords[self.end] + self.link_distance * move_direction
-        )
+        translate_by = self.molecule.cart_coords[self.end] + self.link_distance * move_direction
         monomer.translate_sites(range(len(monomer)), translate_by)
         if not self.linear_chain:
             self._align_monomer(monomer, mon_vector, move_direction)
@@ -170,9 +162,7 @@ class Polymer:
         does_cross = False
         for i, site in enumerate(monomer):
             try:
-                self.molecule.append(
-                    site.specie, site.coords, properties=site.properties
-                )
+                self.molecule.append(site.specie, site.coords, properties=site.properties)
             except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
@@ -241,9 +231,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(
-                output_file.split(".")[0], self.control_params["filetype"]
-            )
+            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
         if self.boxit:
             self._set_box()
 
@@ -269,21 +257,11 @@ class PackmolRunner:
         """
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
-            length = (
-                max(
-                    [
-                        np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i])
-                        for i in range(3)
-                    ]
-                )
-                + 2.0
-            )
+            length = max([np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i]) for i in range(3)]) + 2.0
             net_volume += (length ** 3.0) * float(self.param_list[idx]["number"])
         length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
-            self.param_list[idx]["inside box"] = "0.0 0.0 0.0 {} {} {}".format(
-                length, length, length
-            )
+            self.param_list[idx]["inside box"] = "0.0 0.0 0.0 {} {} {}".format(length, length, length)
 
     def _write_input(self, input_dir="."):
         """
@@ -292,18 +270,14 @@ class PackmolRunner:
         Args:
             input_dir (string): path to the input directory
         """
-        with open(
-            os.path.join(input_dir, self.input_file), "wt", encoding="utf-8"
-        ) as inp:
+        with open(os.path.join(input_dir, self.input_file), "wt", encoding="utf-8") as inp:
             for k, v in self.control_params.items():
                 inp.write("{} {}\n".format(k, self._format_param_val(v)))
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
             # input file.
             for idx, mol in enumerate(self.mols):
-                filename = os.path.join(
-                    input_dir, "{}.{}".format(idx, self.control_params["filetype"])
-                )
+                filename = os.path.join(input_dir, "{}.{}".format(idx, self.control_params["filetype"]))
                 # pdb
                 if self.control_params["filetype"] == "pdb":
                     self.write_pdb(mol, filename, num=idx + 1)
@@ -343,25 +317,15 @@ class PackmolRunner:
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
             with open(os.path.join(scratch_dir, self.input_file), "r") as packmol_input:
-                with Popen(
-                    self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE
-                ) as p:
+                with Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as p:
                     (stdout, stderr) = p.communicate()
             output_file = os.path.join(self.control_params["output"])
             if os.path.isfile(output_file):
-                packed_mol = BabelMolAdaptor.from_file(
-                    output_file, self.control_params["filetype"]
-                )
+                packed_mol = BabelMolAdaptor.from_file(output_file, self.control_params["filetype"])
                 packed_mol = packed_mol.pymatgen_mol
-                print(
-                    "packed molecule written to {}".format(
-                        self.control_params["output"]
-                    )
-                )
+                print("packed molecule written to {}".format(self.control_params["output"]))
                 if site_property:
-                    packed_mol = self.restore_site_properties(
-                        site_property=site_property, filename=output_file
-                    )
+                    packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
             raise RuntimeError("Packmol execution failed. %s\n%s" % (stdout, stderr))
 
@@ -401,9 +365,7 @@ class PackmolRunner:
                 lookup[mol.formula] = mol.copy()
             self.map_residue_to_mol["ml{}".format(idx + 1)] = lookup[mol.formula]
 
-    def convert_obatoms_to_molecule(
-        self, atoms, residue_name=None, site_property="ff_map"
-    ):
+    def convert_obatoms_to_molecule(self, atoms, residue_name=None, site_property="ff_map"):
         """
         Convert list of openbabel atoms to MOlecule.
 
@@ -478,9 +440,7 @@ class PackmolRunner:
         )
 
         for resid in pbm.residues[1:]:
-            mol = self.convert_obatoms_to_molecule(
-                resid.atoms, residue_name=resid.name, site_property=site_property
-            )
+            mol = self.convert_obatoms_to_molecule(resid.atoms, residue_name=resid.name, site_property=site_property)
             for site in mol:
                 packed_mol.append(site.species, site.coords, properties=site.properties)
 
@@ -504,9 +464,7 @@ class LammpsRunner:
                 "LammpsRunner requires the executable {} to be in the path. "
                 "Please download and install LAMMPS from "
                 "http://lammps.sandia.gov. "
-                "Don't forget to add the binary to your path".format(
-                    self.lammps_bin[-1]
-                )
+                "Don't forget to add the binary to your path".format(self.lammps_bin[-1])
             )
         self.input_filename = input_filename
 

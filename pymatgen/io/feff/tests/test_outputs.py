@@ -24,9 +24,7 @@ class FeffLdosTest(unittest.TestCase):
 
     def test_init(self):
         efermi = FeffLdosTest.l.complete_dos.efermi
-        self.assertEqual(
-            efermi, -11.430, "Did not read correct Fermi energy from ldos file"
-        )
+        self.assertEqual(efermi, -11.430, "Did not read correct Fermi energy from ldos file")
 
     def test_complete_dos(self):
         complete_dos = FeffLdosTest.l.complete_dos
@@ -44,9 +42,7 @@ class FeffLdosTest(unittest.TestCase):
 
     def test_reci_init(self):
         efermi = FeffLdosTest.reci_dos.complete_dos.efermi
-        self.assertEqual(
-            efermi, -9.672, "Did not read correct Fermi energy from ldos file"
-        )
+        self.assertEqual(efermi, -9.672, "Did not read correct Fermi energy from ldos file")
 
     def test_reci_complete_dos(self):
         complete_dos = FeffLdosTest.reci_dos.complete_dos

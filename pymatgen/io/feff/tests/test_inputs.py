@@ -66,9 +66,7 @@ class HeaderTest(unittest.TestCase):
         header = Header.from_file(file_name)
         d = header.as_dict()
         header2 = Header.from_dict(d)
-        self.assertEqual(
-            str(header), str(header2), "Header failed to and from dict test"
-        )
+        self.assertEqual(str(header), str(header2), "Header failed to and from dict test")
 
 
 class FeffAtomsTest(unittest.TestCase):
@@ -112,9 +110,7 @@ class FeffAtomsTest(unittest.TestCase):
     def test_atoms_from_file(self):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "ATOMS")
         atoms = Atoms.atoms_string_from_file(filepath)
-        self.assertEqual(
-            atoms.splitlines()[3].split()[4], "O", "failed to read ATOMS file"
-        )
+        self.assertEqual(atoms.splitlines()[3].split()[4], "O", "failed to read ATOMS file")
 
     def test_get_string(self):
         header = Header.from_string(header_string)
@@ -151,12 +147,8 @@ class FeffTagsTest(unittest.TestCase):
         filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS")
         parameters = Tags.from_file(filepath)
         parameters["RPATH"] = 10
-        self.assertEqual(
-            parameters["COREHOLE"], "Fsr", "Failed to read PARAMETERS file"
-        )
-        self.assertEqual(
-            parameters["LDOS"], [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file"
-        )
+        self.assertEqual(parameters["COREHOLE"], "Fsr", "Failed to read PARAMETERS file")
+        self.assertEqual(parameters["LDOS"], [-30.0, 15.0, 0.1], "Failed to read PARAMETERS file")
 
     def test_diff(self):
         filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "PARAMETERS")
@@ -232,9 +224,7 @@ class FeffPotTest(unittest.TestCase):
         pot = Potential(struct, "O")
         d = pot.as_dict()
         pot2 = Potential.from_dict(d)
-        self.assertEqual(
-            str(pot), str(pot2), "Potential to and from dict does not match"
-        )
+        self.assertEqual(str(pot), str(pot2), "Potential to and from dict does not match")
 
 
 class PathsTest(unittest.TestCase):

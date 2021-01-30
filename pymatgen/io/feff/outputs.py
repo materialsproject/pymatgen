@@ -133,10 +133,7 @@ class LDos(MSONable):
 
         pdos = all_pdos
         vorb2 = {0: Orbital.s, 1: Orbital.py, 2: Orbital.dxy, 3: Orbital.f0}
-        pdoss = {
-            structure[i]: {v: pdos[i][v] for v in vorb2.values()}
-            for i in range(len(pdos))
-        }
+        pdoss = {structure[i]: {v: pdos[i][v] for v in vorb2.values()} for i in range(len(pdos))}
 
         forb = {"s": 0, "p": 1, "d": 2, "f": 3}
 
@@ -217,9 +214,7 @@ class LDos(MSONable):
                     d = float(f[5].split()[2])
                     f1 = float(f[6].split()[2])
                     tot = float(f[1].split()[4])
-                    cht[str(i)] = {
-                        pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}
-                    }
+                    cht[str(i)] = {pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
             else:
                 with zopen(ldos_file + str(i) + ".dat", "rt") as fid:
                     f = fid.readlines()
@@ -228,9 +223,7 @@ class LDos(MSONable):
                     d = float(f[5].split()[2])
                     f1 = float(f[6].split()[2])
                     tot = float(f[1].split()[4])
-                    cht[str(i)] = {
-                        pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}
-                    }
+                    cht[str(i)] = {pot_dict[i]: {"s": s, "p": p, "d": d, "f": f1, "tot": tot}}
 
         return cht
 

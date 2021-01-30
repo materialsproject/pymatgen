@@ -55,9 +55,7 @@ class FuncTest(unittest.TestCase):
         abc = "a,b,c"
         self.assertEqual(s, transformation_to_string(m, t))
         self.assertEqual(ms, transformation_to_string(m, t, c="m"))
-        self.assertEqual(
-            abc, transformation_to_string(m, t, components=("a", "b", "c"))
-        )
+        self.assertEqual(abc, transformation_to_string(m, t, components=("a", "b", "c")))
 
         m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
         t = [11, 12, 13]

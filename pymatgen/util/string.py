@@ -27,9 +27,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     returnstr = ""
     if header is not None:
         returnstr += delimiter.join(header) + "\n"
-    return returnstr + "\n".join(
-        [delimiter.join([str(m) for m in result]) for result in results]
-    )
+    return returnstr + "\n".join([delimiter.join([str(m) for m in result]) for result in results])
 
 
 def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
@@ -222,9 +220,7 @@ def stream_has_colours(stream):
         return False  # guess false in case of error
 
 
-def transformation_to_string(
-    matrix, translation_vec=(0, 0, 0), components=("x", "y", "z"), c="", delim=","
-):
+def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x", "y", "z"), c="", delim=","):
     """
     Convenience method. Given matrix returns string, e.g. x+2y+1/4
     :param matrix
@@ -252,9 +248,7 @@ def transformation_to_string(
                 if f.denominator != 1:
                     s += "/" + str(f.denominator)
         if t != 0:
-            s += ("+" if (t > 0 and s != "") else "") + str(
-                Fraction(t).limit_denominator()
-            )
+            s += ("+" if (t > 0 and s != "") else "") + str(Fraction(t).limit_denominator())
         if s == "":
             s += "0"
         parts.append(s)
@@ -289,20 +283,14 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     from pymatgen.core.periodic_table import get_el_sp
 
     if disordered_struct.is_ordered:
-        raise ValueError(
-            "Structure is not disordered, " "so disordered formula not defined."
-        )
+        raise ValueError("Structure is not disordered, " "so disordered formula not defined.")
 
-    disordered_site_compositions = {
-        site.species for site in disordered_struct if not site.is_ordered
-    }
+    disordered_site_compositions = {site.species for site in disordered_struct if not site.is_ordered}
 
     if len(disordered_site_compositions) > 1:
         # this probably won't happen too often
         raise ValueError(
-            "Ambiguous how to define disordered "
-            "formula when more than one type of disordered "
-            "site is present."
+            "Ambiguous how to define disordered " "formula when more than one type of disordered " "site is present."
         )
     disordered_site_composition = disordered_site_compositions.pop()
 
@@ -310,10 +298,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
 
     if len(disordered_species) > len(symbols):
         # this probably won't happen too often either
-        raise ValueError(
-            "Not enough symbols to describe disordered composition: "
-            "{}".format(symbols)
-        )
+        raise ValueError("Not enough symbols to describe disordered composition: " "{}".format(symbols))
     symbols = list(symbols)[0 : len(disordered_species) - 1]
 
     comp = disordered_struct.composition.get_el_amt_dict().items()
@@ -323,9 +308,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     disordered_comp = []
     variable_map = {}
 
-    total_disordered_occu = sum(
-        [occu for sp, occu in comp if str(sp) in disordered_species]
-    )
+    total_disordered_occu = sum([occu for sp, occu in comp if str(sp) in disordered_species])
 
     # composition to get common factor
     factor_comp = disordered_struct.composition.as_dict()
@@ -360,9 +343,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
         sub_start = "<sub>"
         sub_end = "</sub>"
     elif fmt != "plain":
-        raise ValueError(
-            "Unsupported output format, " "choose from: LaTeX, HTML, plain"
-        )
+        raise ValueError("Unsupported output format, " "choose from: LaTeX, HTML, plain")
 
     disordered_formula = []
     for sp, occu in disordered_comp:
@@ -374,9 +355,7 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
             if fmt != "plain":
                 disordered_formula.append(sub_end)
     disordered_formula.append(" ")
-    disordered_formula += [
-        "{}={} ".format(k, formula_double_format(v)) for k, v in variable_map.items()
-    ]
+    disordered_formula += ["{}={} ".format(k, formula_double_format(v)) for k, v in variable_map.items()]
 
     comp = disordered_struct.composition
 
