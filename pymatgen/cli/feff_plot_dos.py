@@ -42,9 +42,7 @@ def main():
         nargs=1,
         help="ldos%% file set to plot",
     )
-    parser.add_argument(
-        "filename1", metavar="filename1", type=str, nargs=1, help="feff.inp input file "
-    )
+    parser.add_argument("filename1", metavar="filename1", type=str, nargs=1, help="feff.inp input file ")
     parser.add_argument(
         "-s",
         "--site",
@@ -81,9 +79,7 @@ def main():
 
     if args.site:
         for i, site in enumerate(structure):
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(
-                site
-            )
+            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
     if args.element:
         all_dos.update(dos.get_element_dos())
     if args.orbital:

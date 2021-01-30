@@ -35,32 +35,22 @@ class EnumlibAdaptorTest(PymatgenTest):
             structures = adaptor.structures
             self.assertEqual(len(structures), 86)
             for s in structures:
-                self.assertAlmostEqual(
-                    s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5
-                )
-            adaptor = EnumlibAdaptor(
-                subtrans.apply_transformation(struct), 1, 2, refine_structure=True
-            )
+                self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
+            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2, refine_structure=True)
             adaptor.run()
             structures = adaptor.structures
             self.assertEqual(len(structures), 52)
 
             subtrans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-            adaptor = EnumlibAdaptor(
-                subtrans.apply_transformation(struct), 1, 1, refine_structure=True
-            )
+            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1, refine_structure=True)
             adaptor.run()
             structures = adaptor.structures
             self.assertEqual(len(structures), 1)
             for s in structures:
-                self.assertAlmostEqual(
-                    s.composition.get_atomic_fraction(Element("Li")), 0.25 / 6.25
-                )
+                self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.25 / 6.25)
 
             # Make sure it works for completely disordered structures.
-            struct = Structure(
-                [[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{"Fe": 0.5}], [[0, 0, 0]]
-            )
+            struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{"Fe": 0.5}], [[0, 0, 0]])
             adaptor = EnumlibAdaptor(struct, 1, 2)
             adaptor.run()
             self.assertEqual(len(adaptor.structures), 3)
@@ -139,9 +129,7 @@ class EnumlibAdaptorTest(PymatgenTest):
         s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
         a = SpacegroupAnalyzer(s, 0.1)
         s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(
-            s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001
-        )
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
         self.assertRaises(TimeoutError, adaptor._run_multienum)
 
 

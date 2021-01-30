@@ -86,9 +86,7 @@ class VoltageProfilePlotter:
                 x.append(sub_electrode.voltage_pairs[0].frac_charge)
                 x.append(sub_electrode.voltage_pairs[0].frac_discharge)
             else:
-                raise NotImplementedError(
-                    "x_axis must be capacity_grav/capacity_vol/x_form/frac_x"
-                )
+                raise NotImplementedError("x_axis must be capacity_grav/capacity_vol/x_form/frac_x")
             y.extend([sub_electrode.get_average_voltage()] * 2)
 
         if term_zero:
@@ -144,11 +142,7 @@ class VoltageProfilePlotter:
         Returns:
 
         """
-        font_dict = (
-            dict(family="Arial", size=24, color="#000000")
-            if font_dict is None
-            else font_dict
-        )
+        font_dict = dict(family="Arial", size=24, color="#000000") if font_dict is None else font_dict
         hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
@@ -167,11 +161,7 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis=dict(
-                    title=self._choose_best_x_lable(
-                        formula=formula, wion_symbol=wion_symbol
-                    )
-                ),
+                xaxis=dict(title=self._choose_best_x_lable(formula=formula, wion_symbol=wion_symbol)),
                 yaxis=dict(title="Voltage (V)"),
                 **kwargs,
             ),

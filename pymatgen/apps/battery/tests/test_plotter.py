@@ -27,9 +27,7 @@ class VoltageProfilePlotterTest(unittest.TestCase):
 
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "FeF3_batt.json"), "r") as fid:
             entries = json.load(fid, cls=MontyDecoder)
-            self.ce_FF = ConversionElectrode.from_composition_and_entries(
-                Composition("FeF3"), entries
-            )
+            self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 
     def testName(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")

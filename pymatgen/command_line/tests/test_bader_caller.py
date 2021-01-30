@@ -56,9 +56,7 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertEqual(len(analysis.data), 14)
 
         # Test Cube file format parsing
-        analysis = BaderAnalysis(
-            cube_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "bader/elec.cube.gz")
-        )
+        analysis = BaderAnalysis(cube_filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "bader/elec.cube.gz"))
         self.assertEqual(len(analysis.data), 9)
 
     def test_from_path(self):

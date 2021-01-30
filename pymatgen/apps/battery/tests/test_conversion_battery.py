@@ -65,9 +65,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             c = self.conversion_eletrodes[f]["CE"]
 
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
-            self.assertEqual(
-                len(c.get_sub_electrodes(False)), sum(range(1, c.num_steps + 1))
-            )
+            self.assertEqual(len(c.get_sub_electrodes(False)), sum(range(1, c.num_steps + 1)))
             self.assertIsNotNone(str(c))
             p = self.expected_properties[f]
 

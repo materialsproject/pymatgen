@@ -58,9 +58,7 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(1, 3), 154.374325225, 3)
 
         # test alternate normalization option
-        self.assertAlmostEqual(
-            self.ie_LTO.get_capacity_grav(1, 3, False), 160.803169506, 3
-        )
+        self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(1, 3, False), 160.803169506, 3)
         self.assertIsNotNone(self.ie_LTO.get_summary_dict(True))
 
         self.assertAlmostEqual(self.ie_MVO.get_capacity_grav(), 281.845548242, 3)
@@ -120,13 +118,9 @@ class InsertionElectrodeTest(unittest.TestCase):
         d = self.ie_CMO.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
-        self.assertAlmostEqual(
-            d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
-        )
+        self.assertAlmostEqual(d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875)
 
-        self.assertAlmostEqual(
-            d["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
-        )
+        self.assertAlmostEqual(d["adj_pairs"][0]["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875)
         self.assertAlmostEqual(d["framework_formula"], "MoO2")
         self.assertAlmostEqual(d["adj_pairs"][1]["framework_formula"], "MoO2")
 
@@ -140,22 +134,14 @@ class InsertionElectrodeTest(unittest.TestCase):
                 ents.append(ent)
             return ents
 
-        ie_CMO_no_struct = InsertionElectrode.from_entries(
-            remove_structure(self.entries_CMO), self.entry_Ca
-        )
+        ie_CMO_no_struct = InsertionElectrode.from_entries(remove_structure(self.entries_CMO), self.entry_Ca)
         d = ie_CMO_no_struct.get_summary_dict()
         self.assertAlmostEqual(d["stability_charge"], 0.2346574583333325)
         self.assertAlmostEqual(d["stability_discharge"], 0.33379544031249786)
-        self.assertAlmostEqual(
-            d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875
-        )
+        self.assertAlmostEqual(d["muO2_data"]["mp-714969"][0]["chempot"], -4.93552791875)
 
-        ie_LTO_no_struct = InsertionElectrode.from_entries(
-            self.entries_LTO, self.entry_Li, strip_structures=True
-        )
-        vols_no_struct = [
-            ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()
-        ]
+        ie_LTO_no_struct = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li, strip_structures=True)
+        vols_no_struct = [ient.data["volume"] for ient in ie_LTO_no_struct.get_all_entries()]
         vols_struct = [ient.structure.volume for ient in self.ie_LTO.get_all_entries()]
         self.assertAlmostEqual(vols_no_struct, vols_struct)
 
