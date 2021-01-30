@@ -311,7 +311,7 @@ class CorrectionCalculator:
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
-        abs_errors = [abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))]
+        abs_errors = [abs(i) for i in self.diffs - np.dot(self.coeff_mat, self.corrections)]
         labels_graph = self.names.copy()
         abs_errors, labels_graph = (list(t) for t in zip(*sorted(zip(abs_errors, labels_graph))))  # sort by error
 
@@ -357,7 +357,7 @@ class CorrectionCalculator:
         if len(self.corrections) == 0:
             raise RuntimeError("Please call compute_corrections or compute_from_files to calculate corrections first")
 
-        abs_errors = [abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))]
+        abs_errors = [abs(i) for i in self.diffs - np.dot(self.coeff_mat, self.corrections)]
         labels_species = self.names.copy()
         diffs_cpy = self.diffs.copy()
         num = len(labels_species)
