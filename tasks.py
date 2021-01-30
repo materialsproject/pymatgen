@@ -4,17 +4,18 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 Author: Shyue Ping Ong
 """
 
-from invoke import task
+import datetime
 import glob
-import os
 import json
-import webbrowser
-import requests
+import os
 import re
 import subprocess
-import datetime
+import webbrowser
 
+import requests
+from invoke import task
 from monty.os import cd
+
 from pymatgen import __version__ as CURRENT_VER
 
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
