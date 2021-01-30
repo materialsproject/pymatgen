@@ -70,9 +70,7 @@ class JonesFaithfulTransformation:
         :param p: origin shift vector
         :return:
         """
-        P, p = JonesFaithfulTransformation.parse_transformation_string(
-            transformation_string
-        )
+        P, p = JonesFaithfulTransformation.parse_transformation_string(transformation_string)
         return cls(P, p)
 
     @classmethod
@@ -113,12 +111,7 @@ class JonesFaithfulTransformation:
             # reasons
             # see http://lybniz2.sourceforge.net/safeeval.html
             # could replace with regex? or sympy expression?
-            P = np.array(
-                [
-                    eval(x, {"__builtins__": None}, {"a": a, "b": b, "c": c})
-                    for x in basis_change
-                ]
-            )
+            P = np.array([eval(x, {"__builtins__": None}, {"a": a, "b": b, "c": c}) for x in basis_change])
             P = P.transpose()  # by convention
             p = [float(Fraction(x)) for x in origin_shift]
             return (P, p)
@@ -163,9 +156,7 @@ class JonesFaithfulTransformation:
         p_string = transformation_to_string(np.zeros((3, 3)), p)
         return P_string + ";" + p_string
 
-    def transform_symmop(
-        self, symmop: Union[SymmOp, MagSymmOp]
-    ) -> Union[SymmOp, MagSymmOp]:
+    def transform_symmop(self, symmop: Union[SymmOp, MagSymmOp]) -> Union[SymmOp, MagSymmOp]:
         """
         Takes a symmetry operation and transforms it.
         :param symmop: SymmOp or MagSymmOp
@@ -186,9 +177,7 @@ class JonesFaithfulTransformation:
                 tol=symmop.tol,
             )
         if isinstance(symmop, SymmOp):
-            return SymmOp.from_rotation_and_translation(
-                rotation_matrix=W_, translation_vec=w_, tol=symmop.tol
-            )
+            return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
         raise RuntimeError
 
     def transform_coords(self, coords: List[List[float]]) -> List[List[float]]:
@@ -221,6 +210,4 @@ class JonesFaithfulTransformation:
         return str(JonesFaithfulTransformation.transformation_string)
 
     def __repr__(self):
-        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(
-            self.P, self.p
-        )
+        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(self.P, self.p)
