@@ -74,16 +74,8 @@ class DOS(Spectrum):
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.x
-        below_fermi = [
-            i
-            for i in range(len(energies))
-            if energies[i] < self.efermi and tdos[i] > tol
-        ]
-        above_fermi = [
-            i
-            for i in range(len(energies))
-            if energies[i] > self.efermi and tdos[i] > tol
-        ]
+        below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
+        above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
         if vbm_start == cbm_start:
@@ -161,21 +153,15 @@ class DOS(Spectrum):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = [
-                "#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")
-            ]
+            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
             for i, energy in enumerate(self.energies):
                 stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(
-                        energy, self.densities[Spin.up][i], self.densities[Spin.down][i]
-                    )
+                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
                 )
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    "{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i])
-                )
+                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
         return "\n".join(stringarray)
 
 
@@ -246,10 +232,7 @@ class Dos(MSONable):
         from scipy.ndimage.filters import gaussian_filter1d
 
         smeared_dens = {}
-        diff = [
-            self.energies[i + 1] - self.energies[i]
-            for i in range(len(self.energies) - 1)
-        ]
+        diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
         avgdiff = sum(diff) / len(diff)
         for spin, dens in self.densities.items():
             smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
@@ -268,10 +251,7 @@ class Dos(MSONable):
         """
         if not all(np.equal(self.energies, other.energies)):
             raise ValueError("Energies of both DOS are not compatible!")
-        densities = {
-            spin: self.densities[spin] + other.densities[spin]
-            for spin in self.densities.keys()
-        }
+        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities.keys()}
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy):
@@ -283,9 +263,7 @@ class Dos(MSONable):
         """
         f = {}
         for spin in self.densities.keys():
-            f[spin] = get_linear_interpolated_value(
-                self.energies, self.densities[spin], energy
-            )
+            f[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return f
 
     def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
@@ -309,16 +287,8 @@ class Dos(MSONable):
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.energies
-        below_fermi = [
-            i
-            for i in range(len(energies))
-            if energies[i] < self.efermi and tdos[i] > tol
-        ]
-        above_fermi = [
-            i
-            for i in range(len(energies))
-            if energies[i] > self.efermi and tdos[i] > tol
-        ]
+        below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
+        above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
         if vbm_start == cbm_start:
@@ -391,21 +361,15 @@ class Dos(MSONable):
         Returns a string which can be easily plotted (using gnuplot).
         """
         if Spin.down in self.densities:
-            stringarray = [
-                "#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")
-            ]
+            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy", "DensityUp", "DensityDown")]
             for i, energy in enumerate(self.energies):
                 stringarray.append(
-                    "{:.5f} {:.5f} {:.5f}".format(
-                        energy, self.densities[Spin.up][i], self.densities[Spin.down][i]
-                    )
+                    "{:.5f} {:.5f} {:.5f}".format(energy, self.densities[Spin.up][i], self.densities[Spin.down][i])
                 )
         else:
             stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
             for i, energy in enumerate(self.energies):
-                stringarray.append(
-                    "{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i])
-                )
+                stringarray.append("{:.5f} {:.5f}".format(energy, self.densities[Spin.up][i]))
         return "\n".join(stringarray)
 
     @classmethod
@@ -428,9 +392,7 @@ class Dos(MSONable):
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
             "energies": list(self.energies),
-            "densities": {
-                str(spin): list(dens) for spin, dens in self.densities.items()
-            },
+            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
         }
 
 
@@ -472,9 +434,7 @@ class FermiDos(Dos, MSONable):
             if hasattr(dos, "structure"):
                 structure = dos.structure
             else:
-                raise ValueError(
-                    "Structure object is not provided and not " "present in dos"
-                )
+                raise ValueError("Structure object is not provided and not " "present in dos")
 
         self.structure = structure
         self.nelecs = nelecs or self.structure.composition.total_electrons
@@ -485,9 +445,7 @@ class FermiDos(Dos, MSONable):
 
         # normalize total density of states based on integral at 0K
         tdos = np.array(self.get_densities())
-        self.tdos = (
-            tdos * self.nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
-        )
+        self.tdos = tdos * self.nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
 
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = np.argmin(abs(self.energies - evbm))
@@ -541,12 +499,7 @@ class FermiDos(Dos, MSONable):
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm ** 3)
 
     def get_fermi_interextrapolated(
-        self,
-        concentration: float,
-        temperature: float,
-        warn: bool = True,
-        c_ref: float = 1e10,
-        **kwargs
+        self, concentration: float, temperature: float, warn: bool = True, c_ref: float = 1e10, **kwargs
     ) -> float:
         """
         Similar to get_fermi except that when get_fermi fails to converge,
@@ -581,34 +534,20 @@ class FermiDos(Dos, MSONable):
                 # max(10, ) is to avoid log(0<x<1) and log(1+x) both of which
                 # are slow
                 f2 = self.get_fermi_interextrapolated(
-                    max(10, abs(concentration) * 10.0),
-                    temperature,
-                    warn=False,
-                    **kwargs
+                    max(10, abs(concentration) * 10.0), temperature, warn=False, **kwargs
                 )
                 f1 = self.get_fermi_interextrapolated(
-                    -max(10, abs(concentration) * 10.0),
-                    temperature,
-                    warn=False,
-                    **kwargs
+                    -max(10, abs(concentration) * 10.0), temperature, warn=False, **kwargs
                 )
                 c2 = np.log(abs(1 + self.get_doping(f2, temperature)))
                 c1 = -np.log(abs(1 + self.get_doping(f1, temperature)))
                 slope = (f2 - f1) / (c2 - c1)
-                return f2 + slope * (
-                    np.sign(concentration) * np.log(abs(1 + concentration)) - c2
-                )
+                return f2 + slope * (np.sign(concentration) * np.log(abs(1 + concentration)) - c2)
 
-            f_ref = self.get_fermi_interextrapolated(
-                np.sign(concentration) * c_ref, temperature, warn=False, **kwargs
-            )
-            f_new = self.get_fermi_interextrapolated(
-                concentration / 10.0, temperature, warn=False, **kwargs
-            )
+            f_ref = self.get_fermi_interextrapolated(np.sign(concentration) * c_ref, temperature, warn=False, **kwargs)
+            f_new = self.get_fermi_interextrapolated(concentration / 10.0, temperature, warn=False, **kwargs)
             clog = np.sign(concentration) * np.log(abs(concentration))
-            c_newlog = np.sign(concentration) * np.log(
-                abs(self.get_doping(f_new, temperature))
-            )
+            c_newlog = np.sign(concentration) * np.log(abs(self.get_doping(f_new, temperature)))
             slope = (f_new - f_ref) / (c_newlog - np.sign(concentration) * 10.0)
             return f_new + slope * (clog - c_newlog)
 
@@ -651,11 +590,7 @@ class FermiDos(Dos, MSONable):
             step /= 10.0
 
         if min(relative_error) > rtol:
-            raise ValueError(
-                "Could not find fermi within {}% of concentration={}".format(
-                    rtol * 100, concentration
-                )
-            )
+            raise ValueError("Could not find fermi within {}% of concentration={}".format(rtol * 100, concentration))
         return fermi
 
     @classmethod
@@ -668,9 +603,7 @@ class FermiDos(Dos, MSONable):
             d["energies"],
             {Spin(int(k)): v for k, v in d["densities"].items()},
         )
-        return FermiDos(
-            dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"]
-        )
+        return FermiDos(dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"])
 
     def as_dict(self):
         """
@@ -681,9 +614,7 @@ class FermiDos(Dos, MSONable):
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
             "energies": list(self.energies),
-            "densities": {
-                str(spin): list(dens) for spin, dens in self.densities.items()
-            },
+            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
             "structure": self.structure,
             "nelecs": self.nelecs,
         }
@@ -764,10 +695,7 @@ class CompleteDos(Dos):
                 spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
             else:
                 spd_dos[orbital_type] = pdos
-        return {
-            orb: Dos(self.efermi, self.energies, densities)
-            for orb, densities in spd_dos.items()
-        }
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
     def get_site_t2g_eg_resolved_dos(self, site):
         """
@@ -790,12 +718,8 @@ class CompleteDos(Dos):
                     elif orb in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {
-            "t2g": Dos(
-                self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)
-            ),
-            "e_g": Dos(
-                self.efermi, self.energies, functools.reduce(add_densities, eg_dos)
-            ),
+            "t2g": Dos(self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)),
+            "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
     def get_spd_dos(self):
@@ -813,10 +737,7 @@ class CompleteDos(Dos):
                     spd_dos[orbital_type] = pdos
                 else:
                     spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
-        return {
-            orb: Dos(self.efermi, self.energies, densities)
-            for orb, densities in spd_dos.items()
-        }
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
     def get_element_dos(self):
         """
@@ -834,10 +755,7 @@ class CompleteDos(Dos):
                     el_dos[el] = pdos
                 else:
                     el_dos[el] = add_densities(el_dos[el], pdos)
-        return {
-            el: Dos(self.efermi, self.energies, densities)
-            for el, densities in el_dos.items()
-        }
+        return {el: Dos(self.efermi, self.energies, densities) for el, densities in el_dos.items()}
 
     def get_element_spd_dos(self, el):
         """
@@ -860,10 +778,7 @@ class CompleteDos(Dos):
                     else:
                         el_dos[orbital_type] = add_densities(el_dos[orbital_type], pdos)
 
-        return {
-            orb: Dos(self.efermi, self.energies, densities)
-            for orb, densities in el_dos.items()
-        }
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}
 
     @property
     def spin_polarization(self):
@@ -917,27 +832,17 @@ class CompleteDos(Dos):
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
             "energies": list(self.energies),
-            "densities": {
-                str(spin): list(dens) for spin, dens in self.densities.items()
-            },
+            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
             "pdos": [],
         }
         if len(self.pdos) > 0:
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {
-                        "densities": {
-                            str(int(spin)): list(dens) for spin, dens in pdos.items()
-                        }
-                    }
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}
                 d["pdos"].append(dd)
-            d["atom_dos"] = {
-                str(at): dos.as_dict() for at, dos in self.get_element_dos().items()
-            }
-            d["spd_dos"] = {
-                str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()
-            }
+            d["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
+            d["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
         return d
 
     def __str__(self):
@@ -1009,12 +914,8 @@ class LobsterCompleteDos(CompleteDos):
                     elif _get_orb_lobster(orb) in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {
-            "t2g": Dos(
-                self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)
-            ),
-            "e_g": Dos(
-                self.efermi, self.energies, functools.reduce(add_densities, eg_dos)
-            ),
+            "t2g": Dos(self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)),
+            "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
     def get_spd_dos(self):
@@ -1035,10 +936,7 @@ class LobsterCompleteDos(CompleteDos):
                 else:
                     spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
 
-        return {
-            orb: Dos(self.efermi, self.energies, densities)
-            for orb, densities in spd_dos.items()
-        }
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
     def get_element_spd_dos(self, el):
         """
@@ -1062,10 +960,7 @@ class LobsterCompleteDos(CompleteDos):
                     else:
                         el_dos[orbital_type] = add_densities(el_dos[orbital_type], pdos)
 
-        return {
-            orb: Dos(self.efermi, self.energies, densities)
-            for orb, densities in el_dos.items()
-        }
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}
 
     @classmethod
     def from_dict(cls, d):
@@ -1096,10 +991,7 @@ def add_densities(density1, density2):
     Returns:
         Dict of {spin: density}.
     """
-    return {
-        spin: np.array(density1[spin]) + np.array(density2[spin])
-        for spin in density1.keys()
-    }
+    return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1.keys()}
 
 
 def _get_orb_type(orb):

@@ -266,8 +266,7 @@ class BoltztrapRunner(MSONable):
                     eigs = []
                     eigs.append(
                         Energy(
-                            self._bs.bands[Spin(self.spin)][self.band_nb][i]
-                            - self._bs.efermi,
+                            self._bs.bands[Spin(self.spin)][self.band_nb][i] - self._bs.efermi,
                             "eV",
                         ).to("Ry")
                     )
@@ -295,9 +294,7 @@ class BoltztrapRunner(MSONable):
                         # use 90% of bottom bands since highest eigenvalues
                         # are usually incorrect
                         # ask Geoffroy Hautier for more details
-                        nb_bands = int(
-                            math.floor(self._bs.nb_bands * (1 - self.cb_cut))
-                        )
+                        nb_bands = int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))
                         for j in range(nb_bands):
                             eigs.append(
                                 Energy(
@@ -344,19 +341,13 @@ class BoltztrapRunner(MSONable):
                     )
                 )
             elif self._symprec is None:
-                f.write(
-                    "{} {}\n".format(
-                        self._bs.structure.composition.formula, "symmetries disabled"
-                    )
-                )
+                f.write("{} {}\n".format(self._bs.structure.composition.formula, "symmetries disabled"))
 
             f.write(
                 "{}\n".format(
                     "\n".join(
                         [
-                            " ".join(
-                                ["%.5f" % Length(i, "ang").to("bohr") for i in row]
-                            )
+                            " ".join(["%.5f" % Length(i, "ang").to("bohr") for i in row])
                             for row in self._bs.structure.lattice.matrix
                         ]
                     )
@@ -395,8 +386,7 @@ class BoltztrapRunner(MSONable):
                 + "',         'old',    "
                 "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n"
-                + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
                 "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
                 "0\n" + "21,'boltztrap.trace',           'unknown',    "
                 "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
@@ -416,21 +406,13 @@ class BoltztrapRunner(MSONable):
         for oi, o in enumerate(Orbital):
             for site_nb in range(0, len(self._bs.structure.sites)):
                 if oi < len(self._bs.projections[Spin.up][0][0]):
-                    with open(
-                        output_file_proj + "_" + str(site_nb) + "_" + str(o), "w"
-                    ) as f:
+                    with open(output_file_proj + "_" + str(site_nb) + "_" + str(o), "w") as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
                         for i in range(len(self._bs.kpoints)):
                             tmp_proj = []
-                            for j in range(
-                                int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))
-                            ):
-                                tmp_proj.append(
-                                    self._bs.projections[Spin(self.spin)][j][i][oi][
-                                        site_nb
-                                    ]
-                                )
+                            for j in range(int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))):
+                                tmp_proj.append(self._bs.projections[Spin(self.spin)][j][i][oi][site_nb])
                             # TODO deal with the sorting going on at
                             # the energy level!!!
                             # tmp_proj.sort()
@@ -464,8 +446,7 @@ class BoltztrapRunner(MSONable):
                 + "',         'old',    "
                 "'formatted',0\n" + "48,'boltztrap.engre',         'unknown',    "
                 "'unformatted',0\n" + "49,'boltztrap.transdos',        'unknown',    "
-                "'formatted',0\n"
-                + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
+                "'formatted',0\n" + "50,'boltztrap.sigxx',        'unknown',    'formatted',"
                 "0\n" + "51,'boltztrap.sigxxx',        'unknown',    'formatted',"
                 "0\n" + "21,'boltztrap.trace',           'unknown',    "
                 "'formatted',0\n" + "22,'boltztrap.condtens',           'unknown',    "
@@ -512,35 +493,14 @@ class BoltztrapRunner(MSONable):
                         self._nelec,
                     )
                 )
-                fout.write(
-                    "CALC                    # CALC (calculate expansion "
-                    "coeff), NOCALC read from file\n"
-                )
-                fout.write(
-                    "%d                        # lpfac, number of latt-points "
-                    "per k-point\n" % self.lpfac
-                )
-                fout.write(
-                    "%s                     # run mode (only BOLTZ is "
-                    "supported)\n" % self.run_type
-                )
-                fout.write(
-                    ".15                       # (efcut) energy range of "
-                    "chemical potential\n"
-                )
-                fout.write(
-                    "{} {}                  # Tmax, temperature grid\n".format(
-                        self.tmax, self.tgrid
-                    )
-                )
-                fout.write(
-                    "-1.  # energyrange of bands given DOS output sig_xxx and "
-                    "dos_xxx (xxx is band number)\n"
-                )
+                fout.write("CALC                    # CALC (calculate expansion " "coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points " "per k-point\n" % self.lpfac)
+                fout.write("%s                     # run mode (only BOLTZ is " "supported)\n" % self.run_type)
+                fout.write(".15                       # (efcut) energy range of " "chemical potential\n")
+                fout.write("{} {}                  # Tmax, temperature grid\n".format(self.tmax, self.tgrid))
+                fout.write("-1.  # energyrange of bands given DOS output sig_xxx and " "dos_xxx (xxx is band number)\n")
                 fout.write(self.dos_type + "\n")  # e.g., HISTO or TETRA
-                fout.write(
-                    "{} {} {} 0 0 0\n".format(self.tauref, self.tauexp, self.tauen)
-                )
+                fout.write("{} {} {} 0 0 0\n".format(self.tauref, self.tauexp, self.tauen))
                 fout.write("{}\n".format(2 * len(self.doping)))
 
                 for d in self.doping:
@@ -551,28 +511,15 @@ class BoltztrapRunner(MSONable):
         elif self.run_type == "FERMI":
             with open(output_file, "w") as fout:
                 fout.write("GENE          # use generic interface\n")
-                fout.write(
-                    "1 0 0 0.0         # iskip (not presently used) idebug "
-                    "setgap shiftgap \n"
-                )
+                fout.write("1 0 0 0.0         # iskip (not presently used) idebug " "setgap shiftgap \n")
                 fout.write(
                     "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,"
                     "energy span around Fermilevel, "
-                    "number of electrons\n"
-                    % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
+                    "number of electrons\n" % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec)
                 )
-                fout.write(
-                    "CALC                    # CALC (calculate expansion "
-                    "coeff), NOCALC read from file\n"
-                )
-                fout.write(
-                    "%d                        # lpfac, number of latt-points "
-                    "per k-point\n" % self.lpfac
-                )
-                fout.write(
-                    "FERMI                     # run mode (only BOLTZ is "
-                    "supported)\n"
-                )
+                fout.write("CALC                    # CALC (calculate expansion " "coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points " "per k-point\n" % self.lpfac)
+                fout.write("FERMI                     # run mode (only BOLTZ is " "supported)\n")
                 fout.write(
                     str(1)
                     + "                        # actual band selected: "
@@ -585,8 +532,7 @@ class BoltztrapRunner(MSONable):
             if self.kpt_line is None:
                 kpath = HighSymmKpath(self._bs.structure)
                 self.kpt_line = [
-                    Kpoint(k, self._bs.structure.lattice)
-                    for k in kpath.get_kpoints(coords_are_cartesian=False)[0]
+                    Kpoint(k, self._bs.structure.lattice) for k in kpath.get_kpoints(coords_are_cartesian=False)[0]
                 ]
                 self.kpt_line = [kp.frac_coords for kp in self.kpt_line]
             elif isinstance(self.kpt_line[0], Kpoint):
@@ -608,18 +554,9 @@ class BoltztrapRunner(MSONable):
                         self._nelec,
                     )
                 )
-                fout.write(
-                    "CALC                    # CALC (calculate expansion "
-                    "coeff), NOCALC read from file\n"
-                )
-                fout.write(
-                    "%d                        # lpfac, number of latt-points "
-                    "per k-point\n" % self.lpfac
-                )
-                fout.write(
-                    "BANDS                     # run mode (only BOLTZ is "
-                    "supported)\n"
-                )
+                fout.write("CALC                    # CALC (calculate expansion " "coeff), NOCALC read from file\n")
+                fout.write("%d                        # lpfac, number of latt-points " "per k-point\n" % self.lpfac)
+                fout.write("BANDS                     # run mode (only BOLTZ is " "supported)\n")
                 fout.write("P " + str(len(self.kpt_line)) + "\n")
                 for kp in self.kpt_line:
                     fout.writelines([str(k) + " " for k in kp])
@@ -689,18 +626,13 @@ class BoltztrapRunner(MSONable):
 
         if self.run_type == "BANDS" and self.bs.is_spin_polarized:
             print(
-                "Reminder: for run_type "
-                + str(self.run_type)
-                + ", spin component are not separated! "
+                "Reminder: for run_type " + str(self.run_type) + ", spin component are not separated! "
                 "(you have a spin polarized band structure)"
             )
 
         if self.run_type in ("FERMI", "DOS") and self.spin is None:
             if self.bs.is_spin_polarized:
-                raise BoltztrapError(
-                    "Spin parameter must be specified for spin polarized "
-                    "band structures!"
-                )
+                raise BoltztrapError("Spin parameter must be specified for spin polarized " "band structures!")
             self.spin = 1
 
         dir_bz_name = "boltztrap"
@@ -730,21 +662,13 @@ class BoltztrapRunner(MSONable):
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
                 if time.time() - self.start_time > self.timeout:
-                    raise BoltztrapError(
-                        "no doping convergence after timeout "
-                        "of {} s".format(self.timeout)
-                    )
+                    raise BoltztrapError("no doping convergence after timeout " "of {} s".format(self.timeout))
 
-                logging.info(
-                    "lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid)
-                )
+                logging.info("lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
 
                 while self.lpfac <= max_lpfac and not converged:
                     if time.time() - self.start_time > self.timeout:
-                        raise BoltztrapError(
-                            "no doping convergence after "
-                            "timeout of {} s".format(self.timeout)
-                        )
+                        raise BoltztrapError("no doping convergence after " "timeout of {} s".format(self.timeout))
 
                     if write_input:
                         self.write_input(path_dir)
@@ -768,15 +692,10 @@ class BoltztrapRunner(MSONable):
 
                     warning = ""
 
-                    with open(
-                        os.path.join(path_dir, dir_bz_name + ".outputtrans")
-                    ) as f:
+                    with open(os.path.join(path_dir, dir_bz_name + ".outputtrans")) as f:
                         for l in f:
                             if "Option unknown" in l:
-                                raise BoltztrapError(
-                                    "DOS mode needs a custom version of "
-                                    "BoltzTraP code is needed"
-                                )
+                                raise BoltztrapError("DOS mode needs a custom version of " "BoltzTraP code is needed")
                             if "WARNING" in l:
                                 warning = l
                                 break
@@ -789,55 +708,36 @@ class BoltztrapRunner(MSONable):
                         analyzer = BoltztrapAnalyzer.from_files(path_dir)
                         for doping in ["n", "p"]:
                             for c in analyzer.mu_doping[doping]:
-                                if len(analyzer.mu_doping[doping][c]) != len(
-                                    analyzer.doping[doping]
-                                ):
-                                    warning = (
-                                        "length of mu_doping array is " "incorrect"
-                                    )
+                                if len(analyzer.mu_doping[doping][c]) != len(analyzer.doping[doping]):
+                                    warning = "length of mu_doping array is " "incorrect"
                                     break
 
                                 if (
                                     doping == "p"
-                                    and sorted(
-                                        analyzer.mu_doping[doping][c], reverse=True
-                                    )
+                                    and sorted(analyzer.mu_doping[doping][c], reverse=True)
                                     != analyzer.mu_doping[doping][c]
                                 ):
-                                    warning = (
-                                        "sorting of mu_doping array "
-                                        "incorrect for p-type"
-                                    )
+                                    warning = "sorting of mu_doping array " "incorrect for p-type"
                                     break
 
                                 # ensure n-type doping sorted correctly
                                 if (
                                     doping == "n"
-                                    and sorted(analyzer.mu_doping[doping][c])
-                                    != analyzer.mu_doping[doping][c]
+                                    and sorted(analyzer.mu_doping[doping][c]) != analyzer.mu_doping[doping][c]
                                 ):
-                                    warning = (
-                                        "sorting of mu_doping array "
-                                        "incorrect for n-type"
-                                    )
+                                    warning = "sorting of mu_doping array " "incorrect for n-type"
                                     break
 
                     if warning:
                         self.lpfac += 10
-                        logging.warn(
-                            "Warning detected: {}! Increase lpfac to "
-                            "{}".format(warning, self.lpfac)
-                        )
+                        logging.warn("Warning detected: {}! Increase lpfac to " "{}".format(warning, self.lpfac))
 
                     else:
                         converged = True
 
                 if not converged:
                     self.energy_grid /= 10
-                    logging.info(
-                        "Could not converge with max lpfac; "
-                        "Decrease egrid to {}".format(self.energy_grid)
-                    )
+                    logging.info("Could not converge with max lpfac; " "Decrease egrid to {}".format(self.energy_grid))
 
             if not converged:
                 raise BoltztrapError(
@@ -1022,14 +922,14 @@ class BoltztrapAnalyzer:
 
     def get_symm_bands(self, structure, efermi, kpt_line=None, labels_dict=None):
         """
-            Function useful to read bands from Boltztrap output and get a
-            BandStructureSymmLine object comparable with that one from a DFT
-            calculation (if the same kpt_line is provided). Default kpt_line
-            and labels_dict is the standard path of high symmetry k-point for
-            the specified structure. They could be extracted from the
-            BandStructureSymmLine object that you want to compare with. efermi
-            variable must be specified to create the BandStructureSymmLine
-            object (usually it comes from DFT or Boltztrap calc)
+        Function useful to read bands from Boltztrap output and get a
+        BandStructureSymmLine object comparable with that one from a DFT
+        calculation (if the same kpt_line is provided). Default kpt_line
+        and labels_dict is the standard path of high symmetry k-point for
+        the specified structure. They could be extracted from the
+        BandStructureSymmLine object that you want to compare with. efermi
+        variable must be specified to create the BandStructureSymmLine
+        object (usually it comes from DFT or Boltztrap calc)
         """
         try:
             if kpt_line is None:
@@ -1038,11 +938,7 @@ class BoltztrapAnalyzer:
                     Kpoint(k, structure.lattice.reciprocal_lattice)
                     for k in kpath.get_kpoints(coords_are_cartesian=False)[0]
                 ]
-                labels_dict = {
-                    l: k
-                    for k, l in zip(*kpath.get_kpoints(coords_are_cartesian=False))
-                    if l
-                }
+                labels_dict = {l: k for k, l in zip(*kpath.get_kpoints(coords_are_cartesian=False)) if l}
                 kpt_line = [kp.frac_coords for kp in kpt_line]
             elif isinstance(kpt_line[0], Kpoint):
                 kpt_line = [kp.frac_coords for kp in kpt_line]
@@ -1054,9 +950,7 @@ class BoltztrapAnalyzer:
                 w = []
                 prec = 1e-05
                 while len(w) == 0:
-                    w = np.where(
-                        np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1)
-                    )[0]
+                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]
                     prec *= 10
 
                 # print( prec )
@@ -1072,11 +966,7 @@ class BoltztrapAnalyzer:
             idx_list = np.array(idx_list)
             # print( idx_list.shape )
 
-            bands_dict = {
-                Spin.up: (self._bz_bands * Energy(1, "Ry").to("eV") + efermi)
-                .T[:, idx_list[:, 1]]
-                .tolist()
-            }
+            bands_dict = {Spin.up: (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T[:, idx_list[:, 1]].tolist()}
             # bz_kpoints = bz_kpoints[idx_list[:,1]].tolist()
 
             sbs = BandStructureSymmLine(
@@ -1091,33 +981,32 @@ class BoltztrapAnalyzer:
 
         except Exception:
             raise BoltztrapError(
-                "Bands are not in output of BoltzTraP.\nBolztrapRunner must "
-                "be run with run_type=BANDS"
+                "Bands are not in output of BoltzTraP.\nBolztrapRunner must " "be run with run_type=BANDS"
             )
 
     @staticmethod
     def check_acc_bzt_bands(sbs_bz, sbs_ref, warn_thr=(0.03, 0.03)):
         """
-            Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
-            the sbs_ref BandStructureSymmLine as reference (from MP for
-            instance), computing correlation and energy difference for eight bands
-            around the gap (semiconductors) or fermi level (metals).
-            warn_thr is a threshold to get a warning in the accuracy of Boltztap
-            interpolated bands.
-            Return a dictionary with these keys:
-            - "N": the index of the band compared; inside each there are:
-                - "Corr": correlation coefficient for the 8 compared bands
-                - "Dist": energy distance for the 8 compared bands
-                - "branch_name": energy distance for that branch
-            - "avg_corr": average of correlation coefficient over the 8 bands
-            - "avg_dist": average of energy distance over the 8 bands
-            - "nb_list": list of indexes of the 8 compared bands
-            - "acc_thr": list of two float corresponing to the two warning
-                         thresholds in input
-            - "acc_err": list of two bools:
-                         True if the avg_corr > warn_thr[0], and
-                         True if the avg_dist > warn_thr[1]
-            See also compare_sym_bands function doc
+        Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
+        the sbs_ref BandStructureSymmLine as reference (from MP for
+        instance), computing correlation and energy difference for eight bands
+        around the gap (semiconductors) or fermi level (metals).
+        warn_thr is a threshold to get a warning in the accuracy of Boltztap
+        interpolated bands.
+        Return a dictionary with these keys:
+        - "N": the index of the band compared; inside each there are:
+            - "Corr": correlation coefficient for the 8 compared bands
+            - "Dist": energy distance for the 8 compared bands
+            - "branch_name": energy distance for that branch
+        - "avg_corr": average of correlation coefficient over the 8 bands
+        - "avg_dist": average of energy distance over the 8 bands
+        - "nb_list": list of indexes of the 8 compared bands
+        - "acc_thr": list of two float corresponing to the two warning
+                     thresholds in input
+        - "acc_err": list of two bools:
+                     True if the avg_corr > warn_thr[0], and
+                     True if the avg_dist > warn_thr[1]
+        See also compare_sym_bands function doc
         """
         if not sbs_ref.is_metal() and not sbs_bz.is_metal():
             vbm_idx = sbs_bz.get_vbm()["band_index"][Spin.up][-1]
@@ -1167,79 +1056,73 @@ class BoltztrapAnalyzer:
 
     def get_seebeck(self, output="eigs", doping_levels=True):
         """
-            Gives the seebeck coefficient (microV/K) in either a
-            full 3x3 tensor form, as 3 eigenvalues, or as the average value
-            (trace/3.0) If doping_levels=True, the results are given at
-            different p and n doping
-            levels (given by self.doping), otherwise it is given as a series
-            of electron chemical potential values
+        Gives the seebeck coefficient (microV/K) in either a
+        full 3x3 tensor form, as 3 eigenvalues, or as the average value
+        (trace/3.0) If doping_levels=True, the results are given at
+        different p and n doping
+        levels (given by self.doping), otherwise it is given as a series
+        of electron chemical potential values
 
-            Args:
-                output (string): the type of output. 'tensor' give the full
-                3x3 tensor, 'eigs' its 3 eigenvalues and
-                'average' the average of the three eigenvalues
-                doping_levels (boolean): True for the results to be given at
-                different doping levels, False for results
-                at different electron chemical potentials
+        Args:
+            output (string): the type of output. 'tensor' give the full
+            3x3 tensor, 'eigs' its 3 eigenvalues and
+            'average' the average of the three eigenvalues
+            doping_levels (boolean): True for the results to be given at
+            different doping levels, False for results
+            at different electron chemical potentials
 
-            Returns:
-                If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
-                The 'p' links to Seebeck at p-type doping
-                and 'n' to the Seebeck at n-type doping. Otherwise, returns a
-                {temp:[]} dictionary
-                The result contains either the sorted three eigenvalues of
-                the symmetric
-                Seebeck tensor (output='eigs') or a full tensor (3x3 array) (
-                output='tensor') or as an average
-                (output='average').
+        Returns:
+            If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
+            The 'p' links to Seebeck at p-type doping
+            and 'n' to the Seebeck at n-type doping. Otherwise, returns a
+            {temp:[]} dictionary
+            The result contains either the sorted three eigenvalues of
+            the symmetric
+            Seebeck tensor (output='eigs') or a full tensor (3x3 array) (
+            output='tensor') or as an average
+            (output='average').
 
-                units are microV/K
+            units are microV/K
         """
-        return BoltztrapAnalyzer._format_to_output(
-            self._seebeck, self._seebeck_doping, output, doping_levels, 1e6
-        )
+        return BoltztrapAnalyzer._format_to_output(self._seebeck, self._seebeck_doping, output, doping_levels, 1e6)
 
-    def get_conductivity(
-        self, output="eigs", doping_levels=True, relaxation_time=1e-14
-    ):
+    def get_conductivity(self, output="eigs", doping_levels=True, relaxation_time=1e-14):
         """
-            Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
-            form, as 3 eigenvalues, or as the average value
-            (trace/3.0) If doping_levels=True, the results are given at
-            different p and n doping
-            levels (given by self.doping), otherwise it is given as a series
-            of electron chemical potential values
+        Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
+        form, as 3 eigenvalues, or as the average value
+        (trace/3.0) If doping_levels=True, the results are given at
+        different p and n doping
+        levels (given by self.doping), otherwise it is given as a series
+        of electron chemical potential values
 
-            Args:
-                output (string): the type of output. 'tensor' give the full
-                3x3 tensor, 'eigs' its 3 eigenvalues and
-                'average' the average of the three eigenvalues
-                doping_levels (boolean): True for the results to be given at
-                different doping levels, False for results
-                at different electron chemical potentials
-                relaxation_time (float): constant relaxation time in secs
+        Args:
+            output (string): the type of output. 'tensor' give the full
+            3x3 tensor, 'eigs' its 3 eigenvalues and
+            'average' the average of the three eigenvalues
+            doping_levels (boolean): True for the results to be given at
+            different doping levels, False for results
+            at different electron chemical potentials
+            relaxation_time (float): constant relaxation time in secs
 
-            Returns:
-                If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
-                The 'p' links to conductivity
-                at p-type doping and 'n' to the conductivity at n-type
-                doping. Otherwise,
-                returns a {temp:[]} dictionary. The result contains either
-                the sorted three eigenvalues of the symmetric
-                conductivity tensor (format='eigs') or a full tensor (3x3
-                array) (output='tensor') or as an average
-                (output='average').
-                The result includes a given constant relaxation time
+        Returns:
+            If doping_levels=True, a dictionary {temp:{'p':[],'n':[]}}.
+            The 'p' links to conductivity
+            at p-type doping and 'n' to the conductivity at n-type
+            doping. Otherwise,
+            returns a {temp:[]} dictionary. The result contains either
+            the sorted three eigenvalues of the symmetric
+            conductivity tensor (format='eigs') or a full tensor (3x3
+            array) (output='tensor') or as an average
+            (output='average').
+            The result includes a given constant relaxation time
 
-                units are 1/Ohm*m
+            units are 1/Ohm*m
         """
         return BoltztrapAnalyzer._format_to_output(
             self._cond, self._cond_doping, output, doping_levels, relaxation_time
         )
 
-    def get_power_factor(
-        self, output="eigs", doping_levels=True, relaxation_time=1e-14
-    ):
+    def get_power_factor(self, output="eigs", doping_levels=True, relaxation_time=1e-14):
         """
         Gives the power factor (Seebeck^2 * conductivity) in units
         microW/(m*K^2) in either a full 3x3 tensor form,
@@ -1275,10 +1158,7 @@ class BoltztrapAnalyzer:
         result = None
         result_doping = None
         if doping_levels:
-            result_doping = {
-                doping: {t: [] for t in self._seebeck_doping[doping]}
-                for doping in self._seebeck_doping
-            }
+            result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
             for doping in result_doping:
                 for t in result_doping[doping]:
@@ -1306,9 +1186,7 @@ class BoltztrapAnalyzer:
             result, result_doping, output, doping_levels, multi=1e6 * relaxation_time
         )
 
-    def get_thermal_conductivity(
-        self, output="eigs", doping_levels=True, k_el=True, relaxation_time=1e-14
-    ):
+    def get_thermal_conductivity(self, output="eigs", doping_levels=True, k_el=True, relaxation_time=1e-14):
         """
         Gives the electronic part of the thermal conductivity in either a
         full 3x3 tensor form,
@@ -1345,10 +1223,7 @@ class BoltztrapAnalyzer:
         result = None
         result_doping = None
         if doping_levels:
-            result_doping = {
-                doping: {t: [] for t in self._seebeck_doping[doping]}
-                for doping in self._seebeck_doping
-            }
+            result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
             for doping in result_doping:
                 for t in result_doping[doping]:
                     for i in range(len(self.doping[doping])):
@@ -1360,13 +1235,9 @@ class BoltztrapAnalyzer:
                                     self._seebeck_doping[doping][t][i],
                                 ),
                             )
-                            result_doping[doping][t].append(
-                                (self._kappa_doping[doping][t][i] - pf_tensor * t)
-                            )
+                            result_doping[doping][t].append((self._kappa_doping[doping][t][i] - pf_tensor * t))
                         else:
-                            result_doping[doping][t].append(
-                                (self._kappa_doping[doping][t][i])
-                            )
+                            result_doping[doping][t].append((self._kappa_doping[doping][t][i]))
         else:
             result = {t: [] for t in self._seebeck}
             for t in result:
@@ -1380,9 +1251,7 @@ class BoltztrapAnalyzer:
                     else:
                         result[t].append((self._kappa[t][i]))
 
-        return BoltztrapAnalyzer._format_to_output(
-            result, result_doping, output, doping_levels, multi=relaxation_time
-        )
+        return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels, multi=relaxation_time)
 
     def get_zt(self, output="eigs", doping_levels=True, relaxation_time=1e-14, kl=1.0):
         """
@@ -1421,10 +1290,7 @@ class BoltztrapAnalyzer:
         result = None
         result_doping = None
         if doping_levels:
-            result_doping = {
-                doping: {t: [] for t in self._seebeck_doping[doping]}
-                for doping in self._seebeck_doping
-            }
+            result_doping = {doping: {t: [] for t in self._seebeck_doping[doping]} for doping in self._seebeck_doping}
 
             for doping in result_doping:
                 for t in result_doping[doping]:
@@ -1436,9 +1302,7 @@ class BoltztrapAnalyzer:
                                 self._seebeck_doping[doping][t][i],
                             ),
                         )
-                        thermal_conduct = (
-                            self._kappa_doping[doping][t][i] - pf_tensor * t
-                        ) * relaxation_time
+                        thermal_conduct = (self._kappa_doping[doping][t][i] - pf_tensor * t) * relaxation_time
                         result_doping[doping][t].append(
                             np.dot(
                                 pf_tensor * relaxation_time * t,
@@ -1453,9 +1317,7 @@ class BoltztrapAnalyzer:
                         self._cond[t][i],
                         np.dot(self._seebeck[t][i], self._seebeck[t][i]),
                     )
-                    thermal_conduct = (
-                        self._kappa[t][i] - pf_tensor * t
-                    ) * relaxation_time
+                    thermal_conduct = (self._kappa[t][i] - pf_tensor * t) * relaxation_time
                     result[t].append(
                         np.dot(
                             pf_tensor * relaxation_time * t,
@@ -1463,9 +1325,7 @@ class BoltztrapAnalyzer:
                         )
                     )
 
-        return BoltztrapAnalyzer._format_to_output(
-            result, result_doping, output, doping_levels
-        )
+        return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)
 
     def get_average_eff_mass(self, output="eigs", doping_levels=True):
         """
@@ -1519,18 +1379,13 @@ class BoltztrapAnalyzer:
         result_doping = None
         conc = self.get_carrier_concentration()
         if doping_levels:
-            result_doping = {
-                doping: {t: [] for t in self._cond_doping[doping]}
-                for doping in self.doping
-            }
+            result_doping = {doping: {t: [] for t in self._cond_doping[doping]} for doping in self.doping}
             for doping in result_doping:
                 for temp in result_doping[doping]:
                     for i in range(len(self.doping[doping])):
                         try:
                             result_doping[doping][temp].append(
-                                np.linalg.inv(
-                                    np.array(self._cond_doping[doping][temp][i])
-                                )
+                                np.linalg.inv(np.array(self._cond_doping[doping][temp][i]))
                                 * self.doping[doping][i]
                                 * 10 ** 6
                                 * constants.e ** 2
@@ -1546,21 +1401,11 @@ class BoltztrapAnalyzer:
                         cond_inv = np.linalg.inv(np.array(self._cond[temp][i]))
                     except np.linalg.LinAlgError:
                         pass
-                    result[temp].append(
-                        cond_inv
-                        * conc[temp][i]
-                        * 10 ** 6
-                        * constants.e ** 2
-                        / constants.m_e
-                    )
+                    result[temp].append(cond_inv * conc[temp][i] * 10 ** 6 * constants.e ** 2 / constants.m_e)
 
-        return BoltztrapAnalyzer._format_to_output(
-            result, result_doping, output, doping_levels
-        )
+        return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)
 
-    def get_seebeck_eff_mass(
-        self, output="average", temp=300, doping_levels=False, Lambda=0.5
-    ):
+    def get_seebeck_eff_mass(self, output="average", temp=300, doping_levels=False, Lambda=0.5):
         """
         Seebeck effective mass calculated as explained in Ref.
         Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
@@ -1596,18 +1441,12 @@ class BoltztrapAnalyzer:
                 sbk_mass[dt] = []
                 for i, c in enumerate(conc):
                     if output == "average":
-                        sbk_mass[dt].append(
-                            seebeck_eff_mass_from_seebeck_carr(
-                                abs(seebeck[i]), c, temp, Lambda
-                            )
-                        )
+                        sbk_mass[dt].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), c, temp, Lambda))
                     elif output == "tensor":
                         sbk_mass[dt].append([])
                         for j in range(3):
                             sbk_mass[dt][-1].append(
-                                seebeck_eff_mass_from_seebeck_carr(
-                                    abs(seebeck[i][j][j]), c, temp, Lambda
-                                )
+                                seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]), c, temp, Lambda)
                             )
 
         else:
@@ -1616,24 +1455,14 @@ class BoltztrapAnalyzer:
             sbk_mass = []
             for i, c in enumerate(conc):
                 if output == "average":
-                    sbk_mass.append(
-                        seebeck_eff_mass_from_seebeck_carr(
-                            abs(seebeck[i]), c, temp, Lambda
-                        )
-                    )
+                    sbk_mass.append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i]), c, temp, Lambda))
                 elif output == "tensor":
                     sbk_mass.append([])
                     for j in range(3):
-                        sbk_mass[-1].append(
-                            seebeck_eff_mass_from_seebeck_carr(
-                                abs(seebeck[i][j][j]), c, temp, Lambda
-                            )
-                        )
+                        sbk_mass[-1].append(seebeck_eff_mass_from_seebeck_carr(abs(seebeck[i][j][j]), c, temp, Lambda))
         return sbk_mass
 
-    def get_complexity_factor(
-        self, output="average", temp=300, doping_levels=False, Lambda=0.5
-    ):
+    def get_complexity_factor(self, output="average", temp=300, doping_levels=False, Lambda=0.5):
         """
         Fermi surface complexity factor respect to calculated as explained in Ref.
         Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
@@ -1665,41 +1494,29 @@ class BoltztrapAnalyzer:
             cmplx_fact = {}
             for dt in ("n", "p"):
                 sbk_mass = self.get_seebeck_eff_mass(output, temp, True, Lambda)[dt]
-                cond_mass = self.get_average_eff_mass(
-                    output=output, doping_levels=True
-                )[dt][temp]
+                cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
 
                 if output == "average":
-                    cmplx_fact[dt] = [
-                        (m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)
-                    ]
+                    cmplx_fact[dt] = [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)]
                 elif output == "tensor":
                     cmplx_fact[dt] = []
                     for i, sm in enumerate(sbk_mass):
                         cmplx_fact[dt].append([])
                         for j in range(3):
-                            cmplx_fact[dt][-1].append(
-                                (sm[j] / abs(cond_mass[i][j][j])) ** 1.5
-                            )
+                            cmplx_fact[dt][-1].append((sm[j] / abs(cond_mass[i][j][j])) ** 1.5)
 
         else:
             sbk_mass = self.get_seebeck_eff_mass(output, temp, False, Lambda)
-            cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[
-                temp
-            ]
+            cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
 
             if output == "average":
-                cmplx_fact = [
-                    (m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)
-                ]
+                cmplx_fact = [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)]
             elif output == "tensor":
                 cmplx_fact = []
                 for i, sm in enumerate(sbk_mass):
                     cmplx_fact.append([])
                     for j in range(3):
-                        cmplx_fact[-1].append(
-                            (sm[j] / abs(cond_mass[i][j][j])) ** 1.5
-                        )
+                        cmplx_fact[-1].append((sm[j] / abs(cond_mass[i][j][j])) ** 1.5)
 
         return cmplx_fact
 
@@ -1799,11 +1616,7 @@ class BoltztrapAnalyzer:
                                 val = float(sum(evs)) / len(evs)
                             else:
                                 val = max(evs)
-                            if (
-                                x_val is None
-                                or (val > x_val and maximize)
-                                or (val < x_val and not maximize)
-                            ):
+                            if x_val is None or (val > x_val and maximize) or (val < x_val and not maximize):
                                 x_val = val
                                 x_temp = t
                                 x_doping = doping_lvl
@@ -1831,24 +1644,14 @@ class BoltztrapAnalyzer:
     def _format_to_output(tensor, tensor_doping, output, doping_levels, multi=1.0):
         if doping_levels:
             full_tensor = tensor_doping
-            result = {
-                doping: {t: [] for t in tensor_doping[doping]}
-                for doping in tensor_doping
-            }
+            result = {doping: {t: [] for t in tensor_doping[doping]} for doping in tensor_doping}
             for doping in full_tensor:
                 for temp in full_tensor[doping]:
                     for i in range(len(full_tensor[doping][temp])):
                         if output in ["eig", "eigs"]:
-                            result[doping][temp].append(
-                                sorted(
-                                    np.linalg.eigh(full_tensor[doping][temp][i])[0]
-                                    * multi
-                                )
-                            )
+                            result[doping][temp].append(sorted(np.linalg.eigh(full_tensor[doping][temp][i])[0] * multi))
                         elif output == "tensor":
-                            result[doping][temp].append(
-                                np.array(full_tensor[doping][temp][i]) * multi
-                            )
+                            result[doping][temp].append(np.array(full_tensor[doping][temp][i]) * multi)
                         elif output == "average":
                             result[doping][temp].append(
                                 (
@@ -1860,27 +1663,19 @@ class BoltztrapAnalyzer:
                                 / 3.0
                             )
                         else:
-                            raise ValueError(
-                                "Unknown output format: " "{}".format(output)
-                            )
+                            raise ValueError("Unknown output format: " "{}".format(output))
         else:
             full_tensor = tensor
             result = {t: [] for t in tensor}
             for temp in full_tensor:
                 for i in range(len(tensor[temp])):
                     if output in ["eig", "eigs"]:
-                        result[temp].append(
-                            sorted(np.linalg.eigh(full_tensor[temp][i])[0] * multi)
-                        )
+                        result[temp].append(sorted(np.linalg.eigh(full_tensor[temp][i])[0] * multi))
                     elif output == "tensor":
                         result[temp].append(np.array(full_tensor[temp][i]) * multi)
                     elif output == "average":
                         result[temp].append(
-                            (
-                                full_tensor[temp][i][0][0]
-                                + full_tensor[temp][i][1][1]
-                                + full_tensor[temp][i][2][2]
-                            )
+                            (full_tensor[temp][i][0][0] + full_tensor[temp][i][1][1] + full_tensor[temp][i][2][2])
                             * multi
                             / 3.0
                         )
@@ -1890,23 +1685,23 @@ class BoltztrapAnalyzer:
 
     def get_complete_dos(self, structure, analyzer_for_second_spin=None):
         """
-            Gives a CompleteDos object with the DOS from the interpolated
-            projected band structure
-            Args:
-                the structure (necessary to identify sites for projection)
-                analyzer_for_second_spin must be specified to have a
-                CompleteDos with both Spin components
-            Returns:
-                a CompleteDos object
-            Example of use in case of spin polarized case:
+        Gives a CompleteDos object with the DOS from the interpolated
+        projected band structure
+        Args:
+            the structure (necessary to identify sites for projection)
+            analyzer_for_second_spin must be specified to have a
+            CompleteDos with both Spin components
+        Returns:
+            a CompleteDos object
+        Example of use in case of spin polarized case:
 
-                BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
-                an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/",dos_spin=1)
+            BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=1).run(path_dir='dos_up/')
+            an_up=BoltztrapAnalyzer.from_files("dos_up/boltztrap/",dos_spin=1)
 
-                BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=-1).run(path_dir='dos_dw/')
-                an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
+            BoltztrapRunner(bs=bs,nelec=10,run_type="DOS",spin=-1).run(path_dir='dos_dw/')
+            an_dw=BoltztrapAnalyzer.from_files("dos_dw/boltztrap/",dos_spin=-1)
 
-                cdos=an_up.get_complete_dos(bs.structure,an_dw)
+            cdos=an_up.get_complete_dos(bs.structure,an_dw)
 
         """
         pdoss = {}
@@ -1914,9 +1709,7 @@ class BoltztrapAnalyzer:
 
         if analyzer_for_second_spin:
             if not np.all(self.dos.energies == analyzer_for_second_spin.dos.energies):
-                raise BoltztrapError(
-                    "Dos merging error: energies of the two dos are different"
-                )
+                raise BoltztrapError("Dos merging error: energies of the two dos are different")
 
             spin_2 = list(analyzer_for_second_spin.dos.densities.keys())[0]
             if spin_1 == spin_2:
@@ -1928,13 +1721,9 @@ class BoltztrapAnalyzer:
             for o in self._dos_partial[s]:
                 if Orbital[o] not in pdoss[structure.sites[int(s)]]:
                     pdoss[structure.sites[int(s)]][Orbital[o]] = {}
-                pdoss[structure.sites[int(s)]][Orbital[o]][spin_1] = self._dos_partial[
-                    s
-                ][o]
+                pdoss[structure.sites[int(s)]][Orbital[o]][spin_1] = self._dos_partial[s][o]
                 if analyzer_for_second_spin:
-                    pdoss[structure.sites[int(s)]][Orbital[o]][
-                        spin_2
-                    ] = analyzer_for_second_spin._dos_partial[s][o]
+                    pdoss[structure.sites[int(s)]][Orbital[o]][spin_2] = analyzer_for_second_spin._dos_partial[s][o]
         if analyzer_for_second_spin:
             tdos = Dos(
                 self.dos.efermi,
@@ -1966,10 +1755,7 @@ class BoltztrapAnalyzer:
             The array relates to each step of electron chemical potential
         """
 
-        return {
-            temp: [1e24 * i / self.vol for i in self._carrier_conc[temp]]
-            for temp in self._carrier_conc
-        }
+        return {temp: [1e24 * i / self.vol for i in self._carrier_conc[temp]] for temp in self._carrier_conc}
 
     def get_hall_carrier_concentration(self):
         """
@@ -2087,12 +1873,8 @@ class BoltztrapAnalyzer:
                                 data_dos["partial"][site] = {}
                             if orb not in data_dos["partial"][site]:
                                 data_dos["partial"][site][orb] = []
-                            data_dos["partial"][site][orb].append(
-                                float(line.split()[1])
-                            )
-                data_dos["partial"][site][orb] = data_dos["partial"][site][orb][
-                    lw_l:-hg_l
-                ]
+                            data_dos["partial"][site][orb].append(float(line.split()[1]))
+                data_dos["partial"][site][orb] = data_dos["partial"][site][orb][lw_l:-hg_l]
 
         dos_full = {"energy": [], "density": []}
 
@@ -2122,9 +1904,7 @@ class BoltztrapAnalyzer:
         with open(os.path.join(path_dir, "boltztrap.intrans"), "r") as f:
             for line in f:
                 if "iskip" in line:
-                    intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to(
-                        "eV"
-                    )
+                    intrans["scissor"] = Energy(float(line.split(" ")[3]), "Ry").to("eV")
                 if "HISTO" in line or "TETRA" in line:
                     intrans["dos_type"] = line[:-1]
         return intrans
@@ -2142,13 +1922,7 @@ class BoltztrapAnalyzer:
         with open(os.path.join(path_dir, "boltztrap.struct"), "r") as f:
             tokens = f.readlines()
             return Lattice(
-                [
-                    [
-                        Length(float(tokens[i].split()[j]), "bohr").to("ang")
-                        for j in range(3)
-                    ]
-                    for i in range(1, 4)
-                ]
+                [[Length(float(tokens[i].split()[j]), "bohr").to("ang") for j in range(3)] for i in range(1, 4)]
             ).volume
 
     @staticmethod
@@ -2311,9 +2085,7 @@ class BoltztrapAnalyzer:
         intrans = BoltztrapAnalyzer.parse_intrans(path_dir)
 
         if run_type == "BOLTZ":
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, trim_dos=False
-            )
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=False)
 
             (
                 mu_steps,
@@ -2353,26 +2125,17 @@ class BoltztrapAnalyzer:
 
         if run_type == "DOS":
             trim = intrans["dos_type"] == "HISTO"
-            dos, pdos = BoltztrapAnalyzer.parse_transdos(
-                path_dir, efermi, dos_spin=dos_spin, trim_dos=trim
-            )
+            dos, pdos = BoltztrapAnalyzer.parse_transdos(path_dir, efermi, dos_spin=dos_spin, trim_dos=trim)
 
-            return BoltztrapAnalyzer(
-                gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol
-            )
+            return BoltztrapAnalyzer(gap=gap, dos=dos, dos_partial=pdos, warning=warning, vol=vol)
 
         if run_type == "BANDS":
-            bz_kpoints = np.loadtxt(os.path.join(path_dir, "boltztrap_band.dat"))[
-                :, -3:
-            ]
+            bz_kpoints = np.loadtxt(os.path.join(path_dir, "boltztrap_band.dat"))[:, -3:]
             bz_bands = np.loadtxt(os.path.join(path_dir, "boltztrap_band.dat"))[:, 1:-6]
-            return BoltztrapAnalyzer(
-                bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol
-            )
+            return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
-            """
-            """
+            """"""
 
             if os.path.exists(os.path.join(path_dir, "boltztrap_BZ.cube")):
                 fs_data = read_cube_file(os.path.join(path_dir, "boltztrap_BZ.cube"))
@@ -2430,36 +2193,20 @@ class BoltztrapAnalyzer:
         gap = data.get("gap")
         mu_steps = [float(d) for d in data["mu_steps"]] if "mu_steps" in data else None
         cond = (
-            {
-                int(d): [_make_float_array(v) for v in data["cond"][d]]
-                for d in data["cond"]
-            }
-            if "cond" in data
-            else None
+            {int(d): [_make_float_array(v) for v in data["cond"][d]] for d in data["cond"]} if "cond" in data else None
         )
         seebeck = (
-            {
-                int(d): [_make_float_array(v) for v in data["seebeck"][d]]
-                for d in data["seebeck"]
-            }
+            {int(d): [_make_float_array(v) for v in data["seebeck"][d]] for d in data["seebeck"]}
             if "seebeck" in data
             else None
         )
         kappa = (
-            {
-                int(d): [_make_float_array(v) for v in data["kappa"][d]]
-                for d in data["kappa"]
-            }
+            {int(d): [_make_float_array(v) for v in data["kappa"][d]] for d in data["kappa"]}
             if "kappa" in data
             else None
         )
         hall = (
-            {
-                int(d): [_make_float_hall(v) for v in data["hall"][d]]
-                for d in data["hall"]
-            }
-            if "hall" in data
-            else None
+            {int(d): [_make_float_hall(v) for v in data["hall"][d]] for d in data["hall"]} if "hall" in data else None
         )
         doping = (
             {
@@ -2472,14 +2219,8 @@ class BoltztrapAnalyzer:
 
         mu_doping = (
             {
-                "p": {
-                    int(d): [float(v) for v in data["mu_doping"]["p"][d]]
-                    for d in data["mu_doping"]["p"]
-                },
-                "n": {
-                    int(d): [float(v) for v in data["mu_doping"]["n"][d]]
-                    for d in data["mu_doping"]["n"]
-                },
+                "p": {int(d): [float(v) for v in data["mu_doping"]["p"][d]] for d in data["mu_doping"]["p"]},
+                "n": {int(d): [float(v) for v in data["mu_doping"]["n"][d]] for d in data["mu_doping"]["n"]},
             }
             if "mu_doping" in data
             else None
@@ -2488,15 +2229,11 @@ class BoltztrapAnalyzer:
         seebeck_doping = (
             {
                 "p": {
-                    int(d): [
-                        _make_float_array(v) for v in data["seebeck_doping"]["p"][d]
-                    ]
+                    int(d): [_make_float_array(v) for v in data["seebeck_doping"]["p"][d]]
                     for d in data["seebeck_doping"]["p"]
                 },
                 "n": {
-                    int(d): [
-                        _make_float_array(v) for v in data["seebeck_doping"]["n"][d]
-                    ]
+                    int(d): [_make_float_array(v) for v in data["seebeck_doping"]["n"][d]]
                     for d in data["seebeck_doping"]["n"]
                 },
             }
@@ -2537,12 +2274,10 @@ class BoltztrapAnalyzer:
         hall_doping = (
             {
                 "p": {
-                    int(d): [_make_float_hall(v) for v in data["hall_doping"]["p"][d]]
-                    for d in data["hall_doping"]["p"]
+                    int(d): [_make_float_hall(v) for v in data["hall_doping"]["p"][d]] for d in data["hall_doping"]["p"]
                 },
                 "n": {
-                    int(d): [_make_float_hall(v) for v in data["hall_doping"]["n"][d]]
-                    for d in data["hall_doping"]["n"]
+                    int(d): [_make_float_hall(v) for v in data["hall_doping"]["n"][d]] for d in data["hall_doping"]["n"]
                 },
             }
             if "hall_doping" in data
@@ -2649,12 +2384,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     # (arr_bands_ref-np.mean(arr_bands_ref,axis=1).reshape(nbands,1))
 
     # err = np.sum((arr_bands_lavg-arr_bands_ref_lavg)**2,axis=1)/nkpt
-    corr = np.array(
-        [
-            distance.correlation(arr_bands[idx], arr_bands_ref[idx])
-            for idx in range(nbands)
-        ]
-    )
+    corr = np.array([distance.correlation(arr_bands[idx], arr_bands_ref[idx]) for idx in range(nbands)])
 
     if isinstance(nb, int):
         nb = [nb]
@@ -2662,10 +2392,7 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
     bcheck = {}
 
     if max(nb) < nbands:
-        branches = [
-            [s["start_index"], s["end_index"], s["name"]]
-            for s in bands_ref_obj.branches
-        ]
+        branches = [[s["start_index"], s["end_index"], s["name"]] for s in bands_ref_obj.branches]
 
         if not bands_obj.is_metal() and not bands_ref_obj.is_metal():
             zero_ref = bands_ref_obj.get_vbm()["energy"]
@@ -2681,21 +2408,14 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
         for nbi in nb:
             bcheck[nbi] = {}
 
-            bcheck[nbi]["Dist"] = np.mean(
-                abs(arr_bands[nbi] - zero - arr_bands_ref[nbi] + zero_ref)
-            )
+            bcheck[nbi]["Dist"] = np.mean(abs(arr_bands[nbi] - zero - arr_bands_ref[nbi] + zero_ref))
             bcheck[nbi]["Corr"] = corr[nbi]
 
             for start, end, name in branches:
                 # werr.append((sum((arr_bands_corr[nb][start:end+1] -
                 # arr_bands_ref_corr[nb][start:end+1])**2)/(end+1-start)*100,name))
                 bcheck[nbi][name] = np.mean(
-                    abs(
-                        arr_bands[nbi][start : end + 1]
-                        - zero
-                        - arr_bands_ref[nbi][start : end + 1]
-                        + zero_ref
-                    )
+                    abs(arr_bands[nbi][start : end + 1] - zero - arr_bands_ref[nbi][start : end + 1] + zero_ref)
                 )
     else:
         bcheck = "No nb given"
@@ -2705,34 +2425,27 @@ def compare_sym_bands(bands_obj, bands_ref_obj, nb=None):
 
 def seebeck_spb(eta, Lambda=0.5):
     """
-        Seebeck analytic formula in the single parabolic model
+    Seebeck analytic formula in the single parabolic model
     """
     from fdint import fdk
 
     return (
         constants.k
         / constants.e
-        * (
-            (2.0 + Lambda)
-            * fdk(1.0 + Lambda, eta)
-            / ((1.0 + Lambda) * fdk(Lambda, eta))
-            - eta
-        )
+        * ((2.0 + Lambda) * fdk(1.0 + Lambda, eta) / ((1.0 + Lambda) * fdk(Lambda, eta)) - eta)
         * 1e6
     )
 
 
 def eta_from_seebeck(seeb, Lambda):
     """
-        It takes a value of seebeck and adjusts the analytic seebeck until it's equal
-        Returns: eta where the two seebeck coefficients are equal
-        (reduced chemical potential)
+    It takes a value of seebeck and adjusts the analytic seebeck until it's equal
+    Returns: eta where the two seebeck coefficients are equal
+    (reduced chemical potential)
     """
     from scipy.optimize import fsolve
 
-    out = fsolve(
-        lambda x: (seebeck_spb(x, Lambda) - abs(seeb)) ** 2, 1.0, full_output=True
-    )
+    out = fsolve(lambda x: (seebeck_spb(x, Lambda) - abs(seeb)) ** 2, 1.0, full_output=True)
     return out[0][0]
 
 
@@ -2745,8 +2458,7 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
         from fdint import fdk
     except ImportError:
         raise BoltztrapError(
-            "fdint module not found. Please, install it.\n"
-            + "It is needed to calculate Fermi integral quickly."
+            "fdint module not found. Please, install it.\n" + "It is needed to calculate Fermi integral quickly."
         )
 
     return (2 * np.pi ** 2 * abs(n) * 10 ** 6 / (fdk(0.5, eta))) ** (2.0 / 3) / (
