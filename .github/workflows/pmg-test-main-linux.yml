@@ -35,6 +35,7 @@ jobs:
         echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
         echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
         python -m pip install --upgrade pip
+        pip install --force --upgrade numpy
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
