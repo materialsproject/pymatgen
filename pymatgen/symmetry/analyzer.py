@@ -1770,14 +1770,20 @@ class MagneticSpacegroupAnalyzer:
       self.magsymmetry_ops = mspg_list
       self.domains = domains
 
+      self._MagneticSpacegroup = self._search4MagneticSpacegroup( mspg_list )
+      
+      """
       # extend list of obtained symmetry operations by choices of origin
+      #print( len(self.magsymmetry_ops) )
       choices_of_origin = self.origin_centering( )
       if choices_of_origin!=[]:
         for origin_mop in choices_of_origin:
           self.magsymmetry_ops.append( origin_mop )
-      
+      #print( len(self.magsymmetry_ops), len(choices_of_origin) )
+
       # find magnetic space group corresponding to symm ops in msg_list
       self._MagneticSpaceGroup = self._brows4MagneticSpaceGroup( [mop.as_xyzt_string() for mop in self.magsymmetry_ops] )
+      """
 
     def get_paramag_symmetry_operations(self, cartesian=False, primitive=True):
         """
@@ -1924,6 +1930,95 @@ class MagneticSpacegroupAnalyzer:
         is_in = np.any([ site_a._species == site_b._species and np.allclose(site_a.frac_coords, site_b.frac_coords, atol=self._symprec) and site_a.properties == site_b.properties for site_b in struc2 ])
         sites_contained.append( is_in )
       return np.all( sites_contained )
+
+    def _same_MagSymmOp( self, mop1, mop2 ):
+      
+      same = True
+
+      rot1   = mop1.affine_matrix[0:3][:, 0:3]
+      rot2   = mop2.affine_matrix[0:3][:, 0:3]
+
+      #allowed_centering = [] #[origin.affine_matrix[0:3][:, 3] for origin in self.origin_centering()]
+      #if allowed_centering == []:
+      #  allowed_centering = np.array( [[0,0,0]] )
+      #else:
+      #  allowed_centering = np.append(allowed_centering, [[0,0,0]] , axis=0)
+
+      if mop1.time_reversal == mop2.time_reversal:
+        if np.allclose( rot1, rot2 ):
+          trans1 = mop1.affine_matrix[0:3][:, 3]
+          trans2 = mop2.affine_matrix[0:3][:, 3]
+          
+          #origin_shift = np.dot( np.linalg.inv( rot1 ) , trans2 - trans1 )
+          #origin_shift = np.mod( origin_shift + 10 + 1e-6, 1 ) - 1e-6
+         
+          #if not np.any( origin_shift - allowed_centering <= 1e-6 ):
+            #same = False
+          if not np.allclose(trans1, trans2):
+            same = False
+          origin_shift = None
+        else:
+          same = False
+          origin_shift = None
+      else:
+        same = False
+        origin_shift = None
+
+      return same, origin_shift 
+
+    def _search4MagneticSpacegroup( self, mop_list ):
+
+      # get dict of all potential magnetic spacegroups 
+      # according to the crystal system
+      from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+      
+      cs = self._spacegroupAnalyzer.get_crystal_system()
+
+      cs_range = {
+            "triclinic": (1, 8),
+            "monoclinic": (8, 99),
+            "orthorhombic": (99, 661),
+            "tetragonal": (661, 1231),
+            "trigonal": (1231, 1339),
+            "hexagonal": (1339, 1503),
+            "cubic": (1503, 1652),
+      }
+
+      all_mspg = {}
+      for i in range(*cs_range[cs]):
+        tmp_mspg = MagneticSpaceGroup(i)
+        if len(tmp_mspg.symmetry_ops) == len(mop_list):
+          all_mspg[i] = tmp_mspg
+      
+      # compare list of symm operations to each magnetic spacegroup
+      mspg_index = []
+      for i, tmp_mspg in all_mspg.items():
+        
+        all_mops_agree=False
+
+        tmp_mspg_minus_input = []
+        input_minus_tmp_mspg = []
+
+        for mop1 in tmp_mspg.symmetry_ops:
+          if not np.any( [self._same_MagSymmOp( mop1, mop2 )[0] for mop2 in mop_list] ):
+            tmp_mspg_minus_input.append(mop1)
+       
+        for mop2 in mop_list:
+          if not np.any( [self._same_MagSymmOp( mop1, mop2 )[0] for mop1 in tmp_mspg.symmetry_ops] ):
+            input_minus_tmp_mspg.append(mop2)
+          
+        if tmp_mspg_minus_input==[] and input_minus_tmp_mspg==[]:
+          all_mops_agree=True
+        else:
+          all_mops_agree=False
+
+        if all_mops_agree:
+          mspg_index.append( i )
+
+      # return the magnetic space group
+      if len(mspg_index)>1 or mspg_index == []: exit("Error in the list of symmetry operations. Cannot determine magnetic spacegroup.") 
+      return all_mspg[mspg_index[0]]
+
 
     def _brows4MagneticSpaceGroup( self, xyzt_string_list ):
       """
