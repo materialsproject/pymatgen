@@ -34,18 +34,19 @@ jobs:
         for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Linux_64bit" >> $GITHUB_PATH; done
         echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
         echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
-        python -m pip install --upgrade pip
-        pip install --force --upgrade numpy
+        python3 -m venv test-env
+        source test-env/bin/activate
+        pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
         pip install -e .
-
     - name: pytest
       shell: bash -l {0}
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
+        source test-env/bin/activate
         echo "PATH=$PATH"
         pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes

@@ -31,7 +31,9 @@ jobs:
         echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        python3 -m venv test-env
+        source test-env/bin/activate
+        pip install --upgrade pip
         pip install --force --upgrade numpy
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
@@ -42,5 +44,6 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
+        source test-env/bin/activate
         echo "PATH=$PATH"
         pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes

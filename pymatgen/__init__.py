@@ -18,7 +18,7 @@ except ImportError:
     try:
         import ruamel_yaml as yaml  # type: ignore  # noqa
     except ImportError:
-        import yaml   # type: ignore # noqa
+        import yaml  # type: ignore # noqa
 from monty.json import MontyDecoder, MontyEncoder, MSONable  # noqa
 
 __author__ = "Pymatgen Development Team"
