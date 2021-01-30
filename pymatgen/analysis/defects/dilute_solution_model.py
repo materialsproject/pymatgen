@@ -40,12 +40,8 @@ def _check_input(def_list):
     return flag
 
 
-@deprecated(
-    message="Refactoring of the defects module will eventualy remove this function"
-)
-def dilute_solution_model(
-    structure, e0, vac_defs, antisite_defs, T, trial_chem_pot=None, generate="plot"
-):
+@deprecated(message="Refactoring of the defects module will eventualy remove this function")
+def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_pot=None, generate="plot"):
     """
     Compute the defect densities using dilute solution model.
 
@@ -148,11 +144,7 @@ def dilute_solution_model(
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                if (
-                    i == j
-                    and site_species[j] != site_species[k]
-                    and site_species[i] != site_species[k]
-                ):
+                if i == j and site_species[j] != site_species[k] and site_species[i] != site_species[k]:
                     dC[i, j, k] = 1
         for j in range(n):
             for k in range(n):
@@ -195,10 +187,7 @@ def dilute_solution_model(
                     dE[i][j] = 0
                 else:
                     for as_def in antisite_defs:
-                        if (
-                            int(as_def["site_index"]) == j + 1
-                            and sub_specie == as_def["substitution_specie"]
-                        ):
+                        if int(as_def["site_index"]) == j + 1 and sub_specie == as_def["substitution_specie"]:
                             dE[i][j] = as_def["energy"]
                             break
     dE = np.array(dE)
@@ -211,9 +200,7 @@ def dilute_solution_model(
             c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n):
-                sum_mu = sum(
-                    [mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)]
-                )
+                sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)])
                 flip = Integer(dC[i, epi, p]) * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
@@ -230,9 +217,7 @@ def dilute_solution_model(
     c_ratio = [total_c[-1] / total_c[i] for i in range(m)]
 
     # Expression for Omega, the Grand Potential
-    omega1 = e0 - sum(
-        [mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n)]
-    )
+    omega1 = e0 - sum([mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n)])
     omega2 = []
     fm_en_eff = []
     used_dEs = []
@@ -242,12 +227,7 @@ def dilute_solution_model(
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
             if dE[epi, p_r] not in used_dEs:
-                omega2.append(
-                    k_B
-                    * T
-                    * multiplicity[p_r]
-                    * exp(-(dE[epi, p_r] - sum_mu) / (k_B * T))
-                )
+                omega2.append(k_B * T * multiplicity[p_r] * exp(-(dE[epi, p_r] - sum_mu) / (k_B * T)))
                 fm_en_eff.append(dE[epi, p_r] - sum_mu)
                 used_dEs.append(dE[epi, p_r])
     omega = omega1 - sum(omega2)
@@ -300,9 +280,7 @@ def dilute_solution_model(
             for ind in specie_site_index_map:
                 specie_concen.append(sum([sum(c_val[i, :]) for i in range(*ind)]))
             y_comp = [specie_concen[-1] / specie_concen[i] for i in range(m)]
-            diff = math.sqrt(
-                sum([pow(abs(y_comp[i] - y_vect[i]), 2) for i in range(m)])
-            )
+            diff = math.sqrt(sum([pow(abs(y_comp[i] - y_vect[i]), 2) for i in range(m)]))
             if diff < min_diff:
                 min_diff = diff
                 mu_vals = x
@@ -347,9 +325,7 @@ def dilute_solution_model(
             if not specie_ind_del - 1:
                 label = "$" + sub_specie + "_{" + site_specie + "}$"
             else:
-                label = (
-                    "$" + sub_specie + "_{" + site_specie + "_" + str(cur_ind) + "}$"
-                )
+                label = "$" + sub_specie + "_{" + site_specie + "_" + str(cur_ind) + "}$"
             formation_energies["antisites"][i]["label"] = label
             i += 1
         return formation_energies
@@ -395,11 +371,7 @@ def dilute_solution_model(
             except Exception:  # Go for antisite as dominant defect
                 mu_gs = [Symbol("mu_gs" + j.__str__()) for j in range(m)]
 
-                eqs = [
-                    mu_gs[0]
-                    - mu_gs[1]
-                    - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])
-                ]
+                eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])]
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)
                 x = solve(eqs, mu_gs)
                 # mu_names = sorted([key.name for key in x.keys()])
@@ -480,9 +452,7 @@ def dilute_solution_model(
 
         vector_func = [y - c_ratio[0]]
         vector_func.append(omega)
-        trial_mu = list(
-            map(lambda x: float(sum(x)) / len(x), zip(prev_mu_val, next_mu_val))
-        )
+        trial_mu = list(map(lambda x: float(sum(x)) / len(x), zip(prev_mu_val, next_mu_val)))
         try:
             x = nsolve(vector_func, mu, trial_mu, module="numpy")
             if x:
@@ -521,9 +491,7 @@ def dilute_solution_model(
     # Compute the concentrations for all the compositions
     for key in sorted(result.keys()):
         mu_val = result[key]
-        total_c_val = [
-            total_c[i].subs(dict(zip(mu, mu_val))) for i in range(len(total_c))
-        ]
+        total_c_val = [total_c[i].subs(dict(zip(mu, mu_val))) for i in range(len(total_c))]
         c_val = c.subs(dict(zip(mu, mu_val)))
         res1 = []
         # Concentration of first element/over total concen
@@ -532,18 +500,14 @@ def dilute_solution_model(
         for i in range(n):
             for j in range(n):
                 if i == j:  # Vacancy
-                    vac_conc = float(
-                        exp(-(mu_val[site_mu_map[i]] + dE[i, i]) / (k_B * T))
-                    )
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]] + dE[i, i]) / (k_B * T)))
                     res1.append(vac_conc)
                 else:  # Antisite
                     res1.append(float(c_val[i, j] / c0[j, j]))
         res.append(res1)
 
     res = np.array(res)
-    dtype = [(str("x"), np.float64)] + [
-        (str("y%d%d" % (i, j)), np.float64) for i in range(n) for j in range(n)
-    ]
+    dtype = [(str("x"), np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=[str("x")], axis=0)
 
     conc_data = {}
@@ -592,9 +556,7 @@ def dilute_solution_model(
             if not specie_ind_del - 1:
                 label = "$" + sub_specie + "_{" + site_specie + "}$"
             else:
-                label = (
-                    "$" + sub_specie + "_{" + site_specie + "_" + str(cur_ind) + "}$"
-                )
+                label = "$" + sub_specie + "_{" + site_specie + "_" + str(cur_ind) + "}$"
             inds = specie_site_index_map[j]
             # TODO: Investigate the value below
             data = np.sum([conc[ind][i] for ind in range(*inds)], axis=0)
@@ -895,11 +857,7 @@ def solute_site_preference_finder(
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                if (
-                    i == j
-                    and site_species[j] != site_species[k]
-                    and site_species[i] != site_species
-                ):
+                if i == j and site_species[j] != site_species[k] and site_species[i] != site_species:
                     dC[i, j, k] = 1
         for j in range(n + 1):
             for k in range(n):
@@ -943,10 +901,7 @@ def solute_site_preference_finder(
                     dE[i][j] = 0
                 else:
                     for as_def in antisite_defs:
-                        if (
-                            int(as_def["site_index"]) == j + 1
-                            and sub_specie == as_def["substitution_specie"]
-                        ):
+                        if int(as_def["site_index"]) == j + 1 and sub_specie == as_def["substitution_specie"]:
                             dE[i][j] = as_def["energy"]
                             break
         # Solute
@@ -969,9 +924,7 @@ def solute_site_preference_finder(
             c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n + 1):
-                sum_mu = sum(
-                    [mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n + 1)]
-                )
+                sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n + 1)])
                 flip = dC[i, epi, p] * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
@@ -982,9 +935,7 @@ def solute_site_preference_finder(
             host_c[i, p] = Integer(c0[i, p])
             site_flip_contribs = []
             for epi in range(n):
-                sum_mu = sum(
-                    [mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)]
-                )
+                sum_mu = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p]) for j in range(n)])
                 flip = dC[i, epi, p] * exp(-(dE[epi, p] - sum_mu) / (k_B * T))
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
@@ -1013,51 +964,31 @@ def solute_site_preference_finder(
     host_c_ratio = [host_total_c[i] / sum(host_total_c) for i in range(m - 1)]
 
     # Expression for Omega, the Grand Potential
-    omega1 = e0 - sum(
-        [mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n)]
-    )
+    omega1 = e0 - sum([mu[site_mu_map[i]] * sum(c0[i, :]) * multiplicity[i] for i in range(n)])
     omega = omega1
 
     used_dEs = []
     for p_r in range(n):
         for epi in range(n):
-            sum_mu1 = sum(
-                [mu[site_mu_map[j]] * Integer(dC[j, epi, p_r]) for j in range(n)]
-            )
+            sum_mu1 = sum([mu[site_mu_map[j]] * Integer(dC[j, epi, p_r]) for j in range(n)])
             sum_mu = sum_mu1 - mu[site_mu_map[n]] * dC[n, epi, p_r]
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
             if dE[epi, p_r] not in used_dEs:
-                omega1 -= (
-                    k_B
-                    * T
-                    * multiplicity[p_r]
-                    * exp(-(dE[epi, p_r] - sum_mu1) / (k_B * T))
-                )
-                omega -= (
-                    k_B
-                    * T
-                    * multiplicity[p_r]
-                    * exp(-(dE[epi, p_r] - sum_mu) / (k_B * T))
-                )
+                omega1 -= k_B * T * multiplicity[p_r] * exp(-(dE[epi, p_r] - sum_mu1) / (k_B * T))
+                omega -= k_B * T * multiplicity[p_r] * exp(-(dE[epi, p_r] - sum_mu) / (k_B * T))
                 used_dEs.append(dE[epi, p_r])
 
     # Compute composition ranges
     max_host_specie_concen = 1 - solute_concen
     mult = multiplicity
     specie_concen = [sum(mult[ind[0] : ind[1]]) for ind in specie_site_index_map]
-    host_specie_concen_ratio = [
-        specie_concen[i] / sum(specie_concen) * max_host_specie_concen for i in range(m)
-    ]
+    host_specie_concen_ratio = [specie_concen[i] / sum(specie_concen) * max_host_specie_concen for i in range(m)]
     host_specie_concen_ratio[-1] = solute_concen
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
-    comp1_min = (
-        sum(multiplicity[li:hi]) / sum(multiplicity) * max_host_specie_concen - 0.01
-    )
-    comp1_max = (
-        sum(multiplicity[li:hi]) / sum(multiplicity) * max_host_specie_concen + 0.01
-    )
+    comp1_min = sum(multiplicity[li:hi]) / sum(multiplicity) * max_host_specie_concen - 0.01
+    comp1_max = sum(multiplicity[li:hi]) / sum(multiplicity) * max_host_specie_concen + 0.01
     delta = (comp1_max - comp1_min) / 50.0
 
     # def reduce_mu():
@@ -1070,9 +1001,7 @@ def solute_site_preference_finder(
         for i in range(n):
             new_c0[i, i] = host_concen * c0[i, i]
         new_c0[n, n] = 2 * solute_concen
-        omega = [
-            e0 - sum([mu[site_mu_map[i]] * sum(new_c0[i, :]) for i in range(n + 1)])
-        ]
+        omega = [e0 - sum([mu[site_mu_map[i]] * sum(new_c0[i, :]) for i in range(n + 1)])]
         x = solve(omega)
         return x
 
@@ -1081,10 +1010,7 @@ def solute_site_preference_finder(
         mult = multiplicity
         specie_concen = [sum(mult[ind[0] : ind[1]]) for ind in specie_site_index_map]
         max_host_specie_concen = 1 - solute_concen
-        host_specie_concen_ratio = [
-            specie_concen[i] / sum(specie_concen) * max_host_specie_concen
-            for i in range(m)
-        ]
+        host_specie_concen_ratio = [specie_concen[i] / sum(specie_concen) * max_host_specie_concen for i in range(m)]
         host_specie_concen_ratio[-1] = solute_concen
         y_vect = host_specie_concen_ratio
         vector_func = [y_vect[i] - c_ratio[i] for i in range(m)]
@@ -1115,10 +1041,7 @@ def solute_site_preference_finder(
         mult = multiplicity
         specie_concen = [sum(mult[ind[0] : ind[1]]) for ind in specie_site_index_map]
         max_host_specie_concen = 1 - solute_concen
-        host_specie_concen_ratio = [
-            specie_concen[i] / sum(specie_concen) * max_host_specie_concen
-            for i in range(m)
-        ]
+        host_specie_concen_ratio = [specie_concen[i] / sum(specie_concen) * max_host_specie_concen for i in range(m)]
         host_specie_concen_ratio[-1] = solute_concen
 
         y_vect = host_specie_concen_ratio
@@ -1176,11 +1099,7 @@ def solute_site_preference_finder(
             except Exception:  # Go for antisite as dominant defect
                 mu_gs = [Symbol("mu_gs" + j.__str__()) for j in range(m - 1)]
 
-                eqs = [
-                    mu_gs[0]
-                    - mu_gs[1]
-                    - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])
-                ]
+                eqs = [mu_gs[0] - mu_gs[1] - (ln_def_conc * k_B * T - antisite_defs[i]["energy"])]
                 eqs.append(spec_mult[0] * mu_gs[0] + spec_mult[1] * mu_gs[1] - e0)
                 x = solve(eqs, mu_gs)
                 host_mu_vals = []
@@ -1231,9 +1150,7 @@ def solute_site_preference_finder(
     # Compute the concentrations for all the compositions
     for key in sorted(result.keys()):
         mu_val = result[key]
-        total_c_val = [
-            total_c[i].subs(dict(zip(mu, mu_val))) for i in range(len(total_c))
-        ]
+        total_c_val = [total_c[i].subs(dict(zip(mu, mu_val))) for i in range(len(total_c))]
         c_val = c.subs(dict(zip(mu, mu_val)))
         # Concentration of first element/over total concen
         res1 = []
@@ -1242,18 +1159,14 @@ def solute_site_preference_finder(
         for i in range(n + 1):
             for j in range(n):
                 if i == j:  # Vacancy
-                    vac_conc = float(
-                        exp(-(mu_val[site_mu_map[i]] + dE[i, i]) / (k_B * T))
-                    )
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]] + dE[i, i]) / (k_B * T)))
                     res1.append(vac_conc)
                 else:  # Antisite
                     res1.append(float(c_val[i, j] / c0[j, j]))
         res.append(res1)
 
     res = np.array(res)
-    dtype = [(str("x"), np.float64)] + [
-        (str("y%d%d" % (i, j)), np.float64) for i in range(n + 1) for j in range(n)
-    ]
+    dtype = [(str("x"), np.float64)] + [(str("y%d%d" % (i, j)), np.float64) for i in range(n + 1) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=[str("x")], axis=0)
 
     conc = []
@@ -1327,9 +1240,7 @@ def solute_site_preference_finder(
             if not specie_ind_del - 1:
                 label = "$" + sub_specie + "_{" + site_specie + "}$"
             else:
-                label = (
-                    "$" + sub_specie + "_{" + site_specie + "_" + str(cur_ind) + "}$"
-                )
+                label = "$" + sub_specie + "_{" + site_specie + "_" + str(cur_ind) + "}$"
             inds = specie_site_index_map[j]
             # TODO: Investigate the value below
             data = np.sum([conc[ind][i] for ind in range(*inds)], axis=0)

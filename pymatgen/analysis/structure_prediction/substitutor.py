@@ -112,12 +112,9 @@ class Substitutor(MSONable):
         target_species = get_el_sp(target_species)
         result = []
         transmuter = StandardTransmuter([])
-        if len(list(set(target_species) & set(self.get_allowed_species()))) != len(
-            target_species
-        ):
+        if len(list(set(target_species) & set(self.get_allowed_species()))) != len(target_species):
             raise ValueError(
-                "the species in target_species are not allowed "
-                + "for the probability model you are using"
+                "the species in target_species are not allowed " + "for the probability model you are using"
             )
 
         for permut in itertools.permutations(target_species):
@@ -127,25 +124,18 @@ class Substitutor(MSONable):
                 els = s["structure"].composition.elements
                 if (
                     len(els) == len(permut)
-                    and len(list(set(els) & set(self.get_allowed_species())))
-                    == len(els)
+                    and len(list(set(els) & set(self.get_allowed_species()))) == len(els)
                     and self._sp.cond_prob_list(permut, els) > self._threshold
                 ):
 
-                    clean_subst = {
-                        els[i]: permut[i]
-                        for i in range(0, len(els))
-                        if els[i] != permut[i]
-                    }
+                    clean_subst = {els[i]: permut[i] for i in range(0, len(els)) if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:
                         continue
 
                     transf = SubstitutionTransformation(clean_subst)
 
-                    if Substitutor._is_charge_balanced(
-                        transf.apply_transformation(s["structure"])
-                    ):
+                    if Substitutor._is_charge_balanced(transf.apply_transformation(s["structure"])):
                         ts = TransformedStructure(
                             s["structure"],
                             [transf],
@@ -169,9 +159,7 @@ class Substitutor(MSONable):
                 for st in structures_list
                 if Substitutor._is_from_chemical_system(chemsys, st["structure"])
             ]
-            transmuter.apply_filter(
-                RemoveExistingFilter(structures_list_target, symprec=self._symprec)
-            )
+            transmuter.apply_filter(RemoveExistingFilter(structures_list_target, symprec=self._symprec))
         return transmuter.transformed_structures
 
     @staticmethod

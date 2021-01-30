@@ -37,9 +37,7 @@ def get_lower_and_upper_f(surface_calculation_options):
     minang = surface_calculation_options["angle_bounds"]["lower"]
     maxang = surface_calculation_options["angle_bounds"]["upper"]
     if surface_calculation_options["type"] == "standard_elliptic":
-        lower_and_upper_functions = quarter_ellipsis_functions(
-            xx=(mindist, maxang), yy=(maxdist, minang)
-        )
+        lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
     elif surface_calculation_options["type"] == "standard_diamond":
         deltadist = surface_calculation_options["distance_bounds"]["delta"]
         deltaang = surface_calculation_options["angle_bounds"]["delta"]
@@ -55,8 +53,7 @@ def get_lower_and_upper_f(surface_calculation_options):
         )
     else:
         raise ValueError(
-            'Surface calculation of type "{}" '
-            "is not implemented".format(surface_calculation_options["type"])
+            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
         )
     return lower_and_upper_functions
 
@@ -241,14 +238,10 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         x_ppoint = (p2[1] - ap_intercept) / slope
 
         def lower(x):
-            return np.where(
-                x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept
-            )
+            return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
 
         def upper(x):
-            return np.where(
-                x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept
-            )
+            return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
 
     else:
         x_bpoint = p1[0] + x_y0
@@ -260,14 +253,10 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         x_ppoint = (p2[1] - ap_intercept) / slope
 
         def lower(x):
-            return np.where(
-                x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept
-            )
+            return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
 
         def upper(x):
-            return np.where(
-                x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept
-            )
+            return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
 
     return {"lower": lower, "upper": upper}
 
@@ -314,9 +303,7 @@ def rectangle_surface_intersection(
         if bounds_lower is not None:
             if bounds_upper is not None:
                 if not all(np.array(bounds_lower) == np.array(bounds_upper)):
-                    raise ValueError(
-                        "Bounds should be identical for both f_lower and f_upper"
-                    )
+                    raise ValueError("Bounds should be identical for both f_lower and f_upper")
                 if "<" not in function_comparison(
                     f1=f_lower,
                     f2=f_upper,
@@ -345,9 +332,7 @@ def rectangle_surface_intersection(
                     "the domain defined by the functions bounds."
                 )
         else:
-            if "<" not in function_comparison(
-                f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check
-            ):
+            if "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
                 raise RuntimeError(
                     "Function f_lower is not allways lower or equal to function f_upper within "
                     "the domain defined by x1 and x2."
@@ -400,14 +385,9 @@ def my_solid_angle(center, coords):
     phi = 0.0
     for i in range(len(n) - 1):
         try:
-            value = math.acos(
-                -np.dot(n[i], n[i + 1])
-                / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-            )
+            value = math.acos(-np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
         except ValueError:
-            mycos = -np.dot(n[i], n[i + 1]) / (
-                np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])
-            )
+            mycos = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
             if 0.999999999999 < mycos < 1.000000000001:
                 value = math.acos(1.0)
             elif -0.999999999999 > mycos > -1.000000000001:
@@ -507,14 +487,10 @@ def collinear(p1, p2, p3=None, tolerance=0.25):
     """
     if p3 is None:
         triangle_area = 0.5 * np.linalg.norm(np.cross(p1, p2))
-        dist = np.sort(
-            [np.linalg.norm(p2 - p1), np.linalg.norm(p1), np.linalg.norm(p2)]
-        )
+        dist = np.sort([np.linalg.norm(p2 - p1), np.linalg.norm(p1), np.linalg.norm(p2)])
     else:
         triangle_area = 0.5 * np.linalg.norm(np.cross(p1 - p3, p2 - p3))
-        dist = np.sort(
-            [np.linalg.norm(p2 - p1), np.linalg.norm(p3 - p1), np.linalg.norm(p3 - p2)]
-        )
+        dist = np.sort([np.linalg.norm(p2 - p1), np.linalg.norm(p3 - p1), np.linalg.norm(p3 - p2)])
     largest_triangle_area = 0.5 * dist[0] * dist[1]
     return triangle_area < tolerance * largest_triangle_area
 
@@ -586,9 +562,7 @@ def separation_in_list(separation_indices, separation_indices_list):
     """
     sorted_separation = sort_separation(separation_indices)
     for sep in separation_indices_list:
-        if len(sep[1]) == len(sorted_separation[1]) and np.allclose(
-            sorted_separation[1], sep[1]
-        ):
+        if len(sep[1]) == len(sorted_separation[1]) and np.allclose(sorted_separation[1], sep[1]):
             return True
     return False
 
@@ -643,9 +617,7 @@ class Plane:
         :param coefficients: abcd coefficients of the plane
         """
         # Initializes the normal vector
-        self.normal_vector = np.array(
-            [coefficients[0], coefficients[1], coefficients[2]], np.float
-        )
+        self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float)
         normv = np.linalg.norm(self.normal_vector)
         self.normal_vector /= normv
         nonzeros = np.argwhere(self.normal_vector != 0.0).flatten()
@@ -720,10 +692,7 @@ class Plane:
         :param dist_tolerance: tolerance on the distance to the plane within which point pp is considered in the plane
         :return: True if pp is in the plane, False otherwise
         """
-        return (
-            np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3])
-            <= dist_tolerance
-        )
+        return np.abs(np.dot(self.normal_vector, pp) + self._coefficients[3]) <= dist_tolerance
 
     def is_same_plane_as(self, plane):
         """
@@ -803,9 +772,7 @@ class Plane:
             indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
         return distances, indices
 
-    def distances_indices_groups(
-        self, points, delta=None, delta_factor=0.05, sign=False
-    ):
+    def distances_indices_groups(self, points, delta=None, delta_factor=0.05, sign=False):
         """
         Computes the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
@@ -828,15 +795,11 @@ class Plane:
         iends = [
             ii
             for ii, idist in enumerate(indices, start=1)
-            if ii == len(distances)
-            or (np.abs(distances[indices[ii]]) - np.abs(distances[idist]) > delta)
+            if ii == len(distances) or (np.abs(distances[indices[ii]]) - np.abs(distances[idist]) > delta)
         ]
         if sign:
             indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
-        grouped_indices = [
-            indices[iends[ii - 1] : iend] if ii > 0 else indices[:iend]
-            for ii, iend in enumerate(iends)
-        ]
+        grouped_indices = [indices[iends[ii - 1] : iend] if ii > 0 else indices[:iend] for ii, iend in enumerate(iends)]
         return distances, indices, grouped_indices
 
     def projectionpoints(self, pps):
@@ -845,10 +808,7 @@ class Plane:
         :param pps: List of points to project on plane
         :return: List of projected point on plane
         """
-        return [
-            pp - np.dot(pp - self.p1, self.normal_vector) * self.normal_vector
-            for pp in pps
-        ]
+        return [pp - np.dot(pp - self.p1, self.normal_vector) * self.normal_vector for pp in pps]
 
     def orthonormal_vectors(self):
         """
@@ -873,21 +833,13 @@ class Plane:
         if self.e1 is None:
             imax = np.argmax(np.abs(self.normal_vector))
             if imax == 0:
-                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(
-                    self.e3[0] ** 2 + self.e3[1] ** 2
-                )
+                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
             elif imax == 1:
-                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(
-                    self.e3[1] ** 2 + self.e3[2] ** 2
-                )
+                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
             elif imax == 2:
-                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(
-                    self.e3[0] ** 2 + self.e3[2] ** 2
-                )
+                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
             else:
-                raise ValueError(
-                    "Only three values in the normal vector, should not be here ..."
-                )
+                raise ValueError("Only three values in the normal vector, should not be here ...")
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 
@@ -909,9 +861,7 @@ class Plane:
         """
         proj = self.projectionpoints(pps)
         [u1, u2, u3] = self.orthonormal_vectors()
-        PP = np.array(
-            [[u1[0], u2[0], u3[0]], [u1[1], u2[1], u3[1]], [u1[2], u2[2], u3[2]]]
-        )
+        PP = np.array([[u1[0], u2[0], u3[0]], [u1[1], u2[1], u3[1]], [u1[2], u2[2], u3[2]]])
         xypps = list()
         for pp in proj:
             xyzpp = np.dot(pp, PP)
@@ -1033,9 +983,7 @@ class Plane:
         if normal_vector[nonzeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, p1)
-        coefficients = np.array(
-            [normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float
-        )
+        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float)
         return cls(coefficients, p1=p1, p2=p2, p3=p3)
 
     @classmethod
@@ -1063,9 +1011,7 @@ class Plane:
         :param points:
         :return:
         """
-        mean_point = np.array(
-            [sum([pp[ii] for pp in points]) for ii in range(3)], np.float
-        )
+        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float)
         mean_point /= len(points)
         AA = np.zeros((len(points), 3), np.float)
         for ii, pp in enumerate(points):
@@ -1078,9 +1024,7 @@ class Plane:
         if normal_vector[nonzeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, mean_point)
-        coefficients = np.array(
-            [normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float
-        )
+        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float)
         return cls(coefficients)
 
     @classmethod
@@ -1094,11 +1038,7 @@ class Plane:
         middle_point = 0.5 * (p1 + p2)
         normal_vector = p2 - p1
         dd = -np.dot(normal_vector, middle_point)
-        return cls(
-            np.array(
-                [normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float
-            )
-        )
+        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float))
 
     @classmethod
     def from_npoints_maximum_distance(cls, points):
@@ -1122,17 +1062,10 @@ class Plane:
         cc = convex_hull.equations[imin_height]
         highest_point = points[ipoints_heights[imin_height]]
         middle_point = (
-            Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3]).projectionpoints(
-                [highest_point]
-            )[0]
-            + highest_point
+            Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3]).projectionpoints([highest_point])[0] + highest_point
         ) / 2
         dd = -np.dot(normal_vector, middle_point)
-        return cls(
-            np.array(
-                [normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float
-            )
-        )
+        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float))
 
     @classmethod
     def from_coefficients(cls, a, b, c, d):

@@ -18,12 +18,8 @@ class BondDissociationTest(unittest.TestCase):
     def setUp(self):
         pytest.importorskip("openbabel", reason="OpenBabel not installed")
         self.PC_65_principle = loadfn(os.path.join(module_dir, "PC_65_principle.json"))
-        self.PC_65_principle["initial_molecule"] = self.PC_65_principle[
-            "initial_molecule"
-        ].as_dict()
-        self.PC_65_principle["final_molecule"] = self.PC_65_principle[
-            "final_molecule"
-        ].as_dict()
+        self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()
+        self.PC_65_principle["final_molecule"] = self.PC_65_principle["final_molecule"].as_dict()
         self.PC_65_fragments = loadfn(os.path.join(module_dir, "PC_65_fragments.json"))
         for entry in self.PC_65_fragments:
             entry["initial_molecule"] = entry["initial_molecule"].as_dict()
@@ -293,18 +289,10 @@ class BondDissociationTest(unittest.TestCase):
                 -0.6562050352,
             ],
         ]
-        self.neg_EC_40_principle = loadfn(
-            os.path.join(module_dir, "neg_EC_40_principle.json")
-        )
-        self.neg_EC_40_principle["initial_molecule"] = self.neg_EC_40_principle[
-            "initial_molecule"
-        ].as_dict()
-        self.neg_EC_40_principle["final_molecule"] = self.neg_EC_40_principle[
-            "final_molecule"
-        ].as_dict()
-        self.neg_EC_40_fragments = loadfn(
-            os.path.join(module_dir, "neg_EC_40_fragments.json")
-        )
+        self.neg_EC_40_principle = loadfn(os.path.join(module_dir, "neg_EC_40_principle.json"))
+        self.neg_EC_40_principle["initial_molecule"] = self.neg_EC_40_principle["initial_molecule"].as_dict()
+        self.neg_EC_40_principle["final_molecule"] = self.neg_EC_40_principle["final_molecule"].as_dict()
+        self.neg_EC_40_fragments = loadfn(os.path.join(module_dir, "neg_EC_40_fragments.json"))
         for entry in self.neg_EC_40_fragments:
             entry["initial_molecule"] = entry["initial_molecule"].as_dict()
             entry["final_molecule"] = entry["final_molecule"].as_dict()
@@ -407,18 +395,10 @@ class BondDissociationTest(unittest.TestCase):
                 -342.361057174555,
             ],
         ]
-        self.neg_TFSI_principle = loadfn(
-            os.path.join(module_dir, "neg_TFSI_principle.json")
-        )
-        self.neg_TFSI_principle["initial_molecule"] = self.neg_TFSI_principle[
-            "initial_molecule"
-        ].as_dict()
-        self.neg_TFSI_principle["final_molecule"] = self.neg_TFSI_principle[
-            "final_molecule"
-        ].as_dict()
-        self.neg_TFSI_fragments = loadfn(
-            os.path.join(module_dir, "neg_TFSI_fragments.json")
-        )
+        self.neg_TFSI_principle = loadfn(os.path.join(module_dir, "neg_TFSI_principle.json"))
+        self.neg_TFSI_principle["initial_molecule"] = self.neg_TFSI_principle["initial_molecule"].as_dict()
+        self.neg_TFSI_principle["final_molecule"] = self.neg_TFSI_principle["final_molecule"].as_dict()
+        self.neg_TFSI_fragments = loadfn(os.path.join(module_dir, "neg_TFSI_fragments.json"))
         for entry in self.neg_TFSI_fragments:
             entry["initial_molecule"] = entry["initial_molecule"].as_dict()
             entry["final_molecule"] = entry["final_molecule"].as_dict()
@@ -564,9 +544,7 @@ class BondDissociationTest(unittest.TestCase):
         self.assertEqual(BDE.bond_dissociation_energies, self.PC_correct)
 
     def test_ec_neg_pcm_40(self):
-        BDE = BondDissociationEnergies(
-            self.neg_EC_40_principle, self.neg_EC_40_fragments
-        )
+        BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
         self.assertEqual(len(BDE.filtered_entries), 18)
         self.assertEqual(BDE.bond_dissociation_energies, self.EC_correct)
 

@@ -116,9 +116,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         for two_theta, i, hkls, d_hkl in zip(xrd.x, xrd.y, xrd.hkls, xrd.d_hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl["hkl"]) for hkl in hkls])
-                ax.plot(
-                    [two_theta, two_theta], [0, i], color="k", linewidth=3, label=label
-                )
+                ax.plot([two_theta, two_theta], [0, i], color="k", linewidth=3, label=label)
                 if annotate_peaks:
                     ax.annotate(
                         label,
@@ -172,17 +170,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_plot(
-                structure,
-                fontsize=fontsize,
-                ax=ax,
-                with_labels=i == nrows - 1,
-                **kwargs
-            )
+            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == nrows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
-            ax.set_title(
-                "{} {} ({}) ".format(structure.formula, spg_symbol, spg_number)
-            )
+            ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol, spg_number))
 
         return fig
 

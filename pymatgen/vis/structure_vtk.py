@@ -40,9 +40,7 @@ class StructureVis:
     Provides Structure object visualization using VTK.
     """
 
-    @requires(
-        vtk, "Visualization requires the installation of VTK with " "Python bindings."
-    )
+    @requires(vtk, "Visualization requires the installation of VTK with " "Python bindings.")
     def __init__(
         self,
         element_color_mapping=None,
@@ -110,9 +108,7 @@ class StructureVis:
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
         self.poly_radii_tol_factor = poly_radii_tol_factor
-        self.excluded_bonding_elements = (
-            excluded_bonding_elements if excluded_bonding_elements else []
-        )
+        self.excluded_bonding_elements = excluded_bonding_elements if excluded_bonding_elements else []
         self.show_help = True
         self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         self.redraw()
@@ -206,11 +202,9 @@ class StructureVis:
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor "
-            "by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "[/]: Decrease or increase poly_radii_tol_factor " "by 0.05. Value = " + str(self.poly_radii_tol_factor),
             "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
-            "Left/right: Rotate view along camera direction by "
-            "90 clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by " "90 clockwise/anticlockwise",
             "s: Save view to image.png",
             "o: Orthogonalize structure",
         ]
@@ -282,14 +276,10 @@ class StructureVis:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(
-                        self.el_color_mapping.get(sp.symbol, [0, 0, 0])
-                    )
+                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
-                    max_radius = (1 + self.poly_radii_tol_factor) * (
-                        max_radius + anion_radius
-                    )
+                    max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
                     nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
                     for neighbor in nn:
@@ -315,9 +305,7 @@ class StructureVis:
             if has_lattice:
                 # Adjust the camera for best viewing
                 lengths = s.lattice.abc
-                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(
-                    lengths
-                ) / lengths[0] * 3.5
+                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
@@ -377,9 +365,7 @@ class StructureVis:
                 color = (1, 1, 1)
             elif specie.symbol in self.el_color_mapping:
                 color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
-            mapper = self.add_partial_sphere(
-                site.coords, vis_radius, color, start_angle, start_angle + 360 * occu
-            )
+            mapper = self.add_partial_sphere(site.coords, vis_radius, color, start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
 
@@ -581,8 +567,7 @@ class StructureVis:
         if color == "element":
             if center is None:
                 raise ValueError(
-                    "Color should be chosen according to the central atom, "
-                    "and central atom is not provided"
+                    "Color should be chosen according to the central atom, " "and central atom is not provided"
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
@@ -786,9 +771,7 @@ class StructureVis:
                         row = [
                             "{} - ".format(site.species_string),
                             ", ".join(["{:.3f}".format(c) for c in site.frac_coords]),
-                            "["
-                            + ", ".join(["{:.3f}".format(c) for c in site.coords])
-                            + "]",
+                            "[" + ", ".join(["{:.3f}".format(c) for c in site.coords]) + "]",
                         ]
                         output.append("".join(row))
                     self.helptxt_mapper.SetInput("\n".join(output))
@@ -828,8 +811,7 @@ class StructureVis:
                     site = self.mapper_map[mapper]
                     output = [
                         site.species_string,
-                        "Frac. coords: "
-                        + " ".join(["{:.4f}".format(c) for c in site.frac_coords]),
+                        "Frac. coords: " + " ".join(["{:.4f}".format(c) for c in site.frac_coords]),
                     ]
                     source.SetText("\n".join(output))
                     follower.SetPosition(pick_pos)
@@ -917,9 +899,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             parent.show_bonds = not parent.show_bonds
             parent.redraw()
         elif sym == "bracketleft":
-            parent.poly_radii_tol_factor -= (
-                0.05 if parent.poly_radii_tol_factor > 0 else 0
-            )
+            parent.poly_radii_tol_factor -= 0.05 if parent.poly_radii_tol_factor > 0 else 0
             parent.redraw()
         elif sym == "bracketright":
             parent.poly_radii_tol_factor += 0.05
@@ -946,15 +926,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         self.OnKeyPress()
 
 
-def make_movie(
-    structures,
-    output_filename="movie.mp4",
-    zoom=1.0,
-    fps=20,
-    bitrate="10000k",
-    quality=1,
-    **kwargs
-):
+def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrate="10000k", quality=1, **kwargs):
     r"""
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
@@ -1087,9 +1059,7 @@ class MultiStructuresVis(StructureVis):
                 struct_vis_radii.append(vis_radius)
             self.all_radii.append(struct_radii)
             self.all_vis_radii.append(struct_vis_radii)
-        self.set_structure(
-            self.current_structure, reset_camera=True, to_unit_cell=False
-        )
+        self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
     def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
         """
@@ -1101,9 +1071,7 @@ class MultiStructuresVis(StructureVis):
                 determined based on the structure.
             to_unit_cell: Whether or not to fall back sites into the unit cell.
         """
-        super().set_structure(
-            structure=structure, reset_camera=reset_camera, to_unit_cell=to_unit_cell
-        )
+        super().set_structure(structure=structure, reset_camera=reset_camera, to_unit_cell=to_unit_cell)
         self.apply_tags()
 
     def apply_tags(self):
@@ -1133,9 +1101,7 @@ class MultiStructuresVis(StructureVis):
             if "radius" in tag:
                 vis_radius = tag["radius"]
             elif "radius_factor" in tag:
-                vis_radius = (
-                    tag["radius_factor"] * self.all_vis_radii[self.istruct][site_index]
-                )
+                vis_radius = tag["radius_factor"] * self.all_vis_radii[self.istruct][site_index]
             else:
                 vis_radius = 1.5 * self.all_vis_radii[self.istruct][site_index]
             tags[(site_index, cell_index)] = {
@@ -1196,11 +1162,9 @@ class MultiStructuresVis(StructureVis):
             "# : Toggle showing of polyhedrons",
             "-: Toggle showing of bonds",
             "r : Reset camera direction",
-            "[/]: Decrease or increase poly_radii_tol_factor "
-            "by 0.05. Value = " + str(self.poly_radii_tol_factor),
+            "[/]: Decrease or increase poly_radii_tol_factor " "by 0.05. Value = " + str(self.poly_radii_tol_factor),
             "Up/Down: Rotate view along Up direction by 90 " "clockwise/anticlockwise",
-            "Left/right: Rotate view along camera direction by "
-            "90 clockwise/anticlockwise",
+            "Left/right: Rotate view along camera direction by " "90 clockwise/anticlockwise",
             "s: Save view to image.png",
             "o: Orthogonalize structure",
             "n: Move to next structure",
@@ -1296,9 +1260,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
             else:
                 parent.istruct += 1
                 parent.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(
-                    parent.current_structure, reset_camera=False, to_unit_cell=False
-                )
+                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                 parent.erase_warning()
                 parent.ren_win.Render()
         elif sym == "p":
@@ -1309,17 +1271,13 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
 
                 parent.istruct -= 1
                 parent.current_structure = parent.structures[parent.istruct]
-                parent.set_structure(
-                    parent.current_structure, reset_camera=False, to_unit_cell=False
-                )
+                parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                 parent.erase_warning()
                 parent.ren_win.Render()
         elif sym == "m":
             parent.istruct = 0
             parent.current_structure = parent.structures[parent.istruct]
-            parent.set_structure(
-                parent.current_structure, reset_camera=False, to_unit_cell=False
-            )
+            parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
             parent.erase_warning()
             parent.ren_win.Render()
             nloops = parent.animated_movie_options["number_of_loops"]
@@ -1328,9 +1286,7 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
             if parent.animated_movie_options["looping_type"] == "restart":
                 loop_istructs = range(len(parent.structures))
             elif parent.animated_movie_options["looping_type"] == "palindrome":
-                loop_istructs = range(len(parent.structures)) + range(
-                    len(parent.structures) - 2, -1, -1
-                )
+                loop_istructs = range(len(parent.structures)) + range(len(parent.structures) - 2, -1, -1)
             else:
                 raise ValueError('"looping_type" should be "restart" or "palindrome"')
             for iloop in range(nloops):
@@ -1338,14 +1294,10 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
                     time.sleep(tstep)
                     parent.istruct = istruct
                     parent.current_structure = parent.structures[parent.istruct]
-                    parent.set_structure(
-                        parent.current_structure, reset_camera=False, to_unit_cell=False
-                    )
+                    parent.set_structure(parent.current_structure, reset_camera=False, to_unit_cell=False)
                     parent.display_info(
                         "Animated movie : structure {:d}/{:d} "
-                        "(loop {:d}/{:d})".format(
-                            istruct + 1, len(parent.structures), iloop + 1, nloops
-                        )
+                        "(loop {:d}/{:d})".format(istruct + 1, len(parent.structures), iloop + 1, nloops)
                     )
                     parent.ren_win.Render()
                 time.sleep(tloops)

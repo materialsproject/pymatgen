@@ -110,9 +110,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         self.assertEqual(len(basics), 1)
         self.assertEqual(len(basics[0]), 4)
 
-        basics_no_methyl = self.extractor.get_basic_functional_groups(
-            func_groups=["phenyl"]
-        )
+        basics_no_methyl = self.extractor.get_basic_functional_groups(func_groups=["phenyl"])
         self.assertEqual(len(basics_no_methyl), 0)
 
     def test_get_all_functional_groups(self):

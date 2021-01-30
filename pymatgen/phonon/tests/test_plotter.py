@@ -19,16 +19,12 @@ class PhononDosPlotterTest(unittest.TestCase):
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 0)
-        self.plotter.add_dos_dict(
-            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
-        )
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 2)
 
     def test_get_dos_dict(self):
-        self.plotter.add_dos_dict(
-            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
-        )
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
         for el in ["Na", "Cl"]:
             self.assertIn(el, d)
@@ -57,17 +53,13 @@ class PhononBSPlotterTest(unittest.TestCase):
             51,
             "wrong number of distances in the first branch",
         )
-        self.assertEqual(
-            len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches"
-        )
+        self.assertEqual(len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches")
         self.assertEqual(
             sum([len(e) for e in self.plotter.bs_plot_data()["distances"]]),
             204,
             "wrong number of distances",
         )
-        self.assertEqual(
-            self.plotter.bs_plot_data()["ticks"]["label"][4], "Y", "wrong tick label"
-        )
+        self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][4], "Y", "wrong tick label")
         self.assertEqual(
             len(self.plotter.bs_plot_data()["ticks"]["label"]),
             8,
@@ -104,9 +96,7 @@ class ThermoPlotterTest(unittest.TestCase):
         self.plotter.plot_entropy(5, 100, 5, show=False)
         self.plotter.plot_internal_energy(5, 100, 5, show=False)
         self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
-        self.plotter.plot_thermodynamic_properties(
-            5, 100, 5, show=False, fig_close=True
-        )
+        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
 
 
 if __name__ == "__main__":

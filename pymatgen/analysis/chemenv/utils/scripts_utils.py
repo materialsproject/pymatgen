@@ -14,8 +14,10 @@ import numpy as np
 
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
+
 try:
     from pymatgen.vis.structure_vtk import StructureVis
+
     no_vis = False
 except ImportError:
     StructureVis = None  # type: ignore
@@ -89,36 +91,24 @@ def draw_cg(
     """
     if show_perfect:
         if csm_info is None:
-            raise ValueError(
-                "Not possible to show perfect environment without csm_info"
-            )
+            raise ValueError("Not possible to show perfect environment without csm_info")
         csm_suffix = symmetry_measure_type[4:]
         perf_radius = (perfect_radius - 0.2) / 0.002
     if perm is not None and perfect2local_map is not None:
-        raise ValueError(
-            'Only "perm" or "perfect2local_map" should be provided in draw_cg, not both'
-        )
+        raise ValueError('Only "perm" or "perfect2local_map" should be provided in draw_cg, not both')
     if show_distorted:
         vis.add_bonds(neighbors, site)
         for n in neighbors:
             vis.add_site(n)
     if len(neighbors) < 3:
         if show_distorted:
-            vis.add_bonds(
-                neighbors, site, color=[0.0, 1.0, 0.0], opacity=0.4, radius=0.175
-            )
+            vis.add_bonds(neighbors, site, color=[0.0, 1.0, 0.0], opacity=0.4, radius=0.175)
         if show_perfect:
             if len(neighbors) == 2:
                 perfect_geometry = AbstractGeometry.from_cg(cg)
-                trans = csm_info["other_symmetry_measures"][
-                    "translation_vector_{}".format(csm_suffix)
-                ]
-                rot = csm_info["other_symmetry_measures"][
-                    "rotation_matrix_{}".format(csm_suffix)
-                ]
-                scale = csm_info["other_symmetry_measures"][
-                    "scaling_factor_{}".format(csm_suffix)
-                ]
+                trans = csm_info["other_symmetry_measures"]["translation_vector_{}".format(csm_suffix)]
+                rot = csm_info["other_symmetry_measures"]["rotation_matrix_{}".format(csm_suffix)]
+                scale = csm_info["other_symmetry_measures"]["scaling_factor_{}".format(csm_suffix)]
                 points = perfect_geometry.points_wcs_ctwcc()
                 rotated_points = rotateCoords(points, rot)
                 points = [scale * pp + trans for pp in rotated_points]
@@ -157,15 +147,9 @@ def draw_cg(
             vis.add_edges(edges)
         if show_perfect:
             perfect_geometry = AbstractGeometry.from_cg(cg)
-            trans = csm_info["other_symmetry_measures"][
-                "translation_vector_{}".format(csm_suffix)
-            ]
-            rot = csm_info["other_symmetry_measures"][
-                "rotation_matrix_{}".format(csm_suffix)
-            ]
-            scale = csm_info["other_symmetry_measures"][
-                "scaling_factor_{}".format(csm_suffix)
-            ]
+            trans = csm_info["other_symmetry_measures"]["translation_vector_{}".format(csm_suffix)]
+            rot = csm_info["other_symmetry_measures"]["rotation_matrix_{}".format(csm_suffix)]
+            scale = csm_info["other_symmetry_measures"]["scaling_factor_{}".format(csm_suffix)]
             points = perfect_geometry.points_wcs_ctwcc()
             rotated_points = rotateCoords(points, rot)
             points = [scale * pp + trans for pp in rotated_points]
@@ -186,9 +170,7 @@ def draw_cg(
                 )
 
 
-def visualize(
-    cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None
-):
+def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None):
     """
     Visualizing a coordination geometry
     :param cg:
@@ -262,30 +244,18 @@ def compute_environments(chemenv_configuration):
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
-    strategy_class = strategies_class_lookup[
-        chemenv_configuration.package_options["default_strategy"]["strategy"]
-    ]
+    strategy_class = strategies_class_lookup[chemenv_configuration.package_options["default_strategy"]["strategy"]]
     # TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
     default_strategy = strategy_class()
-    default_strategy.setup_options(
-        chemenv_configuration.package_options["default_strategy"]["strategy_options"]
-    )
-    max_dist_factor = chemenv_configuration.package_options[
-        "default_max_distance_factor"
-    ]
+    default_strategy.setup_options(chemenv_configuration.package_options["default_strategy"]["strategy_options"])
+    max_dist_factor = chemenv_configuration.package_options["default_max_distance_factor"]
     firsttime = True
     while True:
         if len(questions) > 1:
             found = False
-            print(
-                "Enter the source from which the structure is coming or <q> to quit :"
-            )
+            print("Enter the source from which the structure is coming or <q> to quit :")
             for key_character, qq in questions.items():
-                print(
-                    " - <{}> for a structure from {}".format(
-                        key_character, string_sources[qq]["string"]
-                    )
-                )
+                print(" - <{}> for a structure from {}".format(key_character, string_sources[qq]["string"]))
             test = input(" ... ")
             if test == "q":
                 break
@@ -315,11 +285,7 @@ def compute_environments(chemenv_configuration):
             a = MPRester()
             structure = a.get_structure_by_material_id(input_source)
         lgf.setup_structure(structure)
-        print(
-            "Computing environments for {} ... ".format(
-                structure.composition.reduced_formula
-            )
-        )
+        print("Computing environments for {} ... ".format(structure.composition.reduced_formula))
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print("Computing environments finished")
         while True:
@@ -337,9 +303,7 @@ def compute_environments(chemenv_configuration):
                         if strategy.uniquely_determines_coordination_environments:
                             ces = strategy.get_site_coordination_environments(site)
                         else:
-                            ces = strategy.get_site_coordination_environments_fractions(
-                                site
-                            )
+                            ces = strategy.get_site_coordination_environments_fractions(site)
                     except NeighborsNotComputedChemenvError:
                         continue
                     if ces is None:
@@ -372,19 +336,12 @@ def compute_environments(chemenv_configuration):
                             mystring += " - {} ({}): {:.2f} % (csm : {:2f})\n".format(
                                 cg.name, cg.mp_symbol, 100.0 * ce[2], csm
                             )
-                    if (
-                        test in ["d", "g"]
-                        and strategy.uniquely_determines_coordination_environments
-                    ):
+                    if test in ["d", "g"] and strategy.uniquely_determines_coordination_environments:
                         if thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL:
                             mystring += "  <Continuous symmetry measures>  "
-                            mingeoms = se.ce_list[isite][thecg.coordination_number][
-                                0
-                            ].minimum_geometries()
+                            mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
                             for mingeom in mingeoms:
-                                csm = mingeom[1]["other_symmetry_measures"][
-                                    "csm_wcs_ctwcc"
-                                ]
+                                csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
                                 mystring += "{} : {:.2f}       ".format(mingeom[0], csm)
                     print(mystring)
             if test == "g":
@@ -411,9 +368,7 @@ def compute_environments(chemenv_configuration):
                 if test == "y":
                     break
                 continue
-            test = input(
-                'View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n") : '
-            )
+            test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n") : ')
             if test in ["y", "m"]:
                 if test == "m":
                     mydeltas = []
@@ -424,11 +379,7 @@ def compute_environments(chemenv_configuration):
                             for i0 in range(int(nns[0])):
                                 for i1 in range(int(nns[1])):
                                     for i2 in range(int(nns[2])):
-                                        mydeltas.append(
-                                            np.array(
-                                                [1.0 * i0, 1.0 * i1, 1.0 * i2], np.float
-                                            )
-                                        )
+                                        mydeltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float))
                             break
 
                         except (ValueError, IndexError):

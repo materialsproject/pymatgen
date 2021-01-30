@@ -196,10 +196,7 @@ class InterfaceReactionTest(unittest.TestCase):
                     pd_non_grand=None,
                 )
             )
-        self.assertTrue(
-            "Please provide grand phase diagram "
-            "to compute no_mixing_energy!" == str(context1.exception)
-        )
+        self.assertTrue("Please provide grand phase diagram " "to compute no_mixing_energy!" == str(context1.exception))
 
         with self.assertRaises(Exception) as context2:
             self.ir.append(
@@ -213,8 +210,7 @@ class InterfaceReactionTest(unittest.TestCase):
                 )
             )
         self.assertTrue(
-            "Please provide non-grand phase diagram "
-            "to compute no_mixing_energy!" == str(context2.exception)
+            "Please provide non-grand phase diagram " "to compute no_mixing_energy!" == str(context2.exception)
         )
 
     def test_get_entry_energy(self):
@@ -237,9 +233,7 @@ class InterfaceReactionTest(unittest.TestCase):
         )
         # Test normal functionality
         comp = Composition("MnO2")
-        test2 = np.isclose(
-            InterfacialReactivity._get_entry_energy(self.pd, comp), -30, atol=1e-03
-        )
+        test2 = np.isclose(InterfacialReactivity._get_entry_energy(self.pd, comp), -30, atol=1e-03)
         self.assertTrue(
             test2,
             "_get_entry_energy: energy for {} is wrong!".format(comp.reduced_formula),
@@ -249,9 +243,7 @@ class InterfaceReactionTest(unittest.TestCase):
         comp = Composition("LiMnO2")
         # Test non-normalized case
         test1 = np.isclose(self.ir[1]._get_grand_potential(comp), -27, atol=1e-03)
-        self.assertTrue(
-            test1, "_get_grand_potential: " "Non-normalized case gets error!"
-        )
+        self.assertTrue(test1, "_get_grand_potential: " "Non-normalized case gets error!")
 
         # Test normalized case
         test2 = np.isclose(self.ir[2]._get_grand_potential(comp), -9, atol=1e-03)
@@ -273,9 +265,7 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertTrue(test1, "_get_energy: phase diagram gets error!")
 
         test2 = np.isclose(self.ir[3]._get_energy(0.6666666), -7.333333, atol=1e-03)
-        self.assertTrue(
-            test2, "_get_energy: " "grand canonical phase diagram gets error!"
-        )
+        self.assertTrue(test2, "_get_energy: " "grand canonical phase diagram gets error!")
 
         test3 = np.isclose(self.ir[6]._get_energy(0.3333333), -3.333333, atol=1e-03)
         self.assertTrue(test3, "_get_energy: convex hull energy gets error. ")
@@ -291,14 +281,10 @@ class InterfaceReactionTest(unittest.TestCase):
         )
 
         test2 = (
-            str(self.ir[3]._get_reaction(0.666666))
-            == "0.5 Mn + 0.5 Li2O -> Li + 0.25 MnO2 + 0.25 Mn"
-            or str(self.ir[3]._get_reaction(0.666666))
-            == "0.5 Mn + 0.5  Li2O -> Li + 0.25 Mn + 0.25 MnO2"
+            str(self.ir[3]._get_reaction(0.666666)) == "0.5 Mn + 0.5 Li2O -> Li + 0.25 MnO2 + 0.25 Mn"
+            or str(self.ir[3]._get_reaction(0.666666)) == "0.5 Mn + 0.5  Li2O -> Li + 0.25 Mn + 0.25 MnO2"
         )
-        self.assertTrue(
-            test2, "_get_reaction: " "reaction involving chempots species gets error!"
-        )
+        self.assertTrue(test2, "_get_reaction: " "reaction involving chempots species gets error!")
 
     def test_get_get_elmt_amt_in_rxt(self):
         rxt1 = Reaction(
@@ -306,29 +292,21 @@ class InterfaceReactionTest(unittest.TestCase):
             [Composition("LiMnO2")],
         )
         test1 = np.isclose(self.ir[2]._get_elmt_amt_in_rxt(rxt1), 3)
-        self.assertTrue(
-            test1, "_get_get_elmt_amt_in_rxt: " "gpd elements amounts gets error!"
-        )
+        self.assertTrue(test1, "_get_get_elmt_amt_in_rxt: " "gpd elements amounts gets error!")
 
         rxt2 = rxt1
         rxt2.normalize_to(Composition("Li"), 0.5)
         test2 = np.isclose(self.ir[2]._get_elmt_amt_in_rxt(rxt2), 1.5)
-        self.assertTrue(
-            test2, "_get_get_elmt_amt_in_rxt: " "gpd elements amounts gets error!"
-        )
+        self.assertTrue(test2, "_get_get_elmt_amt_in_rxt: " "gpd elements amounts gets error!")
 
         rxt3 = Reaction([Composition("O2"), Composition("Li")], [Composition("Li2O")])
         # Li is not counted
         test3 = np.isclose(self.ir[2]._get_elmt_amt_in_rxt(rxt3), 1)
-        self.assertTrue(
-            test3, "_get_get_elmt_amt_in_rxt: " "gpd elements amounts gets error!"
-        )
+        self.assertTrue(test3, "_get_get_elmt_amt_in_rxt: " "gpd elements amounts gets error!")
 
         # Li is counted
         test4 = np.isclose(self.ir[6]._get_elmt_amt_in_rxt(rxt3), 3)
-        self.assertTrue(
-            test4, "_get_get_elmt_amt_in_rxt: " "pd elements amounts gets error!"
-        )
+        self.assertTrue(test4, "_get_get_elmt_amt_in_rxt: " "pd elements amounts gets error!")
 
     def test_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
@@ -336,38 +314,29 @@ class InterfaceReactionTest(unittest.TestCase):
         answer = [0.75, 0.5, 0, 1]
         self.assertTrue(
             np.allclose(result, answer),
-            "_convert: conversion gets error! {0} expected,"
-            " but gets {1}".format(answer, result),
+            "_convert: conversion gets error! {0} expected," " but gets {1}".format(answer, result),
         )
 
     def test_reverse_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
-        result = [
-            InterfacialReactivity._reverse_convert(x, f1, f2)
-            for x, f1, f2 in test_array
-        ]
+        result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.25, 0.3076923, 0, 1]
         self.assertTrue(
             np.allclose(result, answer),
-            "_convert: conversion gets error! {0} expected,"
-            " but gets {1}".format(answer, result),
+            "_convert: conversion gets error! {0} expected," " but gets {1}".format(answer, result),
         )
 
     def test_get_products(self):
         test1 = sorted(self.ir[0].get_products()) == sorted(["MnO2", "O2", "Mn"])
         self.assertTrue(
             test1,
-            "get_products: decomposition products gets error "
-            "for reaction not involving chempots species!",
+            "get_products: decomposition products gets error " "for reaction not involving chempots species!",
         )
 
-        test2 = sorted(self.ir[3].get_products()) == sorted(
-            ["Li", "MnO2", "Mn", "Li2O"]
-        )
+        test2 = sorted(self.ir[3].get_products()) == sorted(["Li", "MnO2", "Mn", "Li2O"])
         self.assertTrue(
             test2,
-            "get_decomp: decomposition products gets error "
-            "for reaction involving chempots species!",
+            "get_decomp: decomposition products gets error " "for reaction involving chempots species!",
         )
 
     def test_get_kinks(self):
@@ -452,12 +421,8 @@ class InterfaceReactionTest(unittest.TestCase):
                 # the kinks and make sure
                 # 1. all points are below the end points
                 # 2. all points are on the convex hull.
-                relative_vectors_1 = [
-                    (x - x_kink[0], e - energy_kink[0]) for x, e in points
-                ]
-                relative_vectors_2 = [
-                    (x - x_kink[-1], e - energy_kink[-1]) for x, e in points
-                ]
+                relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
+                relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
                 relative_vectors = zip(relative_vectors_1, relative_vectors_2)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
                 test1 = np.all(np.array(positions) <= 0)
@@ -486,8 +451,7 @@ class InterfaceReactionTest(unittest.TestCase):
         test1 = np.isclose(self.ir[0]._get_original_composition_ratio(reaction1), 0.5)
         self.assertTrue(
             test1,
-            "_get_original_composition_ratio: "
-            "reaction not involving chempots species gets error!",
+            "_get_original_composition_ratio: " "reaction not involving chempots species gets error!",
         )
 
         #  expected reaction2: 0.5 Mn + 0.5 Li2O -> Li + 0.25 MnO2 + 0.25 Mn
@@ -495,8 +459,7 @@ class InterfaceReactionTest(unittest.TestCase):
         test2 = np.isclose(self.ir[3]._get_original_composition_ratio(reaction2), 0.5)
         self.assertTrue(
             test2,
-            "_get_original_composition_ratio: "
-            "reaction involving chempots species gets error!",
+            "_get_original_composition_ratio: " "reaction involving chempots species gets error!",
         )
 
     def test_get_critical_original_kink_ratio(self):
@@ -508,9 +471,7 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertTrue(test3, "get_critical_original_kink_ratio:" " gets error!")
         test4 = np.allclose(self.ir[2].get_critical_original_kink_ratio(), [0, 0.5, 1])
         self.assertTrue(test4, "get_critical_original_kink_ratio:" " gets error!")
-        test5 = np.allclose(
-            self.ir[3].get_critical_original_kink_ratio(), [0, 0.66666, 1]
-        )
+        test5 = np.allclose(self.ir[3].get_critical_original_kink_ratio(), [0, 0.66666, 1])
         self.assertTrue(test5, "get_critical_original_kink_ratio:" " gets error!")
 
     def test_labels(self):
@@ -524,9 +485,7 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertTrue(
             test1,
             "labels:label does not match for interfacial system "
-            "with {0} and {1}.".format(
-                ir.c1_original.reduced_formula, ir.c2_original.reduced_formula
-            ),
+            "with {0} and {1}.".format(ir.c1_original.reduced_formula, ir.c2_original.reduced_formula),
         )
 
     def test_plot(self):
@@ -562,15 +521,14 @@ class InterfaceReactionTest(unittest.TestCase):
         with self.assertRaises(Exception) as context1:
             self.ir[0].get_no_mixing_energy()
         self.assertTrue(
-            "Please provide grand potential phase diagram"
-            " for computing no_mixing_energy!" == str(context1.exception)
+            "Please provide grand potential phase diagram" " for computing no_mixing_energy!" == str(context1.exception)
         )
         answer = [
-            [(u"MnO2 (eV/f.u.)", 0.0), (u"Mn (eV/f.u.)", 0.0)],
-            [(u"Mn (eV/atom)", 0.0), (u"O2 (eV/atom)", -4.0)],
-            [(u"Li2O (eV/f.u.)", 0.0), (u"Mn (eV/f.u.)", 0.0)],
-            [(u"Mn (eV/atom)", 0.0), (u"O2 (eV/atom)", -4.0)],
-            [(u"Mn (eV/atom)", 0.0), (u"Li2O (eV/atom)", 0.0)],
+            [("MnO2 (eV/f.u.)", 0.0), ("Mn (eV/f.u.)", 0.0)],
+            [("Mn (eV/atom)", 0.0), ("O2 (eV/atom)", -4.0)],
+            [("Li2O (eV/f.u.)", 0.0), ("Mn (eV/f.u.)", 0.0)],
+            [("Mn (eV/atom)", 0.0), ("O2 (eV/atom)", -4.0)],
+            [("Mn (eV/atom)", 0.0), ("Li2O (eV/atom)", 0.0)],
         ]
 
         def name_lst(lst):
@@ -583,8 +541,7 @@ class InterfaceReactionTest(unittest.TestCase):
         for i, j in zip(result_info, answer):
             self.assertTrue(
                 name_lst(i) == name_lst(j),
-                "get_no_mixing_energy: names get error,"
-                " {0} expected but gets {1}".format(name_lst(j), name_lst(i)),
+                "get_no_mixing_energy: names get error," " {0} expected but gets {1}".format(name_lst(j), name_lst(i)),
             )
             self.assertTrue(
                 np.allclose(energy_lst(i), energy_lst(j)),
@@ -603,61 +560,53 @@ class InterfaceReactionTest(unittest.TestCase):
         expect = 0.05916
         self.assertTrue(
             np.isclose(actual, expect, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect, actual),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect, actual),
         )
         # test temperature effect.
         actual_2 = InterfacialReactivity.get_chempot_correction("O", 1000, 1e5)
         expect_2 = -0.82352
         self.assertTrue(
             np.isclose(actual_2, expect_2, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_2, actual_2),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_2, actual_2),
         )
 
         actual_3 = InterfacialReactivity.get_chempot_correction("O", 500, 1e5)
         expect_3 = -0.223
         self.assertTrue(
             np.isclose(actual_3, expect_3, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_3, actual_3),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_3, actual_3),
         )
         # test mixed effect.
         actual_4 = InterfacialReactivity.get_chempot_correction("O", 1000, 1e-25)
         expect_4 = -3.800
         self.assertTrue(
             np.isclose(actual_4, expect_4, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_4, actual_4),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_4, actual_4),
         )
         actual_5 = InterfacialReactivity.get_chempot_correction("O", 1250, 1e-25)
         expect_5 = -4.86
         self.assertTrue(
             np.isclose(actual_5, expect_5, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_5, actual_5),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_5, actual_5),
         )
         actual_6 = InterfacialReactivity.get_chempot_correction("O", 1500, 1e-25)
         expect_6 = -5.928
         self.assertTrue(
             np.isclose(actual_6, expect_6, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_6, actual_6),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_6, actual_6),
         )
         actual_7 = InterfacialReactivity.get_chempot_correction("O", 1000, 1e-15)
         expect_7 = -2.808
         self.assertTrue(
             np.isclose(actual_7, expect_7, atol=1e-2),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_7, actual_7),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_7, actual_7),
         )
         # test non-gas phase.
         actual_8 = InterfacialReactivity.get_chempot_correction("Li", 1000, 1e15)
         expect_8 = 0
         self.assertTrue(
             np.isclose(actual_8, expect_8, atol=1e-5),
-            "get_chempot_correction gets "
-            "error, {0} expected but gets {1}".format(expect_8, actual_8),
+            "get_chempot_correction gets " "error, {0} expected but gets {1}".format(expect_8, actual_8),
         )
 
 

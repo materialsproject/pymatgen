@@ -84,9 +84,7 @@ class ConnectedComponentTest(PymatgenTest):
 
         # Make a deep copy of the graph to actually check that the objects are different instances
         mygraph = copy.deepcopy(cc.graph)
-        assert isinstance(
-            mygraph, nx.MultiGraph
-        )  # Check that it is indeed the same type of graph
+        assert isinstance(mygraph, nx.MultiGraph)  # Check that it is indeed the same type of graph
 
         cc2 = ConnectedComponent(graph=mygraph)
         assert set(list(mygraph.nodes())) == set(list(cc2.graph.nodes()))
@@ -96,23 +94,17 @@ class ConnectedComponentTest(PymatgenTest):
     def test_serialization(self):
         lat = Lattice.hexagonal(a=2.0, c=2.5)
         en1 = EnvironmentNode(
-            central_site=PeriodicSite(
-                "Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lat
-            ),
+            central_site=PeriodicSite("Si", coords=np.array([0.0, 0.0, 0.0]), lattice=lat),
             i_central_site=3,
             ce_symbol="T:4",
         )
         en2 = EnvironmentNode(
-            central_site=PeriodicSite(
-                "Ag", coords=np.array([0.0, 0.0, 0.5]), lattice=lat
-            ),
+            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.0, 0.5]), lattice=lat),
             i_central_site=5,
             ce_symbol="T:4",
         )
         en3 = EnvironmentNode(
-            central_site=PeriodicSite(
-                "Ag", coords=np.array([0.0, 0.5, 0.5]), lattice=lat
-            ),
+            central_site=PeriodicSite("Ag", coords=np.array([0.0, 0.5, 0.5]), lattice=lat),
             i_central_site=8,
             ce_symbol="O:6",
         )
@@ -167,15 +159,12 @@ class ConnectedComponentTest(PymatgenTest):
         assert key == "3"
         with pytest.raises(
             RuntimeError,
-            match=r"Cannot pass an edge key which is a str "
-            r"representation of an int\x2E",
+            match=r"Cannot pass an edge key which is a str " r"representation of an int\x2E",
         ):
             key = ConnectedComponent._edgekey_to_edgedictkey("5")
         key = ConnectedComponent._edgekey_to_edgedictkey("mykey")
         assert key == "mykey"
-        with pytest.raises(
-            ValueError, match=r"Edge key should be either a str or an int\x2E"
-        ):
+        with pytest.raises(ValueError, match=r"Edge key should be either a str or an int\x2E"):
             key = ConnectedComponent._edgekey_to_edgedictkey(0.2)
 
     def test_periodicity(self):
@@ -295,8 +284,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with the same "
-            r"\x28or opposite\x29 delta image\x2E",
+            match=r"There should not be self loops with the same " r"\x28or opposite\x29 delta image\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -321,8 +309,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with the same "
-            r"\x28or opposite\x29 delta image\x2E",
+            match=r"There should not be self loops with the same " r"\x28or opposite\x29 delta image\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -339,8 +326,7 @@ class ConnectedComponentTest(PymatgenTest):
         cc = ConnectedComponent(graph=graph)
         with pytest.raises(
             ValueError,
-            match=r"There should not be self loops with delta image = "
-            r"\x280, 0, 0\x29\x2E",
+            match=r"There should not be self loops with delta image = " r"\x280, 0, 0\x29\x2E",
         ):
             cc.compute_periodicity_all_simple_paths_algorithm()
 
@@ -402,9 +388,7 @@ class ConnectedComponentTest(PymatgenTest):
         assert not cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "2D"
-        assert np.allclose(
-            cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])]
-        )
+        assert np.allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
         assert type(cc.periodicity_vectors) is list
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
@@ -490,12 +474,8 @@ class ConnectedComponentTest(PymatgenTest):
         # Connectivity of LiFePO4
         struct = self.get_structure("LiFePO4")
         lgf.setup_structure(structure=struct)
-        se = lgf.compute_structure_environments(
-            only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2
-        )
-        lse = LightStructureEnvironments.from_structure_environments(
-            strategy=strat, structure_environments=se
-        )
+        se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strat, structure_environments=se)
         # Make sure the initial structure and environments are correct
         for isite in range(0, 4):
             assert lse.structure[isite].specie.symbol == "Li"
@@ -508,15 +488,9 @@ class ConnectedComponentTest(PymatgenTest):
             assert lse.coordination_environments[isite][0]["ce_symbol"] == "T:4"
         # Get the connectivity including all environments and check results
         sc = cf.get_structure_connectivity(lse)
-        assert (
-            len(sc.environment_subgraphs) == 0
-        )  # Connected component not computed by default
-        ccs = (
-            sc.get_connected_components()
-        )  # by default, will use all the environments (O:6 and T:4 here)
-        assert list(sc.environment_subgraphs.keys()) == [
-            "O:6-T:4"
-        ]  # Now the default components are there
+        assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
+        ccs = sc.get_connected_components()  # by default, will use all the environments (O:6 and T:4 here)
+        assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4"]  # Now the default components are there
         assert len(sc.environment_subgraphs) == 1
         assert len(ccs) == 1
         cc = ccs[0]
@@ -807,16 +781,10 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(
-            os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif")
-        )
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "Li4Fe3Mn1(PO4)4.cif"))
         lgf.setup_structure(structure=struct)
-        se = lgf.compute_structure_environments(
-            only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2
-        )
-        lse = LightStructureEnvironments.from_structure_environments(
-            strategy=strat, structure_environments=se
-        )
+        se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=strat, structure_environments=se)
         # Make sure the initial structure and environments are correct
         for isite in range(0, 4):
             assert lse.structure[isite].specie.symbol == "Li"
@@ -832,12 +800,8 @@ Node #11 P (T:4), connected to :
             assert lse.coordination_environments[isite][0]["ce_symbol"] == "T:4"
         # Get the connectivity including all environments and check results
         sc = cf.get_structure_connectivity(lse)
-        assert (
-            len(sc.environment_subgraphs) == 0
-        )  # Connected component not computed by default
-        ccs = (
-            sc.get_connected_components()
-        )  # by default, will use all the environments (O:6 and T:4 here)
+        assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
+        ccs = sc.get_connected_components()  # by default, will use all the environments (O:6 and T:4 here)
         # Now connected components for the defaults are there :
         assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4"]
         assert len(sc.environment_subgraphs) == 1
@@ -845,9 +809,7 @@ Node #11 P (T:4), connected to :
         cc = ccs[0]
         assert cc.periodicity == "3D"
         # Get the connectivity for Li octahedral only
-        ccs = sc.get_connected_components(
-            environments_symbols=["O:6"], only_atoms=["Li"]
-        )
+        ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Li"])
         assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4", "O:6#Li"]
         assert len(ccs) == 2
         for cc in ccs:
@@ -882,16 +844,12 @@ Node #3 Li (O:6), connected to :
      (0 1 0)"""
         )
         # Get the connectivity for Mn octahedral only
-        ccs = sc.get_connected_components(
-            environments_symbols=["O:6"], only_atoms=["Mn"]
-        )
+        ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Mn"])
         assert list(sc.environment_subgraphs.keys()) == ["O:6-T:4", "O:6#Li", "O:6#Mn"]
         assert len(ccs) == 1
         assert ccs[0].periodicity == "0D"
         # Get the connectivity for Fe octahedral only
-        ccs = sc.get_connected_components(
-            environments_symbols=["O:6"], only_atoms=["Fe"]
-        )
+        ccs = sc.get_connected_components(environments_symbols=["O:6"], only_atoms=["Fe"])
         assert list(sc.environment_subgraphs.keys()) == [
             "O:6-T:4",
             "O:6#Li",
@@ -926,32 +884,22 @@ Node #3 Li (O:6), connected to :
         cc_oct_node = list(cc_oct.graph.nodes())[0]
         cseq = cc_oct.coordination_sequence(source_node=cc_oct_node, path_size=6)
         assert cseq == {1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}
-        cc_all_oct_node = next(
-            n for n in cc_all.graph.nodes() if n.coordination_environment == "O:6"
-        )
-        cc_all_cuboct_node = next(
-            n for n in cc_all.graph.nodes() if n.coordination_environment == "C:12"
-        )
+        cc_all_oct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == "O:6")
+        cc_all_cuboct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == "C:12")
         cseq = cc_all.coordination_sequence(source_node=cc_all_oct_node, path_size=6)
         assert cseq == {1: 14, 2: 74, 3: 218, 4: 442, 5: 746, 6: 1130}
         cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=6)
         assert cseq == {1: 26, 2: 122, 3: 298, 4: 554, 5: 890, 6: 1306}
-        cseq = cc_all.coordination_sequence(
-            source_node=cc_all_cuboct_node, path_size=6, include_source=True
-        )
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=6, include_source=True)
         assert cseq == {0: 1, 1: 26, 2: 122, 3: 298, 4: 554, 5: 890, 6: 1306}
-        cseq = cc_all.coordination_sequence(
-            source_node=cc_all_oct_node, path_size=4, coordination="env:number"
-        )
+        cseq = cc_all.coordination_sequence(source_node=cc_all_oct_node, path_size=4, coordination="env:number")
         assert cseq == {
             1: {"O:6": 6, "C:12": 8},
             2: {"O:6": 26, "C:12": 48},
             3: {"O:6": 90, "C:12": 128},
             4: {"O:6": 194, "C:12": 248},
         }
-        cseq = cc_all.coordination_sequence(
-            source_node=cc_all_cuboct_node, path_size=4, coordination="env:number"
-        )
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=4, coordination="env:number")
         assert cseq == {
             1: {"O:6": 8, "C:12": 18},
             2: {"O:6": 48, "C:12": 74},

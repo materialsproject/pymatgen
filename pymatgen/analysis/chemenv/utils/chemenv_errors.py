@@ -20,7 +20,13 @@ class AbstractChemenvError(Exception):
     """
     Abstract class for Chemenv errors.
     """
+
     def __init__(self, cls, method, msg):
+        """
+        :param cls:
+        :param method:
+        :param msg:
+        """
         self.cls = cls
         self.method = method
         self.msg = msg
@@ -33,6 +39,7 @@ class NeighborsNotComputedChemenvError(AbstractChemenvError):
     """
     Neighbors not computed error.
     """
+
     def __init__(self, site):
         """
         :param site:
@@ -40,15 +47,14 @@ class NeighborsNotComputedChemenvError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return "The neighbors were not computed for the following site : \n" + str(
-            self.site
-        )
+        return "The neighbors were not computed for the following site : \n" + str(self.site)
 
 
 class EquivalentSiteSearchError(AbstractChemenvError):
     """
     Equivalent site search error.
     """
+
     def __init__(self, site):
         """
         :param site:
@@ -56,15 +62,14 @@ class EquivalentSiteSearchError(AbstractChemenvError):
         self.site = site
 
     def __str__(self):
-        return "Equivalent site could not be found for the following site : {}".format(
-            str(self.site)
-        )
+        return "Equivalent site could not be found for the following site : {}".format(str(self.site))
 
 
 class SolidAngleError(AbstractChemenvError):
     """
     Solid angle error.
     """
+
     def __init__(self, cosinus):
         """
         :param cosinus:
@@ -72,9 +77,8 @@ class SolidAngleError(AbstractChemenvError):
         self.cosinus = cosinus
 
     def __str__(self):
-        return (
-            "Value of cosinus ({}) from which an angle should be retrieved"
-            "is not between -1.0 and 1.0".format(self.cosinus)
+        return "Value of cosinus ({}) from which an angle should be retrieved" "is not between -1.0 and 1.0".format(
+            self.cosinus
         )
 
 
@@ -82,6 +86,7 @@ class ChemenvError(Exception):
     """
     Chemenv error.
     """
+
     def __init__(self, cls, method, msg):
         """
         :param cls:

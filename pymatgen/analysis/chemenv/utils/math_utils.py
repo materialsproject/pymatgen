@@ -85,9 +85,7 @@ def divisors(n):
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [
-        [k ** x for x in range(0, factors[k] + 1)] for k in list(factors.keys())
-    ]
+    listexponents = [[k ** x for x in range(0, factors[k] + 1)] for k in list(factors.keys())]
     listfactors = _cartesian_product(listexponents)
     for f in listfactors:
         _divisors.append(reduce(lambda x, y: x * y, f, 1))
@@ -107,9 +105,7 @@ def get_center_of_arc(p1, p2, radius):
     dd = np.sqrt(dx * dx + dy * dy)
     radical = np.power((radius / dd), 2) - 0.25
     if radical < 0:
-        raise ValueError(
-            "Impossible to find center of arc because the arc is ill-defined"
-        )
+        raise ValueError("Impossible to find center of arc because the arc is ill-defined")
     tt = np.sqrt(radical)
     if radius > 0:
         tt = -tt
@@ -127,15 +123,11 @@ def get_linearly_independent_vectors(vectors_list):
             if len(independent_vectors_list) == 0:
                 independent_vectors_list.append(np.array(vector))
             elif len(independent_vectors_list) == 1:
-                rank = np.linalg.matrix_rank(
-                    np.array([independent_vectors_list[0], vector, [0, 0, 0]])
-                )
+                rank = np.linalg.matrix_rank(np.array([independent_vectors_list[0], vector, [0, 0, 0]]))
                 if rank == 2:
                     independent_vectors_list.append(np.array(vector))
             elif len(independent_vectors_list) == 2:
-                mm = np.array(
-                    [independent_vectors_list[0], independent_vectors_list[1], vector]
-                )
+                mm = np.array([independent_vectors_list[0], independent_vectors_list[1], vector])
                 if np.linalg.det(mm) != 0:
                     independent_vectors_list.append(np.array(vector))
         if len(independent_vectors_list) == 3:
@@ -199,15 +191,8 @@ def smootherstep(xx, edges=None, inverse=False):
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if inverse:
-            return 1.0 - xx_clipped * xx_clipped * xx_clipped * (
-                xx_clipped * (xx_clipped * 6 - 15) + 10
-            )
-        return (
-            xx_clipped
-            * xx_clipped
-            * xx_clipped
-            * (xx_clipped * (xx_clipped * 6 - 15) + 10)
-        )
+            return 1.0 - xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
+        return xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return smootherstep(xx_scaled_and_clamped, inverse=inverse)
 
@@ -344,9 +329,7 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
-        return np.where(
-            np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx
-        )
+        return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
         # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_inverse_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -370,9 +353,7 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
             aa * np.power(xx - 1.0, 2) / xx ** 2.0,
         )
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-    return power2_inverse_power2_decreasing(
-        xx_scaled_and_clamped, prefactor=prefactor
-    )
+    return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
 
 
 def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0):
@@ -391,6 +372,4 @@ def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0)
         return aa * np.power(xx - 1.0, 2) / xx ** powern
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-    return power2_inverse_powern_decreasing(
-        xx_scaled_and_clamped, prefactor=prefactor, powern=powern
-    )
+    return power2_inverse_powern_decreasing(xx_scaled_and_clamped, prefactor=prefactor, powern=powern)

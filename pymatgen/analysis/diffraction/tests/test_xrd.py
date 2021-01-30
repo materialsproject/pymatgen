@@ -78,9 +78,7 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertEqual(len(xrd), 18)
 
         # Test with and without Debye-Waller factor
-        tungsten = Structure(
-            Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]]
-        )
+        tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]])
         xrd = c.get_pattern(tungsten, scaled=False)
         self.assertAlmostEqual(xrd.x[0], 40.294828554672264)
         self.assertAlmostEqual(xrd.y[0], 2414237.5633093244)

@@ -91,16 +91,13 @@ class LarsenDimensionalityTest(PymatgenTest):
         self.assertEqual(dimen, 3)
 
         # test vertices returned correctly
-        dimen, vertices = calculate_dimensionality_of_site(
-            self.cscl, 0, inc_vertices=True
-        )
+        dimen, vertices = calculate_dimensionality_of_site(self.cscl, 0, inc_vertices=True)
         self.assertEqual(dimen, 3)
         self.assertEqual(len(vertices), 4)
 
     def test_zero_d_to_molecule_graph(self):
         comp_graphs = [
-            self.mol_structure.graph.subgraph(c)
-            for c in nx.weakly_connected_components(self.mol_structure.graph)
+            self.mol_structure.graph.subgraph(c) for c in nx.weakly_connected_components(self.mol_structure.graph)
         ]
 
         mol_graph = zero_d_graph_to_molecule_graph(self.mol_structure, comp_graphs[0])
@@ -110,20 +107,13 @@ class LarsenDimensionalityTest(PymatgenTest):
         self.assertEqual(mol_graph.molecule.num_sites, 3)
 
         # test catching non zero dimensionality graphs
-        comp_graphs = [
-            self.graphite.graph.subgraph(c)
-            for c in nx.weakly_connected_components(self.graphite.graph)
-        ]
-        self.assertRaises(
-            ValueError, zero_d_graph_to_molecule_graph, self.graphite, comp_graphs[0]
-        )
+        comp_graphs = [self.graphite.graph.subgraph(c) for c in nx.weakly_connected_components(self.graphite.graph)]
+        self.assertRaises(ValueError, zero_d_graph_to_molecule_graph, self.graphite, comp_graphs[0])
 
         # test for a troublesome structure
         s = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "PH7CN3O3F.json.gz"))
         bs = CrystalNN().get_bonded_structure(s)
-        comp_graphs = [
-            bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)
-        ]
+        comp_graphs = [bs.graph.subgraph(c) for c in nx.weakly_connected_components(bs.graph)]
         mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])
         self.assertEqual(mol_graph.molecule.num_sites, 12)
 
@@ -163,9 +153,7 @@ class CheonDimensionalityTest(PymatgenTest):
         self.assertEqual(get_dimensionality_cheon(tricky_structure), "2D")
         # cheon dimensionality gets tricky structure right using a
         # bigger supercell
-        self.assertEqual(
-            get_dimensionality_cheon(tricky_structure, larger_cell=True), "3D"
-        )
+        self.assertEqual(get_dimensionality_cheon(tricky_structure, larger_cell=True), "3D")
 
 
 class GoraiDimensionalityTest(PymatgenTest):

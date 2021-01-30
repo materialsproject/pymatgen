@@ -128,9 +128,7 @@ class DetailedVoronoiContainer(MSONable):
         t1 = time.process_time()
         self.setup_neighbors_distances_and_angles(indices=indices)
         t2 = time.process_time()
-        logging.debug(
-            "Neighbors distances and angles set up in {:.2f} seconds".format(t2 - t1)
-        )
+        logging.debug("Neighbors distances and angles set up in {:.2f} seconds".format(t2 - t1))
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
         """
@@ -146,18 +144,12 @@ class DetailedVoronoiContainer(MSONable):
         self.voronoi_list2 = [None] * len(self.structure)
         self.voronoi_list_coords = [None] * len(self.structure)
         logging.debug("Getting all neighbors in structure")
-        struct_neighbors = self.structure.get_all_neighbors(
-            voronoi_cutoff, include_index=True
-        )
+        struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
         t1 = time.process_time()
         logging.debug("Setting up Voronoi list :")
 
         for jj, isite in enumerate(indices):
-            logging.debug(
-                "  - Voronoi analysis for site #{:d} ({:d}/{:d})".format(
-                    isite, jj + 1, len(indices)
-                )
-            )
+            logging.debug("  - Voronoi analysis for site #{:d} ({:d}/{:d})".format(isite, jj + 1, len(indices)))
             site = self.structure[isite]
             neighbors1 = [(site, 0.0, isite)]
             neighbors1.extend(struct_neighbors[isite])
@@ -175,9 +167,7 @@ class DetailedVoronoiContainer(MSONable):
                     ridge_vertices_indices = voro.ridge_vertices[iridge]
                     if -1 in ridge_vertices_indices:
                         raise RuntimeError(
-                            "This structure is pathological,"
-                            " infinite vertex in the voronoi "
-                            "construction"
+                            "This structure is pathological," " infinite vertex in the voronoi " "construction"
                         )
 
                     ridge_point2 = max(ridge_points)
@@ -187,9 +177,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     mindist = min([mindist, distances[ridge_point2]])
                     for iii, sss in enumerate(self.structure):
-                        if neighbors[ridge_point2].is_periodic_image(
-                            sss, tolerance=1.0e-6
-                        ):
+                        if neighbors[ridge_point2].is_periodic_image(sss, tolerance=1.0e-6):
                             myindex = iii
                             break
                     results2.append(
@@ -204,9 +192,7 @@ class DetailedVoronoiContainer(MSONable):
                 dd["normalized_angle"] = dd["angle"] / maxangle
                 dd["normalized_distance"] = dd["distance"] / mindist
             self.voronoi_list2[isite] = results2
-            self.voronoi_list_coords[isite] = np.array(
-                [dd["site"].coords for dd in results2]
-            )
+            self.voronoi_list_coords[isite] = np.array([dd["site"].coords for dd in results2])
         t2 = time.process_time()
         logging.debug("Voronoi list set up in {:.2f} seconds".format(t2 - t1))
 
@@ -228,9 +214,7 @@ class DetailedVoronoiContainer(MSONable):
             # Initializes neighbors distances and normalized distances groups
             self.neighbors_distances[isite] = []
             self.neighbors_normalized_distances[isite] = []
-            normalized_distances = [
-                nb_dict["normalized_distance"] for nb_dict in results
-            ]
+            normalized_distances = [nb_dict["normalized_distance"] for nb_dict in results]
             isorted_distances = np.argsort(normalized_distances)
             self.neighbors_normalized_distances[isite].append(
                 {
@@ -251,18 +235,10 @@ class DetailedVoronoiContainer(MSONable):
                 wd = normalized_distances[idist]
                 if self.maximum_distance_factor is not None:
                     if wd > self.maximum_distance_factor:
-                        self.neighbors_normalized_distances[isite][icurrent][
-                            "nb_indices"
-                        ] = list(nb_indices)
-                        self.neighbors_distances[isite][icurrent]["nb_indices"] = list(
-                            nb_indices
-                        )
-                        self.neighbors_normalized_distances[isite][icurrent][
-                            "dnb_indices"
-                        ] = list(dnb_indices)
-                        self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(
-                            dnb_indices
-                        )
+                        self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                        self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                        self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                        self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
                         break
                 if np.isclose(
                     wd,
@@ -271,27 +247,15 @@ class DetailedVoronoiContainer(MSONable):
                     atol=self.normalized_distance_tolerance,
                 ):
                     self.neighbors_normalized_distances[isite][icurrent]["max"] = wd
-                    self.neighbors_distances[isite][icurrent]["max"] = results[idist][
-                        "distance"
-                    ]
+                    self.neighbors_distances[isite][icurrent]["max"] = results[idist]["distance"]
                     dnb_indices.add(int(idist))
                 else:
-                    self.neighbors_normalized_distances[isite][icurrent][
-                        "nb_indices"
-                    ] = list(nb_indices)
-                    self.neighbors_distances[isite][icurrent]["nb_indices"] = list(
-                        nb_indices
-                    )
-                    self.neighbors_normalized_distances[isite][icurrent][
-                        "dnb_indices"
-                    ] = list(dnb_indices)
-                    self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(
-                        dnb_indices
-                    )
+                    self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
                     dnb_indices = {int(idist)}
-                    self.neighbors_normalized_distances[isite].append(
-                        {"min": wd, "max": wd}
-                    )
+                    self.neighbors_normalized_distances[isite].append({"min": wd, "max": wd})
                     self.neighbors_distances[isite].append(
                         {
                             "min": results[idist]["distance"],
@@ -301,18 +265,10 @@ class DetailedVoronoiContainer(MSONable):
                     icurrent += 1
                 nb_indices.add(int(idist))
             else:
-                self.neighbors_normalized_distances[isite][icurrent][
-                    "nb_indices"
-                ] = list(nb_indices)
-                self.neighbors_distances[isite][icurrent]["nb_indices"] = list(
-                    nb_indices
-                )
-                self.neighbors_normalized_distances[isite][icurrent][
-                    "dnb_indices"
-                ] = list(dnb_indices)
-                self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(
-                    dnb_indices
-                )
+                self.neighbors_normalized_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                self.neighbors_distances[isite][icurrent]["nb_indices"] = list(nb_indices)
+                self.neighbors_normalized_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                self.neighbors_distances[isite][icurrent]["dnb_indices"] = list(dnb_indices)
             for idist in range(len(self.neighbors_distances[isite]) - 1):
                 dist_dict = self.neighbors_distances[isite][idist]
                 dist_dict_next = self.neighbors_distances[isite][idist + 1]
@@ -323,14 +279,9 @@ class DetailedVoronoiContainer(MSONable):
             if self.maximum_distance_factor is not None:
                 dfact = self.maximum_distance_factor
             else:
-                dfact = (
-                    self.default_voronoi_cutoff
-                    / self.neighbors_distances[isite][0]["min"]
-                )
+                dfact = self.default_voronoi_cutoff / self.neighbors_distances[isite][0]["min"]
             self.neighbors_normalized_distances[isite][-1]["next"] = dfact
-            self.neighbors_distances[isite][-1]["next"] = (
-                dfact * self.neighbors_distances[isite][0]["min"]
-            )
+            self.neighbors_distances[isite][-1]["next"] = dfact * self.neighbors_distances[isite][0]["min"]
             # Initializes neighbors angles and normalized angles groups
             self.neighbors_angles[isite] = []
             self.neighbors_normalized_angles[isite] = []
@@ -355,18 +306,10 @@ class DetailedVoronoiContainer(MSONable):
                 wa = normalized_angles[iang]
                 if self.minimum_angle_factor is not None:
                     if wa < self.minimum_angle_factor:
-                        self.neighbors_normalized_angles[isite][icurrent][
-                            "nb_indices"
-                        ] = list(nb_indices)
-                        self.neighbors_angles[isite][icurrent]["nb_indices"] = list(
-                            nb_indices
-                        )
-                        self.neighbors_normalized_angles[isite][icurrent][
-                            "dnb_indices"
-                        ] = list(dnb_indices)
-                        self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(
-                            dnb_indices
-                        )
+                        self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                        self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                        self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                        self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
                         break
                 if np.isclose(
                     wa,
@@ -375,43 +318,23 @@ class DetailedVoronoiContainer(MSONable):
                     atol=self.normalized_angle_tolerance,
                 ):
                     self.neighbors_normalized_angles[isite][icurrent]["min"] = wa
-                    self.neighbors_angles[isite][icurrent]["min"] = results[iang][
-                        "angle"
-                    ]
+                    self.neighbors_angles[isite][icurrent]["min"] = results[iang]["angle"]
                     dnb_indices.add(int(iang))
                 else:
-                    self.neighbors_normalized_angles[isite][icurrent][
-                        "nb_indices"
-                    ] = list(nb_indices)
-                    self.neighbors_angles[isite][icurrent]["nb_indices"] = list(
-                        nb_indices
-                    )
-                    self.neighbors_normalized_angles[isite][icurrent][
-                        "dnb_indices"
-                    ] = list(dnb_indices)
-                    self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(
-                        dnb_indices
-                    )
+                    self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
+                    self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                    self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
                     dnb_indices = {int(iang)}
-                    self.neighbors_normalized_angles[isite].append(
-                        {"max": wa, "min": wa}
-                    )
-                    self.neighbors_angles[isite].append(
-                        {"max": results[iang]["angle"], "min": results[iang]["angle"]}
-                    )
+                    self.neighbors_normalized_angles[isite].append({"max": wa, "min": wa})
+                    self.neighbors_angles[isite].append({"max": results[iang]["angle"], "min": results[iang]["angle"]})
                     icurrent += 1
                 nb_indices.add(int(iang))
             else:
-                self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(
-                    nb_indices
-                )
+                self.neighbors_normalized_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
                 self.neighbors_angles[isite][icurrent]["nb_indices"] = list(nb_indices)
-                self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(
-                    dnb_indices
-                )
-                self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(
-                    dnb_indices
-                )
+                self.neighbors_normalized_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
+                self.neighbors_angles[isite][icurrent]["dnb_indices"] = list(dnb_indices)
             for iang in range(len(self.neighbors_angles[isite]) - 1):
                 ang_dict = self.neighbors_angles[isite][iang]
                 ang_dict_next = self.neighbors_angles[isite][iang + 1]
@@ -424,9 +347,7 @@ class DetailedVoronoiContainer(MSONable):
             else:
                 afact = 0.0
             self.neighbors_normalized_angles[isite][-1]["next"] = afact
-            self.neighbors_angles[isite][-1]["next"] = (
-                afact * self.neighbors_angles[isite][0]["max"]
-            )
+            self.neighbors_angles[isite][-1]["next"] = afact * self.neighbors_angles[isite][0]["max"]
 
     def _precompute_additional_conditions(self, ivoronoi, voronoi, valences):
         additional_conditions = {ac: [] for ac in self.additional_conditions}
@@ -510,9 +431,7 @@ class DetailedVoronoiContainer(MSONable):
         """
         if self.voronoi_list2[isite] is None:
             return None
-        bounds_and_limits = self.voronoi_parameters_bounds_and_limits(
-            isite, surface_calculation_type, max_dist
-        )
+        bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite, surface_calculation_type, max_dist)
         distance_bounds = bounds_and_limits["distance_bounds"]
         angle_bounds = bounds_and_limits["angle_bounds"]
         surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
@@ -564,9 +483,7 @@ class DetailedVoronoiContainer(MSONable):
 
         distance_bounds = bounds_and_limits["distance_bounds"]
         angle_bounds = bounds_and_limits["angle_bounds"]
-        lower_and_upper_functions = get_lower_and_upper_f(
-            surface_calculation_options=surface_calculation_options
-        )
+        lower_and_upper_functions = get_lower_and_upper_f(surface_calculation_options=surface_calculation_options)
         mindist = surface_calculation_options["distance_bounds"]["lower"]
         maxdist = surface_calculation_options["distance_bounds"]["upper"]
         minang = surface_calculation_options["angle_bounds"]["lower"]
@@ -676,9 +593,7 @@ class DetailedVoronoiContainer(MSONable):
                 )
         return maps_and_surfaces
 
-    def maps_and_surfaces_bounded(
-        self, isite, surface_calculation_options=None, additional_conditions=None
-    ):
+    def maps_and_surfaces_bounded(self, isite, surface_calculation_options=None, additional_conditions=None):
         """
         Get the different surfaces (using boundaries) and their cn_map corresponding to the different
         distance-angle cutoffs for a given site.
@@ -695,9 +610,7 @@ class DetailedVoronoiContainer(MSONable):
             return None
         if additional_conditions is None:
             additional_conditions = [self.AC.ONLY_ACB]
-        surfaces = self.neighbors_surfaces_bounded(
-            isite=isite, surface_calculation_options=surface_calculation_options
-        )
+        surfaces = self.neighbors_surfaces_bounded(isite=isite, surface_calculation_options=surface_calculation_options)
         maps_and_surfaces = []
         for cn, value in self._unique_coordinated_neighbors_parameters_indices[isite].items():  # pylint: disable=E1101
             for imap, list_parameters_indices in enumerate(value):
@@ -790,10 +703,7 @@ class DetailedVoronoiContainer(MSONable):
             dist_limits = [0.0, 1.0]
         else:
             raise NotImplementedError(
-                'Plotting type "{}" '
-                "for the distance is not implemented".format(
-                    plot_type["distance_parameter"]
-                )
+                'Plotting type "{}" ' "for the distance is not implemented".format(plot_type["distance_parameter"])
             )
         if plot_type["angle_parameter"][0] == "initial_normalized":
             aa = [0.0]
@@ -806,8 +716,7 @@ class DetailedVoronoiContainer(MSONable):
             angle_bounds = np.array(aa)
         else:
             raise NotImplementedError(
-                'Plotting type "{}" '
-                "for the angle is not implemented".format(plot_type["angle_parameter"])
+                'Plotting type "{}" ' "for the angle is not implemented".format(plot_type["angle_parameter"])
             )
         ang_limits = [0.0, 1.0]
         return {
@@ -864,9 +773,7 @@ class DetailedVoronoiContainer(MSONable):
                         break
                 if nb_other is None:
                     return False
-                if not np.isclose(
-                    nb["distance"], nb_other["distance"], rtol=rtol, atol=atol
-                ):
+                if not np.isclose(nb["distance"], nb_other["distance"], rtol=rtol, atol=atol):
                     return False
                 if not np.isclose(nb["angle"], nb_other["angle"], rtol=rtol, atol=atol):
                     return False
@@ -945,11 +852,7 @@ class DetailedVoronoiContainer(MSONable):
             for idist, dist in enumerate(mydists):
                 yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
         else:
-            raise ValueError(
-                'Step function of type "{}" is not allowed'.format(
-                    step_function["type"]
-                )
-            )
+            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
         subplot.plot(xx, yy)
 
         return fig
@@ -1008,11 +911,7 @@ class DetailedVoronoiContainer(MSONable):
             for iang, ang in enumerate(myangs):
                 yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
         else:
-            raise ValueError(
-                'Step function of type "{}" is not allowed'.format(
-                    step_function["type"]
-                )
-            )
+            raise ValueError('Step function of type "{}" is not allowed'.format(step_function["type"]))
         subplot.plot(xx, yy)
 
         return fig
@@ -1020,8 +919,7 @@ class DetailedVoronoiContainer(MSONable):
     def __eq__(self, other):
         return (
             self.normalized_angle_tolerance == other.normalized_angle_tolerance
-            and self.normalized_distance_tolerance
-            == other.normalized_distance_tolerance
+            and self.normalized_distance_tolerance == other.normalized_distance_tolerance
             and self.additional_conditions == other.additional_conditions
             and self.valences == other.valences
             and self.voronoi_list2 == other.voronoi_list2
@@ -1049,14 +947,10 @@ class DetailedVoronoiContainer(MSONable):
             #  'index': myindex}
             for nb_dict in voro:
                 site = nb_dict["site"]
-                site_dict = {
-                    key: val for key, val in nb_dict.items() if key not in ["site"]
-                }
+                site_dict = {key: val for key, val in nb_dict.items() if key not in ["site"]}
                 # site_voro.append([ps.as_dict(), dd]) [float(c) for c in self.frac_coords]
                 diff = site.frac_coords - self.structure[nb_dict["index"]].frac_coords
-                site_voro.append(
-                    [[nb_dict["index"], [float(c) for c in diff]], site_dict]
-                )
+                site_voro.append([[nb_dict["index"], [float(c) for c in diff]], site_dict])
             bson_nb_voro_list2[ivoro] = site_voro
         return bson_nb_voro_list2
 
@@ -1096,12 +990,8 @@ class DetailedVoronoiContainer(MSONable):
         """
         structure = Structure.from_dict(d["structure"])
         voronoi_list2 = from_bson_voronoi_list2(d["bson_nb_voro_list2"], structure)
-        maximum_distance_factor = (
-            d["maximum_distance_factor"] if "maximum_distance_factor" in d else None
-        )
-        minimum_angle_factor = (
-            d["minimum_angle_factor"] if "minimum_angle_factor" in d else None
-        )
+        maximum_distance_factor = d["maximum_distance_factor"] if "maximum_distance_factor" in d else None
+        minimum_angle_factor = d["minimum_angle_factor"] if "minimum_angle_factor" in d else None
         return cls(
             structure=structure,
             voronoi_list2=voronoi_list2,

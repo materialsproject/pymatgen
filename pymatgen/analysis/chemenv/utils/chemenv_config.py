@@ -35,15 +35,9 @@ class ChemEnvConfig:
         "default_strategy": {
             "strategy": "SimplestChemenvStrategy",
             "strategy_options": {
-                "distance_cutoff": strategies_class_lookup[
-                    "SimplestChemenvStrategy"
-                ].DEFAULT_DISTANCE_CUTOFF,
-                "angle_cutoff": strategies_class_lookup[
-                    "SimplestChemenvStrategy"
-                ].DEFAULT_ANGLE_CUTOFF,
-                "additional_condition": strategies_class_lookup[
-                    "SimplestChemenvStrategy"
-                ].DEFAULT_ADDITIONAL_CONDITION,
+                "distance_cutoff": strategies_class_lookup["SimplestChemenvStrategy"].DEFAULT_DISTANCE_CUTOFF,
+                "angle_cutoff": strategies_class_lookup["SimplestChemenvStrategy"].DEFAULT_ANGLE_CUTOFF,
+                "additional_condition": strategies_class_lookup["SimplestChemenvStrategy"].DEFAULT_ADDITIONAL_CONDITION,
                 "continuous_symmetry_measure_cutoff": strategies_class_lookup[
                     "SimplestChemenvStrategy"
                 ].DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
@@ -81,9 +75,7 @@ class ChemEnvConfig:
             for key, val in self.package_options.items():
                 print("     {}   :   {}".format(str(key), str(val)))
             print("\nChoose in the following :")
-            print(
-                " <1> + <ENTER> : configuration of the package options (strategy, ...)"
-            )
+            print(" <1> + <ENTER> : configuration of the package options (strategy, ...)")
             print(" <q> + <ENTER> : quit without saving configuration")
             test = input(" <S> + <ENTER> : save configuration and quit\n ... ")
             if test == "1":
@@ -127,24 +119,18 @@ class ChemEnvConfig:
                 while True:
                     print(
                         '  => Enter value for option "{}" '
-                        "(<ENTER> for default = {})\n".format(
-                            option, str(option_dict["default"])
-                        )
+                        "(<ENTER> for default = {})\n".format(option, str(option_dict["default"]))
                     )
                     print("     Valid options are :\n")
                     print("       {}".format(option_dict["type"].allowed_values))
                     test = input("     Your choice : ")
                     if test == "":
-                        self.package_options["default_strategy"]["strategy_options"][
-                            option
-                        ] = option_dict["type"](
+                        self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](
                             strategy_class.STRATEGY_OPTIONS[option]["default"]
                         )
                         break
                     try:
-                        self.package_options["default_strategy"]["strategy_options"][
-                            option
-                        ] = option_dict["type"](test)
+                        self.package_options["default_strategy"]["strategy_options"][option] = option_dict["type"](test)
                         break
                     except ValueError:
                         print("Wrong input for option {}".format(option))
@@ -154,15 +140,9 @@ class ChemEnvConfig:
         Describe package options.
         """
         out = "Package options :\n"
-        out += " - Maximum distance factor : {:.4f}\n".format(
-            self.package_options["default_max_distance_factor"]
-        )
-        out += ' - Default strategy is "{}" :\n'.format(
-            self.package_options["default_strategy"]["strategy"]
-        )
-        strategy_class = strategies_class_lookup[
-            self.package_options["default_strategy"]["strategy"]
-        ]
+        out += " - Maximum distance factor : {:.4f}\n".format(self.package_options["default_max_distance_factor"])
+        out += ' - Default strategy is "{}" :\n'.format(self.package_options["default_strategy"]["strategy"])
+        strategy_class = strategies_class_lookup[self.package_options["default_strategy"]["strategy"]]
         out += "{}\n".format(strategy_class.STRATEGY_DESCRIPTION)
         out += "   with options :\n"
         for option, option_dict in strategy_class.STRATEGY_OPTIONS.items():
@@ -185,9 +165,7 @@ class ChemEnvConfig:
         config_dict = {"package_options": self.package_options}
         config_file = "{}/config.json".format(root_dir)
         if exists(config_file):
-            test = input(
-                "Overwrite existing configuration ? (<Y> + <ENTER> to confirm)"
-            )
+            test = input("Overwrite existing configuration ? (<Y> + <ENTER> to confirm)")
             if test != "Y":
                 print("Configuration not saved")
                 return config_file

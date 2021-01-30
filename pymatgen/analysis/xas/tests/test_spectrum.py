@@ -55,9 +55,7 @@ class XASTest(PymatgenTest):
         scaled_spect2 = self.k_xanes * 3
         self.assertTrue(np.allclose(scaled_spect.y, 2 * self.k_xanes.y))
         self.assertTrue(np.allclose(scaled_spect2.y, 3 * self.k_xanes.y))
-        self.assertAlmostEqual(
-            0.274302, self.k_xanes.get_interpolated_value(7720.422), 3
-        )
+        self.assertAlmostEqual(0.274302, self.k_xanes.get_interpolated_value(7720.422), 3)
 
     def test_to_from_dict(self):
         s = XAS.from_dict(self.k_xanes.as_dict())
@@ -82,9 +80,7 @@ class XASTest(PymatgenTest):
         )
 
     def test_stitch_xafs(self):
-        self.assertRaises(
-            ValueError, XAS.stitch, self.k_xanes, self.k_exafs, mode="invalid"
-        )
+        self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.k_exafs, mode="invalid")
         xafs = XAS.stitch(self.k_xanes, self.k_exafs, mode="XAFS")
         self.assertIsInstance(xafs, XAS)
         self.assertEqual("XAFS", xafs.spectrum_type)
@@ -96,15 +92,11 @@ class XASTest(PymatgenTest):
             self.k_xanes.e0,
             2,
         )
-        self.assertRaises(
-            ValueError, XAS.stitch, self.k_xanes, self.l2_xanes, mode="XAFS"
-        )
+        self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.l2_xanes, mode="XAFS")
         self.k_xanes.x = np.zeros(100)
         self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.k_exafs)
         self.k_xanes.absorbing_element = Element("Pt")
-        self.assertRaises(
-            ValueError, XAS.stitch, self.k_xanes, self.k_exafs, mode="XAFS"
-        )
+        self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.k_exafs, mode="XAFS")
 
     def test_stitch_l23(self):
         self.l2_xanes.y[0] = 0.1
@@ -123,16 +115,10 @@ class XASTest(PymatgenTest):
         self.assertTrue(np.greater_equal(l23.y, self.l2_xanes.y).all())
         self.assertEqual(len(l23.x), 100)
         self.l2_xanes.spectrum_type = "EXAFS"
-        self.assertRaises(
-            ValueError, XAS.stitch, self.l2_xanes, self.l3_xanes, mode="L23"
-        )
+        self.assertRaises(ValueError, XAS.stitch, self.l2_xanes, self.l3_xanes, mode="L23")
         self.l2_xanes.absorbing_element = Element("Pt")
-        self.assertRaises(
-            ValueError, XAS.stitch, self.l2_xanes, self.l3_xanes, mode="L23"
-        )
-        self.assertRaises(
-            ValueError, XAS.stitch, self.k_xanes, self.l3_xanes, mode="L23"
-        )
+        self.assertRaises(ValueError, XAS.stitch, self.l2_xanes, self.l3_xanes, mode="L23")
+        self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.l3_xanes, mode="L23")
 
     def test_site_weighted_spectrum(self):
         weighted_spectrum = site_weighted_spectrum([self.site1_xanes, self.site2_xanes])
@@ -149,9 +135,7 @@ class XASTest(PymatgenTest):
             max(min(self.site1_xanes.x), min(self.site2_xanes.x)),
         )
         self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
-        self.assertRaises(
-            ValueError, site_weighted_spectrum, [self.site1_xanes, self.site2_xanes]
-        )
+        self.assertRaises(ValueError, site_weighted_spectrum, [self.site1_xanes, self.site2_xanes])
 
 
 if __name__ == "__main__":

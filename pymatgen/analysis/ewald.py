@@ -99,9 +99,7 @@ class EwaldSummation(MSONable):
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = (
-            eta if eta else (len(structure) * w / (self._vol ** 2)) ** (1 / 3) * pi
-        )
+        self._eta = eta if eta else (len(structure) * w / (self._vol ** 2)) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
@@ -109,9 +107,7 @@ class EwaldSummation(MSONable):
         self._accf = sqrt(log(10 ** acc_factor))
 
         self._rmax = real_space_cut if real_space_cut else self._accf / self._sqrt_eta
-        self._gmax = (
-            recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
-        )
+        self._gmax = recip_space_cut if recip_space_cut else 2 * self._sqrt_eta * self._accf
 
         # The next few lines pre-compute certain quantities and store them.
         # Ewald summation is rather expensive, and these shortcuts are
@@ -129,12 +125,7 @@ class EwaldSummation(MSONable):
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = (
-            -EwaldSummation.CONV_FACT
-            / 2
-            * np.pi
-            / structure.volume
-            / self._eta
-            * structure.charge ** 2
+            -EwaldSummation.CONV_FACT / 2 * np.pi / structure.volume / self._eta * structure.charge ** 2
         )
 
     def compute_partial_energy(self, removed_indices):
@@ -165,10 +156,7 @@ class EwaldSummation(MSONable):
 
         def find_match(site):
             for test_site in sub_structure:
-                frac_diff = (
-                    abs(np.array(site.frac_coords) - np.array(test_site.frac_coords))
-                    % 1
-                )
+                frac_diff = abs(np.array(site.frac_coords) - np.array(test_site.frac_coords)) % 1
                 frac_diff = [abs(a) < tol or abs(a) > 1 - tol for a in frac_diff]
                 if all(frac_diff):
                     return test_site
@@ -268,12 +256,7 @@ class EwaldSummation(MSONable):
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True
-        return (
-            sum(sum(self._recip))
-            + sum(sum(self._real))
-            + sum(self._point)
-            + self._charged_cell_energy
-        )
+        return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point) + self._charged_cell_energy
 
     @property
     def total_energy_matrix(self):
@@ -319,14 +302,8 @@ class EwaldSummation(MSONable):
             self._initialized = True
 
         if self._charged:
-            warn(
-                "Per atom energies for charged structures not supported in EwaldSummation"
-            )
-        return (
-            np.sum(self._recip[:, site_index])
-            + np.sum(self._real[:, site_index])
-            + self._point[site_index]
-        )
+            warn("Per atom energies for charged structures not supported in EwaldSummation")
+        return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_ewald_terms(self):
         """
@@ -372,9 +349,7 @@ class EwaldSummation(MSONable):
         sreals = np.sum(oxistates[None, :] * np.cos(grs), 1)
         simags = np.sum(oxistates[None, :] * np.sin(grs), 1)
 
-        for g, g2, gr, expval, sreal, simag in zip(
-            gs, g2s, grs, expvals, sreals, simags
-        ):
+        for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals, sreals, simags):
 
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             m = (gr[None, :] + pi / 4) - gr[:, None]
@@ -433,16 +408,9 @@ class EwaldSummation(MSONable):
             if self._compute_forces:
                 nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
 
-                fijpf = (
-                    qj
-                    / rij ** 3
-                    * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
-                )
+                fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
                 forces[i] += np.sum(
-                    np.expand_dims(fijpf, 1)
-                    * (np.array([coords[i]]) - nccoords)
-                    * qi
-                    * EwaldSummation.CONV_FACT,
+                    np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nccoords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
                 )
 
@@ -592,9 +560,7 @@ class EwaldMinimizer:
         self._num_to_return = num_to_return
         self._algo = algo
         if algo == EwaldMinimizer.ALGO_COMPLETE:
-            raise NotImplementedError(
-                "Complete algo not yet implemented for " "EwaldMinimizer"
-            )
+            raise NotImplementedError("Complete algo not yet implemented for " "EwaldMinimizer")
 
         self._output_lists = []
         # Tag that the recurse function looks at at each level. If a method
@@ -613,13 +579,8 @@ class EwaldMinimizer:
         This method finds and returns the permutations that produce the lowest
         ewald sum calls recursive function to iterate through permutations
         """
-        if (
-            self._algo == EwaldMinimizer.ALGO_FAST
-            or self._algo == EwaldMinimizer.ALGO_BEST_FIRST
-        ):
-            return self._recurse(
-                self._matrix, self._m_list, set(range(len(self._matrix)))
-            )
+        if self._algo == EwaldMinimizer.ALGO_FAST or self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+            return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
         return None
 
     def add_m_list(self, matrix_sum, m_list):
@@ -631,10 +592,7 @@ class EwaldMinimizer:
             self._output_lists = [[matrix_sum, m_list]]
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
-        if (
-            self._algo == EwaldMinimizer.ALGO_BEST_FIRST
-            and len(self._output_lists) == self._num_to_return
-        ):
+        if self._algo == EwaldMinimizer.ALGO_BEST_FIRST and len(self._output_lists) == self._num_to_return:
             self._finished = True
         if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
@@ -688,16 +646,11 @@ class EwaldMinimizer:
             avg_frac = np.average(np.outer(1 - fractions, 1 - fractions))
             average_correction = avg_int * avg_frac
 
-            interaction_correction = (
-                average_correction * speedup_parameter
-                + interaction_correction * (1 - speedup_parameter)
+            interaction_correction = average_correction * speedup_parameter + interaction_correction * (
+                1 - speedup_parameter
             )
 
-        best_case = (
-            np.sum(matrix)
-            + np.inner(sums[::-1], fractions - 1)
-            + interaction_correction
-        )
+        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
 
         return best_case
 
@@ -808,9 +761,7 @@ def compute_average_oxidation_state(site):
         Average oxidation state of site.
     """
     try:
-        avg_oxi = sum(
-            [sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None]
-        )
+        avg_oxi = sum([sp.oxi_state * occu for sp, occu in site.species.items() if sp is not None])
         return avg_oxi
     except AttributeError:
         pass

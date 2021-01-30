@@ -33,15 +33,9 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertAlmostEqual(ham.point_energy, -620.22598358035918, 4)
         self.assertAlmostEqual(ham.total_energy, -1123.00766, 1)
         self.assertAlmostEqual(ham.forces[0, 0], -1.98818620e-01, 4)
-        self.assertAlmostEqual(
-            sum(sum(abs(ham.forces))), 915.925354346, 4, "Forces incorrect"
-        )
-        self.assertAlmostEqual(
-            sum(sum(ham.real_space_energy_matrix)), ham.real_space_energy, 4
-        )
-        self.assertAlmostEqual(
-            sum(sum(ham.reciprocal_space_energy_matrix)), ham.reciprocal_space_energy, 4
-        )
+        self.assertAlmostEqual(sum(sum(abs(ham.forces))), 915.925354346, 4, "Forces incorrect")
+        self.assertAlmostEqual(sum(sum(ham.real_space_energy_matrix)), ham.real_space_energy, 4)
+        self.assertAlmostEqual(sum(sum(ham.reciprocal_space_energy_matrix)), ham.reciprocal_space_energy, 4)
         self.assertAlmostEqual(sum(ham.point_energy_matrix), ham.point_energy, 4)
         self.assertAlmostEqual(
             sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy,
@@ -73,9 +67,7 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertFalse(ham._initialized)
         self.assertIsNone(ham2._real)
         self.assertFalse(ham2._initialized)
-        self.assertTrue(
-            np.array_equal(ham.total_energy_matrix, ham2.total_energy_matrix)
-        )
+        self.assertTrue(np.array_equal(ham.total_energy_matrix, ham2.total_energy_matrix))
         # check lazy eval
         self.assertAlmostEqual(ham.total_energy, -1123.00766, 1)
         self.assertIsNotNone(ham._real)
@@ -83,9 +75,7 @@ class EwaldSummationTest(unittest.TestCase):
         ham2 = EwaldSummation.from_dict(ham.as_dict())
         self.assertIsNotNone(ham2._real)
         self.assertTrue(ham2._initialized)
-        self.assertTrue(
-            np.array_equal(ham.total_energy_matrix, ham2.total_energy_matrix)
-        )
+        self.assertTrue(np.array_equal(ham.total_energy_matrix, ham2.total_energy_matrix))
 
     def test_as_dict(self):
         ham = EwaldSummation(self.s, compute_forces=True)
@@ -125,15 +115,9 @@ class EwaldMinimizerTest(unittest.TestCase):
 
         e_min = EwaldMinimizer(matrix, m_list, 50)
 
-        self.assertEqual(
-            len(e_min.output_lists), 15, "Wrong number of permutations returned"
-        )
-        self.assertAlmostEqual(
-            e_min.minimized_sum, 111.63, 3, "Returned wrong minimum value"
-        )
-        self.assertEqual(
-            len(e_min.best_m_list), 6, "Returned wrong number of permutations"
-        )
+        self.assertEqual(len(e_min.output_lists), 15, "Wrong number of permutations returned")
+        self.assertAlmostEqual(e_min.minimized_sum, 111.63, 3, "Returned wrong minimum value")
+        self.assertEqual(len(e_min.best_m_list), 6, "Returned wrong number of permutations")
 
     def test_site(self):
         """Test that uses an uncharged structure"""

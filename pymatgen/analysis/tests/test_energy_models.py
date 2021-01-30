@@ -46,9 +46,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
     def test_to_from_dict(self):
         m = EwaldElectrostaticModel()
         d = m.as_dict()
-        self.assertIsInstance(
-            EwaldElectrostaticModel.from_dict(d), EwaldElectrostaticModel
-        )
+        self.assertIsInstance(EwaldElectrostaticModel.from_dict(d), EwaldElectrostaticModel)
 
 
 class SymmetryModelTest(unittest.TestCase):

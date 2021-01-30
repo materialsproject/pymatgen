@@ -43,6 +43,7 @@ class AdditionalConditions:
     """
     Class for additional conditions.
     """
+
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
     NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
@@ -94,15 +95,11 @@ class AdditionalConditions:
             jj = parameters["neighbor_index"]
             elmts_ii = [sp.symbol for sp in structure[ii].species]
             elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0 and is_anion_cation_bond(
-                valences, ii, jj
-            )
+            return len(set(elmts_ii) & set(elmts_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
         if condition == self.ONLY_E2OB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
             elmts_ii = [sp.symbol for sp in structure[ii].species]
             elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return ("O" in elmts_jj and "O" not in elmts_ii) or (
-                "O" in elmts_ii and "O" not in elmts_jj
-            )
+            return ("O" in elmts_jj and "O" not in elmts_ii) or ("O" in elmts_ii and "O" not in elmts_jj)
         return None

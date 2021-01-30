@@ -33,7 +33,8 @@ from pymatgen.analysis.local_env import (
     VoronoiNN,
     get_neighbors_of_site_with_index,
     site_is_of_motif_type,
-    solid_angle, IsayevNN,
+    solid_angle,
+    IsayevNN,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -85,12 +86,8 @@ class VoronoiNNTest(PymatgenTest):
         self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
 
     def test_get_cn(self):
-        self.assertAlmostEqual(
-            self.nn.get_cn(self.s, 0, use_weights=True), 5.809265748999465, 7
-        )
-        self.assertAlmostEqual(
-            self.nn_sic.get_cn(self.s_sic, 0, use_weights=True), 4.5381161643940668, 7
-        )
+        self.assertAlmostEqual(self.nn.get_cn(self.s, 0, use_weights=True), 5.809265748999465, 7)
+        self.assertAlmostEqual(self.nn_sic.get_cn(self.s_sic, 0, use_weights=True), 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
@@ -124,12 +121,8 @@ class VoronoiNNTest(PymatgenTest):
         # Test the 2nd NN shell
         nns = self.nn.get_nn_shell_info(s, 0, 2)
         self.assertEqual(18, len(nns))
-        self.assertArrayAlmostEqual(
-            [1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2]
-        )
-        self.assertArrayAlmostEqual(
-            [2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1]
-        )
+        self.assertArrayAlmostEqual([1] * 6, [x["weight"] for x in nns if max(np.abs(x["image"])) == 2])
+        self.assertArrayAlmostEqual([2] * 12, [x["weight"] for x in nns if max(np.abs(x["image"])) == 1])
 
         # Test the 3rd NN shell
         nns = self.nn.get_nn_shell_info(s, 0, 3)
@@ -150,9 +143,7 @@ class VoronoiNNTest(PymatgenTest):
         self.nn.weight = "area"
         nns = self.nn.get_nn_shell_info(cscl, 0, 1)
         self.assertEqual(14, len(nns))
-        self.assertEqual(
-            6, np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum()
-        )  # Square faces
+        self.assertEqual(6, np.isclose([x["weight"] for x in nns], 0.125 / 0.32476).sum())  # Square faces
         self.assertEqual(8, np.isclose([x["weight"] for x in nns], 1).sum())
 
         nns = self.nn.get_nn_shell_info(cscl, 0, 2)
@@ -178,9 +169,7 @@ class VoronoiNNTest(PymatgenTest):
             self.assertEqual(4, len(nn_info["adj_neighbors"]))
 
             for adj_key in nn_info["adj_neighbors"]:
-                self.assertEqual(
-                    0, np.dot(nn_info["normal"], neighbors[adj_key]["normal"])
-                )
+                self.assertEqual(0, np.dot(nn_info["normal"], neighbors[adj_key]["normal"]))
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
@@ -254,7 +243,13 @@ class VoronoiNNTest(PymatgenTest):
 
         # Make sure it works for the `get_all` operation
         all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
-        self.assertEqual([8,] * 16, [len(x) for x in all_nns])
+        self.assertEqual(
+            [
+                8,
+            ]
+            * 16,
+            [len(x) for x in all_nns],
+        )
 
     def tearDown(self):
         del self.s
@@ -296,7 +291,6 @@ class JmolNNTest(PymatgenTest):
 
 
 class TestIsayevNN(PymatgenTest):
-
     def test_get_nn(self):
         inn = IsayevNN()
         s = self.get_structure("LiFePO4")
@@ -308,7 +302,6 @@ class TestIsayevNN(PymatgenTest):
 
 
 class OpenBabelNNTest(PymatgenTest):
-
     def setUp(self):
         pytest.importorskip("openbabel", reason="OpenBabel not installed")
         self.benzene = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "benzene.xyz"))
@@ -340,9 +333,7 @@ class OpenBabelNNTest(PymatgenTest):
         self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
         self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
 
-        self.assertAlmostEqual(
-            strat.get_nn_info(self.acetylene, 0)[0]["weight"], 1.19, 2
-        )
+        self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"], 1.19, 2)
 
     def tearDown(self):
         del self.benzene
@@ -431,9 +422,7 @@ class MiniDistNNTest(PymatgenTest):
         self.lifepo4.add_oxidation_state_by_guess()
 
     def test_all_nn_classes(self):
-        self.assertEqual(
-            MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(self.cscl, 0), 14
-        )
+        self.assertEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(self.cscl, 0), 14)
         self.assertEqual(MinimumDistanceNN().get_cn(self.diamond, 0), 4)
         self.assertEqual(MinimumDistanceNN().get_cn(self.nacl, 0), 6)
         self.assertEqual(MinimumDistanceNN().get_cn(self.lifepo4, 0), 6)
@@ -441,10 +430,7 @@ class MiniDistNNTest(PymatgenTest):
         self.assertEqual(MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0), 6)
 
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            self.assertTrue(
-                image
-                in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)]
-            )
+            self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0), (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
 
         okeeffe = MinimumOKeeffeNN(tol=0.01)
         self.assertEqual(okeeffe.get_cn(self.diamond, 0), 4)
@@ -583,41 +569,25 @@ class MotifIdentificationTest(PymatgenTest):
             self.assertEqual(site_is_of_motif_type(self.nacl, i), "octahedral")
         for i in range(self.cscl.num_sites):
             self.assertEqual(site_is_of_motif_type(self.cscl, i), "bcc")
-        self.assertEqual(
-            site_is_of_motif_type(self.square_pyramid, 0), "square pyramidal"
-        )
+        self.assertEqual(site_is_of_motif_type(self.square_pyramid, 0), "square pyramidal")
         for i in range(1, self.square_pyramid.num_sites):
-            self.assertEqual(
-                site_is_of_motif_type(self.square_pyramid, i), "unrecognized"
-            )
-        self.assertEqual(
-            site_is_of_motif_type(self.trigonal_bipyramid, 0), "trigonal bipyramidal"
-        )
+            self.assertEqual(site_is_of_motif_type(self.square_pyramid, i), "unrecognized")
+        self.assertEqual(site_is_of_motif_type(self.trigonal_bipyramid, 0), "trigonal bipyramidal")
         for i in range(1, self.trigonal_bipyramid.num_sites):
-            self.assertEqual(
-                site_is_of_motif_type(self.trigonal_bipyramid, i), "unrecognized"
-            )
+            self.assertEqual(site_is_of_motif_type(self.trigonal_bipyramid, i), "unrecognized")
 
     def test_get_neighbors_of_site_with_index(self):
         self.assertEqual(len(get_neighbors_of_site_with_index(self.diamond, 0)), 4)
         self.assertEqual(len(get_neighbors_of_site_with_index(self.nacl, 0)), 6)
         self.assertEqual(len(get_neighbors_of_site_with_index(self.cscl, 0)), 8)
-        self.assertEqual(
-            len(get_neighbors_of_site_with_index(self.diamond, 0, delta=0.01)), 4
-        )
-        self.assertEqual(
-            len(get_neighbors_of_site_with_index(self.diamond, 0, cutoff=6)), 4
-        )
+        self.assertEqual(len(get_neighbors_of_site_with_index(self.diamond, 0, delta=0.01)), 4)
+        self.assertEqual(len(get_neighbors_of_site_with_index(self.diamond, 0, cutoff=6)), 4)
         self.assertEqual(
             len(get_neighbors_of_site_with_index(self.diamond, 0, approach="voronoi")),
             4,
         )
         self.assertEqual(
-            len(
-                get_neighbors_of_site_with_index(
-                    self.diamond, 0, approach="min_OKeeffe"
-                )
-            ),
+            len(get_neighbors_of_site_with_index(self.diamond, 0, approach="min_OKeeffe")),
             4,
         )
         self.assertEqual(
@@ -1026,9 +996,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         )
 
     def test_init(self):
-        self.assertIsNotNone(
-            LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99)
-        )
+        self.assertIsNotNone(LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99))
 
         parameters = [{"norm": 2}]
         lostops = LocalStructOrderParams(["cn"], parameters=parameters)
@@ -1109,9 +1077,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[2] * 1000), 1000)
 
         # T-shape motif.
-        op_vals = ops_101.get_order_parameters(
-            self.T_shape, 0, indices_neighs=[1, 2, 3]
-        )
+        op_vals = ops_101.get_order_parameters(self.T_shape, 0, indices_neighs=[1, 2, 3])
         self.assertAlmostEqual(int(op_vals[23] * 1000), 1000)
 
         # Cubic structure.
@@ -1200,17 +1166,13 @@ class LocalStructOrderParamsTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[10] * 1000), 1000)
 
         # Pentagonal planar.
-        op_vals = ops_101.get_order_parameters(
-            self.pentagonal_planar.sites, 0, indices_neighs=[1, 2, 3, 4, 5]
-        )
+        op_vals = ops_101.get_order_parameters(self.pentagonal_planar.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 126)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
         self.assertAlmostEqual(int(op_vals[31] * 1000 + 0.5), 1000)
 
         # Trigonal pyramid motif.
-        op_vals = ops_101.get_order_parameters(
-            self.trigonal_pyramid, 0, indices_neighs=[1, 2, 3, 4]
-        )
+        op_vals = ops_101.get_order_parameters(self.trigonal_pyramid, 0, indices_neighs=[1, 2, 3, 4])
         self.assertAlmostEqual(int(op_vals[18] * 1000 + 0.5), 1000)
 
         # Square pyramid motif.
@@ -1220,52 +1182,36 @@ class LocalStructOrderParamsTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
 
         # Pentagonal pyramid motif.
-        op_vals = ops_101.get_order_parameters(
-            self.pentagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6]
-        )
+        op_vals = ops_101.get_order_parameters(self.pentagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
         self.assertAlmostEqual(int(op_vals[19] * 1000 + 0.5), 1000)
 
         # Hexagonal pyramid motif.
-        op_vals = ops_101.get_order_parameters(
-            self.hexagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7]
-        )
+        op_vals = ops_101.get_order_parameters(self.hexagonal_pyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
         self.assertAlmostEqual(int(op_vals[20] * 1000 + 0.5), 1000)
 
         # Trigonal bipyramidal.
-        op_vals = ops_101.get_order_parameters(
-            self.trigonal_bipyramidal.sites, 0, indices_neighs=[1, 2, 3, 4, 5]
-        )
+        op_vals = ops_101.get_order_parameters(self.trigonal_bipyramidal.sites, 0, indices_neighs=[1, 2, 3, 4, 5])
         self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
 
         # Pentagonal bipyramidal.
-        op_vals = ops_101.get_order_parameters(
-            self.pentagonal_bipyramid.sites, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7]
-        )
+        op_vals = ops_101.get_order_parameters(self.pentagonal_bipyramid.sites, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7])
         self.assertAlmostEqual(int(op_vals[21] * 1000 + 0.5), 1000)
 
         # Hexagonal bipyramid motif.
-        op_vals = ops_101.get_order_parameters(
-            self.hexagonal_bipyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7, 8]
-        )
+        op_vals = ops_101.get_order_parameters(self.hexagonal_bipyramid, 0, indices_neighs=[1, 2, 3, 4, 5, 6, 7, 8])
         self.assertAlmostEqual(int(op_vals[22] * 1000 + 0.5), 1000)
 
         # Cuboctahedral motif.
-        op_vals = ops_101.get_order_parameters(
-            self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)]
-        )
+        op_vals = ops_101.get_order_parameters(self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)])
         self.assertAlmostEqual(int(op_vals[24] * 1000 + 0.5), 1000)
         self.assertAlmostEqual(int(op_vals[32] * 1000 + 0.5), 1000)
 
         # See-saw motif.
-        op_vals = ops_101.get_order_parameters(
-            self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)]
-        )
+        op_vals = ops_101.get_order_parameters(self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)])
         self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
 
         # Hexagonal planar motif.
-        op_vals = ops_101.get_order_parameters(
-            self.hexagonal_planar, 0, indices_neighs=[1, 2, 3, 4, 5, 6]
-        )
+        op_vals = ops_101.get_order_parameters(self.hexagonal_planar, 0, indices_neighs=[1, 2, 3, 4, 5, 6])
         self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
 
         # Square face capped trigonal prism.
@@ -1473,9 +1419,7 @@ class CrystalNNTest(PymatgenTest):
         bonded_struct = cnn.get_bonded_structure(struct)
 
         sites_shifted = [[1.0, 0.2, 0.2], [0, 0, 0]]
-        struct_shifted = Structure(
-            [7, 0, 0, 0, 7, 0, 0, 0, 7], ["I"] * len(sites_shifted), sites_shifted
-        )
+        struct_shifted = Structure([7, 0, 0, 0, 7, 0, 0, 0, 7], ["I"] * len(sites_shifted), sites_shifted)
         bonded_struct_shifted = cnn.get_bonded_structure(struct_shifted)
 
         self.assertEqual(

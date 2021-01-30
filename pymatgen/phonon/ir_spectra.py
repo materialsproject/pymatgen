@@ -31,9 +31,7 @@ class IRDielectricTensor(MSONable):
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
 
-    def __init__(
-        self, oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure
-    ):
+    def __init__(self, oscillator_strength, ph_freqs_gamma, epsilon_infinity, structure):
         """
         Args:
             oscillatator_strength: IR oscillator strengths as defined
@@ -108,10 +106,7 @@ class IRDielectricTensor(MSONable):
         if isinstance(broad, float):
             broad = [broad] * self.nph_freqs
         if isinstance(broad, list) and len(broad) != self.nph_freqs:
-            raise ValueError(
-                "The number of elements in the broad_list "
-                "is not the same as the number of frequencies"
-            )
+            raise ValueError("The number of elements in the broad_list " "is not the same as the number of frequencies")
 
         if emax is None:
             emax = self.max_phfreq + max(broad) * 20
@@ -129,15 +124,7 @@ class IRDielectricTensor(MSONable):
         return frequencies, dielectric_tensor
 
     @add_fig_kwargs
-    def plot(
-        self,
-        components=("xx",),
-        reim="reim",
-        show_phonon_frequencies=True,
-        xlim=None,
-        ylim=None,
-        **kwargs
-    ):
+    def plot(self, components=("xx",), reim="reim", show_phonon_frequencies=True, xlim=None, ylim=None, **kwargs):
         """
         Helper function to generate the Spectrum plotter and directly plot the results
 
@@ -157,13 +144,11 @@ class IRDielectricTensor(MSONable):
         plt.xlabel(r"Frequency (meV)")
         return plt
 
-    def get_spectrum(
-        self, component, reim, broad=0.00005, emin=0, emax=None, divs=500, label=None
-    ):
+    def get_spectrum(self, component, reim, broad=0.00005, emin=0, emax=None, divs=500, label=None):
         """
-            component: either two indexes or a string like 'xx' to plot the (0,0) component
-            reim: only "re" or "im"
-            broad: a list of broadenings or a single broadening for the phonon peaks
+        component: either two indexes or a string like 'xx' to plot the (0,0) component
+        reim: only "re" or "im"
+        broad: a list of broadenings or a single broadening for the phonon peaks
         """
         # some check on component and reim value? but not really necessary maybe
 
@@ -173,23 +158,12 @@ class IRDielectricTensor(MSONable):
         i, j = [directions_map[direction] for direction in component]
         label = r"%s{$\epsilon_{%s%s}$}" % (reim_label[reim], "xyz"[i], "xyz"[j])
 
-        frequencies, dielectric_tensor = self.get_ir_spectra(
-            broad=broad, emin=emin, emax=emax, divs=divs
-        )
+        frequencies, dielectric_tensor = self.get_ir_spectra(broad=broad, emin=emin, emax=emax, divs=divs)
         y = functions_map[reim](dielectric_tensor[:, i, j])
 
         return Spectrum(frequencies * 1000, y, label=label)
 
-    def get_plotter(
-        self,
-        components=("xx",),
-        reim="reim",
-        broad=0.00005,
-        emin=0,
-        emax=None,
-        divs=500,
-        **kwargs
-    ):
+    def get_plotter(self, components=("xx",), reim="reim", broad=0.00005, emin=0, emax=None, divs=500, **kwargs):
         """
         Return an instance of the Spectrum plotter containing the different requested components
 
@@ -214,9 +188,7 @@ class IRDielectricTensor(MSONable):
                         "xyz"[i],
                         "xyz"[j],
                     )
-                    spectrum = self.get_spectrum(
-                        component, fstr, broad=broad, emin=emin, emax=emax, divs=divs
-                    )
+                    spectrum = self.get_spectrum(component, fstr, broad=broad, emin=emin, emax=emax, divs=divs)
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"
                     plotter.add_spectrum(label, spectrum)

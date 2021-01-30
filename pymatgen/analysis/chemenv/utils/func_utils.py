@@ -31,6 +31,7 @@ class AbstractRatioFunction:
     """
     #TODO: Missing doc
     """
+
     ALLOWED_FUNCTIONS = {}  # type: Dict[str, list]
 
     def __init__(self, function, options_dict=None):
@@ -70,12 +71,8 @@ class AbstractRatioFunction:
                 if len(function_options) == 1:
                     opts = 'Option "{}"'.format(function_options[0])
                 else:
-                    opts1 = ", ".join(
-                        ['"{}"'.format(op) for op in function_options[:-1]]
-                    )
-                    opts = "Options {}".format(
-                        " and ".join([opts1, '"{}"'.format(function_options[-1])])
-                    )
+                    opts1 = ", ".join(['"{}"'.format(op) for op in function_options[:-1]])
+                    opts = "Options {}".format(" and ".join([opts1, '"{}"'.format(function_options[-1])]))
                 if options_dict is None or len(options_dict) == 0:
                     missing = "no option was provided."
                 else:
@@ -83,17 +80,11 @@ class AbstractRatioFunction:
                     if len(options_dict) == 1:
                         missing = 'only "{}" was provided.'.format(optgiven[0])
                     else:
-                        missing1 = ", ".join(
-                            ['"{}"'.format(miss) for miss in optgiven[:-1]]
-                        )
-                        missing = "only {} were provided.".format(
-                            " and ".join([missing1, '"{}"'.format(optgiven[-1])])
-                        )
+                        missing1 = ", ".join(['"{}"'.format(miss) for miss in optgiven[:-1]])
+                        missing = "only {} were provided.".format(" and ".join([missing1, '"{}"'.format(optgiven[-1])]))
                 raise ValueError(
                     '{} should be provided for function "{}" in RatioFunction of '
-                    'type "{}" while {}'.format(
-                        opts, self.function, self.__class__.__name__, missing
-                    )
+                    'type "{}" while {}'.format(opts, self.function, self.__class__.__name__, missing)
                 )
             # Setup the options and raise an error if a wrong option is provided
             for key, val in options_dict.items():
@@ -126,6 +117,7 @@ class RatioFunction(AbstractRatioFunction):
     """
     #TODO: Missing doc
     """
+
     ALLOWED_FUNCTIONS = {
         "power2_decreasing_exp": ["max", "alpha"],
         "smoothstep": ["lower", "upper"],
@@ -142,9 +134,7 @@ class RatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return power2_decreasing_exp(
-            vals, edges=[0.0, self.__dict__["max"]], alpha=self.__dict__["alpha"]
-        )
+        return power2_decreasing_exp(vals, edges=[0.0, self.__dict__["max"]], alpha=self.__dict__["alpha"])
 
     def smootherstep(self, vals):
         """
@@ -152,9 +142,7 @@ class RatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return smootherstep(
-            vals, edges=[self.__dict__["lower"], self.__dict__["upper"]]
-        )
+        return smootherstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]])
 
     def smoothstep(self, vals):
         """
@@ -170,9 +158,7 @@ class RatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return smootherstep(
-            vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True
-        )
+        return smootherstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True)
 
     def inverse_smoothstep(self, vals):
         """
@@ -180,9 +166,7 @@ class RatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return smoothstep(
-            vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True
-        )
+        return smoothstep(vals, edges=[self.__dict__["lower"], self.__dict__["upper"]], inverse=True)
 
     def power2_inverse_decreasing(self, vals):
         """
@@ -205,6 +189,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     """
     #TODO: Missing doc
     """
+
     ALLOWED_FUNCTIONS = {
         "power2_decreasing_exp": ["max_csm", "alpha"],
         "smoothstep": ["lower_csm", "upper_csm"],
@@ -217,9 +202,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return power2_decreasing_exp(
-            vals, edges=[0.0, self.__dict__["max_csm"]], alpha=self.__dict__["alpha"]
-        )
+        return power2_decreasing_exp(vals, edges=[0.0, self.__dict__["max_csm"]], alpha=self.__dict__["alpha"])
 
     def smootherstep(self, vals):
         """
@@ -280,6 +263,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
     """
     #TODO: Missing doc
     """
+
     ALLOWED_FUNCTIONS = {
         "power2_inverse_decreasing": ["max_csm"],
         "power2_inverse_power2_decreasing": ["max_csm"],
@@ -299,9 +283,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return power2_inverse_power2_decreasing(
-            vals, edges=[0.0, self.__dict__["max_csm"]]
-        )
+        return power2_inverse_power2_decreasing(vals, edges=[0.0, self.__dict__["max_csm"]])
 
     def fractions(self, data):
         """
@@ -318,9 +300,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
             fractions[close_to_zero.index(True)] = 1.0
             return fractions
         if nzeros > 1:
-            raise RuntimeError(
-                "Should not have more than one continuous symmetry measure with value equal to 0.0"
-            )
+            raise RuntimeError("Should not have more than one continuous symmetry measure with value equal to 0.0")
         fractions = self.eval(np.array(data))
         total = np.sum(fractions)
         if total > 0.0:
@@ -349,6 +329,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     """
     #TODO: Missing doc
     """
+
     ALLOWED_FUNCTIONS = {"smootherstep": ["delta_csm_min", "delta_csm_max"]}
 
     def smootherstep(self, vals):
@@ -357,6 +338,4 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
         :param vals:
         :return:
         """
-        return smootherstep(
-            vals, edges=[self.__dict__["delta_csm_min"], self.__dict__["delta_csm_max"]]
-        )
+        return smootherstep(vals, edges=[self.__dict__["delta_csm_min"], self.__dict__["delta_csm_max"]])

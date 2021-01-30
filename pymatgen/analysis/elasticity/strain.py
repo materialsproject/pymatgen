@@ -107,9 +107,7 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response
     """
 
-    def __init__(
-        self, structure, norm_strains=None, shear_strains=None, symmetry=False
-    ):
+    def __init__(self, structure, norm_strains=None, shear_strains=None, symmetry=False):
         """
         constructs the deformed geometries of a structure.  Generates
         m + n deformed structures according to the supplied parameters.
@@ -144,9 +142,7 @@ class DeformedStructureSet(collections.abc.Sequence):
         if symmetry:
             self.sym_dict = symmetry_reduce(self.deformations, structure)
             self.deformations = list(self.sym_dict.keys())
-        self.deformed_structures = [
-            defo.apply_to_structure(structure) for defo in self.deformations
-        ]
+        self.deformed_structures = [defo.apply_to_structure(structure) for defo in self.deformations]
 
     def __iter__(self):
         return iter(self.deformed_structures)
@@ -227,9 +223,7 @@ class Strain(SquareTensor):
             for i in itertools.permutations(idx):
                 v[i] = amount
             return cls(v)
-        raise ValueError(
-            "Index must either be 2-tuple or integer corresponding to full-tensor or voigt index"
-        )
+        raise ValueError("Index must either be 2-tuple or integer corresponding to full-tensor or voigt index")
 
     def get_deformation_matrix(self, shape="upper"):
         """
