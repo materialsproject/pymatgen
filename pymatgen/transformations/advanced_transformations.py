@@ -49,9 +49,7 @@ try:
 except ImportError:
     hiphive = None
 
-__author__ = (
-    "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " "Alex Ganose"
-)
+__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " "Alex Ganose"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -91,18 +89,12 @@ class ChargeBalanceTransformation(AbstractTransformation):
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
         if removal_fraction < 0:
-            raise ValueError(
-                "addition of specie not yet supported by " "ChargeBalanceTransformation"
-            )
-        trans = SubstitutionTransformation(
-            {self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}}
-        )
+            raise ValueError("addition of specie not yet supported by " "ChargeBalanceTransformation")
+        trans = SubstitutionTransformation({self.charge_balance_sp: {self.charge_balance_sp: 1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
     def __str__(self):
-        return "Charge Balance Transformation : " + "Species to remove = {}".format(
-            str(self.charge_balance_sp)
-        )
+        return "Charge Balance Transformation : " + "Species to remove = {}".format(str(self.charge_balance_sp))
 
     def __repr__(self):
         return self.__str__()
@@ -152,16 +144,11 @@ class SuperTransformation(AbstractTransformation):
             Structures with all transformations applied.
         """
         if not return_ranked_list:
-            raise ValueError(
-                "SuperTransformation has no single best structure"
-                " output. Must use return_ranked_list"
-            )
+            raise ValueError("SuperTransformation has no single best structure" " output. Must use return_ranked_list")
         structures = []
         for t in self._transformations:
             if t.is_one_to_many:
-                for d in t.apply_transformation(
-                    structure, return_ranked_list=self.nstructures_per_trans
-                ):
+                for d in t.apply_transformation(structure, return_ranked_list=self.nstructures_per_trans):
                     d["transformation"] = t
                     structures.append(d)
             else:
@@ -280,17 +267,13 @@ class MultipleSubstitutionTransformation:
                     sign = "+"
                 else:
                     sign = "-"
-                st = SubstitutionTransformation(
-                    {"X{}+".format(str(charge)): "{}{}{}".format(el, charge, sign)}
-                )
+                st = SubstitutionTransformation({"X{}+".format(str(charge)): "{}{}{}".format(el, charge, sign)})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
         return outputs
 
     def __str__(self):
-        return "Multiple Substitution Transformation : Substitution on " + "{}".format(
-            self.sp_to_replace
-        )
+        return "Multiple Substitution Transformation : Substitution on " + "{}".format(self.sp_to_replace)
 
     def __repr__(self):
         return self.__str__()
@@ -376,9 +359,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.timeout = timeout
 
         if max_cell_size and max_disordered_sites:
-            raise ValueError(
-                "Cannot set both max_cell_size and " "max_disordered_sites!"
-            )
+            raise ValueError("Cannot set both max_cell_size and " "max_disordered_sites!")
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -411,10 +392,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             structure = finder.get_refined_structure()
 
         contains_oxidation_state = all(
-            [
-                hasattr(sp, "oxi_state") and sp.oxi_state != 0
-                for sp in structure.composition.elements
-            ]
+            [hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.composition.elements]
         )
 
         structures = None
@@ -429,11 +407,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         if self.max_disordered_sites:
             ndisordered = sum([1 for site in structure if not site.is_ordered])
             if ndisordered > self.max_disordered_sites:
-                raise ValueError(
-                    "Too many disordered sites! ({} > {})".format(
-                        ndisordered, self.max_disordered_sites
-                    )
-                )
+                raise ValueError("Too many disordered sites! ({} > {})".format(ndisordered, self.max_disordered_sites))
             max_cell_sizes = range(
                 self.min_cell_size,
                 int(math.floor(self.max_disordered_sites / ndisordered)) + 1,
@@ -458,9 +432,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 if structures:
                     break
             except EnumError:
-                warnings.warn(
-                    "Unable to enumerate for max_cell_size = {}".format(max_cell_size)
-                )
+                warnings.warn("Unable to enumerate for max_cell_size = {}".format(max_cell_size))
 
         if structures is None:
             raise ValueError("Unable to enumerate")
@@ -472,9 +444,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         for s in structures:
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
-            transformation = tuple(
-                [tuple([int(round(cell)) for cell in row]) for row in transformation]
-            )
+            transformation = tuple([tuple([int(round(cell)) for cell in row]) for row in transformation])
             if contains_oxidation_state and self.sort_criteria == "ewald":
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation
@@ -483,9 +453,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 else:
                     ewald = ewald_matrices[transformation]
                 energy = ewald.compute_sub_structure(s)
-                all_structures.append(
-                    {"num_sites": len(s), "energy": energy, "structure": s}
-                )
+                all_structures.append({"num_sites": len(s), "energy": energy, "structure": s})
             else:
                 all_structures.append({"num_sites": len(s), "structure": s})
 
@@ -549,14 +517,9 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             Predicted Structures.
         """
         if not return_ranked_list:
-            raise ValueError(
-                "SubstitutionPredictorTransformation doesn't"
-                " support returning 1 structure"
-            )
+            raise ValueError("SubstitutionPredictorTransformation doesn't" " support returning 1 structure")
 
-        preds = self._substitutor.composition_prediction(
-            structure.composition, to_this_composition=False
-        )
+        preds = self._substitutor.composition_prediction(structure.composition, to_this_composition=False)
         preds.sort(key=lambda x: x["probability"], reverse=True)
 
         outputs = []
@@ -651,9 +614,7 @@ class MagOrderParameterConstraint(MSONable):
         if not site.is_ordered:
             return False
 
-        satisfies_constraints = (
-            self.species_constraints and str(site.specie) in self.species_constraints
-        )
+        satisfies_constraints = self.species_constraints and str(site.specie) in self.species_constraints
 
         if self.site_constraint_name and self.site_constraint_name in site.properties:
             prop = site.properties[self.site_constraint_name]
@@ -669,13 +630,7 @@ class MagOrderingTransformation(AbstractTransformation):
     approximation first.
     """
 
-    def __init__(
-        self,
-        mag_species_spin,
-        order_parameter=0.5,
-        energy_model=SymmetryModel(),
-        **kwargs
-    ):
+    def __init__(self, mag_species_spin, order_parameter=0.5, energy_model=SymmetryModel(), **kwargs):
         """
         :param mag_species_spin: A mapping of elements/species to their
             spin magnitudes, e.g. {"Fe3+": 5, "Mn3+": 4}
@@ -705,10 +660,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 )
             ]
         elif isinstance(order_parameter, list):
-            ops = [
-                isinstance(item, MagOrderParameterConstraint)
-                for item in order_parameter
-            ]
+            ops = [isinstance(item, MagOrderParameterConstraint) for item in order_parameter]
             if not any(ops):
                 raise ValueError("Order parameter not correctly defined.")
         else:
@@ -792,37 +744,26 @@ class MagOrderingTransformation(AbstractTransformation):
         dummy_species_gen = generate_dummy_specie()
 
         # one dummy species for each order parameter constraint
-        dummy_species_symbols = [
-            next(dummy_species_gen) for i in range(len(order_parameters))
-        ]
+        dummy_species_symbols = [next(dummy_species_gen) for i in range(len(order_parameters))]
         dummy_species = [
             {
-                DummySpecies(
-                    symbol, properties={"spin": Spin.up}
-                ): constraint.order_parameter,
-                DummySpecies(symbol, properties={"spin": Spin.down}): 1
-                - constraint.order_parameter,
+                DummySpecies(symbol, properties={"spin": Spin.up}): constraint.order_parameter,
+                DummySpecies(symbol, properties={"spin": Spin.down}): 1 - constraint.order_parameter,
             }
             for symbol, constraint in zip(dummy_species_symbols, order_parameters)
         ]
 
         for idx, site in enumerate(dummy_struct):
-            satisfies_constraints = [
-                c.satisfies_constraint(site) for c in order_parameters
-            ]
+            satisfies_constraints = [c.satisfies_constraint(site) for c in order_parameters]
             if satisfies_constraints.count(True) > 1:
                 # site should either not satisfy any constraints, or satisfy
                 # one constraint
                 raise ValueError(
-                    "Order parameter constraints conflict for site: {}, {}".format(
-                        str(site.specie), site.properties
-                    )
+                    "Order parameter constraints conflict for site: {}, {}".format(str(site.specie), site.properties)
                 )
             if any(satisfies_constraints):
                 dummy_specie_idx = satisfies_constraints.index(True)
-                dummy_struct.append(
-                    dummy_species[dummy_specie_idx], site.coords, site.lattice
-                )
+                dummy_struct.append(dummy_species[dummy_specie_idx], site.coords, site.lattice)
 
         return dummy_struct
 
@@ -849,9 +790,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     include_index=True,
                 )
                 if len(neighbors) != 1:
-                    raise Exception(
-                        "This shouldn't happen, found neighbors: {}".format(neighbors)
-                    )
+                    raise Exception("This shouldn't happen, found neighbors: {}".format(neighbors))
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
                 new_specie = Species(
@@ -885,9 +824,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     # that on disordered sites in this class, all species are the same
                     # but have different spins, and this is comma-delimited
                     sp = str(site.specie).split(",")[0]
-                    new_properties.update(
-                        {"spin": sign * self.mag_species_spin.get(sp, 0)}
-                    )
+                    new_properties.update({"spin": sign * self.mag_species_spin.get(sp, 0)})
                     new_specie = Species(
                         site.specie.symbol,
                         getattr(site.specie, "oxi_state", None),
@@ -906,15 +843,10 @@ class MagOrderingTransformation(AbstractTransformation):
         """
 
         if not structure.is_ordered:
-            raise ValueError(
-                "Create an ordered approximation of " "your  input structure first."
-            )
+            raise ValueError("Create an ordered approximation of " "your  input structure first.")
 
         # retrieve order parameters
-        order_parameters = [
-            MagOrderParameterConstraint.from_dict(op_dict)
-            for op_dict in self.order_parameter
-        ]
+        order_parameters = [MagOrderParameterConstraint.from_dict(op_dict) for op_dict in self.order_parameter]
         # add dummy species on which to perform enumeration
         structure = self._add_dummy_species(structure, order_parameters)
 
@@ -925,9 +857,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         enum_kwargs = self.enum_kwargs.copy()
 
-        enum_kwargs["min_cell_size"] = max(
-            int(self.determine_min_cell(structure)), enum_kwargs.get("min_cell_size", 1)
-        )
+        enum_kwargs["min_cell_size"] = max(int(self.determine_min_cell(structure)), enum_kwargs.get("min_cell_size", 1))
 
         if enum_kwargs.get("max_cell_size", None):
             if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
@@ -957,12 +887,8 @@ class MagOrderingTransformation(AbstractTransformation):
             alls = self._add_spin_magnitudes(alls)
         else:
             for idx, _ in enumerate(alls):
-                alls[idx]["structure"] = self._remove_dummy_species(
-                    alls[idx]["structure"]
-                )
-                alls[idx]["structure"] = self._add_spin_magnitudes(
-                    alls[idx]["structure"]
-                )
+                alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])
+                alls[idx]["structure"] = self._add_spin_magnitudes(alls[idx]["structure"])
 
         try:
             num_to_return = int(return_ranked_list)
@@ -982,12 +908,7 @@ class MagOrderingTransformation(AbstractTransformation):
         for _, g in groupby(sorted([d["structure"] for d in alls], key=key), key):
             g = list(g)
             grouped = m.group_structures(g)
-            out.extend(
-                [
-                    {"structure": g[0], "energy": self.energy_model.get_energy(g[0])}
-                    for g in grouped
-                ]
-            )
+            out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
 
         self._all_structures = sorted(out, key=lambda d: d["energy"])
 
@@ -1055,7 +976,7 @@ class DopingTransformation(AbstractTransformation):
         codopant=False,
         max_structures_per_enum=100,
         allowed_doping_species=None,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Args:
@@ -1116,10 +1037,7 @@ class DopingTransformation(AbstractTransformation):
         radius = self.dopant.ionic_radius
 
         compatible_species = [
-            sp
-            for sp in comp
-            if sp.oxi_state == ox
-            and abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol
+            sp for sp in comp if sp.oxi_state == ox and abs(sp.ionic_radius / radius - 1) < self.ionic_radius_tol
         ]
 
         if (not compatible_species) and self.alio_tol:
@@ -1136,9 +1054,7 @@ class DopingTransformation(AbstractTransformation):
         if self.allowed_doping_species is not None:
             # Only keep allowed doping species.
             compatible_species = [
-                sp
-                for sp in compatible_species
-                if sp in [get_el_sp(s) for s in self.allowed_doping_species]
+                sp for sp in compatible_species if sp in [get_el_sp(s) for s in self.allowed_doping_species]
             ]
 
         logger.info("Compatible species: %s" % compatible_species)
@@ -1155,21 +1071,12 @@ class DopingTransformation(AbstractTransformation):
             supercell = structure * scaling
             nsp = supercell.composition[sp]
             if sp.oxi_state == ox:
-                supercell.replace_species(
-                    {sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}}
-                )
-                logger.info(
-                    "Doping %s for %s at level %.3f" % (sp, self.dopant, 1 / nsp)
-                )
+                supercell.replace_species({sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}})
+                logger.info("Doping %s for %s at level %.3f" % (sp, self.dopant, 1 / nsp))
             elif self.codopant:
                 codopant = _find_codopant(sp, 2 * sp.oxi_state - ox)
-                supercell.replace_species(
-                    {sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}}
-                )
-                logger.info(
-                    "Doping %s for %s + %s at level %.3f"
-                    % (sp, self.dopant, codopant, 1 / nsp)
-                )
+                supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})
+                logger.info("Doping %s for %s + %s at level %.3f" % (sp, self.dopant, codopant, 1 / nsp))
             elif abs(sp.oxi_state) < abs(ox):
                 # Strategy: replace the target species with a
                 # combination of dopant and vacancy.
@@ -1185,10 +1092,7 @@ class DopingTransformation(AbstractTransformation):
                     common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))
                     ndopant = common_charge / abs(ox)
                     nsp_to_remove = common_charge / abs(sp.oxi_state)
-                    logger.info(
-                        "Doping %d %s with %d %s."
-                        % (nsp_to_remove, sp, ndopant, self.dopant)
-                    )
+                    logger.info("Doping %d %s with %d %s." % (nsp_to_remove, sp, ndopant, self.dopant))
                     supercell.replace_species(
                         {
                             sp: {
@@ -1218,13 +1122,9 @@ class DopingTransformation(AbstractTransformation):
                 # Strategy: replace the target species with dopant and also
                 # remove some opposite charged species for charge neutrality
                 if ox > 0:
-                    sp_to_remove = max(
-                        supercell.composition.keys(), key=lambda el: el.X
-                    )
+                    sp_to_remove = max(supercell.composition.keys(), key=lambda el: el.X)
                 else:
-                    sp_to_remove = min(
-                        supercell.composition.keys(), key=lambda el: el.X
-                    )
+                    sp_to_remove = min(supercell.composition.keys(), key=lambda el: el.X)
                 # Confirm species are of opposite oxidation states.
                 assert sp_to_remove.oxi_state * sp.oxi_state < 0
 
@@ -1235,8 +1135,7 @@ class DopingTransformation(AbstractTransformation):
                 ndopant = common_charge / ox_diff
                 nx_to_remove = common_charge / anion_ox
                 logger.info(
-                    "Doping %d %s with %s and removing %d %s."
-                    % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
+                    "Doping %d %s with %s and removing %d %s." % (ndopant, sp, self.dopant, nx_to_remove, sp_to_remove)
                 )
                 supercell.replace_species(
                     {
@@ -1245,9 +1144,7 @@ class DopingTransformation(AbstractTransformation):
                     }
                 )
 
-            ss = t.apply_transformation(
-                supercell, return_ranked_list=self.max_structures_per_enum
-            )
+            ss = t.apply_transformation(supercell, return_ranked_list=self.max_structures_per_enum)
             logger.info("%s distinct structures" % len(ss))
             all_structures.extend(ss)
 
@@ -1379,20 +1276,14 @@ class DisorderOrderedTransformation(AbstractTransformation):
         if not structure.is_ordered:
             raise ValueError("This transformation is for disordered structures only.")
 
-        partitions = self._partition_species(
-            structure.composition, max_components=self.max_sites_to_merge
-        )
-        disorder_mappings = self._get_disorder_mappings(
-            structure.composition, partitions
-        )
+        partitions = self._partition_species(structure.composition, max_components=self.max_sites_to_merge)
+        disorder_mappings = self._get_disorder_mappings(structure.composition, partitions)
 
         disordered_structures = []
         for mapping in disorder_mappings:
             disordered_structure = structure.copy()
             disordered_structure.replace_species(mapping)
-            disordered_structures.append(
-                {"structure": disordered_structure, "mapping": mapping}
-            )
+            disordered_structures.append({"structure": disordered_structure, "mapping": mapping})
 
         if len(disordered_structures) == 0:
             return None
@@ -1441,23 +1332,16 @@ class DisorderOrderedTransformation(AbstractTransformation):
             one to try first).
             """
 
-            partition_indices = [
-                (idx, [len(p) for p in partition])
-                for idx, partition in enumerate(partitions_to_sort)
-            ]
+            partition_indices = [(idx, [len(p) for p in partition]) for idx, partition in enumerate(partitions_to_sort)]
 
             # sort by maximum length of partition first (try smallest maximums first)
             # and secondarily by number of partitions (most partitions first, i.e.
             # create the 'least disordered' structures first)
-            partition_indices = sorted(
-                partition_indices, key=lambda x: (max(x[1]), -len(x[1]))
-            )
+            partition_indices = sorted(partition_indices, key=lambda x: (max(x[1]), -len(x[1])))
 
             # merge at most max_component sites,
             # e.g. merge at most 2 species into 1 disordered site
-            partition_indices = [
-                x for x in partition_indices if max(x[1]) <= max_components
-            ]
+            partition_indices = [x for x in partition_indices if max(x[1]) <= max_components]
 
             partition_indices.pop(0)  # this is just the input structure
 
@@ -1692,9 +1576,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
 
             # round the entries of T and force T to be nonsingular
-            self.transformation_matrix = _round_and_make_arr_singular(
-                self.transformation_matrix
-            )
+            self.transformation_matrix = _round_and_make_arr_singular(self.transformation_matrix)
 
             proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
 
@@ -1838,9 +1720,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
         if not return_ranked_list:
             return structures[0]
-        return [
-            {"structure": structure} for structure in structures[:return_ranked_list]
-        ]
+        return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
     def inverse(self):
@@ -1911,9 +1791,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             col_idx_to_fix = col_idx_to_fix[r_idx]
 
             # Round the chosen element away from zero
-            arr_rounded[zero_row_idx, col_idx_to_fix] = round_away_from_zero(
-                arr[zero_row_idx, col_idx_to_fix]
-            )
+            arr_rounded[zero_row_idx, col_idx_to_fix] = round_away_from_zero(arr[zero_row_idx, col_idx_to_fix])
 
     # Repeat process for zero columns
     if (~arr_rounded.any(axis=0)).any():
@@ -1926,9 +1804,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             row_idx_to_fix = np.where(matches)[0]
 
             for i in row_idx_to_fix:
-                arr_rounded[i, zero_col_idx] = round_away_from_zero(
-                    arr[i, zero_col_idx]
-                )
+                arr_rounded[i, zero_col_idx] = round_away_from_zero(arr[i, zero_col_idx])
     return arr_rounded.astype(int)
 
 
@@ -2007,9 +1883,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
         if not return_ranked_list:
             return structures[0]
-        return [
-            {"structure": structure} for structure in structures[:return_ranked_list]
-        ]
+        return [{"structure": structure} for structure in structures[:return_ranked_list]]
 
     @property
     def inverse(self):
@@ -2139,9 +2013,7 @@ class SQSTransformation(AbstractTransformation):
         return disordered_substructure
 
     @staticmethod
-    def _sqs_cluster_estimate(
-        struc_disordered, cluster_size_and_shell: Optional[Dict[int, int]] = None
-    ):
+    def _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: Optional[Dict[int, int]] = None):
         """
         Set up an ATAT cluster.out file for a given structure and set of constraints
         Args:
@@ -2153,15 +2025,11 @@ class SQSTransformation(AbstractTransformation):
 
         cluster_size_and_shell = cluster_size_and_shell or {2: 3, 3: 2, 4: 1}
 
-        disordered_substructure = SQSTransformation._get_disordered_substructure(
-            struc_disordered
-        )
+        disordered_substructure = SQSTransformation._get_disordered_substructure(struc_disordered)
 
         clusters = {}
         for cluster_size, shell in cluster_size_and_shell.items():
-            max_distance = SQSTransformation._get_max_neighbor_distance(
-                disordered_substructure, shell
-            )
+            max_distance = SQSTransformation._get_max_neighbor_distance(disordered_substructure, shell)
             clusters[cluster_size] = max_distance + 0.01  # add small tolerance
 
         return clusters
@@ -2183,9 +2051,7 @@ class SQSTransformation(AbstractTransformation):
             and isinstance(self.instances, int)
             and return_ranked_list > self.instances
         ):
-            raise ValueError(
-                "return_ranked_list cannot be less that number of instances"
-            )
+            raise ValueError("return_ranked_list cannot be less that number of instances")
 
         clusters = self._sqs_cluster_estimate(structure, self.cluster_size_and_shell)
 
@@ -2215,9 +2081,7 @@ class SQSTransformation(AbstractTransformation):
         )
 
     @staticmethod
-    def _get_unique_bestsqs_strucs(
-        sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo
-    ):
+    def _get_unique_bestsqs_strucs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
         """
         Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
             in parallel, otherwise returns Sqs.bestsqs
@@ -2239,9 +2103,7 @@ class SQSTransformation(AbstractTransformation):
 
             # reduce structure
             if reduction_algo:
-                return_struc = return_struc.get_reduced_structure(
-                    reduction_algo=reduction_algo
-                )
+                return_struc = return_struc.get_reduced_structure(reduction_algo=reduction_algo)
 
             # return just the structure
             return return_struc
@@ -2249,9 +2111,7 @@ class SQSTransformation(AbstractTransformation):
         strucs = []
         for d in sqs.allsqs:
             # filter for best structures only if enabled, else use full sqs.all_sqs list
-            if (not best_only) or (
-                best_only and d["objective_function"] == sqs.objective_function
-            ):
+            if (not best_only) or (best_only and d["objective_function"] == sqs.objective_function):
                 struc = d["structure"]
                 # add temporary objective_function attribute to access objective_function after grouping
                 struc.objective_function = d["objective_function"]
@@ -2265,16 +2125,9 @@ class SQSTransformation(AbstractTransformation):
             strucs = [group[0] for group in unique_strucs_grouped]
 
         # sort structures by objective function
-        strucs.sort(
-            key=lambda x: x.objective_function
-            if isinstance(x.objective_function, float)
-            else -np.inf
-        )
+        strucs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
 
-        to_return = [
-            {"structure": struc, "objective_function": struc.objective_function}
-            for struc in strucs
-        ]
+        to_return = [{"structure": struc, "objective_function": struc.objective_function} for struc in strucs]
 
         for d in to_return:
 
@@ -2283,9 +2136,7 @@ class SQSTransformation(AbstractTransformation):
 
             # reduce structure
             if reduction_algo:
-                d["structure"] = d["structure"].get_reduced_structure(
-                    reduction_algo=reduction_algo
-                )
+                d["structure"] = d["structure"].get_reduced_structure(reduction_algo=reduction_algo)
 
         if isinstance(return_ranked_list, int):
             return to_return[:return_ranked_list]
@@ -2320,13 +2171,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
     """
 
     @requires(hiphive, "hiphive is required for MonteCarloRattleTransformation")
-    def __init__(
-        self,
-        rattle_std: float,
-        min_distance: float,
-        seed: Optional[int] = None,
-        **kwargs
-    ):
+    def __init__(self, rattle_std: float, min_distance: float, seed: Optional[int] = None, **kwargs):
         """
         Args:
             rattle_std: Rattle amplitude (standard deviation in normal
@@ -2367,9 +2212,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
         seed = self.random_state.randint(1, 1000000000)
-        displacements = mc_rattle(
-            atoms, self.rattle_std, self.min_distance, seed=seed, **self.kwargs
-        )
+        displacements = mc_rattle(atoms, self.rattle_std, self.min_distance, seed=seed, **self.kwargs)
 
         transformed_structure = Structure(
             structure.lattice,

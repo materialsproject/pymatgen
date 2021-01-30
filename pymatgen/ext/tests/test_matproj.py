@@ -35,7 +35,7 @@ website_is_up = requests.get("https://www.materialsproject.org").status_code == 
 
 @unittest.skipIf(
     (not SETTINGS.get("PMG_MAPI_KEY")) or (not website_is_up),
-    "PMG_MAPI_KEY environment variable not set or MP is down."
+    "PMG_MAPI_KEY environment variable not set or MP is down.",
 )
 class MPResterTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -134,13 +134,9 @@ class MPResterTest(PymatgenTest):
                 "task_ids",
             ]:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                self.assertAlmostEqual(
-                    expected_vals[i], val, 2, "Failed with property %s" % prop
-                )
+                self.assertAlmostEqual(expected_vals[i], val, 2, "Failed with property %s" % prop)
             elif prop in ["elements", "icsd_ids", "task_ids"]:
-                upstream_vals = set(
-                    self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                )
+                upstream_vals = set(self.rester.get_data("mp-19017", prop=prop)[0][prop])
                 self.assertLessEqual(set(expected_vals[i]), upstream_vals)
             else:
                 self.assertEqual(
@@ -162,9 +158,7 @@ class MPResterTest(PymatgenTest):
         self.assertTrue(len(data) > 1)
         elements = {Element("Li"), Element("Fe"), Element("O")}
         for d in data:
-            self.assertTrue(
-                set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
-            )
+            self.assertTrue(set(Composition(d["unit_cell_formula"]).elements).issubset(elements))
 
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3", "badmethod")
 
@@ -175,9 +169,7 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
 
     def test_get_materials_id_from_task_id(self):
-        self.assertEqual(
-            self.rester.get_materials_id_from_task_id("mp-540081"), "mp-19017"
-        )
+        self.assertEqual(self.rester.get_materials_id_from_task_id("mp-540081"), "mp-19017")
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_matproj.py:MPResterTest.test_get_materials_id_references
@@ -217,9 +209,7 @@ class MPResterTest(PymatgenTest):
         self.assertWarns(Warning, self.rester.get_structure_by_material_id, "mp-698856")
 
         # requesting unknown mp-id
-        self.assertRaises(
-            MPRestError, self.rester.get_structure_by_material_id, "mp-does-not-exist"
-        )
+        self.assertRaises(MPRestError, self.rester.get_structure_by_material_id, "mp-does-not-exist")
 
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
@@ -240,9 +230,7 @@ class MPResterTest(PymatgenTest):
         props = ["pretty_formula"]
         data1 = self.rester.query(criteria=criteria, properties=props, chunk_size=0)
         data2 = self.rester.query(criteria=criteria, properties=props, chunk_size=500)
-        self.assertEqual(
-            {d["pretty_formula"] for d in data1}, {d["pretty_formula"] for d in data2}
-        )
+        self.assertEqual({d["pretty_formula"] for d in data1}, {d["pretty_formula"] for d in data2})
         self.assertIn("Al2O3", {d["pretty_formula"] for d in data1})
 
     def test_get_exp_thermo_data(self):
@@ -258,9 +246,7 @@ class MPResterTest(PymatgenTest):
     def test_get_bandstructure_by_material_id(self):
         bs = self.rester.get_bandstructure_by_material_id("mp-2254")
         self.assertIsInstance(bs, BandStructureSymmLine)
-        bs_unif = self.rester.get_bandstructure_by_material_id(
-            "mp-2254", line_mode=False
-        )
+        bs_unif = self.rester.get_bandstructure_by_material_id("mp-2254", line_mode=False)
         self.assertIsInstance(bs_unif, BandStructure)
         self.assertNotIsInstance(bs_unif, BandStructureSymmLine)
 
@@ -290,18 +276,14 @@ class MPResterTest(PymatgenTest):
         # all_entries = self.rester.get_entries("Fe", compatible_only=False)
         # entries = self.rester.get_entries("Fe", compatible_only=True)
         # self.assertTrue(len(entries) < len(all_entries))
-        entries = self.rester.get_entries(
-            "Fe", compatible_only=True, property_data=["cif"]
-        )
+        entries = self.rester.get_entries("Fe", compatible_only=True, property_data=["cif"])
         self.assertIn("cif", entries[0].data)
 
         for e in self.rester.get_entries("CdO2", inc_structure=False):
             self.assertIsNotNone(e.data["oxide_type"])
 
         # test if it will retrieve the conventional unit cell of Ni
-        entry = self.rester.get_entry_by_material_id(
-            "mp-23", inc_structure=True, conventional_unit_cell=True
-        )
+        entry = self.rester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=True)
         Ni = entry.structure
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
@@ -310,14 +292,10 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(Ni.lattice.gamma, 90)
 
         # Ensure energy per atom is same
-        primNi = self.rester.get_entry_by_material_id(
-            "mp-23", inc_structure=True, conventional_unit_cell=False
-        )
+        primNi = self.rester.get_entry_by_material_id("mp-23", inc_structure=True, conventional_unit_cell=False)
         self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
 
-        Ni = self.rester.get_structure_by_material_id(
-            "mp-23", conventional_unit_cell=True
-        )
+        Ni = self.rester.get_structure_by_material_id("mp-23", conventional_unit_cell=True)
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
         self.assertEqual(Ni.lattice.alpha, 90)
@@ -460,9 +438,7 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(mo_s3_112[0]["gb_energy"], 0.47965, places=2)
         self.assertAlmostEqual(mo_s3_112[0]["work_of_separation"], 6.318144, places=2)
         self.assertIn("Mo24", gb_f.formula)
-        hcp_s7 = self.rester.get_gb_data(
-            material_id="mp-87", gb_plane=[0, 0, 0, 1], include_work_of_separation=True
-        )
+        hcp_s7 = self.rester.get_gb_data(material_id="mp-87", gb_plane=[0, 0, 0, 1], include_work_of_separation=True)
         self.assertAlmostEqual(hcp_s7[0]["gb_energy"], 1.12, places=2)
         self.assertAlmostEqual(hcp_s7[0]["work_of_separation"], 2.47, places=2)
 
@@ -474,9 +450,7 @@ class MPResterTest(PymatgenTest):
         self.assertIn("ratio_atomic", kink)
         self.assertIn("rxn", kink)
         self.assertTrue(isinstance(kink["rxn"], Reaction))
-        kinks_open_O = self.rester.get_interface_reactions(
-            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1
-        )
+        kinks_open_O = self.rester.get_interface_reactions("LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
         self.assertTrue(len(kinks_open_O) > 0)
         with warnings.catch_warnings(record=True) as w:
             warnings.filterwarnings("always", message="The reactant.+")
@@ -487,15 +461,11 @@ class MPResterTest(PymatgenTest):
         material_ids = ["mp-32800", "mp-23494"]
         task_types = [TaskType.GGA_OPT, TaskType.GGA_UNIFORM]
         file_patterns = ["vasprun*", "OUTCAR*"]
-        meta, urls = self.rester.get_download_info(
-            material_ids, task_types=task_types, file_patterns=file_patterns
-        )
+        meta, urls = self.rester.get_download_info(material_ids, task_types=task_types, file_patterns=file_patterns)
         self.assertDictEqual(
             dict(meta),
             {
-                "mp-23494": [
-                    {"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}
-                ],
+                "mp-23494": [{"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}],
                 "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
             },
         )
@@ -546,14 +516,10 @@ class MPResterTest(PymatgenTest):
             r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
-        self.assertIsNotNone(
-            m, msg="Unexpected user-agent value {}".format(headers["user-agent"])
-        )
+        self.assertIsNotNone(m, msg="Unexpected user-agent value {}".format(headers["user-agent"]))
         self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
         self.rester = MPRester(include_user_agent=False)
-        self.assertNotIn(
-            "user-agent", self.rester.session.headers, msg="user-agent header unwanted"
-        )
+        self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
     def test_database_version(self):
 
