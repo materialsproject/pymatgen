@@ -115,7 +115,12 @@ setup(
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.6",
     install_requires=[
-        "numpy>=1.18.0",
+        # pin NumPy version used in the build, to avoid building against the latest
+        # NumPy from PyPI (and potentially introducing ABI compatibilities with the
+        # actual NumPy version in the environment)
+        "numpy>=1.18,<1.20; python_version<='3.9'",
+        # don't pin version for as-yet-unreleased versions of Python
+        "numpy>=1.18; python_version>'3.9'",
         "requests",
         "ruamel.yaml>=0.15.6",
         "monty>=3.0.2",
