@@ -20,7 +20,7 @@ try:
 except ImportError:
     have_babel = False
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
@@ -87,6 +87,12 @@ property_list = {
     "CDS_gradients",
     "RESP",
     "trans_dip",
+    "transition_state",
+    "scan_job",
+    "optimized_geometries",
+    "molecules_from_optimized_geometries",
+    "scan_energies",
+    "scan_constraint_sets",
 }
 
 if have_babel:
