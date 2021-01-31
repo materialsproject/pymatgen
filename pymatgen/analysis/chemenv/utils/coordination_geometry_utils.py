@@ -406,7 +406,7 @@ def vectorsToMatrix(aa, bb):
     :return: A 3x3 matrix M composed of the products of the elements of aa and bb :
      M_ij = aa_i * bb_j
     """
-    MM = np.zeros([3, 3], np.float)
+    MM = np.zeros([3, 3], np.float_)
     for ii in range(3):
         for jj in range(3):
             MM[ii, jj] = aa[ii] * bb[jj]
@@ -420,7 +420,7 @@ def matrixTimesVector(MM, aa):
     :param aa: A vector of size 3
     :return: A vector of size 3 which is the product of the matrix by the vector
     """
-    bb = np.zeros(3, np.float)
+    bb = np.zeros(3, np.float_)
     for ii in range(3):
         bb[ii] = np.sum(MM[ii, :] * aa)
     return bb
@@ -460,7 +460,7 @@ def changebasis(uu, vv, nn, pps):
     :param pps: List of points in basis (e1, e2, e3)
     :return: List of points in basis (uu, vv, nn)
     """
-    MM = np.zeros([3, 3], np.float)
+    MM = np.zeros([3, 3], np.float_)
     for ii in range(3):
         MM[ii, 0] = uu[ii]
         MM[ii, 1] = vv[ii]
@@ -502,7 +502,7 @@ def anticlockwise_sort(pps):
     :return: Sorted list of points
     """
     newpps = list()
-    angles = np.zeros(len(pps), np.float)
+    angles = np.zeros(len(pps), np.float_)
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
     iisorted = np.argsort(angles)
@@ -517,7 +517,7 @@ def anticlockwise_sort_indices(pps):
     :param pps: List of points to be sorted
     :return: Indices of the sorted list of points
     """
-    angles = np.zeros(len(pps), np.float)
+    angles = np.zeros(len(pps), np.float_)
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
     return np.argsort(angles)
@@ -588,27 +588,27 @@ class Plane:
     """
 
     TEST_2D_POINTS = [
-        np.array([0, 0], np.float),
-        np.array([1, 0], np.float),
-        np.array([0, 1], np.float),
-        np.array([-1, 0], np.float),
-        np.array([0, -1], np.float),
-        np.array([0, 2], np.float),
-        np.array([2, 0], np.float),
-        np.array([0, -2], np.float),
-        np.array([-2, 0], np.float),
-        np.array([1, 1], np.float),
-        np.array([2, 2], np.float),
-        np.array([-1, -1], np.float),
-        np.array([-2, -2], np.float),
-        np.array([1, 2], np.float),
-        np.array([1, -2], np.float),
-        np.array([-1, 2], np.float),
-        np.array([-1, -2], np.float),
-        np.array([2, 1], np.float),
-        np.array([2, -1], np.float),
-        np.array([-2, 1], np.float),
-        np.array([-2, -1], np.float),
+        np.array([0, 0], np.float_),
+        np.array([1, 0], np.float_),
+        np.array([0, 1], np.float_),
+        np.array([-1, 0], np.float_),
+        np.array([0, -1], np.float_),
+        np.array([0, 2], np.float_),
+        np.array([2, 0], np.float_),
+        np.array([0, -2], np.float_),
+        np.array([-2, 0], np.float_),
+        np.array([1, 1], np.float_),
+        np.array([2, 2], np.float_),
+        np.array([-1, -1], np.float_),
+        np.array([-2, -2], np.float_),
+        np.array([1, 2], np.float_),
+        np.array([1, -2], np.float_),
+        np.array([-1, 2], np.float_),
+        np.array([-1, -2], np.float_),
+        np.array([2, 1], np.float_),
+        np.array([2, -1], np.float_),
+        np.array([-2, 1], np.float_),
+        np.array([-2, -1], np.float_),
     ]
 
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
@@ -617,7 +617,7 @@ class Plane:
         :param coefficients: abcd coefficients of the plane
         """
         # Initializes the normal vector
-        self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float)
+        self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float_)
         normv = np.linalg.norm(self.normal_vector)
         self.normal_vector /= normv
         nonzeros = np.argwhere(self.normal_vector != 0.0).flatten()
@@ -626,12 +626,12 @@ class Plane:
             raise ValueError("Normal vector is equal to 0.0")
         if self.normal_vector[nonzeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
-            dd = -np.float(coefficients[3]) / normv
+            dd = -np.float_(coefficients[3]) / normv
         else:
-            dd = np.float(coefficients[3]) / normv
+            dd = np.float_(coefficients[3]) / normv
         self._coefficients = np.array(
             [self.normal_vector[0], self.normal_vector[1], self.normal_vector[2], dd],
-            np.float,
+            np.float_,
         )
         self._crosses_origin = np.isclose(dd, 0.0, atol=1e-7, rtol=0.0)
         self.p1 = p1
@@ -653,18 +653,18 @@ class Plane:
         :return:
         """
         if len(nonzeros) == 3:
-            self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float)
-            self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float)
-            self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float)
+            self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
+            self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float_)
+            self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float_)
         elif len(nonzeros) == 2:
-            self.p1 = np.zeros(3, np.float)
+            self.p1 = np.zeros(3, np.float_)
             self.p1[nonzeros[1]] = -self.d / self.coefficients[nonzeros[1]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
-            self.p3 = np.zeros(3, np.float)
+            self.p3 = np.zeros(3, np.float_)
             self.p3[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
         elif len(nonzeros) == 1:
-            self.p1 = np.zeros(3, np.float)
+            self.p1 = np.zeros(3, np.float_)
             self.p1[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
@@ -867,7 +867,7 @@ class Plane:
             xyzpp = np.dot(pp, PP)
             xypps.append(xyzpp[0:2])
         if str(plane_center) == str("mean"):
-            mean = np.zeros(2, np.float)
+            mean = np.zeros(2, np.float_)
             for pp in xypps:
                 mean += pp
             mean /= len(xypps)
@@ -983,7 +983,7 @@ class Plane:
         if normal_vector[nonzeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, p1)
-        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float)
+        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)
         return cls(coefficients, p1=p1, p2=p2, p3=p3)
 
     @classmethod
@@ -1011,9 +1011,9 @@ class Plane:
         :param points:
         :return:
         """
-        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float)
+        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float_)
         mean_point /= len(points)
-        AA = np.zeros((len(points), 3), np.float)
+        AA = np.zeros((len(points), 3), np.float_)
         for ii, pp in enumerate(points):
             for jj in range(3):
                 AA[ii, jj] = pp[jj] - mean_point[jj]
@@ -1024,7 +1024,7 @@ class Plane:
         if normal_vector[nonzeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
         dd = -np.dot(normal_vector, mean_point)
-        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float)
+        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)
         return cls(coefficients)
 
     @classmethod
@@ -1038,7 +1038,7 @@ class Plane:
         middle_point = 0.5 * (p1 + p2)
         normal_vector = p2 - p1
         dd = -np.dot(normal_vector, middle_point)
-        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float))
+        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_))
 
     @classmethod
     def from_npoints_maximum_distance(cls, points):
@@ -1065,7 +1065,7 @@ class Plane:
             Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3]).projectionpoints([highest_point])[0] + highest_point
         ) / 2
         dd = -np.dot(normal_vector, middle_point)
-        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float))
+        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_))
 
     @classmethod
     def from_coefficients(cls, a, b, c, d):
@@ -1077,4 +1077,4 @@ class Plane:
         :param d:
         :return:
         """
-        return cls(np.array([a, b, c, d], np.float))
+        return cls(np.array([a, b, c, d], np.float_))

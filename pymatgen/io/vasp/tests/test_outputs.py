@@ -1808,7 +1808,7 @@ class WavecarTest(PymatgenTest):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
-        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(np.int))], 0j)
+        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(np.int_))], 0j)
         mesh = self.w.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))

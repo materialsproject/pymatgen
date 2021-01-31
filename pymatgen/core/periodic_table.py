@@ -304,7 +304,7 @@ class ElementBase(Enum):
         self._data = d
 
     @property
-    def X(self):
+    def X(self) -> float:
         """
         :return: Electronegativity of element. Note that if an element does not
             have an electronegativity, a NaN float is returned.
@@ -319,14 +319,14 @@ class ElementBase(Enum):
         return float("NaN")
 
     @property
-    def atomic_radius(self):
+    def atomic_radius(self) -> Optional[FloatWithUnit]:
         """
         Returns: The atomic radius of the element in Ångstroms.
         """
         return self._atomic_radius
 
     @property
-    def atomic_mass(self):
+    def atomic_mass(self) -> Optional[FloatWithUnit]:
         """
         Returns: The atomic mass of the element in amu.
         """
@@ -415,7 +415,7 @@ class ElementBase(Enum):
         return re.sub("</*sup>", "", self._data["Electronic structure"])
 
     @property
-    def average_ionic_radius(self):
+    def average_ionic_radius(self) -> FloatWithUnit:
         """
         Average ionic radius for element (with units). The average is taken
         over all oxidation states of the element for which data is present.
@@ -428,7 +428,7 @@ class ElementBase(Enum):
         return FloatWithUnit(radius, "ang")
 
     @property
-    def average_cationic_radius(self):
+    def average_cationic_radius(self) -> FloatWithUnit:
         """
         Average cationic radius for element (with units). The average is
         taken over all positive oxidation states of the element for which

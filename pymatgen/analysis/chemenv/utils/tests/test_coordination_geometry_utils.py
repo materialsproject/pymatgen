@@ -16,7 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 class PlanesUtilsTest(PymatgenTest):
     def setUp(self):
         # Test of plane 4x + 2y - 4z + 3 = 0 (used in most test cases)
-        self.expected_coefficients = np.array([4.0, 2.0, -4.0, 3.0], np.float)
+        self.expected_coefficients = np.array([4.0, 2.0, -4.0, 3.0], np.float_)
         self.p1 = np.array([0.0, 0.0, 0.75])
         self.p2 = np.array([-0.75, 0.0, 0.0])
         self.p3 = np.array([0.0, -1.5, 0.0])
@@ -152,14 +152,14 @@ class PlanesUtilsTest(PymatgenTest):
 
     def test_indices_separate(self):
         # Test with the common test plane
-        point_1 = np.array([0.0, 0.0, 0.0], np.float)
-        point_2 = np.array([0.0, 0.0, 0.75], np.float)
-        point_3 = np.array([-0.75, 0.0, 0.0], np.float)
-        point_4 = np.array([1.0, 0.0, 0.0], np.float)
-        point_5 = np.array([0.0, -1.5, 0.0], np.float)
-        point_6 = np.array([10.0, 2.0, -20.0], np.float)
-        point_7 = np.array([10.0, 10.0, 10.0], np.float)
-        point_8 = np.array([100.0, 0.0, 0.0], np.float)
+        point_1 = np.array([0.0, 0.0, 0.0], np.float_)
+        point_2 = np.array([0.0, 0.0, 0.75], np.float_)
+        point_3 = np.array([-0.75, 0.0, 0.0], np.float_)
+        point_4 = np.array([1.0, 0.0, 0.0], np.float_)
+        point_5 = np.array([0.0, -1.5, 0.0], np.float_)
+        point_6 = np.array([10.0, 2.0, -20.0], np.float_)
+        point_7 = np.array([10.0, 10.0, 10.0], np.float_)
+        point_8 = np.array([100.0, 0.0, 0.0], np.float_)
         plist = [point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8]
         sep = self.plane.indices_separate(plist, 0.000001)
         self.assertEqual(len(sep[0]), 0)
@@ -234,14 +234,14 @@ class PlanesUtilsTest(PymatgenTest):
 
     def test_distances(self):
         # Test with the common test plane
-        point_1 = np.array([0.0, 0.0, 0.0], np.float)
-        point_2 = np.array([0.0, 0.0, 0.75], np.float)
-        point_3 = np.array([-0.75, 0.0, 0.0], np.float)
-        point_4 = np.array([1.0, 0.0, 0.0], np.float)
-        point_5 = np.array([0.0, -1.5, 0.0], np.float)
-        point_6 = np.array([10.0, 2.0, -20.0], np.float)
-        point_7 = np.array([10.0, 10.0, 10.0], np.float)
-        point_8 = np.array([100.0, 0.0, 0.0], np.float)
+        point_1 = np.array([0.0, 0.0, 0.0], np.float_)
+        point_2 = np.array([0.0, 0.0, 0.75], np.float_)
+        point_3 = np.array([-0.75, 0.0, 0.0], np.float_)
+        point_4 = np.array([1.0, 0.0, 0.0], np.float_)
+        point_5 = np.array([0.0, -1.5, 0.0], np.float_)
+        point_6 = np.array([10.0, 2.0, -20.0], np.float_)
+        point_7 = np.array([10.0, 10.0, 10.0], np.float_)
+        point_8 = np.array([100.0, 0.0, 0.0], np.float_)
         plist = [point_1, point_2, point_4, point_6, point_7, point_8]
         distances, indices_sorted = self.plane.distances_indices_sorted(plist)
         self.assertArrayAlmostEqual(
@@ -366,11 +366,11 @@ class PlanesUtilsTest(PymatgenTest):
             self.assertTrue(np.allclose(projected_2d[0], 0.0))
         # Check some specific projections
         points = [
-            np.zeros(3, np.float),
-            np.array([10, 10, 10], np.float),
-            np.array([1.2, 2.3, 3.4], np.float),
-            np.array([-1, -2, -3], np.float),
-            np.array([-1, 1, -1], np.float),
+            np.zeros(3, np.float_),
+            np.array([10, 10, 10], np.float_),
+            np.array([1.2, 2.3, 3.4], np.float_),
+            np.array([-1, -2, -3], np.float_),
+            np.array([-1, 1, -1], np.float_),
         ]
         projected_points = self.plane.projectionpoints(points)
         expected_projected_points = [

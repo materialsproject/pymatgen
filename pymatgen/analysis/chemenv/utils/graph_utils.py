@@ -21,9 +21,9 @@ def get_delta(node1, node2, edge_data):
     :return:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
-        return np.array(edge_data["delta"], dtype=np.int)
+        return np.array(edge_data["delta"], dtype=np.int_)
     if node2.isite == edge_data["start"] and node1.isite == edge_data["end"]:
-        return -np.array(edge_data["delta"], dtype=np.int)
+        return -np.array(edge_data["delta"], dtype=np.int_)
     raise ValueError("Trying to find a delta between two nodes with an edge " "that seems not to link these nodes.")
 
 

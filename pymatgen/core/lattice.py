@@ -630,7 +630,7 @@ class Lattice(MSONable):
         for i, all_j in enumerate(gammab):
             inds = np.logical_and(all_j[:, None], np.logical_and(alphab, betab[i][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=np.int)  # type: ignore
+                scale_m = np.array((f_a[i], f_b[j], f_c[k]), dtype=np.int_)  # type: ignore
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
 
@@ -1215,12 +1215,12 @@ class Lattice(MSONable):
         # Generate all possible images that could be within `r` of `center`
         mins = np.floor(pcoords - nmax)
         maxes = np.ceil(pcoords + nmax)
-        arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int)
-        brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int)
-        crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int)
-        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int)[None, :]
-        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int)[None, :]
-        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int)[None, :]
+        arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int_)
+        brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int_)
+        crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int_)
+        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int_)[None, :]
+        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int_)[None, :]
+        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int_)[None, :]
         images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
 
         # Generate the coordinates of all atoms within these images
@@ -1333,7 +1333,7 @@ class Lattice(MSONable):
         if jimage is None:
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
             fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - frac_coords2
-            fc = np.array(np.round(fc), dtype=np.int)
+            fc = np.array(np.round(fc), dtype=np.int_)
             return np.sqrt(d2[0, 0]), fc
 
         jimage = np.array(jimage)

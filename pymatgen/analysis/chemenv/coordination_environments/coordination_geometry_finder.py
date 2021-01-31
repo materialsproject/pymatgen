@@ -120,9 +120,9 @@ class AbstractGeometry:
                     if central_site is None:
                         raise ValueError("The centroid includes the central site but no central site is given")
                     total += self.bare_centre
-                    self.centre = total / (np.float(len(bare_coords)) + 1.0)
+                    self.centre = total / (np.float_(len(bare_coords)) + 1.0)
                 else:
-                    self.centre = total / np.float(len(bare_coords))
+                    self.centre = total / np.float_(len(bare_coords))
         elif centering_type == "central_site":
             if include_central_site_in_centroid:
                 raise ValueError(
@@ -138,9 +138,9 @@ class AbstractGeometry:
                 if central_site is None:
                     raise ValueError("The centroid includes the central site but no central site is given")
                 total += self.bare_centre
-                self.centre = total / (np.float(len(bare_coords)) + 1.0)
+                self.centre = total / (np.float_(len(bare_coords)) + 1.0)
             else:
-                self.centre = total / np.float(len(bare_coords))
+                self.centre = total / np.float_(len(bare_coords))
         self._bare_coords = self.bare_points_without_centre
         self._coords = self._bare_coords - self.centre
         self.central_site = self.bare_central_site - self.centre
@@ -192,7 +192,7 @@ class AbstractGeometry:
         :return:
         """
         central_site = cg.get_central_site()
-        bare_coords = [np.array(pt, np.float) for pt in cg.points]
+        bare_coords = [np.array(pt, np.float_) for pt in cg.points]
         return cls(
             central_site=central_site,
             bare_coords=bare_coords,
@@ -985,14 +985,14 @@ class LocalGeometryFinder:
             rv = np.random.random_sample(3)
             while norm(rv) > 1.0:
                 rv = np.random.random_sample(3)
-            coords = [np.zeros(3, np.float) + max_random_dist * rv]
+            coords = [np.zeros(3, np.float_) + max_random_dist * rv]
             for pp in mypoints:
                 rv = np.random.random_sample(3)
                 while norm(rv) > 1.0:
                     rv = np.random.random_sample(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
-            coords = [np.zeros(3, np.float)]
+            coords = [np.zeros(3, np.float_)]
             for pp in mypoints:
                 neighb_coords.append(np.array(pp))
         if indices == "RANDOM":
@@ -1058,7 +1058,7 @@ class LocalGeometryFinder:
         if random_translation == "RANDOM":
             translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
         elif random_translation == "NONE":
-            translation = np.zeros(3, np.float)
+            translation = np.zeros(3, np.float_)
         else:
             translation = random_translation
         coords = [cc + translation for cc in coords]
@@ -1108,7 +1108,7 @@ class LocalGeometryFinder:
                 + bb
             )
         self.set_structure(
-            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float),
+            lattice=np.array([[10, 0, 0], [0, 10, 0], [0, 0, 10]], np.float_),
             species=["Si"] * (coordination + 1),
             coords=coords,
             coords_are_cartesian=False,
@@ -1423,7 +1423,7 @@ class LocalGeometryFinder:
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
         """
         # permutations_symmetry_measures = np.zeros(len(algo.permutations),
-        #                                           np.float)
+        #                                           np.float_)
         if optimization == 2:
             permutations_symmetry_measures = [None] * len(algo.permutations)
             permutations = list()

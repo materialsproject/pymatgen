@@ -434,7 +434,7 @@ class DetailedVoronoiContainer(MSONable):
         bounds_and_limits = self.voronoi_parameters_bounds_and_limits(isite, surface_calculation_type, max_dist)
         distance_bounds = bounds_and_limits["distance_bounds"]
         angle_bounds = bounds_and_limits["angle_bounds"]
-        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
+        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float_)
         for idp in range(len(distance_bounds) - 1):
             this_dist_plateau = distance_bounds[idp + 1] - distance_bounds[idp]
             for iap in range(len(angle_bounds) - 1):
@@ -491,7 +491,7 @@ class DetailedVoronoiContainer(MSONable):
 
         f_lower = lower_and_upper_functions["lower"]
         f_upper = lower_and_upper_functions["upper"]
-        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float)
+        surfaces = np.zeros((len(distance_bounds), len(angle_bounds)), np.float_)
         for idp in range(len(distance_bounds) - 1):
             dp1 = distance_bounds[idp]
             dp2 = distance_bounds[idp + 1]

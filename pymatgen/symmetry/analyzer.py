@@ -374,17 +374,17 @@ class SpacegroupAnalyzer:
             if abs(lengths[0] - lengths[2]) < 0.0001:
                 transf = np.eye
             else:
-                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float) / 3
+                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float_) / 3
 
         elif "I" in self.get_space_group_symbol():
-            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float) / 2
+            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float_) / 2
         elif "F" in self.get_space_group_symbol():
-            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float) / 2
+            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float_) / 2
         elif "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
             if self.get_crystal_system() == "monoclinic":
-                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float) / 2
+                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float_) / 2
             else:
-                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float) / 2
+                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float_) / 2
         else:
             transf = np.eye(3)
 

@@ -1120,7 +1120,7 @@ def get_diff_coeff(hvec, n=1):
         hvec (1D array-like): sampling stencil
         n (int): degree of derivative to find
     """
-    hvec = np.array(hvec, dtype=np.float)
+    hvec = np.array(hvec, dtype=np.float_)
     acc = len(hvec)
     exp = np.column_stack([np.arange(acc)] * acc)
     a = np.vstack([hvec] * acc) ** exp

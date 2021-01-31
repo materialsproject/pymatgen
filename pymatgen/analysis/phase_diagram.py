@@ -2921,7 +2921,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             " should be in ordering : {ord}".format(up=nameup, left=nameleft, right=nameright, ord=ordering)
         )
 
-    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float)
+    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)
 
     if nameup == ordering[0]:
         if nameleft == ordering[1]:

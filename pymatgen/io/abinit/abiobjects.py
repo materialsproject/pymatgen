@@ -160,7 +160,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
 
     # Note conversion to int and Fortran --> C indexing
-    typat = np.array(typat, dtype=np.int)
+    typat = np.array(typat, dtype=np.int_)
     species = [znucl_type[typ - 1] for typ in typat]
 
     return cls(
@@ -245,7 +245,7 @@ or the Virtual Crystal Approximation."""
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
-        typat = np.zeros(natom, np.int)
+        typat = np.zeros(natom, np.int_)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
     else:

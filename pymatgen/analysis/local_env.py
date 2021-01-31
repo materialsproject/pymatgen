@@ -775,7 +775,7 @@ class VoronoiNN(NearNeighbors):
             indices.extend([(x[2],) + x[3] for x in neighs])
 
         # Get the non-duplicates (using the site indices for numerical stability)
-        indices = np.array(indices, dtype=np.int)
+        indices = np.array(indices, dtype=np.int_)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
         sites = [sites[i] for i in uniq_inds]
 

@@ -4674,7 +4674,7 @@ class Wavecar:
         self._C = 0.262465831
         with open(self.filename, "rb") as f:
             # read the header information
-            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(np.int)
+            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
             if verbose:
                 print("recl={}, spin={}, rtag={}".format(recl, spin, rtag))
             recl8 = int(recl / 8)
@@ -4693,7 +4693,7 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(np.int)
+            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64, count=3).astype(np.int_)
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -4869,7 +4869,7 @@ class Wavecar:
         nbmaxC[2] /= np.abs(np.sin(phi23))
         nbmaxC += 1
 
-        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int)
+        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int_)
 
     def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
         """
@@ -4993,7 +4993,7 @@ class Wavecar:
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex)
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
-            t = tuple(gp.astype(np.int) + (self.ng / 2).astype(np.int))
+            t = tuple(gp.astype(np.int_) + (self.ng / 2).astype(np.int_))
             mesh[t] = coeff
 
         if shift:
@@ -5371,10 +5371,10 @@ class Waveder:
                 return np.frombuffer(data, dtype=dtype)
 
             nbands, nelect, nk, ispin = readData(np.int32)
-            _ = readData(np.float)  # nodes_in_dielectric_function
-            _ = readData(np.float)  # wplasmon
+            _ = readData(np.float_)  # nodes_in_dielectric_function
+            _ = readData(np.float_)  # wplasmon
             if gamma_only:
-                cder = readData(np.float)
+                cder = readData(np.float_)
             else:
                 cder = readData(np.complex64)
 

@@ -868,7 +868,7 @@ class SlabGenerator:
 
         slab_scale_factor = []
         non_orth_ind = []
-        eye = np.eye(3, dtype=np.int)
+        eye = np.eye(3, dtype=np.int_)
         for i, j in enumerate(miller_index):
             if j == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,

@@ -826,7 +826,7 @@ class IStructure(SiteCollection, MSONable):
             )
 
         frac_coords = (
-            np.array(coords, dtype=np.float) if not coords_are_cartesian else latt.get_fractional_coords(coords)
+            np.array(coords, dtype=np.float_) if not coords_are_cartesian else latt.get_fractional_coords(coords)
         )
 
         props = {} if site_properties is None else site_properties
@@ -1142,7 +1142,7 @@ class IStructure(SiteCollection, MSONable):
 
     def get_sites_in_sphere(
         self,
-        pt: np.array,
+        pt: np.ndarray,
         r: float,
         include_index: bool = False,
         include_image: bool = False,

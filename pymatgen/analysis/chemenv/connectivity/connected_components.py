@@ -59,12 +59,12 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         dist = np.sqrt(np.power(n2.center[0] - n1.center[0], 2) + np.power(n2.center[1] - n1.center[1], 2))
         n1c_to_n2c = n2center - n1center
         vv = np.cross(
-            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], np.float),
-            np.array([0, 0, 1], np.float),
+            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], np.float_),
+            np.array([0, 0, 1], np.float_),
         )
         vv /= np.linalg.norm(vv)
-        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], np.float)
-        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], np.float)
+        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], np.float_)
+        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], np.float_)
 
         if periodicity_vectors is not None and len(periodicity_vectors) == 1:
             if np.all(np.array(delta) == np.array(periodicity_vectors[0])) or np.all(
@@ -460,7 +460,7 @@ class ConnectedComponent(MSONable):
                     path.append(test_node)
                     # TODO: there are some paths that appears twice for cycles, and there are some paths that should
                     # probably not be considered
-                    this_path_deltas = [np.zeros(3, np.int)]
+                    this_path_deltas = [np.zeros(3, np.int_)]
                     for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                         this_path_deltas_new = []
                         for key, edge_data in self._connected_subgraph[node1][node2].items():
@@ -501,7 +501,7 @@ class ConnectedComponent(MSONable):
         for cyc in cycles:
             mycyc = list(cyc)
             mycyc.append(cyc[0])
-            this_cycle_deltas = [np.zeros(3, np.int)]
+            this_cycle_deltas = [np.zeros(3, np.int_)]
             for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
                 this_cycle_deltas_new = []
                 for key, edge_data in self._connected_subgraph[node1][node2].items():
@@ -782,7 +782,7 @@ class ConnectedComponent(MSONable):
                     logging.debug("          Edge outside the cell ... getting neighbor back inside")
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
-                    myddelta = np.array(ddeltas[0], np.int)
+                    myddelta = np.array(ddeltas[0], np.int_)
                     node_neighbor_edges = centered_connected_subgraph.edges(
                         nbunch=[node_neighbor], data=True, keys=True
                     )
@@ -801,11 +801,11 @@ class ConnectedComponent(MSONable):
                         ):
                             if edata["start"] == node_neighbor.isite and edata["end"] != node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
-                                    np.array(edata["delta"], np.int) + myddelta
+                                    np.array(edata["delta"], np.int_) + myddelta
                                 )
                             elif edata["end"] == node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
-                                    np.array(edata["delta"], np.int) - myddelta
+                                    np.array(edata["delta"], np.int_) - myddelta
                                 )
                             else:
                                 raise ValueError("DUHH")

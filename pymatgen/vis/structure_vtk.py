@@ -646,10 +646,10 @@ class StructureVis:
                 ac.GetProperty().SetColor(color)
                 self.ren.AddActor(ac)
             elif len(face) > 3:
-                center = np.zeros(3, np.float)
+                center = np.zeros(3, np.float_)
                 for site in face:
                     center += site
-                center /= np.float(len(face))
+                center /= np.float_(len(face))
                 for ii, f in enumerate(face):
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()

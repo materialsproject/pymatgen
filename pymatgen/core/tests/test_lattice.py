@@ -371,7 +371,7 @@ class LatticeTestCase(PymatgenTest):
 
         # Passing complex arrays should raise TypeError
         with self.assertRaises(TypeError):
-            lattice.norm(np.zeros(3, dtype=np.complex))
+            lattice.norm(np.zeros(3, dtype=np.complex128))
 
         # Cannot reshape the second argument.
         with self.assertRaises(ValueError):
