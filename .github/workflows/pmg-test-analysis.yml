@@ -44,6 +44,5 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        source test-env/bin/activate
         echo "PATH=$PATH"
         pytest pymatgen/analysis -rxXs --color=yes
