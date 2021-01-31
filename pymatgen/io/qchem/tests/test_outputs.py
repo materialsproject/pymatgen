@@ -153,6 +153,9 @@ single_job_out_names = {
     "new_qchem_files/1570_2.qout",
     "new_qchem_files/single_point.qout",
     "new_qchem_files/roothaan_diis_gdm.qout",
+    "new_qchem_files/pes_scan_single_variable.qout",
+    "new_qchem_files/pes_scan_double_variable.qout",
+    "new_qchem_files/ts.out"
 }
 
 multi_job_out_names = {
@@ -214,6 +217,7 @@ class TestQCOutput(PymatgenTest):
                     )
 
     def test_all(self):
+        self.maxDiff = None
         single_outs = dict()
         for file in single_job_out_names:
             single_outs[file] = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", file)).data

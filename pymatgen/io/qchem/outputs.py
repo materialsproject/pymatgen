@@ -334,7 +334,7 @@ class QCOutput(MSONable):
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
         """
         Parses a QChem output file with multiple calculations
-        1.) Seperates the output into sub-files
+        # 1.) Seperates the output into sub-files
             e.g. qcout -> qcout.0, qcout.1, qcout.2 ... qcout.N
             a.) Find delimeter for multiple calcualtions
             b.) Make seperate output sub-files
@@ -1212,44 +1212,54 @@ class QCOutput(MSONable):
                 self.data["scan_energies"] = None
             else:
                 for line in double_data[0]:
-                    params = tuple([float(line[0]), float(line[1])])
+                    params = [float(line[0]), float(line[1])]
                     energy = float(line[2])
-                    self.data["scan_energies"].append((params, energy))
+                    self.data["scan_energies"].append({"params": params, "energy": energy})
         else:
             for line in single_data[0]:
                 param = float(line[0])
                 energy = float(line[1])
-                self.data["scan_energies"].append((param, energy))
+                self.data["scan_energies"].append({"params": param, "energy": energy})
 
-        constraint_head = r"\s+Constraints and their Current Values\s*\n\s+Value\s+Constraint"
-        constraint_row = r"\s*(Distance\(Angs\))|(Angle)|(Dihedral)\:(?:([0-9]+)\s+)+([\.0-9]+)\s+([\.0-9]+)"
-        constraint_foot = r"\s*Hessian updated using BFGS update"
 
-        constraint_sets = read_table_pattern(self.text,
-                                             header_pattern=constraint_head,
-                                             row_pattern=constraint_row,
-                                             footer_pattern=constraint_foot)
+        scan_inputs_head = r"\s*\$[Ss][Cc][Aa][Nn]"
+        scan_inputs_row = r"\s*([Ss][Tt][Rr][Ee]|[Tt][Oo][Rr][Ss]|[Bb][Ee][Nn][Dd]) ((?:[0-9]+\s+)+)([\-\.0-9]+)\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*"
+        scan_inputs_foot = r"\s*\$[Ee][Nn][Dd]"
 
-        self.data["scan_constraint_sets"] = list()
-        for constraint_set in constraint_sets:
-            const = {"stre": list(), "bend": list(), "tors": list()}
-            for row in constraint_set:
-                atoms = tuple([int(a) for a in row[1:-2]])
-                values = tuple([float(v) for v in row[-2:]])
-                if row[0] == "Distance(Angs)":
-                    const["stre"].append((atoms, values))
-                elif row[0] == "Angle":
-                    const["bend"].append((atoms, values))
-                elif row[0] == "Dihedral":
-                    const["tors"].append((atoms, values))
-            self.data["scan_constraint_sets"].append(const)
+        constraints_meta = read_table_pattern(self.text,
+                                              header_pattern=scan_inputs_head,
+                                              row_pattern=scan_inputs_row,
+                                              footer_pattern=scan_inputs_foot)
 
-        self.data["scan_variables"] = dict()
-        if len(self.data["scan_constraint_sets"]) > 0:
-            for var_type, val_list in self.data["scan_constraint_sets"][0]:
-                self.data["scan_variables"][var_type] = list()
-                for val_set in val_list:
-                    self.data["scan_variables"][var_type].append(val_set[:-2])
+        self.data["scan_variables"] = {"stre": list(), "bend": list(), "tors": list()}
+        for row in constraints_meta[0]:
+            var_type = row[0].lower()
+            self.data["scan_variables"][var_type].append({"atoms": [int(i) for i in row[1].split()],
+                                                          "start": float(row[2]),
+                                                          "end": float(row[3]),
+                                                          "increment": float(row[4])})
+
+        temp_constraint = read_pattern(
+            self.text,
+            {
+                "key": "\s*(Distance\(Angs\)|Angle|Dihedral)\:\s*((?:[0-9]+\s+)+)+([\.0-9]+)\s+([\.0-9]+)"
+            }
+        ).get("key")
+        self.data["scan_constraint_sets"] = {"stre": list(), "bend": list(), "tors": list()}
+        if temp_constraint is not None:
+            for entry in temp_constraint:
+                atoms = [int(i) for i in entry[1].split()]
+                current = float(entry[2])
+                target = float(entry[3])
+                if entry[0] == "Distance(Angs)":
+                    if len(atoms) == 2:
+                        self.data["scan_constraint_sets"]["stre"].append({"atoms": atoms, "current": current, "target": target})
+                elif entry[0] == "Angle":
+                    if len(atoms) == 3:
+                        self.data["scan_constraint_sets"]["bend"].append({"atoms": atoms, "current": current, "target": target})
+                elif entry[0] == "Dihedral":
+                    if len(atoms) == 4:
+                        self.data["scan_constraint_sets"]["tors"].append({"atoms": atoms, "current": current, "target": target})
 
     def _read_pcm_information(self):
         """
