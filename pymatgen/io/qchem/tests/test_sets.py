@@ -9,7 +9,7 @@ import unittest
 from pymatgen.io.qchem.sets import *
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
