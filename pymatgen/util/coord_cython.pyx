@@ -1,4 +1,5 @@
 # coding: utf-8
+#cython: language_level=3
 
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
