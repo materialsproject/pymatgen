@@ -9,9 +9,9 @@ change until best practices are established.
 """
 
 from pathlib import Path
-from typing import List, Union
+from typing import Union, Sequence
 
 import numpy as np
 
-Vector3Like = Union[List[float], np.ndarray]
+Vector3Like = Union[Sequence[float], np.ndarray]
 PathLike = Union[str, Path]

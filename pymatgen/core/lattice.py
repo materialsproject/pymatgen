@@ -61,7 +61,7 @@ class Lattice(MSONable):
         self._matrix = m  # type: np.ndarray
         self._inv_matrix = None  # type: Optional[np.ndarray]
         self._diags = None
-        self._lll_matrix_mappings = {}  # type: Dict[float, np.ndarray]
+        self._lll_matrix_mappings = {}  # type: Dict[float, Tuple[np.ndarray, np.ndarray]]
         self._lll_inverse = None
 
     @property
@@ -145,7 +145,7 @@ class Lattice(MSONable):
         """
         return dot(self._matrix, self._matrix.T)
 
-    def get_cartesian_coords(self, fractional_coords: Vector3Like) -> np.ndarray:
+    def get_cartesian_coords(self, fractional_coords: Union[Vector3Like, Sequence[Vector3Like]]) -> np.ndarray:
         """
         Returns the cartesian coordinates given fractional coordinates.
 
@@ -157,7 +157,7 @@ class Lattice(MSONable):
         """
         return dot(fractional_coords, self._matrix)
 
-    def get_fractional_coords(self, cart_coords: Vector3Like) -> np.ndarray:
+    def get_fractional_coords(self, cart_coords: Union[Vector3Like, Sequence[Vector3Like]]) -> np.ndarray:
         """
         Returns the fractional coordinates given cartesian coordinates.
 
@@ -609,7 +609,7 @@ class Lattice(MSONable):
         frac, dist, _, _ = self.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max(lengths) * (1 + ltol), zip_results=False
         )
-        cart = self.get_cartesian_coords(frac)
+        cart = self.get_cartesian_coords(frac)  # type: ignore
         # this can't be broadcast because they're different lengths
         inds = [np.logical_and(dist / l < 1 + ltol, dist / l > 1 / (1 + ltol)) for l in lengths]  # type: ignore
         c_a, c_b, c_c = (cart[i] for i in inds)
@@ -1002,8 +1002,8 @@ class Lattice(MSONable):
         if not frac_coords:
             cart_a, cart_b = coords_a, coords_b
         else:
-            cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))
-            cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))
+            cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))  # type: ignore
+            cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))  # type: ignore
 
         return np.array([dot(a, b) for a, b in zip(cart_a, cart_b)])
 
@@ -1029,7 +1029,7 @@ class Lattice(MSONable):
         center: Vector3Like,
         r: float,
         zip_results=True,
-    ) -> Union[List[Tuple[np.ndarray, float, int, np.ndarray]], List[np.ndarray],]:
+    ) -> Union[List[Tuple[np.ndarray, float, int, np.ndarray]], List[np.ndarray], List]:
         """
         Find all points within a sphere from the point taking into account
         periodic boundary conditions. This includes sites in other periodic
@@ -1069,7 +1069,7 @@ class Lattice(MSONable):
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
         else:
-            frac_points = np.ascontiguousarray(frac_points, dtype=float)
+            frac_points = np.ascontiguousarray(frac_points, dtype=np.float_)  # type: ignore
             r = float(r)
             lattice_matrix = np.array(self.matrix)
             lattice_matrix = np.ascontiguousarray(lattice_matrix)
@@ -1150,7 +1150,7 @@ class Lattice(MSONable):
             return_fcoords=True,
         )[0]
         if len(neighbors) < 1:
-            return [] if zip_results else [()] * 4
+            return [] if zip_results else [()] * 4  # type: ignore
         if zip_results:
             return neighbors
         return [np.array(i) for i in list(zip(*neighbors))]
@@ -1370,7 +1370,7 @@ class Lattice(MSONable):
             (tuple): The Miller index.
         """
         if coords_are_cartesian:
-            coords = [self.get_fractional_coords(c) for c in coords]
+            coords = [self.get_fractional_coords(c) for c in coords]  # type: ignore
 
         coords = np.asarray(coords)
         g = coords.sum(axis=0) / coords.shape[0]
@@ -1487,7 +1487,7 @@ def get_points_in_spheres(
     """
     if isinstance(pbc, bool):
         pbc = [pbc] * 3
-    pbc = np.array(pbc, dtype=bool)
+    pbc = np.array(pbc, dtype=np.bool_)  # type: ignore
     if return_fcoords and lattice is None:
         raise ValueError("Lattice needs to be supplied to compute fractional coordinates")
     center_coords_min = np.min(center_coords, axis=0)
@@ -1542,12 +1542,12 @@ def get_points_in_spheres(
         valid_images = np.concatenate(valid_images, axis=0)
 
     else:
-        valid_coords = all_coords
+        valid_coords = all_coords  # type: ignore
         valid_images = [[0, 0, 0]] * len(valid_coords)
         valid_indices = np.arange(len(valid_coords))
 
     # Divide the valid 3D space into cubes and compute the cube ids
-    all_cube_index = _compute_cube_index(valid_coords, global_min, r)
+    all_cube_index = _compute_cube_index(valid_coords, global_min, r)  # type: ignore
     nx, ny, nz = _compute_cube_index(global_max, global_min, r) + 1
     all_cube_index = _three_to_one(all_cube_index, ny, nz)
     site_cube_index = _three_to_one(_compute_cube_index(center_coords, global_min, r), ny, nz)
