@@ -1739,6 +1739,7 @@ class MagneticSpacegroupAnalyzer:
       self._angle_tol = angle_tolerance
       self._pos_tol   = pos_tolerance
       self._magmom_tol = magmom_tolerance
+      self._domains = None
 
       self._spacegroupAnalyzer = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
 
@@ -1754,31 +1755,18 @@ class MagneticSpacegroupAnalyzer:
 
       # apply all paramagnetic spacegroup operations and check if they are a symmetry
       # or if they lead to another magnetic domain
-      domains = { MagSymmOp.from_xyzt_string('x, y, z, +1') : self._structure }
       mspg_list = []
       for mop in self._paramag_symmops:
           
           trans = [ApplyMagSymmOpTransformation(mop)]
           s_new = TransformedStructure(self._structure, trans )
          
-          new_domain = True
           #print( mop.as_xyzt_string() ) 
           if self._same_MagneticStructure( s_new.final_structure,  self._structure )[0]:
           
             mspg_list.append( mop )
-            new_domain = False
           
-          else:
-            
-            for do in domains.values():
-              if self._same_MagneticStructure( s_new.final_structure, do )[0]:
-                new_domain = False
-                break
-
-          if new_domain: domains[mop] = s_new.final_structure
-
       self.symmetry_ops = mspg_list
-      self.domains = domains
 
       #print( len(self.symmetry_ops) )
 
@@ -1904,7 +1892,11 @@ class MagneticSpacegroupAnalyzer:
       Returns:
         dict( pymatgen.core.operations.MagSymmOp : pymatgen.core.structure.Structure ) 
       """
-      return self.domains
+      
+      if not self._domains:
+        self._domains = self._get_domains()
+      
+      return self._domains
 
     def get_symmetry_ops( self ):
       """
