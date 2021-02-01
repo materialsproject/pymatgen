@@ -201,7 +201,7 @@ class Substitutor(MSONable):
             list of dictionaries, each including a substitutions
             dictionary, and a probability value
         """
-        species_list = get_el_sp(species_list)
+        species_list = [get_el_sp(sp) for sp in species_list]
         # calculate the highest probabilities to help us stop the recursion
         max_probabilities = []
         for s2 in species_list:

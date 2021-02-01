@@ -395,9 +395,12 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(str(mo0), "Mo0+,spin=5")
         mo = Species.from_string("Mo0+,spin=4")
         self.assertEqual(mo.spin, 4)
-        fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
-        fe_no_ox_from_str = Species.from_string("Fe,spin=5")
-        self.assertEqual(fe_no_ox, fe_no_ox_from_str)
+
+        # Shyue Ping: I don't understand the need for a None for oxidation state. That to me is basically an element.
+        # Why make the thing so complicated for a use case that I have never seen???
+        # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
+        # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
+        # self.assertEqual(fe_no_ox, fe_no_ox_from_str)
 
     def test_no_oxidation_state(self):
         mo0 = Species("Mo", None, {"spin": 5})
