@@ -8,7 +8,7 @@ This module defines classes representing non-periodic and periodic sites.
 
 import collections
 import json
-from typing import Dict, List, Tuple, Union
+from typing import Optional, Dict, Sequence, Union
 
 import numpy as np
 from monty.dev import deprecated
@@ -34,7 +34,7 @@ class Site(collections.abc.Hashable, MSONable):
     def __init__(
         self,
         species: Union[str, Element, Species, DummySpecies, Dict, Composition],
-        coords: Union[Tuple, List, np.ndarray],
+        coords: Union[Sequence[float], np.ndarray],
         properties: dict = None,
         skip_checks: bool = False,
     ):
@@ -306,7 +306,7 @@ class PeriodicSite(Site, MSONable):
     def __init__(
         self,
         species: Union[str, Element, Species, DummySpecies, Dict, Composition],
-        coords: Union[Tuple, List, np.ndarray],
+        coords: Union[Sequence[float], np.ndarray],
         lattice: Lattice,
         to_unit_cell: bool = False,
         coords_are_cartesian: bool = False,
@@ -341,7 +341,7 @@ class PeriodicSite(Site, MSONable):
         if coords_are_cartesian:
             frac_coords = lattice.get_fractional_coords(coords)
         else:
-            frac_coords = coords
+            frac_coords = coords  # type: ignore
 
         if to_unit_cell:
             frac_coords = np.mod(frac_coords, 1)
@@ -361,7 +361,7 @@ class PeriodicSite(Site, MSONable):
         self._lattice = lattice
         self._frac_coords = frac_coords
         self._species = species
-        self._coords = None
+        self._coords = None  # type: Optional[np.ndarray]
         self.properties = properties or {}
 
     def __hash__(self):

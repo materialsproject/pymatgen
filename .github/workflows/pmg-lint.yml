@@ -24,6 +24,7 @@ jobs:
     - name: mypy
       run: |
         mypy --version
+        rm -rf .mypy_cache
         mypy pymatgen
     - name: flake8
       run: |

@@ -39,9 +39,9 @@ class Trajectory(MSONable):
 
     def __init__(
         self,
-        lattice: Union[List, np.ndarray, Lattice],
+        lattice: Union[Sequence[float], Sequence[Sequence[float]], np.ndarray, Lattice],
         species: List[Union[str, Element, Species, DummySpecies, Composition]],
-        frac_coords: List[Sequence[Sequence[float]]],
+        frac_coords: Union[List[Sequence[Sequence[float]]], np.ndarray],
         time_step: float = 2,
         site_properties: dict = None,
         frame_properties: dict = None,
@@ -105,7 +105,7 @@ class Trajectory(MSONable):
         if not constant_lattice and np.shape(lattice) == (3, 3):
             self.lattice = [lattice for i in range(np.shape(self.frac_coords)[0])]
         else:
-            self.lattice = lattice
+            self.lattice = lattice  # type: ignore
         self.constant_lattice = constant_lattice
         self.species = species
         self.site_properties = site_properties

@@ -448,8 +448,8 @@ class FermiDos(Dos, MSONable):
         self.tdos = tdos * self.nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
 
         ecbm, evbm = self.get_cbm_vbm()
-        self.idx_vbm = np.argmin(abs(self.energies - evbm))
-        self.idx_cbm = np.argmin(abs(self.energies - ecbm))
+        self.idx_vbm = int(np.argmin(abs(self.energies - evbm)))
+        self.idx_cbm = int(np.argmin(abs(self.energies - ecbm)))
         self.A_to_cm = 1e-8
 
         if bandgap:
@@ -458,7 +458,7 @@ class FermiDos(Dos, MSONable):
             else:
                 eref = (evbm + ecbm) / 2.0
 
-            idx_fermi = np.argmin(abs(self.energies - eref))
+            idx_fermi = int(np.argmin(abs(self.energies - eref)))
 
             if idx_fermi == self.idx_vbm:
                 # Fermi level and vbm should be different indices

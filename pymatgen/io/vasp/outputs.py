@@ -4991,7 +4991,7 @@ class Wavecar:
         else:
             tcoeffs = self.coeffs[kpoint][band]
 
-        mesh = np.zeros(tuple(self.ng), dtype=np.complex)
+        mesh = np.zeros(tuple(self.ng), dtype=np.complex_)
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
             t = tuple(gp.astype(np.int_) + (self.ng / 2).astype(np.int_))
             mesh[t] = coeff

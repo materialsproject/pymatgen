@@ -12,7 +12,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from functools import lru_cache
-from typing import Dict, List, Tuple, cast
+from typing import Dict, List, Tuple, cast, Union
 
 import numpy as np
 import pandas as pd
@@ -113,7 +113,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         result = np.vstack(list(points_matrix)).transpose()
         return result
 
-    def zone_axis_filter(self, points: np.ndarray, laue_zone: int = 0) -> List[Tuple[int, int, int]]:
+    def zone_axis_filter(
+        self, points: Union[List[Tuple[int, int, int]], np.ndarray], laue_zone: int = 0
+    ) -> Union[List[Tuple[int, int, int]]]:
         """
         Filters out all points that exist within the specified Laue zone according to the zone axis rule.
         Args:
@@ -123,7 +125,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             list of 3-tuples
         """
         if any(isinstance(n, tuple) for n in points):
-            return points
+            return list(points)
         if len(points) == 0:
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
@@ -132,7 +134,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return result_tuples
 
     def get_interplanar_spacings(
-        self, structure: Structure, points: List[Tuple[int, int, int]]
+        self, structure: Structure, points: Union[List[Tuple[int, int, int]], np.ndarray]
     ) -> Dict[Tuple[int, int, int], float]:
         """
         Args:
@@ -445,7 +447,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         x = np.dot(a_pinv, b)
         return np.ravel(x)
 
-    def get_positions(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], list]:
+    def get_positions(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], np.ndarray]:
         """
         Calculates all the positions of each hkl point in the 2D diffraction pattern by vector addition.
         Distance in centimeters.
@@ -496,7 +498,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         return positions
 
-    def tem_dots(self, structure: Structure, points: list) -> list:
+    def tem_dots(self, structure: Structure, points) -> List:
         """
         Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
         Args:

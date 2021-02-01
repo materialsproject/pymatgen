@@ -85,8 +85,9 @@ class JonesFaithfulTransformation:
         return cls(P, p)
 
     @staticmethod
-    def parse_transformation_string(transformation_string="a,b,c;0,0,0"):
-        # type: (str) -> Tuple[List[List[float]], List[float]]
+    def parse_transformation_string(
+        transformation_string: str = "a,b,c;0,0,0",
+    ) -> Tuple[Union[List[List[float]], np.ndarray], List[float]]:
         """
         :return: transformation matrix & vector
         """
@@ -114,7 +115,7 @@ class JonesFaithfulTransformation:
             P = np.array([eval(x, {"__builtins__": None}, {"a": a, "b": b, "c": c}) for x in basis_change])
             P = P.transpose()  # by convention
             p = [float(Fraction(x)) for x in origin_shift]
-            return (P, p)
+            return P, p
         except Exception:
             raise ValueError("Failed to parse transformation string.")
 
@@ -150,7 +151,7 @@ class JonesFaithfulTransformation:
         return self._get_transformation_string_from_Pp(self.P, self.p)
 
     @staticmethod
-    def _get_transformation_string_from_Pp(P: List[List[float]], p: List[float]) -> str:
+    def _get_transformation_string_from_Pp(P: Union[List[List[float]], np.ndarray], p: List[float]) -> str:
         P = np.array(P).transpose()
         P_string = transformation_to_string(P, components=("a", "b", "c"))
         p_string = transformation_to_string(np.zeros((3, 3)), p)
@@ -180,7 +181,7 @@ class JonesFaithfulTransformation:
             return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
         raise RuntimeError
 
-    def transform_coords(self, coords: List[List[float]]) -> List[List[float]]:
+    def transform_coords(self, coords: Union[List[List[float]], np.ndarray]) -> List[List[float]]:
         """
         Takes a list of co-ordinates and transforms them.
         :param coords: List of coords

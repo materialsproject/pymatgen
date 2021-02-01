@@ -288,7 +288,7 @@ class CollinearMagneticStructureAnalyzer:
                     magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
-        magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms
+        magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms  # type: ignore
 
         if set_net_positive:
             sign = np.sum(magmoms)

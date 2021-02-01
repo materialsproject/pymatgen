@@ -629,7 +629,7 @@ class IStructure(SiteCollection, MSONable):
         self,
         lattice: Union[List, np.ndarray, Lattice],
         species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
-        coords: Sequence[Sequence[float]],
+        coords: Sequence[Union[Sequence[float], np.ndarray]],
         charge: float = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
