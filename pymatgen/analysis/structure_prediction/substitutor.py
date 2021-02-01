@@ -109,7 +109,7 @@ class Substitutor(MSONable):
         Returns:
             a list of TransformedStructure objects.
         """
-        target_species = get_el_sp(target_species)
+        target_species = [get_el_sp(sp) for sp in target_species]
         result = []
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) != len(target_species):
