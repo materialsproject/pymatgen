@@ -455,8 +455,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 Element('C'):0.25} } will have .375 Ge and .125 C.
         """
 
-        species_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
-        sp_to_replace = set(species_mapping.keys())
+        sp_mapping = {get_el_sp(k): v for k, v in species_mapping.items()}
+        sp_to_replace = set(sp_mapping.keys())
         sp_in_structure = set(self.composition.keys())
         if not sp_in_structure.issuperset(sp_to_replace):
             warnings.warn(
@@ -469,7 +469,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             if sp_to_replace.intersection(site.species):
                 c = Composition()
                 for sp, amt in site.species.items():
-                    new_sp = species_mapping.get(sp, sp)
+                    new_sp = sp_mapping.get(sp, sp)
                     try:
                         c += Composition(new_sp) * amt
                     except Exception:

@@ -446,7 +446,6 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(get_el_sp("U"), Element.U)
         self.assertEqual(get_el_sp("X2+"), DummySpecies("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Species("Mn", 3))
-        self.assertEqual(get_el_sp(["Li+", "Mn3+"]), [Species("Li", 1), Species("Mn", 3)])
 
 
 if __name__ == "__main__":

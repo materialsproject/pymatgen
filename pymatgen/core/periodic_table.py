@@ -12,7 +12,7 @@ from enum import Enum
 from io import open
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 import numpy as np
 from monty.json import MSONable
@@ -464,19 +464,19 @@ class ElementBase(Enum):
         return {}
 
     @property
-    def number(self):
+    def number(self) -> int:
         """Alternative attribute for atomic number"""
         return self.Z
 
     @property
-    def max_oxidation_state(self):
+    def max_oxidation_state(self) -> float:
         """Maximum oxidation state for element"""
         if "Oxidation states" in self._data:
             return max(self._data["Oxidation states"])
         return 0
 
     @property
-    def min_oxidation_state(self):
+    def min_oxidation_state(self) -> float:
         """Minimum oxidation state for element"""
         if "Oxidation states" in self._data:
             return min(self._data["Oxidation states"])
@@ -536,7 +536,7 @@ class ElementBase(Enum):
         """
         # the number of valence of noble gas is 0
         if self.group == 18:
-            return (np.nan, 0)
+            return np.nan, 0
 
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
         valence = []
@@ -670,7 +670,7 @@ class ElementBase(Enum):
         return self.symbol < other.symbol
 
     @staticmethod
-    def from_Z(z: int):
+    def from_Z(z: int) -> "Element":
         """
         Get an element from an atomic number.
 
@@ -686,7 +686,7 @@ class ElementBase(Enum):
         raise ValueError("No element with this atomic number %s" % z)
 
     @staticmethod
-    def from_row_and_group(row: int, group: int):
+    def from_row_and_group(row: int, group: int) -> "Element":
         """
         Returns an element from a row and group number.
 
@@ -704,7 +704,7 @@ class ElementBase(Enum):
         raise ValueError("No element with this row and group!")
 
     @staticmethod
-    def is_valid_symbol(symbol: str):
+    def is_valid_symbol(symbol: str) -> bool:
         """
         Returns true if symbol is a valid element symbol.
 
@@ -718,7 +718,7 @@ class ElementBase(Enum):
         return symbol in Element.__members__
 
     @property
-    def row(self):
+    def row(self) -> int:
         """
         Returns the periodic table row of the element.
         """
@@ -735,7 +735,7 @@ class ElementBase(Enum):
         return 8
 
     @property
-    def group(self):
+    def group(self) -> int:
         """
         Returns the periodic table group of the element.
         """
@@ -763,7 +763,7 @@ class ElementBase(Enum):
         return (z - 54) % 32
 
     @property
-    def block(self):
+    def block(self) -> str:
         """
         Return the block character "s,p,d,f"
         """
@@ -780,14 +780,14 @@ class ElementBase(Enum):
         raise ValueError("unable to determine block")
 
     @property
-    def is_noble_gas(self):
+    def is_noble_gas(self) -> bool:
         """
         True if element is noble gas.
         """
         return self.Z in (2, 10, 18, 36, 54, 86, 118)
 
     @property
-    def is_transition_metal(self):
+    def is_transition_metal(self) -> bool:
         """
         True if element is a transition metal.
         """
@@ -800,7 +800,7 @@ class ElementBase(Enum):
         return self.Z in ns
 
     @property
-    def is_post_transition_metal(self):
+    def is_post_transition_metal(self) -> bool:
         """
         True if element is a post-transition or poor metal.
         """
@@ -941,7 +941,7 @@ class ElementBase(Enum):
                 try:
                     el = Element.from_row_and_group(row, group)
                 except ValueError:
-                    el = None
+                    el = None  # type: ignore
                 if el and ((not filter_function) or filter_function(el)):
                     rowstr.append("{:3s}".format(el.symbol))
                 else:
@@ -1090,7 +1090,7 @@ class Species(MSONable):
     def __init__(
         self,
         symbol: str,
-        oxidation_state: Optional[float] = 0.0,
+        oxidation_state: float = 0.0,
         properties: dict = None,
     ):
         """
@@ -1182,7 +1182,7 @@ class Species(MSONable):
         return self._el
 
     @property
-    def ionic_radius(self):
+    def ionic_radius(self) -> Optional[float]:
         """
         Ionic radius of specie. Returns None if data is not present.
         """
@@ -1201,14 +1201,14 @@ class Species(MSONable):
         return None
 
     @property
-    def oxi_state(self):
+    def oxi_state(self) -> float:
         """
         Oxidation state of Species.
         """
         return self._oxi_state
 
     @staticmethod
-    def from_string(species_string: str):
+    def from_string(species_string: str) -> "Species":
         """
         Returns a Species from a string representation.
 
@@ -1252,7 +1252,7 @@ class Species(MSONable):
             if oxi is None and properties is None:
                 raise ValueError("Invalid Species String")
 
-            return Species(sym, oxi, properties)
+            return Species(sym, 0 if oxi is None else oxi, properties)
         raise ValueError("Invalid Species String")
 
     def __repr__(self):
@@ -1269,7 +1269,7 @@ class Species(MSONable):
             output += ",%s=%s" % (p, v)
         return output
 
-    def get_nmr_quadrupole_moment(self, isotope=None):
+    def get_nmr_quadrupole_moment(self, isotope: Optional[str] = None) -> float:
         """
         Gets the nuclear electric quadrupole moment in units of
         e*millibarns
@@ -1293,7 +1293,7 @@ class Species(MSONable):
             raise ValueError("No quadrupole moment for isotope {}".format(isotope))
         return quad_mom.get(isotope, 0.0)
 
-    def get_shannon_radius(self, cn: str, spin: str = "", radius_type: str = "ionic"):
+    def get_shannon_radius(self, cn: str, spin: str = "", radius_type: str = "ionic") -> float:
         """
         Get the local environment specific ionic radius for species.
 
@@ -1424,7 +1424,7 @@ class DummySpecies(Species):
     def __init__(
         self,
         symbol: str = "X",
-        oxidation_state: Optional[float] = 0,
+        oxidation_state: float = 0,
         properties: dict = None,
     ):
         """
@@ -1507,7 +1507,7 @@ class DummySpecies(Species):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> Optional[float]:
+    def oxi_state(self) -> float:
         """
         Oxidation state associated with DummySpecies
         """
@@ -1616,7 +1616,7 @@ class DummySpecie(DummySpecies):
     pass
 
 
-def get_el_sp(obj):
+def get_el_sp(obj) -> Union[Element, Species, DummySpecies]:
     """
     Utility method to get an Element or Species from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
@@ -1641,15 +1641,12 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Species, DummySpecies)):
         return obj
 
-    if isinstance(obj, (list, tuple)):
-        return [get_el_sp(o) for o in obj]
-
     try:
         c = float(obj)
         i = int(c)
-        i = i if i == c else None
+        i = i if i == c else None  # type: ignore
     except (ValueError, TypeError):
-        i = None
+        i = None  # type: ignore
 
     if i is not None:
         return Element.from_Z(i)

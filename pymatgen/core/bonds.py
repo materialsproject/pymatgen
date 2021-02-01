@@ -11,13 +11,10 @@ import collections
 import json
 import os
 import warnings
+from typing import Optional
 
 from pymatgen.core.periodic_table import Element
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
+from pymatgen.core.sites import Site
 
 
 def _load_bond_length_data():
@@ -38,7 +35,7 @@ class CovalentBond:
     Defines a covalent bond between two sites.
     """
 
-    def __init__(self, site1, site2):
+    def __init__(self, site1: Site, site2: Site):
         """
         Initializes a covalent bond between two sites.
 
@@ -50,13 +47,13 @@ class CovalentBond:
         self.site2 = site2
 
     @property
-    def length(self):
+    def length(self) -> float:
         """
         Length of the bond.
         """
         return self.site1.distance(self.site2)
 
-    def get_bond_order(self, tol=0.2, default_bl=None):
+    def get_bond_order(self, tol: float = 0.2, default_bl: Optional[float] = None) -> float:
         """
         The bond order according the distance between the two sites
         Args:
@@ -79,7 +76,9 @@ class CovalentBond:
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
     @staticmethod
-    def is_bonded(site1, site2, tol=0.2, bond_order=None, default_bl=None):
+    def is_bonded(
+        site1, site2, tol: float = 0.2, bond_order: Optional[float] = None, default_bl: Optional[float] = None
+    ):
         """
         Test if two sites are bonded, up to a certain limit.
         Args:
@@ -119,7 +118,7 @@ class CovalentBond:
         return self.__repr__()
 
 
-def obtain_all_bond_lengths(sp1, sp2, default_bl=None):
+def obtain_all_bond_lengths(sp1, sp2, default_bl: Optional[float] = None):
     """
     Obtain bond lengths for all bond orders from bond length database
 
@@ -145,7 +144,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl=None):
     raise ValueError("No bond data for elements {} - {}".format(*syms))
 
 
-def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
+def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: Optional[float] = None):
     """
     Calculate the bond order given the distance of 2 species
 
@@ -187,7 +186,7 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     return trial_bond_order - 1
 
 
-def get_bond_length(sp1, sp2, bond_order=1):
+def get_bond_length(sp1, sp2, bond_order: float = 1):
     """
     Get the bond length between two species.
 
