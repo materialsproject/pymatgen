@@ -1750,7 +1750,7 @@ class MagneticSpacegroupAnalyzer:
       ### use self._paramag_symmetry_operations() instead ###
 
       self._paramag_symmops = self._paramag_symmetry_operations()
-      print( len(self._paramag_symmops) )
+      #print( len(self._paramag_symmops) )
 
       # apply all paramagnetic spacegroup operations and check if they are a symmetry
       # or if they lead to another magnetic domain
@@ -1762,7 +1762,7 @@ class MagneticSpacegroupAnalyzer:
           s_new = TransformedStructure(self._structure, trans )
          
           new_domain = True
-          print( mop.as_xyzt_string() ) 
+          #print( mop.as_xyzt_string() ) 
           if self._same_MagneticStructure( s_new.final_structure,  self._structure )[0]:
           
             mspg_list.append( mop )
@@ -1780,7 +1780,7 @@ class MagneticSpacegroupAnalyzer:
       self.symmetry_ops = mspg_list
       self.domains = domains
 
-      print( len(self.symmetry_ops) )
+      #print( len(self.symmetry_ops) )
 
       self._MagneticSpacegroup = self._search4MagneticSpacegroup( )
    
@@ -1985,7 +1985,7 @@ class MagneticSpacegroupAnalyzer:
         if res == set():
           same = True
       
-      print( same )
+      #print( same )
       return same, res
 
     def _difference( self, sitesmagms_set, sitesmagms_set_i, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
@@ -2027,7 +2027,7 @@ class MagneticSpacegroupAnalyzer:
       
       mop_list = self.symmetry_ops
 
-      print( len(mop_list) )
+      #print( len(mop_list) )
 
       # get dict of all potential magnetic spacegroups 
       # according to the crystal system
@@ -2050,7 +2050,7 @@ class MagneticSpacegroupAnalyzer:
       all_mspg = [ MagneticSpaceGroup(i) for i in range(*cs_range[cs]) if order[i]==len(mop_list) ]
       #print( "init mspg with file: ", time.time() - start1 )
 
-      print( len(all_mspg), [tmp_mspg._data["og_number"] for tmp_mspg in all_mspg] )
+      #print( len(all_mspg), [tmp_mspg._data["og_number"] for tmp_mspg in all_mspg] )
 
       # slower alternative that doesn't need additional file
       # start1 = time.time()
@@ -2058,7 +2058,7 @@ class MagneticSpacegroupAnalyzer:
       all_mspg = [ mspg for mspg in all_mspg if len(mspg.symmetry_ops)==len(mop_list)]
       # print( "init mspg: ", time.time() - start1 )
 
-      print( len(all_mspg),  [tmp_mspg._data["og_number"] for tmp_mspg in all_mspg] )
+      #print( len(all_mspg),  [tmp_mspg._data["og_number"] for tmp_mspg in all_mspg] )
 
       # compare list of symm operations to each magnetic spacegroup
       for tmp_mspg in all_mspg:  
@@ -2074,8 +2074,8 @@ class MagneticSpacegroupAnalyzer:
             if not np.any( [ mop1==mop2 for mop1 in tmp_mspg.symmetry_ops] ):
               input_minus_tmp_mspg.append(mop2)
 
-        if tmp_mspg._data["og_number"][-1]==1300:
-          print( "tmp_mspg_minus_input :", tmp_mspg_minus_input )
+        #if tmp_mspg._data["og_number"][-1]==1300:
+        #  print( "tmp_mspg_minus_input :", tmp_mspg_minus_input )
 
         if tmp_mspg_minus_input==[] and input_minus_tmp_mspg==[]:
             return tmp_mspg
