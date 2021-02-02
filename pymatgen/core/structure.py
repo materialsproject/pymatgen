@@ -34,7 +34,7 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
-from pymatgen.util.typing import ArrayLike
+from pymatgen.util.typing import ArrayLike, CompositionLike
 
 
 class Neighbor(Site):
@@ -625,9 +625,9 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(
         self,
-        lattice: Union[List, np.ndarray, Lattice],
-        species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
-        coords: Sequence[Union[Sequence[float], np.ndarray]],
+        lattice: Union[ArrayLike, Lattice],
+        species: Sequence[CompositionLike],
+        coords: Sequence[ArrayLike],
         charge: float = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -2255,7 +2255,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge", None)
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, fmt=None, filename=None, **kwargs):
+    def to(self, fmt: str = None, filename=None, **kwargs) -> Optional[str]:
         r"""
         Outputs the structure to a file or string.
 
@@ -2293,7 +2293,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             from pymatgen.io.cssr import Cssr
 
-            writer = Cssr(self, **kwargs)
+            writer = Cssr(self)  # type: ignore
         elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
             s = json.dumps(self.as_dict())
             if filename:
@@ -2340,7 +2340,7 @@ class IStructure(SiteCollection, MSONable):
         return writer.__str__()
 
     @classmethod
-    def from_str(cls, input_string, fmt, primitive=False, sort=False, merge_tol=0.0):
+    def from_str(cls, input_string: str, fmt: str, primitive=False, sort=False, merge_tol=0.0):
         """
         Reads a structure from a string.
 
@@ -2509,8 +2509,8 @@ class IMolecule(SiteCollection, MSONable):
 
     def __init__(
         self,
-        species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
-        coords: Sequence[Sequence[float]],
+        species: Sequence[CompositionLike],
+        coords: Sequence[ArrayLike],
         charge: float = 0.0,
         spin_multiplicity: float = None,
         validate_proximity: bool = False,
@@ -2576,28 +2576,28 @@ class IMolecule(SiteCollection, MSONable):
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """
         Charge of molecule
         """
         return self._charge
 
     @property
-    def spin_multiplicity(self):
+    def spin_multiplicity(self) -> float:
         """
         Spin multiplicity of molecule.
         """
         return self._spin_multiplicity
 
     @property
-    def nelectrons(self):
+    def nelectrons(self) -> float:
         """
         Number of electrons in the molecule.
         """
         return self._nelectrons
 
     @property
-    def center_of_mass(self):
+    def center_of_mass(self) -> float:
         """
         Center of mass of molecule.
         """
@@ -2610,14 +2610,16 @@ class IMolecule(SiteCollection, MSONable):
         return center / total_weight
 
     @property
-    def sites(self):
+    def sites(self) -> Tuple[Site, ...]:
         """
         Returns a tuple of sites in the Molecule.
         """
         return self._sites
 
     @classmethod
-    def from_sites(cls, sites, charge=0, spin_multiplicity=None, validate_proximity=False):
+    def from_sites(
+        cls, sites: Sequence[Site], charge: float = 0, spin_multiplicity: float = None, validate_proximity: bool = False
+    ) -> Union["IMolecule", "Molecule"]:
         """
         Convenience constructor to make a Molecule from a list of sites.
 
@@ -2642,7 +2644,7 @@ class IMolecule(SiteCollection, MSONable):
             site_properties=props,
         )
 
-    def break_bond(self, ind1, ind2, tol=0.2):
+    def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> Tuple[Union["IMolecule", "Molecule"], ...]:
         """
         Returns two molecules based on breaking the bond between atoms at index
         ind1 and ind2.
@@ -2659,10 +2661,9 @@ class IMolecule(SiteCollection, MSONable):
             Two Molecule objects representing the two clusters formed from
             breaking the bond.
         """
-        sites = self._sites
-        clusters = [[sites[ind1]], [sites[ind2]]]
+        clusters = [[self._sites[ind1]], [self._sites[ind2]]]
 
-        sites = [site for i, site in enumerate(sites) if i not in (ind1, ind2)]
+        sites = [site for i, site in enumerate(self._sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
             for test_site in cluster:
@@ -2684,9 +2685,9 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return (self.__class__.from_sites(cluster) for cluster in clusters)
+        return tuple(self.__class__.from_sites(cluster) for cluster in clusters)
 
-    def get_covalent_bonds(self, tol=0.2):
+    def get_covalent_bonds(self, tol: float = 0.2) -> List[CovalentBond]:
         """
         Determines the covalent bonds in a molecule.
 
@@ -2768,7 +2769,7 @@ class IMolecule(SiteCollection, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> dict:
         """
         Reconstitute a Molecule object from a dict representation created using
         as_dict().
@@ -2784,7 +2785,7 @@ class IMolecule(SiteCollection, MSONable):
         spin_multiplicity = d.get("spin_multiplicity")
         return cls.from_sites(sites, charge=charge, spin_multiplicity=spin_multiplicity)
 
-    def get_distance(self, i, j):
+    def get_distance(self, i: int, j: int) -> float:
         """
         Get distance between site i and j.
 
@@ -2797,7 +2798,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         return self[i].distance(self[j])
 
-    def get_sites_in_sphere(self, pt: ArrayLike, r: float):
+    def get_sites_in_sphere(self, pt: ArrayLike, r: float) -> List[Neighbor]:
         """
         Find all sites within a sphere from a point.
 
@@ -2816,7 +2817,7 @@ class IMolecule(SiteCollection, MSONable):
                 neighbors.append(Neighbor(site.species, site.coords, site.properties, dist, i))
         return neighbors
 
-    def get_neighbors(self, site, r):
+    def get_neighbors(self, site: Site, r: float) -> List[Neighbor]:
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
@@ -2832,7 +2833,7 @@ class IMolecule(SiteCollection, MSONable):
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
 
-    def get_neighbors_in_shell(self, origin, r, dr):
+    def get_neighbors_in_shell(self, origin: ArrayLike, r: float, dr: float) -> List[Neighbor]:
         """
         Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
@@ -2852,17 +2853,17 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_boxed_structure(
         self,
-        a,
-        b,
-        c,
-        images=(1, 1, 1),
-        random_rotation=False,
-        min_dist=1,
+        a: float,
+        b: float,
+        c: float,
+        images: ArrayLike = (1, 1, 1),
+        random_rotation: bool = False,
+        min_dist: float = 1.0,
         cls=None,
-        offset=None,
-        no_cross=False,
-        reorder=True,
-    ):
+        offset: ArrayLike = None,
+        no_cross: bool = False,
+        reorder: bool = True,
+    ) -> Union["IStructure", "Structure"]:
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -2903,14 +2904,16 @@ class IMolecule(SiteCollection, MSONable):
 
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
-        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)
-        nimages = images[0] * images[1] * images[2]
-        coords = []
+        lattice = Lattice.from_parameters(a * images[0], b * images[1], c * images[2], 90, 90, 90)  # type: ignore
+        nimages = images[0] * images[1] * images[2]  # type: ignore
+        all_coords: List[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
 
-        for i, j, k in itertools.product(list(range(images[0])), list(range(images[1])), list(range(images[2]))):
-            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
+        for i, j, k in itertools.product(
+            list(range(images[0])), list(range(images[1])), list(range(images[2]))  # type: ignore
+        ):
+            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]  # type: ignore
             if random_rotation:
                 while True:
                     op = SymmOp.from_origin_axis_angle(
@@ -2926,11 +2929,11 @@ class IMolecule(SiteCollection, MSONable):
                         z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                         if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
                             raise ValueError("Molecule crosses boundary of box.")
-                    if len(coords) == 0:
+                    if len(all_coords) == 0:
                         break
                     distances = lattice.get_all_distances(
                         lattice.get_fractional_coords(new_coords),
-                        lattice.get_fractional_coords(coords),
+                        lattice.get_fractional_coords(all_coords),
                     )
                     if np.amin(distances) > min_dist:
                         break
@@ -2942,8 +2945,8 @@ class IMolecule(SiteCollection, MSONable):
                     z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
                     if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
                         raise ValueError("Molecule crosses boundary of box.")
-            coords.extend(new_coords)
-        sprops = {k: v * nimages for k, v in self.site_properties.items()}
+            all_coords.extend(new_coords)
+        sprops = {k: v * nimages for k, v in self.site_properties.items()}  # type: ignore
 
         if cls is None:
             cls = Structure
@@ -2951,21 +2954,21 @@ class IMolecule(SiteCollection, MSONable):
         if reorder:
             return cls(
                 lattice,
-                self.species * nimages,
-                coords,
+                self.species * nimages,  # type: ignore
+                all_coords,
                 coords_are_cartesian=True,
                 site_properties=sprops,
             ).get_sorted_structure()
 
         return cls(
             lattice,
-            self.species * nimages,
+            self.species * nimages,  # type: ignore
             coords,
             coords_are_cartesian=True,
             site_properties=sprops,
         )
 
-    def get_centered_molecule(self):
+    def get_centered_molecule(self) -> Union["IMolecule", "Molecule"]:
         """
         Returns a Molecule centered at the center of mass.
 
@@ -3122,9 +3125,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def __init__(
         self,
-        lattice: Union[List, np.ndarray, Lattice],
-        species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
-        coords: Sequence[Sequence[float]],
+        lattice: Union[ArrayLike, Lattice],
+        species: Sequence[CompositionLike],
+        coords: Sequence[ArrayLike],
         charge: float = None,
         validate_proximity: bool = False,
         to_unit_cell: bool = False,
@@ -3251,7 +3254,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites.__delitem__(i)
 
     @property
-    def lattice(self):
+    def lattice(self) -> Lattice:
         """
         :return: Lattice assciated with structure.
         """

@@ -1578,7 +1578,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             # round the entries of T and force T to be nonsingular
             self.transformation_matrix = _round_and_make_arr_singular(self.transformation_matrix)  # type: ignore
 
-            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
+            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs  # type: ignore
 
             # Find the shortest dimension length and direction
             a = proposed_sc_lat_vecs[0]

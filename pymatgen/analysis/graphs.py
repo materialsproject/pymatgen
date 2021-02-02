@@ -385,14 +385,14 @@ class StructureGraph(MSONable):
             equiv_sites = self.structure.get_neighbors_in_shell(
                 self.structure[from_index].coords, dist, dist * 0.01, include_index=True
             )
-            for site, dist, to_i in equiv_sites:
-                to_jimage = np.subtract(site.frac_coords, self.structure[from_index].frac_coords)
+            for nnsite in equiv_sites:
+                to_jimage = np.subtract(nnsite.frac_coords, self.structure[from_index].frac_coords)
                 to_jimage = np.round(to_jimage).astype(int)
                 self.add_edge(
                     from_index=from_index,
                     from_jimage=(0, 0, 0),
                     to_jimage=to_jimage,
-                    to_index=to_i,
+                    to_index=nnsite.index,
                 )
             return
 
