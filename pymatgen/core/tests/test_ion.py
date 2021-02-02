@@ -6,7 +6,7 @@
 import random
 import unittest
 
-from pymatgen.core.composition import Composition, CompositionError
+from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.core.periodic_table import Element
 
@@ -47,7 +47,7 @@ class IonTest(unittest.TestCase):
         ]
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(CompositionError, Ion.from_formula, "(co2)(po4)2")
+        self.assertRaises(ValueError, Ion.from_formula, "(co2)(po4)2")
 
     def test_mixed_valence(self):
         comp = Ion(Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8}))
