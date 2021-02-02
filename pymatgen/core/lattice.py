@@ -1305,7 +1305,7 @@ class Lattice(MSONable):
         self,
         frac_coords1: ArrayLike,
         frac_coords2: ArrayLike,
-        jimage: Optional[Union[List[int], np.ndarray]] = None,
+        jimage: Optional[ArrayLike] = None,
     ) -> Tuple[float, np.ndarray]:
         """
         Gets distance between two frac_coords assuming periodic boundary
