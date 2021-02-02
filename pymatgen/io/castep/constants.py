@@ -4,10 +4,13 @@ from typing import TypeVar
 
 # TODO: add type annotations
 # BlockType = TypeVar('BlockType', bound=str)
+# DefinedType = TypeVar('BlockType', bound=None)
 
 class CellKeyword(Enum):
     """
     Enum defining valid keywords for CASTEP .cell files.
+
+    See https://github.com/CCP-NC/pspot-site/blob/master/generate/castep_keywords.json
     """
 
     ATOMIC_INIT = "Dummy"
@@ -132,6 +135,8 @@ class CellKeyword(Enum):
 class ParamKeyword(Enum):
     """
     Enum defining valid keywords for CASTEP .param files.
+
+    See https://github.com/CCP-NC/pspot-site/blob/master/generate/castep_keywords.json
     """
 
     BACKUP_INTERVAL = "seconds between backups"
@@ -538,6 +543,9 @@ class OTFPseudopotentialLibrary(Enum):
     """
     An Enum specifying allowed values for the built-in pseudopotential
     libraries in CASTEP, defined by the SPECIES_POT block.
+
+    See https://ccp-nc.github.io/pspot-site/ or the CASTEP documentation
+    for more information.
     """
 
     UNKNOWN = 0
