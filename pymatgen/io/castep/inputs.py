@@ -39,9 +39,12 @@ Block = collections.namedtuple("Block", "values comments")
 class Cell(MSONable):
     """
     An interface for CASTEP's .cell file which defines atomic
-    positions, k-point grids etc.
+    positions, k-point grids etc. The CASTEP documentation is
+    the canonical resource for what the .cell file can contain.
 
-    Keys should always be lower-case; values will retain their case.
+    A .cell file contains "tags" (single-line values) and "blocks"
+    (multi-line values). Valid names for tags and blocks are
+    given by the CellKeyword Enum in pymatgen.io.castep.constants
 
     Tags are stored as a dict, where each key is a tag and each value is a
     Tag NamedTuple with the attributes 'value' and 'comment'.
