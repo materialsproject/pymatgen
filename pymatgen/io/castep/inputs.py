@@ -252,7 +252,7 @@ class Cell(MSONable):
         self._structure = self.structure
 
     @classmethod
-    def from_structure(cls, structure, blocks: Dict[CellKeyword, Block]=None, tags: Dict[CellKeyword, Tag]=None):
+    def from_structure(cls, structure, blocks: Dict[CellKeyword, Block] = None, tags: Dict[CellKeyword, Tag] = None):
         """
         Initialize a .cell file with a provided input structure.
 
@@ -322,8 +322,6 @@ class Cell(MSONable):
                     magmoms[idx] = float(row.split("spin=")[1])
             elements, coords = zip(*elements_coords)
             structure = Structure(lattice, elements, coords, coords_are_cartesian=False)
-            if magmoms:
-                structure.add_site_property("magmom", [magmoms[idx] if idx in magmoms else None for idx in range(len(structure))])
         elif CellKeyword.POSITIONS_ABS in self.blocks:
             # TODO: handle magmom!
             positions_abs = self.blocks[CellKeyword.POSITIONS_ABS].values
@@ -332,11 +330,22 @@ class Cell(MSONable):
                 positions_abs = positions_abs[1:]
             else:
                 unit = "ang"
-            elements_coords = [(row[0], list(map(float, row[1:4]))) for row in positions_abs]
+            elements_coords = []
+            magmoms = {}
+            for idx, row in enumerate(positions_abs):
+                elements_coords.append(row[0], list(map(float, row[1:4])))
+                if "spin=" in row:
+                    # assumes e.g. "spin=+2" with no space around equals sign
+                    magmoms[idx] = float(row.split("spin=")[1])
             elements, coords = zip(*elements_coords)
             structure = Structure(lattice, elements, coords, coords_are_cartesian=True)
         else:
             raise ValueError("Couldn't find any atomic positions in cell file!")
+
+        if magmoms:
+            structure.add_site_property(
+                "magmom", [magmoms[idx] if idx in magmoms else None for idx in range(len(structure))]
+            )
 
         # store to avoid re-build if this property is called again
         self._structure = structure
