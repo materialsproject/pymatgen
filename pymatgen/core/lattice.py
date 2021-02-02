@@ -1318,7 +1318,7 @@ class Lattice(MSONable):
 
         Args:
             frac_coords1 (3x1 array): Reference fcoords to get distance from.
-            frac)coords2 (3x1 array): fcoords to get distance from.
+            frac_coords2 (3x1 array): fcoords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
