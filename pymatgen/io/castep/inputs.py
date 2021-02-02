@@ -1,7 +1,8 @@
 import collections
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Any, Union, List
+from difflib import get_close_matches
+from typing import Dict, Any, Union, List, Literal
 from warnings import warn
 
 import numpy as np
@@ -70,7 +71,14 @@ class Cell(MSONable):
                 be left empty.
         """
         if isinstance(name, str):
-            name = CellKeyword[name.upper()]
+            try:
+                name = CellKeyword[name.upper()]
+            except KeyError:
+                error_message = f"{name} is not a valid keyword."
+                possible_matches = get_close_matches(name.upper(), CellKeyword.__members__.keys(), n=3)
+                if possible_matches:
+                    error_message += f" Perhaps you mean: {', '.join(possible_matches)}?"
+                raise KeyError(error_message)
         if isinstance(block, list):
             block = Block(values=block, comments=None)
         self.blocks[name] = block
@@ -88,7 +96,14 @@ class Cell(MSONable):
                 be left empty.
         """
         if isinstance(name, str):
-            name = CellKeyword[name.upper()]
+            try:
+                name = CellKeyword[name.upper()]
+            except KeyError:
+                error_message = f"{name} is not a valid keyword."
+                possible_matches = get_close_matches(name.upper(), CellKeyword.__members__.keys(), n=3)
+                if possible_matches:
+                    error_message += f" Perhaps you mean: {', '.join(possible_matches)}?"
+                raise KeyError(error_message)
         if isinstance(tag, str):
             tag = Tag(value=tag, comment=None)
         self.tags[name] = tag
