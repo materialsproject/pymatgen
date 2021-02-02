@@ -18,7 +18,7 @@ import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
-from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable
 
 import numpy as np
 from monty.dev import deprecated
@@ -34,19 +34,17 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
+from pymatgen.util.typing import ArrayLike
 
 
 class Neighbor(Site):
     """
-    Simple Site subclass to contain a neighboring atom that skips all the
-    unnecessary checks for speed. Can be
-    used as a fixed-length tuple of size 3 to retain backwards compatibility
-    with past use cases.
+    Simple Site subclass to contain a neighboring atom that skips all the unnecessary checks for speed. Can be
+    used as a fixed-length tuple of size 3 to retain backwards compatibility with past use cases.
 
         (site, nn_distance, index).
 
-    In future, usage should be to call attributes, e.g., Neighbor.index,
-    Neighbor.distance, etc.
+    In future, usage should be to call attributes, e.g., Neighbor.index, Neighbor.distance, etc.
     """
 
     def __init__(
@@ -126,7 +124,7 @@ class PeriodicNeighbor(PeriodicSite):
         self.image = image
 
     @property  # type: ignore
-    def coords(self):
+    def coords(self) -> np.ndarray:  # type: ignore
         """
         :return: Cartesian coords.
         """
@@ -161,7 +159,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def sites(self) -> Tuple[Union[Site, PeriodicSite]]:
+    def sites(self):
         """
         Returns a tuple of sites.
         """
@@ -697,7 +695,7 @@ class IStructure(SiteCollection, MSONable):
                     properties=prop,
                 )
             )
-        self._sites = tuple(sites)
+        self._sites: Tuple[PeriodicSite, ...] = tuple(sites)
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ", "less than 0.01 Angstrom apart!"))
         self._charge = charge
@@ -761,7 +759,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: Dict[str, Sequence] = None,
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
-    ):
+    ) -> Union["IStructure", "Structure"]:
         """
         Generate a structure using a spacegroup. Note that only symmetrically
         distinct species and coords should be provided. All equivalent sites
@@ -853,7 +851,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: Dict[str, Sequence],
         coords_are_cartesian: bool = False,
         tol: float = 1e-5,
-    ):
+    ) -> Union["IStructure", "Structure"]:
         """
         Generate a structure using a magnetic spacegroup. Note that only
         symmetrically distinct species, coords and magmoms should be provided.]
@@ -950,7 +948,7 @@ class IStructure(SiteCollection, MSONable):
         return cls(latt, all_sp, all_coords, site_properties=all_site_properties)
 
     @property
-    def charge(self):
+    def charge(self) -> float:
         """
         Overall charge of the structure
         """
@@ -959,7 +957,7 @@ class IStructure(SiteCollection, MSONable):
         return self._charge
 
     @property
-    def distance_matrix(self):
+    def distance_matrix(self) -> np.ndarray:
         """
         Returns the distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
@@ -967,28 +965,28 @@ class IStructure(SiteCollection, MSONable):
         return self.lattice.get_all_distances(self.frac_coords, self.frac_coords)
 
     @property
-    def sites(self):
+    def sites(self) -> Tuple[PeriodicSite, ...]:
         """
         Returns an iterator for the sites in the Structure.
         """
         return self._sites
 
     @property
-    def lattice(self):
+    def lattice(self) -> Lattice:
         """
         Lattice of the structure.
         """
         return self._lattice
 
     @property
-    def density(self):
+    def density(self) -> float:
         """
         Returns the density in units of g/cc
         """
         m = Mass(self.composition.weight, "amu")
         return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
-    def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0):
+    def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0) -> Tuple[str, int]:
         """
         Convenience method to quickly get the spacegroup of a structure.
 
@@ -1142,11 +1140,11 @@ class IStructure(SiteCollection, MSONable):
 
     def get_sites_in_sphere(
         self,
-        pt: np.ndarray,
+        pt: ArrayLike,
         r: float,
         include_index: bool = False,
         include_image: bool = False,
-    ) -> List[Tuple[PeriodicSite, float, Optional[int], Optional[Tuple[int]]]]:
+    ) -> List[PeriodicNeighbor]:
         """
         Find all sites within a sphere from the point, including a site (if any)
         sitting on the point itself. This includes sites in other periodic
@@ -1177,21 +1175,18 @@ class IStructure(SiteCollection, MSONable):
             requires the distance.
         """
         site_fcoords = np.mod(self.frac_coords, 1)
-        neighbors = []  # type: List[Tuple[PeriodicSite, float, Optional[int], Optional[Tuple[int]]]]
+        neighbors = []  # type: List[PeriodicNeighbor]
         for fcoord, dist, i, img in self._lattice.get_points_in_sphere(site_fcoords, pt, r):
-            nnsite = PeriodicSite(
+            nnsite = PeriodicNeighbor(
                 self[i].species,
                 fcoord,
                 self._lattice,
                 properties=self[i].properties,
-                skip_checks=True,
+                nn_distance=dist,
+                image=img,  # type: ignore
+                index=i,
             )
-
-            # Get the neighbor data
-            nn_data = (nnsite, dist) if not include_index else (nnsite, dist, i)  # type: ignore
-            if include_image:
-                nn_data += (img,)  # type: ignore
-            neighbors.append(nn_data)  # type: ignore
+            neighbors.append(nnsite)
         return neighbors
 
     def get_neighbors(
@@ -1297,7 +1292,7 @@ class IStructure(SiteCollection, MSONable):
     def get_neighbor_list(
         self,
         r: float,
-        sites: List[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
     ) -> Tuple[np.ndarray, ...]:
@@ -1332,7 +1327,7 @@ class IStructure(SiteCollection, MSONable):
                 find_points_in_spheres,  # type: ignore
             )
         except ImportError:
-            return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)
+            return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)  # type: ignore
         else:
             if sites is None:
                 sites = self.sites
@@ -1366,7 +1361,7 @@ class IStructure(SiteCollection, MSONable):
         r: float,
         include_index: bool = False,
         include_image: bool = False,
-        sites: List[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
     ) -> List[List[PeriodicNeighbor]]:
         """
@@ -1455,7 +1450,7 @@ class IStructure(SiteCollection, MSONable):
         r: float,
         include_index: bool = False,
         include_image: bool = False,
-        sites: List[PeriodicSite] = None,
+        sites: Sequence[PeriodicSite] = None,
         numerical_tol: float = 1e-8,
     ) -> List[List[PeriodicNeighbor]]:
         """
@@ -1609,7 +1604,9 @@ class IStructure(SiteCollection, MSONable):
                     neighbors[i].append(item)
         return neighbors
 
-    def get_neighbors_in_shell(self, origin, r, dr, include_index=False, include_image=False):
+    def get_neighbors_in_shell(
+        self, origin: ArrayLike, r: float, dr: float, include_index: bool = False, include_image: bool = False
+    ) -> List[PeriodicNeighbor]:
         """
         Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
@@ -1629,9 +1626,11 @@ class IStructure(SiteCollection, MSONable):
         """
         outer = self.get_sites_in_sphere(origin, r + dr, include_index=include_index, include_image=include_image)
         inner = r - dr
-        return [t for t in outer if t[1] > inner]
+        return [t for t in outer if t.nn_distance > inner]
 
-    def get_sorted_structure(self, key=None, reverse=False):
+    def get_sorted_structure(
+        self, key: Optional[Callable] = None, reverse: bool = False
+    ) -> Union["IStructure", "Structure"]:
         """
         Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
@@ -1647,7 +1646,7 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites, charge=self._charge)
 
-    def get_reduced_structure(self, reduction_algo: str = "niggli"):
+    def get_reduced_structure(self, reduction_algo: str = "niggli") -> Union["IStructure", "Structure"]:
         """
         Get a reduced structure.
 
@@ -1729,12 +1728,12 @@ class IStructure(SiteCollection, MSONable):
 
     def interpolate(
         self,
-        end_structure,
+        end_structure: Union["IStructure", "Structure"],
         nimages: Union[int, Iterable] = 10,
         interpolate_lattices: bool = False,
         pbc: bool = True,
         autosort_tol: float = 0,
-    ):
+    ) -> List[Union["IStructure", "Structure"]]:
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -1871,7 +1870,9 @@ class IStructure(SiteCollection, MSONable):
             verbose=verbose,
         )
 
-    def get_primitive_structure(self, tolerance=0.25, use_site_props=False, constrain_latt=None):
+    def get_primitive_structure(
+        self, tolerance: float = 0.25, use_site_props: bool = False, constrain_latt: Union[List, Dict] = None
+    ):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -2067,7 +2068,9 @@ class IStructure(SiteCollection, MSONable):
                         if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
                             return p
                     elif type(constrain_latt).__name__ == "dict":
-                        if all([getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]):
+                        if all(
+                            [getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]  # type: ignore
+                        ):
                             return p
 
         return self.copy()
@@ -2117,7 +2120,7 @@ class IStructure(SiteCollection, MSONable):
         )
         return "\n".join(outs)
 
-    def get_orderings(self, mode: str = "enum", **kwargs):
+    def get_orderings(self, mode: str = "enum", **kwargs) -> List["Structure"]:
         r"""
         Returns list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
@@ -2159,7 +2162,6 @@ class IStructure(SiteCollection, MSONable):
                         unique_dists.append(dists[i])
                 clusters = {(i + 2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
                 kwargs["clusters"] = clusters
-            print(kwargs["clusters"])
             return [run_mcsqs(self, **kwargs).bestsqs]
         raise ValueError()
 
@@ -2795,7 +2797,7 @@ class IMolecule(SiteCollection, MSONable):
         """
         return self[i].distance(self[j])
 
-    def get_sites_in_sphere(self, pt, r):
+    def get_sites_in_sphere(self, pt: ArrayLike, r: float):
         """
         Find all sites within a sphere from a point.
 

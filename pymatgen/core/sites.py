@@ -68,7 +68,7 @@ class Site(collections.abc.Hashable, MSONable):
                 raise ValueError("Species occupancies sum to more than 1!")
             coords = np.array(coords)
         self._species: Composition = species  # type: ignore
-        self.coords: ArrayLike = coords
+        self.coords: np.ndarray = coords  # type: ignore
         self.properties: dict = properties or {}
 
     def __getattr__(self, a):
