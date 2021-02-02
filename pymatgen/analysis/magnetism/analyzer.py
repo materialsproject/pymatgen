@@ -27,9 +27,7 @@ from pymatgen.transformations.advanced_transformations import (
     MagOrderingTransformation,
     MagOrderParameterConstraint,
 )
-from pymatgen.transformations.standard_transformations import (
-    AutoOxiStateDecorationTransformation,
-)
+from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 from pymatgen.util.typing import VectorLike
 
 

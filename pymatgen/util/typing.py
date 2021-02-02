@@ -14,5 +14,5 @@ from typing import Union, Sequence
 import numpy as np
 
 VectorLike = Union[Sequence[float], np.ndarray]
-MatrixLike = Union[Sequence[Sequence[float]], np.ndarray]
+MatrixLike = Union[Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]
 PathLike = Union[str, Path]
