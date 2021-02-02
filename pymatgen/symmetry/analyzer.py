@@ -21,7 +21,6 @@ from fractions import Fraction
 from math import cos, sin
 
 import os
-import time
 
 import numpy as np
 import spglib
@@ -1740,40 +1739,36 @@ class MagneticSpacegroupAnalyzer:
       self._pos_tol   = pos_tolerance
       self._magmom_tol = magmom_tolerance
       self._domains = None
-
+      
       self._spacegroupAnalyzer = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
-
+      
       if np.any( np.abs( self._structure._lattice.matrix - self._spacegroupAnalyzer._cell[0] ) > 1e-12 ): 
         exit("Error in the definitions of the unit cell.")
 
       ### pure translations are included in self._spacegroupAnalyzer._space_group_data['***'] in the conventional cell case ###
       ### self._spacegroupAnalyzer.get_symmetry_operations() does not work in the primitive cell case ###
       ### use self._paramag_symmetry_operations() instead ###
-
+      
       self._paramag_symmops = self._paramag_symmetry_operations()
-      #print( len(self._paramag_symmops) )
 
       # apply all paramagnetic spacegroup operations and check if they are a symmetry
-      # or if they lead to another magnetic domain
-      mspg_list = []
-      for mop in self._paramag_symmops:
-          
-          trans = [ApplyMagSymmOpTransformation(mop)]
-          s_new = TransformedStructure(self._structure, trans )
-         
-          #print( mop.as_xyzt_string() ) 
-          if self._same_MagneticStructure( s_new.final_structure,  self._structure )[0]:
-          
-            mspg_list.append( mop )
-          
+      mspg_list = [ mop for mop in self._paramag_symmops if self._check_mop( mop ) ]
+
       self.symmetry_ops = mspg_list
-
-      #print( len(self.symmetry_ops) )
-
       self._MagneticSpacegroup = self._search4MagneticSpacegroup( )
-   
+
+
+    def _check_mop( self, mop ):
+      from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
+      from pymatgen.alchemy.materials import TransformedStructure
+
+      trans = [ApplyMagSymmOpTransformation(mop)]
+      s_new = TransformedStructure(self._structure, trans )
+      same = self._same_MagneticStructure( s_new.final_structure,  self._structure )[0]
+      return same
+
+
     def _get_domains( self ):
-      
       from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
       from pymatgen.alchemy.materials import TransformedStructure
 
@@ -1803,6 +1798,7 @@ class MagneticSpacegroupAnalyzer:
       """
       return self._spacegroupAnalyzer
 
+
     def get_paramagnetic_symmetry_operations(self):
       """
       Returns all magnetic symmetry operations of the nonmagnetic structure, which comprises all
@@ -1812,6 +1808,7 @@ class MagneticSpacegroupAnalyzer:
         list(pymatgen.core.operations.MagSymmOp): List of symmetry operations.
       """
       return self._paramag_symmetry_ops
+
 
     def _paramag_symmetry_operations(self, cartesian=False):
         """
@@ -1852,6 +1849,7 @@ class MagneticSpacegroupAnalyzer:
         
         return paramag_symmops
 
+
     def get_magnetic_pointgroup(self):
       """
       Get magnetic pointgroup information as tuple ( label, number).
@@ -1869,6 +1867,7 @@ class MagneticSpacegroupAnalyzer:
           if og_no == glob_og_no:
             return ( pointgroup_label, pointgroup_no )
 
+
     def get_magnetic_spacegroup(self):
       """
       Get the magnetic spacegroup.
@@ -1877,7 +1876,8 @@ class MagneticSpacegroupAnalyzer:
           pymatgen.symmetry.maggroups.MagneticSpaceGroup 
       """
       return self._MagneticSpacegroup
-    
+
+
     def get_domains( self ):
       """
       Get all possible magnetic domains as a dictionary.
@@ -1898,6 +1898,7 @@ class MagneticSpacegroupAnalyzer:
       
       return self._domains
 
+
     def get_symmetry_ops( self ):
       """
       Get magnetic spacegroup operations for the magnetic structure.
@@ -1906,6 +1907,7 @@ class MagneticSpacegroupAnalyzer:
           list( pymatgen.core.operations.MagSymmOp )
       """ 
       return self._MagneticSpacegroup.symmetry_ops
+
 
     def get_bns( self ):
       """
@@ -1921,6 +1923,7 @@ class MagneticSpacegroupAnalyzer:
       bns_number = ".".join( [ str(x) for x in self._MagneticSpacegroup._data["bns_number"] ] )
       return ( bns_label, bns_number )  
 
+
     def get_og( self ):
       """
       Get the magnetic spacegroup in the OG notation [1], e.g. (P1, 1.1.1). 
@@ -1934,6 +1937,7 @@ class MagneticSpacegroupAnalyzer:
       og_label = self._MagneticSpacegroup._data["og_label"]
       og_number = ".".join( [ str(x) for x in self._MagneticSpacegroup._data["og_number"] ] )
       return ( og_label, og_number )  
+
 
     def _same_MagneticStructure( self, struc1, struc2, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
       """
@@ -1977,8 +1981,8 @@ class MagneticSpacegroupAnalyzer:
         if res == set():
           same = True
       
-      #print( same )
       return same, res
+
 
     def _difference( self, sitesmagms_set, sitesmagms_set_i, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
       """
@@ -2005,6 +2009,7 @@ class MagneticSpacegroupAnalyzer:
                 t1_equal2_t2 = True
         if not t1_equal2_t2: res.append( t1 )
       return set( res ) 
+
 
     def _search4MagneticSpacegroup( self ):
       """
@@ -2035,6 +2040,8 @@ class MagneticSpacegroupAnalyzer:
       }
       
       # start1 = time.time()    
+      # get all potential magnetic spacegroups 
+      # according to the order of the magnetic spacegroup
       ORDER2MSPG = {
         1: {1}, 
         2: {32, 2, 3, 4, 34, 6, 8, 10, 15, 17, 25, 27}, 
@@ -2080,6 +2087,7 @@ class MagneticSpacegroupAnalyzer:
         if tmp_mspg_minus_input==[] and input_minus_tmp_mspg==[]:
             return tmp_mspg
       return exit("Error in the list of symmetry operations.")
+
 
     def origin_centering( self ):
       
