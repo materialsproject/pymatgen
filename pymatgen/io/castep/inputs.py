@@ -12,6 +12,16 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.castep.constants import CellKeyword
 
+"""
+This module provides an interface between pymatgen and the CASTEP (http://www.castep.org)
+electronic structure code for the purposes of generating input files or parsing output files, pymatgen 
+does not offer any capability to run CASTEP directly. To run or use CASTEP, an appropriate license has 
+to be obtained from the CASTEP developers.
+
+"First principles methods using CASTEP", Zeitschrift fuer Kristallographie 220(5-6) pp. 567-570 (2005)
+S. J. Clark, M. D. Segall, C. J. Pickard, P. J. Hasnip, M. J. Probert, K. Refson, M. C. Payne
+"""
+
 # Thank you to Adam Jackson for some of the initial implementation of this module
 # which has been borrowed from sumo (https://github.com/SMTG-UCL/sumo) with permission.
 
