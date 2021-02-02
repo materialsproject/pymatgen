@@ -10,7 +10,7 @@ from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.io.castep.constants import CellKeyword
+from pymatgen.io.castep.constants import CellKeyword, ParamKeyword
 
 """
 This module provides an interface between pymatgen and the CASTEP (http://www.castep.org)
@@ -364,3 +364,21 @@ class Cell(MSONable):
         self._structure = structure
 
         return structure
+
+
+@dataclass
+class Param(MSONable):
+    """
+    An interface for CASTEP's .param file which defines
+    calculation parameters. The CASTEP documentation is
+    the canonical resource for what the .param file can contain.
+
+    A .param file contains "tags" (single-line values).
+    Valid names for tags and blocks are given by the ParamKeyword
+    Enum in pymatgen.io.castep.constants
+
+    Tags are stored as a dict, where each key is a tag and each value is a
+    Tag NamedTuple with the attributes 'value' and 'comment'.
+    """
+
+    tags: Dict[ParamKeyword, Tag] = field(default_factory=dict)
