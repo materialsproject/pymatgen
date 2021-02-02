@@ -13,6 +13,12 @@ from typing import Union, Sequence
 
 import numpy as np
 
+try:
+    from numpy.typing import ArrayLike
+except ImportError:
+    ArrayLike = Union[Sequence[float], Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]  # type: ignore
+
 VectorLike = Union[Sequence[float], np.ndarray]
 MatrixLike = Union[Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]
+
 PathLike = Union[str, Path]

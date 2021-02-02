@@ -16,7 +16,7 @@ from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
-from pymatgen.util.typing import MatrixLike, VectorLike
+from pymatgen.util.typing import ArrayLike, VectorLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -38,7 +38,7 @@ class SymmOp(MSONable):
         A 4x4 numpy.array representing the symmetry operation.
     """
 
-    def __init__(self, affine_transformation_matrix: MatrixLike, tol=0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, tol=0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
@@ -58,7 +58,7 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_rotation_and_translation(
-        rotation_matrix: MatrixLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         translation_vec: VectorLike = (0, 0, 0),
         tol=0.1,
     ):
@@ -465,7 +465,7 @@ class MagSymmOp(SymmOp):
     moment.
     """
 
-    def __init__(self, affine_transformation_matrix: MatrixLike, time_reversal: int, tol: float = 0.01):
+    def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01):
         """
         Initializes the MagSymmOp from a 4x4 affine transformation matrix
         and time reversal operator.
@@ -552,7 +552,7 @@ class MagSymmOp(SymmOp):
 
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(
-        rotation_matrix: MatrixLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
         translation_vec: VectorLike = (0, 0, 0),
         time_reversal: int = 1,
         tol: float = 0.1,
