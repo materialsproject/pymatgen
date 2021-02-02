@@ -21,3 +21,9 @@ Si 0.75 0.5 0.75
 
         # tests adding an unknown element
         self.assertRaises(KeyError, cell.add_block, "unknown keyword", [])
+
+        cell.add_pseudopotential("C19")
+        known_contents = """%block species_pot
+C19
+%endblock species_pot"""
+        self.assertIn(known_contents, str(cell))

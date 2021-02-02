@@ -10,7 +10,7 @@ from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.io.castep.constants import CellKeyword, ParamKeyword
+from pymatgen.io.castep.constants import CellKeyword, ParamKeyword, OTFPseudopotentialLibrary
 
 """
 This module provides an interface between pymatgen and the CASTEP (http://www.castep.org)
@@ -90,8 +90,20 @@ class Cell(MSONable):
         if isinstance(name, str):
             name = CellKeyword[name.upper()]
         if isinstance(tag, str):
-            tag = Block(value=tag, comments=None)
+            tag = Tag(value=tag, comment=None)
         self.tags[name] = tag
+
+    def add_pseudopotential(self, library: Union[str, OTFPseudopotentialLibrary]):
+        """
+        Convenience method to add one of the default pseudopotential libraries for all elements.
+
+        Args:
+            library: one of the standard CASTEP pseudpotential names, as specified by
+            the OTFPseudopotentialLibrary Enum, e.g. "C19"
+        """
+        if isinstance(library, str):
+            library = OTFPseudopotentialLibrary[library]
+        self.add_block(CellKeyword.SPECIES_POT, [[library.name]])
 
     def __str__(self):
         """

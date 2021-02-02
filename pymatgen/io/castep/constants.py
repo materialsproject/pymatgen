@@ -532,3 +532,26 @@ class ParamKeyword(Enum):
     XC_DEFINITION = "exchange-correlation functional"
     XC_FUNCTIONAL = "exchange-correlation functional"
     XC_VXC_DERIV_EPSILON = "OBSOLETE"
+
+
+class OTFPseudopotentialLibrary(Enum):
+    """
+    An Enum specifying allowed values for the built-in pseudopotential
+    libraries in CASTEP, defined by the SPECIES_POT block.
+    """
+
+    UNKNOWN = 0
+    QC5 = 1  # QC5 pseudopotentials (delta=1.7 meV, 0.8 meV excluding N, O, Cr, Mn)
+    HARD = 2  # "Ultimate" set of HARD pseudopotentials
+    MS = 3  # Default settings from Materials Studio
+    C7 = 7  # OTFG definitions as of CASTEP 7.0
+    C8 = 8  # OTFG definitions as of CASTEP 8.0
+    C9 = 9  # OTFG definitions as of CASTEP 9.0/16.0 (delta=0.5 meV)
+    NCP9 = 10  # Norm-conserving pseudopotentials as of CASTEP 9.0/16.0 (delta=1.1 meV)
+    C17 = 11  # OTFG definitions as of CASTEP 17.0
+    NCP17 = 12  # Recommended set of norm-conserving pseudopotentials as of CASTEP 17.0
+    C18 = 13  # OTFG definitions as of CASTEP 18.0
+    NCP18 = 14  # Recommended set of norm-conserving pseudopotentials as of CASTEP 18.0
+    C19 = 15  # OTFG definitions as of CASTEP 19.0 (delta=0.442 meV)
+    NCP19 = 16  # Recommended set of norm-conserving pseudopotentials as of CASTEP 19.0 (delta=1.098 meV)
+    SOC19 = 17
