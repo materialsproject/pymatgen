@@ -16,6 +16,7 @@ from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
+from pymatgen.util.typing import MatrixLike, VectorLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -37,7 +38,7 @@ class SymmOp(MSONable):
         A 4x4 numpy.array representing the symmetry operation.
     """
 
-    def __init__(self, affine_transformation_matrix, tol=0.01):
+    def __init__(self, affine_transformation_matrix: MatrixLike, tol=0.01):
         """
         Initializes the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
@@ -57,8 +58,8 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_rotation_and_translation(
-        rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        translation_vec=(0, 0, 0),
+        rotation_matrix: MatrixLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+        translation_vec: VectorLike = (0, 0, 0),
         tol=0.1,
     ):
         """

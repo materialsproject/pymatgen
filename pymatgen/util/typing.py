@@ -13,5 +13,6 @@ from typing import Union, Sequence
 
 import numpy as np
 
-Vector3Like = Union[Sequence[float], np.ndarray]
+VectorLike = Union[Sequence[float], np.ndarray]
+MatrixLike = Union[Sequence[Sequence[float]], np.ndarray]
 PathLike = Union[str, Path]

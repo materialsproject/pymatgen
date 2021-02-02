@@ -288,7 +288,7 @@ class Site(collections.abc.Hashable, MSONable):
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
             else:
-                sp = Element(sp_occu["element"])
+                sp = Element(sp_occu["element"])  # type: ignore
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         if props is not None:

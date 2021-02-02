@@ -30,7 +30,7 @@ from pymatgen.transformations.advanced_transformations import (
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )
-from pymatgen.util.typing import Vector3Like
+from pymatgen.util.typing import VectorLike
 
 
 __author__ = "Matthew Horton"
@@ -303,7 +303,7 @@ class CollinearMagneticStructureAnalyzer:
         self.structure = structure
 
     @staticmethod
-    def _round_magmoms(magmoms: Vector3Like, round_magmoms_mode: Union[int, float]) -> np.ndarray:
+    def _round_magmoms(magmoms: VectorLike, round_magmoms_mode: Union[int, float]) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.

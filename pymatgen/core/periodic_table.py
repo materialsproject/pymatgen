@@ -12,7 +12,7 @@ from enum import Enum
 from io import open
 from itertools import combinations, product
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, Dict, Tuple, List
 
 import numpy as np
 from monty.json import MSONable
@@ -441,7 +441,7 @@ class ElementBase(Enum):
         return FloatWithUnit(0.0, "ang")
 
     @property
-    def average_anionic_radius(self):
+    def average_anionic_radius(self) -> float:
         """
         Average anionic radius for element (with units). The average is
         taken over all negative oxidation states of the element for which
@@ -454,7 +454,7 @@ class ElementBase(Enum):
         return FloatWithUnit(0.0, "ang")
 
     @property
-    def ionic_radii(self):
+    def ionic_radii(self) -> Dict[int, float]:
         """
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in ang.
@@ -483,30 +483,30 @@ class ElementBase(Enum):
         return 0
 
     @property
-    def oxidation_states(self):
+    def oxidation_states(self) -> Tuple:
         """Tuple of all known oxidation states"""
         return tuple(self._data.get("Oxidation states", list()))
 
     @property
-    def common_oxidation_states(self):
-        """Tuple of all known oxidation states"""
+    def common_oxidation_states(self) -> Tuple:
+        """Tuple of common oxidation states"""
         return tuple(self._data.get("Common oxidation states", list()))
 
     @property
-    def icsd_oxidation_states(self):
+    def icsd_oxidation_states(self) -> Tuple:
         """Tuple of all oxidation states with at least 10 instances in
         ICSD database AND at least 1% of entries for that element"""
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
-    def metallic_radius(self):
+    def metallic_radius(self) -> float:
         """
         Metallic radius of the element. Radius is given in ang.
         """
         return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
-    def full_electronic_structure(self):
+    def full_electronic_structure(self) -> Tuple[Tuple[int, str, int]]:
         """
         Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
@@ -524,17 +524,15 @@ class ElementBase(Enum):
         data = [parse_orbital(s) for s in estr.split(".")]
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
-            data = Element(sym).full_electronic_structure + data[1:]
-        return data
+            data = list(Element(sym).full_electronic_structure) + data[1:]
+        return tuple(data)  # type: ignore
 
     @property
     def valence(self):
         """
-        # From full electron config obtain valence subshell
-        # angular moment (L) and number of valence e- (v_e)
-
+        From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e)
         """
-        # the number of valence of noble gas is 0
+        # The number of valence of noble gas is 0
         if self.group == 18:
             return np.nan, 0
 
@@ -555,7 +553,7 @@ class ElementBase(Enum):
         return valence[0]
 
     @property
-    def term_symbols(self):
+    def term_symbols(self) -> List[List[str]]:
         """
         All possible  Russell-Saunders term symbol of the Element
         eg. L = 1, n_e = 2 (s2)
@@ -849,42 +847,42 @@ class ElementBase(Enum):
         return self.Z in (4, 12, 20, 38, 56, 88)
 
     @property
-    def is_halogen(self):
+    def is_halogen(self) -> bool:
         """
         True if element is a halogen.
         """
         return self.Z in (9, 17, 35, 53, 85)
 
     @property
-    def is_chalcogen(self):
+    def is_chalcogen(self) -> bool:
         """
         True if element is a chalcogen.
         """
         return self.Z in (8, 16, 34, 52, 84)
 
     @property
-    def is_lanthanoid(self):
+    def is_lanthanoid(self) -> bool:
         """
         True if element is a lanthanoid.
         """
         return 56 < self.Z < 72
 
     @property
-    def is_actinoid(self):
+    def is_actinoid(self) -> bool:
         """
         True if element is a actinoid.
         """
         return 88 < self.Z < 104
 
     @property
-    def is_quadrupolar(self):
+    def is_quadrupolar(self) -> bool:
         """
         Checks if this element can be quadrupolar
         """
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property
-    def nmr_quadrupole_moment(self):
+    def nmr_quadrupole_moment(self) -> dict:
         """
         Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes
@@ -905,14 +903,14 @@ class ElementBase(Enum):
         return Element(self.symbol)
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d) -> "Element":
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
         """
         return Element(d["element"])
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
@@ -1324,7 +1322,7 @@ class Species(MSONable):
             data = radii[spin]
         return data["%s_radius" % radius_type]
 
-    def get_crystal_field_spin(self, coordination: str = "oct", spin_config: str = "high"):
+    def get_crystal_field_spin(self, coordination: str = "oct", spin_config: str = "high") -> float:
         """
         Calculate the crystal field spin based on coordination and spin
         configuration. Only works for transition metal species.
@@ -1375,7 +1373,7 @@ class Species(MSONable):
     def __deepcopy__(self, memo):
         return Species(self.symbol, self.oxi_state, self._properties)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: Json-able dictionary representation.
         """
@@ -1390,7 +1388,7 @@ class Species(MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> "Species":
         """
         :param d: Dict representation.
         :return: Species.
@@ -1532,7 +1530,7 @@ class DummySpecies(Species):
         return DummySpecies(self.symbol, self._oxi_state)
 
     @staticmethod
-    def from_string(species_string: str):
+    def from_string(species_string: str) -> "DummySpecies":
         """
         Returns a Dummy from a string representation.
 
@@ -1561,7 +1559,7 @@ class DummySpecies(Species):
             return DummySpecies(sym, oxi, properties)
         raise ValueError("Invalid DummySpecies String")
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONAble dict representation.
         """
@@ -1576,7 +1574,7 @@ class DummySpecies(Species):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> "DummySpecies":
         """
         :param d: Dict representation
         :return: DummySpecies
