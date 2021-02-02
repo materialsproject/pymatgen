@@ -34,7 +34,7 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.units import Length, Mass
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
-from pymatgen.util.typing import ArrayLike, CompositionLike
+from pymatgen.util.typing import ArrayLike, CompositionLike, SpeciesLike
 
 
 class Neighbor(Site):
@@ -440,7 +440,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         for site in self.sites:
             del site.properties[property_name]
 
-    def replace_species(self, species_mapping: Dict[str, str]):
+    def replace_species(self, species_mapping: Dict[SpeciesLike, SpeciesLike]):
         """
         Swap species.
 
@@ -3179,9 +3179,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
             site_properties=site_properties,
         )
 
-        self._sites = list(self._sites)  # type: ignore
+        self._sites: List[PeriodicSite] = list(self._sites)  # type: ignore
 
-    def __setitem__(self, i, site):
+    def __setitem__(  # type: ignore
+        self, i: Union[int, slice, Sequence[int], SpeciesLike], site: Union[SpeciesLike, PeriodicSite, Sequence]
+    ):
         """
         Modify a site in the structure.
 
@@ -3222,7 +3224,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if isinstance(i, int):
             indices = [i]
         elif isinstance(i, (str, Element, Species)):
-            self.replace_species({i: site})
+            self.replace_species({i: site})  # type: ignore
             return
         elif isinstance(i, slice):
             to_mod = self[i]
@@ -3236,16 +3238,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     raise ValueError("PeriodicSite added must have same lattice " "as Structure!")
                 if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for " "single int indices!")
-                self._sites[ii] = site
+                self._sites[ii] = site  # type: ignore
             else:
                 if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
-                    self._sites[ii].species = site
+                    self._sites[ii].species = site  # type: ignore
                 else:
-                    self._sites[ii].species = site[0]
+                    self._sites[ii].species = site[0]  # type: ignore
                     if len(site) > 1:
-                        self._sites[ii].frac_coords = site[1]
+                        self._sites[ii].frac_coords = site[1]  # type: ignore
                     if len(site) > 2:
-                        self._sites[ii].properties = site[2]
+                        self._sites[ii].properties = site[2]  # type: ignore
 
     def __delitem__(self, i):
         """
@@ -3261,18 +3263,20 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self._lattice
 
     @lattice.setter
-    def lattice(self, lattice):
+    def lattice(self, lattice: Union[ArrayLike, Lattice]):
+        if not isinstance(lattice, Lattice):
+            lattice = Lattice(lattice)
         self._lattice = lattice
         for site in self._sites:
             site.lattice = lattice
 
-    def append(
+    def append(  # type: ignore
         self,
-        species,
-        coords,
-        coords_are_cartesian=False,
-        validate_proximity=False,
-        properties=None,
+        species: CompositionLike,
+        coords: ArrayLike,
+        coords_are_cartesian: bool = False,
+        validate_proximity: bool = False,
+        properties: dict = None,
     ):
         """
         Append a site to the structure.
@@ -3298,14 +3302,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def insert(
+    def insert(  # type: ignore
         self,
-        i,
-        species,
-        coords,
-        coords_are_cartesian=False,
-        validate_proximity=False,
-        properties=None,
+        i: int,
+        species: CompositionLike,
+        coords: ArrayLike,
+        coords_are_cartesian: bool = False,
+        validate_proximity: bool = False,
+        properties: dict = None,
     ):
         """
         Insert a site to the structure.
@@ -3336,7 +3340,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites.insert(i, new_site)
 
-    def replace(self, i, species, coords=None, coords_are_cartesian=False, properties=None):
+    def replace(
+        self,
+        i: int,
+        species: CompositionLike,
+        coords: ArrayLike,
+        coords_are_cartesian: bool = False,
+        properties: dict = None,
+    ):
         """
         Replace a single site. Takes either a species or a dict of species and
         occupations.
@@ -3355,18 +3366,18 @@ class Structure(IStructure, collections.abc.MutableSequence):
         elif coords_are_cartesian:
             frac_coords = self._lattice.get_fractional_coords(coords)
         else:
-            frac_coords = coords
+            frac_coords = coords  # type: ignore
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties)
         self._sites[i] = new_site
 
-    def substitute(self, index, func_grp, bond_order=1):
+    def substitute(self, index: int, func_group: Union["IMolecule", "Molecule", str], bond_order: int = 1):
         """
         Substitute atom at index with a functional group.
 
         Args:
             index (int): Index of atom to substitute.
-            func_grp: Substituent molecule. There are two options:
+            func_group: Substituent molecule. There are two options:
 
                 1. Providing an actual Molecule as the input. The first atom
                    must be a DummySpecies X, indicating the position of
@@ -3405,34 +3416,34 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         # Pass value of functional group--either from user-defined or from
         # functional.json
-        if isinstance(func_grp, Molecule):
-            func_grp = func_grp
-        else:
+        if not isinstance(func_group, Molecule):
             # Check to see whether the functional group is in database.
-            if func_grp not in FunctionalGroups:
+            if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. " "Provide explicit coordinate instead")
-            func_grp = FunctionalGroups[func_grp]
+            fgroup = FunctionalGroups[func_group]
+        else:
+            fgroup = func_group
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
         try:
-            bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie, bond_order=bond_order)
+            bl = get_bond_length(non_terminal_nn.specie, fgroup[1].specie, bond_order=bond_order)
         # Catches for case of incompatibility between Element(s) and Species(s)
         except TypeError:
             bl = None
 
         if bl is not None:
-            func_grp = func_grp.copy()
-            vec = func_grp[0].coords - func_grp[1].coords
+            fgroup = fgroup.copy()
+            vec = fgroup[0].coords - fgroup[1].coords
             vec /= np.linalg.norm(vec)
-            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            fgroup[0] = "X", fgroup[1].coords + float(bl) * vec
 
         # Align X to the origin.
-        x = func_grp[0]
-        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
+        x = fgroup[0]
+        fgroup.translate_sites(list(range(len(fgroup))), origin - x.coords)
 
         # Find angle between the attaching bond and the bond to be replaced.
-        v1 = func_grp[1].coords - origin
+        v1 = fgroup[1].coords - origin
         v2 = self[index].coords - origin
         angle = get_angle(v1, v2)
 
@@ -3442,21 +3453,21 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # bonds.
             axis = np.cross(v1, v2)
             op = SymmOp.from_origin_axis_angle(origin, axis, angle)
-            func_grp.apply_operation(op)
+            fgroup.apply_operation(op)
         elif abs(abs(angle) - 180) < 1:
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
-            for i, fg in enumerate(func_grp):
-                func_grp[i] = (fg.species, origin - (fg.coords - origin))
+            for i, fg in enumerate(fgroup):
+                fgroup[i] = (fg.species, origin - (fg.coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
         del self[index]
-        for site in func_grp[1:]:
+        for site in fgroup[1:]:
             s_new = PeriodicSite(site.species, site.coords, self.lattice, coords_are_cartesian=True)
             self._sites.append(s_new)
 
-    def remove_species(self, species):
+    def remove_species(self, species: Sequence[SpeciesLike]):
         """
         Remove all occurrences of several species from a structure.
 
@@ -3479,7 +3490,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
         self._sites = new_sites
 
-    def remove_sites(self, indices):
+    def remove_sites(self, indices: Sequence[int]):
         """
         Delete sites with at indices.
 
@@ -3488,7 +3499,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._sites = [s for i, s in enumerate(self._sites) if i not in indices]
 
-    def apply_operation(self, symmop, fractional=False):
+    def apply_operation(self, symmop: SymmOp, fractional: bool = False):
         """
         Apply a symmetry operation to the structure and return the new
         structure. The lattice is operated by the rotation matrix only.
@@ -3529,20 +3540,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites = [operate_site(s) for s in self._sites]
 
-    @deprecated(message="Simply set using Structure.lattice = lattice. This will be removed in pymatgen v2020.")
-    def modify_lattice(self, new_lattice):
-        """
-        Modify the lattice of the structure.  Mainly used for changing the
-        basis.
-
-        Args:
-            new_lattice (Lattice): New lattice
-        """
-        self._lattice = new_lattice
-        for site in self._sites:
-            site.lattice = new_lattice
-
-    def apply_strain(self, strain):
+    def apply_strain(self, strain: ArrayLike):
         """
         Apply a strain to the lattice.
 
@@ -3556,7 +3554,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.lattice = Lattice(np.dot(self._lattice.matrix.T, s).T)
 
-    def sort(self, key=None, reverse=False):
+    def sort(self, key: Callable = None, reverse: bool = False):
         """
         Sort a structure in place. The parameters have the same meaning as in
         list.sort. By default, sites are sorted by the electronegativity of
@@ -3574,7 +3572,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self._sites.sort(key=key, reverse=reverse)
 
-    def translate_sites(self, indices, vector, frac_coords=True, to_unit_cell=True):
+    def translate_sites(
+        self, indices: Union[int, Sequence[int]], vector: ArrayLike, frac_coords: bool = True, to_unit_cell: bool = True
+    ):
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -3601,7 +3601,14 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 fcoords = np.mod(fcoords, 1)
             self._sites[i].frac_coords = fcoords
 
-    def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None, to_unit_cell=True):
+    def rotate_sites(
+        self,
+        indices: List[int] = None,
+        theta: float = 0.0,
+        axis: ArrayLike = None,
+        anchor: ArrayLike = None,
+        to_unit_cell: bool = True,
+    ):
         """
         Rotate specific sites by some angle around vector at anchor.
 
@@ -3620,7 +3627,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         from scipy.linalg import expm
 
         if indices is None:
-            indices = range(len(self))
+            indices = list(range(len(self)))
 
         if axis is None:
             axis = [0, 0, 1]
@@ -3648,7 +3655,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             )
             self._sites[i] = new_site
 
-    def perturb(self, distance, min_distance=None):
+    def perturb(self, distance: float, min_distance: float = None):
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -3675,7 +3682,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec(), frac_coords=False)
 
-    def make_supercell(self, scaling_matrix, to_unit_cell=True):
+    def make_supercell(self, scaling_matrix: ArrayLike, to_unit_cell: bool = True):
         """
         Create a supercell.
 
@@ -3702,7 +3709,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites = s.sites
         self._lattice = s.lattice
 
-    def scale_lattice(self, volume):
+    def scale_lattice(self, volume: float):
         """
         Performs a scaling of the lattice vectors so that length proportions
         and angles are preserved.
@@ -3712,7 +3719,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """
         self.lattice = self._lattice.scale(volume)
 
-    def merge_sites(self, tol=0.01, mode="sum"):
+    def merge_sites(self, tol: float = 0.01, mode: str = "sum"):
         """
         Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
@@ -3778,8 +3785,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
     def __init__(
         self,
-        species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
-        coords: Sequence[Sequence[float]],
+        species: Sequence[SpeciesLike],
+        coords: Sequence[ArrayLike],
         charge: float = 0.0,
         spin_multiplicity: float = None,
         validate_proximity: bool = False,
@@ -3814,9 +3821,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             validate_proximity=validate_proximity,
             site_properties=site_properties,
         )
-        self._sites = list(self._sites)  # type: ignore
+        self._sites: List[Site] = list(self._sites)  # type: ignore
 
-    def __setitem__(self, i, site):
+    def __setitem__(  # type: ignore
+        self, i: Union[int, slice, Sequence[int], SpeciesLike], site: Union[SpeciesLike, Site, Sequence]
+    ):
         """
         Modify a site in the molecule.
 
@@ -3833,7 +3842,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         if isinstance(i, int):
             indices = [i]
         elif isinstance(i, (str, Element, Species)):
-            self.replace_species({i: site})
+            self.replace_species({i: site})  # type: ignore
             return
         elif isinstance(i, slice):
             to_mod = self[i]
@@ -3846,13 +3855,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 self._sites[ii] = site
             else:
                 if isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
-                    self._sites[ii].species = site
+                    self._sites[ii].species = site  # type: ignore
                 else:
-                    self._sites[ii].species = site[0]
+                    self._sites[ii].species = site[0]  # type: ignore
                     if len(site) > 1:
-                        self._sites[ii].coords = site[1]
+                        self._sites[ii].coords = site[1]  # type: ignore
                     if len(site) > 2:
-                        self._sites[ii].properties = site[2]
+                        self._sites[ii].properties = site[2]  # type: ignore
 
     def __delitem__(self, i):
         """
@@ -3860,7 +3869,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         self._sites.__delitem__(i)
 
-    def append(self, species, coords, validate_proximity=True, properties=None):
+    def append(  # type: ignore
+        self,
+        species: CompositionLike,
+        coords: ArrayLike,
+        validate_proximity: bool = False,
+        properties: dict = None,
+    ):
         """
         Appends a site to the molecule.
 
@@ -3911,7 +3926,14 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         else:
             self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
-    def insert(self, i, species, coords, validate_proximity=False, properties=None):
+    def insert(  # type: ignore
+        self,
+        i: int,
+        species: CompositionLike,
+        coords: ArrayLike,
+        validate_proximity: bool = False,
+        properties: dict = None,
+    ):
         """
         Insert a site to the molecule.
 
@@ -3933,7 +3955,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     raise ValueError("New site is too close to an existing " "site!")
         self._sites.insert(i, new_site)
 
-    def remove_species(self, species):
+    def remove_species(self, species: Sequence[SpeciesLike]):
         """
         Remove all occurrences of a species from a molecule.
 
@@ -3948,7 +3970,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                 new_sites.append(Site(new_sp_occu, site.coords, properties=site.properties))
         self._sites = new_sites
 
-    def remove_sites(self, indices):
+    def remove_sites(self, indices: Sequence[int]):
         """
         Delete sites with at indices.
 
@@ -3957,7 +3979,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         self._sites = [self._sites[i] for i in range(len(self._sites)) if i not in indices]
 
-    def translate_sites(self, indices=None, vector=None):
+    def translate_sites(self, indices: Sequence[int] = None, vector: ArrayLike = None):
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -3970,13 +3992,15 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         if indices is None:
             indices = range(len(self))
         if vector is None:
-            vector == [0, 0, 0]
+            vector = [0, 0, 0]
         for i in indices:
             site = self._sites[i]
-            new_site = Site(site.species, site.coords + vector, properties=site.properties)
+            new_site = Site(site.species, site.coords + vector, properties=site.properties)  # type: ignore
             self._sites[i] = new_site
 
-    def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None):
+    def rotate_sites(
+        self, indices: Sequence[int] = None, theta: float = 0.0, axis: ArrayLike = None, anchor: ArrayLike = None
+    ):
         """
         Rotate specific sites by some angle around vector at anchor.
 
@@ -4014,7 +4038,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             new_site = Site(site.species, s, properties=site.properties)
             self._sites[i] = new_site
 
-    def perturb(self, distance):
+    def perturb(self, distance: float):
         """
         Performs a random perturbation of the sites in a structure to break
         symmetries.
@@ -4033,7 +4057,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         for i in range(len(self._sites)):
             self.translate_sites([i], get_rand_vec())
 
-    def apply_operation(self, symmop):
+    def apply_operation(self, symmop: SymmOp):
         """
         Apply a symmetry operation to the molecule.
 
@@ -4056,7 +4080,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         return self.__class__.from_sites(self)
 
-    def substitute(self, index, func_grp, bond_order=1):
+    def substitute(self, index: int, func_group: Union["IMolecule", "Molecule", str], bond_order: int = 1):
         """
         Substitute atom at index with a functional group.
 
@@ -4101,13 +4125,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         # Pass value of functional group--either from user-defined or from
         # functional.json
-        if isinstance(func_grp, Molecule):
-            func_grp = func_grp
+        if isinstance(func_group, Molecule):
+            func_grp = func_group
         else:
             # Check to see whether the functional group is in database.
-            if func_grp not in FunctionalGroups:
+            if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. " "Provide explicit coordinate instead")
-            func_grp = FunctionalGroups[func_grp]
+            func_grp = FunctionalGroups[func_group]
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
