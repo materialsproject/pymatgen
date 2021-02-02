@@ -1726,89 +1726,83 @@ class MagneticSpacegroupAnalyzer:
             ab initio calculation.
     """
 
-    def __init__( self, structure, symprec=0.01, angle_tolerance=5, pos_tolerance=0.0015, magmom_tolerance=0.3):
-      # TODO: structure code such that the circular dependencies btw pymatgen.transformations 
-      #       and pymatgen.symmetry are resolved
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5, pos_tolerance=0.0015, magmom_tolerance=0.3):
+        # TODO: structure code such that the circular dependencies btw pymatgen.transformations 
+        #       and pymatgen.symmetry are resolved
       
-      from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
-      from pymatgen.alchemy.materials import TransformedStructure
+        from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
+        from pymatgen.alchemy.materials import TransformedStructure
       
-      self._structure = structure
-      self._symprec   = symprec
-      self._angle_tol = angle_tolerance
-      self._pos_tol   = pos_tolerance
-      self._magmom_tol = magmom_tolerance
-      self._domains = None
+        self._structure = structure
+        self._symprec   = symprec
+        self._angle_tol = angle_tolerance
+        self._pos_tol   = pos_tolerance
+        self._magmom_tol = magmom_tolerance
+        self._domains = None
       
-      self._spacegroupAnalyzer = SpacegroupAnalyzer( self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
+        self._spacegroupAnalyzer = SpacegroupAnalyzer(self._structure, symprec=self._symprec, angle_tolerance=self._angle_tol)
       
-      if np.any( np.abs( self._structure._lattice.matrix - self._spacegroupAnalyzer._cell[0] ) > 1e-12 ): 
-        exit("Error in the definitions of the unit cell.")
+        if np.any(np.abs(self._structure._lattice.matrix - self._spacegroupAnalyzer._cell[0]) > 1e-12): 
+            exit("Error in the definitions of the unit cell.")
 
-      ### pure translations are included in self._spacegroupAnalyzer._space_group_data['***'] in the conventional cell case ###
-      ### self._spacegroupAnalyzer.get_symmetry_operations() does not work in the primitive cell case ###
-      ### use self._paramag_symmetry_operations() instead ###
+        ### pure translations are included in self._spacegroupAnalyzer._space_group_data['***'] in the conventional cell case ###
+        ### self._spacegroupAnalyzer.get_symmetry_operations() does not work in the primitive cell case ###
+        ### use self._paramag_symmetry_operations() instead ###
       
-      self._paramag_symmops = self._paramag_symmetry_operations()
+        self._paramag_symmops = self._paramag_symmetry_operations()
 
-      # apply all paramagnetic spacegroup operations and check if they are a symmetry
-      mspg_list = [ mop for mop in self._paramag_symmops if self._check_mop( mop ) ]
+        # apply all paramagnetic spacegroup operations and check if they are a symmetry
+        mspg_list = [mop for mop in self._paramag_symmops if self._check_mop(mop)]
 
-      self.symmetry_ops = mspg_list
-      self._MagneticSpacegroup = self._search4MagneticSpacegroup( )
+        self.symmetry_ops = mspg_list
+        self._MagneticSpacegroup = self._search4MagneticSpacegroup()
 
+    def _check_mop(self, mop):
+        from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
+        from pymatgen.alchemy.materials import TransformedStructure
 
-    def _check_mop( self, mop ):
-      from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
-      from pymatgen.alchemy.materials import TransformedStructure
-
-      trans = [ApplyMagSymmOpTransformation(mop)]
-      s_new = TransformedStructure(self._structure, trans )
-      same = self._same_MagneticStructure( s_new.final_structure,  self._structure )[0]
-      return same
-
-
-    def _get_domains( self ):
-      from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
-      from pymatgen.alchemy.materials import TransformedStructure
-
-      domains = { MagSymmOp.from_xyzt_string('x, y, z, +1') : self._structure }
-      relevant_mops = [ mop for mop in self._paramag_symmops if not np.any( [ mop==mop2 for mop2 in self.symmetry_ops] ) ]
-      
-      for mop in relevant_mops:
         trans = [ApplyMagSymmOpTransformation(mop)]
-        s_new = TransformedStructure(self._structure, trans )
-        new_domain = True
-        for do in domains.values():
-          if self._same_MagneticStructure( s_new.final_structure, do )[0]:
-            new_domain = False
-            break
-        if new_domain: domains[mop] = s_new.final_structure
+        s_new = TransformedStructure(self._structure, trans)
+        same = self._same_MagneticStructure(s_new.final_structure,  self._structure)[0]
+        return same
 
-      return domains
+    def _get_domains(self):
+        from pymatgen.transformations.standard_transformations import ApplyMagSymmOpTransformation
+        from pymatgen.alchemy.materials import TransformedStructure
 
+        domains = {MagSymmOp.from_xyzt_string('x, y, z, +1') : self._structure}
+        relevant_mops = [mop for mop in self._paramag_symmops if not np.any([mop==mop2 for mop2 in self.symmetry_ops])]
+      
+        for mop in relevant_mops:
+            trans = [ApplyMagSymmOpTransformation(mop)]
+            s_new = TransformedStructure(self._structure, trans)
+            new_domain = True
+            for do in domains.values():
+                if self._same_MagneticStructure(s_new.final_structure, do)[0]:
+                    new_domain = False
+                    break
+            if new_domain: domains[mop] = s_new.final_structure
+        return domains
 
-    def get_parent_spacegroup( self ):
-      """
+    def get_parent_spacegroup(self):
+        """
         Returns analyzer of the parent spacegroup, i.e. the spacegroup of 
         the nonmagnetic structure.
 
         Returns:
             pymatgen.symmetry.analyzer.SpacegroupAnalyzer
-      """
-      return self._spacegroupAnalyzer
-
+        """
+        return self._spacegroupAnalyzer
 
     def get_paramagnetic_symmetry_operations(self):
-      """
-      Returns all magnetic symmetry operations of the nonmagnetic structure, which comprises all
-      crystallographic spacegroup operations with time reversal symmetry even and odd.
+        """
+        Returns all magnetic symmetry operations of the nonmagnetic structure, which comprises all
+        crystallographic spacegroup operations with time reversal symmetry even and odd.
       
-      Returns:
-        list(pymatgen.core.operations.MagSymmOp): List of symmetry operations.
-      """
-      return self._paramag_symmetry_ops
-
+        Returns:
+            list(pymatgen.core.operations.MagSymmOp): List of symmetry operations.
+        """
+        return self._paramag_symmetry_ops
 
     def _paramag_symmetry_operations(self, cartesian=False):
         """
@@ -1820,7 +1814,7 @@ class MagneticSpacegroupAnalyzer:
         Returns:
             list(pymatgen.core.operations.MagSymmOp): List of symmetry operations.
         """
-        if np.any( np.abs( self._structure._lattice.matrix - self._spacegroupAnalyzer._cell[0] ) > 1e-12 ): 
+        if np.any(np.abs(self._structure._lattice.matrix - self._spacegroupAnalyzer._cell[0]) > 1e-12):
           exit("Error in the definitions of the unit cell.")
 
         rotation = self._spacegroupAnalyzer._space_group_data['rotations']
@@ -1836,200 +1830,189 @@ class MagneticSpacegroupAnalyzer:
         symmops = []
         for rot, trans in zip(rotation, translation):
           if cartesian:
-            rot = prim2cart.dot( rot.dot(prim2cart_inv) )
-            trans = prim2cart.dot( trans )
+            rot = prim2cart.dot(rot.dot(prim2cart_inv))
+            trans = prim2cart.dot(trans)
           else:
-            rot = prim2conv.dot( rot.dot(prim2conv_inv)).round(8)
-            trans = prim2conv.dot( trans ).round(8)
+            rot = prim2conv.dot(rot.dot(prim2conv_inv)).round(8)
+            trans = prim2conv.dot(trans).round(8)
           
           op = SymmOp.from_rotation_and_translation(rot, trans)
           symmops.append(op)
         
-        paramag_symmops = [ MagSymmOp.from_symmop( op, time_reversal ) for op in symmops for time_reversal in [+1, -1] ]
+        paramag_symmops = [MagSymmOp.from_symmop(op, time_reversal) for op in symmops for time_reversal in [+1, -1]]
         
         return paramag_symmops
 
-
     def get_magnetic_pointgroup(self):
-      """
-      Get magnetic pointgroup information as tuple ( label, number).
+        """
+        Get magnetic pointgroup information as tuple (label, number).
 
-      Returns:
-          tuple( str, list(int) ): Magnetic point group for structure.
-      """
-      MAGSPACEGROUP2MAGPOINTGROUP = os.path.join(os.path.dirname(__file__), "mspg2mpg_map.txt")
+        Returns:
+            tuple(str, list(int)): Magnetic point group for structure.
+        """
+        MAGSPACEGROUP2MAGPOINTGROUP = os.path.join(os.path.dirname(__file__), "mspg2mpg_map.txt")
       
-      glob_og_no = ".".join( [ str(x) for x in self._MagneticSpacegroup._data["og_number"] ] )
+        glob_og_no = ".".join([str(x) for x in self._MagneticSpacegroup._data["og_number"]])
 
-      with open( MAGSPACEGROUP2MAGPOINTGROUP, 'r') as f:
-        for line in f:
-          og_no, og_label, pointgroup_no, pointgroup_label = line.split()
-          if og_no == glob_og_no:
-            return ( pointgroup_label, pointgroup_no )
-
+        with open(MAGSPACEGROUP2MAGPOINTGROUP, 'r') as f:
+            for line in f:
+                og_no, og_label, pointgroup_no, pointgroup_label = line.split()
+                if og_no == glob_og_no:
+                    return (pointgroup_label, pointgroup_no)
 
     def get_magnetic_spacegroup(self):
-      """
-      Get the magnetic spacegroup.
+        """
+        Get the magnetic spacegroup.
 
-      Returns:
-          pymatgen.symmetry.maggroups.MagneticSpaceGroup 
-      """
-      return self._MagneticSpacegroup
+        Returns:
+            pymatgen.symmetry.maggroups.MagneticSpaceGroup 
+        """
+        return self._MagneticSpacegroup
 
+    def get_domains(self):
+        """
+        Get all possible magnetic domains as a dictionary.
 
-    def get_domains( self ):
-      """
-      Get all possible magnetic domains as a dictionary.
+        A magnetic domain is obtained when a symmetry operation of the crystallographic 
+        spacegroup is applied to a magnetic structure with either time reversal odd or 
+        even and the resulting magnetic structure is not covering. 
 
-      A magnetic domain is obtained when a symmetry operation of the crystallographic 
-      spacegroup is applied to a magnetic structure with either time reversal odd or 
-      even and the resulting magnetic structure is not covering. 
+        The keys() are the applied magnetic symmetry operations. 
+        The values() are the resulting magnetic structure.
 
-      The keys() are the applied magnetic symmetry operations. 
-      The values() are the resulting magnetic structure.
-
-      Returns:
-        dict( pymatgen.core.operations.MagSymmOp : pymatgen.core.structure.Structure ) 
-      """
+        Returns:
+            dict(pymatgen.core.operations.MagSymmOp : pymatgen.core.structure.Structure) 
+        """
       
-      if not self._domains:
-        self._domains = self._get_domains()
+        if not self._domains:
+            self._domains = self._get_domains()
       
-      return self._domains
+        return self._domains
 
+    def get_symmetry_ops(self):
+        """
+        Get magnetic spacegroup operations for the magnetic structure.
 
-    def get_symmetry_ops( self ):
-      """
-      Get magnetic spacegroup operations for the magnetic structure.
+        Returns:
+            list(pymatgen.core.operations.MagSymmOp)
+        """ 
+        return self._MagneticSpacegroup.symmetry_ops
 
-      Returns:
-          list( pymatgen.core.operations.MagSymmOp )
-      """ 
-      return self._MagneticSpacegroup.symmetry_ops
+    def get_bns(self):
+        """
+        Get the magnetic spacegroup in the BNS notation [1], e.g. (P1, 1.1). 
 
-
-    def get_bns( self ):
-      """
-      Get the magnetic spacegroup in the BNS notation [1], e.g. (P1, 1.1). 
-
-      [1] Belov et al. (1957). Sov. Phys. Crystallogr. 2, 311-322 
+        [1] Belov et al. (1957). Sov. Phys. Crystallogr. 2, 311-322 
       
-      Returns:
-        ( str, list(int) ): Magnetic space group in a tuple of ( symbol, number ) for structure.
+        Returns:
+            (str, list(int)): Magnetic space group in a tuple of (symbol, number) for structure.
+        """
+        bns_label = self._MagneticSpacegroup._data["bns_label"]
+        bns_number = ".".join([str(x) for x in self._MagneticSpacegroup._data["bns_number"]])
+        return (bns_label, bns_number)  
+
+    def get_og(self):
+        """
+        Get the magnetic spacegroup in the OG notation [1], e.g. (P1, 1.1.1). 
+
+        [1] Opechowski and Guccione (1965). Magnetism, edited by G. T. Rado and H. Suhl, Vol. II, Part A, pp. 105-165. New York: Academic Press
       
-      """
-      bns_label = self._MagneticSpacegroup._data["bns_label"]
-      bns_number = ".".join( [ str(x) for x in self._MagneticSpacegroup._data["bns_number"] ] )
-      return ( bns_label, bns_number )  
+        Returns:
+            (str, list(int)): Magnetic space group in a tuple of (symbol, number) for structure.
+        """
+        og_label = self._MagneticSpacegroup._data["og_label"]
+        og_number = ".".join([str(x) for x in self._MagneticSpacegroup._data["og_number"]])
+        return (og_label, og_number)  
 
+    def _same_MagneticStructure(self, struc1, struc2, pos_tolerance=0.0015, magmom_tolerance=0.3):
+        """
+        Compare two pymatgen.core.structure.Structure objects, struc1 and struc2,
+        with respect to their sitesi, species and magnetic moment.
 
-    def get_og( self ):
-      """
-      Get the magnetic spacegroup in the OG notation [1], e.g. (P1, 1.1.1). 
+        Takes:
+          struc1           pymatgen.core.structure.Structure 
+          struc1           pymatgen.core.structure.Structure 
+          pos_tolerance    float (default: 0.0015)
+          magmom_tolerance float (default: 0.3)
 
-      [1] Opechowski and Guccione (1965). Magnetism, edited by G. T. Rado and H. Suhl, Vol. II, Part A, pp. 105-165. New York: Academic Press
-      
-      Returns:
-        (str, list(int) ): Magnetic space group in a tuple of ( symbol, number ) for structure.
-      
-      """
-      og_label = self._MagneticSpacegroup._data["og_label"]
-      og_number = ".".join( [ str(x) for x in self._MagneticSpacegroup._data["og_number"] ] )
-      return ( og_label, og_number )  
-
-
-    def _same_MagneticStructure( self, struc1, struc2, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
-      """
-      Compare two pymatgen.core.structure.Structure objects, struc1 and struc2,
-      with respect to their sitesi, species and magnetic moment.
-
-      Takes:
-        struc1           pymatgen.core.structure.Structure 
-        struc1           pymatgen.core.structure.Structure 
-        pos_tolerance    float (default: 0.0015)
-        magmom_tolerance float (default: 0.3)
-
-      Returns:
-        boolean          True if struc1 covers struc2
-        set( tuple( tuple( str ), tuple( float, float, float), tuple( float, float, float) ) ) 
+        Returns:
+          boolean          True if struc1 covers struc2
+          set(tuple(tuple(str), tuple(float, float, float), tuple(float, float, float))) 
                          Residue: Set of species, fractional coordinates 
                          and magnetic moments that are distinct. 
                          Empty set if boolean is True.
-      """
-      same = False
-      nsite = len(struc1.sites)
-      if nsite != len(struc2.sites):
-        res= "number of sites differ"
-        pass
-      else:
-        sites1_prim = [np.mod(i.frac_coords + (10+1e-9)*np.array([1,1,1]), np.array([1,1,1])) - 1e-9*np.array([1,1,1]) for i in struc1._sites]
-        sites1_prim = [tuple(k) for k in sites1_prim]
-        sites2_prim = [np.mod(i.frac_coords + (10+1e-9)*np.array([1,1,1]), np.array([1,1,1])) - 1e-9*np.array([1,1,1]) for i in struc2._sites]
-        sites2_prim = [tuple(k) for k in sites2_prim]
+        """
+        same = False
+        nsite = len(struc1.sites)
+        if nsite != len(struc2.sites):
+            res= "number of sites differ"
+            pass
+        else:
+            sites1_prim = [np.mod(i.frac_coords + 10 + 1e-9, 1) - 1e-9 for i in struc1._sites]
+            sites1_prim = [tuple(k) for k in sites1_prim]
+            sites2_prim = [np.mod(i.frac_coords + 10 + 1e-9, 1) - 1e-9 for i in struc2._sites]
+            sites2_prim = [tuple(k) for k in sites2_prim]
         
-        magms1_cart = [i.properties["magmom"].moment for i in struc1._sites]
-        magms1_cart = [tuple(k.round(3)) for k in magms1_cart]
-        magms2_cart = [i.properties["magmom"].moment for i in struc2._sites]
-        magms2_cart = [tuple(k.round(3)) for k in magms2_cart]
-        species1 = [i._species for i in struc1._sites]
-        species2 = [i._species for i in struc2._sites]
+            magms1_cart = [i.properties["magmom"].moment for i in struc1._sites]
+            magms1_cart = [tuple(k.round(3)) for k in magms1_cart]
+            magms2_cart = [i.properties["magmom"].moment for i in struc2._sites]
+            magms2_cart = [tuple(k.round(3)) for k in magms2_cart]
+            species1 = [i._species for i in struc1._sites]
+            species2 = [i._species for i in struc2._sites]
       
-        sitesmagms_set1 = set(tuple([tuple([species1[i],sites1_prim[i],magms1_cart[i]]) for i in range(nsite)]))
-        sitesmagms_set2 = set(tuple([tuple([species2[i],sites2_prim[i],magms2_cart[i]]) for i in range(nsite)]))
-        res = self._difference( sitesmagms_set1, sitesmagms_set2 , pos_tolerance=pos_tolerance, magmom_tolerance=magmom_tolerance )
-        if res == set():
-          same = True
+            sitesmagms_set1 = set(tuple([tuple([species1[i],sites1_prim[i],magms1_cart[i]]) for i in range(nsite)]))
+            sitesmagms_set2 = set(tuple([tuple([species2[i],sites2_prim[i],magms2_cart[i]]) for i in range(nsite)]))
+            res = self._difference(sitesmagms_set1, sitesmagms_set2 , pos_tolerance=pos_tolerance, magmom_tolerance=magmom_tolerance)
+            if res == set():
+                same = True
       
-      return same, res
+        return same, res
 
+    def _difference(self, sitesmagms_set, sitesmagms_set_i, pos_tolerance=0.0015, magmom_tolerance=0.3):
+        """
+        Returns the difference between two sets of sites representing magnetic structures.
 
-    def _difference( self, sitesmagms_set, sitesmagms_set_i, pos_tolerance=0.0015, magmom_tolerance=0.3 ):
-      """
-      Returns the difference between two sets of sites representing magnetic structures.
+        Takes:
+            sitesmagms_set1  set(tuple(tuple(str), tuple(float, float, float), tuple(float, float, float)))
+            sitesmagms_set2  set(tuple(tuple(str), tuple(float, float, float), tuple(float, float, float)))
+            pos_tolerance    float (default: 0.0015)
+            magmom_tolerance float (default: 0.3)
 
-      Takes:
-        sitesmagms_set1  set( tuple( tuple( str ), tuple( float, float, float), tuple( float, float, float) ) )
-        sitesmagms_set2  set( tuple( tuple( str ), tuple( float, float, float), tuple( float, float, float) ) )
-        pos_tolerance    float (default: 0.0015)
-        magmom_tolerance float (default: 0.3)
+        Returns:
+            set(tuple(tuple(str), tuple(float, float, float), tuple(float, float, float)))
+        """
+        res_sitesmagms_i = sitesmagms_set_i - sitesmagms_set
+        res_sitesmagms_new = sitesmagms_set - sitesmagms_set_i
+        res = []
+        for t1 in res_sitesmagms_new:
+            t1_equal2_t2 = False
+            for t2 in res_sitesmagms_i:
+                if t1[0] == t2[0]:
+                    if np.all(np.mod(np.abs(np.array(t1[1]) - np.array(t2[1])) , 1)  <= pos_tolerance):
+                        if np.all(np.abs(np.array(t1[2]) - np.array(t2[2])) <= magmom_tolerance):
+                            t1_equal2_t2 = True
+            if not t1_equal2_t2: res.append(t1)
+        return set(res) 
 
-      Returns:
-        set( tuple( tuple( str ), tuple( float, float, float), tuple( float, float, float) ) )
-      """
-      res_sitesmagms_i = sitesmagms_set_i - sitesmagms_set
-      res_sitesmagms_new = sitesmagms_set - sitesmagms_set_i
-      res = []
-      for t1 in res_sitesmagms_new:
-        t1_equal2_t2 = False
-        for t2 in res_sitesmagms_i:
-          if t1[0] == t2[0]:
-            if np.all( np.mod( np.abs( np.array(t1[1]) - np.array(t2[1]) ) , 1 )  <= pos_tolerance ):
-              if np.all( np.abs( np.array(t1[2]) - np.array(t2[2])) <= magmom_tolerance ):
-                t1_equal2_t2 = True
-        if not t1_equal2_t2: res.append( t1 )
-      return set( res ) 
-
-
-    def _search4MagneticSpacegroup( self ):
-      """
+    def _search4MagneticSpacegroup(self):
+        """
         Returns the magnetic spacegroup of the magnetic structure.
         Compares the magnetic spacegroup operations of the magnetic structure
         to the magnetic spacegroup operations of all magnetic spacegroups that
         have the same crystal system and number of operations.
 
         Returns:
-          pymatgen.symmetry.MagneticSpaceGroup
-      """
+            pymatgen.symmetry.MagneticSpaceGroup
+        """
       
-      mop_list = self.symmetry_ops
+        mop_list = self.symmetry_ops
 
-      # get all potential magnetic spacegroups 
-      # according to the crystal system
-      from pymatgen.symmetry.maggroups import MagneticSpaceGroup
-      cs = self._spacegroupAnalyzer.get_crystal_system()
+        # get all potential magnetic spacegroups 
+        # according to the crystal system
+        from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+        cs = self._spacegroupAnalyzer.get_crystal_system()
 
-      cs_range = {
+        cs_range = {
             "triclinic": (1, 8),
             "monoclinic": (8, 99),
             "orthorhombic": (99, 661),
@@ -2037,82 +2020,193 @@ class MagneticSpacegroupAnalyzer:
             "trigonal": (1231, 1339),
             "hexagonal": (1339, 1503),
             "cubic": (1503, 1652),
-      }
-      
-      # start1 = time.time()    
-      # get all potential magnetic spacegroups 
-      # according to the order of the magnetic spacegroup
-      ORDER2MSPG = {
-        1: {1}, 
-        2: {32, 2, 3, 4, 34, 6, 8, 10, 15, 17, 25, 27}, 
-        4: {5, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 42, 44, 45, 47, 48, 49, 51, 52, 53, 59, 61, 62, 63, 77, 79, 80, 81, 86, 88, 89, 90, 99, 101, 106, 108, 109, 113, 115, 116, 119, 121, 661, 663, 155, 668, 157, 158, 670, 672, 674, 679, 168, 681, 170, 171, 172, 178, 180, 181, 693, 695, 185, 187, 188, 189, 198, 200, 201, 202, 205, 207, 208, 209, 212, 214, 215, 216, 219, 221, 222, 226, 228, 229, 230, 231, 233, 234}, 
-        8: {13, 20, 22, 30, 37, 39, 41, 43, 46, 50, 54, 55, 57, 58, 60, 64, 65, 66, 68, 69, 70, 72, 74, 75, 76, 78, 82, 83, 85, 87, 91, 92, 94, 95, 96, 97, 98, 100, 102, 105, 107, 110, 112, 114, 117, 118, 120, 122, 124, 125, 126, 127, 128, 129, 131, 132, 134, 137, 138, 145, 147, 148, 149, 150, 152, 153, 154, 156, 159, 160, 164, 165, 166, 169, 173, 174, 176, 177, 179, 182, 184, 186, 190, 191, 193, 194, 195, 196, 199, 203, 204, 206, 210, 211, 213, 217, 218, 220, 223, 224, 225, 227, 232, 236, 238, 239, 241, 245, 246, 249, 251, 252, 253, 254, 255, 256, 257, 258, 260, 261, 262, 263, 264, 265, 267, 268, 269, 271, 274, 275, 276, 278, 280, 281, 282, 284, 287, 288, 289, 291, 293, 294, 295, 296, 297, 298, 299, 300, 302, 303, 304, 305, 306, 307, 308, 324, 326, 327, 328, 329, 330, 331, 333, 334, 335, 336, 337, 338, 340, 341, 342, 343, 344, 345, 346, 347, 349, 350, 351, 358, 360, 361, 362, 364, 366, 367, 368, 369, 370, 377, 379, 380, 381, 382, 383, 387, 389, 390, 391, 392, 393, 394, 395, 406, 408, 409, 410, 411, 412, 413, 414, 415, 417, 418, 419, 420, 421, 422, 423, 428, 430, 431, 432, 433, 434, 435, 436, 441, 443, 444, 445, 446, 447, 451, 453, 454, 455, 456, 457, 458, 460, 461, 462, 463, 464, 465, 466, 471, 473, 474, 475, 476, 477, 478, 480, 481, 482, 483, 484, 488, 490, 491, 492, 493, 494, 495, 496, 497, 499, 500, 501, 502, 504, 505, 506, 507, 508, 509, 510, 662, 664, 665, 667, 669, 671, 673, 675, 676, 678, 680, 682, 683, 685, 686, 687, 688, 690, 691, 692, 694, 696, 697, 699, 701, 702, 703, 705, 706, 707, 713, 715, 716, 717, 720, 722, 723, 724, 727, 729, 730, 731, 747, 749, 750, 751, 757, 759, 760, 761, 764, 766, 767, 768, 771, 773, 774, 775, 776, 778, 779, 780, 786, 788, 789, 790, 793, 795, 796, 797, 800, 802, 803, 804, 823, 825, 826, 827, 836, 838, 839, 840, 845, 847, 848, 849, 852, 854, 855, 856, 859, 861, 862, 863, 866, 868, 869, 870, 871, 873, 874, 875, 878, 880, 881, 882, 911, 913, 914, 915, 922, 924, 925, 926, 929, 931, 932, 933, 936, 938, 939, 940, 941, 943, 944, 945, 951, 953, 954, 955, 958, 960, 961, 962, 965, 967, 968, 969}, 16: {56, 67, 71, 73, 84, 93, 103, 111, 123, 130, 133, 135, 136, 139, 140, 142, 143, 144, 146, 151, 161, 162, 167, 175, 183, 192, 197, 237, 240, 242, 243, 244, 247, 248, 250, 259, 266, 270, 272, 273, 277, 279, 283, 285, 286, 290, 292, 301, 309, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 322, 323, 325, 332, 339, 348, 352, 355, 356, 359, 365, 371, 373, 374, 375, 378, 384, 385, 386, 388, 396, 397, 399, 400, 401, 402, 403, 404, 407, 416, 424, 425, 426, 427, 429, 437, 438, 439, 440, 442, 448, 449, 450, 452, 459, 467, 468, 469, 470, 472, 479, 485, 486, 487, 489, 498, 503, 511, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 547, 548, 549, 550, 551, 553, 557, 558, 559, 560, 561, 564, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 579, 580, 581, 582, 583, 585, 589, 590, 591, 594, 596, 597, 598, 599, 600, 601, 602, 603, 604, 621, 623, 624, 625, 626, 627, 628, 629, 630, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 645, 646, 647, 648, 649, 650, 652, 653, 654, 655, 656, 657, 658, 659, 660, 666, 677, 684, 689, 698, 700, 704, 708, 709, 711, 712, 714, 718, 719, 721, 725, 726, 728, 733, 735, 736, 737, 738, 739, 740, 741, 742, 744, 745, 746, 748, 752, 753, 755, 756, 758, 762, 763, 765, 769, 770, 772, 777, 781, 782, 784, 785, 787, 791, 792, 794, 798, 799, 801, 805, 807, 808, 809, 810, 811, 812, 813, 814, 816, 817, 818, 819, 820, 821, 822, 824, 828, 829, 831, 832, 833, 834, 837, 841, 842, 843, 844, 846, 850, 851, 853, 860, 864, 865, 867, 872, 876, 877, 879, 883, 885, 886, 887, 888, 889, 890, 891, 892, 894, 895, 896, 897, 898, 899, 900, 901, 903, 904, 905, 906, 908, 909, 910, 912, 916, 917, 919, 920, 923, 927, 928, 930, 934, 935, 937, 942, 946, 947, 949, 950, 952, 956, 957, 959, 963, 964, 966, 971, 973, 974, 975, 976, 977, 978, 980, 981, 982, 983, 984, 985, 987, 988, 989, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1018, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1031, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1044, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1055, 1056, 1057, 1058, 1059, 1060, 1061, 1066, 1068, 1069, 1070, 1071, 1072, 1073, 1074, 1075, 1077, 1078, 1079, 1080, 1081, 1082, 1083, 1088, 1090, 1091, 1092, 1093, 1094, 1095, 1096, 1097, 1099, 1100, 1101, 1102, 1103, 1104, 1105, 1110, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1123, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1132, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1143, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1172, 1173, 1174, 1175, 1176, 1177, 1178}, 
-        32: {512, 1027, 1028, 1029, 1030, 1120, 1032, 1121, 1122, 1040, 529, 1041, 1042, 1043, 1045, 1054, 546, 1062, 1063, 552, 1064, 554, 555, 556, 1065, 1067, 562, 563, 1076, 565, 1084, 1085, 1086, 1087, 1089, 578, 584, 586, 587, 588, 1098, 592, 593, 1106, 595, 1107, 1108, 1109, 1111, 605, 607, 608, 609, 610, 611, 612, 613, 614, 615, 104, 616, 618, 619, 620, 1124, 622, 1133, 631, 1144, 1153, 644, 1162, 651, 141, 1171, 1179, 1181, 1182, 1183, 1184, 1185, 1186, 163, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1198, 1199, 1200, 1201, 1202, 1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210, 1211, 1212, 1213, 1215, 1216, 1217, 1218, 1219, 1220, 1221, 710, 1222, 1224, 1225, 1226, 1227, 1228, 1229, 1230, 732, 734, 743, 235, 754, 783, 806, 815, 310, 830, 321, 835, 857, 858, 353, 357, 372, 884, 376, 893, 902, 907, 398, 405, 918, 921, 948, 970, 972, 979, 986, 995, 1000, 1008, 1009, 1011, 1012, 1013, 1014, 1015, 1016, 1019, 1119}, 
-        64: {354, 1223, 617, 363, 1197, 1214, 1010, 1141, 1142, 1017, 1180, 606}, 
-        3: {1234, 1237, 1231}, 6: {1281, 1284, 1286, 1289, 1291, 1292, 1294, 1339, 1341, 1344, 1346, 1347, 1349, 1350, 1352, 1355, 1357, 1232, 1233, 1360, 1235, 1236, 1362, 1238, 1239, 1363, 1365, 1243, 1245, 1251, 1253, 1255, 1257, 1259, 1261, 1263, 1265, 1267, 1269, 1271, 1273, 1279}, 
-        9: {1240}, 
-        18: {1249, 1295, 1297, 1300, 1302, 1241, 1242, 1275, 1277, 1247}, 
-        12: {1244, 1246, 1252, 1254, 1256, 1258, 1260, 1262, 1264, 1266, 1268, 1270, 1272, 1274, 1280, 1282, 1283, 1285, 1287, 1288, 1290, 1293, 1303, 1305, 1306, 1307, 1310, 1312, 1313, 1314, 1315, 1317, 1318, 1319, 1322, 1324, 1325, 1326, 1340, 1342, 1343, 1345, 1348, 1351, 1353, 1354, 1356, 1358, 1359, 1361, 1364, 1366, 1367, 1369, 1370, 1371, 1374, 1376, 1377, 1378, 1379, 1381, 1382, 1383, 1386, 1388, 1389, 1390, 1391, 1393, 1394, 1395, 1396, 1398, 1399, 1400, 1403, 1405, 1406, 1407, 1410, 1412, 1413, 1414, 1415, 1417, 1418, 1419, 1424, 1426, 1427, 1428, 1429, 1431, 1432, 1433, 1434, 1436, 1437, 1438, 1439, 1441, 1442, 1443, 1446, 1448, 1449, 1450, 1451, 1453, 1454, 1455, 1458, 1460, 1461, 1462, 1503, 1511}, 
-        36: {1248, 1250, 1327, 1296, 1329, 1298, 1299, 1330, 1301, 1331, 1334, 1336, 1337, 1338, 1276, 1278}, 
-        24: {1537, 1542, 1544, 1546, 1548, 1561, 1563, 1564, 1566, 1572, 1574, 1585, 1587, 1304, 1308, 1309, 1311, 1316, 1320, 1321, 1323, 1368, 1372, 1373, 1375, 1380, 1384, 1385, 1387, 1392, 1397, 1401, 1402, 1404, 1408, 1409, 1411, 1416, 1420, 1421, 1422, 1423, 1425, 1430, 1435, 1440, 1444, 1445, 1447, 1452, 1456, 1457, 1459, 1463, 1465, 1466, 1467, 1468, 1469, 1470, 1471, 1476, 1478, 1479, 1480, 1481, 1482, 1483, 1484, 1485, 1487, 1488, 1489, 1490, 1491, 1492, 1493, 1494, 1496, 1497, 1498, 1499, 1500, 1501, 1502, 1504, 1508, 1510, 1512, 1513, 1515, 1516, 1518, 1520, 1522, 1535}, 
-        72: {1328, 1332, 1333, 1335}, 
-        48: {1536, 1538, 1540, 1541, 1543, 1547, 1556, 1558, 1559, 1560, 1562, 1565, 1567, 1569, 1570, 1571, 1573, 1580, 1582, 1583, 1584, 1586, 1591, 1464, 1593, 1594, 1596, 1597, 1598, 1472, 1473, 1474, 1475, 1601, 1477, 1603, 1604, 1605, 1606, 1608, 1609, 1610, 1611, 1486, 1613, 1614, 1615, 1495, 1506, 1509, 1514, 1517, 1521, 1530, 1532, 1533, 1534}, 
-        96: {1539, 1550, 1552, 1553, 1555, 1557, 1568, 1577, 1579, 1581, 1588, 1590, 1592, 1595, 1602, 1607, 1612, 1505, 1507, 1638, 1640, 1641, 1642, 1643, 1644, 1645, 1646, 1647, 1649, 1650, 1651, 1524, 1526, 1527, 1529, 1531}, 
-        192: {1545, 1549, 1551, 1554, 1575, 1576, 1578, 1589, 1618, 1620, 1621, 1622, 1623, 1625, 1626, 1627, 1628, 1630, 1631, 1632, 1633, 1635, 1636, 1637, 1639, 1519, 1648, 1523, 1525, 1528}, 
-        384: {1600, 1634, 1616, 1617, 1619, 1624, 1629, 1599}
         }
-      all_mspg = [ MagneticSpaceGroup(i) for i in range(*cs_range[cs]) if i in ORDER2MSPG[len(mop_list)] ]
-      # print( "init mspg with dict: ", time.time() - start1 )
-
-      # slower alternative that doesn't need above dictionary
-      # start1 = time.time()
-      # all_mspg = [ MagneticSpaceGroup(i) for i in range(*cs_range[cs]) ]
-      # all_mspg = [ mspg for mspg in all_mspg if len(mspg.symmetry_ops)==len(mop_list)]
-      # print( "init mspg: ", time.time() - start1 )
-
-      # compare list of symm operations to each magnetic spacegroup
-      for tmp_mspg in all_mspg:  
-        tmp_mspg_minus_input = []
-        input_minus_tmp_mspg = []
-        
-        for mop1 in tmp_mspg.symmetry_ops:
-          if not np.any( [ mop1==mop2 for mop2 in mop_list] ):
-            tmp_mspg_minus_input.append(mop1)
-
-        if tmp_mspg_minus_input==[]:
-          for mop2 in mop_list:
-            if not np.any( [ mop1==mop2 for mop1 in tmp_mspg.symmetry_ops] ):
-              input_minus_tmp_mspg.append(mop2)
-
-        if tmp_mspg_minus_input==[] and input_minus_tmp_mspg==[]:
-            return tmp_mspg
-      return exit("Error in the list of symmetry operations.")
-
-
-    def origin_centering( self ):
       
-      international_symbol = self._spacegroupAnalyzer._space_group_data['international']
-      origins = []
+        # start1 = time.time()    
+        # get all potential magnetic spacegroups 
+        # according to the order of the magnetic spacegroup
+        ORDER2MSPG = {
+            1: {1}, 
+            2: {32, 2, 3, 4, 34, 6, 8, 10, 15, 17, 25, 27}, 
+            4: {5, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26, 28, 29, 31, 33, 35, 
+                36, 38, 40, 42, 44, 45, 47, 48, 49, 51, 52, 53, 59, 61, 62, 63, 77, 79, 
+                80, 81, 86, 88, 89, 90, 99, 101, 106, 108, 109, 113, 115, 116, 119, 121, 
+                661, 663, 155, 668, 157, 158, 670, 672, 674, 679, 168, 681, 170, 171, 
+                172, 178, 180, 181, 693, 695, 185, 187, 188, 189, 198, 200, 201, 202, 
+                205, 207, 208, 209, 212, 214, 215, 216, 219, 221, 222, 226, 228, 229, 
+                230, 231, 233, 234}, 
+            8: {13, 20, 22, 30, 37, 39, 41, 43, 46, 50, 54, 55, 57, 58, 60, 64, 65, 66, 
+                68, 69, 70, 72, 74, 75, 76, 78, 82, 83, 85, 87, 91, 92, 94, 95, 96, 97, 
+                98, 100, 102, 105, 107, 110, 112, 114, 117, 118, 120, 122, 124, 125, 126, 
+                127, 128, 129, 131, 132, 134, 137, 138, 145, 147, 148, 149, 150, 152, 153, 
+                154, 156, 159, 160, 164, 165, 166, 169, 173, 174, 176, 177, 179, 182, 184, 
+                186, 190, 191, 193, 194, 195, 196, 199, 203, 204, 206, 210, 211, 213, 217, 
+                218, 220, 223, 224, 225, 227, 232, 236, 238, 239, 241, 245, 246, 249, 251, 
+                252, 253, 254, 255, 256, 257, 258, 260, 261, 262, 263, 264, 265, 267, 268, 
+                269, 271, 274, 275, 276, 278, 280, 281, 282, 284, 287, 288, 289, 291, 293, 
+                294, 295, 296, 297, 298, 299, 300, 302, 303, 304, 305, 306, 307, 308, 324, 
+                326, 327, 328, 329, 330, 331, 333, 334, 335, 336, 337, 338, 340, 341, 342, 
+                343, 344, 345, 346, 347, 349, 350, 351, 358, 360, 361, 362, 364, 366, 367, 
+                368, 369, 370, 377, 379, 380, 381, 382, 383, 387, 389, 390, 391, 392, 393, 
+                394, 395, 406, 408, 409, 410, 411, 412, 413, 414, 415, 417, 418, 419, 420, 
+                421, 422, 423, 428, 430, 431, 432, 433, 434, 435, 436, 441, 443, 444, 445, 
+                446, 447, 451, 453, 454, 455, 456, 457, 458, 460, 461, 462, 463, 464, 465, 
+                466, 471, 473, 474, 475, 476, 477, 478, 480, 481, 482, 483, 484, 488, 490, 
+                491, 492, 493, 494, 495, 496, 497, 499, 500, 501, 502, 504, 505, 506, 507, 
+                508, 509, 510, 662, 664, 665, 667, 669, 671, 673, 675, 676, 678, 680, 682, 
+                683, 685, 686, 687, 688, 690, 691, 692, 694, 696, 697, 699, 701, 702, 703, 
+                705, 706, 707, 713, 715, 716, 717, 720, 722, 723, 724, 727, 729, 730, 731, 
+                747, 749, 750, 751, 757, 759, 760, 761, 764, 766, 767, 768, 771, 773, 774, 
+                775, 776, 778, 779, 780, 786, 788, 789, 790, 793, 795, 796, 797, 800, 802, 
+                803, 804, 823, 825, 826, 827, 836, 838, 839, 840, 845, 847, 848, 849, 852, 
+                854, 855, 856, 859, 861, 862, 863, 866, 868, 869, 870, 871, 873, 874, 875, 
+                878, 880, 881, 882, 911, 913, 914, 915, 922, 924, 925, 926, 929, 931, 932, 
+                933, 936, 938, 939, 940, 941, 943, 944, 945, 951, 953, 954, 955, 958, 960, 
+                961, 962, 965, 967, 968, 969}, 
+            16: {56, 67, 71, 73, 84, 93, 103, 111, 123, 130, 133, 135, 136, 139, 140, 142, 
+                143, 144, 146, 151, 161, 162, 167, 175, 183, 192, 197, 237, 240, 242, 243, 
+                244, 247, 248, 250, 259, 266, 270, 272, 273, 277, 279, 283, 285, 286, 290, 
+                292, 301, 309, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 322, 323, 
+                325, 332, 339, 348, 352, 355, 356, 359, 365, 371, 373, 374, 375, 378, 384, 
+                385, 386, 388, 396, 397, 399, 400, 401, 402, 403, 404, 407, 416, 424, 425, 
+                426, 427, 429, 437, 438, 439, 440, 442, 448, 449, 450, 452, 459, 467, 468, 
+                469, 470, 472, 479, 485, 486, 487, 489, 498, 503, 511, 513, 514, 515, 516, 
+                517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 530, 531, 532, 
+                533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 547, 548, 
+                549, 550, 551, 553, 557, 558, 559, 560, 561, 564, 566, 567, 568, 569, 570, 
+                571, 572, 573, 574, 575, 576, 577, 579, 580, 581, 582, 583, 585, 589, 590, 
+                591, 594, 596, 597, 598, 599, 600, 601, 602, 603, 604, 621, 623, 624, 625, 
+                626, 627, 628, 629, 630, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 
+                642, 643, 645, 646, 647, 648, 649, 650, 652, 653, 654, 655, 656, 657, 658, 
+                659, 660, 666, 677, 684, 689, 698, 700, 704, 708, 709, 711, 712, 714, 718, 
+                719, 721, 725, 726, 728, 733, 735, 736, 737, 738, 739, 740, 741, 742, 744, 
+                745, 746, 748, 752, 753, 755, 756, 758, 762, 763, 765, 769, 770, 772, 777, 
+                781, 782, 784, 785, 787, 791, 792, 794, 798, 799, 801, 805, 807, 808, 809, 
+                810, 811, 812, 813, 814, 816, 817, 818, 819, 820, 821, 822, 824, 828, 829, 
+                831, 832, 833, 834, 837, 841, 842, 843, 844, 846, 850, 851, 853, 860, 864, 
+                865, 867, 872, 876, 877, 879, 883, 885, 886, 887, 888, 889, 890, 891, 892, 
+                894, 895, 896, 897, 898, 899, 900, 901, 903, 904, 905, 906, 908, 909, 910, 
+                912, 916, 917, 919, 920, 923, 927, 928, 930, 934, 935, 937, 942, 946, 947, 
+                949, 950, 952, 956, 957, 959, 963, 964, 966, 971, 973, 974, 975, 976, 977, 
+                978, 980, 981, 982, 983, 984, 985, 987, 988, 989, 990, 991, 992, 993, 994, 
+                996, 997, 998, 999, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1018, 1020, 
+                1021, 1022, 1023, 1024, 1025, 1026, 1031, 1033, 1034, 1035, 1036, 1037, 1038, 
+                1039, 1044, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1055, 1056, 1057, 
+                1058, 1059, 1060, 1061, 1066, 1068, 1069, 1070, 1071, 1072, 1073, 1074, 1075, 
+                1077, 1078, 1079, 1080, 1081, 1082, 1083, 1088, 1090, 1091, 1092, 1093, 1094, 
+                1095, 1096, 1097, 1099, 1100, 1101, 1102, 1103, 1104, 1105, 1110, 1112, 1113, 
+                1114, 1115, 1116, 1117, 1118, 1123, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 
+                1132, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1143, 1145, 1146, 1147, 1148, 
+                1149, 1150, 1151, 1152, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1163, 
+                1164, 1165, 1166, 1167, 1168, 1169, 1170, 1172, 1173, 1174, 1175, 1176, 1177, 
+                1178}, 
+            32: {512, 1027, 1028, 1029, 1030, 1120, 1032, 1121, 1122, 1040, 529, 1041, 1042, 
+                1043, 1045, 1054, 546, 1062, 1063, 552, 1064, 554, 555, 556, 1065, 1067, 
+                562, 563, 1076, 565, 1084, 1085, 1086, 1087, 1089, 578, 584, 586, 587, 588, 
+                1098, 592, 593, 1106, 595, 1107, 1108, 1109, 1111, 605, 607, 608, 609, 610, 
+                611, 612, 613, 614, 615, 104, 616, 618, 619, 620, 1124, 622, 1133, 631, 1144, 
+                1153, 644, 1162, 651, 141, 1171, 1179, 1181, 1182, 1183, 1184, 1185, 1186, 
+                163, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1198, 1199, 
+                1200, 1201, 1202, 1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210, 1211, 1212, 
+                1213, 1215, 1216, 1217, 1218, 1219, 1220, 1221, 710, 1222, 1224, 1225, 1226, 
+                1227, 1228, 1229, 1230, 732, 734, 743, 235, 754, 783, 806, 815, 310, 830, 321, 
+                835, 857, 858, 353, 357, 372, 884, 376, 893, 902, 907, 398, 405, 918, 921, 
+                948, 970, 972, 979, 986, 995, 1000, 1008, 1009, 1011, 1012, 1013, 1014, 1015, 
+                1016, 1019, 1119}, 
+            64: {354, 1223, 617, 363, 1197, 1214, 1010, 1141, 1142, 1017, 1180, 606}, 
+            3: {1234, 1237, 1231}, 
+            6: {1281, 1284, 1286, 1289, 1291, 1292, 1294, 1339, 1341, 1344, 1346, 1347, 1349, 
+                1350, 1352, 1355, 1357, 1232, 1233, 1360, 1235, 1236, 1362, 1238, 1239, 1363, 
+                1365, 1243, 1245, 1251, 1253, 1255, 1257, 1259, 1261, 1263, 1265, 1267, 1269, 
+                1271, 1273, 1279}, 
+            9: {1240}, 
+            18: {1249, 1295, 1297, 1300, 1302, 1241, 1242, 1275, 1277, 1247}, 
+            12: {1244, 1246, 1252, 1254, 1256, 1258, 1260, 1262, 1264, 1266, 1268, 1270, 1272, 
+                1274, 1280, 1282, 1283, 1285, 1287, 1288, 1290, 1293, 1303, 1305, 1306, 1307, 
+                1310, 1312, 1313, 1314, 1315, 1317, 1318, 1319, 1322, 1324, 1325, 1326, 1340, 
+                1342, 1343, 1345, 1348, 1351, 1353, 1354, 1356, 1358, 1359, 1361, 1364, 1366, 
+                1367, 1369, 1370, 1371, 1374, 1376, 1377, 1378, 1379, 1381, 1382, 1383, 1386, 
+                1388, 1389, 1390, 1391, 1393, 1394, 1395, 1396, 1398, 1399, 1400, 1403, 1405, 
+                1406, 1407, 1410, 1412, 1413, 1414, 1415, 1417, 1418, 1419, 1424, 1426, 1427, 
+                1428, 1429, 1431, 1432, 1433, 1434, 1436, 1437, 1438, 1439, 1441, 1442, 1443, 
+                1446, 1448, 1449, 1450, 1451, 1453, 1454, 1455, 1458, 1460, 1461, 1462, 1503, 
+                1511}, 
+            36: {1248, 1250, 1327, 1296, 1329, 1298, 1299, 1330, 1301, 1331, 1334, 1336, 1337, 
+                1338, 1276, 1278}, 
+            24: {1537, 1542, 1544, 1546, 1548, 1561, 1563, 1564, 1566, 1572, 1574, 1585, 1587, 
+                1304, 1308, 1309, 1311, 1316, 1320, 1321, 1323, 1368, 1372, 1373, 1375, 1380, 
+                1384, 1385, 1387, 1392, 1397, 1401, 1402, 1404, 1408, 1409, 1411, 1416, 1420, 
+                1421, 1422, 1423, 1425, 1430, 1435, 1440, 1444, 1445, 1447, 1452, 1456, 1457, 
+                1459, 1463, 1465, 1466, 1467, 1468, 1469, 1470, 1471, 1476, 1478, 1479, 1480, 
+                1481, 1482, 1483, 1484, 1485, 1487, 1488, 1489, 1490, 1491, 1492, 1493, 1494, 
+                1496, 1497, 1498, 1499, 1500, 1501, 1502, 1504, 1508, 1510, 1512, 1513, 1515, 
+                1516, 1518, 1520, 1522, 1535}, 
+            72: {1328, 1332, 1333, 1335}, 
+            48: {1536, 1538, 1540, 1541, 1543, 1547, 1556, 1558, 1559, 1560, 1562, 1565, 1567, 
+                1569, 1570, 1571, 1573, 1580, 1582, 1583, 1584, 1586, 1591, 1464, 1593, 1594, 
+                1596, 1597, 1598, 1472, 1473, 1474, 1475, 1601, 1477, 1603, 1604, 1605, 1606, 
+                1608, 1609, 1610, 1611, 1486, 1613, 1614, 1615, 1495, 1506, 1509, 1514, 1517, 
+                1521, 1530, 1532, 1533, 1534}, 
+            96: {1539, 1550, 1552, 1553, 1555, 1557, 1568, 1577, 1579, 1581, 1588, 1590, 1592, 
+                1595, 1602, 1607, 1612, 1505, 1507, 1638, 1640, 1641, 1642, 1643, 1644, 1645, 
+                1646, 1647, 1649, 1650, 1651, 1524, 1526, 1527, 1529, 1531}, 
+            192: {1545, 1549, 1551, 1554, 1575, 1576, 1578, 1589, 1618, 1620, 1621, 1622, 1623, 
+                1625, 1626, 1627, 1628, 1630, 1631, 1632, 1633, 1635, 1636, 1637, 1639, 1519, 
+                1648, 1523, 1525, 1528}, 
+            384: {1600, 1634, 1616, 1617, 1619, 1624, 1629, 1599}
+            }
 
-      if international_symbol[0] == "F":
-        origings = [ "x, y+1/2, z+1/2, +1", "x+1/2, y, z+1/2, +1", "x+1/2, y+1/2, z, +1" ]
-      elif international_symbol[0] == "I":
-        origings = [ "x+1/2, y+1/2, z+1/2, +1" ]
-      elif international_symbol[0] == "R":
-        origings = [ "x+1/3, y+2/3, z+2/3, +1", "x+2/3, y+1/3, z+1/3, +1" ]
-      elif international_symbol[0] == "C":
-        origings = [ "x+1/2, y+1/2, z, +1" ]
-      elif international_symbol[0] == "A":
-        origings = [ "x, y+1/2, z+1/2, +1" ]
-      elif international_symbol[0] == "P":
-        pass
-      else:
-        exit("Error: International symbol wrong. Argument given ", international_symbol)
+        all_mspg = [MagneticSpaceGroup(i) for i in range(*cs_range[cs]) if i in ORDER2MSPG[len(mop_list)]]
+        # print("init mspg with dict: ", time.time() - start1)
 
-      return [ MagSymmOp.from_xyzt_string(xyzt_string) for xyzt_string in origings ]
+        # slower alternative that doesn't need above dictionary
+        # start1 = time.time()
+        # all_mspg = [MagneticSpaceGroup(i) for i in range(*cs_range[cs])]
+        # all_mspg = [mspg for mspg in all_mspg if len(mspg.symmetry_ops)==len(mop_list)]
+        # print("init mspg: ", time.time() - start1)
+
+        # compare list of symm operations to each magnetic spacegroup
+        for tmp_mspg in all_mspg:  
+            tmp_mspg_minus_input = []
+            input_minus_tmp_mspg = []
+        
+            for mop1 in tmp_mspg.symmetry_ops:
+                if not np.any( [mop1==mop2 for mop2 in mop_list] ):
+                    tmp_mspg_minus_input.append(mop1)
+
+            if tmp_mspg_minus_input==[]:
+                for mop2 in mop_list:
+                    if not np.any( [mop1==mop2 for mop1 in tmp_mspg.symmetry_ops] ):
+                        input_minus_tmp_mspg.append(mop2)
+
+            if tmp_mspg_minus_input==[] and input_minus_tmp_mspg==[]:
+                return tmp_mspg
+        
+        return exit("Error in the list of symmetry operations.")
+
+    def origin_centering(self):
+      
+        international_symbol = self._spacegroupAnalyzer._space_group_data['international']
+        origins = []
+
+        if international_symbol[0] == "F":
+            origings = ["x, y+1/2, z+1/2, +1", "x+1/2, y, z+1/2, +1", "x+1/2, y+1/2, z, +1"]
+        elif international_symbol[0] == "I":
+            origings = ["x+1/2, y+1/2, z+1/2, +1"]
+        elif international_symbol[0] == "R":
+            origings = ["x+1/3, y+2/3, z+2/3, +1", "x+2/3, y+1/3, z+1/3, +1"]
+        elif international_symbol[0] == "C":
+            origings = ["x+1/2, y+1/2, z, +1"]
+        elif international_symbol[0] == "A":
+            origings = ["x, y+1/2, z+1/2, +1"]
+        elif international_symbol[0] == "P":
+            pass
+        else:
+            exit("Error: International symbol wrong. Argument given ", international_symbol)
+
+        return [MagSymmOp.from_xyzt_string(xyzt_string) for xyzt_string in origings]
 
     # TODO: add a function get_refined_structure(self) analogous to SpacegroupAnalyzer
     # TODO: add function to return Magnetic Laue group
     # TODO: Use Magnetic Laue Group + Seemann et al (2015) to determine symmetry-imposed 
     #       shape of linear response tensor.
-
