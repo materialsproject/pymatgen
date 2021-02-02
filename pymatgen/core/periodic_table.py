@@ -506,7 +506,7 @@ class ElementBase(Enum):
         return FloatWithUnit(self._data["Metallic radius"], "ang")
 
     @property
-    def full_electronic_structure(self) -> Tuple[Tuple[int, str, int]]:
+    def full_electronic_structure(self) -> List[Tuple[int, str, int]]:
         """
         Full electronic structure as tuple.
         E.g., The electronic structure for Fe is represented as:
@@ -525,7 +525,7 @@ class ElementBase(Enum):
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        return tuple(data)  # type: ignore
+        return data  # type: ignore
 
     @property
     def valence(self):
