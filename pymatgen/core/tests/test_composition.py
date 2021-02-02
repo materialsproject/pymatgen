@@ -9,18 +9,10 @@ Created on Nov 10, 2012
 
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 10, 2012"
-
 import random
 import unittest
 
-from pymatgen.core.composition import ChemicalPotential, Composition, CompositionError
+from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
 
 
@@ -73,7 +65,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(c.hill_formula, "C2 H6 O")
 
     def test_init_(self):
-        self.assertRaises(CompositionError, Composition, {"H": -0.1})
+        self.assertRaises(ValueError, Composition, {"H": -0.1})
         f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, "Li": 4, "O": 16, "P": 4}
@@ -118,7 +110,7 @@ class CompositionTest(PymatgenTest):
         ]
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(CompositionError, Composition, "(co2)(po4)2")
+        self.assertRaises(ValueError, Composition, "(co2)(po4)2")
 
         self.assertEqual(Composition("K Na 2").reduced_formula, "KNa2")
 
@@ -366,7 +358,7 @@ class CompositionTest(PymatgenTest):
         )
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula, "Li3 P3 O9")
 
-        self.assertRaises(CompositionError, Composition("O").__sub__, Composition("H"))
+        self.assertRaises(ValueError, Composition("O").__sub__, Composition("H"))
 
         # check that S is completely removed by subtraction
         c1 = Composition({"S": 1 + Composition.amount_tolerance / 2, "O": 1})

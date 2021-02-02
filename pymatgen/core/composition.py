@@ -14,7 +14,7 @@ import re
 import string
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import List, Tuple
+from typing import List, Tuple, Union, Dict
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -135,7 +135,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         self._natoms = 0
         for k, v in elmap.items():
             if v < -Composition.amount_tolerance and not self.allow_negative:
-                raise CompositionError("Amounts in Composition cannot be " "negative!")
+                raise ValueError("Amounts in Composition cannot be " "negative!")
             if abs(v) >= Composition.amount_tolerance:
                 elamt[get_el_sp(k)] = v
                 self._natoms += abs(v)
@@ -210,7 +210,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         composition gives an FeO2 composition.
 
         Raises:
-            CompositionError if the subtracted composition is greater than the
+            ValueError if the subtracted composition is greater than the
             original composition in any of its elements, unless allow_negative
             is True
         """
@@ -263,7 +263,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         return sum((el.Z * abs(amt) for el, amt in self.items()))
 
-    def almost_equals(self, other, rtol=0.1, atol=1e-8):
+    def almost_equals(self, other: "Composition", rtol: float = 0.1, atol: float = 1e-8) -> bool:
         """
         Returns true if compositions are equal within a tolerance.
 
@@ -288,7 +288,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         return len(self) == 1
 
-    def copy(self):
+    def copy(self) -> "Composition":
         """
         :return: A copy of the composition.
         """
@@ -371,7 +371,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         factor = self.get_reduced_formula_and_factor()[1]
         return self / factor, factor
 
-    def get_reduced_formula_and_factor(self, iupac_ordering=False) -> Tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False) -> Tuple[str, float]:
         """
         Calculates a reduced formula and factor.
 
@@ -401,7 +401,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
         return formula, factor
 
-    def get_integer_formula_and_factor(self, max_denominator=10000, iupac_ordering=False):
+    def get_integer_formula_and_factor(
+        self, max_denominator: int = 10000, iupac_ordering: bool = False
+    ) -> Tuple[str, float]:
         """
         Calculates an integer formula and factor.
 
@@ -460,7 +462,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return " ".join(formula)
 
     @property
-    def elements(self) -> List[Element]:
+    def elements(self) -> List[Union[Element, Species, DummySpecies]]:
         """
         Returns view of elements in Composition.
         """
@@ -472,7 +474,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         )
 
     @property
-    def num_atoms(self):
+    def num_atoms(self) -> float:
         """
         Total number of atoms in Composition. For negative amounts, sum
         of absolute values
@@ -480,13 +482,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return self._natoms
 
     @property
-    def weight(self):
+    def weight(self) -> float:
         """
         Total molecular weight of Composition
         """
         return Mass(sum([amount * el.atomic_mass for el, amount in self.items()]), "amu")
 
-    def get_atomic_fraction(self, el):
+    def get_atomic_fraction(self, el) -> float:
         """
         Calculate atomic fraction of an Element or Species.
 
@@ -577,7 +579,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 sym_dict[el] += amt * factor
                 f = f.replace(m.group(), "", 1)
             if f.strip():
-                raise CompositionError("{} is an invalid formula!".format(f))
+                raise ValueError("{} is an invalid formula!".format(f))
             return sym_dict
 
         m = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
@@ -649,13 +651,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         return cls(d)
 
-    def get_el_amt_dict(self):
+    def get_el_amt_dict(self) -> Dict[str, float]:
         """
         Returns:
             Dict with element symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
-        d = collections.defaultdict(float)
+        d: Dict[str, float] = collections.defaultdict(float)
         for e, a in self.items():
             d[e.symbol] += a
         return d
@@ -970,7 +972,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             try:
                 comp = Composition(fuzzy_formula)
                 return [comp]
-            except (CompositionError, ValueError):
+            except ValueError:
                 pass
 
         all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
@@ -1039,7 +1041,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             # get element and amount from regex match
             el = m.group(1)
             if len(el) > 2 or len(el) < 1:
-                raise CompositionError("Invalid element symbol entered!")
+                raise ValueError("Invalid element symbol entered!")
             amt = float(m.group(2)) if m.group(2).strip() != "" else 1
 
             # convert the element string to proper [uppercase,lowercase] format
@@ -1121,7 +1123,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                         yield match
 
 
-def reduce_formula(sym_amt, iupac_ordering=False):
+def reduce_formula(sym_amt, iupac_ordering: bool = False) -> Tuple[str, float]:
     """
     Helper method to reduce a sym_amt dict to a reduced formula and factor.
 
@@ -1168,12 +1170,8 @@ def reduce_formula(sym_amt, iupac_ordering=False):
         reduced_form.append(s)
         reduced_form.append(formula_double_format(normamt))
 
-    reduced_form = "".join(reduced_form + polyanion)
-    return reduced_form, factor
-
-
-class CompositionError(Exception):
-    """Exception class for composition errors"""
+    reduced_form = "".join(reduced_form + polyanion)  # type: ignore
+    return reduced_form, factor  # type: ignore
 
 
 class ChemicalPotential(dict, MSONable):
@@ -1220,7 +1218,7 @@ class ChemicalPotential(dict, MSONable):
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
         raise NotImplementedError()
 
-    def get_energy(self, composition, strict=True):
+    def get_energy(self, composition: Composition, strict: bool = True) -> float:
         """
         Calculates the energy of a composition.
 

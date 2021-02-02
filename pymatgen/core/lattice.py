@@ -169,7 +169,7 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
-    def get_vector_along_lattice_directions(self, cart_coords: ArrayLike):
+    def get_vector_along_lattice_directions(self, cart_coords: ArrayLike) -> np.ndarray:
         """
         Returns the coordinates along lattice directions given cartesian coordinates.
 
@@ -205,7 +205,7 @@ class Lattice(MSONable):
         return 1 / ((dot(dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
-    def cubic(a: float):
+    def cubic(a: float) -> "Lattice":
         """
         Convenience constructor for a cubic lattice.
 
@@ -218,7 +218,7 @@ class Lattice(MSONable):
         return Lattice([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]])
 
     @staticmethod
-    def tetragonal(a: float, c: float):
+    def tetragonal(a: float, c: float) -> "Lattice":
         """
         Convenience constructor for a tetragonal lattice.
 
@@ -232,7 +232,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 90)
 
     @staticmethod
-    def orthorhombic(a: float, b: float, c: float):
+    def orthorhombic(a: float, b: float, c: float) -> "Lattice":
         """
         Convenience constructor for an orthorhombic lattice.
 
@@ -247,7 +247,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, 90, 90)
 
     @staticmethod
-    def monoclinic(a: float, b: float, c: float, beta: float):
+    def monoclinic(a: float, b: float, c: float, beta: float) -> "Lattice":
         """
         Convenience constructor for a monoclinic lattice.
 
@@ -265,7 +265,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, b, c, 90, beta, 90)
 
     @staticmethod
-    def hexagonal(a: float, c: float):
+    def hexagonal(a: float, c: float) -> "Lattice":
         """
         Convenience constructor for a hexagonal lattice.
 
@@ -279,7 +279,7 @@ class Lattice(MSONable):
         return Lattice.from_parameters(a, a, c, 90, 90, 120)
 
     @staticmethod
-    def rhombohedral(a: float, alpha: float):
+    def rhombohedral(a: float, alpha: float) -> "Lattice":
         """
         Convenience constructor for a rhombohedral lattice.
 

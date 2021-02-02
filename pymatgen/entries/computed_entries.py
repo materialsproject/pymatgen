@@ -845,7 +845,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             alpha_i = pair[0][1]
             alpha_j = pair[1][1]
 
-            mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)
+            mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)  # type: ignore
 
         reduced_mass = (1 / denominator) * mass_sum
 
