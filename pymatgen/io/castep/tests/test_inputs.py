@@ -13,10 +13,10 @@ class CellTest(PymatgenTest):
         self.assertEqual(cell.structure, structure)
 
         # tests string method
-        known_contents = """%block positions_abs
+        known_contents = """%block positions_frac
 Si 0.0 0.0 0.0
 Si 0.75 0.5 0.75
-%endblock positions_abs"""
+%endblock positions_frac"""
         self.assertIn(known_contents, str(cell))
 
         # tests adding an unknown element
