@@ -101,6 +101,9 @@ class VasprunTest(PymatgenTest):
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.GW0.xml")
         self.assertIn(v.run_type, "HF")
 
+        v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.pbesol_vdw")
+        self.assertIn(v.run_type, "PBEsol+vdW-DFT-D3-BJ")
+
         v = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.hse06")
         self.assertIn(v.run_type, "HSE06")
 
