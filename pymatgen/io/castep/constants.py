@@ -11,6 +11,7 @@ class CellKeyword(Enum):
     Enum defining valid keywords for CASTEP .cell files.
 
     See https://github.com/CCP-NC/pspot-site/blob/master/generate/castep_keywords.json
+    See http://www.tcm.phy.cam.ac.uk/castep/documentation/
     """
 
     ATOMIC_INIT = "Dummy"
@@ -137,6 +138,7 @@ class ParamKeyword(Enum):
     Enum defining valid keywords for CASTEP .param files.
 
     See https://github.com/CCP-NC/pspot-site/blob/master/generate/castep_keywords.json
+    See http://www.tcm.phy.cam.ac.uk/castep/documentation/
     """
 
     BACKUP_INTERVAL = "seconds between backups"
@@ -562,4 +564,3 @@ class OTFPseudopotentialLibrary(Enum):
     NCP18 = 14  # Recommended set of norm-conserving pseudopotentials as of CASTEP 18.0
     C19 = 15  # OTFG definitions as of CASTEP 19.0 (delta=0.442 meV)
     NCP19 = 16  # Recommended set of norm-conserving pseudopotentials as of CASTEP 19.0 (delta=1.098 meV)
-    SOC19 = 17
