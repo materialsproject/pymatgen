@@ -46,4 +46,5 @@ jobs:
         MPLBACKEND: "Agg"
       run: |
         echo "PATH=$PATH"
+        rm -rf .pytest_cache
         pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes
