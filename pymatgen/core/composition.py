@@ -14,7 +14,7 @@ import re
 import string
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
-from typing import List, Tuple, Union, Dict, Literal
+from typing import List, Tuple, Union, Dict
 
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
@@ -518,25 +518,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     def contains_element_type(
         self,
-        category: Literal[
-            "noble_gas",
-            "transition_metal",
-            "post_transition_metal",
-            "rare_earth_metal",
-            "metal",
-            "metalloid",
-            "alkali",
-            "alkaline",
-            "halogen",
-            "chalcogen",
-            "lanthanoid",
-            "actinoid",
-            "quadrupolar",
-            "s-block",
-            "p-block",
-            "d-block",
-            "f-block",
-        ],
+        category: str,
     ):
         """
         Check if Composition contains any elements matching a given category.

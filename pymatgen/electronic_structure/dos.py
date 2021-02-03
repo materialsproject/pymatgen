@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 from monty.json import MSONable
 from scipy.constants.codata import value as _cd
-from typing import Dict, Literal
+from typing import Dict
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.sites import PeriodicSite
@@ -706,7 +706,7 @@ class CompleteDos(Dos):
                 spd_dos[orbital_type] = pdos
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
-    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> Dict[Literal["t2g", "e_g"], Dos]:
+    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> Dict[str, Dos]:
         """
         Get the t2g, eg projected DOS for a particular site.
 
@@ -901,7 +901,7 @@ class LobsterCompleteDos(CompleteDos):
             raise ValueError("orbital is not correct")
         return Dos(self.efermi, self.energies, self.pdos[site][orbital])  # type: ignore
 
-    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> Dict[Literal["t2g", "e_g"], Dos]:
+    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> Dict[str, Dos]:
         """
         Get the t2g, eg projected DOS for a particular site.
         Args:
