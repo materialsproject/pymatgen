@@ -8,11 +8,11 @@ This module defines classes to represent the density of states, etc.
 
 import functools
 import warnings
+from typing import Dict
 
 import numpy as np
 from monty.json import MSONable
 from scipy.constants.codata import value as _cd
-from typing import Dict
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.sites import PeriodicSite
