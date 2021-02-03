@@ -2,6 +2,7 @@ import collections
 import re
 from dataclasses import dataclass, field
 from difflib import get_close_matches
+from enum import Enum
 from typing import Dict, Any, Union, List, Literal
 from warnings import warn
 
@@ -36,6 +37,25 @@ Tag = collections.namedtuple("Tag", "value comment")
 Block = collections.namedtuple("Block", "values comments")
 
 
+def _get_enum(key: str, enum: Enum):
+    """
+    Utility function to create a specified enum from a string.
+    """
+    if isinstance(key, str):
+        try:
+            key = enum[key.upper()]
+            return key
+        except KeyError:
+            error_message = f"{key} is not a valid keyword."
+            possible_matches = get_close_matches(key.upper(), enum.__members__.keys(), n=3)
+            if possible_matches:
+                error_message += f" Perhaps you mean: {', '.join(possible_matches)}?"
+            raise KeyError(error_message)
+    elif not isinstance(key, enum):
+        raise ValueError(f"{key} is provided incorrectly, it is not an {enum} or a string and cannot be parsed.")
+    return key
+
+
 @dataclass
 class Cell(MSONable):
     """
@@ -58,9 +78,9 @@ class Cell(MSONable):
     blocks: Dict[CellKeyword, Block] = field(default_factory=dict)
     tags: Dict[CellKeyword, Tag] = field(default_factory=dict)
 
-    def add_block(self, name: Union[str, CellKeyword], block: Union[List[List[str]], Block]):
+    def set_block(self, name: Union[str, CellKeyword], block: Union[List[List[str]], Block]):
         """
-        Add a block to the Cell.
+        Set a block in the Cell.
 
         Args:
             name: A valid block name. Can be given as a string (any case) or
@@ -70,22 +90,14 @@ class Cell(MSONable):
                 be given as a list of strings, in which case the comment will
                 be left empty.
         """
-        if isinstance(name, str):
-            try:
-                name = CellKeyword[name.upper()]
-            except KeyError:
-                error_message = f"{name} is not a valid keyword."
-                possible_matches = get_close_matches(name.upper(), CellKeyword.__members__.keys(), n=3)
-                if possible_matches:
-                    error_message += f" Perhaps you mean: {', '.join(possible_matches)}?"
-                raise KeyError(error_message)
+        name = _get_enum(name, CellKeyword)
         if isinstance(block, list):
             block = Block(values=block, comments=None)
         self.blocks[name] = block
 
-    def add_tag(self, name: Union[str, CellKeyword], tag: Union[str, Tag]):
+    def set_tag(self, name: Union[str, CellKeyword], tag: Union[str, Tag]):
         """
-        Add a tag to the Cell.
+        Set a tag in the Cell.
 
         Args:
             name: A valid block name. Can be given as a string (any case) or
@@ -95,20 +107,12 @@ class Cell(MSONable):
                 be given as a list of strings, in which case the comment will
                 be left empty.
         """
-        if isinstance(name, str):
-            try:
-                name = CellKeyword[name.upper()]
-            except KeyError:
-                error_message = f"{name} is not a valid keyword."
-                possible_matches = get_close_matches(name.upper(), CellKeyword.__members__.keys(), n=3)
-                if possible_matches:
-                    error_message += f" Perhaps you mean: {', '.join(possible_matches)}?"
-                raise KeyError(error_message)
+        name = _get_enum(name, CellKeyword)
         if isinstance(tag, str):
             tag = Tag(value=tag, comment=None)
         self.tags[name] = tag
 
-    def add_pseudopotential(self, library: Union[str, OTFPseudopotentialLibrary]):
+    def set_pseudopotential(self, library: Union[str, OTFPseudopotentialLibrary]):
         """
         Convenience method to add one of the default pseudopotential libraries for all elements.
 
@@ -118,7 +122,7 @@ class Cell(MSONable):
         """
         if isinstance(library, str):
             library = OTFPseudopotentialLibrary[library]
-        self.add_block(CellKeyword.SPECIES_POT, [[library.name]])
+        self.set_block(CellKeyword.SPECIES_POT, [[library.name]])
 
     def __str__(self):
         """
@@ -260,9 +264,9 @@ class Cell(MSONable):
 
         return cls(tags=tags, blocks=blocks)
 
-    def add_structure(self, structure: Structure):
+    def set_structure(self, structure: Structure):
         """
-        Add a structure to your .cell file. If a structure is already specified,
+        Set a structure to your .cell file. If a structure is already specified,
         it will be replaced.
 
         Args:
@@ -279,8 +283,8 @@ class Cell(MSONable):
                 del self.blocks[key]
                 warn("Structure already specified in .cell file, replacing with new structure.")
 
-        self.add_block(CellKeyword.LATTICE_CART, [["ang"]] + [list(map(str, row)) for row in structure.lattice.matrix])
-        self.add_block(
+        self.set_block(CellKeyword.LATTICE_CART, [["ang"]] + [list(map(str, row)) for row in structure.lattice.matrix])
+        self.set_block(
             CellKeyword.POSITIONS_FRAC,
             [
                 [site.species_string, *map(str, site.frac_coords), "spin={}".format(site.properties["magmom"])]
@@ -289,6 +293,10 @@ class Cell(MSONable):
                 for site in structure.sites
             ],
         )
+
+        # clear existing cached structure
+        self._structure = None
+        # and cache the new one
         self._structure = self.structure
 
     @classmethod
@@ -308,7 +316,7 @@ class Cell(MSONable):
         blocks = blocks or {}
 
         cell = cls(blocks=blocks, tags=tags)
-        cell.add_structure(structure)
+        cell.set_structure(structure)
 
         return cell
 
@@ -359,17 +367,18 @@ class Cell(MSONable):
                 elements_coords.append((row[0], list(map(float, row[1:4]))))
                 if "spin=" in row:
                     # assumes e.g. "spin=+2" with no space around equals sign
+                    # TODO: should just handle any numeral after SPIN (strip letters)
                     magmoms[idx] = float(row.split("spin=")[1])
             elements, coords = zip(*elements_coords)
             structure = Structure(lattice, elements, coords, coords_are_cartesian=False)
         elif CellKeyword.POSITIONS_ABS in self.blocks:
-            # TODO: handle magmom!
             positions_abs = self.blocks[CellKeyword.POSITIONS_ABS].values
             if positions_abs[0][0].lower() in ("ang", "nm", "cm", "m", "bohr", "a0"):
                 unit = positions_abs[0][0].lower()
                 positions_abs = positions_abs[1:]
             else:
                 unit = "ang"
+                # TODO: make sure unit variable is used
             elements_coords = []
             magmoms = {}
             for idx, row in enumerate(positions_abs):
@@ -409,3 +418,38 @@ class Param(MSONable):
     """
 
     tags: Dict[ParamKeyword, Tag] = field(default_factory=dict)
+
+    def set_tag(self, name: Union[str, ParamKeyword], tag: Union[str, Tag]):
+        """
+        Set a tag in the Param.
+
+        Args:
+            name: A valid block name. Can be given as a string (any case) or
+                a ParamKeyword. If the block name is not known, an exception
+                will be raised.
+            tag: A Tag, a named tuple contained value and comments. Can
+                be given as a list of strings, in which case the comment will
+                be left empty.
+        """
+        name = _get_enum(name, ParamKeyword)
+        if isinstance(tag, str):
+            tag = Tag(value=tag, comment=None)
+        self.tags[name] = tag
+
+    @classmethod
+    def from_tags(cls, tags: Dict[Union[str, ParamKeyword], Any]):
+        """
+        Convenience method to create a Param file using a dictionary
+        of tags and their associated values.
+
+        Args:
+            tags: dictionary of parameters, keyed by parameter name (case insensitive)
+                or keyed by ParamKeyword Enum,
+                e.g. {"task": "singlepoint", "basis_precision": "fine"}
+
+        Returns: a Param object
+        """
+        param = cls()
+        for name, value in tags.items():
+            param.set_tag(name, value)
+        return param
