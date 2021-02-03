@@ -16,7 +16,7 @@ from monty.json import MSONable
 
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.string import transformation_to_string
-from pymatgen.util.typing import ArrayLike, VectorLike
+from pymatgen.util.typing import ArrayLike
 
 __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -59,7 +59,7 @@ class SymmOp(MSONable):
     @staticmethod
     def from_rotation_and_translation(
         rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        translation_vec: VectorLike = (0, 0, 0),
+        translation_vec: ArrayLike = (0, 0, 0),
         tol=0.1,
     ):
         """
@@ -130,7 +130,7 @@ class SymmOp(MSONable):
         affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
-    def apply_rotation_only(self, vector: VectorLike):
+    def apply_rotation_only(self, vector: ArrayLike):
         """
         Vectors should only be operated by the rotation matrix and not the
         translation vector.
@@ -163,7 +163,7 @@ class SymmOp(MSONable):
 
         return np.einsum(einsum_string, *einsum_args)
 
-    def are_symmetrically_related(self, point_a: VectorLike, point_b: VectorLike, tol: float = 0.001) -> bool:
+    def are_symmetrically_related(self, point_a: ArrayLike, point_b: ArrayLike, tol: float = 0.001) -> bool:
         """
         Checks if two points are symmetrically related.
 
@@ -213,7 +213,7 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_axis_angle_and_translation(
-        axis: VectorLike, angle: float, angle_in_radians: bool = False, translation_vec: VectorLike = (0, 0, 0)
+        axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0)
     ) -> "SymmOp":
         """
         Generates a SymmOp for a rotation about a given axis plus translation.
@@ -253,7 +253,7 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_origin_axis_angle(
-        origin: VectorLike, axis: VectorLike, angle: float, angle_in_radians: bool = False
+        origin: ArrayLike, axis: ArrayLike, angle: float, angle_in_radians: bool = False
     ) -> "SymmOp":
         """
         Generates a SymmOp for a rotation about a given axis through an
@@ -271,50 +271,50 @@ class SymmOp(MSONable):
             SymmOp.
         """
         theta = angle * pi / 180 if not angle_in_radians else angle
-        a = origin[0]
-        b = origin[1]
-        c = origin[2]
-        u = axis[0]
-        v = axis[1]
-        w = axis[2]
+        a = origin[0]  # type: ignore
+        b = origin[1]  # type: ignore
+        c = origin[2]  # type: ignore
+        u = axis[0]  # type: ignore
+        v = axis[1]  # type: ignore
+        w = axis[2]  # type: ignore
         # Set some intermediate values.
-        u2 = u * u
-        v2 = v * v
-        w2 = w * w
+        u2 = u * u  # type: ignore
+        v2 = v * v  # type: ignore
+        w2 = w * w  # type: ignore
         cos_t = cos(theta)
         sin_t = sin(theta)
-        l2 = u2 + v2 + w2
-        l = sqrt(l2)
+        l2 = u2 + v2 + w2  # type: ignore
+        l = sqrt(l2)  # type: ignore
 
         # Build the matrix entries element by element.
-        m11 = (u2 + (v2 + w2) * cos_t) / l2
-        m12 = (u * v * (1 - cos_t) - w * l * sin_t) / l2
-        m13 = (u * w * (1 - cos_t) + v * l * sin_t) / l2
-        m14 = (
-            a * (v2 + w2)
-            - u * (b * v + c * w)
-            + (u * (b * v + c * w) - a * (v2 + w2)) * cos_t
-            + (b * w - c * v) * l * sin_t
-        ) / l2
+        m11 = (u2 + (v2 + w2) * cos_t) / l2  # type: ignore
+        m12 = (u * v * (1 - cos_t) - w * l * sin_t) / l2  # type: ignore
+        m13 = (u * w * (1 - cos_t) + v * l * sin_t) / l2  # type: ignore
+        m14 = (  # type: ignore
+            a * (v2 + w2)  # type: ignore
+            - u * (b * v + c * w)  # type: ignore
+            + (u * (b * v + c * w) - a * (v2 + w2)) * cos_t  # type: ignore
+            + (b * w - c * v) * l * sin_t  # type: ignore
+        ) / l2  # type: ignore
 
-        m21 = (u * v * (1 - cos_t) + w * l * sin_t) / l2
-        m22 = (v2 + (u2 + w2) * cos_t) / l2
-        m23 = (v * w * (1 - cos_t) - u * l * sin_t) / l2
-        m24 = (
-            b * (u2 + w2)
-            - v * (a * u + c * w)
-            + (v * (a * u + c * w) - b * (u2 + w2)) * cos_t
-            + (c * u - a * w) * l * sin_t
-        ) / l2
+        m21 = (u * v * (1 - cos_t) + w * l * sin_t) / l2  # type: ignore
+        m22 = (v2 + (u2 + w2) * cos_t) / l2  # type: ignore
+        m23 = (v * w * (1 - cos_t) - u * l * sin_t) / l2  # type: ignore
+        m24 = (  # type: ignore
+            b * (u2 + w2)  # type: ignore
+            - v * (a * u + c * w)  # type: ignore
+            + (v * (a * u + c * w) - b * (u2 + w2)) * cos_t  # type: ignore
+            + (c * u - a * w) * l * sin_t  # type: ignore
+        ) / l2  # type: ignore
 
-        m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2
-        m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2
-        m33 = (w2 + (u2 + v2) * cos_t) / l2
-        m34 = (
-            c * (u2 + v2)
-            - w * (a * u + b * v)
-            + (w * (a * u + b * v) - c * (u2 + v2)) * cos_t
-            + (a * v - b * u) * l * sin_t
+        m31 = (u * w * (1 - cos_t) - v * l * sin_t) / l2  # type: ignore
+        m32 = (v * w * (1 - cos_t) + u * l * sin_t) / l2  # type: ignore
+        m33 = (w2 + (u2 + v2) * cos_t) / l2  # type: ignore
+        m34 = (  # type: ignore
+            c * (u2 + v2)  # type: ignore
+            - w * (a * u + b * v)  # type: ignore
+            + (w * (a * u + b * v) - c * (u2 + v2)) * cos_t  # type: ignore
+            + (a * v - b * u) * l * sin_t  # type: ignore
         ) / l2
 
         return SymmOp(
@@ -327,7 +327,7 @@ class SymmOp(MSONable):
         )
 
     @staticmethod
-    def reflection(normal: VectorLike, origin: VectorLike = (0, 0, 0)) -> "SymmOp":
+    def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> "SymmOp":
         """
         Returns reflection symmetry operation.
 
@@ -361,7 +361,7 @@ class SymmOp(MSONable):
         return SymmOp(mirror_mat)
 
     @staticmethod
-    def inversion(origin: VectorLike = (0, 0, 0)) -> "SymmOp":
+    def inversion(origin: ArrayLike = (0, 0, 0)) -> "SymmOp":
         """
         Inversion symmetry operation about axis.
 
@@ -378,7 +378,7 @@ class SymmOp(MSONable):
         return SymmOp(mat)
 
     @staticmethod
-    def rotoreflection(axis: VectorLike, angle: float, origin: VectorLike = (0, 0, 0)) -> "SymmOp":
+    def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> "SymmOp":
         """
         Returns a roto-reflection symmetry operation
 
@@ -553,7 +553,7 @@ class MagSymmOp(SymmOp):
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(
         rotation_matrix: ArrayLike = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        translation_vec: VectorLike = (0, 0, 0),
+        translation_vec: ArrayLike = (0, 0, 0),
         time_reversal: int = 1,
         tol: float = 0.1,
     ) -> "MagSymmOp":
