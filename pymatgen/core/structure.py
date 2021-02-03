@@ -3344,7 +3344,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self,
         i: int,
         species: CompositionLike,
-        coords: ArrayLike,
+        coords: ArrayLike = None,
         coords_are_cartesian: bool = False,
         properties: dict = None,
     ):
