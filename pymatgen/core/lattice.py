@@ -532,7 +532,11 @@ class Lattice(MSONable):
                 np.dot(c, d),
             ]
         )
-        selling_vector = [s if abs(s) > tol else 0 for s in selling_vector]
+        selling_vector = np.array(
+            [
+                s if abs(s) > tol else 0 for s in selling_vector
+            ]
+        )
 
         reduction_matrices = np.array(
             [
