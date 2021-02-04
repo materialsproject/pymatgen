@@ -186,8 +186,14 @@ class QChemDictSet(QCInput):
                         myplots[k] = v
 
         super().__init__(
-            self.molecule, rem=myrem, opt=myopt, pcm=mypcm, solvent=mysolvent,
-            smx=mysmx, scan=myscan, plots=myplots
+            self.molecule,
+            rem=myrem,
+            opt=myopt,
+            pcm=mypcm,
+            solvent=mysolvent,
+            smx=mysmx,
+            scan=myscan,
+            plots=myplots,
         )
 
     def write(self, input_file):
@@ -304,25 +310,26 @@ class OptSet(QChemDictSet):
         )
 
 
-
 class TransitionStateSet(QChemDictSet):
     """
     QChemDictSet for a transition-state search
     """
 
-    def __init__(self,
-                 molecule,
-                 dft_rung=3,
-                 basis_set="def2-tzvppd",
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 opt_variables=None,
-                 scf_algorithm="diis",
-                 max_scf_cycles=200,
-                 geom_opt_max_cycles=200,
-                 plot_cubes=False,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        opt_variables=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        geom_opt_max_cycles=200,
+        plot_cubes=False,
+        overwrite_inputs=None,
+    ):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -340,7 +347,8 @@ class TransitionStateSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
-            overwrite_inputs=overwrite_inputs)
+            overwrite_inputs=overwrite_inputs,
+        )
 
 
 class ForceSet(QChemDictSet):
@@ -348,16 +356,18 @@ class ForceSet(QChemDictSet):
     QChemDictSet for a force (gradient) calculation
     """
 
-    def __init__(self,
-                 molecule,
-                 dft_rung=3,
-                 basis_set="def2-tzvppd",
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 scf_algorithm="diis",
-                 max_scf_cycles=200,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        overwrite_inputs=None,
+    ):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -371,7 +381,8 @@ class ForceSet(QChemDictSet):
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
-            overwrite_inputs=overwrite_inputs)
+            overwrite_inputs=overwrite_inputs,
+        )
 
 
 class FreqSet(QChemDictSet):
@@ -433,25 +444,26 @@ class PESScanSet(QChemDictSet):
     than one variable (or more than two variables).
     """
 
-    def __init__(self,
-                 molecule,
-                 dft_rung=3,
-                 basis_set="def2-tzvppd",
-                 pcm_dielectric=None,
-                 smd_solvent=None,
-                 custom_smd=None,
-                 opt_variables=None,
-                 scan_variables=None,
-                 scf_algorithm="diis",
-                 max_scf_cycles=200,
-                 overwrite_inputs=None):
+    def __init__(
+        self,
+        molecule,
+        dft_rung=3,
+        basis_set="def2-tzvppd",
+        pcm_dielectric=None,
+        smd_solvent=None,
+        custom_smd=None,
+        opt_variables=None,
+        scan_variables=None,
+        scf_algorithm="diis",
+        max_scf_cycles=200,
+        overwrite_inputs=None,
+    ):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
 
         if scan_variables is None:
-            raise ValueError("Cannot run a pes_scan job without some variable "
-                             "to scan over!")
+            raise ValueError("Cannot run a pes_scan job without some variable " "to scan over!")
 
         super(PESScanSet, self).__init__(
             molecule=molecule,
@@ -465,4 +477,5 @@ class PESScanSet(QChemDictSet):
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
-            overwrite_inputs=overwrite_inputs)
+            overwrite_inputs=overwrite_inputs,
+        )
