@@ -11,7 +11,7 @@ import sys
 
 from tabulate import tabulate
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -32,9 +32,7 @@ def convert_fmt(args):
     """
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
-    s = Structure.from_file(
-        args.filenames[0], primitive="prim" in args.filenames[1].lower()
-    )
+    s = Structure.from_file(args.filenames[0], primitive="prim" in args.filenames[1].lower())
     s.to(filename=args.filenames[1])
 
 
@@ -51,9 +49,7 @@ def analyze_symmetry(args):
         s = Structure.from_file(filename, primitive=False)
         finder = SpacegroupAnalyzer(s, tolerance)
         dataset = finder.get_symmetry_dataset()
-        t.append(
-            [filename, dataset["international"], dataset["number"], dataset["hall"]]
-        )
+        t.append([filename, dataset["international"], dataset["number"], dataset["hall"]])
     print(tabulate(t, headers=["Filename", "Int Symbol", "Int number", "Hall"]))
 
 
@@ -104,11 +100,7 @@ def compare_structures(args):
         print(str(ex))
         sys.exit(-1)
 
-    m = (
-        StructureMatcher()
-        if args.group == "species"
-        else StructureMatcher(comparator=ElementComparator())
-    )
+    m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
     for i, grp in enumerate(m.group_structures(structures)):
         print("Group {}: ".format(i))
         for s in grp:

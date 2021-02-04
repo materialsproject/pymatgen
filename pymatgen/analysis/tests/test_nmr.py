@@ -65,9 +65,7 @@ class TestElectricFieldGradient(PymatgenTest):
 
     def test_Attributes(self):
 
-        efg = ElectricFieldGradient(
-            [[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]]
-        )
+        efg = ElectricFieldGradient([[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]])
         self.assertAlmostEqual(efg.V_yy, 11.516, places=3)
         self.assertAlmostEqual(efg.V_xx, 4.204, places=3)
         self.assertAlmostEqual(efg.V_zz, -15.721, places=3)

@@ -143,9 +143,7 @@ def find_clusters(struct, connected_list):
         "This method will be removed in pymatgen v2019.1.1."
     )
 )
-def find_dimension(
-    structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, standardize=True
-):
+def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, standardize=True):
     """
     Algorithm for finding the dimensions of connected subunits in a crystal structure.
     This method finds the dimensionality of the material even when the material is not layered along low-index planes,
@@ -166,9 +164,7 @@ def find_dimension(
         ion/molecule'
     """
     if standardize:
-        structure = SpacegroupAnalyzer(
-            structure_raw
-        ).get_conventional_standard_structure()
+        structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, clusters1 = find_clusters(structure, connected_list1)
@@ -189,9 +185,7 @@ def find_dimension(
         else:
             structure = copy.copy(structure_save)
             structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-            connected_list3 = find_connected_atoms(
-                structure, tolerance=tolerance, ldict=ldict
-            )
+            connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
             max3, min3, clusters3 = find_clusters(structure, connected_list3)
             if min3 == min2:
                 if max3 == max2:

@@ -45,9 +45,7 @@ class EwaldElectrostaticModel(EnergyModel):
     Wrapper around EwaldSum to calculate the electrostatic energy.
     """
 
-    def __init__(
-        self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0
-    ):
+    def __init__(self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0):
         """
         Initializes the model. Args have the same definitions as in
         :class:`pymatgen.analysis.ewald.EwaldSummation`.
@@ -124,9 +122,7 @@ class SymmetryModel(EnergyModel):
         :param structure: Structure
         :return: Energy value
         """
-        f = SpacegroupAnalyzer(
-            structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance
-        )
+        f = SpacegroupAnalyzer(structure, symprec=self.symprec, angle_tolerance=self.angle_tolerance)
         return -f.get_space_group_number()
 
     def as_dict(self):
@@ -168,9 +164,7 @@ class IsingModel(EnergyModel):
         for i, nns in enumerate(all_nn):
             s1 = getattr(structure[i].specie, "spin", 0)
             for nn in nns:
-                energy += (
-                    self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance ** 2)
-                )
+                energy += self.j * s1 * getattr(nn.specie, "spin", 0) / (nn.nn_distance ** 2)
         return energy
 
     def as_dict(self):

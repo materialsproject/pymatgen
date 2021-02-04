@@ -54,10 +54,21 @@ BASE_UNITS = {
         "pm": 1e-12,
         "bohr": bohr_to_angstrom * 1e-10,
     },
-    "mass": {"kg": 1, "g": 1e-3, "amu": amu_to_kg,},
-    "time": {"s": 1, "min": 60, "h": 3600, "d": 3600 * 24,},
+    "mass": {
+        "kg": 1,
+        "g": 1e-3,
+        "amu": amu_to_kg,
+    },
+    "time": {
+        "s": 1,
+        "min": 60,
+        "h": 3600,
+        "d": 3600 * 24,
+    },
     "current": {"A": 1},
-    "temperature": {"K": 1,},
+    "temperature": {
+        "K": 1,
+    },
     "amount": {"mol": 1, "atom": 1 / const.N_A},
     "intensity": {"cd": 1},
     "memory": {
@@ -84,7 +95,10 @@ DERIVED_UNITS = {
         "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1},
         "kCal": {"kg": 1, "m": 2, "s": -2, 1000: 1, kCal_to_kJ: 1},
     },
-    "charge": {"C": {"A": 1, "s": 1}, "e": {"A": 1, "s": 1, const.e: 1},},
+    "charge": {
+        "C": {"A": 1, "s": 1},
+        "e": {"A": 1, "s": 1, const.e: 1},
+    },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2},
         "KN": {"kg": 1, "m": 1, "s": -2, 1000: 1},
@@ -131,9 +145,7 @@ del utype, d
 
 def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
-    si_unit = filter(
-        lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type].keys()
-    )
+    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type].keys())
     return list(si_unit)[0], BASE_UNITS[unit_type][unit]
 
 
@@ -223,11 +235,7 @@ class Unit(collections.abc.Mapping):
     def __repr__(self):
         sorted_keys = sorted(self._unit.keys(), key=lambda k: (-self._unit[k], k))
         return " ".join(
-            [
-                "{}^{}".format(k, self._unit[k]) if self._unit[k] != 1 else k
-                for k in sorted_keys
-                if self._unit[k] != 0
-            ]
+            ["{}^{}".format(k, self._unit[k]) if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
         )
 
     def __str__(self):
@@ -367,9 +375,7 @@ class FloatWithUnit(float):
         val = other
         if other.unit != self._unit:
             val = other.to(self._unit)
-        return FloatWithUnit(
-            float(self) + val, unit_type=self._unit_type, unit=self._unit
-        )
+        return FloatWithUnit(float(self) + val, unit_type=self._unit_type, unit=self._unit)
 
     def __sub__(self, other):
         if not hasattr(other, "unit_type"):
@@ -379,27 +385,17 @@ class FloatWithUnit(float):
         val = other
         if other.unit != self._unit:
             val = other.to(self._unit)
-        return FloatWithUnit(
-            float(self) - val, unit_type=self._unit_type, unit=self._unit
-        )
+        return FloatWithUnit(float(self) - val, unit_type=self._unit_type, unit=self._unit)
 
     def __mul__(self, other):
         if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(
-                float(self) * other, unit_type=self._unit_type, unit=self._unit
-            )
-        return FloatWithUnit(
-            float(self) * other, unit_type=None, unit=self._unit * other._unit
-        )
+            return FloatWithUnit(float(self) * other, unit_type=self._unit_type, unit=self._unit)
+        return FloatWithUnit(float(self) * other, unit_type=None, unit=self._unit * other._unit)
 
     def __rmul__(self, other):
         if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(
-                float(self) * other, unit_type=self._unit_type, unit=self._unit
-            )
-        return FloatWithUnit(
-            float(self) * other, unit_type=None, unit=self._unit * other._unit
-        )
+            return FloatWithUnit(float(self) * other, unit_type=self._unit_type, unit=self._unit)
+        return FloatWithUnit(float(self) * other, unit_type=None, unit=self._unit * other._unit)
 
     def __pow__(self, i):
         return FloatWithUnit(float(self) ** i, unit_type=None, unit=self._unit ** i)
@@ -411,9 +407,7 @@ class FloatWithUnit(float):
         return FloatWithUnit(val, unit_type=None, unit=self._unit / other._unit)
 
     def __neg__(self):
-        return FloatWithUnit(
-            super().__neg__(), unit_type=self._unit_type, unit=self._unit
-        )
+        return FloatWithUnit(super().__neg__(), unit_type=self._unit_type, unit=self._unit)
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
@@ -579,9 +573,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(
-            np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit
-        )
+        return self.__class__(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __sub__(self, other):
         if hasattr(other, "unit_type"):
@@ -591,9 +583,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(
-            np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit
-        )
+        return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
         # FIXME
@@ -615,9 +605,7 @@ class ArrayWithUnit(np.ndarray):
             )
         # Cannot use super since it returns an instance of self.__class__
         # while here we want a bare numpy array.
-        return self.__class__(
-            np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit
-        )
+        return self.__class__(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
 
     def __rmul__(self, other):
         # pylint: disable=E1101
@@ -627,9 +615,7 @@ class ArrayWithUnit(np.ndarray):
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return self.__class__(
-            np.array(self).__rmul__(np.array(other)), unit=self.unit * other.unit
-        )
+        return self.__class__(np.array(self).__rmul__(np.array(other)), unit=self.unit * other.unit)
 
     def __div__(self, other):
         # pylint: disable=E1101
@@ -639,9 +625,7 @@ class ArrayWithUnit(np.ndarray):
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return self.__class__(
-            np.array(self).__div__(np.array(other)), unit=self.unit / other.unit
-        )
+        return self.__class__(np.array(self).__div__(np.array(other)), unit=self.unit / other.unit)
 
     def __truediv__(self, other):
         # pylint: disable=E1101
@@ -651,14 +635,10 @@ class ArrayWithUnit(np.ndarray):
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return self.__class__(
-            np.array(self).__truediv__(np.array(other)), unit=self.unit / other.unit
-        )
+        return self.__class__(np.array(self).__truediv__(np.array(other)), unit=self.unit / other.unit)
 
     def __neg__(self):
-        return self.__class__(
-            np.array(self).__neg__(), unit_type=self.unit_type, unit=self.unit
-        )
+        return self.__class__(np.array(self).__neg__(), unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
         """
@@ -846,9 +826,7 @@ def unitized(unit):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
-                return val.__class__(
-                    [FloatWithUnit(i, unit_type=unit_type, unit=unit) for i in val]
-                )
+                return val.__class__([FloatWithUnit(i, unit_type=unit_type, unit=unit) for i in val])
             if isinstance(val, collections.abc.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)

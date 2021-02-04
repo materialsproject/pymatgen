@@ -14,6 +14,7 @@ Subpackages
    pymatgen.analysis.ferroelectricity
    pymatgen.analysis.gb
    pymatgen.analysis.magnetism
+   pymatgen.analysis.solar
    pymatgen.analysis.structure_prediction
    pymatgen.analysis.topological
    pymatgen.analysis.xas

@@ -88,9 +88,7 @@ class BorgQueen:
             newdata = self._drone.assimilate(path)
             self._data.append(newdata)
             count += 1
-            logger.info(
-                "{}/{} ({:.2f}%) done".format(count, total, count / total * 100)
-            )
+            logger.info("{}/{} ({:.2f}%) done".format(count, total, count / total * 100))
         for d in data:
             self._data.append(json.loads(d, cls=MontyDecoder))
 

@@ -12,9 +12,7 @@ from pymatgen.analysis.structure_prediction.substitution_probability import (
 from pymatgen.core.periodic_table import Element, Species
 
 
-def get_dopants_from_substitution_probabilities(
-    structure, num_dopants=5, threshold=0.001, match_oxi_sign=False
-):
+def get_dopants_from_substitution_probabilities(structure, num_dopants=5, threshold=0.001, match_oxi_sign=False):
     """
     Get dopant suggestions based on substitution probabilities.
 
@@ -41,9 +39,7 @@ def get_dopants_from_substitution_probabilities(
     els_have_oxi_states = [hasattr(s, "oxi_state") for s in structure.species]
 
     if not all(els_have_oxi_states):
-        raise ValueError(
-            "All sites in structure must have oxidation states to " "predict dopants."
-        )
+        raise ValueError("All sites in structure must have oxidation states to " "predict dopants.")
 
     sp = SubstitutionPredictor(threshold=threshold)
 
@@ -62,9 +58,7 @@ def get_dopants_from_substitution_probabilities(
     return _get_dopants(subs, num_dopants, match_oxi_sign)
 
 
-def get_dopants_from_shannon_radii(
-    bonded_structure, num_dopants=5, match_oxi_sign=False
-):
+def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_sign=False):
     """
     Get dopant suggestions based on Shannon radii differences.
 
@@ -89,9 +83,7 @@ def get_dopants_from_shannon_radii(
         - "original_species": The substituted species.
     """
     # get a list of all Species for all elements in all their common oxid states
-    all_species = [
-        Species(el, oxi) for el in Element for oxi in el.common_oxidation_states
-    ]
+    all_species = [Species(el, oxi) for el in Element for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
     cn_and_species = set(
@@ -112,15 +104,12 @@ def get_dopants_from_shannon_radii(
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
             warnings.warn(
-                "Shannon radius not found for {} with coordination "
-                "number {}.\nSkipping...".format(species, cn)
+                "Shannon radius not found for {} with coordination " "number {}.\nSkipping...".format(species, cn)
             )
             continue
 
         if cn not in cn_to_radii_map:
-            cn_to_radii_map[cn] = _shannon_radii_from_cn(
-                all_species, cn_roman, radius_to_compare=species_radius
-            )
+            cn_to_radii_map[cn] = _shannon_radii_from_cn(all_species, cn_roman, radius_to_compare=species_radius)
 
         shannon_radii = cn_to_radii_map[cn]
 
@@ -148,8 +137,7 @@ def _get_dopants(substitutions, num_dopants, match_oxi_sign):
         if pred["dopant_species"].oxi_state > pred["original_species"].oxi_state
         and (
             not match_oxi_sign
-            or np.sign(pred["dopant_species"].oxi_state)
-            == np.sign(pred["original_species"].oxi_state)
+            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
         )
     ]
     p_type = [
@@ -158,8 +146,7 @@ def _get_dopants(substitutions, num_dopants, match_oxi_sign):
         if pred["dopant_species"].oxi_state < pred["original_species"].oxi_state
         and (
             not match_oxi_sign
-            or np.sign(pred["dopant_species"].oxi_state)
-            == np.sign(pred["original_species"].oxi_state)
+            or np.sign(pred["dopant_species"].oxi_state) == np.sign(pred["original_species"].oxi_state)
         )
     ]
 

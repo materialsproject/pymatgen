@@ -9,7 +9,8 @@ import unittest
 
 import pandas as pd
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 from pymatgen.util.testing import PymatgenTest
@@ -80,9 +81,7 @@ class FuncTest(unittest.TestCase):
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt")) as f:
             kappa_template = f.read()
         kappa_settings = {"method": "heat"}
-        write_lammps_inputs(
-            output_dir="heat", script_template=kappa_template, settings=kappa_settings
-        )
+        write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
         with open(os.path.join("heat", "in.lammps")) as f:
             kappa_script = f.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
@@ -106,9 +105,7 @@ class FuncTest(unittest.TestCase):
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
         write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-        obj_read = LammpsData.from_file(
-            os.path.join("obj", "data.peptide"), atom_style="atomic"
-        )
+        obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"), atom_style="atomic")
         pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
         pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 

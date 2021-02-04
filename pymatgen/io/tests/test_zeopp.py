@@ -135,9 +135,7 @@ class ZeoVoronoiXYZTest(unittest.TestCase):
             [-0.513360, 0.889165, -0.363000],
         ]
         prop = [0.4, 0.2, 0.2, 0.2, 0.2]
-        self.mol = Molecule(
-            ["C", "H", "H", "H", "H"], coords, site_properties={"voronoi_radius": prop}
-        )
+        self.mol = Molecule(["C", "H", "H", "H", "H"], coords, site_properties={"voronoi_radius": prop})
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
     def test_str(self):
@@ -205,9 +203,7 @@ class GetFreeSphereParamsTest(unittest.TestCase):
         # Zeo results can change in future. Hence loose comparison
         self.assertAlmostEqual(free_sph_params["inc_sph_max_dia"], 2.58251, places=1)
         self.assertAlmostEqual(free_sph_params["free_sph_max_dia"], 1.29452, places=1)
-        self.assertAlmostEqual(
-            free_sph_params["inc_sph_along_free_sph_path_max_dia"], 2.58251, places=1
-        )
+        self.assertAlmostEqual(free_sph_params["inc_sph_along_free_sph_path_max_dia"], 2.58251, places=1)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")

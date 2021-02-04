@@ -46,11 +46,7 @@ class ExpEntry(PDEntry, MSONable):
         found = False
         enthalpy = float("inf")
         for data in self._thermodata:
-            if (
-                data.type == "fH"
-                and data.value < enthalpy
-                and (data.phaseinfo != "gas" and data.phaseinfo != "liquid")
-            ):
+            if data.type == "fH" and data.value < enthalpy and (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
                 enthalpy = data.value
                 found = True
         if not found:
@@ -59,9 +55,7 @@ class ExpEntry(PDEntry, MSONable):
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return "ExpEntry {}, Energy = {:.4f}".format(
-            self.composition.formula, self.energy
-        )
+        return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula, self.energy)
 
     def __str__(self):
         return self.__repr__()

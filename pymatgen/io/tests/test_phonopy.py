@@ -24,9 +24,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
 
 class PhonopyParserTest(PymatgenTest):
     def test_get_ph_bs(self):
-        ph_bs = get_ph_bs_symm_line(
-            os.path.join(test_dir, "NaCl_band.yaml"), has_nac=True
-        )
+        ph_bs = get_ph_bs_symm_line(os.path.join(test_dir, "NaCl_band.yaml"), has_nac=True)
 
         self.assertAlmostEqual(ph_bs.bands[1][10], 0.7753555184)
         self.assertAlmostEqual(ph_bs.bands[5][100], 5.2548379776)
@@ -41,16 +39,12 @@ class PhonopyParserTest(PymatgenTest):
         self.assertAlmostEqual(ph_bs.min_freq()[1], -0.03700895020)
         self.assertTrue(ph_bs.has_imaginary_freq())
         self.assertFalse(ph_bs.has_imaginary_freq(tol=0.5))
-        self.assertArrayAlmostEqual(
-            ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897]
-        )
+        self.assertArrayAlmostEqual(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
         self.assertEqual(ph_bs.nb_bands, 6)
         self.assertEqual(ph_bs.nb_qpoints, 204)
         self.assertArrayAlmostEqual(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
         self.assertTrue(ph_bs.has_nac)
-        self.assertAlmostEqual(
-            ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143
-        )
+        self.assertAlmostEqual(ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143)
         self.assertIsNone(ph_bs.get_nac_frequencies_along_dir([1, 0, 1]))
         self.assertArrayAlmostEqual(
             ph_bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
@@ -95,9 +89,7 @@ class StructureConversionTest(PymatgenTest):
         symbols_pmg2 = set([e.symbol for e in s_pmg2.composition.keys()])
 
         self.assertAlmostEqual(s_ph.get_cell()[1, 1], s_pmg.lattice._matrix[1, 1], 7)
-        self.assertAlmostEqual(
-            s_pmg.lattice._matrix[1, 1], s_pmg2.lattice._matrix[1, 1], 7
-        )
+        self.assertAlmostEqual(s_pmg.lattice._matrix[1, 1], s_pmg2.lattice._matrix[1, 1], 7)
         self.assertEqual(symbols_pmg, set(s_ph.symbols))
         self.assertEqual(symbols_pmg, symbols_pmg2)
         self.assertArrayAlmostEqual(coords_ph[3], s_pmg.frac_coords[3])
@@ -111,9 +103,7 @@ class GetDisplacedStructuresTest(PymatgenTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(os.path.join(test_dir, "POSCAR-unitcell"), False)
         supercell_matrix = [[2, 0, 0], [0, 1, 0], [0, 0, 2]]
-        structures = get_displaced_structures(
-            pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix
-        )
+        structures = get_displaced_structures(pmg_structure=pmg_s, atom_disp=0.01, supercell_matrix=supercell_matrix)
 
         self.assertEqual(len(structures), 49)
         self.assertArrayAlmostEqual(
@@ -128,9 +118,7 @@ class GetDisplacedStructuresTest(PymatgenTest):
         )
         self.assertEqual(structures[0].num_sites, 128)
         self.assertEqual(structures[10].num_sites, 128)
-        self.assertArrayAlmostEqual(
-            structures[0].lattice._matrix, structures[8].lattice._matrix, 8
-        )
+        self.assertArrayAlmostEqual(structures[0].lattice._matrix, structures[8].lattice._matrix, 8)
 
         # test writing output
         with ScratchDir("."):

@@ -222,8 +222,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`"
-                % (self.path, dimnames, kwargs)
+                "In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" % (self.path, dimnames, kwargs)
             )
 
     def _read_variables(self, *varnames, **kwargs):
@@ -236,8 +235,7 @@ class NetcdfReader:
 
         except KeyError:
             raise self.Error(
-                "In file %s:\nError while reading variables: `%s` with kwargs `%s`."
-                % (self.path, varnames, kwargs)
+                "In file %s:\nError while reading variables: `%s` with kwargs `%s`." % (self.path, varnames, kwargs)
             )
 
     def read_keys(self, keys, dict_cls=AttrDict, path="/"):
@@ -317,14 +315,9 @@ class ETSF_Reader(NetcdfReader):
             if hvar.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
                 if hvar.name == "codvsn":
-                    d[hvar.name] = "".join(
-                        bs.decode("utf-8").strip() for bs in d[hvar.name]
-                    )
+                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
                 else:
-                    d[hvar.name] = [
-                        "".join(bs.decode("utf-8") for bs in astr).strip()
-                        for astr in d[hvar.name]
-                    ]
+                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in d[hvar.name]]
 
         return AbinitHeader(d)
 

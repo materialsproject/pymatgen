@@ -197,9 +197,7 @@ class QChemDictSet(QCInput):
         """
         self.write_file(input_file)
         if self.smd_solvent == "custom" or self.smd_solvent == "other":
-            with zopen(
-                os.path.join(os.path.dirname(input_file), "solvent_data"), "wt"
-            ) as f:
+            with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), "wt") as f:
                 f.write(self.custom_smd)
 
 

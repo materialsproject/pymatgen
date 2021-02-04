@@ -32,9 +32,7 @@ class InterfaceTest(PymatgenTest):
         sga = SpacegroupAnalyzer(sio2_struct)
         sio2_conventional = sga.get_conventional_standard_structure()
         cls.ib = InterfaceBuilder(si_conventional, sio2_conventional)
-        cls.ib.generate_interfaces(
-            substrate_millers=[[1, 0, 0]], film_layers=3, substrate_layers=3
-        )
+        cls.ib.generate_interfaces(substrate_millers=[[1, 0, 0]], film_layers=3, substrate_layers=3)
 
     def test_offset_vector(self):
         interface = self.ib.interfaces[0]
@@ -50,12 +48,8 @@ class InterfaceTest(PymatgenTest):
         diff = tdm - idm
         assert (tdm <= idm + 1e-10).all()
         assert (tdm + 0.5 < idm).any()
-        self.assertArrayAlmostEqual(
-            init_film.distance_matrix, interface.film.distance_matrix
-        )
-        self.assertArrayAlmostEqual(
-            init_sub.distance_matrix, interface.substrate.distance_matrix
-        )
+        self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
+        self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
 
         interface.z_shift -= 1
         self.assertArrayAlmostEqual(interface.offset_vector, np.array([0, 0, 2.5]))
@@ -67,38 +61,26 @@ class InterfaceTest(PymatgenTest):
         idm = interface.distance_matrix
         assert (np.abs(tdm - idm) > 0.9).any()
         self.assertArrayAlmostEqual(init_lattice, interface.lattice.matrix)
-        self.assertArrayAlmostEqual(
-            init_film.distance_matrix, interface.film.distance_matrix
-        )
-        self.assertArrayAlmostEqual(
-            init_sub.distance_matrix, interface.substrate.distance_matrix
-        )
+        self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
+        self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
 
         interface.ab_shift -= np.array([0.2, 0.2])
         self.assertArrayAlmostEqual(interface.offset_vector, np.array([0, 0, 2.5]))
         idm = interface.distance_matrix
         assert (np.abs(tdm - idm) < 1e-10).all()
 
-        self.assertArrayAlmostEqual(
-            init_film.distance_matrix, interface.film.distance_matrix
-        )
-        self.assertArrayAlmostEqual(
-            init_sub.distance_matrix, interface.substrate.distance_matrix
-        )
+        self.assertArrayAlmostEqual(init_film.distance_matrix, interface.film.distance_matrix)
+        self.assertArrayAlmostEqual(init_sub.distance_matrix, interface.substrate.distance_matrix)
 
     def test_labels(self):
         interface = self.ib.interfaces[0]
         film = interface.film
         substrate = interface.substrate
         film_sites = [
-            site
-            for i, site in enumerate(interface)
-            if "film" in interface.site_properties["interface_label"][i]
+            site for i, site in enumerate(interface) if "film" in interface.site_properties["interface_label"][i]
         ]
         substrate_sites = [
-            site
-            for i, site in enumerate(interface)
-            if "substrate" in interface.site_properties["interface_label"][i]
+            site for i, site in enumerate(interface) if "substrate" in interface.site_properties["interface_label"][i]
         ]
         assert film.sites == film_sites
         assert substrate.sites == substrate_sites
@@ -109,8 +91,7 @@ class InterfaceTest(PymatgenTest):
         interface = self.ib.interfaces[0]
         self.assertAlmostEqual(
             interface.z_shift,
-            np.min(interface.film.cart_coords[:, 2])
-            - np.max(interface.substrate.cart_coords[:, 2]),
+            np.min(interface.film.cart_coords[:, 2]) - np.max(interface.substrate.cart_coords[:, 2]),
         )
         self.assertAlmostEqual(
             interface.lattice.c,
@@ -131,9 +112,7 @@ class InterfaceTest(PymatgenTest):
         new_coords = interface.film.frac_coords.copy()
         for i in range(new_coords.shape[0]):
             self.assertAlmostEqual(
-                interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[
-                    0
-                ],
+                interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[0],
                 1.5,
             )
         interface.offset_vector -= delta
@@ -141,9 +120,7 @@ class InterfaceTest(PymatgenTest):
         new_coords = interface.film.frac_coords.copy()
         for i in range(new_coords.shape[0]):
             self.assertAlmostEqual(
-                interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[
-                    0
-                ],
+                interface.lattice.get_distance_and_image(old_coords[i], new_coords[i])[0],
                 0.0,
             )
 
@@ -168,9 +145,7 @@ class InterfaceTest(PymatgenTest):
             "vacuum_thickness",
         ]:
             if type(copy.__getattribute__(attr)) == np.ndarray:
-                self.assertArrayAlmostEqual(
-                    copy.__getattribute__(attr), interface.__getattribute__(attr)
-                )
+                self.assertArrayAlmostEqual(copy.__getattribute__(attr), interface.__getattribute__(attr))
             else:
                 assert copy.__getattribute__(attr) == interface.__getattribute__(attr)
 
@@ -244,15 +219,12 @@ class InterfaceTest(PymatgenTest):
 class InterfaceBuilderTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        print(1)
         si_struct = cls.get_structure("Si")
         sio2_struct = cls.get_structure("SiO2")
-        print(2)
         sga = SpacegroupAnalyzer(si_struct)
         si_conventional = sga.get_conventional_standard_structure()
         sga = SpacegroupAnalyzer(sio2_struct)
         sio2_conventional = sga.get_conventional_standard_structure()
-        print(3)
         cls.ibs = []
         Si_SiO2 = [si_conventional, sio2_conventional]
         random.shuffle(Si_SiO2)

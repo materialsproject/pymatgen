@@ -33,21 +33,15 @@ x_trans = which("x_trans")
 class BoltztrapAnalyzerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bz = BoltztrapAnalyzer.from_files(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/transp/")
-        )
-        cls.bz_bands = BoltztrapAnalyzer.from_files(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/bands/")
-        )
+        cls.bz = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/transp/"))
+        cls.bz_bands = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/bands/"))
         cls.bz_up = BoltztrapAnalyzer.from_files(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dos_up/"), dos_spin=1
         )
         cls.bz_dw = BoltztrapAnalyzer.from_files(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dos_dw/"), dos_spin=-1
         )
-        cls.bz_fermi = BoltztrapAnalyzer.from_files(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/fermi/")
-        )
+        cls.bz_fermi = BoltztrapAnalyzer.from_files(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/fermi/"))
 
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"), "rt") as f:
             d = json.load(f)
@@ -81,18 +75,12 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz.doping["p"][3], 1e18)
         self.assertAlmostEqual(self.bz.mu_doping["p"][300][2], 0.1553770018406)
         self.assertAlmostEqual(self.bz.mu_doping["n"][300][-1], 1.6486017632924719, 4)
-        self.assertAlmostEqual(
-            self.bz._cond_doping["n"][800][3][1][1] / 1e16, 1.5564085, 4
-        )
-        self.assertAlmostEqual(
-            self.bz._seebeck_doping["p"][600][2][0][1] / 1e-23, 3.2860613, 4
-        )
+        self.assertAlmostEqual(self.bz._cond_doping["n"][800][3][1][1] / 1e16, 1.5564085, 4)
+        self.assertAlmostEqual(self.bz._seebeck_doping["p"][600][2][0][1] / 1e-23, 3.2860613, 4)
         self.assertAlmostEqual(self.bz._carrier_conc[500][67], 38.22832002)
         self.assertAlmostEqual(self.bz.vol, 612.97557323964838, 4)
         self.assertAlmostEqual(self.bz.intrans["scissor"], 0.0, 1)
-        self.assertAlmostEqual(
-            self.bz._hall_doping["n"][700][-1][2][2][2], 5.0136483e-26
-        )
+        self.assertAlmostEqual(self.bz._hall_doping["n"][700][-1][2][2][2], 5.0136483e-26)
         self.assertAlmostEqual(self.bz.dos.efermi, -0.0300005507057)
         self.assertAlmostEqual(self.bz.dos.energies[0], -2.4497049391830448, 4)
         self.assertAlmostEqual(self.bz.dos.energies[345], -0.72708823447130944, 4)
@@ -106,26 +94,16 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(self.bz_up._dos_partial["0"]["pz"][2562], 0.023862958)
         self.assertAlmostEqual(self.bz_dw._dos_partial["1"]["px"][3120], 5.0192891)
         self.assertAlmostEqual(self.bz_fermi.fermi_surface_data.shape, (121, 121, 65))
-        self.assertAlmostEqual(
-            self.bz_fermi.fermi_surface_data[21][79][19], -1.8831911809439161, 5
-        )
+        self.assertAlmostEqual(self.bz_fermi.fermi_surface_data[21][79][19], -1.8831911809439161, 5)
 
     @unittest.skipIf(not fdint, "No FDINT")
     def test_get_seebeck_eff_mass(self):
         ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
         ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
-        sbk_mass_tens_mu = self.bz.get_seebeck_eff_mass(
-            output="tensor", doping_levels=False, temp=300
-        )[3]
-        sbk_mass_tens_dop = self.bz.get_seebeck_eff_mass(
-            output="tensor", doping_levels=True, temp=300
-        )["n"][2]
-        sbk_mass_avg_mu = self.bz.get_seebeck_eff_mass(
-            output="average", doping_levels=False, temp=300
-        )[3]
-        sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(
-            output="average", doping_levels=True, temp=300
-        )["n"][2]
+        sbk_mass_tens_mu = self.bz.get_seebeck_eff_mass(output="tensor", doping_levels=False, temp=300)[3]
+        sbk_mass_tens_dop = self.bz.get_seebeck_eff_mass(output="tensor", doping_levels=True, temp=300)["n"][2]
+        sbk_mass_avg_mu = self.bz.get_seebeck_eff_mass(output="average", doping_levels=False, temp=300)[3]
+        sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output="average", doping_levels=True, temp=300)["n"][2]
 
         for i in range(0, 3):
             self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 1)
@@ -138,18 +116,10 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     def test_get_complexity_factor(self):
         ref = [2.7658776815227828, 2.9826088215568403, 0.28881335881640308]
         ref2 = [0.0112022048620205, 0.0036001049607186602, 0.0083028947173193028]
-        sbk_mass_tens_mu = self.bz.get_complexity_factor(
-            output="tensor", doping_levels=False, temp=300
-        )[3]
-        sbk_mass_tens_dop = self.bz.get_complexity_factor(
-            output="tensor", doping_levels=True, temp=300
-        )["n"][2]
-        sbk_mass_avg_mu = self.bz.get_complexity_factor(
-            output="average", doping_levels=False, temp=300
-        )[3]
-        sbk_mass_avg_dop = self.bz.get_complexity_factor(
-            output="average", doping_levels=True, temp=300
-        )["n"][2]
+        sbk_mass_tens_mu = self.bz.get_complexity_factor(output="tensor", doping_levels=False, temp=300)[3]
+        sbk_mass_tens_dop = self.bz.get_complexity_factor(output="tensor", doping_levels=True, temp=300)["n"][2]
+        sbk_mass_avg_mu = self.bz.get_complexity_factor(output="average", doping_levels=False, temp=300)[3]
+        sbk_mass_avg_dop = self.bz.get_complexity_factor(output="average", doping_levels=True, temp=300)["n"][2]
 
         for i in range(0, 3):
             self.assertAlmostEqual(sbk_mass_tens_mu[i], ref2[i], 4)
@@ -162,9 +132,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
         for i in range(0, 3):
             self.assertAlmostEqual(self.bz.get_seebeck()["n"][800][3][i], ref[i])
-        self.assertAlmostEqual(
-            self.bz.get_seebeck(output="average")["p"][800][3], 697.608936667
-        )
+        self.assertAlmostEqual(self.bz.get_seebeck(output="average")["p"][800][3], 697.608936667)
         self.assertAlmostEqual(
             self.bz.get_seebeck(output="average", doping_levels=False)[500][520],
             1266.7056,
@@ -178,9 +146,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [5.9043185000000022, 17.855599000000002, 26.462935000000002]
         for i in range(0, 3):
             self.assertAlmostEqual(self.bz.get_conductivity()["p"][600][2][i], ref[i])
-        self.assertAlmostEqual(
-            self.bz.get_conductivity(output="average")["n"][700][1], 1.58736609667
-        )
+        self.assertAlmostEqual(self.bz.get_conductivity(output="average")["n"][700][1], 1.58736609667)
         self.assertAlmostEqual(
             self.bz.get_conductivity(output="average", doping_levels=False)[300][457],
             2.87163566667,
@@ -199,13 +165,9 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [6.2736602345523362, 17.900184232304138, 26.158282220458144]
         for i in range(0, 3):
             self.assertAlmostEqual(self.bz.get_power_factor()["p"][200][2][i], ref[i])
+        self.assertAlmostEqual(self.bz.get_power_factor(output="average")["n"][600][4], 411.230962976)
         self.assertAlmostEqual(
-            self.bz.get_power_factor(output="average")["n"][600][4], 411.230962976
-        )
-        self.assertAlmostEqual(
-            self.bz.get_power_factor(
-                output="average", doping_levels=False, relaxation_time=1e-15
-            )[500][459],
+            self.bz.get_power_factor(output="average", doping_levels=False, relaxation_time=1e-15)[500][459],
             6.59277148467,
         )
         self.assertAlmostEqual(
@@ -216,32 +178,22 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     def test_get_thermal_conductivity(self):
         ref = [2.7719565628862623e-05, 0.00010048046886793946, 0.00015874549392499391]
         for i in range(0, 3):
-            self.assertAlmostEqual(
-                self.bz.get_thermal_conductivity()["p"][300][2][i], ref[i]
-            )
+            self.assertAlmostEqual(self.bz.get_thermal_conductivity()["p"][300][2][i], ref[i])
         self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(output="average", relaxation_time=1e-15)[
-                "n"
-            ][500][0],
+            self.bz.get_thermal_conductivity(output="average", relaxation_time=1e-15)["n"][500][0],
             1.74466575612e-07,
         )
         self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(output="average", doping_levels=False)[
-                800
-            ][874],
+            self.bz.get_thermal_conductivity(output="average", doping_levels=False)[800][874],
             8.08066254813,
         )
         self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(output="average", doping_levels=False)[
-                200
-            ][32],
+            self.bz.get_thermal_conductivity(output="average", doping_levels=False)[200][32],
             # TODO: this was originally "eigs"
             0.0738961845832,
         )
         self.assertAlmostEqual(
-            self.bz.get_thermal_conductivity(
-                k_el=False, output="average", doping_levels=False
-            )[200][32],
+            self.bz.get_thermal_conductivity(k_el=False, output="average", doping_levels=False)[200][32],
             0.19429052,
         )
 
@@ -249,13 +201,9 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [0.097408810215, 0.29335112354, 0.614673998089]
         for i in range(0, 3):
             self.assertAlmostEqual(self.bz.get_zt()["n"][800][4][i], ref[i])
+        self.assertAlmostEqual(self.bz.get_zt(output="average", kl=0.5)["p"][700][2], 0.0170001879916)
         self.assertAlmostEqual(
-            self.bz.get_zt(output="average", kl=0.5)["p"][700][2], 0.0170001879916
-        )
-        self.assertAlmostEqual(
-            self.bz.get_zt(
-                output="average", doping_levels=False, relaxation_time=1e-15
-            )[300][240],
+            self.bz.get_zt(output="average", doping_levels=False, relaxation_time=1e-15)[300][240],
             0.0041923533238348342,
         )
 
@@ -267,18 +215,12 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
         for i in range(0, 3):
-            self.assertAlmostEqual(
-                self.bz.get_average_eff_mass()["p"][300][2][i], ref[i]
-            )
+            self.assertAlmostEqual(self.bz.get_average_eff_mass()["p"][300][2][i], ref[i])
         ref = [1.1295783824744523, 1.3898454041924351, 5.2459984671977935]
         ref2 = [6.6648842712692078, 31.492540105738343, 37.986369302138954]
         for i in range(0, 3):
-            self.assertAlmostEqual(
-                self.bz.get_average_eff_mass()["n"][600][1][i], ref[i]
-            )
-            self.assertAlmostEqual(
-                self.bz.get_average_eff_mass(doping_levels=False)[300][200][i], ref2[i]
-            )
+            self.assertAlmostEqual(self.bz.get_average_eff_mass()["n"][600][1][i], ref[i])
+            self.assertAlmostEqual(self.bz.get_average_eff_mass(doping_levels=False)[300][200][i], ref2[i])
         ref = [
             [9.61811430e-01, -8.25159596e-19, -4.70319444e-19],
             [-8.25159596e-19, 2.94284288e00, 3.00368916e-18],
@@ -298,9 +240,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
                     4,
                 )
                 self.assertAlmostEqual(
-                    self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[
-                        300
-                    ][500][i][j],
+                    self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500][i][j],
                     ref2[i][j],
                     4,
                 )
@@ -311,12 +251,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         )
 
     def test_get_carrier_concentration(self):
-        self.assertAlmostEqual(
-            self.bz.get_carrier_concentration()[300][39] / 1e22, 6.4805156617179151, 4
-        )
-        self.assertAlmostEqual(
-            self.bz.get_carrier_concentration()[300][693] / 1e15, -6.590800965604750, 4
-        )
+        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][39] / 1e22, 6.4805156617179151, 4)
+        self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][693] / 1e15, -6.590800965604750, 4)
 
     def test_get_hall_carrier_concentration(self):
         self.assertAlmostEqual(
@@ -335,12 +271,8 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         sbs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap/dft_bs_sym_line.json"))
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
-        for kpt_line, labels_dict in zip(
-            [None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]
-        ):
-            sbs_bzt = self.bz_bands.get_symm_bands(
-                structure, -5.25204548, kpt_line=kpt_line, labels_dict=labels_dict
-            )
+        for kpt_line, labels_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
+            sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=labels_dict)
             self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up]), 20)
             self.assertAlmostEqual(len(sbs_bzt.bands[Spin.up][1]), 143)
 

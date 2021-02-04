@@ -9,5 +9,5 @@ This package provides the modules to perform FEFF IO.
 FEFF: http://feffproject.org/feffproject-feff.html
 """
 
-from .inputs import *
-from .outputs import *
+from .inputs import *  # noqa
+from .outputs import *  # noqa

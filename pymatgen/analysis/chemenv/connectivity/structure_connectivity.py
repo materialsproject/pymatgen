@@ -36,13 +36,10 @@ def get_delta_image(isite1, isite2, data1, data2):
     if data1["start"] == isite1:
         if data2["start"] == isite2:
             return np.array(data1["delta"]) - np.array(data2["delta"])
-        else:
-            return np.array(data1["delta"]) + np.array(data2["delta"])
-    else:
-        if data2["start"] == isite2:
-            return -np.array(data1["delta"]) - np.array(data2["delta"])
-        else:
-            return -np.array(data1["delta"]) + np.array(data2["delta"])
+        return np.array(data1["delta"]) + np.array(data2["delta"])
+    if data2["start"] == isite2:
+        return -np.array(data1["delta"]) - np.array(data2["delta"])
+    return -np.array(data1["delta"]) + np.array(data2["delta"])
 
 
 class StructureConnectivity(MSONable):
@@ -91,25 +88,19 @@ class StructureConnectivity(MSONable):
 
         """
         if environments_symbols is not None:
-            self.setup_environment_subgraph(
-                environments_symbols=environments_symbols, only_atoms=only_atoms
-            )
+            self.setup_environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
         try:
             return self._environment_subgraph
         except AttributeError:
             all_envs = self.light_structure_environments.environments_identified()
-            self.setup_environment_subgraph(
-                environments_symbols=all_envs, only_atoms=only_atoms
-            )
+            self.setup_environment_subgraph(environments_symbols=all_envs, only_atoms=only_atoms)
         return self._environment_subgraph
 
     def add_sites(self):
         """
         Add the sites in the structure connectivity graph.
         """
-        self._graph.add_nodes_from(
-            list(range(len(self.light_structure_environments.structure)))
-        )
+        self._graph.add_nodes_from(list(range(len(self.light_structure_environments.structure))))
 
     def add_bonds(self, isite, site_neighbors_set):
         """
@@ -126,19 +117,16 @@ class StructureConnectivity(MSONable):
             exists = False
             if np.allclose(nb_image_cell, np.zeros(3)):
                 for (isite1, ineighb1, data1) in existing_edges:
-                    if (
-                        np.allclose(data1["delta"], np.zeros(3))
-                        and nb_index_unitcell == ineighb1
-                    ):
+                    if np.allclose(data1["delta"], np.zeros(3)) and nb_index_unitcell == ineighb1:
                         exists = True
                         break
             else:
                 if isite == nb_index_unitcell:
                     for (isite1, ineighb1, data1) in existing_edges:
                         if isite1 == ineighb1:
-                            if np.allclose(
-                                data1["delta"], nb_image_cell
-                            ) or np.allclose(data1["delta"], -nb_image_cell):
+                            if np.allclose(data1["delta"], nb_image_cell) or np.allclose(
+                                data1["delta"], -nb_image_cell
+                            ):
                                 exists = True
                                 break
                 else:
@@ -171,11 +159,7 @@ class StructureConnectivity(MSONable):
             environments_symbols: Symbols of the environments for the environment subgraph.
             only_atoms: Atoms to be considered.
         """
-        logging.info(
-            "Setup of environment subgraph for environments {}".format(
-                ", ".join(environments_symbols)
-            )
-        )
+        logging.info("Setup of environment subgraph for environments {}".format(", ".join(environments_symbols)))
         if not isinstance(environments_symbols, collections.abc.Iterable):
             environments_symbols = [environments_symbols]
         environments_symbols = sorted(environments_symbols)
@@ -190,9 +174,7 @@ class StructureConnectivity(MSONable):
         # Initialize graph for a subset of environments
         self._environment_subgraph = nx.MultiGraph()
         # Add the sites with the required environment(s)
-        for isite, ce_this_site_all in enumerate(
-            self.light_structure_environments.coordination_environments
-        ):
+        for isite, ce_this_site_all in enumerate(self.light_structure_environments.coordination_environments):
             if ce_this_site_all is None:
                 continue
             if len(ce_this_site_all) == 0:
@@ -208,12 +190,7 @@ class StructureConnectivity(MSONable):
                     self._environment_subgraph.add_node(env_node)
                 else:
                     if self.light_structure_environments.structure.is_ordered:
-                        if (
-                            self.light_structure_environments.structure[
-                                isite
-                            ].specie.symbol
-                            in only_atoms
-                        ):
+                        if self.light_structure_environments.structure[isite].specie.symbol in only_atoms:
                             env_node = get_environment_node(
                                 self.light_structure_environments.structure[isite],
                                 isite,
@@ -224,10 +201,7 @@ class StructureConnectivity(MSONable):
                         #  TODO: add the possibility of a "constraint" on the minimum percentage
                         #        of the atoms on the site
                         this_site_elements = [
-                            sp.symbol
-                            for sp in self.light_structure_environments.structure[
-                                isite
-                            ].species_and_occu
+                            sp.symbol for sp in self.light_structure_environments.structure[isite].species_and_occu
                         ]
                         for elem_symbol in this_site_elements:
                             if elem_symbol in only_atoms:
@@ -256,13 +230,9 @@ class StructureConnectivity(MSONable):
                                 continue
                             tuple_delta_image = tuple(delta_image)
                             if tuple_delta_image in connections_site1_site2:
-                                connections_site1_site2[tuple_delta_image].append(
-                                    (ilig_site1, d1, d2)
-                                )
+                                connections_site1_site2[tuple_delta_image].append((ilig_site1, d1, d2))
                             else:
-                                connections_site1_site2[tuple_delta_image] = [
-                                    (ilig_site1, d1, d2)
-                                ]
+                                connections_site1_site2[tuple_delta_image] = [(ilig_site1, d1, d2)]
                 # Remove the double self-loops ...
                 if isite1 == isite2:
                     remove_deltas = []
@@ -309,9 +279,7 @@ class StructureConnectivity(MSONable):
 
         """
         connected_components = []
-        env_subgraph = self.environment_subgraph(
-            environments_symbols=environments_symbols, only_atoms=only_atoms
-        )
+        env_subgraph = self.environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
         for component_nodes in nx.connected_components(env_subgraph):
             graph = env_subgraph.subgraph(component_nodes).copy()
             connected_components.append(ConnectedComponent.from_graph(graph))
@@ -410,22 +378,14 @@ class StructureConnectivity(MSONable):
 
         """
         # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
-        cgraph = nx.from_dict_of_dicts(
-            d["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True
-        )
-        cgraph = nx.relabel_nodes(
-            cgraph, int
-        )  # Just relabel the nodes using integer casting (maps str->int)
+        cgraph = nx.from_dict_of_dicts(d["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True)
+        cgraph = nx.relabel_nodes(cgraph, int)  # Just relabel the nodes using integer casting (maps str->int)
         # Relabel multiedges (removes multiedges with str keys and adds them back with int keys)
         edges = set(cgraph.edges())
         for n1, n2 in edges:
             new_edges = {int(iedge): edata for iedge, edata in cgraph[n1][n2].items()}
-            cgraph.remove_edges_from(
-                [(n1, n2, iedge) for iedge, edata in cgraph[n1][n2].items()]
-            )
-            cgraph.add_edges_from(
-                [(n1, n2, iedge, edata) for iedge, edata in new_edges.items()]
-            )
+            cgraph.remove_edges_from([(n1, n2, iedge) for iedge, edata in cgraph[n1][n2].items()])
+            cgraph.add_edges_from([(n1, n2, iedge, edata) for iedge, edata in new_edges.items()])
         return cls(
             LightStructureEnvironments.from_dict(d["light_structure_environments"]),
             connectivity_graph=cgraph,

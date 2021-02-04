@@ -33,9 +33,7 @@ class TransformedStructure(MSONable):
     associated transformation history.
     """
 
-    def __init__(
-        self, structure, transformations=None, history=None, other_parameters=None
-    ):
+    def __init__(self, structure, transformations=None, history=None, other_parameters=None):
         """
         Initializes a transformed structure from a structure.
 
@@ -93,9 +91,7 @@ class TransformedStructure(MSONable):
     def __len__(self):
         return len(self.history)
 
-    def append_transformation(
-        self, transformation, return_alternatives=False, clear_redo=True
-    ):
+    def append_transformation(self, transformation, return_alternatives=False, clear_redo=True):
         """
         Appends a transformation to the TransformedStructure.
 
@@ -190,9 +186,7 @@ class TransformedStructure(MSONable):
         d["transformations.json"] = json.dumps(self.as_dict())
         return d
 
-    def write_vasp_input(
-        self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs
-    ):
+    def write_vasp_input(self, vasp_input_set=MPRelaxSet, output_dir=".", create_directory=True, **kwargs):
         r"""
         Writes VASP input to an output_dir.
 
@@ -205,9 +199,7 @@ class TransformedStructure(MSONable):
                 True.
             **kwargs: All keyword args supported by the VASP input set.
         """
-        vasp_input_set(self.final_structure, **kwargs).write_input(
-            output_dir, make_dir_if_not_present=create_directory
-        )
+        vasp_input_set(self.final_structure, **kwargs).write_input(output_dir, make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
             json.dump(self.as_dict(), fp)
 
@@ -252,17 +244,11 @@ class TransformedStructure(MSONable):
         Copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        hstructs = [
-            Structure.from_dict(s["input_structure"])
-            for s in self.history
-            if "input_structure" in s
-        ]
+        hstructs = [Structure.from_dict(s["input_structure"]) for s in self.history if "input_structure" in s]
         return hstructs + [self.final_structure]
 
     @staticmethod
-    def from_cif_string(
-        cif_string, transformations=None, primitive=True, occupancy_tolerance=1.0
-    ):
+    def from_cif_string(cif_string, transformations=None, primitive=True, occupancy_tolerance=1.0):
         """
         Generates TransformedStructure from a cif string.
 
@@ -315,8 +301,7 @@ class TransformedStructure(MSONable):
         p = Poscar.from_string(poscar_string)
         if not p.true_names:
             raise ValueError(
-                "Transformation can be craeted only from POSCAR "
-                "strings with proper VASP5 element symbols."
+                "Transformation can be craeted only from POSCAR " "strings with proper VASP5 element symbols."
             )
         raw_string = re.sub(r"'", '"', poscar_string)
         s = p.structure
@@ -345,9 +330,7 @@ class TransformedStructure(MSONable):
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return cls(
-            s, history=d["history"], other_parameters=d.get("other_parameters", None)
-        )
+        return cls(s, history=d["history"], other_parameters=d.get("other_parameters", None))
 
     def to_snl(self, authors, **kwargs):
         """
@@ -358,19 +341,14 @@ class TransformedStructure(MSONable):
         :return: StructureNL
         """
         if self.other_parameters:
-            warn(
-                "Data in TransformedStructure.other_parameters discarded "
-                "during type conversion to SNL"
-            )
+            warn("Data in TransformedStructure.other_parameters discarded " "during type conversion to SNL")
         hist = []
         for h in self.history:
             snl_metadata = h.pop("_snl", {})
             hist.append(
                 {
                     "name": snl_metadata.pop("name", "pymatgen"),
-                    "url": snl_metadata.pop(
-                        "url", "http://pypi.python.org/pypi/pymatgen"
-                    ),
+                    "url": snl_metadata.pop("url", "http://pypi.python.org/pypi/pymatgen"),
                     "description": h,
                 }
             )

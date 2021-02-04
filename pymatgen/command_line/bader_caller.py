@@ -136,26 +136,17 @@ class BaderAnalysis:
             self.is_vasp = True
             self.chgcar = Chgcar.from_file(chgcar_filename)
             self.structure = self.chgcar.structure
-            self.potcar = (
-                Potcar.from_file(potcar_filename)
-                if potcar_filename is not None
-                else None
-            )
+            self.potcar = Potcar.from_file(potcar_filename) if potcar_filename is not None else None
             self.natoms = self.chgcar.poscar.natoms
             chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
-            self.reference_used = True if chgref_filename else False
+            self.reference_used = bool(chgref_filename)
 
             # List of nelects for each atom from potcar
             potcar_indices = []
             for i, v in enumerate(self.natoms):
                 potcar_indices += [i] * v
             self.nelects = (
-                [
-                    self.potcar[potcar_indices[i]].nelectrons
-                    for i in range(len(self.structure))
-                ]
-                if self.potcar
-                else []
+                [self.potcar[potcar_indices[i]].nelectrons for i in range(len(self.structure))] if self.potcar else []
             )
 
         else:
@@ -163,9 +154,7 @@ class BaderAnalysis:
             self.is_vasp = False
             self.cube = Cube(fpath)
             self.structure = self.cube.structure
-            self.nelects = self.structure.site_properties.get(
-                "nelect", []
-            )  # For cube, see if struc has nelects
+            self.nelects = self.structure.site_properties.get("nelect", [])  # For cube, see if struc has nelects
 
         tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
         with ScratchDir("."):
@@ -180,14 +169,11 @@ class BaderAnalysis:
                 args += ["-ref", "CHGCAR_ref"]
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]
-            rs = subprocess.Popen(
-                args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True
-            )
+            rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
             stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
-                    "bader exited with return code %d. "
-                    "Please check your bader installation." % rs.returncode
+                    "bader exited with return code %d. " "Please check your bader installation." % rs.returncode
                 )
 
             try:
@@ -196,8 +182,7 @@ class BaderAnalysis:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn(
-                    "Your installed version of Bader is outdated, "
-                    "calculation of vacuum charge may be incorrect."
+                    "Your installed version of Bader is outdated, " "calculation of vacuum charge may be incorrect."
                 )
 
             data = []
@@ -306,8 +291,7 @@ class BaderAnalysis:
         """
         if not self.nelects:
             raise ValueError(
-                "No NELECT info! Need POTCAR for VASP, or a structure object"
-                "with nelect as a site property."
+                "No NELECT info! Need POTCAR for VASP, or a structure object" "with nelect as a site property."
             )
         return self.data[atom_index]["charge"] - self.nelects[atom_index]
 
@@ -368,9 +352,7 @@ class BaderAnalysis:
             summary["charge_densities"] = self.atomic_densities
 
         if self.potcar:
-            charge_transfer = [
-                self.get_charge_transfer(i) for i in range(len(self.data))
-            ]
+            charge_transfer = [self.get_charge_transfer(i) for i in range(len(self.data))]
             summary["charge_transfer"] = charge_transfer
 
         return summary
@@ -390,9 +372,7 @@ class BaderAnalysis:
         """
 
         def _get_filepath(filename):
-            name_pattern = (
-                filename + suffix + "*" if filename != "POTCAR" else filename + "*"
-            )
+            name_pattern = filename + suffix + "*" if filename != "POTCAR" else filename + "*"
             paths = glob.glob(os.path.join(path, name_pattern))
             fpath = None
             if len(paths) >= 1:
@@ -402,9 +382,7 @@ class BaderAnalysis:
                 # however, better to use 'suffix' kwarg to avoid this!
                 paths.sort(reverse=True)
                 warning_msg = (
-                    "Multiple files detected, using %s" % os.path.basename(paths[0])
-                    if len(paths) > 1
-                    else None
+                    "Multiple files detected, using %s" % os.path.basename(paths[0]) if len(paths) > 1 else None
                 )
                 fpath = paths[0]
             else:
@@ -455,9 +433,7 @@ def get_filepath(filename, warning, path, suffix):
         # and this would give 'static' over 'relax2' over 'relax'
         # however, better to use 'suffix' kwarg to avoid this!
         paths.sort(reverse=True)
-        warnings.warn(
-            "Multiple files detected, using {}".format(os.path.basename(path))
-        )
+        warnings.warn("Multiple files detected, using {}".format(os.path.basename(path)))
     path = paths[0]
     return path
 
@@ -492,28 +468,20 @@ def bader_analysis_from_path(path, suffix=""):
             # and this would give 'static' over 'relax2' over 'relax'
             # however, better to use 'suffix' kwarg to avoid this!
             paths.sort(reverse=True)
-            warnings.warn(
-                "Multiple files detected, using {}".format(os.path.basename(path))
-            )
+            warnings.warn("Multiple files detected, using {}".format(os.path.basename(path)))
         path = paths[0]
         return path
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
     chgcar = Chgcar.from_file(chgcar_path)
 
-    aeccar0_path = _get_filepath(
-        "AECCAR0", "Could not find AECCAR0, interpret Bader results with caution."
-    )
+    aeccar0_path = _get_filepath("AECCAR0", "Could not find AECCAR0, interpret Bader results with caution.")
     aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
-    aeccar2_path = _get_filepath(
-        "AECCAR2", "Could not find AECCAR2, interpret Bader results with caution."
-    )
+    aeccar2_path = _get_filepath("AECCAR2", "Could not find AECCAR2, interpret Bader results with caution.")
     aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
-    potcar_path = _get_filepath(
-        "POTCAR", "Could not find POTCAR, cannot calculate charge transfer."
-    )
+    potcar_path = _get_filepath("POTCAR", "Could not find POTCAR, cannot calculate charge transfer.")
     potcar = Potcar.from_file(potcar_path) if potcar_path else None
 
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)
@@ -569,7 +537,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             "atomic_volume": [d["atomic_vol"] for d in ba.data],
             "vacuum_charge": ba.vacuum_charge,
             "vacuum_volume": ba.vacuum_volume,
-            "reference_used": True if chgref_path else False,
+            "reference_used": bool(chgref_path),
             "bader_version": ba.version,
         }
 

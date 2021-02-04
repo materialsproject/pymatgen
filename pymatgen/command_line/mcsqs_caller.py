@@ -8,30 +8,29 @@ import tempfile
 import warnings
 from pathlib import Path
 from subprocess import Popen, TimeoutExpired
-from typing import Dict, List, NamedTuple, Optional, Union
+from collections import namedtuple
+from typing import Dict, List, Optional, Union
 
 from monty.dev import requires
 from monty.os.path import which
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 
 
-class Sqs(NamedTuple):
-    """
-    Return type for run_mcsqs.
-    """
-
-    bestsqs: Structure
-    objective_function: Union[float, str]
-    allsqs: List
-    clusters: List
-    directory: str
+Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
+"""
+Return type for run_mcsqs.
+bestsqs: Structure
+objective_function: Union[float, str]
+allsqs: List
+clusters: List
+directory: str
+"""
 
 
 @requires(
     which("mcsqs") and which("str2cif"),
-    "run_mcsqs requires first installing AT-AT, "
-    "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
+    "run_mcsqs requires first installing AT-AT, " "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
     structure: Structure,
@@ -279,12 +278,8 @@ def _parse_clusters(filename):
             line = cluster[3 + point].split(" ")
             point_dict = {}
             point_dict["coordinates"] = [float(line) for line in line[0:3]]
-            point_dict["num_possible_species"] = (
-                int(line[3]) + 2
-            )  # see ATAT manual for why +2
-            point_dict["cluster_function"] = float(
-                line[4]
-            )  # see ATAT manual for what "function" is
+            point_dict["num_possible_species"] = int(line[3]) + 2  # see ATAT manual for why +2
+            point_dict["cluster_function"] = float(line[4])  # see ATAT manual for what "function" is
             points.append(point_dict)
 
         cluster_dict["coordinates"] = points

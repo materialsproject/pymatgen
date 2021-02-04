@@ -58,12 +58,8 @@ class RLSVolumePredictorTest(PymatgenTest):
         # Use Ag7P3S11 as a test case:
 
         # (i) no oxidation states are assigned and CVP-atomic scheme is selected.
-        aps = Structure.from_file(
-            os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif")
-        )
-        apo = Structure.from_file(
-            os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif")
-        )
+        aps = Structure.from_file(os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif"))
+        apo = Structure.from_file(os.path.join(dir_path, "Ag7P3S11_mp-683910_primitive.cif"))
         apo.replace_species({"S": "O"})
         p = RLSVolumePredictor(radii_type="atomic", check_isostructural=False)
         self.assertAlmostEqual(p.predict(apo, aps), 1196.31384276)
@@ -93,9 +89,7 @@ class DLSVolumePredictorTest(PymatgenTest):
     def test_predict(self):
         p = DLSVolumePredictor()
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells
-        p_nolimit = DLSVolumePredictor(
-            min_scaling=None, max_scaling=None
-        )  # no limits on scaling
+        p_nolimit = DLSVolumePredictor(min_scaling=None, max_scaling=None)  # no limits on scaling
 
         fen = Structure.from_file(os.path.join(dir_path, "FeN_mp-6988.cif"))
 

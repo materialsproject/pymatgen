@@ -50,28 +50,20 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     if quick:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
-        drone = VaspToComputedEntryDrone(
-            inc_structure=True, data=["filename", "initial_structure"]
-        )
+        drone = VaspToComputedEntryDrone(inc_structure=True, data=["filename", "initial_structure"])
 
     ncpus = multiprocessing.cpu_count()
     logging.info("Detected {} cpus".format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(SAVE_FILE) and not reanalyze:
-        msg = (
-            "Using previously assimilated data from {}.".format(SAVE_FILE)
-            + " Use -r to force re-analysis."
-        )
+        msg = "Using previously assimilated data from {}.".format(SAVE_FILE) + " Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
         if ncpus > 1:
             queen.parallel_assimilate(rootdir)
         else:
             queen.serial_assimilate(rootdir)
-        msg = (
-            "Analysis results saved to {} for faster ".format(SAVE_FILE)
-            + "subsequent loading."
-        )
+        msg = "Analysis results saved to {} for faster ".format(SAVE_FILE) + "subsequent loading."
         queen.save_data(SAVE_FILE)
 
     entries = queen.get_data()
@@ -162,9 +154,7 @@ def analyze(args):
 
     if args.get_energies or default_energies:
         for d in args.directories:
-            return get_energies(
-                d, args.reanalyze, args.verbose, args.quick, args.sort, args.format
-            )
+            return get_energies(d, args.reanalyze, args.verbose, args.quick, args.sort, args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None

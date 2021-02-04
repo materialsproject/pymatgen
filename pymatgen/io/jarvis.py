@@ -32,15 +32,15 @@ class JarvisAtomsAdaptor:
         if not structure.is_ordered:
             raise ValueError("JARVIS Atoms only supports ordered structures")
         if not jarvis_loaded:
-            raise ImportError(
-                "JarvisAtomsAdaptor requires jarvis-tools package.\n"
-                "Use `pip install -U jarvis-tools`"
-            )
+            raise ImportError("JarvisAtomsAdaptor requires jarvis-tools package.\n" "Use `pip install -U jarvis-tools`")
         elements = [str(site.specie.symbol) for site in structure]
         coords = [site.frac_coords for site in structure]
         lattice_mat = structure.lattice.matrix
         return Atoms(
-            lattice_mat=lattice_mat, elements=elements, coords=coords, cartesian=False,
+            lattice_mat=lattice_mat,
+            elements=elements,
+            coords=coords,
+            cartesian=False,
         )
 
     @staticmethod

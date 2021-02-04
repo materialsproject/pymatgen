@@ -34,18 +34,10 @@ class CoordinationGeometriesTest(PymatgenTest):
         self.assertEqual(len(sepplane_algos_oct[1].safe_separation_permutations()), 36)
 
         sepplane_algos_oct_0 = SeparationPlane.from_dict(sepplane_algos_oct[0].as_dict)
-        self.assertEqual(
-            sepplane_algos_oct[0].plane_points, sepplane_algos_oct_0.plane_points
-        )
-        self.assertEqual(
-            sepplane_algos_oct[0].mirror_plane, sepplane_algos_oct_0.mirror_plane
-        )
-        self.assertEqual(
-            sepplane_algos_oct[0].ordered_plane, sepplane_algos_oct_0.ordered_plane
-        )
-        self.assertEqual(
-            sepplane_algos_oct[0].point_groups, sepplane_algos_oct_0.point_groups
-        )
+        self.assertEqual(sepplane_algos_oct[0].plane_points, sepplane_algos_oct_0.plane_points)
+        self.assertEqual(sepplane_algos_oct[0].mirror_plane, sepplane_algos_oct_0.mirror_plane)
+        self.assertEqual(sepplane_algos_oct[0].ordered_plane, sepplane_algos_oct_0.ordered_plane)
+        self.assertEqual(sepplane_algos_oct[0].point_groups, sepplane_algos_oct_0.point_groups)
         self.assertEqual(
             sepplane_algos_oct[0].ordered_point_groups,
             sepplane_algos_oct_0.ordered_point_groups,
@@ -57,23 +49,18 @@ class CoordinationGeometriesTest(PymatgenTest):
                         perm,
                         sepplane_algos_oct_0.explicit_optimized_permutations[iperm],
                     )
-                    for iperm, perm in enumerate(
-                        sepplane_algos_oct[0].explicit_optimized_permutations
-                    )
+                    for iperm, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)
                 ]
             )
         )
 
         self.assertEqual(
             sepplane_algos_oct[0].__str__(),
-            "Separation plane algorithm with the following reference separation :\n"
-            "[[4]] | [[0, 2, 1, 3]] | [[5]]",
+            "Separation plane algorithm with the following reference separation :\n" "[[4]] | [[0, 2, 1, 3]] | [[5]]",
         )
 
     def test_hints(self):
-        hints = CoordinationGeometry.NeighborsSetsHints(
-            hints_type="single_cap", options={"cap_index": 2, "csm_max": 8}
-        )
+        hints = CoordinationGeometry.NeighborsSetsHints(hints_type="single_cap", options={"cap_index": 2, "csm_max": 8})
         myhints = hints.hints({"csm": 12.0})
         self.assertEqual(myhints, [])
 
@@ -126,9 +113,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        self.assertArrayAlmostEqual(
-            cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces
-        )
+        self.assertArrayAlmostEqual(cg_oct.faces(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), faces)
 
         faces = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
@@ -156,9 +141,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             [[0.0, 1.0, 0.0], [0.0, -1.0, 0.0]],
             [[0.0, 1.0, 0.0], [0.0, 0.0, -1.0]],
         ]
-        self.assertArrayAlmostEqual(
-            cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges
-        )
+        self.assertArrayAlmostEqual(cg_oct.edges(sites=sites, permutation=[0, 3, 2, 4, 5, 1]), edges)
 
         edges = [
             [[0.0, 0.0, 1.0], [1.0, 0.0, 0.0]],
@@ -212,8 +195,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             "  - coordination number : 1\n"
             "  - list of points :\n"
             "    - [0.0, 0.0, 1.0]\n"
-            "------------------------------------------------------------\n\n"
-            in allcg_str
+            "------------------------------------------------------------\n\n" in allcg_str
         )
 
         self.assertTrue(
@@ -223,81 +205,79 @@ class CoordinationGeometriesTest(PymatgenTest):
         )
 
         all_symbols = [
-            u"S:1",
-            u"L:2",
-            u"A:2",
-            u"TL:3",
-            u"TY:3",
-            u"TS:3",
-            u"T:4",
-            u"S:4",
-            u"SY:4",
-            u"SS:4",
-            u"PP:5",
-            u"S:5",
-            u"T:5",
-            u"O:6",
-            u"T:6",
-            u"PP:6",
-            u"PB:7",
-            u"ST:7",
-            u"ET:7",
-            u"FO:7",
-            u"C:8",
-            u"SA:8",
-            u"SBT:8",
-            u"TBT:8",
-            u"DD:8",
-            u"DDPN:8",
-            u"HB:8",
-            u"BO_1:8",
-            u"BO_2:8",
-            u"BO_3:8",
-            u"TC:9",
-            u"TT_1:9",
-            u"TT_2:9",
-            u"TT_3:9",
-            u"HD:9",
-            u"TI:9",
-            u"SMA:9",
-            u"SS:9",
-            u"TO_1:9",
-            u"TO_2:9",
-            u"TO_3:9",
-            u"PP:10",
-            u"PA:10",
-            u"SBSA:10",
-            u"MI:10",
-            u"S:10",
-            u"H:10",
-            u"BS_1:10",
-            u"BS_2:10",
-            u"TBSA:10",
-            u"PCPA:11",
-            u"H:11",
-            u"SH:11",
-            u"CO:11",
-            u"DI:11",
-            u"I:12",
-            u"PBP:12",
-            u"TT:12",
-            u"C:12",
-            u"AC:12",
-            u"SC:12",
-            u"S:12",
-            u"HP:12",
-            u"HA:12",
-            u"SH:13",
-            u"DD:20",
-            u"UNKNOWN",
-            u"UNCLEAR",
+            "S:1",
+            "L:2",
+            "A:2",
+            "TL:3",
+            "TY:3",
+            "TS:3",
+            "T:4",
+            "S:4",
+            "SY:4",
+            "SS:4",
+            "PP:5",
+            "S:5",
+            "T:5",
+            "O:6",
+            "T:6",
+            "PP:6",
+            "PB:7",
+            "ST:7",
+            "ET:7",
+            "FO:7",
+            "C:8",
+            "SA:8",
+            "SBT:8",
+            "TBT:8",
+            "DD:8",
+            "DDPN:8",
+            "HB:8",
+            "BO_1:8",
+            "BO_2:8",
+            "BO_3:8",
+            "TC:9",
+            "TT_1:9",
+            "TT_2:9",
+            "TT_3:9",
+            "HD:9",
+            "TI:9",
+            "SMA:9",
+            "SS:9",
+            "TO_1:9",
+            "TO_2:9",
+            "TO_3:9",
+            "PP:10",
+            "PA:10",
+            "SBSA:10",
+            "MI:10",
+            "S:10",
+            "H:10",
+            "BS_1:10",
+            "BS_2:10",
+            "TBSA:10",
+            "PCPA:11",
+            "H:11",
+            "SH:11",
+            "CO:11",
+            "DI:11",
+            "I:12",
+            "PBP:12",
+            "TT:12",
+            "C:12",
+            "AC:12",
+            "SC:12",
+            "S:12",
+            "HP:12",
+            "HA:12",
+            "SH:13",
+            "DD:20",
+            "UNKNOWN",
+            "UNCLEAR",
         ]
 
         self.assertEqual(len(allcg.get_geometries()), 68)
         self.assertEqual(len(allcg.get_geometries(coordination=3)), 3)
-        self.assertEqual(
-            sorted(allcg.get_geometries(returned="mp_symbol")), sorted(all_symbols)
-        )
+        self.assertEqual(sorted(allcg.get_geometries(returned="mp_symbol")), sorted(all_symbols))
         self.assertEqual(
             sorted(allcg.get_geometries(returned="mp_symbol", coordination=3)),
             ["TL:3", "TS:3", "TY:3"],
@@ -306,47 +286,35 @@ class CoordinationGeometriesTest(PymatgenTest):
         self.assertEqual(
             allcg.get_symbol_name_mapping(coordination=3),
             {
-                u"TY:3": u"Triangular non-coplanar",
-                u"TL:3": u"Trigonal plane",
-                u"TS:3": u"T-shaped",
+                "TY:3": "Triangular non-coplanar",
+                "TL:3": "Trigonal plane",
+                "TS:3": "T-shaped",
             },
         )
         self.assertEqual(
             allcg.get_symbol_cn_mapping(coordination=3),
-            {u"TY:3": 3, u"TL:3": 3, u"TS:3": 3},
+            {"TY:3": 3, "TL:3": 3, "TS:3": 3},
         )
         self.assertEqual(
-            sorted(
-                allcg.get_implemented_geometries(coordination=4, returned="mp_symbol")
-            ),
-            [u"S:4", u"SS:4", u"SY:4", u"T:4"],
+            sorted(allcg.get_implemented_geometries(coordination=4, returned="mp_symbol")),
+            ["S:4", "SS:4", "SY:4", "T:4"],
         )
         self.assertEqual(
             sorted(allcg.get_not_implemented_geometries(returned="mp_symbol")),
-            [u"CO:11", u"H:10", u"S:10", u"S:12", u"UNCLEAR", u"UNKNOWN"],
+            ["CO:11", "H:10", "S:10", "S:12", "UNCLEAR", "UNKNOWN"],
         )
 
-        self.assertEqual(
-            allcg.get_geometry_from_name("Octahedron").mp_symbol, cg_oct.mp_symbol
-        )
+        self.assertEqual(allcg.get_geometry_from_name("Octahedron").mp_symbol, cg_oct.mp_symbol)
         with self.assertRaises(LookupError) as cm:
             allcg.get_geometry_from_name("Octahedran")
-        self.assertEqual(
-            str(cm.exception), 'No coordination geometry found with name "Octahedran"'
-        )
+        self.assertEqual(str(cm.exception), 'No coordination geometry found with name "Octahedran"')
 
-        self.assertEqual(
-            allcg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol, cg_oct.mp_symbol
-        )
+        self.assertEqual(allcg.get_geometry_from_IUPAC_symbol("OC-6").mp_symbol, cg_oct.mp_symbol)
         with self.assertRaises(LookupError) as cm:
             allcg.get_geometry_from_IUPAC_symbol("OC-7")
-        self.assertEqual(
-            str(cm.exception), 'No coordination geometry found with IUPAC symbol "OC-7"'
-        )
+        self.assertEqual(str(cm.exception), 'No coordination geometry found with IUPAC symbol "OC-7"')
 
-        self.assertEqual(
-            allcg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol, cg_oct.mp_symbol
-        )
+        self.assertEqual(allcg.get_geometry_from_IUCr_symbol("[6o]").mp_symbol, cg_oct.mp_symbol)
         with self.assertRaises(LookupError) as cm:
             allcg.get_geometry_from_IUCr_symbol("[6oct]")
         self.assertEqual(
@@ -356,9 +324,7 @@ class CoordinationGeometriesTest(PymatgenTest):
 
         with self.assertRaises(LookupError) as cm:
             allcg.get_geometry_from_mp_symbol("O:7")
-        self.assertEqual(
-            str(cm.exception), 'No coordination geometry found with mp_symbol "O:7"'
-        )
+        self.assertEqual(str(cm.exception), 'No coordination geometry found with mp_symbol "O:7"')
 
         self.assertEqual(
             allcg.pretty_print(maxcn=4),
@@ -391,9 +357,7 @@ class CoordinationGeometriesTest(PymatgenTest):
             "\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n"
             "\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n",
         )
-        self.assertDictEqual(
-            allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2}
-        )
+        self.assertDictEqual(allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2})
         self.assertDictEqual(
             allcg.maxpoints,
             {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10},
@@ -406,88 +370,88 @@ class CoordinationGeometriesTest(PymatgenTest):
             allcg.separations_cg,
             {
                 6: {
-                    (0, 3, 3): [u"O:6", u"T:6"],
-                    (1, 4, 1): [u"O:6"],
-                    (0, 5, 1): [u"PP:6"],
-                    (2, 2, 2): [u"PP:6"],
-                    (0, 4, 2): [u"T:6"],
+                    (0, 3, 3): ["O:6", "T:6"],
+                    (1, 4, 1): ["O:6"],
+                    (0, 5, 1): ["PP:6"],
+                    (2, 2, 2): ["PP:6"],
+                    (0, 4, 2): ["T:6"],
                 },
                 7: {
-                    (1, 3, 3): [u"ET:7", u"FO:7"],
-                    (2, 3, 2): [u"PB:7", u"ST:7", u"ET:7"],
-                    (1, 4, 2): [u"ST:7", u"FO:7"],
-                    (1, 5, 1): [u"PB:7"],
+                    (1, 3, 3): ["ET:7", "FO:7"],
+                    (2, 3, 2): ["PB:7", "ST:7", "ET:7"],
+                    (1, 4, 2): ["ST:7", "FO:7"],
+                    (1, 5, 1): ["PB:7"],
                 },
                 8: {
-                    (1, 6, 1): [u"HB:8"],
-                    (0, 4, 4): [u"C:8", u"SA:8", u"SBT:8"],
-                    (1, 4, 3): [u"SA:8", u"SBT:8", u"BO_2:8", u"BO_3:8"],
+                    (1, 6, 1): ["HB:8"],
+                    (0, 4, 4): ["C:8", "SA:8", "SBT:8"],
+                    (1, 4, 3): ["SA:8", "SBT:8", "BO_2:8", "BO_3:8"],
                     (2, 4, 2): [
-                        u"C:8",
-                        u"TBT:8",
-                        u"DD:8",
-                        u"DDPN:8",
-                        u"HB:8",
-                        u"BO_1:8",
-                        u"BO_1:8",
-                        u"BO_2:8",
-                        u"BO_2:8",
-                        u"BO_3:8",
-                        u"BO_3:8",
+                        "C:8",
+                        "TBT:8",
+                        "DD:8",
+                        "DDPN:8",
+                        "HB:8",
+                        "BO_1:8",
+                        "BO_1:8",
+                        "BO_2:8",
+                        "BO_2:8",
+                        "BO_3:8",
+                        "BO_3:8",
                     ],
                 },
                 9: {
                     (3, 3, 3): [
-                        u"TT_1:9",
-                        u"TT_1:9",
-                        u"TT_2:9",
-                        u"SMA:9",
-                        u"SMA:9",
-                        u"TO_1:9",
-                        u"TO_3:9",
+                        "TT_1:9",
+                        "TT_1:9",
+                        "TT_2:9",
+                        "SMA:9",
+                        "SMA:9",
+                        "TO_1:9",
+                        "TO_3:9",
                     ],
-                    (0, 6, 3): [u"TC:9"],
+                    (0, 6, 3): ["TC:9"],
                     (2, 4, 3): [
-                        u"TC:9",
-                        u"TT_2:9",
-                        u"TT_3:9",
-                        u"TI:9",
-                        u"SS:9",
-                        u"TO_1:9",
-                        u"TO_1:9",
-                        u"TO_2:9",
-                        u"TO_3:9",
+                        "TC:9",
+                        "TT_2:9",
+                        "TT_3:9",
+                        "TI:9",
+                        "SS:9",
+                        "TO_1:9",
+                        "TO_1:9",
+                        "TO_2:9",
+                        "TO_3:9",
                     ],
-                    (1, 3, 5): [u"TI:9"],
-                    (1, 4, 4): [u"TT_1:9", u"SMA:9", u"SS:9"],
-                    (2, 3, 4): [u"TC:9"],
-                    (2, 5, 2): [u"TT_3:9", u"SS:9", u"TO_2:9"],
-                    (1, 7, 1): [u"HD:9"],
+                    (1, 3, 5): ["TI:9"],
+                    (1, 4, 4): ["TT_1:9", "SMA:9", "SS:9"],
+                    (2, 3, 4): ["TC:9"],
+                    (2, 5, 2): ["TT_3:9", "SS:9", "TO_2:9"],
+                    (1, 7, 1): ["HD:9"],
                 },
                 10: {
-                    (0, 5, 5): [u"PP:10", u"PA:10"],
-                    (3, 4, 3): [u"PA:10", u"SBSA:10", u"MI:10", u"BS_2:10", u"TBSA:10"],
-                    (2, 6, 2): [u"BS_1:10"],
-                    (2, 4, 4): [u"PP:10", u"MI:10", u"BS_2:10"],
-                    (3, 3, 4): [u"SBSA:10"],
-                    (1, 4, 5): [u"BS_2:10"],
-                    (0, 4, 6): [u"BS_1:10", u"TBSA:10"],
+                    (0, 5, 5): ["PP:10", "PA:10"],
+                    (3, 4, 3): ["PA:10", "SBSA:10", "MI:10", "BS_2:10", "TBSA:10"],
+                    (2, 6, 2): ["BS_1:10"],
+                    (2, 4, 4): ["PP:10", "MI:10", "BS_2:10"],
+                    (3, 3, 4): ["SBSA:10"],
+                    (1, 4, 5): ["BS_2:10"],
+                    (0, 4, 6): ["BS_1:10", "TBSA:10"],
                 },
                 11: {
-                    (4, 3, 4): [u"PCPA:11"],
-                    (3, 4, 4): [u"DI:11"],
-                    (1, 5, 5): [u"PCPA:11", u"DI:11"],
-                    (3, 5, 3): [u"H:11"],
+                    (4, 3, 4): ["PCPA:11"],
+                    (3, 4, 4): ["DI:11"],
+                    (1, 5, 5): ["PCPA:11", "DI:11"],
+                    (3, 5, 3): ["H:11"],
                 },
                 12: {
-                    (3, 3, 6): [u"TT:12"],
-                    (2, 4, 6): [u"TT:12"],
-                    (0, 6, 6): [u"HP:12", u"HA:12"],
-                    (3, 6, 3): [u"C:12", u"AC:12"],
-                    (4, 4, 4): [u"I:12", u"PBP:12", u"C:12", u"HP:12"],
-                    (0, 8, 4): [u"SC:12"],
+                    (3, 3, 6): ["TT:12"],
+                    (2, 4, 6): ["TT:12"],
+                    (0, 6, 6): ["HP:12", "HA:12"],
+                    (3, 6, 3): ["C:12", "AC:12"],
+                    (4, 4, 4): ["I:12", "PBP:12", "C:12", "HP:12"],
+                    (0, 8, 4): ["SC:12"],
                 },
-                13: {(0, 6, 7): [u"SH:13"]},
+                13: {(0, 6, 7): ["SH:13"]},
                 20: {(5, 10, 5): ["DD:20"]},
             },
         )

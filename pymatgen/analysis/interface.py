@@ -13,7 +13,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.substrate_analyzer import SubstrateAnalyzer, reduce_vectors
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
@@ -121,9 +122,7 @@ class Interface(Structure):
         self.sub_init_cell = sub_init_cell
         self.film_init_cell = film_init_cell
 
-        z_shift = np.min(self.film.cart_coords[:, 2]) - np.max(
-            self.substrate.cart_coords[:, 2]
-        )
+        z_shift = np.min(self.film.cart_coords[:, 2]) - np.max(self.substrate.cart_coords[:, 2])
 
         if init_inplane_shift is None:
             init_inplane_shift = np.array([0.0, 0.0])
@@ -162,13 +161,9 @@ class Interface(Structure):
                 self.offset_vector -> self.offset_vector + delta.
         """
         if self.offset_vector[2] + delta[2] < 0 or delta[2] > self.vacuum_thickness:
-            raise ValueError(
-                "The shift {} will collide the film and substrate.".format(delta)
-            )
+            raise ValueError("The shift {} will collide the film and substrate.".format(delta))
         self._offset_vector += np.array(delta)
-        self.translate_sites(
-            self.get_film_indices(), delta, frac_coords=False, to_unit_cell=True
-        )
+        self.translate_sites(self.get_film_indices(), delta, frac_coords=False, to_unit_cell=True)
 
     @property
     def offset_vector(self):
@@ -217,11 +212,7 @@ class Interface(Structure):
         """
         Vacuum buffer above the film.
         """
-        return (
-            np.min(self.substrate.cart_coords[:, 2])
-            + self.lattice.c
-            - np.max(self.film.cart_coords[:, 2])
-        )
+        return np.min(self.substrate.cart_coords[:, 2]) + self.lattice.c - np.max(self.film.cart_coords[:, 2])
 
     @property
     def substrate_sites(self):
@@ -470,15 +461,9 @@ class InterfaceBuilder:
         for label, interface in zip(self.interface_labels, self.interfaces):
             _poscar = Poscar(interface)
             _poscar.write_file("interface_%s_POSCAR" % label.replace("/", "-"))
-        return
 
     def generate_interfaces(
-        self,
-        film_millers=None,
-        substrate_millers=None,
-        film_layers=3,
-        substrate_layers=3,
-        **kwargs
+        self, film_millers=None, substrate_millers=None, film_layers=3, substrate_layers=3, **kwargs
     ):
         """
         Generate a list of Interface (Structure) objects and store them to self.interfaces.
@@ -498,11 +483,8 @@ class InterfaceBuilder:
         )
 
         self.combine_slabs(**kwargs)
-        return
 
-    def get_oriented_slabs(
-        self, film_layers=3, substrate_layers=3, match_index=0, **kwargs
-    ):
+    def get_oriented_slabs(self, film_layers=3, substrate_layers=3, match_index=0, **kwargs):
         """
         Get a list of oriented slabs for constructing interfaces and put them
         in self.film_structures, self.substrate_structures, self.modified_film_structures,
@@ -525,13 +507,7 @@ class InterfaceBuilder:
             sa = SubstrateAnalyzer()
 
         # Generate all possible interface matches
-        self.matches = list(
-            sa.calculate(
-                self.original_film_structure,
-                self.original_substrate_structure,
-                **kwargs
-            )
-        )
+        self.matches = list(sa.calculate(self.original_film_structure, self.original_substrate_structure, **kwargs))
         match = self.matches[match_index]
 
         # Generate substrate slab and align x axis to (100) and slab normal to (001)
@@ -628,13 +604,10 @@ class InterfaceBuilder:
         self.sym_modified_film_structures = sym_film_slabs
 
         # Strained film structures (No Vacuum)
-        self.strained_substrate, self.strained_film = strain_slabs(
-            self.oriented_substrate, self.oriented_film
-        )
+        self.strained_substrate, self.strained_film = strain_slabs(self.oriented_substrate, self.oriented_film)
 
-        return
-
-    def apply_transformation(self, structure, matrix):
+    @staticmethod
+    def apply_transformation(structure, matrix):
         """
         Make a supercell of structure using matrix
 
@@ -651,9 +624,7 @@ class InterfaceBuilder:
 
         # Reduce vectors
         new_lattice = modified_substrate_structure.lattice.matrix.copy()
-        new_lattice[:2, :] = reduce_vectors(
-            *modified_substrate_structure.lattice.matrix[:2, :]
-        )
+        new_lattice[:2, :] = reduce_vectors(*modified_substrate_structure.lattice.matrix[:2, :])
         modified_substrate_structure = Slab(
             lattice=Lattice(new_lattice),
             species=modified_substrate_structure.species,
@@ -681,9 +652,7 @@ class InterfaceBuilder:
         film_transformation = match["film_transformation"]
         sub_transformation = match["substrate_transformation"]
 
-        modified_substrate_structures = [
-            struct.copy() for struct in self.substrate_structures
-        ]
+        modified_substrate_structures = [struct.copy() for struct in self.substrate_structures]
         modified_film_structures = [struct.copy() for struct in self.film_structures]
 
         # Match angles in lattices with 𝛾=θ° and 𝛾=(180-θ)°
@@ -692,9 +661,7 @@ class InterfaceBuilder:
             modified_substrate_structures[0].lattice.gamma,
             atol=3,
         ):
-            reflection = SymmOp.from_rotation_and_translation(
-                ((-1, 0, 0), (0, 1, 0), (0, 0, 1)), (0, 0, 1)
-            )
+            reflection = SymmOp.from_rotation_and_translation(((-1, 0, 0), (0, 1, 0), (0, 0, 1)), (0, 0, 1))
             for modified_film_structure in modified_film_structures:
                 modified_film_structure.apply_operation(reflection, fractional=True)
             self.oriented_film.apply_operation(reflection, fractional=True)
@@ -707,14 +674,10 @@ class InterfaceBuilder:
         temp_matrix[:2, :2] = sub_transformation
 
         for modified_substrate_structure in modified_substrate_structures:
-            modified_substrate_structure = self.apply_transformation(
-                modified_substrate_structure, temp_matrix
-            )
+            modified_substrate_structure = self.apply_transformation(modified_substrate_structure, temp_matrix)
             self.modified_substrate_structures.append(modified_substrate_structure)
 
-        self.oriented_substrate = self.apply_transformation(
-            self.oriented_substrate, temp_matrix
-        )
+        self.oriented_substrate = self.apply_transformation(self.oriented_substrate, temp_matrix)
 
         film_scaling = np.diag(np.diag(film_transformation))
 
@@ -724,14 +687,10 @@ class InterfaceBuilder:
         temp_matrix[:2, :2] = film_transformation
 
         for modified_film_structure in modified_film_structures:
-            modified_film_structure = self.apply_transformation(
-                modified_film_structure, temp_matrix
-            )
+            modified_film_structure = self.apply_transformation(modified_film_structure, temp_matrix)
             self.modified_film_structures.append(modified_film_structure)
 
         self.oriented_film = self.apply_transformation(self.oriented_film, temp_matrix)
-
-        return
 
     def combine_slabs(self):
         """
@@ -746,14 +705,10 @@ class InterfaceBuilder:
             sg = SpacegroupAnalyzer(slab, symprec=1e-3)
             if not sg.is_laue():
                 mirrored_slab = slab.copy()
-                reflection_z = SymmOp.from_rotation_and_translation(
-                    ((1, 0, 0), (0, 1, 0), (0, 0, -1)), (0, 0, 0)
-                )
+                reflection_z = SymmOp.from_rotation_and_translation(((1, 0, 0), (0, 1, 0), (0, 0, -1)), (0, 0, 0))
                 mirrored_slab.apply_operation(reflection_z, fractional=True)
                 translation = [0, 0, -min(mirrored_slab.frac_coords[:, 2])]
-                mirrored_slab.translate_sites(
-                    range(mirrored_slab.num_sites), translation
-                )
+                mirrored_slab.translate_sites(range(mirrored_slab.num_sites), translation)
                 all_substrate_variants.append(mirrored_slab)
                 sub_labels.append("%dm" % i)
 
@@ -765,14 +720,10 @@ class InterfaceBuilder:
             sg = SpacegroupAnalyzer(slab, symprec=1e-3)
             if not sg.is_laue():
                 mirrored_slab = slab.copy()
-                reflection_z = SymmOp.from_rotation_and_translation(
-                    ((1, 0, 0), (0, 1, 0), (0, 0, -1)), (0, 0, 0)
-                )
+                reflection_z = SymmOp.from_rotation_and_translation(((1, 0, 0), (0, 1, 0), (0, 0, -1)), (0, 0, 0))
                 mirrored_slab.apply_operation(reflection_z, fractional=True)
                 translation = [0, 0, -min(mirrored_slab.frac_coords[:, 2])]
-                mirrored_slab.translate_sites(
-                    range(mirrored_slab.num_sites), translation
-                )
+                mirrored_slab.translate_sites(range(mirrored_slab.num_sites), translation)
                 all_film_variants.append(mirrored_slab)
                 film_labels.append("%dm" % i)
 
@@ -805,11 +756,9 @@ class InterfaceBuilder:
         latt_1[2, :] = [0, 0, 1]
         latt_2 = slab_film.lattice.matrix.copy()
         latt_2[2, :] = [0, 0, 1]
-        if not Lattice(latt_1) == Lattice(latt_2):
+        if Lattice(latt_1) != Lattice(latt_2):
             # Calculate lattice strained to match:
-            matched_slab_substrate, matched_slab_film = strain_slabs(
-                slab_substrate, slab_film
-            )
+            matched_slab_substrate, matched_slab_film = strain_slabs(slab_substrate, slab_film)
         else:
             matched_slab_substrate = slab_substrate
             matched_slab_film = slab_film
@@ -838,9 +787,7 @@ class InterfaceBuilder:
         orthogonal_structure.sort()
 
         if not orthogonal_structure.is_valid(tol=1):
-            warnings.warn(
-                "Check generated structure, it may contain atoms too closely placed"
-            )
+            warnings.warn("Check generated structure, it may contain atoms too closely placed")
 
         # offset_vector = (offset[1], offset[2], offset[0])
         interface = Interface(
@@ -907,9 +854,7 @@ def visualize_interface(interface, show_atoms=False, n_uc=2):
     # film_struct = interface.film_init_cell
     modified_sub_struct = interface.modified_sub_structure
     modified_film_struct = interface.modified_film_structure
-    rotated_modified_film_structure = align_x(
-        modified_film_struct.copy(), get_ortho_axes(modified_sub_struct)
-    )
+    rotated_modified_film_structure = align_x(modified_film_struct.copy(), get_ortho_axes(modified_sub_struct))
 
     # Show super lattice matches
     plt.figure(dpi=150)
@@ -937,9 +882,7 @@ def visualize_interface(interface, show_atoms=False, n_uc=2):
                 "or",
                 markersize=0.1,
             )
-    legend_elements.append(
-        Line2D([0], [0], color="k", lw=1, label="Substrate Superlattice")
-    )
+    legend_elements.append(Line2D([0], [0], color="k", lw=1, label="Substrate Superlattice"))
     if show_atoms:
         legend_elements.append(
             Line2D(
@@ -972,12 +915,8 @@ def visualize_interface(interface, show_atoms=False, n_uc=2):
         )
         if show_atoms:
             plt.plot(
-                np.add(
-                    rotated_modified_film_structure.cart_coords[:, 0], current_start[0]
-                ),
-                np.add(
-                    rotated_modified_film_structure.cart_coords[:, 1], current_start[1]
-                ),
+                np.add(rotated_modified_film_structure.cart_coords[:, 0], current_start[0]),
+                np.add(rotated_modified_film_structure.cart_coords[:, 1], current_start[1]),
                 "og",
                 markersize=0.1,
             )
@@ -1001,9 +940,7 @@ def visualize_interface(interface, show_atoms=False, n_uc=2):
     plt.show()
 
 
-def visualize_superlattice(
-    struct, modified_struct, film=True, show_atoms=False, n_uc=2
-):
+def visualize_superlattice(struct, modified_struct, film=True, show_atoms=False, n_uc=2):
     """
     Visualize the unit cell-supercell match for either the film or substrate
     (specified by film boolean tag).
@@ -1043,9 +980,7 @@ def visualize_superlattice(
                 "or",
                 markersize=0.1,
             )
-    legend_elements.append(
-        Line2D([0], [0], color="k", lw=1, label="%s Superlattice" % label)
-    )
+    legend_elements.append(Line2D([0], [0], color="k", lw=1, label="%s Superlattice" % label))
     if show_atoms:
         legend_elements.append(
             Line2D(
@@ -1093,9 +1028,7 @@ def visualize_superlattice(
                 "og",
                 markersize=0.1,
             )
-    legend_elements.append(
-        Line2D([0], [0], color="b", lw=1, label="%s Lattice" % label)
-    )
+    legend_elements.append(Line2D([0], [0], color="b", lw=1, label="%s Lattice" % label))
     if show_atoms:
         legend_elements.append(
             Line2D(
@@ -1146,9 +1079,7 @@ def merge_slabs(substrate, film, slab_offset, x_offset, y_offset, vacuum=20, **k
     max_substrate = np.max(substrate.cart_coords[:, 2])
     min_substrate = np.min(film.cart_coords[:, 2])
     offset = max_substrate - min_substrate + slab_offset
-    offset_film_coords = [
-        np.add(coord, [x_offset, y_offset, offset]) for coord in film.cart_coords
-    ]
+    offset_film_coords = [np.add(coord, [x_offset, y_offset, offset]) for coord in film.cart_coords]
     combined_coords = [*substrate.cart_coords, *offset_film_coords]
     combined_site_properties = {}
     for key, item in substrate.site_properties.items():
@@ -1213,12 +1144,8 @@ def strain_slabs(sub_slab, film_slab):
     film_struct.lattice = new_latt
 
     # Average the two lattices (Should get equal strain?)
-    mean_a = np.mean(
-        [film_struct.lattice.matrix[0, :], sub_struct.lattice.matrix[0, :]], axis=0
-    )
-    mean_b = np.mean(
-        [film_struct.lattice.matrix[1, :], sub_struct.lattice.matrix[1, :]], axis=0
-    )
+    mean_a = np.mean([film_struct.lattice.matrix[0, :], sub_struct.lattice.matrix[0, :]], axis=0)
+    mean_b = np.mean([film_struct.lattice.matrix[1, :], sub_struct.lattice.matrix[1, :]], axis=0)
     new_latt = np.vstack([mean_a, mean_b, sub_struct.lattice.matrix[2, :]])
     sub_struct.lattice = Lattice(new_latt)
     new_latt = np.vstack([mean_a, mean_b, film_struct.lattice.matrix[2, :]])
@@ -1238,9 +1165,7 @@ def get_ortho_axes(structure):
     Returns:
         3x3 numpy matrix with the axes
     """
-    sub_a = structure.lattice.matrix[0, :] / np.linalg.norm(
-        structure.lattice.matrix[0, :]
-    )
+    sub_a = structure.lattice.matrix[0, :] / np.linalg.norm(structure.lattice.matrix[0, :])
     sub_c = third_vect(sub_a, structure.lattice.matrix[1, :])
 
     sub_b = third_vect(sub_c, sub_a)
@@ -1312,9 +1237,7 @@ def get_shear_reduced_slab(slab):
         but rduced in-plane lattice vectors
     """
     reduced_vectors = reduce_vectors(slab.lattice.matrix[0], slab.lattice.matrix[1])
-    new_lattice = Lattice(
-        [reduced_vectors[0], reduced_vectors[1], slab.lattice.matrix[2]]
-    )
+    new_lattice = Lattice([reduced_vectors[0], reduced_vectors[1], slab.lattice.matrix[2]])
     return Slab(
         lattice=new_lattice,
         species=slab.species,

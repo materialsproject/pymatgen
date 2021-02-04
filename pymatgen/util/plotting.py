@@ -11,9 +11,7 @@ import numpy as np
 from pymatgen.core.periodic_table import Element
 
 
-def pretty_plot(
-    width=8, height=None, plt=None, dpi=None, color_cycle=("qualitative", "Set1_9")
-):
+def pretty_plot(width=8, height=None, plt=None, dpi=None, color_cycle=("qualitative", "Set1_9")):
     """
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
@@ -67,16 +65,7 @@ def pretty_plot(
 
 
 def pretty_plot_two_axis(
-    x,
-    y1,
-    y2,
-    xlabel=None,
-    y1label=None,
-    y2label=None,
-    width=8,
-    height=None,
-    dpi=300,
-    **plot_kwargs
+    x, y1, y2, xlabel=None, y1label=None, y2label=None, width=8, height=None, dpi=300, **plot_kwargs
 ):
     """
     Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
@@ -126,15 +115,7 @@ def pretty_plot_two_axis(
         fig.set_dpi(dpi)
     if isinstance(y1, dict):
         for i, (k, v) in enumerate(y1.items()):
-            ax1.plot(
-                x,
-                v,
-                c=c1,
-                marker="s",
-                ls=styles[i % len(styles)],
-                label=k,
-                **plot_kwargs
-            )
+            ax1.plot(x, v, c=c1, marker="s", ls=styles[i % len(styles)], label=k, **plot_kwargs)
         ax1.legend(fontsize=labelsize)
     else:
         ax1.plot(x, y1, c=c1, marker="s", ls="-", **plot_kwargs)
@@ -360,9 +341,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
 
     # F-Fr has the largest X difference. We set this
     # as our top corner of the triangle (most ionic)
-    pt1 = np.array(
-        [(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)]
-    )
+    pt1 = np.array([(Element("F").X + Element("Fr").X) / 2, abs(Element("F").X - Element("Fr").X)])
     # Cs-Fr has the lowest average X. We set this as our
     # bottom left corner of the triangle (most metallic)
     pt2 = np.array(
@@ -373,9 +352,7 @@ def van_arkel_triangle(list_of_materials, annotate=True):
     )
     # O-F has the highest average X. We set this as our
     # bottom right corner of the triangle (most covalent)
-    pt3 = np.array(
-        [(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)]
-    )
+    pt3 = np.array([(Element("O").X + Element("F").X) / 2, abs(Element("O").X - Element("F").X)])
 
     # get the parameters for the lines of the triangle
     d = np.array(pt1) - np.array(pt2)
@@ -531,15 +508,7 @@ def get_ax3d_fig_plt(ax=None, **kwargs):
 
 
 def get_axarray_fig_plt(
-    ax_array,
-    nrows=1,
-    ncols=1,
-    sharex=False,
-    sharey=False,
-    squeeze=True,
-    subplot_kw=None,
-    gridspec_kw=None,
-    **fig_kw
+    ax_array, nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw
 ):
     """
     Helper function used in plot functions that accept an optional array of Axes
@@ -563,7 +532,7 @@ def get_axarray_fig_plt(
             squeeze=squeeze,
             subplot_kw=subplot_kw,
             gridspec_kw=gridspec_kw,
-            **fig_kw
+            **fig_kw,
         )
     else:
         fig = plt.gcf()
@@ -610,9 +579,7 @@ def add_fig_kwargs(func):
             fig.suptitle(title)
 
         if size_kwargs is not None:
-            fig.set_size_inches(
-                size_kwargs.pop("w"), size_kwargs.pop("h"), **size_kwargs
-            )
+            fig.set_size_inches(size_kwargs.pop("w"), size_kwargs.pop("h"), **size_kwargs)
 
         if ax_grid is not None:
             for ax in fig.axes:

@@ -18,15 +18,9 @@ class TensorTest(PymatgenTest):
         self.rand_rank3 = Tensor(np.random.randn(3, 3, 3))
         self.rand_rank4 = Tensor(np.random.randn(3, 3, 3, 3))
         a = 3.14 * 42.5 / 180
-        self.non_symm = SquareTensor(
-            [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]]
-        )
-        self.rotation = SquareTensor(
-            [[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]]
-        )
-        self.low_val = Tensor(
-            [[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]]
-        )
+        self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
+        self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
+        self.low_val = Tensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]])
         self.symm_rank2 = Tensor([[1, 2, 3], [2, 4, 5], [3, 5, 6]])
         self.symm_rank3 = Tensor(
             [
@@ -134,9 +128,7 @@ class TensorTest(PymatgenTest):
     def test_transform(self):
         # Rank 3
         tensor = Tensor(np.arange(0, 27).reshape(3, 3, 3))
-        symm_op = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], 30, False, [0, 0, 1]
-        )
+        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, [0, 0, 1])
         new_tensor = tensor.transform(symm_op)
 
         self.assertArrayAlmostEqual(
@@ -162,14 +154,10 @@ class TensorTest(PymatgenTest):
         )
 
     def test_rotate(self):
-        self.assertArrayEqual(
-            self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), [0, 1, 0]
-        )
+        self.assertArrayEqual(self.vec.rotate([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), [0, 1, 0])
         self.assertArrayAlmostEqual(
             self.non_symm.rotate(self.rotation),
-            SquareTensor(
-                [[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]
-            ),
+            SquareTensor([[0.531, 0.485, 0.271], [0.700, 0.5, 0.172], [0.171, 0.233, 0.068]]),
             decimal=3,
         )
         self.assertRaises(ValueError, self.non_symm.rotate, self.symm_rank2)
@@ -210,20 +198,16 @@ class TensorTest(PymatgenTest):
             orig = Tensor(entry["original_tensor"])
             ieee = Tensor(entry["ieee_tensor"])
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
-            err_msg = (
-                "{} IEEE conversion failed with max diff {}. "
-                "Numpy version: {}".format(xtal, diff, np.__version__)
+            err_msg = "{} IEEE conversion failed with max diff {}. " "Numpy version: {}".format(
+                xtal, diff, np.__version__
             )
             converted = orig.convert_to_ieee(struct, refine_rotation=False)
             self.assertArrayAlmostEqual(ieee, converted, err_msg=err_msg, decimal=3)
             converted_refined = orig.convert_to_ieee(struct, refine_rotation=True)
-            err_msg = (
-                "{} IEEE conversion with refinement failed with max diff {}. "
-                "Numpy version: {}".format(xtal, diff, np.__version__)
+            err_msg = "{} IEEE conversion with refinement failed with max diff {}. " "Numpy version: {}".format(
+                xtal, diff, np.__version__
             )
-            self.assertArrayAlmostEqual(
-                ieee, converted_refined, err_msg=err_msg, decimal=2
-            )
+            self.assertArrayAlmostEqual(ieee, converted_refined, err_msg=err_msg, decimal=2)
 
     def test_structure_transform(self):
         # Test trivial case
@@ -350,9 +334,7 @@ class TensorTest(PymatgenTest):
         sn = self.get_structure("Sn")
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [259.31, 160.71, 73.48]
-        et = Tensor.from_values_indices(
-            values, indices, structure=sn, populate=True
-        ).voigt.round(4)
+        et = Tensor.from_values_indices(values, indices, structure=sn, populate=True).voigt.round(4)
         self.assertAlmostEqual(et[1, 1], 259.31)
         self.assertAlmostEqual(et[2, 2], 259.31)
         self.assertAlmostEqual(et[0, 2], 160.71)
@@ -371,12 +353,8 @@ class TensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(new, self.symm_rank3)
 
     def test_projection_methods(self):
-        self.assertAlmostEqual(
-            self.rand_rank2.project([1, 0, 0]), self.rand_rank2[0, 0]
-        )
-        self.assertAlmostEqual(
-            self.rand_rank2.project([1, 1, 1]), np.sum(self.rand_rank2) / 3
-        )
+        self.assertAlmostEqual(self.rand_rank2.project([1, 0, 0]), self.rand_rank2[0, 0])
+        self.assertAlmostEqual(self.rand_rank2.project([1, 1, 1]), np.sum(self.rand_rank2) / 3)
         # Test integration
         self.assertArrayAlmostEqual(self.ones.average_over_unit_sphere(), 1)
 
@@ -385,9 +363,7 @@ class TensorTest(PymatgenTest):
             set(self.ones.get_grouped_indices()[0]),
             set(itertools.product(range(3), range(3))),
         )
-        self.assertEqual(
-            self.ones.get_grouped_indices(voigt=True)[0], [(i,) for i in range(6)]
-        )
+        self.assertEqual(self.ones.get_grouped_indices(voigt=True)[0], [(i,) for i in range(6)])
         self.assertEqual(self.ones.get_symbol_dict(), {"T_1": 1})
         self.assertEqual(self.ones.get_symbol_dict(voigt=False), {"T_11": 1})
 
@@ -437,9 +413,7 @@ class TensorCollectionTest(PymatgenTest):
         self.list_based_function_check("zeroed", tc, tol=1e-5)
 
         # transform
-        symm_op = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], 30, False, [0, 0, 1]
-        )
+        symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, [0, 0, 1])
         self.list_based_function_check("transform", self.seq_tc, symm_op=symm_op)
 
         # symmetrized
@@ -447,9 +421,7 @@ class TensorCollectionTest(PymatgenTest):
 
         # rotation
         a = 3.14 * 42.5 / 180
-        rotation = SquareTensor(
-            [[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]]
-        )
+        rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
         self.list_based_function_check("rotate", self.diff_rank, matrix=rotation)
 
         # is_symmetric
@@ -503,23 +475,13 @@ class TensorCollectionTest(PymatgenTest):
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
         self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
-        self.symm_sqtensor = SquareTensor(
-            [[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]]
-        )
+        self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])
-        self.non_symm = SquareTensor(
-            [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]]
-        )
-        self.low_val = SquareTensor(
-            [[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]]
-        )
-        self.low_val_2 = SquareTensor(
-            [[1e-6, -1 - 1e-6, 1e-6], [1 + 1e-7, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-6]]
-        )
+        self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
+        self.low_val = SquareTensor([[1e-6, 1 + 1e-5, 1e-6], [1 + 1e-6, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-5]])
+        self.low_val_2 = SquareTensor([[1e-6, -1 - 1e-6, 1e-6], [1 + 1e-7, 1e-6, 1e-6], [1e-7, 1e-7, 1 + 1e-6]])
         a = 3.14 * 42.5 / 180
-        self.rotation = SquareTensor(
-            [[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]]
-        )
+        self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
 
     def test_new(self):
         non_sq_matrix = [
@@ -540,9 +502,7 @@ class SquareTensorTest(PymatgenTest):
             self.non_symm.trans,
             SquareTensor([[0.1, 0.4, 0.2], [0.2, 0.5, 0.5], [0.3, 0.6, 0.5]]),
         )
-        self.assertArrayEqual(
-            self.rand_sqtensor.trans, np.transpose(self.rand_sqtensor)
-        )
+        self.assertArrayEqual(self.rand_sqtensor.trans, np.transpose(self.rand_sqtensor))
         self.assertArrayEqual(self.symm_sqtensor, self.symm_sqtensor.trans)
         # inverse
         self.assertArrayEqual(self.non_symm.inv, np.linalg.inv(self.non_symm))
@@ -576,9 +536,7 @@ class SquareTensorTest(PymatgenTest):
             - self.rand_sqtensor[2, 1] * self.rand_sqtensor[1, 2]
         )
         i3 = np.linalg.det(self.rand_sqtensor)
-        self.assertArrayAlmostEqual(
-            [i1, i2, i3], self.rand_sqtensor.principal_invariants
-        )
+        self.assertArrayAlmostEqual([i1, i2, i3], self.rand_sqtensor.principal_invariants)
 
     def test_is_rotation(self):
         self.assertTrue(self.rotation.is_rotation())

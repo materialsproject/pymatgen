@@ -107,12 +107,8 @@ class FuncUtilsTest(unittest.TestCase):
         self.assertEqual(csm_infinite_ratio.evaluate(20.0), 0.0)
 
     def test_DeltaCSMRatioFunction(self):
-        self.assertRaises(
-            ValueError, DeltaCSMRatioFunction, function="smoothstep", options_dict={}
-        )
-        self.assertRaises(
-            ValueError, DeltaCSMRatioFunction, function="smootherstep", options_dict={}
-        )
+        self.assertRaises(ValueError, DeltaCSMRatioFunction, function="smoothstep", options_dict={})
+        self.assertRaises(ValueError, DeltaCSMRatioFunction, function="smootherstep", options_dict={})
         self.assertRaises(
             ValueError,
             DeltaCSMRatioFunction,

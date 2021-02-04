@@ -54,13 +54,9 @@ class Defect(MSONable, metaclass=ABCMeta):
         self._structure = structure
         self._charge = int(charge)
         self._defect_site = defect_site
-        lattice_match = np.allclose(
-            structure.lattice.matrix, defect_site.lattice.matrix, atol=1e-5
-        )
+        lattice_match = np.allclose(structure.lattice.matrix, defect_site.lattice.matrix, atol=1e-5)
         if not lattice_match:
-            raise ValueError(
-                "defect_site lattice must be same as structure " "lattice."
-            )
+            raise ValueError("defect_site lattice must be same as structure " "lattice.")
         self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
 
     @property
@@ -176,9 +172,7 @@ class Vacancy(Defect):
         defect_site = struct_for_defect_site[0]
 
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(
-                defect_site.coords, 0.1, include_index=True
-            ),
+            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
@@ -194,17 +188,11 @@ class Vacancy(Defect):
         sga = SpacegroupAnalyzer(self.bulk_structure)
         periodic_struc = sga.get_symmetrized_structure()
         poss_deflist = sorted(
-            periodic_struc.get_sites_in_sphere(
-                self.site.coords, 0.1, include_index=True
-            ),
+            periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         if not len(poss_deflist):
-            raise ValueError(
-                "Site {} is not in bulk structure! Cannot create Vacancy object.".format(
-                    self.site
-                )
-            )
+            raise ValueError("Site {} is not in bulk structure! Cannot create Vacancy object.".format(self.site))
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
         equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
@@ -230,9 +218,7 @@ class Substitution(Defect):
         Returns: Composition of defect.
         """
         poss_deflist = sorted(
-            self.bulk_structure.get_sites_in_sphere(
-                self.site.coords, 0.1, include_index=True
-            ),
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
@@ -273,9 +259,7 @@ class Substitution(Defect):
         defect_site = struct_for_defect_site[0]
 
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(
-                defect_site.coords, 0.1, include_index=True
-            ),
+            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
@@ -298,17 +282,11 @@ class Substitution(Defect):
         sga = SpacegroupAnalyzer(self.bulk_structure)
         periodic_struc = sga.get_symmetrized_structure()
         poss_deflist = sorted(
-            periodic_struc.get_sites_in_sphere(
-                self.site.coords, 0.1, include_index=True
-            ),
+            periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         if not len(poss_deflist):
-            raise ValueError(
-                "Site {} is not in bulk structure! Cannot create Substitution object.".format(
-                    self.site
-                )
-            )
+            raise ValueError("Site {} is not in bulk structure! Cannot create Substitution object.".format(self.site))
         defindex = poss_deflist[0][2]
         defect_site = self.bulk_structure[defindex]
         equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
@@ -321,15 +299,11 @@ class Substitution(Defect):
         Returns a name for this defect
         """
         poss_deflist = sorted(
-            self.bulk_structure.get_sites_in_sphere(
-                self.site.coords, 0.1, include_index=True
-            ),
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
-        return "Sub_{}_on_{}_mult{}".format(
-            self.site.specie, self.bulk_structure[defindex].specie, self.multiplicity
-        )
+        return "Sub_{}_on_{}_mult{}".format(self.site.specie, self.bulk_structure[defindex].specie, self.multiplicity)
 
 
 class Interstitial(Defect):
@@ -337,9 +311,7 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(
-        self, structure, defect_site, charge=0.0, site_name="", multiplicity=None
-    ):
+    def __init__(self, structure, defect_site, charge=0.0, site_name="", multiplicity=None):
         """
         Initializes an interstial defect.
         Args:
@@ -433,16 +405,12 @@ class Interstitial(Defect):
         sga = SpacegroupAnalyzer(d_structure)
         periodic_struc = sga.get_symmetrized_structure()
         poss_deflist = sorted(
-            periodic_struc.get_sites_in_sphere(
-                self.site.coords, 0.1, include_index=True
-            ),
+            periodic_struc.get_sites_in_sphere(self.site.coords, 0.1, include_index=True),
             key=lambda x: x[1],
         )
         defindex = poss_deflist[0][2]
 
-        equivalent_sites = periodic_struc.find_equivalent_sites(
-            periodic_struc[defindex]
-        )
+        equivalent_sites = periodic_struc.find_equivalent_sites(periodic_struc[defindex])
         return len(equivalent_sites)
 
     @property
@@ -451,9 +419,7 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         if self.site_name:
-            return "Int_{}_{}_mult{}".format(
-                self.site.specie, self.site_name, self.multiplicity
-            )
+            return "Int_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
         return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
@@ -667,11 +633,7 @@ class DefectEntry(MSONable):
 
         chempot_correction = sum(
             [
-                chem_pot
-                * (
-                    self.bulk_structure.composition[el]
-                    - self.defect.defect_composition[el]
-                )
+                chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
                 for el, chem_pot in chemical_potentials.items()
             ]
         )
@@ -685,9 +647,7 @@ class DefectEntry(MSONable):
 
         return formation_energy
 
-    def defect_concentration(
-        self, chemical_potentials, temperature=300, fermi_level=0.0
-    ):
+    def defect_concentration(self, chemical_potentials, temperature=300, fermi_level=0.0):
         """
         Compute the defect concentration for a temperature and Fermi level.
         Args:
@@ -700,9 +660,7 @@ class DefectEntry(MSONable):
         """
         n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
         conc = n * np.exp(
-            -1.0
-            * self.formation_energy(chemical_potentials, fermi_level=fermi_level)
-            / (kb * temperature)
+            -1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature)
         )
 
         return conc
@@ -712,9 +670,7 @@ class DefectEntry(MSONable):
         Human readable string representation of this entry
         """
         output = [
-            "DefectEntry {} - {} - charge {}".format(
-                self.entry_id, self.name, self.charge
-            ),
+            "DefectEntry {} - {} - charge {}".format(self.entry_id, self.name, self.charge),
             "Energy = {:.4f}".format(self.energy),
             "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))),
             "Parameters:",

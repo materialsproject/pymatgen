@@ -208,13 +208,9 @@ class TestQCOutput(PymatgenTest):
         for name, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
-                    self.assertEqual(
-                        sub_output.data.get(key), multi_job_dict[name][ii].get(key)
-                    )
+                    self.assertEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
                 except ValueError:
-                    self.assertArrayEqual(
-                        sub_output.data.get(key), multi_job_dict[name][ii].get(key)
-                    )
+                    self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
     def test_all(self):
         self.maxDiff = None
@@ -262,9 +258,7 @@ class TestQCOutput(PymatgenTest):
         self.assertEqual(check_for_structure_changes(t1, t2), "fewer_bonds")
         self.assertEqual(check_for_structure_changes(t2, t1), "more_bonds")
 
-        self.assertEqual(
-            check_for_structure_changes(thio_1, thio_2), "unconnected_fragments"
-        )
+        self.assertEqual(check_for_structure_changes(thio_1, thio_2), "unconnected_fragments")
 
         self.assertEqual(check_for_structure_changes(frag_1, frag_2), "bond_change")
 

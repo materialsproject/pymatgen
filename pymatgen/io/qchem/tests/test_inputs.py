@@ -9,7 +9,7 @@ import unittest
 
 from monty.serialization import loadfn
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.util.testing import PymatgenTest
 
@@ -812,12 +812,8 @@ $end
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
-        test_dict = QCInput.from_file(
-            os.path.join(os.path.dirname(__file__), "test.qin")
-        ).as_dict()
-        test_ref_dict = QCInput.from_file(
-            os.path.join(os.path.dirname(__file__), "test_ref.qin")
-        ).as_dict()
+        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test.qin")).as_dict()
+        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref.qin")).as_dict()
         for key in test_dict:
             self.assertEqual(test_dict[key], test_ref_dict[key])
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))

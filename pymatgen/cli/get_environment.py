@@ -24,15 +24,12 @@ def main():
     m_description = "Welcome to the Chemical Environment Package."
     parser = ArgumentParser(description=m_description)
     setup_help = "Used to setup the configuration of the package "
-    setup_help += (
-        "(MaterialsProject access, ICSD database access, package options, ...)"
-    )
+    setup_help += "(MaterialsProject access, ICSD database access, package options, ...)"
     parser.add_argument("-s", "--setup", help=setup_help, action="store_true")
     parser.add_argument(
         "-m",
         "--message-level",
-        help="Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL - "
-        "default : WARNING)",
+        help="Message level (DEBUG, INFO, WARNING, ERROR or CRITICAL - " "default : WARNING)",
         default="WARNING",
     )
     args = parser.parse_args()
