@@ -101,9 +101,7 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
     def test_to_from_dict(self):
         fil = RemoveDuplicatesFilter()
         d = fil.as_dict()
-        self.assertIsInstance(
-            RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter
-        )
+        self.assertIsInstance(RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter)
 
 
 class RemoveExistingFilterTest(unittest.TestCase):

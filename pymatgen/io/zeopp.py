@@ -152,8 +152,7 @@ class ZeoCssr(Cssr):
         chrg = []
         for l in lines[4:]:
             m = re.match(
-                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+"
-                + r"([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 l.strip(),
             )
             if m:
@@ -210,9 +209,7 @@ class ZeoVoronoiXYZ(XYZ):
         coords = []
         sp = []
         prop = []
-        coord_patt = re.compile(
-            r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)"
-        )
+        coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)")
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
@@ -220,9 +217,7 @@ class ZeoVoronoiXYZ(XYZ):
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
                 coords.append([float(j) for j in [m.group(i) for i in [3, 4, 2]]])
                 prop.append(float(m.group(5)))
-        return ZeoVoronoiXYZ(
-            Molecule(sp, coords, site_properties={"voronoi_radius": prop})
-        )
+        return ZeoVoronoiXYZ(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @staticmethod
     def from_file(filename):
@@ -240,9 +235,7 @@ class ZeoVoronoiXYZ(XYZ):
 
     def __str__(self):
         output = [str(len(self._mols[0])), self._mols[0].composition.formula]
-        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(
-            self.precision
-        )
+        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
         for site in self._mols[0]:
             output.append(
                 fmtstr.format(
@@ -296,9 +289,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
                 for el in rad_dict.keys():
                     fp.write("{} {}\n".format(el, rad_dict[el].real))
 
-        atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
-        )
+        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         (
             vornet,
             vor_edge_centers,
@@ -326,12 +317,8 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     )
 
     # PMG-Zeo c<->a transformation for voronoi face centers
-    rot_face_centers = [
-        (center[1], center[2], center[0]) for center in vor_face_centers
-    ]
-    rot_edge_centers = [
-        (center[1], center[2], center[0]) for center in vor_edge_centers
-    ]
+    rot_face_centers = [(center[1], center[2], center[0]) for center in vor_face_centers]
+    rot_edge_centers = [(center[1], center[2], center[0]) for center in vor_edge_centers]
 
     species = ["X"] * len(rot_face_centers)
     prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc
@@ -390,9 +377,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             for el in rad_dict.keys():
                 print("{} {}".format(el, rad_dict[el].real), file=fp)
 
-        atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
-        )
+        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         # vornet, vor_edge_centers, vor_face_centers = \
         #        atmnet.perform_voronoi_decomposition()
         red_ha_vornet = prune_voronoi_network_close_node(atmnet)
@@ -462,9 +447,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
                 for el in rad_dict.keys():
                     fp.write("{} {}\n".format(el, rad_dict[el].real))
 
-        atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
-        )
+        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"
         atmnet.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:

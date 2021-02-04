@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen package &mdash; pymatgen 2020.12.31 documentation</title>
+  <title>pymatgen package &mdash; pymatgen 2021.1.28 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.12.31
+                2021.1.28
               </div>
             
           
@@ -343,6 +343,17 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.magnetism.html#module-pymatgen.analysis.magnetism">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.solar.html">pymatgen.analysis.solar package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.solar.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.solar.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.solar.slme.html">pymatgen.analysis.solar.slme module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.solar.html#module-pymatgen.analysis.solar">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.structure_prediction.html">pymatgen.analysis.structure_prediction package</a><ul>
@@ -716,11 +727,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.linear_assignment_numpy.html">pymatgen.optimization.linear_assignment_numpy module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
@@ -790,8 +797,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.io_utils.html">pymatgen.util.io_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.num.html">pymatgen.util.num module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.util.plotting.html">pymatgen.util.plotting module</a></li>
@@ -836,7 +841,7 @@
 for materials analysis. This is the root package.</p>
 <dl class="py function">
 <dt id="pymatgen.get_structure_from_mp">
-<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/__init__.py#L61-L83"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/__init__.py#L67-L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a crystal from the Materials Project database via
 the API. Requires PMG_MAPI_KEY to be set.</p>
 <dl class="field-list simple">
@@ -855,7 +860,7 @@ the API. Requires PMG_MAPI_KEY to be set.</p>
 
 <dl class="py function">
 <dt id="pymatgen.loadfn">
-<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/__init__.py#L86-L114"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/__init__.py#L92-L120"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to perform quick loading of data from a filename. The
 type of object returned depends the file type.</p>
 <dl class="field-list simple">

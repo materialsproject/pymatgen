@@ -14,37 +14,42 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 class build_ext(_build_ext):
     """Extension builder that checks for numpy before install."""
+
     def finalize_options(self):
         """Override finalize_options."""
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
         import builtins
-        if hasattr(builtins, '__NUMPY_SETUP__'):
+
+        if hasattr(builtins, "__NUMPY_SETUP__"):
             # pylint: disable=E1101
             del builtins.__NUMPY_SETUP__
         import importlib
         import numpy
+
         importlib.reload(numpy)
         self.include_dirs.append(numpy.get_include())
 
 
 extra_link_args = []
-if sys.platform.startswith('win') and platform.machine().endswith('64'):
-    extra_link_args.append('-Wl,--allow-multiple-definition')
-    
+if sys.platform.startswith("win") and platform.machine().endswith("64"):
+    extra_link_args.append("-Wl,--allow-multiple-definition")
+
 # thanks https://stackoverflow.com/a/36693250
 def package_files(directory, extensions):
     """
-    Walk package directory to make sure we include all relevant files in 
+    Walk package directory to make sure we include all relevant files in
     package.
     """
     paths = []
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:
             if any([filename.endswith(ext) for ext in extensions]):
-                paths.append(os.path.join('..', path, filename))
+                paths.append(os.path.join("..", path, filename))
     return paths
-json_yaml_csv_files = package_files('pymatgen', ['yaml', 'json', 'csv'])
+
+
+json_yaml_csv_files = package_files("pymatgen", ["yaml", "json", "csv", "yaml.gz", "json.gz", "csv.gz"])
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -106,15 +111,25 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2020.12.31",
-    cmdclass={'build_ext': build_ext},
-    setup_requires=['numpy>=1.18.0', 'setuptools>=43.0.0'],
-    python_requires='>=3.6',
-    install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=3.0.2", "scipy>=1.5.0",
-                      "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
-                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
-                      "plotly>=4.5.0", "uncertainties>=3.1.4"],
+    version="2021.1.28",
+    cmdclass={"build_ext": build_ext},
+    python_requires=">=3.6",
+    install_requires=[
+        "numpy>=1.18.0",
+        "requests",
+        "ruamel.yaml>=0.15.6",
+        "monty>=3.0.2",
+        "scipy>=1.5.0",
+        "tabulate",
+        "spglib>=1.9.9.44",
+        "networkx>=2.2",
+        "matplotlib>=1.5",
+        "palettable>=3.1.1",
+        "sympy",
+        "pandas",
+        "plotly>=4.5.0",
+        "uncertainties>=3.1.4",
+    ],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
@@ -122,7 +137,8 @@ setup(
         "abinit": ["netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
-        ]},
+        ],
+    },
     package_data={
         "pymatgen": json_yaml_csv_files,
         "pymatgen.core": ["py.typed"],
@@ -137,20 +153,35 @@ setup(
     url="https://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
-                "analysis code that defines core object representations for "
-                "structures and molecules with support for many electronic "
-                "structure codes. It is currently the core analysis code "
-                "powering the Materials Project "
-                "(https://www.materialsproject.org).",
+    "analysis code that defines core object representations for "
+    "structures and molecules with support for many electronic "
+    "structure codes. It is currently the core analysis code "
+    "powering the Materials Project "
+    "(https://www.materialsproject.org).",
     long_description=long_desc,
-    long_description_content_type='text/markdown',
-    keywords=["VASP", "gaussian", "ABINIT", "nwchem", "qchem", "materials", "science",
-              "project", "electronic", "structure", "analysis", "phase", "diagrams",
-              "crystal"],
+    long_description_content_type="text/markdown",
+    keywords=[
+        "VASP",
+        "gaussian",
+        "ABINIT",
+        "nwchem",
+        "qchem",
+        "materials",
+        "science",
+        "project",
+        "electronic",
+        "structure",
+        "analysis",
+        "phase",
+        "diagrams",
+        "crystal",
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -158,24 +189,26 @@ setup(
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Chemistry",
-        "Topic :: Software Development :: Libraries :: Python Modules"
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    ext_modules=[Extension("pymatgen.optimization.linear_assignment",
-                           ["pymatgen/optimization/linear_assignment.c"],
-                           extra_link_args=extra_link_args),
-                 Extension("pymatgen.util.coord_cython",
-                           ["pymatgen/util/coord_cython.c"],
-                           extra_link_args=extra_link_args),
-                 Extension("pymatgen.optimization.neighbors",
-                           ["pymatgen/optimization/neighbors.c"],
-                           extra_link_args=extra_link_args)],
+    ext_modules=[
+        Extension(
+            "pymatgen.optimization.linear_assignment",
+            ["pymatgen/optimization/linear_assignment.c"],
+            extra_link_args=extra_link_args,
+        ),
+        Extension("pymatgen.util.coord_cython", ["pymatgen/util/coord_cython.c"], extra_link_args=extra_link_args),
+        Extension(
+            "pymatgen.optimization.neighbors", ["pymatgen/optimization/neighbors.c"], extra_link_args=extra_link_args
+        ),
+    ],
     entry_points={
-        'console_scripts': [
-            'pmg = pymatgen.cli.pmg:main',
-            'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
-            'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
-            'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
-            'get_environment = pymatgen.cli.get_environment:main',
+        "console_scripts": [
+            "pmg = pymatgen.cli.pmg:main",
+            "feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main",
+            "feff_plot_dos = pymatgen.cli.feff_plot_dos:main",
+            "gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main",
+            "get_environment = pymatgen.cli.get_environment:main",
         ]
-    }
+    },
 )

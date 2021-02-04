@@ -58,7 +58,7 @@ class PiezoTensor(Tensor):
 
         pt = np.zeros([rank, 3, 3])
         for dim in range(rank):
-            for pos in range(len(voigt_map)):
+            for pos, val in enumerate(voigt_map):
                 pt[dim][voigt_map[pos]] = input_vasp_array[dim][pos]
                 pt[dim].T[voigt_map[pos]] = input_vasp_array[dim][pos]
 

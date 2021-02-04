@@ -34,9 +34,7 @@ def main():
     Last updated: April, 2013"""
     )
 
-    parser.add_argument(
-        "filename", metavar="filename", type=str, nargs=1, help="xmu file to plot"
-    )
+    parser.add_argument("filename", metavar="filename", type=str, nargs=1, help="xmu file to plot")
     parser.add_argument(
         "filename1",
         metavar="filename1",
@@ -53,14 +51,7 @@ def main():
 
     data = xmu.as_dict()
 
-    plt.title(
-        data["calc"]
-        + " Feff9.6 Calculation for "
-        + data["atom"]
-        + " in "
-        + data["formula"]
-        + " unit cell"
-    )
+    plt.title(data["calc"] + " Feff9.6 Calculation for " + data["atom"] + " in " + data["formula"] + " unit cell")
     plt.xlabel("Energies (eV)")
     plt.ylabel("Absorption Cross-section")
 

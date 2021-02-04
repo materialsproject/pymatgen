@@ -27,9 +27,7 @@ __maintainer__ = "Yuta Suzuki"
 __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
-with open(
-    os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")
-) as f:
+with open(os.path.join(os.path.dirname(__file__), "neutron_scattering_length.json")) as f:
     # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
     ATOMIC_SCATTERING_LEN = json.load(f)
 
@@ -139,9 +137,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         peaks = {}
         two_thetas = []
 
-        for hkl, g_hkl, ind, _ in sorted(
-            recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])
-        ):
+        for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
@@ -165,9 +161,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(
-                    coeffs * occus * np.exp(2j * pi * g_dot_r) * dw_correction
-                )
+                f_hkl = np.sum(coeffs * occus * np.exp(2j * pi * g_dot_r) * dw_correction)
 
                 # Lorentz polarization correction for hkl
                 lorentz_factor = 1 / (sin(theta) ** 2 * cos(theta))
@@ -181,9 +175,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                     # Use Miller-Bravais indices for hexagonal lattices.
                     hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
                 # Deal with floating point precision issues.
-                ind = np.where(
-                    np.abs(np.subtract(two_thetas, two_theta)) < self.TWO_THETA_TOL
-                )
+                ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) < self.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
@@ -203,9 +195,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
             if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v[0])
-                hkls.append(
-                    [{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()]
-                )
+                hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
                 d_hkls.append(v[2])
         nd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:

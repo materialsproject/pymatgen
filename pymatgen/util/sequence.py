@@ -51,9 +51,7 @@ class PBarSafe:
         """
         Print progress.
         """
-        print(
-            "{} of {} done {:.1%}".format(self.done, self.total, self.done / self.total)
-        )
+        print("{} of {} done {:.1%}".format(self.done, self.total, self.done / self.total))
 
 
 try:

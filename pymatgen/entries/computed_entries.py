@@ -12,6 +12,7 @@ diagram analysis.
 
 import abc
 import copy
+import warnings
 import json
 import os
 from itertools import combinations
@@ -133,9 +134,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
                 adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
-        super().__init__(
-            value, uncertainty, name=name, cls=cls, description=description
-        )
+        super().__init__(value, uncertainty, name=name, cls=cls, description=description)
         self._value = value
         self._uncertainty = uncertainty
 
@@ -241,9 +240,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """
         Return an explanaion of how the energy adjustment is calculated.
         """
-        return self.description + " ({:.3f} eV/atom x {} atoms)".format(
-            self._adj_per_atom, self.n_atoms
-        )
+        return self.description + " ({:.3f} eV/atom x {} atoms)".format(self._adj_per_atom, self.n_atoms)
 
     def _normalize(self, factor):
         self.n_atoms /= factor
@@ -350,7 +347,6 @@ class ComputedEntry(Entry):
             entry_id: An optional id to uniquely identify the entry.
         """
         super().__init__(composition, energy)
-        self.uncorrected_energy = self._energy
         self.energy_adjustments = energy_adjustments if energy_adjustments else []
 
         if correction != 0.0:
@@ -367,6 +363,14 @@ class ComputedEntry(Entry):
         self.data = data if data else {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
+
+    @property
+    def uncorrected_energy(self) -> float:
+        """
+        Returns:
+            float: the *uncorrected* energy of the entry
+        """
+        return self._energy
 
     @property
     def energy(self) -> float:
@@ -392,9 +396,7 @@ class ComputedEntry(Entry):
                 in eV.
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
-        corr = ufloat(0.0, 0.0) + sum(
-            [ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments]
-        )
+        corr = ufloat(0.0, 0.0) + sum([ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments])
         return corr.nominal_value
 
     @correction.setter
@@ -420,9 +422,7 @@ class ComputedEntry(Entry):
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
             [
-                ufloat(ea.value, ea.uncertainty)
-                if not np.isnan(ea.uncertainty)
-                else ufloat(ea.value, 0)
+                ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) else ufloat(ea.value, 0)
                 for ea in self.energy_adjustments
             ]
         )
@@ -441,9 +441,7 @@ class ComputedEntry(Entry):
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
-    def normalize(
-        self, mode: str = "formula_unit", inplace: bool = True
-    ) -> Optional["ComputedEntry"]:
+    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["ComputedEntry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -456,48 +454,36 @@ class ComputedEntry(Entry):
         """
         if inplace:
             factor = self._normalization_factor(mode)
-            self.uncorrected_energy /= factor
             for ea in self.energy_adjustments:
                 ea._normalize(factor)
             super().normalize(mode, inplace)
             return None
-        else:
-            entry = copy.deepcopy(self)
-            factor = entry._normalization_factor(mode)
-            entry.uncorrected_energy /= factor
-            for ea in entry.energy_adjustments:
-                ea._normalize(factor)
-            return super(ComputedEntry, entry).normalize(mode, inplace)
 
-    def __repr__(self):
+        entry = copy.deepcopy(self)
+        entry.normalize(mode, inplace=True)
+        return entry
+
+    def __repr__(self) -> str:
         n_atoms = self.composition.num_atoms
         output = [
             "{} {:<10} - {:<12} ({})".format(
-                str(self.entry_id),
-                type(self).__name__,
+                self.entry_id,
+                self.__class__.__name__,
                 self.composition.formula,
                 self.composition.reduced_formula,
             ),
             "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format(
                 "Energy (Uncorrected)", self._energy, self._energy / n_atoms
             ),
-            "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format(
-                "Correction", self.correction, self.correction / n_atoms
-            ),
-            "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format(
-                "Energy (Final)", self.energy, self.energy_per_atom
-            ),
+            "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format("Correction", self.correction, self.correction / n_atoms),
+            "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Final)", self.energy, self.energy_per_atom),
             "Energy Adjustments:",
         ]
         if len(self.energy_adjustments) == 0:
             output.append("  None")
         else:
             for e in self.energy_adjustments:
-                output.append(
-                    "  {:<23}: {:<9.4f} eV ({:<8.4f} eV/atom)".format(
-                        e.name, e.value, e.value / n_atoms
-                    )
-                )
+                output.append("  {:<23}: {:<9.4f} eV ({:<8.4f} eV/atom)".format(e.name, e.value, e.value / n_atoms))
         output.append("Parameters:")
         for k, v in self.parameters.items():
             output.append("  {:<22} = {}".format(k, v))
@@ -523,10 +509,7 @@ class ComputedEntry(Entry):
                 d["composition"],
                 d["energy"],
                 d["correction"],
-                parameters={
-                    k: dec.process_decoded(v)
-                    for k, v in d.get("parameters", {}).items()
-                },
+                parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
                 data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
                 entry_id=d.get("entry_id", None),
             )
@@ -537,12 +520,8 @@ class ComputedEntry(Entry):
             d["composition"],
             d["energy"],
             correction=0,
-            energy_adjustments=[
-                dec.process_decoded(e) for e in d.get("energy_adjustments", {})
-            ],
-            parameters={
-                k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()
-            },
+            energy_adjustments=[dec.process_decoded(e) for e in d.get("energy_adjustments", {})],
+            parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),
         )
@@ -554,16 +533,38 @@ class ComputedEntry(Entry):
         return_dict = super().as_dict()
         return_dict.update(
             {
-                "energy_adjustments": json.loads(
-                    json.dumps(self.energy_adjustments, cls=MontyEncoder)
-                ),
-                "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
-                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
                 "entry_id": self.entry_id,
                 "correction": self.correction,
+                "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
+                "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
+                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
             }
         )
         return return_dict
+
+    def __eq__(self, other: object) -> bool:
+        # NOTE Scaled duplicates i.e. physically equivalent materials
+        # are not equal unless normalized separately
+        if self is other:
+            return True
+
+        if isinstance(other, self.__class__):
+            # NOTE It is assumed that the user will ensure entry_id is a
+            # unique identifier for `ComputedEntry` type classes.
+            if self.entry_id is not None and self.entry_id == other.entry_id and np.allclose(self.energy, other.energy):
+                return True
+
+            return self._is_dict_eq(other)
+
+        return False
+
+    def __hash__(self) -> int:
+        # NOTE It is assumed that the user will ensure entry_id is a
+        # unique identifier for ComputedEntry type classes.
+        if self.entry_id is not None:
+            return hash(f"{self.__class__.__name__}{self.entry_id}")
+
+        return super().__hash__()
 
 
 class ComputedStructureEntry(ComputedEntry):
@@ -607,15 +608,20 @@ class ComputedStructureEntry(ComputedEntry):
             data=data,
             entry_id=entry_id,
         )
-        self.structure = structure
+        self._structure = structure
+
+    @property
+    def structure(self) -> Structure:
+        """
+        :return: the structure of the entry.
+        """
+        return self._structure
 
     def as_dict(self) -> dict:
         """
         :return: MSONAble dict.
         """
         d = super().as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
         d["structure"] = self.structure.as_dict()
         return d
 
@@ -633,10 +639,7 @@ class ComputedStructureEntry(ComputedEntry):
                 dec.process_decoded(d["structure"]),
                 d["energy"],
                 d["correction"],
-                parameters={
-                    k: dec.process_decoded(v)
-                    for k, v in d.get("parameters", {}).items()
-                },
+                parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
                 data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
                 entry_id=d.get("entry_id", None),
             )
@@ -647,15 +650,33 @@ class ComputedStructureEntry(ComputedEntry):
             dec.process_decoded(d["structure"]),
             d["energy"],
             correction=0,
-            energy_adjustments=[
-                dec.process_decoded(e) for e in d.get("energy_adjustments", {})
-            ],
-            parameters={
-                k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()
-            },
+            energy_adjustments=[dec.process_decoded(e) for e in d.get("energy_adjustments", {})],
+            parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),
         )
+
+    def normalize(self, mode: str = "formula_unit", inplace: bool = True):
+        """
+        Normalize the entry's composition and energy. The structure remains
+        unchanged.
+
+        Args:
+            mode: "formula_unit" is the default, which normalizes to
+                composition.reduced_formula. The other option is "atom",
+                which normalizes such that the composition amounts sum to 1.
+            inplace: "True" is the default which normalises the current
+                Entry object. Setting inplace to "False" returns a normalized
+                copy of the Entry object.
+        """
+        warnings.warn(
+            (
+                f"Normalization of a `{self.__class__.__name__}` makes "
+                "`self.composition` and `self.structure.composition` inconsistent"
+                " - please use self.composition for all further calculations."
+            )
+        )
+        return super().normalize(mode, inplace)
 
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
@@ -694,8 +715,15 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
-        self.structure = structure
-        self.formation_enthalpy = formation_enthalpy
+        super().__init__(
+            structure,
+            energy=formation_enthalpy,
+            correction=correction,
+            energy_adjustments=energy_adjustments,
+            parameters=parameters,
+            data=data,
+            entry_id=entry_id,
+        )
         self.temp = temp
         self.interpolated = False
 
@@ -706,23 +734,32 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             self.interpolated = True
 
         if gibbs_model.lower() == "sisso":
-            gibbs_energy = self.gf_sisso()
+            self.gibbs_correction_fn = self.gf_sisso
         else:
-            raise ValueError(
-                f"{gibbs_model} not a valid model. Please select from [" f"'SISSO']"
-            )
+            raise ValueError(f"{gibbs_model} not a valid model. Please select from [" f"'SISSO']")
 
         self.gibbs_model = gibbs_model
 
-        super().__init__(
-            structure,
-            energy=gibbs_energy,
-            correction=correction,
-            energy_adjustments=energy_adjustments,
-            parameters=parameters,
-            data=data,
-            entry_id=entry_id,
-        )
+    @property
+    def formation_enthalpy(self) -> float:
+        """
+        :return: the formation enthalpy energy of the entry.
+        """
+        return self._energy
+
+    @property
+    def gibbs_correction(self) -> float:
+        """
+        :return: the formation enthalpy energy of the entry.
+        """
+        return self.gibbs_correction_fn()
+
+    @property
+    def uncorrected_energy(self) -> float:
+        """
+        :return: the *uncorrected* energy of the entry after gibbs correction.
+        """
+        return self.formation_enthalpy + self.gibbs_correction
 
     def gf_sisso(self) -> float:
         """
@@ -740,9 +777,9 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         4168. https://doi.org/10.1038/s41467-018-06682-4
 
         Returns:
-            float: Gibbs free energy of formation (eV)
+            float: the entropic term of the Gibbs free energy of formation (eV)
         """
-        comp = self.structure.composition
+        comp = self.composition
 
         if comp.is_element:
             return self.formation_enthalpy
@@ -761,11 +798,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         vol_per_atom = self.structure.volume / num_atoms
         reduced_mass = self._reduced_mass()
 
-        return (
-            self.formation_enthalpy
-            + num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp)
-            - self._sum_g_i()
-        )
+        return comp.num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp) - self._sum_g_i()
 
     def _sum_g_i(self) -> float:
         """
@@ -775,7 +808,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
              float: sum of weighted chemical potentials [eV]
         """
-        elems = self.structure.composition.get_el_amt_dict()
+        elems = self.composition.get_el_amt_dict()
 
         if self.interpolated:
             sum_g_i = 0
@@ -786,9 +819,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 )
                 sum_g_i += amt * g_interp(self.temp)
         else:
-            sum_g_i = sum(
-                [amt * G_ELEMS[str(self.temp)][elem] for elem, amt in elems.items()]
-            )
+            sum_g_i = sum([amt * G_ELEMS[str(self.temp)][elem] for elem, amt in elems.items()])
 
         return sum_g_i
 
@@ -799,7 +830,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Returns:
             float: reduced mass (amu)
         """
-        reduced_comp = self.structure.composition.reduced_composition
+        reduced_comp = self.composition.reduced_composition
         num_elems = len(reduced_comp.elements)
         elem_dict = reduced_comp.get_el_amt_dict()
 
@@ -814,7 +845,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             alpha_i = pair[0][1]
             alpha_j = pair[1][1]
 
-            mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)
+            mass_sum += (alpha_i + alpha_j) * (m_i * m_j) / (m_i + m_j)  # type: ignore
 
         reduced_mass = (1 / denominator) * mass_sum
 
@@ -837,16 +868,13 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         """
 
         return (
-            (-2.48e-4 * np.log(vol_per_atom) - 8.94e-5 * reduced_mass / vol_per_atom)
-            * temp
+            (-2.48e-4 * np.log(vol_per_atom) - 8.94e-5 * reduced_mass / vol_per_atom) * temp
             + 0.181 * np.log(temp)
             - 0.882
         )
 
     @classmethod
-    def from_pd(
-        cls, pd, temp=300, gibbs_model="SISSO"
-    ) -> List["GibbsComputedStructureEntry"]:
+    def from_pd(cls, pd, temp=300, gibbs_model="SISSO") -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
@@ -866,10 +894,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         """
         gibbs_entries = []
         for entry in pd.all_entries:
-            if (
-                entry in pd.el_refs.values()
-                or not entry.structure.composition.is_element
-            ):
+            if entry in pd.el_refs.values() or not entry.structure.composition.is_element:
                 gibbs_entries.append(
                     cls(
                         entry.structure,
@@ -884,9 +909,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return gibbs_entries
 
     @classmethod
-    def from_entries(
-        cls, entries, temp=300, gibbs_model="SISSO"
-    ) -> List["GibbsComputedStructureEntry"]:
+    def from_entries(cls, entries, temp=300, gibbs_model="SISSO") -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing GibbsComputedStructureEntry objects from
         T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
@@ -913,8 +936,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         :return: MSONAble dict.
         """
         d = super().as_dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
         d["formation_enthalpy"] = self.formation_enthalpy
         d["temp"] = self.temp
         d["gibbs_model"] = self.gibbs_model
@@ -934,21 +955,15 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             d["temp"],
             d["gibbs_model"],
             correction=d["correction"],
-            energy_adjustments=[
-                dec.process_decoded(e) for e in d.get("energy_adjustments", {})
-            ],
-            parameters={
-                k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()
-            },
+            energy_adjustments=[dec.process_decoded(e) for e in d.get("energy_adjustments", {})],
+            parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),
         )
 
     def __repr__(self):
         output = [
-            "GibbsComputedStructureEntry {} - {}".format(
-                self.entry_id, self.composition.formula
-            ),
+            "GibbsComputedStructureEntry {} - {}".format(self.entry_id, self.composition.formula),
             "Gibbs Free Energy (Formation) = {:.4f}".format(self.energy),
         ]
         return "\n".join(output)

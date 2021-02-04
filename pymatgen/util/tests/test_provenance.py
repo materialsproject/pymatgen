@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Molecule, Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 
 """
@@ -31,8 +31,7 @@ class StructureNLCase(unittest.TestCase):
         self.mol = Molecule(["He"], [[0, 0, 0]])
         # set up BibTeX strings
         self.matproj = (
-            "@misc{MaterialsProject,\ntitle = {{Materials "
-            "Project}},\nurl = {http://www.materialsproject.org}\n}"
+            "@misc{MaterialsProject,\ntitle = {{Materials " "Project}},\nurl = {http://www.materialsproject.org}\n}"
         )
         self.pmg = (
             "@article{Ong2013,\n author = {Ong, "
@@ -65,14 +64,10 @@ class StructureNLCase(unittest.TestCase):
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
         self.america = "Captain America <captainamerica@avengers.com>"
         self.thor = [("Thor", "thor@avengers.com")]
-        self.duo = (
-            "Iron Man <ironman@avengers.com>, " "Black Widow <blackwidow@avengers.com>"
-        )
+        self.duo = "Iron Man <ironman@avengers.com>, " "Black Widow <blackwidow@avengers.com>"
 
         # set up HistoryNodes
-        self.valid_node = HistoryNode(
-            "DB 1", "www.db1URLgoeshere.com", {"db1_id": 12424}
-        )
+        self.valid_node = HistoryNode("DB 1", "www.db1URLgoeshere.com", {"db1_id": 12424})
         self.valid_node2 = {
             "name": "DB 2",
             "url": "www.db2URLgoeshere.com",
@@ -108,9 +103,7 @@ class StructureNLCase(unittest.TestCase):
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk, references=[])
 
         # junk reference should not work
-        self.assertRaises(
-            ValueError, StructureNL, self.s, self.hulk, references=self.junk
-        )
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk, references=self.junk)
 
         # good references should be ok
         StructureNL(self.s, self.hulk, references=self.pmg)
@@ -122,9 +115,7 @@ class StructureNLCase(unittest.TestCase):
         StructureNL(self.s, self.hulk, references="\n".join([self.matproj, self.pmg]))
 
         # super long references are bad
-        self.assertRaises(
-            ValueError, StructureNL, self.s, self.hulk, references=self.superlong
-        )
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk, references=self.superlong)
 
     def test_historynodes(self):
         a = StructureNL(self.s, self.hulk, history=[self.valid_node])
@@ -138,29 +129,21 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(a.history[1].description, {"db2_id": 12424})
 
         # invalid nodes should not work
-        self.assertRaises(
-            Exception, StructureNL, self.s, self.hulk, history=[self.invalid_node]
-        )
+        self.assertRaises(Exception, StructureNL, self.s, self.hulk, history=[self.invalid_node])
 
         # too many nodes should not work
-        self.assertRaises(
-            ValueError, StructureNL, self.s, self.hulk, history=[self.valid_node] * 1000
-        )
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk, history=[self.valid_node] * 1000)
 
     def test_data(self):
         # Structure data is OK due to PMGEncoder/Decoder
         a = StructureNL(self.s, self.hulk, data={"_structure": self.s2})
         self.assertEqual(a.data["_structure"], self.s2, "Data storage is broken")
-        self.assertRaises(
-            ValueError, StructureNL, self.s, self.hulk, data={"bad_key": 1}
-        )
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk, data={"bad_key": 1})
 
     def test_remarks(self):
         a = StructureNL(self.s, self.hulk, remarks="string format")
         self.assertEqual(a.remarks[0], "string format")
-        self.assertRaises(
-            ValueError, StructureNL, self.s, self.hulk, remarks=self.remark_fail
-        )
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk, remarks=self.remark_fail)
 
     def test_eq(self):
         # test basic Equal()
@@ -246,8 +229,7 @@ class StructureNLCase(unittest.TestCase):
         self.assertEqual(
             a,
             b,
-            "to/from dict is broken when object embedding is "
-            "used! Apparently MontyEncoding is broken...",
+            "to/from dict is broken when object embedding is " "used! Apparently MontyEncoding is broken...",
         )
 
         # Test molecule

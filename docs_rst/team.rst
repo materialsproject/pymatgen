@@ -17,7 +17,7 @@ A list of pymatgen developers can also be found `on GitHub`_.
 .. raw:: html
    :file: _static/team-map.html
 
-:caption: A map of pymatgen contributors based on associated institutions. If you spot an error or an omission, let us know or fill out the form above.
+:caption: A zoomable, interactive map of pymatgen contributors based on associated institutions. If you spot an error or an omission, let us know or fill out the form above.
 
 Lead Maintainers
 ================
@@ -126,13 +126,18 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for davidwaroquiers
 
-| **Donny Winston** |dwinston|
+| **Donny Winston** |dwinston| |0000-0002-8424-0604|
 | Consulting at donnywinston.com
 .. |dwinston| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:dwinston
    :width: 16
    :height: 16
    :alt: GitHub profile for dwinston
+.. |0000-0002-8424-0604| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-8424-0604
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-8424-0604
 
 | **Francesco Ricci** |fraricci| |0000-0002-2677-7227|
 | IMCN/MODL - Université catholique de Louvain
@@ -244,6 +249,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0003-3132-3032
 
+| **Shyam Dwarknath** |shyamd| |0000-0003-0289-2607|
+| LBL
+.. |shyamd| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:shyamd
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for shyamd
+.. |0000-0003-0289-2607| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-0289-2607
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-0289-2607
+
 | **Tess Smidt** |blondegeek| |0000-0001-5581-5344|
 | Lawrence Berkeley National Laboratory
 .. |blondegeek| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -256,6 +274,7 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0001-5581-5344
+
 
 
 1–4 years active
@@ -336,6 +355,19 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0003-1554-197X
+
+| **Hanmei Tang** |HanmeiTang| |0000-0003-2659-7768|
+| UC San Diego
+.. |HanmeiTang| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:HanmeiTang
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for HanmeiTang
+.. |0000-0003-2659-7768| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-2659-7768
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-2659-7768
 
 | **Henrique Miranda** |henriquemiranda| |0000-0002-2843-0876|
 | Université catholique de Louvain
@@ -446,6 +478,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for dyllamt
 
+| **Michael F. Herbst** |mfherbst| |0000-0003-0378-7921|
+| CERMICS, Inria Paris and École des Ponts ParisTech
+.. |mfherbst| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:mfherbst
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for mfherbst
+.. |0000-0003-0378-7921| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-0378-7921
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-0378-7921
+
 | **Nathan C. Frey** |ncfrey| |0000-0001-5291-6131|
 | University of Pennsylvania
 .. |ncfrey| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -484,6 +529,19 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0002-7168-3967
+
+| **Steven Torrisi** |stevetorr| |0000-0002-4283-8077|
+| Harvard University
+.. |stevetorr| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:stevetorr
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for stevetorr
+.. |0000-0002-4283-8077| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-4283-8077
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-4283-8077
 
 | **Tingzheng Hou** |htz1992213| |0000-0002-7163-2561|
 | University of California, Berkeley
@@ -524,6 +582,14 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-4409-6898
 
+| **Yu Hsuan Liang** |welltemperedpaprika|
+| UC Berkeley
+.. |welltemperedpaprika| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:welltemperedpaprika
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for welltemperedpaprika
+
 | **Yu Kumagai** |yuuukuma| |0000-0003-0489-8148|
 | Tokyo Institute of Technology
 .. |yuuukuma| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -537,6 +603,21 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0003-0489-8148
 
+| **Yuh-Chieh Lin** |random-var-x|
+| TSMC
+.. |random-var-x| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:random-var-x
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for random-var-x
+
+| **Zachary M Gibbs** |zacharygibbs|
+| California Institute of Technology
+.. |zacharygibbs| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:zacharygibbs
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for zacharygibbs
 
 < 1 year active
 ---------------
@@ -548,6 +629,27 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for fekad
+
+| **Adam J. Jackson** |ajjackson| |0000-0001-5272-6530|
+| Scientific Computing Department, Science and Technology Facilities Council, UK
+.. |ajjackson| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ajjackson
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for ajjackson
+.. |0000-0001-5272-6530| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-5272-6530
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-5272-6530
+
+| **Alan Kent Dozier** |adozier|
+| NIOSH
+.. |adozier| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:adozier
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for adozier
 
 | **Alex Dunn** |ardunn| |0000-0002-8567-1879|
 | Lawrence Berkeley National Laboratory; University of California, Berkeley
@@ -583,6 +685,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for awvio
 
+| **Andrew Rosen** |arosen93| |0000-0002-0141-7006|
+| Department of Chemical & Biological Engineering, Northwestern University
+.. |arosen93| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:arosen93
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for arosen93
+.. |0000-0002-0141-7006| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-0141-7006
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-0141-7006
+
 | **Andrius Merkys** |merkys| |0000-0002-7731-6236|
 | Vilnius University Institute of Biotechnology
 .. |merkys| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -608,6 +723,27 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0002-0590-7619
+
+| **Ann Rutt** |acrutt| |0000-0001-6534-454X|
+| University of California Berkeley
+.. |acrutt| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:acrutt
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for acrutt
+.. |0000-0001-6534-454X| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-6534-454X
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-6534-454X
+
+| **Ayush Gupta** |ayushsgupta|
+| UC Berkeley
+.. |ayushsgupta| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:ayushsgupta
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for ayushsgupta
 
 | **Benjamin Justus** |bwjustus|
 | Lawrence Berkeley National Laboratory
@@ -637,6 +773,45 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for darnoceloc
+
+| **Daniel Schwalbe-Koda** |dskoda| |0000-0001-9176-0854|
+| Department of Materials Science and Engineering, Massachusetts Institute of Technology
+.. |dskoda| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:dskoda
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for dskoda
+.. |0000-0001-9176-0854| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0001-9176-0854
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0001-9176-0854
+
+| **Dmitry Korotin** |dkorotin| |0000-0002-4070-2045|
+| Institute of Metal Physics, UB RAS
+.. |dkorotin| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:dkorotin
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for dkorotin
+.. |0000-0002-4070-2045| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-4070-2045
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-4070-2045
+
+| **Drew Parsons** |drew-parsons| |0000-0002-3956-6031|
+| University of Cagliari
+.. |drew-parsons| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:drew-parsons
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for drew-parsons
+.. |0000-0002-3956-6031| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-3956-6031
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-3956-6031
 
 | **Elizabeth Decolvenaere** |tallakahath| |0000-0002-6350-3559|
 | D. E. Shaw Research
@@ -672,6 +847,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for guymoore13
 
+| **Hillary Pan** |hillarypan| |0000-0002-4073-2180|
+| Cornell University
+.. |hillarypan| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:hillarypan
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for hillarypan
+.. |0000-0002-4073-2180| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-4073-2180
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-4073-2180
+
 | **Ioannis Petousis** |petousis|
 .. |petousis| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:petousis
@@ -687,6 +875,14 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for oxana-a
 
+| **Janakiraman Balachandran** |rambalachandran|
+| Hitachi
+.. |rambalachandran| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:rambalachandran
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for rambalachandran
+
 | **Jason Munro** |munrojm|
 | Lawrence Berkeley National Laboratory
 .. |munrojm| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -694,6 +890,14 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for munrojm
+
+| **Jens Renè Suckert** |JRSuckert|
+| Friedrich-Schiller-Universität Jena
+.. |JRSuckert| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:JRSuckert
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for JRSuckert
 
 | **Kevin Maik Jablonka** |kjappelbaum| |0000-0003-4894-4660|
 | École Polytechnique Fédérale de Lausanne
@@ -716,6 +920,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for kwaters4
 
+| **Kristjan Eimre** |eimrek| |0000-0002-3444-3286|
+| Swiss Federal Laboratories for Materials Science and Technology
+.. |eimrek| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:eimrek
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for eimrek
+.. |0000-0002-3444-3286| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-3444-3286
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-3444-3286
+
 | **Linda Hung** |LindaHung-TRI| |0000-0002-1578-6152|
 | Toyota Research Institute
 .. |LindaHung-TRI| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -736,6 +953,27 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for lbluque
+
+| **Michael Humbert** |mike5603| |0000-0003-1966-6382|
+| University of Notre Dame
+.. |mike5603| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:mike5603
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for mike5603
+.. |0000-0003-1966-6382| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-1966-6382
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-1966-6382
+
+| **Michael Wu** |wuxiaohua1011|
+| UC Berkeley
+.. |wuxiaohua1011| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:wuxiaohua1011
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for wuxiaohua1011
 
 | **Miguel Dias Costa** |migueldiascosta| |0000-0001-8859-5763|
 | Centre for Advanced 2D Materials, National University of Singapore
@@ -762,6 +1000,14 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0003-3648-3959
+
+| **Orion Cohen** |orioncohen|
+| UC Berkeley, Lawrence Berkeley National Laboratory
+.. |orioncohen| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:orioncohen
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for orioncohen
 
 | **Oskar Weser** |mcocdawc| |0000-0001-5503-1195|
 | Max Planck Institute for Solid State Research
@@ -810,6 +1056,14 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0002-6589-1700
 
+| **Saurabh Bajaj** |saurabh02|
+| Micron Technology Inc.
+.. |saurabh02| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:saurabh02
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for saurabh02
+
 | **Seán R. Kavanagh** |kavanase| |0000-0003-4577-9647|
 | Materials, Imperial College London. Chemistry, University College London. Thomas Young Centre.
 .. |kavanase| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -823,6 +1077,19 @@ List of Developers (A–Z)
    :height: 16
    :alt: ORCID profile for 0000-0003-4577-9647
 
+| **Shreyas Cholia** |shreddd| |0000-0002-4775-8201|
+| Lawrence Berkeley National Laboratory
+.. |shreddd| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:shreddd
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for shreddd
+.. |0000-0002-4775-8201| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0002-4775-8201
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-4775-8201
+
 | **Steven Hartman** |sthartman|
 | Los Alamos National Laboratory
 .. |sthartman| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
@@ -831,8 +1098,20 @@ List of Developers (A–Z)
    :height: 16
    :alt: GitHub profile for sthartman
 
+| **Tam Mayeshiba** |cmgtam| |0000-0003-3445-7925|
+| University of Wisconsin-Madison
+.. |cmgtam| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:cmgtam
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for cmgtam
+.. |0000-0003-3445-7925| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-3445-7925
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-3445-7925
+
 | **Tim Holme** |bayesfactor| |0000-0003-3789-3511|
-| None
 .. |bayesfactor| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
    :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:bayesfactor
    :width: 16
@@ -843,6 +1122,14 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0003-3789-3511
+
+| **Tonnam Balankura** |tonnamb|
+| Optum
+.. |tonnamb| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/pulls?q=is:pr+author:tonnamb
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for tonnamb
 
 | **Uthpala Herath** |uthpalaherath| |0000-0002-4585-3002|
 | West Virginia University
@@ -923,6 +1210,6 @@ Thanks
 
 Thanks also to:
 
-acrutt, adengz, adozier, ajjackson, albalu, arepstein, arosen93, as2362, aykol, ayushsgupta, bernstei, cajfisher, cmgtam, ctoher, czhengsci, dcossey014, dkorotin, dongsenfo, drew-parsons, dskoda, dynikon, eantono, eimrek, ExpHP, frssp, gcheon, gen4438, GkAntonius, HanmeiTang, hillarypan, hmlli, hongyi-zhao, jacksund, jan-janssen, jdagdelen, jmmshn, johnson1228, jonathanjdenney, josuav1, JRSuckert, JSelf42, kylebystrom, ldamewood, leicheng, Liam-Deacon, mamachra, marcoesters, mfherbst, miaoliu, mike5603, mt-huebsch, nathan-diodan, nawagner, ndardenne, nishiyamat, Nokimann, orioncohen, pmla, Qi-max, rajeshsharma98, rambalachandran, random-var-x, renpj, RoberTnf, ruixingw, saurabh02, sdacek, shaunrong, shreddd, ShuaishuaiYuan, shyamd, smheidrich, sonium0, stevetorr, thefrankwan, Tinaatucsd, tom-wood, tonnamb, utopianf, w6ye, WardLT, wardsimon, welltemperedpaprika, wmdrichards, wsyxbcl, wuxiaohua1011, xhqu1981, yiming-xu, yimingchen-eng, YunxingZuo, zacharygibbs, zbwang, Zhuoying, zooks97
+adengz, albalu, arepstein, as2362, aykol, bernstei, cajfisher, ctoher, czhengsci, dcossey014, dongsenfo, dynikon, eantono, ExpHP, frssp, gcheon, gen4438, GkAntonius, hmlli, hongyi-zhao, jacksund, jan-janssen, jdagdelen, jmmshn, johnson1228, jonathanjdenney, josuav1, JSelf42, katherinelatimer2013, kylebystrom, ldamewood, leicheng, Liam-Deacon, mamachra, marcoesters, miaoliu, mt-huebsch, nathan-diodan, nawagner, ndardenne, nishiyamat, Nokimann, pmla, Qi-max, rajeshsharma98, renpj, RoberTnf, ruixingw, sdacek, shaunrong, ShuaishuaiYuan, smheidrich, sonium0, thefrankwan, Tinaatucsd, tom-wood, utopianf, w6ye, WardLT, wardsimon, wmdrichards, wsyxbcl, xhqu1981, yiming-xu, yimingchen-eng, YunxingZuo, zbwang, Zhuoying, zooks97
 
 These are developers who have contributed via GitHub but have not filled out the form linked above.

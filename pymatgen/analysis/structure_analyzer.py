@@ -18,7 +18,9 @@ import numpy as np
 from monty.dev import deprecated
 from scipy.spatial import Voronoi
 
-from pymatgen import Composition, Element, PeriodicSite, Species
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -145,9 +147,7 @@ class VoronoiAnalyzer:
                     voro_dict[voro] += 1
                 else:
                     voro_dict[voro] = 1
-        return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[
-            :most_frequent_polyhedra
-        ]
+        return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[:most_frequent_polyhedra]
 
     @staticmethod
     def plot_vor_analysis(voronoi_ensemble):
@@ -192,9 +192,7 @@ class RelaxationAnalyzer:
                 calculation.
         """
         if final_structure.formula != initial_structure.formula:
-            raise ValueError(
-                "Initial and final structures have different " + "formulas!"
-            )
+            raise ValueError("Initial and final structures have different " + "formulas!")
         self.initial = initial_structure
         self.final = final_structure
 
@@ -220,10 +218,7 @@ class RelaxationAnalyzer:
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        d = {
-            l: getattr(final_latt, l) / getattr(initial_latt, l) - 1
-            for l in ["a", "b", "c"]
-        }
+        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1 for l in ["a", "b", "c"]}
         return d
 
     def get_percentage_bond_dist_changes(self, max_radius=3.0):
@@ -316,11 +311,7 @@ class VoronoiConnectivity:
                 connectivity[atomj, atomi, imagei] = val
 
             if -10.101 in vts[v]:
-                warn(
-                    "Found connectivity with infinite vertex. "
-                    "Cutoff is too low, and results may be "
-                    "incorrect"
-                )
+                warn("Found connectivity with infinite vertex. " "Cutoff is too low, and results may be " "incorrect")
         return connectivity
 
     @property
@@ -407,9 +398,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
 
     for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
-            bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(
-                el1.symbol, els[i1 + i2].symbol
-            )
+            bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
 
     return bonds_lens
 
@@ -556,17 +545,13 @@ class OxideType:
                 h_sites_frac_coords.append(site.frac_coords)
 
         if h_sites_frac_coords:
-            dist_matrix = lattice.get_all_distances(
-                o_sites_frac_coords, h_sites_frac_coords
-            )
+            dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
                 return (
                     "hydroxide",
                     len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0,
                 )
-        dist_matrix = lattice.get_all_distances(
-            o_sites_frac_coords, o_sites_frac_coords
-        )
+        dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
         is_peroxide = False
@@ -634,9 +619,7 @@ def sulfide_type(structure):
 
     finder = SpacegroupAnalyzer(structure, symprec=0.1)
     symm_structure = finder.get_symmetrized_structure()
-    s_sites = [
-        sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s
-    ]
+    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
 
     def process_site(site):
 
@@ -652,9 +635,7 @@ def sulfide_type(structure):
 
         neighbors = sorted(neighbors, key=lambda n: n.nn_distance)
         dist = neighbors[0].nn_distance
-        coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][
-            :4
-        ]
+        coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"

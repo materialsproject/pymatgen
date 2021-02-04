@@ -138,9 +138,7 @@ class Poscar(MSONable):
             self.comment = structure.formula if comment is None else comment
             self.predictor_corrector_preamble = predictor_corrector_preamble
         else:
-            raise ValueError(
-                "Structure with partial occupancies cannot be " "converted into POSCAR!"
-            )
+            raise ValueError("Structure with partial occupancies cannot be " "converted into POSCAR!")
 
         self.temperature = -1
 
@@ -198,9 +196,7 @@ class Poscar(MSONable):
                 value = np.array(value)
                 dim = value.shape
                 if dim[1] != 3 or dim[0] != len(self.structure):
-                    raise ValueError(
-                        name + " array must be same length as" + " the structure."
-                    )
+                    raise ValueError(name + " array must be same length as" + " the structure.")
                 value = value.tolist()
         super().__setattr__(name, value)
 
@@ -343,9 +339,7 @@ class Poscar(MSONable):
                 symbols.extend(lines[iline_symbols].split())
             natoms = []
             iline_natoms_start = 5 + nlines_symbols
-            for iline_natoms in range(
-                iline_natoms_start, iline_natoms_start + nlines_symbols
-            ):
+            for iline_natoms in range(iline_natoms_start, iline_natoms_start + nlines_symbols):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
             atomic_symbols = list()
             for i, nat in enumerate(natoms):
@@ -380,9 +374,7 @@ class Poscar(MSONable):
             ind = 3 if not sdynamics else 6
             try:
                 # Check if names are appended at the end of the coordinates.
-                atomic_symbols = [
-                    l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]
-                ]
+                atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]]
                 # Ensure symbols are valid elements
                 if not all([Element.is_valid_symbol(sym) for sym in atomic_symbols]):
                     raise ValueError("Non-valid symbols detected.")
@@ -436,9 +428,7 @@ class Poscar(MSONable):
                 # First line in chunk is a key in CONTCAR
                 # Second line is POTIM
                 # Third line is the thermostat parameters
-                predictor_corrector_preamble = (
-                    lines[0] + "\n" + lines[1] + "\n" + lines[2]
-                )
+                predictor_corrector_preamble = lines[0] + "\n" + lines[1] + "\n" + lines[2]
                 # Rest is three sets of parameters, each set contains
                 # x, y, z predictor-corrector parameters for every atom in orde
                 lines = lines[3:]
@@ -529,8 +519,7 @@ class Poscar(MSONable):
                         lines.append(" ".join([format_str.format(i) for i in z]))
             else:
                 warnings.warn(
-                    "Preamble information missing or corrupt. "
-                    "Writing Poscar with no predictor corrector data."
+                    "Preamble information missing or corrupt. " "Writing Poscar with no predictor corrector data."
                 )
 
         return "\n".join(lines) + "\n"
@@ -601,9 +590,7 @@ class Poscar(MSONable):
         velocities = np.random.randn(len(self.structure), 3)
 
         # in AMU, (N,1) array
-        atomic_masses = np.array(
-            [site.specie.atomic_mass.to("kg") for site in self.structure]
-        )
+        atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
         # scale velocities due to atomic masses
@@ -611,9 +598,7 @@ class Poscar(MSONable):
         velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
 
         # remove linear drift (net momentum)
-        velocities -= np.average(
-            atomic_masses[:, np.newaxis] * velocities, axis=0
-        ) / np.average(atomic_masses)
+        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
 
         # scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities ** 2, axis=1))
@@ -668,9 +653,9 @@ class Incar(dict, MSONable):
 
             # if Incar contains vector-like magmoms given as a list
             # of floats, convert to a list of lists
-            if (
-                params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))
-            ) and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
+            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
+                params.get("LSORBIT") or params.get("LNONCOLLINEAR")
+            ):
                 val = []
                 for i in range(len(params["MAGMOM"]) // 3):
                     val.append(params["MAGMOM"][i * 3 : (i + 1) * 3])
@@ -728,9 +713,7 @@ class Incar(dict, MSONable):
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
 
-                if isinstance(self[k][0], (list, Magmom)) and (
-                    self.get("LSORBIT") or self.get("LNONCOLLINEAR")
-                ):
+                if isinstance(self[k][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
@@ -875,14 +858,10 @@ class Incar(dict, MSONable):
         try:
             if key in list_keys:
                 output = []
-                toks = re.findall(
-                    r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val
-                )
+                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
                 for tok in toks:
                     if tok[2] and "3" in tok[0]:
-                        output.extend(
-                            [smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1])
-                        )
+                        output.extend([smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1]))
                     elif tok[1]:
                         output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
                     else:
@@ -1007,8 +986,7 @@ class Incar(dict, MSONable):
                 elif type(incar_params[k]).__name__ == "list":
                     if self[k] not in incar_params[k]:
                         warnings.warn(
-                            "%s: Cannot find %s in the list of parameters"
-                            % (k, self[k]),
+                            "%s: Cannot find %s in the list of parameters" % (k, self[k]),
                             BadIncarWarning,
                             stacklevel=2,
                         )
@@ -1105,8 +1083,7 @@ class Kpoints(MSONable):
         """
         if num_kpts > 0 and (not labels) and (not kpts_weights):
             raise ValueError(
-                "For explicit or line-mode kpoints, either the "
-                "labels or kpts_weights must be specified."
+                "For explicit or line-mode kpoints, either the " "labels or kpts_weights must be specified."
             )
 
         self.comment = comment
@@ -1401,9 +1378,7 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3]))
 
-        coord_pattern = re.compile(
-            r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)"
-        )
+        coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)")
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in ["g", "m"]:
@@ -1422,11 +1397,7 @@ class Kpoints(MSONable):
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = (
-                Kpoints.supported_modes.Cartesian
-                if style in "ck"
-                else Kpoints.supported_modes.Reciprocal
-            )
+            style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
             kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
             kpts_shift = [float(i) for i in lines[6].split()]
             return Kpoints(
@@ -1443,16 +1414,12 @@ class Kpoints(MSONable):
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile(
-                r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)" r"\s*!*\s*(.*)"
-            )
+            patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)" r"\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
                 if m:
-                    kpts.append(
-                        [float(m.group(1)), float(m.group(2)), float(m.group(3))]
-                    )
+                    kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
                     labels.append(m.group(4).strip())
             return Kpoints(
                 comment=comment,
@@ -1464,11 +1431,7 @@ class Kpoints(MSONable):
             )
 
         # Assume explicit KPOINTS if all else fails.
-        style = (
-            Kpoints.supported_modes.Cartesian
-            if style in "ck"
-            else Kpoints.supported_modes.Reciprocal
-        )
+        style = Kpoints.supported_modes.Cartesian if style in "ck" else Kpoints.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
         labels = []
@@ -1493,9 +1456,7 @@ class Kpoints(MSONable):
                 tet_connections = []
                 for i in range(5 + num_kpts, 5 + num_kpts + tet_number):
                     toks = lines[i].split()
-                    tet_connections.append(
-                        (int(toks[0]), [int(toks[j]) for j in range(1, 5)])
-                    )
+                    tet_connections.append((int(toks[0]), [int(toks[j]) for j in range(1, 5)]))
         except IndexError:
             pass
 
@@ -1546,10 +1507,7 @@ class Kpoints(MSONable):
             lines.append("Tetrahedron")
             lines.append("%d %f" % (self.tet_number, self.tet_weight))
             for sym_weight, vertices in self.tet_connections:
-                lines.append(
-                    "%d %d %d %d %d"
-                    % (sym_weight, vertices[0], vertices[1], vertices[2], vertices[3])
-                )
+                lines.append("%d %d %d %d %d" % (sym_weight, vertices[0], vertices[1], vertices[2], vertices[3]))
 
         # Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
@@ -1632,9 +1590,7 @@ def _parse_list(s):
 
 
 Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
-OrbitalDescription = namedtuple(
-    "OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"]
-)
+OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
 
 
 class UnknownPotcarWarning(UserWarning):
@@ -1748,9 +1704,7 @@ class PotcarSingle:
         ).group(1)
 
         self.keywords = {}
-        for key, val in re.findall(
-            r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE
-        ):
+        for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
             try:
                 self.keywords[key] = self.parse_functions[key](val)
             except KeyError:
@@ -1761,9 +1715,7 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_configuration = re.search(
-            r"Atomic configuration\s*\n?" r"(.*?)Description", search_lines
-        )
+        atomic_configuration = re.search(r"Atomic configuration\s*\n?" r"(.*?)Description", search_lines)
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
             num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
@@ -1784,9 +1736,7 @@ class PotcarSingle:
             PSCTR["Orbitals"] = tuple(orbitals)
 
         description_string = re.search(
-            r"(?s)Description\s*\n"
-            r"(.*?)Error from kinetic"
-            r" energy argument \(eV\)",
+            r"(?s)Description\s*\n" r"(.*?)Error from kinetic" r" energy argument \(eV\)",
             search_lines,
         )
         if description_string:
@@ -1808,8 +1758,7 @@ class PotcarSingle:
             PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
-            r"(?s)Error from kinetic energy argument \(eV\)\s*\n"
-            r"(.*?)END of PSCTR-controll parameters",
+            r"(?s)Error from kinetic energy argument \(eV\)\s*\n" r"(.*?)END of PSCTR-controll parameters",
             search_lines,
         )
         rrkj_array = []
@@ -1865,10 +1814,7 @@ class PotcarSingle:
         :return: Electronic configuration of the PotcarSingle.
         """
         if not self.nelectrons.is_integer():
-            warnings.warn(
-                "POTCAR has non-integer charge, "
-                "electron configuration not well-defined."
-            )
+            warnings.warn("POTCAR has non-integer charge, " "electron configuration not well-defined.")
             return None
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
@@ -1906,10 +1852,7 @@ class PotcarSingle:
             with zopen(filename, "rt") as f:
                 return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
-            warnings.warn(
-                "POTCAR contains invalid unicode errors. "
-                "We will attempt to read it by ignoring errors."
-            )
+            warnings.warn("POTCAR contains invalid unicode errors. " "We will attempt to read it by ignoring errors.")
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
@@ -2266,10 +2209,7 @@ class Potcar(list, MSONable):
             with zopen(filename, "rt") as f:
                 fdata = f.read()
         except UnicodeDecodeError:
-            warnings.warn(
-                "POTCAR contains invalid unicode errors. "
-                "We will attempt to read it by ignoring errors."
-            )
+            warnings.warn("POTCAR contains invalid unicode errors. " "We will attempt to read it by ignoring errors.")
             import codecs
 
             with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
@@ -2360,9 +2300,7 @@ class VaspInput(dict, MSONable):
                 conventions in implementing a as_dict() and from_dict method.
         """
         super().__init__(**kwargs)
-        self.update(
-            {"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar}
-        )
+        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2445,9 +2383,7 @@ class VaspInput(dict, MSONable):
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = ftype.from_file(
-                    os.path.join(input_dir, fname)
-                )
+                sub_d["optional_files"][fname] = ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)
 
     def run_vasp(
@@ -2470,11 +2406,7 @@ class VaspInput(dict, MSONable):
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
-            raise RuntimeError(
-                "You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP."
-            )
+            raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
         with cd(run_dir):
-            with open(output_file, "w") as f_std, open(
-                err_file, "w", buffering=1
-            ) as f_err:
+            with open(output_file, "w") as f_std, open(err_file, "w", buffering=1) as f_err:
                 subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)

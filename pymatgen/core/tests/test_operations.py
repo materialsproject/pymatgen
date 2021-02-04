@@ -12,16 +12,12 @@ from pymatgen.util.testing import PymatgenTest
 
 class SymmOpTestCase(PymatgenTest):
     def setUp(self):
-        self.op = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], 30, False, [0, 0, 1]
-        )
+        self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, [0, 0, 1])
 
     def test_properties(self):
         rot = self.op.rotation_matrix
         vec = self.op.translation_vector
-        self.assertArrayAlmostEqual(
-            rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2
-        )
+        self.assertArrayAlmostEqual(rot, [[0.8660254, -0.5, 0.0], [0.5, 0.8660254, 0.0], [0.0, 0.0, 1.0]], 2)
         self.assertArrayAlmostEqual(vec, [0, 0, 1], 2)
 
     def test_operate(self):
@@ -34,9 +30,7 @@ class SymmOpTestCase(PymatgenTest):
         newcoords = self.op.operate_multi([point, point])
         self.assertArrayAlmostEqual(newcoords, [[-0.1339746, 2.23205081, 4.0]] * 2, 2)
         newcoords = self.op.operate_multi([[point, point]] * 2)
-        self.assertArrayAlmostEqual(
-            newcoords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2
-        )
+        self.assertArrayAlmostEqual(newcoords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
 
     def test_inverse(self):
         point = np.random.rand(3)
@@ -50,17 +44,13 @@ class SymmOpTestCase(PymatgenTest):
         point = np.random.rand(3)
         newcoord = refl.operate(point)
         # Distance to the plane should be negatives of each other.
-        self.assertAlmostEqual(
-            np.dot(newcoord - origin, normal), -np.dot(point - origin, normal)
-        )
+        self.assertAlmostEqual(np.dot(newcoord - origin, normal), -np.dot(point - origin, normal))
 
     def test_apply_rotation_only(self):
         point = np.random.rand(3)
         newcoord = self.op.operate(point)
         rotate_only = self.op.apply_rotation_only(point)
-        self.assertArrayAlmostEqual(
-            rotate_only + self.op.translation_vector, newcoord, 2
-        )
+        self.assertArrayAlmostEqual(rotate_only + self.op.translation_vector, newcoord, 2)
 
     def test_transform_tensor(self):
         # Rank 2
@@ -187,9 +177,7 @@ class SymmOpTestCase(PymatgenTest):
         self.assertEqual(s, "x-y, -y, -z")
         self.assertEqual(op, SymmOp.from_xyz_string(s))
 
-        op2 = SymmOp(
-            [[0, -1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]]
-        )
+        op2 = SymmOp([[0, -1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5 + 1e-7], [0, 0, 0, 1]])
         s2 = op2.as_xyz_string()
         self.assertEqual(s2, "-y+1/2, x+1/2, z+1/2")
         self.assertEqual(op2, SymmOp.from_xyz_string(s2))
@@ -280,11 +268,7 @@ class MagSymmOpTestCase(PymatgenTest):
         for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_string(xyzt_string)
-                self.assertTrue(
-                    np.allclose(
-                        transformed_magmom, op.operate_magmom(magmom).global_moment
-                    )
-                )
+                self.assertTrue(np.allclose(transformed_magmom, op.operate_magmom(magmom).global_moment))
 
 
 if __name__ == "__main__":

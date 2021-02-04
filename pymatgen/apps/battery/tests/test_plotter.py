@@ -7,7 +7,9 @@ import json
 import os
 import unittest
 
-from pymatgen import Composition, MontyDecoder
+from monty.json import MontyDecoder
+
+from pymatgen.core.composition import Composition
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
@@ -25,9 +27,7 @@ class VoltageProfilePlotterTest(unittest.TestCase):
 
         with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "FeF3_batt.json"), "r") as fid:
             entries = json.load(fid, cls=MontyDecoder)
-            self.ce_FF = ConversionElectrode.from_composition_and_entries(
-                Composition("FeF3"), entries
-            )
+            self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 
     def testName(self):
         plotter = VoltageProfilePlotter(xaxis="frac_x")

@@ -100,9 +100,7 @@ class GulpIOTest(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        p = Poscar.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         self.structure = p.structure
         self.gio = GulpIO()
 
@@ -123,9 +121,7 @@ class GulpIOTest(unittest.TestCase):
         self.assertNotIn("cell", inp_str)
 
     def test_structure_lines_no_frac_coords(self):
-        inp_str = self.gio.structure_lines(
-            self.structure, cell_flg=False, frac_flg=False
-        )
+        inp_str = self.gio.structure_lines(self.structure, cell_flg=False, frac_flg=False)
         self.assertNotIn("cell", inp_str)
         self.assertIn("cart", inp_str)
 
@@ -135,9 +131,7 @@ class GulpIOTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_library_line_explicit_path(self):
-        gin = self.gio.library_line(
-            "/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib"
-        )
+        gin = self.gio.library_line("/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib")
         self.assertIn("lib", gin)
 
     def test_library_line_wrong_file(self):
@@ -288,9 +282,7 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Al12O18"), check_for_POTCAR=False)
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)

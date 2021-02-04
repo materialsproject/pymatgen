@@ -33,9 +33,7 @@ class DosTest(PymatgenTest):
         self.assertMSONable(self.dos)
 
     def test_thermodynamic_functions(self):
-        self.assertAlmostEqual(
-            self.dos.cv(300, structure=self.structure), 48.049366665412485, 4
-        )
+        self.assertAlmostEqual(self.dos.cv(300, structure=self.structure), 48.049366665412485, 4)
         self.assertAlmostEqual(
             self.dos.internal_energy(300, structure=self.structure),
             15527.596956593827,
@@ -46,12 +44,8 @@ class DosTest(PymatgenTest):
             -6998.034212172695,
             4,
         )
-        self.assertAlmostEqual(
-            self.dos.entropy(300, structure=self.structure), 75.08543723748751, 4
-        )
-        self.assertAlmostEqual(
-            self.dos.zero_point_energy(structure=self.structure), 4847.462485708741, 4
-        )
+        self.assertAlmostEqual(self.dos.entropy(300, structure=self.structure), 75.08543723748751, 4)
+        self.assertAlmostEqual(self.dos.zero_point_energy(structure=self.structure), 4847.462485708741, 4)
 
 
 class CompleteDosTest(PymatgenTest):
@@ -65,18 +59,13 @@ class CompleteDosTest(PymatgenTest):
 
         self.assertEqual(len(self.cdos.frequencies), 201)
         self.assertAlmostEqual(self.cdos.pdos[site_Na][30], 0.008058208)
-        self.assertAlmostEqual(
-            self.cdos.get_site_dos(site_Na).densities[30], 0.008058208
-        )
+        self.assertAlmostEqual(self.cdos.get_site_dos(site_Na).densities[30], 0.008058208)
         self.assertAlmostEqual(self.cdos.pdos[site_Cl][30], 0.0119040783)
 
         self.assertIn(Element.Na, self.cdos.get_element_dos())
         self.assertIn(Element.Cl, self.cdos.get_element_dos())
 
-        sum_dos = (
-            self.cdos.get_element_dos()[Element.Na]
-            + self.cdos.get_element_dos()[Element.Cl]
-        )
+        sum_dos = self.cdos.get_element_dos()[Element.Na] + self.cdos.get_element_dos()[Element.Cl]
         self.assertArrayAlmostEqual(sum_dos.frequencies, self.cdos.frequencies)
         self.assertArrayAlmostEqual(sum_dos.densities, self.cdos.densities)
 

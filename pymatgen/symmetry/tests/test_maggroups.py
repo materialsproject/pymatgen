@@ -163,12 +163,8 @@ x+1/2, y, z, -1
             self.assertEqual(sg.crystal_system, msg.crystal_system)
             for p in points:
                 pp_sg = np.array(sg.get_orbit(p))
-                pp_msg = np.array(
-                    msg.get_orbit(p, 0)[0]
-                )  # discarding magnetic moment information
-                pp_sg = pp_sg[
-                    np.lexsort(np.transpose(pp_sg)[::-1])
-                ]  # sorting arrays so we can compare them
+                pp_msg = np.array(msg.get_orbit(p, 0)[0])  # discarding magnetic moment information
+                pp_sg = pp_sg[np.lexsort(np.transpose(pp_sg)[::-1])]  # sorting arrays so we can compare them
                 pp_msg = pp_msg[np.lexsort(np.transpose(pp_msg)[::-1])]
                 self.assertTrue(np.allclose(pp_sg, pp_msg))
 

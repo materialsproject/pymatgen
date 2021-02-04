@@ -103,13 +103,9 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                 for site in structure:
                     newfrac = fop.operate(site.frac_coords)
                     newcart = op.operate(site.coords)
-                    self.assertTrue(
-                        np.allclose(latt.get_fractional_coords(newcart), newfrac)
-                    )
+                    self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
                     found = False
-                    newsite = PeriodicSite(
-                        site.species, newcart, latt, coords_are_cartesian=True
-                    )
+                    newsite = PeriodicSite(site.species, newcart, latt, coords_are_cartesian=True)
                     for testsite in structure:
                         if newsite.is_periodic_image(testsite, 1e-3):
                             found = True
@@ -122,9 +118,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
                 random_ccoord = latt.get_cartesian_coords(random_fcoord)
                 newfrac = fop.operate(random_fcoord)
                 newcart = op.operate(random_ccoord)
-                self.assertTrue(
-                    np.allclose(latt.get_fractional_coords(newcart), newfrac)
-                )
+                self.assertTrue(np.allclose(latt.get_fractional_coords(newcart), newfrac))
 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
@@ -154,9 +148,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
 
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
-        self.assertEqual(
-            [len(i) for i in symm_struct.equivalent_sites], [16, 4, 8, 4, 2, 8, 8, 8]
-        )
+        self.assertEqual([len(i) for i in symm_struct.equivalent_sites], [16, 4, 8, 4, 2, 8, 8, 8])
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         self.assertEqual(s1, s2)
@@ -186,9 +178,7 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(primitive_structure.lattice.alpha, 60)
         self.assertAlmostEqual(primitive_structure.lattice.beta, 60)
         self.assertAlmostEqual(primitive_structure.lattice.gamma, 60)
-        self.assertAlmostEqual(
-            primitive_structure.lattice.volume, structure.lattice.volume / 4.0
-        )
+        self.assertAlmostEqual(primitive_structure.lattice.volume, structure.lattice.volume / 4.0)
 
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
@@ -380,9 +370,7 @@ class SpacegroupTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         self.structure = p.structure
-        self.sg1 = SpacegroupAnalyzer(
-            self.structure, 0.001
-        ).get_space_group_operations()
+        self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
         sites1 = [self.structure[i] for i in [0, 1]]

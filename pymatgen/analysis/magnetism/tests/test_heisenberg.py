@@ -8,7 +8,7 @@ import warnings
 
 import pandas as pd
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.util.testing import PymatgenTest
 

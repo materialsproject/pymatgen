@@ -55,9 +55,7 @@ class StructureEnvironmentsTest(PymatgenTest):
                 csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2.0, 0.00988778]
             )
 
-            environments_figure, environments_subplot = se.get_environments_figure(
-                isite=isite
-            )
+            environments_figure, environments_subplot = se.get_environments_figure(isite=isite)
             np.testing.assert_array_almost_equal(
                 np.array(environments_subplot.patches[0].get_xy()),
                 [
@@ -122,9 +120,7 @@ class StructureEnvironmentsTest(PymatgenTest):
 
             self.assertTrue(ce.__len__(), 4)
 
-            symbol, mingeom = ce.minimum_geometry(
-                symmetry_measure_type="csm_wocs_ctwocc"
-            )
+            symbol, mingeom = ce.minimum_geometry(symmetry_measure_type="csm_wocs_ctwocc")
             self.assertEqual(symbol, "T:4")
             self.assertAlmostEqual(mingeom["symmetry_measure"], 0.00988778424054)
 
@@ -153,13 +149,9 @@ class StructureEnvironmentsTest(PymatgenTest):
             self.assertTrue("csm1 (with central site) : 34.644" in ce_string)
             self.assertTrue("csm2 (without central site) : 32.466" in ce_string)
 
-            mingeoms = ce.minimum_geometries(
-                symmetry_measure_type="csm_wocs_ctwocc", max_csm=12.0
-            )
+            mingeoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwocc", max_csm=12.0)
             self.assertEqual(len(mingeoms), 2)
-            mingeoms = ce.minimum_geometries(
-                symmetry_measure_type="csm_wocs_ctwcc", max_csm=12.0
-            )
+            mingeoms = ce.minimum_geometries(symmetry_measure_type="csm_wocs_ctwcc", max_csm=12.0)
             self.assertEqual(len(mingeoms), 1)
             mingeoms = ce.minimum_geometries(n=3)
             self.assertEqual(len(mingeoms), 3)
@@ -196,23 +188,13 @@ class StructureEnvironmentsTest(PymatgenTest):
             neighb_images = [[0, 0, -1], [0, 0, 0], [0, 0, -1], [0, 0, 0]]
 
             np.testing.assert_array_almost_equal(neighb_coords, nb_set.neighb_coords)
-            np.testing.assert_array_almost_equal(
-                neighb_coords, [s.coords for s in nb_set.neighb_sites]
-            )
+            np.testing.assert_array_almost_equal(neighb_coords, [s.coords for s in nb_set.neighb_sites])
             nb_sai = nb_set.neighb_sites_and_indices
-            np.testing.assert_array_almost_equal(
-                neighb_coords, [sai["site"].coords for sai in nb_sai]
-            )
-            np.testing.assert_array_almost_equal(
-                neighb_indices, [sai["index"] for sai in nb_sai]
-            )
+            np.testing.assert_array_almost_equal(neighb_coords, [sai["site"].coords for sai in nb_sai])
+            np.testing.assert_array_almost_equal(neighb_indices, [sai["index"] for sai in nb_sai])
             nb_iai = nb_set.neighb_indices_and_images
-            np.testing.assert_array_almost_equal(
-                neighb_indices, [iai["index"] for iai in nb_iai]
-            )
-            np.testing.assert_array_equal(
-                neighb_images, [iai["image_cell"] for iai in nb_iai]
-            )
+            np.testing.assert_array_almost_equal(neighb_indices, [iai["index"] for iai in nb_iai])
+            np.testing.assert_array_equal(neighb_images, [iai["image_cell"] for iai in nb_iai])
 
             self.assertEqual(nb_set.__len__(), 4)
             self.assertEqual(nb_set.__hash__(), 4)
@@ -229,91 +211,47 @@ class StructureEnvironmentsTest(PymatgenTest):
             stats = lse.get_statistics()
 
             neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-            self.assertArrayAlmostEqual(
-                neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359])
-            )
-            self.assertArrayAlmostEqual(
-                neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359])
-            )
-            self.assertArrayAlmostEqual(
-                neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298])
-            )
-            self.assertArrayAlmostEqual(
-                neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298])
-            )
+            self.assertArrayAlmostEqual(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
+            self.assertArrayAlmostEqual(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
+            self.assertArrayAlmostEqual(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
+            self.assertArrayAlmostEqual(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
-            equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(
-                neighbors[0]
-            )
+            equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
             self.assertEqual(equiv_site_index_and_transform[0], 0)
-            self.assertArrayAlmostEqual(
-                equiv_site_index_and_transform[1], [0.0, 0.0, 0.0]
-            )
-            self.assertArrayAlmostEqual(
-                equiv_site_index_and_transform[2], [0.0, 0.0, -1.0]
-            )
+            self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+            self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, -1.0])
 
-            equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(
-                neighbors[1]
-            )
+            equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[1])
             self.assertEqual(equiv_site_index_and_transform[0], 3)
-            self.assertArrayAlmostEqual(
-                equiv_site_index_and_transform[1], [0.0, 0.0, 0.0]
-            )
-            self.assertArrayAlmostEqual(
-                equiv_site_index_and_transform[2], [0.0, 0.0, 0.0]
-            )
+            self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
+            self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
 
-            self.assertEqual(
-                stats["atom_coordination_environments_present"], {"Si": {"T:4": 3.0}}
-            )
-            self.assertEqual(
-                stats["coordination_environments_atom_present"], {"T:4": {"Si": 3.0}}
-            )
+            self.assertEqual(stats["atom_coordination_environments_present"], {"Si": {"T:4": 3.0}})
+            self.assertEqual(stats["coordination_environments_atom_present"], {"T:4": {"Si": 3.0}})
             self.assertEqual(
                 stats["fraction_atom_coordination_environments_present"],
                 {"Si": {"T:4": 1.0}},
             )
 
-            site_info_ce = lse.get_site_info_for_specie_ce(
-                specie=Species("Si", 4), ce_symbol="T:4"
-            )
-            np.testing.assert_array_almost_equal(
-                site_info_ce["fractions"], [1.0, 1.0, 1.0]
-            )
+            site_info_ce = lse.get_site_info_for_specie_ce(specie=Species("Si", 4), ce_symbol="T:4")
+            np.testing.assert_array_almost_equal(site_info_ce["fractions"], [1.0, 1.0, 1.0])
             np.testing.assert_array_almost_equal(
                 site_info_ce["csms"],
                 [0.009887784240541068, 0.009887786546730826, 0.009887787384385317],
             )
             self.assertEqual(site_info_ce["isites"], [6, 7, 8])
 
-            site_info_allces = lse.get_site_info_for_specie_allces(
-                specie=Species("Si", 4)
-            )
+            site_info_allces = lse.get_site_info_for_specie_allces(specie=Species("Si", 4))
 
             self.assertEqual(site_info_allces["T:4"], site_info_ce)
 
             self.assertFalse(lse.contains_only_one_anion("I-"))
             self.assertFalse(lse.contains_only_one_anion_atom("I"))
             self.assertTrue(lse.site_contains_environment(isite=isite, ce_symbol="T:4"))
-            self.assertFalse(
-                lse.site_contains_environment(isite=isite, ce_symbol="S:4")
-            )
-            self.assertFalse(
-                lse.structure_contains_atom_environment(
-                    atom_symbol="Si", ce_symbol="S:4"
-                )
-            )
-            self.assertTrue(
-                lse.structure_contains_atom_environment(
-                    atom_symbol="Si", ce_symbol="T:4"
-                )
-            )
-            self.assertFalse(
-                lse.structure_contains_atom_environment(
-                    atom_symbol="O", ce_symbol="T:4"
-                )
-            )
+            self.assertFalse(lse.site_contains_environment(isite=isite, ce_symbol="S:4"))
+            self.assertFalse(lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="S:4"))
+            self.assertTrue(lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4"))
+            self.assertFalse(lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4"))
             self.assertTrue(lse.uniquely_determines_coordination_environments)
             self.assertFalse(lse.__ne__(lse))
 
@@ -321,9 +259,7 @@ class StructureEnvironmentsTest(PymatgenTest):
             self.assertEqual(len(envs), 1)
             self.assertEqual(envs[0][0], "T:4")
 
-            multi_strategy = (
-                MultiWeightsChemenvStrategy.stats_article_weights_parameters()
-            )
+            multi_strategy = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
             lse_multi = LightStructureEnvironments.from_structure_environments(
                 strategy=multi_strategy, structure_environments=se, valences="undefined"
@@ -332,12 +268,8 @@ class StructureEnvironmentsTest(PymatgenTest):
                 lse_multi.coordination_environments[isite][0]["csm"],
                 0.009887784240541068,
             )
-            self.assertAlmostEqual(
-                lse_multi.coordination_environments[isite][0]["ce_fraction"], 1.0
-            )
-            self.assertEqual(
-                lse_multi.coordination_environments[isite][0]["ce_symbol"], "T:4"
-            )
+            self.assertAlmostEqual(lse_multi.coordination_environments[isite][0]["ce_fraction"], 1.0)
+            self.assertEqual(lse_multi.coordination_environments[isite][0]["ce_symbol"], "T:4")
 
 
 if __name__ == "__main__":

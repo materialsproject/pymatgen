@@ -31,9 +31,7 @@ class TransformedStructureTest(PymatgenTest):
     def test_append_transformation(self):
         t = SubstitutionTransformation({"Fe": "Mn"})
         self.trans.append_transformation(t)
-        self.assertEqual(
-            "NaMnPO4", self.trans.final_structure.composition.reduced_formula
-        )
+        self.assertEqual("NaMnPO4", self.trans.final_structure.composition.reduced_formula)
         self.assertEqual(len(self.trans.structures), 3)
         coords = list()
         coords.append([0, 0, 0])
@@ -47,9 +45,7 @@ class TransformedStructureTest(PymatgenTest):
         ts = TransformedStructure(struct, [])
         ts.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
         alt = ts.append_transformation(
-            PartialRemoveSpecieTransformation(
-                "Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE
-            ),
+            PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE),
             5,
         )
         self.assertEqual(len(alt), 2)
@@ -67,9 +63,7 @@ class TransformedStructureTest(PymatgenTest):
         self.assertEqual(len(self.trans.structures), 2)
 
     def test_final_structure(self):
-        self.assertEqual(
-            "NaFePO4", self.trans.final_structure.composition.reduced_formula
-        )
+        self.assertEqual("NaFePO4", self.trans.final_structure.composition.reduced_formula)
 
     def test_from_dict(self):
         d = json.load(open(os.path.join(PymatgenTest.TEST_FILES_DIR, "transformations.json"), "r"))
@@ -126,9 +120,7 @@ class TransformedStructureTest(PymatgenTest):
 
         h = ("testname", "testURL", {"test": "testing"})
         snl = StructureNL(ts.final_structure, [("will", "will@test.com")], history=[h])
-        snl = TransformedStructure.from_snl(snl).to_snl(
-            [("notwill", "notwill@test.com")]
-        )
+        snl = TransformedStructure.from_snl(snl).to_snl([("notwill", "notwill@test.com")])
         self.assertEqual(snl.history, [h])
         self.assertEqual(snl.authors, [("notwill", "notwill@test.com")])
 

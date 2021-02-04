@@ -46,9 +46,7 @@ class SubstitutorTest(PymatgenTest):
         subs = self.s.pred_from_comp(c)
         self.assertEqual(len(subs), 4, "incorrect number of substitutions")
 
-        structures = [
-            {"structure": PymatgenTest.get_structure("Li2O"), "id": "pmgtest"}
-        ]
+        structures = [{"structure": PymatgenTest.get_structure("Li2O"), "id": "pmgtest"}]
         subs = self.s.pred_from_structures(["Na+", "O2-"], structures)
         self.assertEqual(subs[0].formula, "Na2 O1")
 
