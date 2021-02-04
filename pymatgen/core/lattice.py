@@ -597,7 +597,7 @@ class Lattice(MSONable):
             ]
         )
         while np.any(np.greater(selling_vector, 0)):
-            print(selling_vector)
+            print(selling_vector.round())
             max_index = selling_vector.argmax()
             selling_vector = np.dot(reduction_matrices[max_index], selling_vector)
 
