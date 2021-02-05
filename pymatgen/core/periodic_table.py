@@ -1268,6 +1268,18 @@ class Species(MSONable, Stringify):
             output += ",%s=%s" % (p, v)
         return output
 
+    def to_pretty_string(self) -> str:
+        """
+        :return: String without properties.
+        """
+        output = self.symbol
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
+        return output
+
     def get_nmr_quadrupole_moment(self, isotope: Optional[str] = None) -> float:
         """
         Gets the nuclear electric quadrupole moment in units of

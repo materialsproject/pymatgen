@@ -7,6 +7,34 @@ This module provides utility classes for string operations.
 import re
 from fractions import Fraction
 
+SUBSCRIPT_UNICODE = {
+    "0": "₀",
+    "1": "₁",
+    "2": "₂",
+    "3": "₃",
+    "4": "₄",
+    "5": "₅",
+    "6": "₆",
+    "7": "₇",
+    "8": "₈",
+    "9": "₉",
+}
+
+SUPERSCRIPT_UNICODE = {
+    "0": "⁰",
+    "1": "¹",
+    "2": "²",
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵",
+    "6": "⁶",
+    "7": "⁷",
+    "8": "⁸",
+    "9": "⁹",
+    "+": "⁺",
+    "-": "⁻",
+}
+
 
 class Stringify:
     """
@@ -42,6 +70,22 @@ class Stringify:
         """
         str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
         return re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
+
+    def to_unicode_string(self):
+        """
+        :return: Unicode string with proper sub and superscripts. Note that this works only with systems where the sub
+            and superscripts are pure integers.
+        """
+        str_ = self.to_latex_string()
+        for m in re.finditer(r"\$_\{(\d+)\}\$", str_):
+            s1 = m.group()
+            s2 = [SUBSCRIPT_UNICODE[s] for s in m.group(1)]
+            str_ = str_.replace(s1, "".join(s2))
+        for m in re.finditer(r"\$\^\{([\d\+\-]+)\}\$", str_):
+            s1 = m.group()
+            s2 = [SUPERSCRIPT_UNICODE[s] for s in m.group(1)]
+            str_ = str_.replace(s1, "".join(s2))
+        return str_
 
 
 def str_delimited(results, header=None, delimiter="\t"):
@@ -123,20 +167,7 @@ def unicodeify(formula):
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
 
-    subscript_unicode_map = {
-        0: "₀",
-        1: "₁",
-        2: "₂",
-        3: "₃",
-        4: "₄",
-        5: "₅",
-        6: "₆",
-        7: "₇",
-        8: "₈",
-        9: "₉",
-    }
-
-    for original_subscript, subscript_unicode in subscript_unicode_map.items():
+    for original_subscript, subscript_unicode in SUBSCRIPT_UNICODE.items():
         formula = formula.replace(str(original_subscript), subscript_unicode)
 
     return formula
@@ -172,22 +203,9 @@ def unicodeify_spacegroup(spacegroup_symbol):
     if not spacegroup_symbol:
         return ""
 
-    subscript_unicode_map = {
-        0: "₀",
-        1: "₁",
-        2: "₂",
-        3: "₃",
-        4: "₄",
-        5: "₅",
-        6: "₆",
-        7: "₇",
-        8: "₈",
-        9: "₉",
-    }
-
     symbol = latexify_spacegroup(spacegroup_symbol)
 
-    for number, unicode_number in subscript_unicode_map.items():
+    for number, unicode_number in SUBSCRIPT_UNICODE.items():
         symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
         symbol = symbol.replace("_" + str(number), unicode_number)
 
@@ -217,22 +235,7 @@ def unicodeify_species(specie_string):
     if not specie_string:
         return ""
 
-    superscript_unicode_map = {
-        "0": "⁰",
-        "1": "¹",
-        "2": "²",
-        "3": "³",
-        "4": "⁴",
-        "5": "⁵",
-        "6": "⁶",
-        "7": "⁷",
-        "8": "⁸",
-        "9": "⁹",
-        "+": "⁺",
-        "-": "⁻",
-    }
-
-    for character, unicode_character in superscript_unicode_map.items():
+    for character, unicode_character in SUPERSCRIPT_UNICODE.items():
         specie_string = specie_string.replace(character, unicode_character)
 
     return specie_string

@@ -22,7 +22,7 @@ from pymatgen.util.string import (
 
 class SubStr(Stringify):
     def __str__(self):
-        return "Fe2O3"
+        return "Fe8O12"
 
 
 class SupStr(Stringify):
@@ -36,13 +36,17 @@ class SupStr(Stringify):
 
 
 class StringifyTest(unittest.TestCase):
-    def test_to_latex(self):
-        self.assertEqual(SubStr().to_latex_string(), "Fe$_{2}$O$_{3}$")
+    def test_to_latex_string(self):
+        self.assertEqual(SubStr().to_latex_string(), "Fe$_{8}$O$_{12}$")
         self.assertEqual(SupStr().to_latex_string(), "Fe$^{2+}$")
 
-    def test_to_html(self):
-        self.assertEqual(SubStr().to_html_string(), "Fe<sub>2</sub>O<sub>3</sub>")
+    def test_to_html_string(self):
+        self.assertEqual(SubStr().to_html_string(), "Fe<sub>8</sub>O<sub>12</sub>")
         self.assertEqual(SupStr().to_html_string(), "Fe<sup>2+</sup>")
+
+    def test_to_unicode_string(self):
+        self.assertEqual(SubStr().to_unicode_string(), "Fe₈O₁₂")
+        self.assertEqual(SupStr().to_unicode_string(), "Fe²⁺")
 
 
 class FuncTest(unittest.TestCase):

@@ -431,6 +431,9 @@ class DummySpecieTestCase(unittest.TestCase):
         sp = DummySpecies.from_string("X2+spin=5")
         self.assertEqual(sp.oxi_state, 2)
         self.assertEqual(sp.spin, 5)
+        self.assertEqual(sp.to_latex_string(), "X$^{2+}$")
+        self.assertEqual(sp.to_html_string(), "X<sup>2+</sup>")
+        self.assertEqual(sp.to_unicode_string(), "X²⁺")
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)

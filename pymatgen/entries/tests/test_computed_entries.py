@@ -421,7 +421,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
             with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
                 data = json.load(f)
-            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"),"r") as f:
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"), "r") as f:
                 self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
             self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
@@ -471,8 +471,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         for e in self.entries_with_temps.values():
             entry = copy.deepcopy(e)
             test = entry.normalize(mode="atom", inplace=False)
-            self.assertAlmostEqual(entry.uncorrected_energy,
-                                   test.uncorrected_energy*self.num_atoms, 11)
+            self.assertAlmostEqual(entry.uncorrected_energy, test.uncorrected_energy * self.num_atoms, 11)
             entry.normalize(mode="atom")
             self.assertEqual(entry.uncorrected_energy, test.uncorrected_energy)
 
