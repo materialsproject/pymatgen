@@ -67,22 +67,22 @@ class AbstractEnvironmentNode(MSONable):
     @property
     @abc.abstractmethod
     def coordination_environment(self):
-        """#TODO: Missing doc"""
+        """Coordination environment of this node."""
         return
 
     @property
     def ce(self):
-        """#TODO: Missing doc"""
+        """Coordination environment of this node."""
         return self.coordination_environment
 
     @property
     def mp_symbol(self):
-        """#TODO: Missing doc"""
+        """Coordination environment of this node."""
         return self.coordination_environment
 
     @property
     def ce_symbol(self):
-        """#TODO: Missing doc"""
+        """Coordination environment of this node."""
         return self.coordination_environment
 
     @property
@@ -115,11 +115,15 @@ class EnvironmentNode(AbstractEnvironmentNode):
 
     @property
     def coordination_environment(self):
-        """#TODO: Missing doc"""
+        """Coordination environment of this node."""
         return self._ce_symbol
 
     def everything_equal(self, other):
-        """#TODO: Missing doc"""
+        """Compare with another environment node.
+
+        Returns:
+            True if it is equal to the other node, False otherwise.
+        """
         return super().everything_equal(other) and self.coordination_environment == other.coordination_environment
 
 
