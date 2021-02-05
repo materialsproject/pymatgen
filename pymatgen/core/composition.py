@@ -477,6 +477,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             ["{}{}".format(k, formula_double_format(v, ignore_ones=False)) for k, v in self.as_dict().items()]
         )
 
+    def to_pretty_string(self) -> str:
+        """
+        :return: Same as __str__ but without spaces.
+        """
+        return re.sub(r"\s+", "", self.__str__())
+
     @property
     def num_atoms(self) -> float:
         """

@@ -28,18 +28,21 @@ class SubStr(Stringify):
 class SupStr(Stringify):
     STRING_MODE = "SUPERSCRIPT"
 
-    def __str__(self):
+    def to_pretty_string(self) -> str:
         return "Fe2+"
+
+    def __str__(self):
+        return "Fe**2+"
 
 
 class StringifyTest(unittest.TestCase):
     def test_to_latex(self):
-        self.assertEqual(SubStr().to_latex(), "Fe$_{2}$O$_{3}$")
-        self.assertEqual(SupStr().to_latex(), "Fe$^{2+}$")
+        self.assertEqual(SubStr().to_latex_string(), "Fe$_{2}$O$_{3}$")
+        self.assertEqual(SupStr().to_latex_string(), "Fe$^{2+}$")
 
     def test_to_html(self):
-        self.assertEqual(SubStr().to_html(), "Fe<sub>2</sub>O<sub>3</sub>")
-        self.assertEqual(SupStr().to_html(), "Fe<sup>2+</sup>")
+        self.assertEqual(SubStr().to_html_string(), "Fe<sub>2</sub>O<sub>3</sub>")
+        self.assertEqual(SupStr().to_html_string(), "Fe<sup>2+</sup>")
 
 
 class FuncTest(unittest.TestCase):

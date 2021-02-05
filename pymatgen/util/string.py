@@ -15,7 +15,14 @@ class Stringify:
 
     STRING_MODE = "SUBSCRIPT"
 
-    def to_latex(self) -> str:
+    def to_pretty_string(self) -> str:
+        """
+        :return: A pretty string representation. By default, the __str__ output is used, but this method can be
+            overridden if a different representation from default is desired.
+        """
+        return self.__str__()
+
+    def to_latex_string(self) -> str:
         """
         Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
         "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
@@ -23,17 +30,17 @@ class Stringify:
 
         :return: String for display as in LaTeX with proper superscripts and subscripts.
         """
-        str_ = self.__str__()
+        str_ = self.to_pretty_string()
         if self.STRING_MODE == "SUBSCRIPT":
             return re.sub(r"([A-Za-z\(\)])([^A-Za-z\(\)]+)", r"\1$_{\2}$", str_)
         return re.sub(r"([A-Za-z\(\)])([^A-Za-z\(\)]+)", r"\1$^{\2}$", str_)
 
-    def to_html(self) -> str:
+    def to_html_string(self) -> str:
         """
         Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
         :return: HTML formatted string.
         """
-        str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex())
+        str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
         return re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
 
 

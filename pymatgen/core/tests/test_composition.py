@@ -120,7 +120,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("Na 3 Zr (PO 4) 3").reduced_formula, "Na3Zr(PO4)3")
 
     def test_to_latex(self):
-        self.assertEqual(self.comp[0].to_latex(), "Li$_{3 }$Fe$_{2 }$P$_{3 }$O$_{12}$")
+        self.assertEqual(self.comp[0].to_latex_string(), "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$")
 
     def test_iupac_formula(self):
         correct_formulas = [
