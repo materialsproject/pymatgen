@@ -51,7 +51,7 @@ class QCOutput(MSONable):
             filename (str): Filename to parse
         """
         self.filename = filename
-        self.data = {}
+        self.data = dict()  # type: Dict[str, Any]
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
@@ -243,16 +243,17 @@ class QCOutput(MSONable):
             ).get("key")
             if temp_constraint is not None:
                 self.data["opt_constraint"] = temp_constraint[0]
-                if float(self.data.get("opt_constraint")[5]) != float(self.data.get("opt_constraint")[6]):
-                    if abs(float(self.data.get("opt_constraint")[5])) != abs(float(self.data.get("opt_constraint")[6])):
-                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
-                    if abs(float(self.data.get("opt_constraint")[5])) not in [
-                        0.0,
-                        180.0,
-                    ]:
-                        raise ValueError(
-                            "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
-                        )
+                if self.data.get("opt_constraint") is not None:
+                    if float(self.data.get("opt_constraint")[5]) != float(self.data.get("opt_constraint")[6]):
+                        if abs(float(self.data.get("opt_constraint")[5])) != abs(float(self.data.get("opt_constraint")[6])):
+                            raise ValueError("ERROR: Opt section value and constraint should be the same!")
+                        if abs(float(self.data.get("opt_constraint")[5])) not in [
+                            0.0,
+                            180.0,
+                        ]:
+                            raise ValueError(
+                                "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
+                            )
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(

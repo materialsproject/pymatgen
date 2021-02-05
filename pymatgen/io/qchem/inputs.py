@@ -5,7 +5,6 @@
 """
 Classes for reading/manipulating/writing QChem input files.
 """
-from __future__ import annotations
 import logging
 from typing import Union, Dict, List, Optional
 
@@ -164,7 +163,7 @@ class QCInput(MSONable):
         return "\n".join(combined_list)
 
     @staticmethod
-    def multi_job_string(job_list: List[QCInput]) -> str:
+    def multi_job_string(job_list: List["QCInput"]) -> str:
         """
         Args:
             job_list (): List of jobs
@@ -181,7 +180,7 @@ class QCInput(MSONable):
         return multi_job_string
 
     @classmethod
-    def from_string(cls, string: str) -> QCInput:
+    def from_string(cls, string: str) -> "QCInput":
         """
         Read QcInput from string.
 
@@ -226,7 +225,7 @@ class QCInput(MSONable):
             f.write(self.__str__())
 
     @staticmethod
-    def write_multi_job_file(job_list: List[QCInput], filename: str):
+    def write_multi_job_file(job_list: List["QCInput"], filename: str):
         """
         Write a multijob file.
 
@@ -238,7 +237,7 @@ class QCInput(MSONable):
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
-    def from_file(filename: str) -> QCInput:
+    def from_file(filename: str) -> "QCInput":
         """
         Create QcInput from file.
         Args:
@@ -251,7 +250,7 @@ class QCInput(MSONable):
             return QCInput.from_string(f.read())
 
     @classmethod
-    def from_multi_jobs_file(cls, filename: str) -> List[QCInput]:
+    def from_multi_jobs_file(cls, filename: str) -> List["QCInput"]:
         """
         Create list of QcInput from a file.
         Args:

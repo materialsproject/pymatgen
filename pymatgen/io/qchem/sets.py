@@ -106,7 +106,7 @@ class QChemDictSet(QCInput):
         myrem = dict()
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
-        myrem["max_scf_cycles"] = self.max_scf_cycles
+        myrem["max_scf_cycles"] = str(self.max_scf_cycles)
         myrem["gen_scfman"] = "true"
         myrem["xc_grid"] = "3"
         myrem["scf_algorithm"] = self.scf_algorithm
@@ -129,7 +129,7 @@ class QChemDictSet(QCInput):
             raise ValueError("dft_rung should be between 1 and 5!")
 
         if self.job_type.lower() in ["opt", "ts", "pes_scan"]:
-            myrem["geom_opt_max_cycles"] = self.geom_opt_max_cycles
+            myrem["geom_opt_max_cycles"] = str(self.geom_opt_max_cycles)
 
         if self.pcm_dielectric is not None and self.smd_solvent is not None:
             raise ValueError("Only one of pcm or smd may be used for solvation.")
@@ -217,8 +217,8 @@ class SinglePointSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: Optional[str] = "def2-tzvppd",
-        scf_algorithm: Optional[str] = "diis",
+        basis_set: str = "def2-tzvppd",
+        scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: Optional[float] = None,
         smd_solvent: Optional[str] = None,
@@ -267,8 +267,8 @@ class OptSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: Optional[str] = "def2-tzvppd",
-        scf_algorithm: Optional[str] = "diis",
+        basis_set: str = "def2-tzvppd",
+        scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: Optional[float] = None,
         smd_solvent: Optional[str] = None,
@@ -323,8 +323,8 @@ class TransitionStateSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: Optional[str] = "def2-tzvppd",
-        scf_algorithm: Optional[str] = "diis",
+        basis_set: str = "def2-tzvppd",
+        scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: Optional[float] = None,
         smd_solvent: Optional[str] = None,
@@ -378,8 +378,8 @@ class ForceSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: Optional[str] = "def2-tzvppd",
-        scf_algorithm: Optional[str] = "diis",
+        basis_set: str = "def2-tzvppd",
+        scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: Optional[float] = None,
         smd_solvent: Optional[str] = None,
@@ -427,8 +427,8 @@ class FreqSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: Optional[str] = "def2-tzvppd",
-        scf_algorithm: Optional[str] = "diis",
+        basis_set: str = "def2-tzvppd",
+        scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: Optional[float] = None,
         smd_solvent: Optional[str] = None,
@@ -482,8 +482,8 @@ class PESScanSet(QChemDictSet):
     def __init__(
         self,
         molecule: Molecule,
-        basis_set: Optional[str] = "def2-tzvppd",
-        scf_algorithm: Optional[str] = "diis",
+        basis_set: str = "def2-tzvppd",
+        scf_algorithm: str = "diis",
         dft_rung: int = 3,
         pcm_dielectric: Optional[float] = None,
         smd_solvent: Optional[str] = None,
