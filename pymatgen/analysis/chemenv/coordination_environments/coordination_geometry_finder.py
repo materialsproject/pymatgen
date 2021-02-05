@@ -1473,9 +1473,7 @@ class LocalGeometryFinder:
 
             points_distorted = self.local_geometry.points_wcs_ctwcc(permutation=perm)
 
-            sm_info = symmetry_measure(
-                points_distorted=points_distorted, points_perfect=points_perfect
-            )
+            sm_info = symmetry_measure(points_distorted=points_distorted, points_perfect=points_perfect)
             sm_info["translation_vector"] = self.local_geometry.centroid_with_centre
 
             permutations_symmetry_measures[iperm] = sm_info
