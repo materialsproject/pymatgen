@@ -1471,9 +1471,7 @@ class LocalGeometryFinder:
             local2perfect_maps.append(local2perfect_map)
             perfect2local_maps.append(perfect2local_map)
 
-            points_distorted = self.local_geometry.points_wcs_ctwcc(
-                permutation=perm
-            )
+            points_distorted = self.local_geometry.points_wcs_ctwcc(permutation=perm)
 
             sm_info = symmetry_measure(
                 points_distorted=points_distorted, points_perfect=points_perfect
