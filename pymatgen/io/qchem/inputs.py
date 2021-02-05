@@ -35,7 +35,7 @@ class QCInput(MSONable):
 
     def __init__(
         self,
-        molecule: Molecule,
+        molecule: Union[Molecule, str],
         rem: Dict,
         opt: Optional[Dict[str, List]] = None,
         pcm: Optional[Dict] = None,

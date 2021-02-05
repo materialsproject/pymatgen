@@ -12,7 +12,7 @@ import math
 import os
 import re
 import warnings
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import networkx as nx
 import numpy as np
@@ -244,7 +244,7 @@ class QCOutput(MSONable):
             if temp_constraint is not None:
                 self.data["opt_constraint"] = temp_constraint[0]
                 if self.data.get("opt_constraint") is not None:
-                    if float(self.data.get("opt_constraint")[5]) != float(self.data.get("opt_constraint")[6]):
+                    if float(self.data["opt_constraint"][5]) != float(self.data.["opt_constraint"][6]):
                         if abs(float(self.data.get("opt_constraint")[5])) != abs(float(self.data.get("opt_constraint")[6])):
                             raise ValueError("ERROR: Opt section value and constraint should be the same!")
                         if abs(float(self.data.get("opt_constraint")[5])) not in [
