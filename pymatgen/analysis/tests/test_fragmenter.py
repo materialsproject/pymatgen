@@ -3,6 +3,7 @@
 
 import os
 import unittest
+import pytest
 
 from pymatgen.analysis.fragmenter import Fragmenter
 from pymatgen.analysis.graphs import MoleculeGraph

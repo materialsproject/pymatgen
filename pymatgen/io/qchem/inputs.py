@@ -34,7 +34,15 @@ class QCInput(MSONable):
     """
 
     def __init__(
-        self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None, scan=None, plots=None
+        self,
+        molecule,
+        rem,
+        opt=None,
+        pcm=None,
+        solvent=None,
+        smx=None,
+        scan=None,
+        plots=None,
     ):
         """
         Args:

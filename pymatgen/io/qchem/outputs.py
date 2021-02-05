@@ -62,17 +62,15 @@ class QCOutput(MSONable):
         self.data["multiple_outputs"] = read_pattern(
             self.text, {"key": r"Job\s+\d+\s+of\s+(\d+)\s+"}, terminate_on_match=True
         ).get("key")
-        if not (
-            self.data.get("multiple_outputs") is None
-            or self.data.get("multiple_outputs") == [["1"]]
-        ):
-            raise ValueError(
-                "ERROR: multiple calculation outputs found in file "
-                + filename
-                + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
-                + filename
-                + "')"
-            )
+        if self.data.get("multiple_outputs") is not None:
+            if self.data.get("multiple_outputs") != [["1"]]:
+                raise ValueError(
+                    "ERROR: multiple calculation outputs found in file "
+                    + filename
+                    + ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
+                    + filename
+                    + "')"
+                )
 
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
@@ -720,10 +718,11 @@ class QCOutput(MSONable):
         table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s+Z-matrix Print:"
 
-        parsed_optimized_geometry = read_table_pattern(
+        parsed_optimized_geometries = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern
         )
-        if parsed_optimized_geometry == [] or None:
+
+        if parsed_optimized_geometries == [] or None:
             self.data["optimized_geometry"] = None
             header_pattern = (
                 r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"

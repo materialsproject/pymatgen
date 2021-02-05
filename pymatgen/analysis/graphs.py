@@ -66,7 +66,9 @@ def _igraph_from_nxgraph(graph):
     new_igraph = igraph.Graph()
     for node in nodes:
         new_igraph.add_vertex(
-            name=str(node[0]), species=node[1]["specie"], coords=node[1]["coords"]
+            name=str(node[0]),
+            species=node[1]["specie"],
+            coords=node[1]["coords"]
         )
     new_igraph.add_edges([(str(edge[0]), str(edge[1])) for edge in graph.edges()])
     return new_igraph
