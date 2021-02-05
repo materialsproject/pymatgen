@@ -37,8 +37,8 @@ try:
 except Exception:
     ob = None
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, " \
-             "Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
+__author__ += "Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Nils E. R. Zimmermann"
