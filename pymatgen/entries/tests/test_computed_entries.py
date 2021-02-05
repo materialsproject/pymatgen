@@ -407,11 +407,12 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             self.temps = [300, 600, 900, 1200, 1500, 1800]
             self.struct = vasprun.final_structure
             self.num_atoms = self.struct.composition.num_atoms
-            self.temp_entries = {
+            self.entries_with_temps = {
                 temp: GibbsComputedStructureEntry(
                     self.struct,
                     -2.436 * self.num_atoms,
                     temp=temp,
+                    gibbs_model="SISSO",
                     parameters=vasprun.incar,
                     entry_id="test",
                 )
@@ -420,6 +421,8 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
             with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
                 data = json.load(f)
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"),"r") as f:
+                self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
             self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
@@ -433,12 +436,17 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             1800: -32.32513382051749,
         }
         for t in self.temps:
-            self.assertAlmostEqual(self.temp_entries[t].energy, energies[t])
+            self.assertAlmostEqual(self.entries_with_temps[t].energy, energies[t])
 
     def test_interpolation(self):
         temp = 450
         e = GibbsComputedStructureEntry(self.struct, -2.436 * self.num_atoms, temp=temp)
         self.assertAlmostEqual(e.energy, -53.7243542548528)
+
+    def test_expt_gas_entry(self):
+        co2_entry = GibbsComputedStructureEntry(self.co2_struct, 0, temp=900)
+        self.assertAlmostEqual(co2_entry.energy, -16.406560223724014)
+        self.assertAlmostEqual(co2_entry.energy_per_atom, -1.3672133519770011)
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
@@ -450,22 +458,23 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         self.assertIsNotNone(gibbs_entries)
 
     def test_to_from_dict(self):
-        test_entry = self.temp_entries[300]
+        test_entry = self.entries_with_temps[300]
         d = test_entry.as_dict()
         e = GibbsComputedStructureEntry.from_dict(d)
         self.assertEqual(test_entry, e)
         self.assertAlmostEqual(e.energy, test_entry.energy)
 
     def test_str(self):
-        self.assertIsNotNone(str(self.temp_entries[300]))
+        self.assertIsNotNone(str(self.entries_with_temps[300]))
 
     def test_normalize(self):
-        for e in self.temp_entries.values():
+        for e in self.entries_with_temps.values():
             entry = copy.deepcopy(e)
             test = entry.normalize(mode="atom", inplace=False)
-            self.assertAlmostEqual(entry.gibbs_correction, test.gibbs_correction * 25, 11)
+            self.assertAlmostEqual(entry.uncorrected_energy,
+                                   test.uncorrected_energy*self.num_atoms, 11)
             entry.normalize(mode="atom")
-            self.assertEqual(entry.gibbs_correction, test.gibbs_correction)
+            self.assertEqual(entry.uncorrected_energy, test.uncorrected_energy)
 
 
 if __name__ == "__main__":
