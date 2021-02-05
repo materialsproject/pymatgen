@@ -200,6 +200,8 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertEqual(sg.to_latex_string(), "R$\overline{3}$cH")
         sg = SpaceGroup("P6/mmm")
         self.assertEqual(sg.to_latex_string(), "P6/mmm")
+        sg = SpaceGroup("P4_1")
+        self.assertEqual(sg.to_unicode_string(), "P4₁")
 
 
 if __name__ == "__main__":
