@@ -422,7 +422,13 @@ class NearNeighbors:
         return output
 
     def _get_nn_shell_info(
-        self, structure, all_nn_info, site_idx, shell, _previous_steps=frozenset(), _cur_image=(0, 0, 0),
+        self,
+        structure,
+        all_nn_info,
+        site_idx,
+        shell,
+        _previous_steps=frozenset(),
+        _cur_image=(0, 0, 0),
     ):
         """Private method for computing the neighbor shell information
 

@@ -163,9 +163,7 @@ class StructureGraph(MSONable):
                 d["from_jimage"] = tuple(d["from_jimage"])
 
     @classmethod
-    def with_empty_graph(
-        cls, structure, name="bonds", edge_weight_name=None, edge_weight_units=None
-    ):
+    def with_empty_graph(cls, structure, name="bonds", edge_weight_name=None, edge_weight_units=None):
         """
         Constructor for StructureGraph, returns a StructureGraph
         object with an empty graph (no edges, only nodes defined

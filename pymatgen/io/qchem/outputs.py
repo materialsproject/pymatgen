@@ -80,7 +80,9 @@ class QCOutput(MSONable):
 
         # Check if calculation finished
         self.data["completion"] = read_pattern(
-            self.text, {"key": r"Thank you very much for using Q-Chem.\s+Have a nice day."}, terminate_on_match=True,
+            self.text,
+            {"key": r"Thank you very much for using Q-Chem.\s+Have a nice day."},
+            terminate_on_match=True,
         ).get("key")
 
         # If the calculation finished, parse the job time.
