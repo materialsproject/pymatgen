@@ -45,7 +45,7 @@ class QCOutput(MSONable):
     Class to parse QChem output files.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         """
         Args:
             filename (str): Filename to parse
@@ -1117,7 +1117,8 @@ class QCOutput(MSONable):
                 self.data["scan_energies"].append({"params": param, "energy": energy})
 
         scan_inputs_head = r"\s*\$[Ss][Cc][Aa][Nn]"
-        scan_inputs_row = r"\s*([Ss][Tt][Rr][Ee]|[Tt][Oo][Rr][Ss]|[Bb][Ee][Nn][Dd]) ((?:[0-9]+\s+)+)([\-\.0-9]+)\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*"
+        scan_inputs_row = r"\s*([Ss][Tt][Rr][Ee]|[Tt][Oo][Rr][Ss]|[Bb][Ee][Nn][Dd]) "
+        scan_inputs_row += r"((?:[0-9]+\s+)+)([\-\.0-9]+)\s+([\-\.0-9]+)\s+([\-\.0-9]+)\s*"
         scan_inputs_foot = r"\s*\$[Ee][Nn][Dd]"
 
         constraints_meta = read_table_pattern(

@@ -8,9 +8,11 @@ Input sets for Qchem
 
 import logging
 import os
+from typing import Dict, List, Optional
 
 from monty.io import zopen
 
+from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
@@ -28,20 +30,20 @@ class QChemDictSet(QCInput):
 
     def __init__(
         self,
-        molecule,
-        job_type,
-        basis_set,
-        scf_algorithm,
-        dft_rung=4,
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        opt_variables=None,
-        scan_variables=None,
-        max_scf_cycles=200,
-        geom_opt_max_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        job_type: str,
+        basis_set: str,
+        scf_algorithm: str,
+        dft_rung: int = 4,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        opt_variables: Optional[Dict[str, List]] = None,
+        scan_variables: Optional[Dict[str, List]] = None,
+        max_scf_cycles: int = 200,
+        geom_opt_max_cycles: int = 200,
+        plot_cubes: bool = False,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
         Args:
@@ -196,7 +198,7 @@ class QChemDictSet(QCInput):
             plots=myplots,
         )
 
-    def write(self, input_file):
+    def write(self, input_file: str):
         """
         Args:
             input_file (str): Filename
@@ -214,16 +216,16 @@ class SinglePointSet(QChemDictSet):
 
     def __init__(
         self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        basis_set: Optional[str] = "def2-tzvppd",
+        scf_algorithm: Optional[str] = "diis",
+        dft_rung: int = 3,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        max_scf_cycles: int = 200,
+        plot_cubes: bool = False,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
 
@@ -264,18 +266,18 @@ class OptSet(QChemDictSet):
 
     def __init__(
         self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        opt_variables=None,
-        geom_opt_max_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        basis_set: Optional[str] = "def2-tzvppd",
+        scf_algorithm: Optional[str] = "diis",
+        dft_rung: int = 3,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        max_scf_cycles: int = 200,
+        plot_cubes: bool = False,
+        opt_variables: Optional[Dict[str, List]] = None,
+        geom_opt_max_cycles: int = 200,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
         Args:
@@ -320,18 +322,18 @@ class TransitionStateSet(QChemDictSet):
 
     def __init__(
         self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        opt_variables=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        geom_opt_max_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        basis_set: Optional[str] = "def2-tzvppd",
+        scf_algorithm: Optional[str] = "diis",
+        dft_rung: int = 3,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        max_scf_cycles: int = 200,
+        plot_cubes: bool = False,
+        opt_variables: Optional[Dict[str, List]] = None,
+        geom_opt_max_cycles: int = 200,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
         Args:
@@ -351,7 +353,7 @@ class TransitionStateSet(QChemDictSet):
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
-        super(TransitionStateSet, self).__init__(
+        super().__init__(
             molecule=molecule,
             job_type="ts",
             dft_rung=dft_rung,
@@ -375,16 +377,16 @@ class ForceSet(QChemDictSet):
 
     def __init__(
         self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        basis_set: Optional[str] = "def2-tzvppd",
+        scf_algorithm: Optional[str] = "diis",
+        dft_rung: int = 3,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        max_scf_cycles: int = 200,
+        plot_cubes: bool = False,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
         Args:
@@ -424,16 +426,16 @@ class FreqSet(QChemDictSet):
 
     def __init__(
         self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        basis_set: Optional[str] = "def2-tzvppd",
+        scf_algorithm: Optional[str] = "diis",
+        dft_rung: int = 3,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        max_scf_cycles: int = 200,
+        plot_cubes: bool = False,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
         Args:
@@ -479,18 +481,18 @@ class PESScanSet(QChemDictSet):
 
     def __init__(
         self,
-        molecule,
-        dft_rung=3,
-        basis_set="def2-tzvppd",
-        pcm_dielectric=None,
-        smd_solvent=None,
-        custom_smd=None,
-        opt_variables=None,
-        scan_variables=None,
-        scf_algorithm="diis",
-        max_scf_cycles=200,
-        plot_cubes=False,
-        overwrite_inputs=None,
+        molecule: Molecule,
+        basis_set: Optional[str] = "def2-tzvppd",
+        scf_algorithm: Optional[str] = "diis",
+        dft_rung: int = 3,
+        pcm_dielectric: Optional[float] = None,
+        smd_solvent: Optional[str] = None,
+        custom_smd: Optional[str] = None,
+        max_scf_cycles: int = 200,
+        plot_cubes: bool = False,
+        opt_variables: Optional[Dict[str, List]] = None,
+        scan_variables: Optional[Dict[str, List]] = None,
+        overwrite_inputs: Optional[Dict] = None,
     ):
         """
         Args:
@@ -514,7 +516,7 @@ class PESScanSet(QChemDictSet):
         if scan_variables is None:
             raise ValueError("Cannot run a pes_scan job without some variable " "to scan over!")
 
-        super(PESScanSet, self).__init__(
+        super().__init__(
             molecule=molecule,
             job_type="pes_scan",
             dft_rung=dft_rung,

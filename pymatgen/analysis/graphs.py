@@ -2049,59 +2049,59 @@ class MoleculeGraph(MSONable):
 
         if nx.is_weakly_connected(self.graph):
             return [copy.deepcopy(self)]
-        else:
-            original = copy.deepcopy(self)
-            sub_mols = list()
 
-            # Had to use nx.weakly_connected_components because of deprecation
-            # of nx.weakly_connected_component_subgraphs
-            subgraphs = [original.graph.subgraph(c) for c in nx.weakly_connected_components(original.graph)]
+        original = copy.deepcopy(self)
+        sub_mols = list()
 
-            for subg in subgraphs:
+        # Had to use nx.weakly_connected_components because of deprecation
+        # of nx.weakly_connected_component_subgraphs
+        subgraphs = [original.graph.subgraph(c) for c in nx.weakly_connected_components(original.graph)]
 
-                nodes = sorted(list(subg.nodes))
+        for subg in subgraphs:
 
-                # Molecule indices are essentially list-based, so node indices
-                # must be remapped, incrementing from 0
-                mapping = {}
-                for i in range(len(nodes)):
-                    mapping[nodes[i]] = i
+            nodes = sorted(list(subg.nodes))
 
-                # just give charge to whatever subgraph has node with index 0
-                # TODO: actually figure out how to distribute charge
-                if 0 in nodes:
-                    charge = self.molecule.charge
-                else:
-                    charge = 0
+            # Molecule indices are essentially list-based, so node indices
+            # must be remapped, incrementing from 0
+            mapping = {}
+            for i, n in enumerate(nodes):
+                mapping[n] = i
 
-                # relabel nodes in graph to match mapping
-                new_graph = nx.relabel_nodes(subg, mapping)
+            # just give charge to whatever subgraph has node with index 0
+            # TODO: actually figure out how to distribute charge
+            if 0 in nodes:
+                charge = self.molecule.charge
+            else:
+                charge = 0
 
-                species = nx.get_node_attributes(new_graph, "specie")
-                coords = nx.get_node_attributes(new_graph, "coords")
-                raw_props = nx.get_node_attributes(new_graph, "properties")
+            # relabel nodes in graph to match mapping
+            new_graph = nx.relabel_nodes(subg, mapping)
 
-                properties = {}
-                for prop_set in raw_props.values():
-                    for prop in prop_set.keys():
-                        if prop in properties:
-                            properties[prop].append(prop_set[prop])
-                        else:
-                            properties[prop] = [prop_set[prop]]
+            species = nx.get_node_attributes(new_graph, "specie")
+            coords = nx.get_node_attributes(new_graph, "coords")
+            raw_props = nx.get_node_attributes(new_graph, "properties")
 
-                # Site properties must be present for all atoms in the molecule
-                # in order to be used for Molecule instantiation
-                for k, v in properties.items():
-                    if len(v) != len(species):
-                        del properties[k]
+            properties = {}
+            for prop_set in raw_props.values():
+                for prop in prop_set.keys():
+                    if prop in properties:
+                        properties[prop].append(prop_set[prop])
+                    else:
+                        properties[prop] = [prop_set[prop]]
 
-                new_mol = Molecule(species, coords, charge=charge, site_properties=properties)
-                graph_data = json_graph.adjacency_data(new_graph)
+            # Site properties must be present for all atoms in the molecule
+            # in order to be used for Molecule instantiation
+            for k, v in properties.items():
+                if len(v) != len(species):
+                    del properties[k]
 
-                # create new MoleculeGraph
-                sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
+            new_mol = Molecule(species, coords, charge=charge, site_properties=properties)
+            graph_data = json_graph.adjacency_data(new_graph)
 
-            return sub_mols
+            # create new MoleculeGraph
+            sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
+
+        return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
         """
@@ -2145,20 +2145,18 @@ class MoleculeGraph(MSONable):
                                 MoleculeGraph is still connected."
             )
 
-        else:
+        # alter any bonds before partition, to avoid remapping
+        if alterations is not None:
+            for (u, v) in alterations.keys():
+                if "weight" in alterations[(u, v)]:
+                    weight = alterations[(u, v)]["weight"]
+                    del alterations[(u, v)]["weight"]
+                    edge_properties = alterations[(u, v)] if len(alterations[(u, v)]) != 0 else None
+                    original.alter_edge(u, v, new_weight=weight, new_edge_properties=edge_properties)
+                else:
+                    original.alter_edge(u, v, new_edge_properties=alterations[(u, v)])
 
-            # alter any bonds before partition, to avoid remapping
-            if alterations is not None:
-                for (u, v) in alterations.keys():
-                    if "weight" in alterations[(u, v)]:
-                        weight = alterations[(u, v)]["weight"]
-                        del alterations[(u, v)]["weight"]
-                        edge_properties = alterations[(u, v)] if len(alterations[(u, v)]) != 0 else None
-                        original.alter_edge(u, v, new_weight=weight, new_edge_properties=edge_properties)
-                    else:
-                        original.alter_edge(u, v, new_edge_properties=alterations[(u, v)])
-
-            return original.get_disconnected_fragments()
+        return original.get_disconnected_fragments()
 
     def build_unique_fragments(self):
         """
