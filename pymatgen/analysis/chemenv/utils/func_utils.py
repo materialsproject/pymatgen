@@ -114,8 +114,7 @@ class AbstractRatioFunction:
 
 
 class RatioFunction(AbstractRatioFunction):
-    """Concrete implementation of a series of ratio functions.
-    """
+    """Concrete implementation of a series of ratio functions."""
 
     ALLOWED_FUNCTIONS = {
         "power2_decreasing_exp": ["max", "alpha"],
