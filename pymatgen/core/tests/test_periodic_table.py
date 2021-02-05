@@ -4,6 +4,7 @@
 
 
 import math
+import os
 import pickle
 import unittest
 import warnings
@@ -332,9 +333,6 @@ class SpecieTestCase(PymatgenTest):
         with open("cscl.pickle", "rb") as f:
             d = pickle.load(f)
             self.assertEqual(d, (cs, cl))
-
-        import os
-
         os.remove("cscl.pickle")
 
     def test_get_crystal_field_spin(self):
@@ -406,6 +404,9 @@ class SpecieTestCase(PymatgenTest):
         mo0 = Species("Mo", None, {"spin": 5})
         self.assertEqual(str(mo0), "Mo,spin=5")
 
+    def test_stringify(self):
+        self.assertEqual(self.specie2.to_latex(), "Fe$^{3+}$")
+
 
 class DummySpecieTestCase(unittest.TestCase):
     def test_init(self):
@@ -426,6 +427,7 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecies.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+        self.assertEqual(sp.to_latex(), "X$^{2+}$")
         sp = DummySpecies.from_string("X2+spin=5")
         self.assertEqual(sp.oxi_state, 2)
         self.assertEqual(sp.spin, 5)
