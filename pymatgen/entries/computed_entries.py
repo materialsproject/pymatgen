@@ -35,7 +35,6 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "April 2020"
 
-
 with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as f:
     G_ELEMS = json.load(f)
 with open(os.path.join(os.path.dirname(__file__), "data/nist_gas_gf.json")) as f:
@@ -700,14 +699,14 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         """
         Args:
             structure (Structure): The pymatgen Structure object of an entry.
-            formation_enthalpy (float): Formation enthalpy of the entry, calculated
-                using phase diagram construction (eV)
+            formation_enthalpy (float): Formation enthalpy of the entry; must be
+                calculated using phase diagram construction (eV)
             temp (float): Temperature in Kelvin. If temperature is not selected from
                 one of [300, 400, 500, ... 2000 K], then free energies will
                 be interpolated. Defaults to 300 K.
             gibbs_model (str): Model for Gibbs Free energy. Currently the default (and
                 only supported) option is "SISSO", the descriptor created by Bartel et
-                al. (2018).
+                al. (2018) -- see reference in documentation.
             correction (float): A correction to be applied to the energy. Defaults to 0
             parameters (dict): An optional dict of parameters associated with
                 the entry. Defaults to None.
@@ -715,6 +714,19 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                 with the entry. Defaults to None.
             entry_id: An optional id to uniquely identify the entry.
         """
+        if temp < 300 or temp > 2000:
+            raise ValueError("Temperature must be selected from range: [300, 2000] K.")
+
+        integer_formula = structure.composition.get_integer_formula_and_factor()[0]
+
+        self.experimental = False
+        if integer_formula in G_GASES.keys():
+            self.experimental = True
+            if "Experimental" not in str(entry_id):
+                entry_id = f"{entry_id} (Experimental)"
+
+            formation_enthalpy = 0
+
         super().__init__(
             structure,
             energy=formation_enthalpy,
@@ -726,9 +738,6 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         )
         self.temp = temp
         self.interpolated = False
-
-        if self.temp < 300 or self.temp > 2000:
-            raise ValueError("Temperature must be selected from range: [300, 2000] K.")
 
         if self.temp % 100:
             self.interpolated = True
@@ -743,21 +752,23 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
     @property
     def formation_enthalpy(self) -> float:
         """
-        :return: the formation enthalpy energy of the entry.
+        :return: the original formation enthalpy energy of the entry. Note that
+        detected experimental entries will have a 0
         """
         return self._energy
 
     @property
     def gibbs_correction(self) -> float:
         """
-        :return: the formation enthalpy energy of the entry.
+        :return: the difference between formation enthalpy and gibbs free energy,
+        calculated using the selected Gibbs model.
         """
         return self.gibbs_correction_fn()
 
     @property
     def uncorrected_energy(self) -> float:
         """
-        :return: the *uncorrected* energy of the entry after gibbs correction.
+        :return: the Gibbs free energy, before any additional (non-Gibbs) corrections.
         """
         return self.formation_enthalpy + self.gibbs_correction
 
@@ -767,8 +778,10 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         et al. (2018). Units: eV (not normalized)
 
         WARNING: This descriptor only applies to solids. The implementation here
-        attempts to detect and use downloaded NIST-JANAF data for common gases (e.g.
-        CO2) where possible.
+        attempts to detect and use downloaded NIST-JANAF data for common
+        experimental gases (e.g. CO2) where possible. Note that experimental data is
+        only for Gibbs Free Energy of formation, so expt. entries will register as
+        having a formation enthalpy of 0.
 
         Reference: Bartel, C. J., Millican, S. L., Deml, A. M., Rumptz, J. R.,
         Tumas, W., Weimer, A. W., … Holder, A. M. (2018). Physical descriptor for
@@ -777,28 +790,33 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         4168. https://doi.org/10.1038/s41467-018-06682-4
 
         Returns:
-            float: the entropic term of the Gibbs free energy of formation (eV)
+            float: the difference between formation enthalpy (T=0 K, Materials
+            Project) and the predicted Gibbs free energy of formation  (eV)
         """
         comp = self.composition
 
         if comp.is_element:
             return self.formation_enthalpy
 
-        if comp.reduced_formula in G_GASES.keys():
-            data = G_GASES[comp.reduced_formula]
-            factor = comp.get_reduced_formula_and_factor()[1]
+        integer_formula, factor = comp.get_integer_formula_and_factor()
+        if self.experimental:
+            data = G_GASES[integer_formula]
 
             if self.interpolated:
                 g_interp = interp1d([int(t) for t in data.keys()], list(data.values()))
-                return g_interp(self.temp) * factor
+                energy = g_interp(self.temp)
+            else:
+                energy = data[str(self.temp)]
 
-            return data[str(self.temp)] * factor
+            return energy * factor
 
         num_atoms = self.structure.num_sites
         vol_per_atom = self.structure.volume / num_atoms
         reduced_mass = self._reduced_mass()
 
-        return comp.num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp) - self._sum_g_i()
+        gibbs_energy = comp.num_atoms * self._g_delta_sisso(vol_per_atom, reduced_mass, self.temp) - self._sum_g_i()
+
+        return gibbs_energy
 
     def _sum_g_i(self) -> float:
         """
@@ -864,7 +882,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             temp (float) - Temperature [K]
 
         Returns:
-            float: G^delta
+            float: G^delta [eV/atom]
         """
 
         return (
@@ -879,7 +897,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Constructor method for initializing a list of GibbsComputedStructureEntry
         objects from an existing T = 0 K phase diagram composed of
         ComputedStructureEntry objects, as acquired from a thermochemical database;
-        e.g. The Materials Project.
+        (e.g.. The Materials Project)
 
         Args:
             pd (PhaseDiagram): T = 0 K phase diagram as created in pymatgen. Must
