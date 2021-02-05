@@ -236,6 +236,7 @@ class SinglePointSet(QChemDictSet):
             custom_smd ():
             scf_algorithm ():
             max_scf_cycles ():
+            plot_cubes() :
             overwrite_inputs ():
         """
         self.basis_set = basis_set
@@ -286,7 +287,9 @@ class OptSet(QChemDictSet):
             custom_smd ():
             scf_algorithm ():
             max_scf_cycles ():
+            opt_variables ():
             geom_opt_max_cycles ():
+            plot_cubes ():
             overwrite_inputs ():
         """
         self.basis_set = basis_set
@@ -330,6 +333,20 @@ class TransitionStateSet(QChemDictSet):
         plot_cubes=False,
         overwrite_inputs=None,
     ):
+        """
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            opt_variables ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            geom_opt_max_cycles ():
+            overwrite_inputs ():
+        """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -366,8 +383,22 @@ class ForceSet(QChemDictSet):
         custom_smd=None,
         scf_algorithm="diis",
         max_scf_cycles=200,
+        plot_cubes=False,
         overwrite_inputs=None,
     ):
+        """
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            plot_cubes ():
+            overwrite_inputs ():
+        """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -381,6 +412,7 @@ class ForceSet(QChemDictSet):
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
+            plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
         )
 
@@ -413,6 +445,7 @@ class FreqSet(QChemDictSet):
             custom_smd ():
             scf_algorithm ():
             max_scf_cycles ():
+            plot_cubes ():
             overwrite_inputs ():
         """
         self.basis_set = basis_set
@@ -456,8 +489,24 @@ class PESScanSet(QChemDictSet):
         scan_variables=None,
         scf_algorithm="diis",
         max_scf_cycles=200,
+        plot_cubes=False,
         overwrite_inputs=None,
     ):
+        """
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            opt_variables ():
+            scan_variables ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            plot_cubes ():
+            overwrite_inputs ():
+        """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -477,5 +526,6 @@ class PESScanSet(QChemDictSet):
             basis_set=self.basis_set,
             scf_algorithm=self.scf_algorithm,
             max_scf_cycles=self.max_scf_cycles,
+            plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
         )

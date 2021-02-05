@@ -394,6 +394,14 @@ class QCInput(MSONable):
 
     @staticmethod
     def scan_template(scan):
+        """
+        Args:
+            scan (dict): Dictionary with scan section information.
+                Ex: {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
+
+        Returns:
+            String representing Q-Chem input format for scan section
+        """
         scan_list = list()
         scan_list.append("$scan")
         total_vars = sum([len(v) for v in scan.values()])
@@ -634,6 +642,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_scan(string):
+        """
+        Read scan section from a string.
+
+        Args:
+            string: String to be parsed
+
+        Returns:
+            Dict representing Q-Chem scan section
+        """
         header = r"^\s*\$scan"
         row = r"\s*(stre|bend|tors|STRE|BEND|TORS)\s+((?:[\-\.0-9]+\s*)+)"
         footer = r"^\s*\$end"
