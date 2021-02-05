@@ -34,15 +34,7 @@ class QCInput(MSONable):
     """
 
     def __init__(
-        self,
-        molecule,
-        rem,
-        opt=None,
-        pcm=None,
-        solvent=None,
-        smx=None,
-        scan=None,
-        plots=None,
+        self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None, scan=None, plots=None,
     ):
         """
         Args:
@@ -92,9 +84,7 @@ class QCInput(MSONable):
             if self.molecule != "read":
                 raise ValueError('The only acceptable text value for molecule is "read"')
         elif not isinstance(self.molecule, Molecule):
-            raise ValueError(
-                "The molecule must either be the string 'read' or be a pymatgen Molecule object"
-            )
+            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -117,9 +107,7 @@ class QCInput(MSONable):
             raise ValueError("The rem dictionary must contain a 'basis' entry")
         if "method" not in self.rem:
             if "exchange" not in self.rem:
-                raise ValueError(
-                    "The rem dictionary must contain either a 'method' entry or an 'exchange' entry"
-                )
+                raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
         if "job_type" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'job_type' entry")
         if self.rem.get("job_type").lower() not in valid_job_types:
@@ -215,9 +203,7 @@ class QCInput(MSONable):
             scan = cls.read_scan(string)
         if "plots" in sections:
             plots = cls.read_plots(string)
-        return cls(
-            molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, scan=scan, plots=plots
-        )
+        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, scan=scan, plots=plots)
 
     def write_file(self, filename):
         """
@@ -290,9 +276,7 @@ class QCInput(MSONable):
                 raise ValueError('The only acceptable text value for molecule is "read"')
         else:
             mol_list.append(
-                " {charge} {spin_mult}".format(
-                    charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity
-                )
+                " {charge} {spin_mult}".format(charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity)
             )
             for site in molecule.sites:
                 mol_list.append(
@@ -484,9 +468,7 @@ class QCInput(MSONable):
         header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
         row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer = r"^\$end"
-        mol_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         species = [val[0] for val in mol_table[0]]
         coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
         mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
@@ -506,9 +488,7 @@ class QCInput(MSONable):
         header = r"^\s*\$rem"
         row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
-        rem_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         return dict(rem_table[0])
 
     @staticmethod
@@ -535,25 +515,19 @@ class QCInput(MSONable):
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
-            c_table = read_table_pattern(
-                string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer,
-            )
+            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer,)
             opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"
             f_row = r"(\w.*)\n"
             f_footer = r"^\s*ENDFIXED\n"
-            f_table = read_table_pattern(
-                string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer,
-            )
+            f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer,)
             opt["FIXED"] = [val[0] for val in f_table[0]]
         if "DUMMY" in opt_sections:
             d_header = r"^\s*DUMMY\n"
             d_row = r"(\w.*)\n"
             d_footer = r"^\s*ENDDUMMY\n"
-            d_table = read_table_pattern(
-                string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer,
-            )
+            d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer,)
             opt["DUMMY"] = [val[0] for val in d_table[0]]
         if "CONNECT" in opt_sections:
             cc_header = r"^\s*CONNECT\n"
@@ -579,13 +553,9 @@ class QCInput(MSONable):
         header = r"^\s*\$pcm"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
-        pcm_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not pcm_table:
-            print(
-                "No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines."
-            )
+            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
             return {}
 
         return dict(pcm_table[0])
@@ -604,13 +574,9 @@ class QCInput(MSONable):
         header = r"^\s*\$solvent"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
-        solvent_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not solvent_table:
-            print(
-                "No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines."
-            )
+            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
             return {}
 
         return dict(solvent_table[0])
@@ -629,13 +595,9 @@ class QCInput(MSONable):
         header = r"^\s*\$smx"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
-        smx_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        smx_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if not smx_table:
-            print(
-                "No valid smx inputs found. Note that there should be no '=' chracters in smx input lines."
-            )
+            print("No valid smx inputs found. Note that there should be no '=' chracters in smx input lines.")
             return {}
         smx = {}
         for key, val in smx_table[0]:
@@ -649,13 +611,9 @@ class QCInput(MSONable):
         header = r"^\s*\$scan"
         row = r"\s*(stre|bend|tors|STRE|BEND|TORS)\s+((?:[\-\.0-9]+\s*)+)"
         footer = r"^\s*\$end"
-        scan_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        scan_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if scan_table == list():
-            print(
-                "No valid scan inputs found. Note that there should be no '=' chracters in scan input lines."
-            )
+            print("No valid scan inputs found. Note that there should be no '=' chracters in scan input lines.")
             return dict()
         else:
             stre = list()
@@ -688,13 +646,9 @@ class QCInput(MSONable):
         header = r"^\s*\$plots"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
-        plots_table = read_table_pattern(
-            string, header_pattern=header, row_pattern=row, footer_pattern=footer
-        )
+        plots_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         if plots_table == []:
-            print(
-                "No valid plots inputs found. Note that there should be no '=' chracters in plots input lines."
-            )
+            print("No valid plots inputs found. Note that there should be no '=' chracters in plots input lines.")
             return {}
         plots = {}
         for key, val in plots_table[0]:
