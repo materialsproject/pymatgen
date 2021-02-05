@@ -59,9 +59,13 @@ class Stringify:
         :return: String for display as in LaTeX with proper superscripts and subscripts.
         """
         str_ = self.to_pretty_string()
+        str_ = re.sub(r"_(\d+)", r"$_{\1}$", str_)
+        str_ = re.sub(r"-(\d)", r"$\\overline{\1}$", str_)
         if self.STRING_MODE == "SUBSCRIPT":
-            return re.sub(r"([A-Za-z\(\)])([^A-Za-z\(\)]+)", r"\1$_{\2}$", str_)
-        return re.sub(r"([A-Za-z\(\)])([^A-Za-z\(\)]+)", r"\1$^{\2}$", str_)
+            return re.sub(r"([A-Za-z\(\)])([\d\+\-\.]+)", r"\1$_{\2}$", str_)
+        if self.STRING_MODE == "SUPERSCRIPT":
+            return re.sub(r"([A-Za-z\(\)])([\d\+\-\.]+)", r"\1$^{\2}$", str_)
+        return str_
 
     def to_html_string(self) -> str:
         """
@@ -69,7 +73,8 @@ class Stringify:
         :return: HTML formatted string.
         """
         str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
-        return re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
+        str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
+        return re.sub(r"\$\\overline\{([^}]+)\}\$", r'<span style="text-decoration:overline">\1</span>', str_)
 
     def to_unicode_string(self):
         """

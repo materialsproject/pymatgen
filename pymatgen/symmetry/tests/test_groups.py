@@ -195,6 +195,12 @@ class SpaceGroupTest(unittest.TestCase):
             s = SpaceGroup.from_int_number(sg, hexagonal=False)
             self.assertTrue(not s.symbol.endswith("H"))
 
+    def test_string(self):
+        sg = SpaceGroup("R-3c")
+        self.assertEqual(sg.to_latex_string(), "R$\overline{3}$cH")
+        sg = SpaceGroup("P6/mmm")
+        self.assertEqual(sg.to_latex_string(), "P6/mmm")
+
 
 if __name__ == "__main__":
     unittest.main()
