@@ -458,7 +458,7 @@ class QCInput(MSONable):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Molecule:
+    def read_molecule(string: str) -> Union[Molecule, str]:
         """
         Read molecule from string.
 
@@ -488,7 +488,10 @@ class QCInput(MSONable):
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         species = [val[0] for val in mol_table[0]]
         coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
-        mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
+        if charge is None:
+            mol = Molecule(species=species, coords=coords)
+        else:
+            mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
         return mol
 
     @staticmethod
