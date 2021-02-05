@@ -19,6 +19,7 @@ import warnings
 from collections import OrderedDict, namedtuple
 from enum import Enum
 from hashlib import md5
+from typing import Dict, Any, Tuple, Sequence, Union
 
 import numpy as np
 import scipy.constants as const
@@ -36,7 +37,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import PathLike
+from pymatgen.util.typing import PathLike, ArrayLike
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -97,9 +98,9 @@ class Poscar(MSONable):
         comment: str = None,
         selective_dynamics=None,
         true_names: bool = True,
-        velocities=None,
-        predictor_corrector=None,
-        predictor_corrector_preamble=None,
+        velocities: ArrayLike = None,
+        predictor_corrector: ArrayLike = None,
+        predictor_corrector_preamble: str = None,
         sort_structure: bool = False,
     ):
         """
@@ -140,7 +141,7 @@ class Poscar(MSONable):
         else:
             raise ValueError("Structure with partial occupancies cannot be " "converted into POSCAR!")
 
-        self.temperature = -1
+        self.temperature = -1.0
 
     @property
     def velocities(self):
@@ -452,7 +453,7 @@ class Poscar(MSONable):
             predictor_corrector_preamble=predictor_corrector_preamble,
         )
 
-    def get_string(self, direct=True, vasp4_compatible=False, significant_figures=6):
+    def get_string(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 6) -> str:
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibility is for vasp >= 5.
@@ -533,7 +534,7 @@ class Poscar(MSONable):
         """
         return self.get_string()
 
-    def write_file(self, filename, **kwargs):
+    def write_file(self, filename: PathLike, **kwargs):
         """
         Writes POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_string method and are passed through directly.
@@ -541,7 +542,7 @@ class Poscar(MSONable):
         with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
@@ -557,7 +558,7 @@ class Poscar(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d: dict) -> "Poscar":
         """
         :param d: Dict representation.
         :return: Poscar
@@ -571,7 +572,7 @@ class Poscar(MSONable):
             predictor_corrector=d.get("predictor_corrector", None),
         )
 
-    def set_temperature(self, temperature):
+    def set_temperature(self, temperature: float):
         """
         Initializes the velocities based on Maxwell-Boltzmann distribution.
         Removes linear, but not angular drift (same as VASP)
@@ -641,7 +642,7 @@ class Incar(dict, MSONable):
     a dictionary with some helper functions
     """
 
-    def __init__(self, params=None):
+    def __init__(self, params: Dict[str, Any] = None):
         """
         Creates an Incar object.
 
@@ -663,7 +664,7 @@ class Incar(dict, MSONable):
 
             self.update(params)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key: str, val: Any):
         """
         Add parameter-val pair to Incar.  Warns if parameter is not in list of
         valid INCAR tags. Also cleans the parameter and val by stripping
@@ -674,7 +675,7 @@ class Incar(dict, MSONable):
             Incar.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
@@ -684,7 +685,7 @@ class Incar(dict, MSONable):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> "Incar":
         """
         :param d: Dict representation.
         :return: Incar
@@ -693,7 +694,7 @@ class Incar(dict, MSONable):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
-    def get_string(self, sort_keys=False, pretty=False):
+    def get_string(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
         Returns a string representation of the INCAR.  The reason why this
         method is different from the __str__ method is to provide options for
@@ -705,7 +706,7 @@ class Incar(dict, MSONable):
             pretty (bool): Set to True for pretty aligned output. Defaults
                 to False.
         """
-        keys = self.keys()
+        keys = list(self.keys())
         if sort_keys:
             keys = sorted(keys)
         lines = []
@@ -737,7 +738,7 @@ class Incar(dict, MSONable):
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
 
-    def write_file(self, filename):
+    def write_file(self, filename: PathLike):
         """
         Write Incar to a file.
 
@@ -748,7 +749,7 @@ class Incar(dict, MSONable):
             f.write(self.__str__())
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: PathLike) -> "Incar":
         """
         Reads an Incar object from a file.
 
@@ -762,7 +763,7 @@ class Incar(dict, MSONable):
             return Incar.from_string(f.read())
 
     @staticmethod
-    def from_string(string):
+    def from_string(string: str) -> "Incar":
         """
         Reads an Incar object from a string.
 
@@ -785,7 +786,7 @@ class Incar(dict, MSONable):
         return Incar(params)
 
     @staticmethod
-    def proc_val(key, val):
+    def proc_val(key: str, val: Any):
         """
         Static helper method to convert INCAR parameters to proper types, e.g.,
         integers, floats, lists, etc.
@@ -875,10 +876,10 @@ class Incar(dict, MSONable):
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))  # type: ignore
 
             if key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val).group(0))
+                return int(re.match(r"^-?[0-9]+", val).group(0))  # type: ignore
 
         except ValueError:
             pass
@@ -904,7 +905,7 @@ class Incar(dict, MSONable):
 
         return val.strip().capitalize()
 
-    def diff(self, other):
+    def diff(self, other: "Incar") -> Dict[str, Dict[str, Any]]:
         """
         Diff function for Incar.  Compares two Incars and indicates which
         parameters are the same and which are not. Useful for checking whether
@@ -1029,16 +1030,16 @@ class Kpoints(MSONable):
 
     def __init__(
         self,
-        comment="Default gamma",
-        num_kpts=0,
-        style=supported_modes.Gamma,
-        kpts=((1, 1, 1),),
-        kpts_shift=(0, 0, 0),
+        comment: str = "Default gamma",
+        num_kpts: int = 0,
+        style: Kpoints_supported_modes = supported_modes.Gamma,
+        kpts: Sequence[Union[float, int, Sequence]] = ((1, 1, 1),),
+        kpts_shift: Tuple[int, int, int] = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
         labels=None,
-        tet_number=0,
-        tet_weight=0,
+        tet_number: int = 0,
+        tet_weight: float = 0,
         tet_connections=None,
     ):
         """
