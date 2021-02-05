@@ -724,10 +724,10 @@ class Vasprun(MSONable):
 
         if self.parameters.get("LUSE_VDW", False):
             rt += "+rVV10"
-        elif self.incar.get("IVDW", "").strip().upper() in IVDW_TYPES:
-            rt += "vdW-" + IVDW_TYPES[self.incar.get("IVDW", "").strip().upper()]
+        elif self.incar.get("IVDW") in IVDW_TYPES:
+            rt += "+vdW-" + IVDW_TYPES[self.incar.get("IVDW")]
         elif self.incar.get("IVDW"):
-            rt += "vdW-unknown"
+            rt += "+vdW-unknown"
 
         return rt
 
