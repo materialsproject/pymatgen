@@ -16,7 +16,30 @@ from pymatgen.util.string import (
     unicodeify,
     unicodeify_spacegroup,
     unicodeify_species,
+    Stringify,
 )
+
+
+class SubStr(Stringify):
+    def __str__(self):
+        return "Fe2O3"
+
+
+class SupStr(Stringify):
+    STRING_MODE = "SUPERSCRIPT"
+
+    def __str__(self):
+        return "Fe2+"
+
+
+class StringifyTest(unittest.TestCase):
+    def test_to_latex(self):
+        self.assertEqual(SubStr().to_latex(), "Fe$_{2}$O$_{3}$")
+        self.assertEqual(SupStr().to_latex(), "Fe$^{2+}$")
+
+    def test_to_html(self):
+        self.assertEqual(SubStr().to_html(), "Fe<sub>2</sub>O<sub>3</sub>")
+        self.assertEqual(SupStr().to_html(), "Fe<sup>2+</sup>")
 
 
 class FuncTest(unittest.TestCase):

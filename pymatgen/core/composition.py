@@ -22,7 +22,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.units import Mass
-from pymatgen.util.string import formula_double_format
+from pymatgen.util.string import formula_double_format, Stringify
 
 
 SpeciesLike = Union[str, Element, Species, DummySpecies]
@@ -38,7 +38,7 @@ __date__ = "Nov 10, 2012"
 
 
 @total_ordering
-class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
