@@ -18,7 +18,7 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
-from pymatgen.util.string import formula_double_format
+from pymatgen.util.string import formula_double_format, Stringify
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -1073,7 +1073,7 @@ class Element(ElementBase):
     Og = "Og"
 
 
-class Species(MSONable):
+class Species(MSONable, Stringify):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Species should be "idealized"
@@ -1083,6 +1083,7 @@ class Species(MSONable):
     assigned to Site objects, and not Species.
     """
 
+    STRING_MODE = "SUPERSCRIPT"
     supported_properties = ("spin",)
 
     def __init__(
