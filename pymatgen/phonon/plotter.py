@@ -35,9 +35,7 @@ def freq_units(units):
 
     d = {
         "thz": FreqUnits(1, "THz"),
-        "ev": FreqUnits(
-            const.value("hertz-electron volt relationship") * const.tera, "eV"
-        ),
+        "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
         "mev": FreqUnits(
             const.value("hertz-electron volt relationship") * const.tera / const.milli,
             "meV",
@@ -55,11 +53,7 @@ def freq_units(units):
     try:
         return d[units.lower().strip()]
     except KeyError:
-        raise KeyError(
-            "Value for units `{}` unknown\nPossible values are:\n {}".format(
-                units, list(d.keys())
-            )
-        )
+        raise KeyError("Value for units `{}` unknown\nPossible values are:\n {}".format(units, list(d.keys())))
 
 
 class PhononDosPlotter:
@@ -104,9 +98,7 @@ class PhononDosPlotter:
                 PhononDos object
         """
 
-        densities = (
-            dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
-        )
+        densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
         self._doses[label] = {"frequencies": dos.frequencies, "densities": densities}
 
     def add_dos_dict(self, dos_dict, key_sort_func=None):
@@ -155,7 +147,7 @@ class PhononDosPlotter:
 
         import palettable
 
-        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors
+        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors  # pylint: disable=E1101
 
         y = None
         alldensities = []
@@ -182,14 +174,10 @@ class PhononDosPlotter:
         alldensities.reverse()
         allfrequencies.reverse()
         allpts = []
-        for i, (key, frequencies, densities) in enumerate(
-            zip(keys, allfrequencies, alldensities)
-        ):
+        for i, (key, frequencies, densities) in enumerate(zip(keys, allfrequencies, alldensities)):
             allpts.extend(list(zip(frequencies, densities)))
             if self.stack:
-                plt.fill(
-                    frequencies, densities, color=colors[i % ncolors], label=str(key)
-                )
+                plt.fill(frequencies, densities, color=colors[i % ncolors], label=str(key))
             else:
                 plt.plot(
                     frequencies,
@@ -281,26 +269,18 @@ class PhononBSPlotter:
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i in range(len(temp_ticks)):
+        for i, tt in enumerate(temp_ticks):
             if i == 0:
-                uniq_d.append(temp_ticks[i][0])
-                uniq_l.append(temp_ticks[i][1])
-                logger.debug(
-                    "Adding label {l} at {d}".format(
-                        l=temp_ticks[i][0], d=temp_ticks[i][1]
-                    )
-                )
+                uniq_d.append(tt[0])
+                uniq_l.append(tt[1])
+                logger.debug("Adding label {l} at {d}".format(l=tt[0], d=tt[1]))
             else:
-                if temp_ticks[i][1] == temp_ticks[i - 1][1]:
-                    logger.debug("Skipping label {i}".format(i=temp_ticks[i][1]))
+                if tt[1] == temp_ticks[i - 1][1]:
+                    logger.debug("Skipping label {i}".format(i=tt[1]))
                 else:
-                    logger.debug(
-                        "Adding label {l} at {d}".format(
-                            l=temp_ticks[i][0], d=temp_ticks[i][1]
-                        )
-                    )
-                    uniq_d.append(temp_ticks[i][0])
-                    uniq_l.append(temp_ticks[i][1])
+                    logger.debug("Adding label {l} at {d}".format(l=tt[0], d=tt[1]))
+                    uniq_d.append(tt[0])
+                    uniq_l.append(tt[1])
 
         logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
         plt.gca().set_xticks(uniq_d)
@@ -311,22 +291,15 @@ class PhononBSPlotter:
                 # don't print the same label twice
                 if i != 0:
                     if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(
-                            "already print label... "
-                            "skipping label {i}".format(i=ticks["label"][i])
-                        )
+                        logger.debug("already print label... " "skipping label {i}".format(i=ticks["label"][i]))
                     else:
                         logger.debug(
-                            "Adding a line at {d} for label {l}".format(
-                                d=ticks["distance"][i], l=ticks["label"][i]
-                            )
+                            "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
                         )
                         plt.axvline(ticks["distance"][i], color="k")
                 else:
                     logger.debug(
-                        "Adding a line at {d} for label {l}".format(
-                            d=ticks["distance"][i], l=ticks["label"][i]
-                        )
+                        "Adding a line at {d} for label {l}".format(d=ticks["distance"][i], l=ticks["label"][i])
                     )
                     plt.axvline(ticks["distance"][i], color="k")
         return plt
@@ -352,20 +325,10 @@ class PhononBSPlotter:
         for b in self._bs.branches:
 
             frequency.append([])
-            distance.append(
-                [
-                    self._bs.distance[j]
-                    for j in range(b["start_index"], b["end_index"] + 1)
-                ]
-            )
+            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
 
             for i in range(self._nb_bands):
-                frequency[-1].append(
-                    [
-                        self._bs.bands[i][j]
-                        for j in range(b["start_index"], b["end_index"] + 1)
-                    ]
-                )
+                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
 
         return {
             "ticks": ticks,
@@ -395,10 +358,7 @@ class PhononBSPlotter:
             for i in range(self._nb_bands):
                 plt.plot(
                     data["distances"][d],
-                    [
-                        data["frequency"][d][i][j] * u.factor
-                        for j in range(len(data["distances"][d]))
-                    ],
+                    [data["frequency"][d][i][j] * u.factor for j in range(len(data["distances"][d]))],
                     "b-",
                     linewidth=band_linewidth,
                 )
@@ -519,10 +479,7 @@ class PhononBSPlotter:
             for d in range(len(data_orig["distances"])):
                 plt.plot(
                     data_orig["distances"][d],
-                    [
-                        data["frequency"][d][i][j] * u.factor
-                        for j in range(len(data_orig["distances"][d]))
-                    ],
+                    [data["frequency"][d][i][j] * u.factor for j in range(len(data_orig["distances"][d]))],
                     "r-",
                     linewidth=band_linewidth,
                 )
@@ -568,17 +525,7 @@ class ThermoPlotter:
         self.dos = dos
         self.structure = structure
 
-    def _plot_thermo(
-        self,
-        func,
-        temperatures,
-        factor=1,
-        ax=None,
-        ylabel=None,
-        label=None,
-        ylim=None,
-        **kwargs
-    ):
+    def _plot_thermo(self, func, temperatures, factor=1, ax=None, ylabel=None, label=None, ylim=None, **kwargs):
         """
         Plots a thermodynamic property for a generic function from a PhononDos instance.
 
@@ -640,9 +587,7 @@ class ThermoPlotter:
         else:
             ylabel = r"$C_v$ (J/K/mol-c)"
 
-        fig = self._plot_thermo(
-            self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs
-        )
+        fig = self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
         return fig
 
@@ -667,9 +612,7 @@ class ThermoPlotter:
         else:
             ylabel = r"$S$ (J/K/mol-c)"
 
-        fig = self._plot_thermo(
-            self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs
-        )
+        fig = self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
         return fig
 
@@ -694,14 +637,7 @@ class ThermoPlotter:
         else:
             ylabel = r"$\Delta E$ (kJ/mol-c)"
 
-        fig = self._plot_thermo(
-            self.dos.internal_energy,
-            temperatures,
-            ylabel=ylabel,
-            ylim=ylim,
-            factor=1e-3,
-            **kwargs
-        )
+        fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs)
 
         return fig
 
@@ -727,12 +663,7 @@ class ThermoPlotter:
             ylabel = r"$\Delta F$ (kJ/mol-c)"
 
         fig = self._plot_thermo(
-            self.dos.helmholtz_free_energy,
-            temperatures,
-            ylabel=ylabel,
-            ylim=ylim,
-            factor=1e-3,
-            **kwargs
+            self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim, factor=1e-3, **kwargs
         )
 
         return fig
@@ -761,15 +692,10 @@ class ThermoPlotter:
             ylabel="Thermodynamic properties",
             ylim=ylim,
             label=r"$C_v$ (J/K/mol{})".format(mol),
-            **kwargs
+            **kwargs,
         )
         self._plot_thermo(
-            self.dos.entropy,
-            temperatures,
-            ylim=ylim,
-            ax=fig.axes[0],
-            label=r"$S$ (J/K/mol{})".format(mol),
-            **kwargs
+            self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0], label=r"$S$ (J/K/mol{})".format(mol), **kwargs
         )
         self._plot_thermo(
             self.dos.internal_energy,
@@ -778,7 +704,7 @@ class ThermoPlotter:
             ax=fig.axes[0],
             factor=1e-3,
             label=r"$\Delta E$ (kJ/mol{})".format(mol),
-            **kwargs
+            **kwargs,
         )
         self._plot_thermo(
             self.dos.helmholtz_free_energy,
@@ -787,7 +713,7 @@ class ThermoPlotter:
             ax=fig.axes[0],
             factor=1e-3,
             label=r"$\Delta F$ (kJ/mol{})".format(mol),
-            **kwargs
+            **kwargs,
         )
 
         fig.axes[0].legend(loc="best")

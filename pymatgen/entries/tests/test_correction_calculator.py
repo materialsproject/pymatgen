@@ -109,9 +109,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
-        calculator = CorrectionCalculator(
-            max_error=1, exclude_polyanions=[], allow_unstable=True
-        )
+        calculator = CorrectionCalculator(max_error=1, exclude_polyanions=[], allow_unstable=True)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
         self.assertDictEqual(corrs, self.warnings_allowed_corrections)

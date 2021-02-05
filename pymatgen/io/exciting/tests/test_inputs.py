@@ -34,9 +34,7 @@ class ExcitingInputTest(PymatgenTest):
         fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
         self.assertArrayAlmostEqual(lattice, excin.structure.lattice.matrix.tolist())
         self.assertEqual(atoms, [site.specie.symbol for site in excin.structure])
-        self.assertEqual(
-            fraccoords, [site.frac_coords.tolist() for site in excin.structure]
-        )
+        self.assertEqual(fraccoords, [site.frac_coords.tolist() for site in excin.structure])
 
     def test_writestring(self):
         # Test for the string export of s atructure into the exciting input xml schema
@@ -76,9 +74,7 @@ class ExcitingInputTest(PymatgenTest):
             ],
         )
         excin = ExcitingInput(structure)
-        for l1, l2 in zip(
-            input_string.split("\n"), excin.write_string("unchanged").split("\n")
-        ):
+        for l1, l2 in zip(input_string.split("\n"), excin.write_string("unchanged").split("\n")):
             if not l1.strip().startswith("<crystal scale"):
                 self.assertEqual(l1.strip(), l2.strip())
 
@@ -137,9 +133,7 @@ class ExcitingInputTest(PymatgenTest):
 
     def test_paramdict(self):
         coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(
-            a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60
-        )
+        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
         struct = Structure(lattice, ["Si", "Si"], coords)
         paradir = {
             "grst": {

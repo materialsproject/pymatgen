@@ -57,10 +57,7 @@ class MolecularOrbitals:
                 raise ValueError("composition subscripts must be integers")
 
         self.elec_neg = self.max_electronegativity()
-        self.aos = {
-            str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()]
-            for el in self.elements
-        }
+        self.aos = {str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()] for el in self.elements}
         self.band_edges = self.obtain_band_edges()
 
     def max_electronegativity(self):
@@ -85,9 +82,7 @@ class MolecularOrbitals:
             https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
         """
         return sorted(
-            chain.from_iterable(
-                [self.aos[el] * int(self.composition[el]) for el in self.elements]
-            ),
+            chain.from_iterable([self.aos[el] * int(self.composition[el]) for el in self.elements]),
             key=lambda x: x[2],
         )
 

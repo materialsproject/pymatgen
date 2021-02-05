@@ -19,9 +19,7 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 class QChemDictSetTest(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -50,9 +48,7 @@ class QChemDictSetTest(PymatgenTest):
         self.assertEqual(test_DictSet.molecule, test_molecule)
 
     def test_full_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
 
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
@@ -123,9 +119,7 @@ class QChemDictSetTest(PymatgenTest):
         self.assertEqual(test_DictSet.smx, {"solvent": "water"})
 
     def test_overwrite_input(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         overwrite_inputs = {
             "rem": {
                 "method": "b3lyp",
@@ -152,9 +146,7 @@ class QChemDictSetTest(PymatgenTest):
         self.assertDictEqual(act_rem, test_OptSet.rem)
 
     def test_double_solvation(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         raised_error = False
         dict_set = None
         try:
@@ -175,9 +167,7 @@ class QChemDictSetTest(PymatgenTest):
         self.assertEqual(dict_set, None)
 
     def test_pcm_write(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -210,17 +200,13 @@ class QChemDictSetTest(PymatgenTest):
             "theory": "cpcm",
             "vdwscale": "1.1",
         }
-        qc_input = QCInput(
-            molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": "10.0"}
-        )
+        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": "10.0"})
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
 
     def test_smd_write(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -253,9 +239,7 @@ class QChemDictSetTest(PymatgenTest):
         os.remove("mol.qin")
 
     def test_custom_smd_write(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         dict_set = QChemDictSet(
             molecule=test_molecule,
             job_type="opt",
@@ -295,9 +279,7 @@ class QChemDictSetTest(PymatgenTest):
 
 class OptSetTest(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule)
         self.assertEqual(
             test_OptSet.rem,
@@ -321,9 +303,7 @@ class OptSetTest(PymatgenTest):
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule, pcm_dielectric=10.0)
         self.assertEqual(
             test_OptSet.rem,
@@ -356,9 +336,7 @@ class OptSetTest(PymatgenTest):
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_OptSet = OptSet(molecule=test_molecule, smd_solvent="water")
         self.assertEqual(
             test_OptSet.rem,
@@ -384,9 +362,7 @@ class OptSetTest(PymatgenTest):
 
 class SinglePointSetTest(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule)
         self.assertEqual(
             test_SPSet.rem,
@@ -408,9 +384,7 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, pcm_dielectric=10.0)
         self.assertEqual(
             test_SPSet.rem,
@@ -442,9 +416,7 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water")
         self.assertEqual(
             test_SPSet.rem,
@@ -467,40 +439,35 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
     def test_plots_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent='water', plot_cubes=True)
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent="water", plot_cubes=True)
         self.assertEqual(
-            test_SPSet.rem, {
-                'job_type': 'sp',
-                'gen_scfman': 'true',
-                'basis': 'def2-tzvppd',
-                'max_scf_cycles': 200,
-                'method': 'wb97xd',
-                'scf_algorithm': 'diis',
-                'xc_grid': '3',
-                'solvent_method': 'smd',
-                'ideriv': '1',
-                'symmetry': 'false',
-                'sym_ignore': 'true',
-                'resp_charges': 'true',
-                'plots': 'true',
-                'make_cube_files': 'true'
-            })
-        self.assertEqual(
-            test_SPSet.plots, {
-                'grid_spacing': '0.05',
-                'total_density': '0'
-            })
-        self.assertEqual(test_SPSet.smx, {'solvent': 'water'})
+            test_SPSet.rem,
+            {
+                "job_type": "sp",
+                "gen_scfman": "true",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": 200,
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "solvent_method": "smd",
+                "ideriv": "1",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+                "plots": "true",
+                "make_cube_files": "true",
+            },
+        )
+        self.assertEqual(test_SPSet.plots, {"grid_spacing": "0.05", "total_density": "0"})
+        self.assertEqual(test_SPSet.smx, {"solvent": "water"})
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
 
 class FreqSetTest(PymatgenTest):
     def test_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule)
         self.assertEqual(
             test_FreqSet.rem,
@@ -522,9 +489,7 @@ class FreqSetTest(PymatgenTest):
         self.assertEqual(test_FreqSet.molecule, test_molecule)
 
     def test_pcm_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule, pcm_dielectric=10.0)
         self.assertEqual(
             test_FreqSet.rem,
@@ -556,9 +521,7 @@ class FreqSetTest(PymatgenTest):
         self.assertEqual(test_FreqSet.molecule, test_molecule)
 
     def test_smd_init(self):
-        test_molecule = QCInput.from_file(
-            os.path.join(test_dir, "new_qchem_files/pcm.qin")
-        ).molecule
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         test_FreqSet = FreqSet(molecule=test_molecule, smd_solvent="water")
         self.assertEqual(
             test_FreqSet.rem,

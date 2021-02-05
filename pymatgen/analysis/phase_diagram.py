@@ -33,9 +33,7 @@ from pymatgen.util.string import latexify
 
 logger = logging.getLogger(__name__)
 
-with open(
-    os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")
-) as f:
+with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")) as f:
     plotly_layouts = json.load(f)
 
 
@@ -126,7 +124,7 @@ class GrandPotPDEntry(PDEntry):
             entry.composition,
             entry.energy,
             name if name else entry.name,
-            entry.attribute if hasattr(entry, "attribute") else None
+            entry.attribute if hasattr(entry, "attribute") else None,
         )
         # NOTE if we init GrandPotPDEntry from ComputedEntry _energy is the
         # corrected energy of the ComputedEntry hence the need to keep
@@ -142,14 +140,11 @@ class GrandPotPDEntry(PDEntry):
         Returns:
             Composition
         """
-        return Composition(
-            {el: self._composition[el] for el in self._composition.elements
-             if el not in self.chempots}
-        )
+        return Composition({el: self._composition[el] for el in self._composition.elements if el not in self.chempots})
 
     @property
     def chemical_energy(self):
-        """ The chemical energy term mu*N in the grand potential
+        """The chemical energy term mu*N in the grand potential
 
         Returns:
             The chemical energy term mu*N in the grand potential
@@ -165,13 +160,9 @@ class GrandPotPDEntry(PDEntry):
         return self._energy - self.chemical_energy
 
     def __repr__(self):
-        chempot_str = " ".join(
-            ["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()]
-        )
-        return (
-            "GrandPotPDEntry with original composition {}, energy = {:.4f}, {}".format(
-                self._composition, self._energy, chempot_str
-            )
+        chempot_str = " ".join(["mu_%s = %.4f" % (el, mu) for el, mu in self.chempots.items()])
+        return "GrandPotPDEntry with original composition " + "{}, energy = {:.4f}, {}".format(
+            self.original_entry.composition, self.original_entry.energy, chempot_str
         )
 
     def as_dict(self):
@@ -224,7 +215,7 @@ class TransformedPDEntry(PDEntry):
             entry.composition,
             entry.energy,
             name if name else entry.name,
-            entry.attribute if hasattr(entry, "attribute") else None
+            entry.attribute if hasattr(entry, "attribute") else None,
         )
         self.original_entry = entry
         self.sp_mapping = sp_mapping
@@ -233,13 +224,8 @@ class TransformedPDEntry(PDEntry):
         self.rxn.normalize_to(self.original_entry.composition)
 
         # NOTE We only allow reactions that have positive amounts of reactants.
-        if not all([
-            self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol
-            for comp in self.sp_mapping.keys()
-        ]):
-            raise TransformedPDEntryError(
-                "Only reactions with positive amounts of reactants allowed"
-            )
+        if not all([self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping.keys()]):
+            raise TransformedPDEntryError("Only reactions with positive amounts of reactants allowed")
 
     @property
     def composition(self) -> Composition:
@@ -253,16 +239,9 @@ class TransformedPDEntry(PDEntry):
         # However, the risk of this seems low.
         factor = self._composition.num_atoms / self.original_entry.composition.num_atoms
 
-        trans_comp = {
-            self.sp_mapping[comp]: -self.rxn.get_coeff(comp)
-            for comp in self.sp_mapping
-        }
+        trans_comp = {self.sp_mapping[comp]: -self.rxn.get_coeff(comp) for comp in self.sp_mapping}
 
-        trans_comp = {
-            k: v * factor
-            for k, v in trans_comp.items()
-            if v > TransformedPDEntry.amount_tol
-        }
+        trans_comp = {k: v * factor for k, v in trans_comp.items() if v > TransformedPDEntry.amount_tol}
 
         return Composition(trans_comp)
 
@@ -303,6 +282,7 @@ class TransformedPDEntryError(Exception):
     """
     An exception class for TransformedPDEntry.
     """
+
     pass
 
 
@@ -344,9 +324,7 @@ class BasePhaseDiagram(MSONable):
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
-        self._stable_entries = set(
-            self.qhull_entries[i] for i in set(itertools.chain(*self.facets))
-        )
+        self._stable_entries = set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets)))
 
     @classmethod
     def from_entries(cls, entries, elements=None):
@@ -374,19 +352,22 @@ class BasePhaseDiagram(MSONable):
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs, min_entries, all_entries = _get_useful_entries(entries)
+        el_refs = {}
+        min_entries = []
+        all_entries = []
+        for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
+            g = list(g)
+            min_entry = min(g, key=lambda e: e.energy_per_atom)
+            if c.is_element:
+                el_refs[c.elements[0]] = min_entry
+            min_entries.append(min_entry)
+            all_entries.extend(g)
 
         if len(el_refs) != dim:
-            raise PhaseDiagramError(
-                "There are no entries associated with a terminal element!."
-            )
+            raise PhaseDiagramError("There are no entries associated with a terminal element!.")
 
         data = np.array(
-            [
-                [e.composition.get_atomic_fraction(el) for el in elements]
-                + [e.energy_per_atom]
-                for e in min_entries
-            ]
+            [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
         )
 
         # Use only entries with negative formation energy
@@ -448,10 +429,7 @@ class BasePhaseDiagram(MSONable):
 
         """
         if set(comp.elements).difference(self.elements):
-            raise ValueError(
-                "{} has elements not in the phase diagram {}"
-                "".format(comp, self.elements)
-            )
+            raise ValueError("{} has elements not in the phase diagram {}" "".format(comp, self.elements))
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
@@ -509,9 +487,7 @@ class BasePhaseDiagram(MSONable):
             Formation energy from the elemental references.
         """
         c = entry.composition
-        return entry.energy - sum(
-            [c[el] * self.el_refs[el].energy_per_atom for el in c.elements]
-        )
+        return entry.energy - sum([c[el] * self.el_refs[el].energy_per_atom for el in c.elements])
 
     def get_form_energy_per_atom(self, entry):
         """
@@ -623,9 +599,7 @@ class BasePhaseDiagram(MSONable):
         facet, simplex = self._get_facet_and_simplex(comp)
         decomp_amts = simplex.bary_coords(self.pd_coords(comp))
         return {
-            self.qhull_entries[f]: amt
-            for f, amt in zip(facet, decomp_amts)
-            if abs(amt) > PhaseDiagram.numerical_tol
+            self.qhull_entries[f]: amt for f, amt in zip(facet, decomp_amts) if abs(amt) > PhaseDiagram.numerical_tol
         }
 
     def get_hull_energy(self, comp):
@@ -699,8 +673,7 @@ class BasePhaseDiagram(MSONable):
         # NOTE scaled duplicates of stable_entries will not be caught.
         if entry not in self.stable_entries:
             raise ValueError(
-                "{} is unstable, the equilibrium reaction energy is"
-                "available only for stable entries.".format(entry)
+                "{} is unstable, the equilibrium reaction energy is" "available only for stable entries.".format(entry)
             )
 
         if entry.is_element:
@@ -710,9 +683,7 @@ class BasePhaseDiagram(MSONable):
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
-    def get_decomp_and_quasi_e_to_hull(
-        self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000
-    ):
+    def get_decomp_and_quasi_e_to_hull(self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000):
         """
         Provides the combination of entries in the PhaseDiagram that gives the
         lowest formation enthalpy with the same composition as the given entry
@@ -755,8 +726,7 @@ class BasePhaseDiagram(MSONable):
         """
 
         # For unstable or novel materials use simplex approach
-        if (entry.normalize(mode="atom", inplace=False) not in
-                self.get_stable_entries_normed(mode="atom")):
+        if entry.normalize(mode="atom", inplace=False) not in self.get_stable_entries_normed(mode="atom"):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
@@ -768,8 +738,7 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if (c.normalize(mode="atom", inplace=False) !=
-                entry.normalize(mode="atom", inplace=False))
+            if (c.normalize(mode="atom", inplace=False) != entry.normalize(mode="atom", inplace=False))
             if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
@@ -786,9 +755,7 @@ class BasePhaseDiagram(MSONable):
             )) + list(self.el_refs.values())    # terminal points
             inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = list(
-                self.stable_entries.union(inner_hull.stable_entries)
-            )
+            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
 
             if len(competing_entries) > space_limit:
@@ -834,8 +801,7 @@ class BasePhaseDiagram(MSONable):
             unstable entries should have energies > 0.
         """
         # Handle unstable and novel materials
-        if (entry.normalize(mode="atom", inplace=False) not in
-                self.get_stable_entries_normed(mode="atom")):
+        if entry.normalize(mode="atom", inplace=False) not in self.get_stable_entries_normed(mode="atom"):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
         # Handle stable elemental materials
@@ -890,10 +856,7 @@ class BasePhaseDiagram(MSONable):
             negative to more negative.
         """
         if element not in self.elements:
-            raise ValueError(
-                "get_transition_chempots can only be called with "
-                "elements in the phase diagram."
-            )
+            raise ValueError("get_transition_chempots can only be called with " "elements in the phase diagram.")
 
         critical_chempots = []
         for facet in self.facets:
@@ -947,10 +910,7 @@ class BasePhaseDiagram(MSONable):
 
         # only take compositions between endpoints
         proj = proj[
-            np.logical_and(
-                proj > -self.numerical_tol,
-                proj < proj[1] + self.numerical_tol  # proj[1] is |c2-c1|
-            )
+            np.logical_and(proj > -self.numerical_tol, proj < proj[1] + self.numerical_tol)  # proj[1] is |c2-c1|
         ]
         proj.sort()
 
@@ -992,10 +952,7 @@ class BasePhaseDiagram(MSONable):
         element = get_el_sp(element)
 
         if element not in self.elements:
-            raise ValueError(
-                "get_transition_chempots can only be called with"
-                " elements in the phase diagram."
-            )
+            raise ValueError("get_transition_chempots can only be called with" " elements in the phase diagram.")
         gccomp = Composition({el: amt for el, amt in comp.items() if el != element})
         elref = self.el_refs[element]
         elcomp = Composition(element.symbol)
@@ -1063,8 +1020,7 @@ class BasePhaseDiagram(MSONable):
                 common_ent_ind = set(data1).intersection(set(data2))
                 if len(common_ent_ind) == len(elements):
                     common_entries = [self.qhull_entries[i] for i in common_ent_ind]
-                    data = np.array([[all_chempots[i][j] - el_energies[self.elements[j]]
-                                    for j in inds] for i in combi])
+                    data = np.array([[all_chempots[i][j] - el_energies[self.elements[j]] for j in inds] for i in combi])
                     sim = Simplex(data)
                     for entry in common_entries:
                         chempot_ranges[entry].append(sim)
@@ -1093,12 +1049,8 @@ class BasePhaseDiagram(MSONable):
              which each element has a chemical potential set to a given
              value. "absolute" values (i.e., not referenced to element energies)
         """
-        muref = np.array(
-            [self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt]
-        )
-        chempot_ranges = self.get_chempot_range_map(
-            [e for e in self.elements if e != dep_elt]
-        )
+        muref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != dep_elt])
+        chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != dep_elt])
 
         for e in self.elements:
             if e not in target_comp.elements:
@@ -1117,8 +1069,7 @@ class BasePhaseDiagram(MSONable):
                         res = {}
                         for i, el in enumerate(elts):
                             res[el] = v[i] + muref[i]
-                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / \
-                            target_comp[dep_elt]
+                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
 
                         for di in all_coords:
@@ -1154,14 +1105,8 @@ class BasePhaseDiagram(MSONable):
              {Element: (mu_min, mu_max)}: Chemical potentials are given in
              "absolute" values (i.e., not referenced to 0)
         """
-        muref = np.array(
-            [self.el_refs[e].energy_per_atom for e in self.elements if e != open_elt]
-        )
-
-        chempot_ranges = self.get_chempot_range_map(
-            [e for e in self.elements if e != open_elt]
-        )
-
+        muref = np.array([self.el_refs[e].energy_per_atom for e in self.elements if e != open_elt])
+        chempot_ranges = self.get_chempot_range_map([e for e in self.elements if e != open_elt])
         for e in self.elements:
             if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
@@ -1316,8 +1261,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         elements = set(elements).difference(self.chempots.keys())
 
         all_entries = [
-            GrandPotPDEntry(e, self.chempots) for e in entries
-            if len(elements.intersection(e.composition.elements)) > 0
+            GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
         ]
 
         super().__init__(all_entries, elements)
@@ -1369,9 +1313,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     # Tolerance for determining if amount of a composition is positive.
     amount_tol = 1e-5
 
-    def __init__(
-        self, entries, terminal_compositions, normalize_terminal_compositions=True
-    ):
+    def __init__(self, entries, terminal_compositions, normalize_terminal_compositions=True):
         """
         Initializes a CompoundPhaseDiagram.
 
@@ -1391,9 +1333,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         self.original_entries = entries
         self.terminal_compositions = terminal_compositions
         self.normalize_terminals = normalize_terminal_compositions
-        (pentries, species_mapping) = self.transform_entries(
-            entries, terminal_compositions
-        )
+        (pentries, species_mapping) = self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
         super().__init__(pentries, elements=species_mapping.values())
 
@@ -1852,12 +1792,8 @@ class ReactionDiagram:
 
         elements = tuple(elements)  # Fix elements to ensure order.
 
-        comp_vec1 = np.array(
-            [entry1.composition.get_atomic_fraction(el) for el in elements]
-        )
-        comp_vec2 = np.array(
-            [entry2.composition.get_atomic_fraction(el) for el in elements]
-        )
+        comp_vec1 = np.array([entry1.composition.get_atomic_fraction(el) for el in elements])
+        comp_vec2 = np.array([entry2.composition.get_atomic_fraction(el) for el in elements])
         r1 = entry1.composition.reduced_composition
         r2 = entry2.composition.reduced_composition
 
@@ -1883,32 +1819,21 @@ class ReactionDiagram:
             for face in itertools.combinations(facet, len(facet) - 1):
                 face_entries = [pd.qhull_entries[i] for i in face]
 
-                if any(
-                    [
-                        e.composition.reduced_formula in terminal_formulas
-                        for e in face_entries
-                    ]
-                ):
+                if any([e.composition.reduced_formula in terminal_formulas for e in face_entries]):
                     continue
 
                 try:
 
                     m = []
                     for e in face_entries:
-                        m.append(
-                            [e.composition.get_atomic_fraction(el) for el in elements]
-                        )
+                        m.append([e.composition.get_atomic_fraction(el) for el in elements])
                     m.append(comp_vec2 - comp_vec1)
                     m = np.array(m).T
                     coeffs = np.linalg.solve(m, comp_vec2)
 
                     x = coeffs[-1]
                     # pylint: disable=R1716
-                    if (
-                        all([c >= -tol for c in coeffs])
-                        and (abs(sum(coeffs[:-1]) - 1) < tol)
-                        and (tol < x < 1 - tol)
-                    ):
+                    if all([c >= -tol for c in coeffs]) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
 
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -1932,18 +1857,12 @@ class ReactionDiagram:
                         products = []
                         product_entries = []
 
-                        energy = -(
-                            x * entry1.energy_per_atom
-                            + (1 - x) * entry2.energy_per_atom
-                        )
+                        energy = -(x * entry1.energy_per_atom + (1 - x) * entry2.energy_per_atom)
 
                         for c, e in zip(coeffs[:-1], face_entries):
                             if c > tol:
                                 r = e.composition.reduced_composition
-                                products.append(
-                                    "%s %s"
-                                    % (fmt(c / r.num_atoms * factor), r.reduced_formula)
-                                )
+                                products.append("%s %s" % (fmt(c / r.num_atoms * factor), r.reduced_formula))
                                 product_entries.append((c, e))
                                 energy += c * e.energy_per_atom
 
@@ -1968,14 +1887,7 @@ class ReactionDiagram:
                             )
                         )
                     )
-                    logger.debug(
-                        "Products = %s"
-                        % (
-                            ", ".join(
-                                [e.composition.reduced_formula for e in face_entries]
-                            )
-                        )
-                    )
+                    logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
 
         rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
 
@@ -2185,16 +2097,10 @@ class PDPlotter:
         self._dim = len(self._pd.elements)
         if self._dim > 4:
             raise ValueError("Only 1-4 components supported!")
-        self.lines = (
-            uniquelines(self._pd.facets)
-            if self._dim > 1
-            else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
-        )
+        self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
         self.backend = backend
-        self._min_energy = min(
-            [self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries]
-        )
+        self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries])
         colors = Set1_3.mpl_colors
         self.plotkwargs = plotkwargs or {
             "markerfacecolor": colors[2],
@@ -2259,9 +2165,7 @@ class PDPlotter:
                 elif self._dim == 3:
                     coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])
                 else:
-                    coord = tet_coord(
-                        [all_data[i, 0:3], all_data[i, 0:3], all_data[i, 0:3]]
-                    )
+                    coord = tet_coord([all_data[i, 0:3], all_data[i, 0:3], all_data[i, 0:3]])
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
@@ -2304,9 +2208,7 @@ class PDPlotter:
                 data.append(self._create_plotly_ternary_hull())
 
             stable_labels_plot = self._create_plotly_stable_labels(label_stable)
-            stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(
-                label_uncertainties
-            )
+            stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(label_uncertainties)
 
             if self._dim == 2 and label_uncertainties:
                 data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
@@ -2434,9 +2336,7 @@ class PDPlotter:
             (lines, labels, unstable) = self.pd_plot_data
         else:
             (_lines, _labels, _unstable) = self.pd_plot_data
-            (lines, labels, unstable) = order_phase_diagram(
-                _lines, _labels, _unstable, ordering
-            )
+            (lines, labels, unstable) = order_phase_diagram(_lines, _labels, _unstable, ordering)
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -2447,10 +2347,7 @@ class PDPlotter:
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
                 for x, y in labels.keys():
-                    if (
-                        labels[(x, y)].attribute is None
-                        or labels[(x, y)].attribute == "existing"
-                    ):
+                    if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
                         plt.plot(x, y, "k*", **self.plotkwargs)
@@ -2480,26 +2377,16 @@ class PDPlotter:
                 cmap = energy_colormap
             norm = Normalize(vmin=vmin, vmax=vmax)
             _map = ScalarMappable(norm=norm, cmap=cmap)
-            _energies = [
-                self._pd.get_equilibrium_reaction_energy(entry)
-                for coord, entry in labels.items()
-            ]
+            _energies = [self._pd.get_equilibrium_reaction_energy(entry) for coord, entry in labels.items()]
             energies = [en if en < 0.0 else -0.00000001 for en in _energies]
             vals_stable = _map.to_rgba(energies)
             ii = 0
             if process_attributes:
                 for x, y in labels.keys():
-                    if (
-                        labels[(x, y)].attribute is None
-                        or labels[(x, y)].attribute == "existing"
-                    ):
-                        plt.plot(
-                            x, y, "o", markerfacecolor=vals_stable[ii], markersize=12
-                        )
+                    if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
+                        plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=12)
                     else:
-                        plt.plot(
-                            x, y, "*", markerfacecolor=vals_stable[ii], markersize=18
-                        )
+                        plt.plot(x, y, "*", markerfacecolor=vals_stable[ii], markersize=18)
                     ii += 1
             else:
                 for x, y in labels.keys():
@@ -2571,9 +2458,7 @@ class PDPlotter:
         if self.show_unstable:
             font = FontProperties()
             font.set_size(16)
-            energies_unstable = [
-                self._pd.get_e_above_hull(entry) for entry, coord in unstable.items()
-            ]
+            energies_unstable = [self._pd.get_e_above_hull(entry) for entry, coord in unstable.items()]
             if energy_colormap is not None:
                 energies.extend(energies_unstable)
                 vals_unstable = _map.to_rgba(energies_unstable)
@@ -2582,11 +2467,7 @@ class PDPlotter:
                 ehull = self._pd.get_e_above_hull(entry)
                 if ehull < self.show_unstable:
                     vec = np.array(coords) - center
-                    vec = (
-                        vec / np.linalg.norm(vec) * 10
-                        if np.linalg.norm(vec) != 0
-                        else vec
-                    )
+                    vec = vec / np.linalg.norm(vec) * 10 if np.linalg.norm(vec) != 0 else vec
                     label = entry.name
                     if energy_colormap is None:
                         plt.plot(
@@ -2624,8 +2505,7 @@ class PDPlotter:
             _map.set_array(energies)
             cbar = plt.colorbar(_map)
             cbar.set_label(
-                "Energy [meV/at] above hull (in red)\nInverse energy ["
-                "meV/at] above hull (in green)",
+                "Energy [meV/at] above hull (in red)\nInverse energy [" "meV/at] above hull (in green)",
                 rotation=-90,
                 ha="left",
                 va="center",
@@ -2676,7 +2556,7 @@ class PDPlotter:
         ax.axis("off")
         ax.set_xlim(-0.1, 0.72)
         ax.set_ylim(0, 0.66)
-        ax.set_zlim(0, 0.56)
+        ax.set_zlim(0, 0.56)  # pylint: disable=E1101
         return plt
 
     def write_image(self, stream, image_format="svg", **kwargs):
@@ -2740,9 +2620,7 @@ class PDPlotter:
             center_y = 0
             coords = []
             contain_zero = any([comp.get_atomic_fraction(el) == 0 for el in elements])
-            is_boundary = (not contain_zero) and sum(
-                [comp.get_atomic_fraction(el) for el in elements]
-            ) == 1
+            is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-")
@@ -2871,10 +2749,7 @@ class PDPlotter:
 
             if self._dim == 3:
                 z.extend(
-                    [
-                        self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord])
-                        for coord in zip(line[0], line[1])
-                    ]
+                    [self._pd.get_form_energy_per_atom(self.pd_plot_data[1][coord]) for coord in zip(line[0], line[1])]
                     + [None]
                 )
 
@@ -3112,10 +2987,7 @@ class PDPlotter:
                     energies.append(e_above_hull)
                 else:
                     uncertainty = 0
-                    if (
-                        hasattr(entry, "correction_uncertainty_per_atom")
-                        and label_uncertainties
-                    ):
+                    if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties:
                         uncertainty = round(entry.correction_uncertainty_per_atom, 4)
                         label += f"<br> (Error: +/- {uncertainty} eV/atom)"
 
@@ -3152,9 +3024,7 @@ class PDPlotter:
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
-        unstable_props = get_marker_props(
-            unstable_coords, unstable_entries, stable=False
-        )
+        unstable_props = get_marker_props(unstable_coords, unstable_entries, stable=False)
 
         stable_markers, unstable_markers = dict(), dict()
 
@@ -3165,9 +3035,7 @@ class PDPlotter:
                     x=list(stable_props["x"]),
                     y=list(stable_props["y"]),
                     name="Stable",
-                    marker=dict(
-                        color="darkgreen", size=11, line=dict(color="black", width=2)
-                    ),
+                    marker=dict(color="darkgreen", size=11, line=dict(color="black", width=2)),
                     opacity=0.9,
                     hovertext=stable_props["texts"],
                     error_y=dict(
@@ -3233,9 +3101,7 @@ class PDPlotter:
                         colorscale=plotly_layouts["unstable_colorscale"],
                         size=6,
                         symbol="diamond",
-                        colorbar=dict(
-                            title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75
-                        ),
+                        colorbar=dict(title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75),
                     ),
                     hovertext=unstable_props["texts"],
                 )
@@ -3259,9 +3125,7 @@ class PDPlotter:
                 )
             )
 
-            unstable_markers = plotly_layouts[
-                "default_quaternary_marker_settings"
-            ].copy()
+            unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             unstable_markers.update(
                 dict(
                     x=unstable_props["x"],
@@ -3273,25 +3137,15 @@ class PDPlotter:
                         colorscale=plotly_layouts["unstable_colorscale"],
                         size=5,
                         symbol="diamond",
-                        colorbar=dict(
-                            title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75
-                        ),
+                        colorbar=dict(title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75),
                     ),
                     hovertext=unstable_props["texts"],
                     visible="legendonly",
                 )
             )
 
-        stable_marker_plot = (
-            go.Scatter(**stable_markers)
-            if self._dim == 2
-            else go.Scatter3d(**stable_markers)
-        )
-        unstable_marker_plot = (
-            go.Scatter(**unstable_markers)
-            if self._dim == 2
-            else go.Scatter3d(**unstable_markers)
-        )
+        stable_marker_plot = go.Scatter(**stable_markers) if self._dim == 2 else go.Scatter3d(**stable_markers)
+        unstable_marker_plot = go.Scatter(**unstable_markers) if self._dim == 2 else go.Scatter3d(**unstable_markers)
 
         return stable_marker_plot, unstable_marker_plot
 
@@ -3321,9 +3175,7 @@ class PDPlotter:
             error = stable_marker_plot.error_y["array"]
 
             points = np.append(x, [y, error]).reshape(3, -1).T
-            points = points[
-                points[:, 0].argsort()
-            ]  # sort by composition  # pylint: disable=E1136
+            points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
@@ -3394,15 +3246,8 @@ class PDPlotter:
             go.Mesh3d plot
         """
         facets = np.array(self._pd.facets)
-        coords = np.array(
-            [
-                triangular_coord(c)
-                for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])
-            ]
-        )
-        energies = np.array(
-            [self._pd.get_form_energy_per_atom(e) for e in self._pd.qhull_entries]
-        )
+        coords = np.array([triangular_coord(c) for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])])
+        energies = np.array([self._pd.get_form_energy_per_atom(e) for e in self._pd.qhull_entries])
 
         return go.Mesh3d(
             x=list(coords[:, 1]),
@@ -3543,20 +3388,14 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             yup = coord[1]
             nameup = stable_entries[coord].name
 
-    if (
-        (nameup not in ordering)
-        or (nameright not in ordering)
-        or (nameleft not in ordering)
-    ):
+    if (nameup not in ordering) or (nameright not in ordering) or (nameleft not in ordering):
         raise ValueError(
             'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{'
             'right}"'
-            " should be in ordering : {ord}".format(
-                up=nameup, left=nameleft, right=nameright, ord=ordering
-            )
+            " should be in ordering : {ord}".format(up=nameup, left=nameleft, right=nameright, ord=ordering)
         )
 
-    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float)
+    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float_)
 
     if nameup == ordering[0]:
         if nameleft == ordering[1]:
@@ -3564,12 +3403,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
             return lines, stable_entries, unstable_entries
 
         newlines = [[np.array(1.0 - x), y] for x, y in lines]
-        newstable_entries = {
-            (1.0 - c[0], c[1]): entry for c, entry in stable_entries.items()
-        }
-        newunstable_entries = {
-            entry: (1.0 - c[0], c[1]) for entry, c in unstable_entries.items()
-        }
+        newstable_entries = {(1.0 - c[0], c[1]): entry for c, entry in stable_entries.items()}
+        newunstable_entries = {entry: (1.0 - c[0], c[1]) for entry, c in unstable_entries.items()}
         return newlines, newstable_entries, newunstable_entries
     if nameup == ordering[1]:
         if nameleft == ordering[2]:
@@ -3661,12 +3496,10 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newy[ii] = -s240 * xx + c240 * y[ii]
             newlines.append([newx, newy])
         newstable_entries = {
-            (-c240 * c[0] - s240 * c[1], -s240 * c[0] + c240 * c[1]): entry
-            for c, entry in stable_entries.items()
+            (-c240 * c[0] - s240 * c[1], -s240 * c[0] + c240 * c[1]): entry for c, entry in stable_entries.items()
         }
         newunstable_entries = {
-            entry: (-c240 * c[0] - s240 * c[1], -s240 * c[0] + c240 * c[1])
-            for entry, c in unstable_entries.items()
+            entry: (-c240 * c[0] - s240 * c[1], -s240 * c[0] + c240 * c[1]) for entry, c in unstable_entries.items()
         }
         return newlines, newstable_entries, newunstable_entries
     raise ValueError("Invalid ordering.")

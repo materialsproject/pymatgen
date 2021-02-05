@@ -21,7 +21,8 @@ from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
-from pymatgen import SETTINGS, MPRester
+from pymatgen import SETTINGS
+from pymatgen.ext.matproj import MPRester
 
 
 class PymatgenTest(unittest.TestCase):
@@ -37,8 +38,11 @@ class PymatgenTest(unittest.TestCase):
         TEST_FILES_DIR = Path(SETTINGS["PMG_TEST_FILES_DIR"])
     except KeyError:
         import warnings
-        warnings.warn("It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
-                      "Now using a fallback location based on relative path from this module.")
+
+        warnings.warn(
+            "It is recommended that you set the PMG_TEST_FILES_DIR environment variable explicity. "
+            "Now using a fallback location based on relative path from this module."
+        )
         TEST_FILES_DIR = MODULE_DIR / ".." / ".." / "test_files"
     """
     Dict for test structures to aid testing.
@@ -175,18 +179,14 @@ class PymatgenTest(unittest.TestCase):
                 with open(tmpfile, mode) as fh:
                     pmg_pickle_dump(objects, fh, protocol=protocol)
             except Exception as exc:
-                errors.append(
-                    "pickle.dump with protocol %s raised:\n%s" % (protocol, str(exc))
-                )
+                errors.append("pickle.dump with protocol %s raised:\n%s" % (protocol, str(exc)))
                 continue
 
             try:
                 with open(tmpfile, "rb") as fh:
                     new_objects = pmg_pickle_load(fh)
             except Exception as exc:
-                errors.append(
-                    "pickle.load with protocol %s raised:\n%s" % (protocol, str(exc))
-                )
+                errors.append("pickle.load with protocol %s raised:\n%s" % (protocol, str(exc)))
                 continue
 
             # Test for equality
@@ -215,7 +215,5 @@ class PymatgenTest(unittest.TestCase):
         """
         if test_if_subclass:
             self.assertIsInstance(obj, MSONable)
-        self.assertDictEqual(
-            obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict()
-        )
+        self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict())
         json.loads(obj.to_json(), cls=MontyDecoder)

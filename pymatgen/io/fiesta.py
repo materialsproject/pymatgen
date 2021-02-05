@@ -127,9 +127,7 @@ class FiestaRun(MSONable):
             self.mpi_procs = self.grid[0] * self.grid[1]
             self.bse_run()
         else:
-            raise ValueError(
-                "Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse"
-            )
+            raise ValueError("Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse")
 
     def _gw_run(self):
         """
@@ -230,13 +228,9 @@ class BasisSetReader:
 
         lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
 
-        nl_orbital_patt = re.compile(
-            r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE
-        )
+        nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
 
-        coef_alpha_patt = re.compile(
-            r"\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* ", re.VERBOSE
-        )
+        coef_alpha_patt = re.compile(r"\s* ([-\d.\D]+) \s+ ([-\d.\D]+) \s* ", re.VERBOSE)
 
         preamble = []
         basis_set = {}
@@ -320,25 +314,25 @@ class FiestaInput(MSONable):
     def __init__(
         self,
         mol,
-        correlation_grid={"dE_grid": u"0.500", "n_grid": u"14"},
-        Exc_DFT_option={"rdVxcpsi": u"1"},
+        correlation_grid={"dE_grid": "0.500", "n_grid": "14"},
+        Exc_DFT_option={"rdVxcpsi": "1"},
         COHSEX_options={
-            "eigMethod": u"C",
-            "mix_cohsex": u"0.500",
-            "nc_cohsex": u"0",
-            "nit_cohsex": u"0",
-            "nv_cohsex": u"0",
-            "resMethod": u"V",
-            "scf_cohsex_wf": u"0",
+            "eigMethod": "C",
+            "mix_cohsex": "0.500",
+            "nc_cohsex": "0",
+            "nit_cohsex": "0",
+            "nv_cohsex": "0",
+            "resMethod": "V",
+            "scf_cohsex_wf": "0",
         },
-        GW_options={"nc_corr": u"10", "nit_gw": u"3", "nv_corr": u"10"},
+        GW_options={"nc_corr": "10", "nit_gw": "3", "nv_corr": "10"},
         BSE_TDDFT_options={
-            "do_bse": u"1",
-            "do_tddft": u"0",
-            "nc_bse": u"382",
-            "nit_bse": u"50",
-            "npsi_bse": u"1",
-            "nv_bse": u"21",
+            "do_bse": "1",
+            "do_tddft": "0",
+            "nc_bse": "382",
+            "nit_bse": "50",
+            "npsi_bse": "1",
+            "nv_bse": "21",
         },
     ):
         """
@@ -357,9 +351,7 @@ class FiestaInput(MSONable):
         self.GW_options = GW_options
         self.BSE_TDDFT_options = BSE_TDDFT_options
 
-    def set_auxiliary_basis_set(
-        self, folder, auxiliary_folder, auxiliary_basis_set_type="aug_cc_pvtz"
-    ):
+    def set_auxiliary_basis_set(self, folder, auxiliary_folder, auxiliary_basis_set_type="aug_cc_pvtz"):
         """
         copy in the desired folder the needed auxiliary basis set "X2.ion" where X is a specie.
         :param auxiliary_folder: folder where the auxiliary basis sets are stored
@@ -371,17 +363,10 @@ class FiestaInput(MSONable):
 
         for specie in self._mol.symbol_set:
             for file in list_files:
-                if (
-                    file.upper().find(specie.upper() + "2") != -1
-                    and file.lower().find(auxiliary_basis_set_type) != -1
-                ):
-                    shutil.copyfile(
-                        auxiliary_folder + "/" + file, folder + "/" + specie + "2.ion"
-                    )
+                if file.upper().find(specie.upper() + "2") != -1 and file.lower().find(auxiliary_basis_set_type) != -1:
+                    shutil.copyfile(auxiliary_folder + "/" + file, folder + "/" + specie + "2.ion")
 
-    def set_GW_options(
-        self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5
-    ):
+    def set_GW_options(self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5):
         """
         Set parameters in cell.in for a GW computation
         :param nv__band: number of valence bands to correct with GW
@@ -468,28 +453,16 @@ class FiestaInput(MSONable):
                     self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
                 )
             )
-            o.append(
-                " Performing   {} diagonal COHSEX iterations".format(
-                    self.COHSEX_options["nit_cohsex"]
-                )
-            )
+            o.append(" Performing   {} diagonal COHSEX iterations".format(self.COHSEX_options["nit_cohsex"]))
         elif self.COHSEX_options["eigMethod"] == "HF":
             o.append(
                 " Correcting  {} valence bands and   {} conduction bands at HF level".format(
                     self.COHSEX_options["nv_cohsex"], self.COHSEX_options["nc_cohsex"]
                 )
             )
-            o.append(
-                " Performing   {} diagonal HF iterations".format(
-                    self.COHSEX_options["nit_cohsex"]
-                )
-            )
+            o.append(" Performing   {} diagonal HF iterations".format(self.COHSEX_options["nit_cohsex"]))
 
-        o.append(
-            " Using resolution of identity : {}".format(
-                self.COHSEX_options["resMethod"]
-            )
-        )
+        o.append(" Using resolution of identity : {}".format(self.COHSEX_options["resMethod"]))
         o.append(
             " Correcting  {} valence bands and  {} conduction bands at GW level".format(
                 self.GW_options["nv_corr"], self.GW_options["nc_corr"]
@@ -509,11 +482,7 @@ class FiestaInput(MSONable):
             symbols.append(syb)
 
         for site in self._mol:
-            o.append(
-                " {} {} {} {}".format(
-                    site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1
-                )
-            )
+            o.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
 
         o.append("=========================================")
 
@@ -534,11 +503,7 @@ class FiestaInput(MSONable):
 
         geometry = []
         for site in self._mol:
-            geometry.append(
-                " {} {} {} {}".format(
-                    site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1
-                )
-            )
+            geometry.append(" {} {} {} {}".format(site.x, site.y, site.z, int(symbols.index(site.specie.symbol)) + 1))
 
         t = Template(
             """# number of atoms and species
@@ -932,10 +897,7 @@ class BSEOutput:
                     BSE_results.update(total_time=m.group(1))
 
             if parse_BSE_results:
-                if (
-                    l.find("FULL BSE main valence -> conduction transitions weight:")
-                    != -1
-                ):
+                if l.find("FULL BSE main valence -> conduction transitions weight:") != -1:
                     parse_total_time = True
                     parse_BSE_results = False
                     continue

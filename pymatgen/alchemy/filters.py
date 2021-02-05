@@ -138,9 +138,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
                 . If you have a structure with Element, you must use {"Na":1}
                 instead to filter based on Element and not Species.
         """
-        self.specie_and_min_dist = {
-            get_el_sp(k): v for k, v in specie_and_min_dist_dict.items()
-        }
+        self.specie_and_min_dist = {get_el_sp(k): v for k, v in specie_and_min_dist_dict.items()}
 
     def test(self, structure):
         """
@@ -173,11 +171,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "init_args": {
-                "specie_and_min_dist_dict": {
-                    str(sp): v for sp, v in self.specie_and_min_dist.items()
-                }
-            },
+            "init_args": {"specie_and_min_dist_dict": {str(sp): v for sp, v in self.specie_and_min_dist.items()}},
         }
 
     @classmethod

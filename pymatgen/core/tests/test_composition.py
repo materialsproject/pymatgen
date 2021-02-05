@@ -9,18 +9,10 @@ Created on Nov 10, 2012
 
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 10, 2012"
-
 import random
 import unittest
 
-from pymatgen.core.composition import ChemicalPotential, Composition, CompositionError
+from pymatgen.core.composition import ChemicalPotential, Composition
 from pymatgen.core.periodic_table import Element, Species
 
 
@@ -37,30 +29,14 @@ class CompositionTest(PymatgenTest):
         self.comp.append(Composition("ZnOH"))
 
         self.indeterminate_comp = []
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", True)
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", False)
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("co2o3")
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("ncalu")
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("calun")
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2")
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4")
-        )
-        self.indeterminate_comp.append(
-            Composition.ranked_compositions_from_indeterminate_formula("Fee3")
-        )
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", False))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("co2o3"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("ncalu"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("calun"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("liCoo2n (pO4)2"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("(co)2 (PO)4"))
+        self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Fee3"))
 
     def test_immutable(self):
         try:
@@ -89,7 +65,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(c.hill_formula, "C2 H6 O")
 
     def test_init_(self):
-        self.assertRaises(CompositionError, Composition, {"H": -0.1})
+        self.assertRaises(ValueError, Composition, {"H": -0.1})
         f = {"Fe": 4, "Li": 4, "O": 16, "P": 4}
         self.assertEqual("Li4 Fe4 P4 O16", Composition(f).formula)
         f = {None: 4, "Li": 4, "O": 16, "P": 4}
@@ -134,7 +110,7 @@ class CompositionTest(PymatgenTest):
         ]
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(CompositionError, Composition, "(co2)(po4)2")
+        self.assertRaises(ValueError, Composition, "(co2)(po4)2")
 
         self.assertEqual(Composition("K Na 2").reduced_formula, "KNa2")
 
@@ -179,9 +155,7 @@ class CompositionTest(PymatgenTest):
             [],
         ]
         for i, c in enumerate(correct_formulas):
-            self.assertEqual(
-                [Composition(comp) for comp in c], self.indeterminate_comp[i]
-            )
+            self.assertEqual([Composition(comp) for comp in c], self.indeterminate_comp[i])
 
     def test_alphabetical_formula(self):
         correct_formulas = [
@@ -229,9 +203,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
         # test iupac reduced formula (polyanions should still appear at the end)
-        all_formulas = [
-            c.get_reduced_formula_and_factor(iupac_ordering=True)[0] for c in self.comp
-        ]
+        all_formulas = [c.get_reduced_formula_and_factor(iupac_ordering=True)[0] for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
         self.assertEqual(
             Composition("H6CN").get_integer_formula_and_factor(iupac_ordering=True)[0],
@@ -255,22 +227,14 @@ class CompositionTest(PymatgenTest):
         ]
         all_formulas = [c.get_integer_formula_and_factor()[0] for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
-        self.assertEqual(
-            Composition("Li0.5O0.25").get_integer_formula_and_factor(), ("Li2O", 0.25)
-        )
-        self.assertEqual(
-            Composition("O0.25").get_integer_formula_and_factor(), ("O2", 0.125)
-        )
-        formula, factor = Composition(
-            "Li0.16666667B1.0H1.0"
-        ).get_integer_formula_and_factor()
+        self.assertEqual(Composition("Li0.5O0.25").get_integer_formula_and_factor(), ("Li2O", 0.25))
+        self.assertEqual(Composition("O0.25").get_integer_formula_and_factor(), ("O2", 0.125))
+        formula, factor = Composition("Li0.16666667B1.0H1.0").get_integer_formula_and_factor()
         self.assertEqual(formula, "Li(BH)6")
         self.assertAlmostEqual(factor, 1 / 6)
 
         # test iupac reduced formula (polyanions should still appear at the end)
-        all_formulas = [
-            c.get_integer_formula_and_factor(iupac_ordering=True)[0] for c in self.comp
-        ]
+        all_formulas = [c.get_integer_formula_and_factor(iupac_ordering=True)[0] for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
         self.assertEqual(
             Composition("H6CN0.5").get_integer_formula_and_factor(iupac_ordering=True),
@@ -305,9 +269,7 @@ class CompositionTest(PymatgenTest):
                 correct_at_frac[el],
                 "Wrong computed atomic fractions",
             )
-        self.assertEqual(
-            self.comp[0].get_atomic_fraction("S"), 0, "Wrong computed atomic fractions"
-        )
+        self.assertEqual(self.comp[0].get_atomic_fraction("S"), 0, "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
         expected_formulas = [
@@ -396,7 +358,7 @@ class CompositionTest(PymatgenTest):
         )
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula, "Li3 P3 O9")
 
-        self.assertRaises(CompositionError, Composition("O").__sub__, Composition("H"))
+        self.assertRaises(ValueError, Composition("O").__sub__, Composition("H"))
 
         # check that S is completely removed by subtraction
         c1 = Composition({"S": 1 + Composition.amount_tolerance / 2, "O": 1})
@@ -424,12 +386,9 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(
             comp1,
             comp2,
-            "Composition equality test failed. "
-            + "%s should be equal to %s" % (comp1.formula, comp2.formula),
+            "Composition equality test failed. " + "%s should be equal to %s" % (comp1.formula, comp2.formula),
         )
-        self.assertEqual(
-            comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!"
-        )
+        self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
 
     def test_comparisons(self):
         c1 = Composition({"S": 1})
@@ -469,9 +428,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition({"B": 1, "C": -1e-12}), Composition("B"))
 
     def test_negative_compositions(self):
-        self.assertEqual(
-            Composition("Li-1(PO-1)4", allow_negative=True).formula, "Li-1 P4 O-4"
-        )
+        self.assertEqual(Composition("Li-1(PO-1)4", allow_negative=True).formula, "Li-1 P4 O-4")
         self.assertEqual(
             Composition("Li-1(PO-1)4", allow_negative=True).reduced_formula,
             "Li-1(PO-1)4",
@@ -488,9 +445,7 @@ class CompositionTest(PymatgenTest):
         # test math
         c1 = Composition("LiCl", allow_negative=True)
         c2 = Composition("Li")
-        self.assertEqual(
-            c1 - 2 * c2, Composition({"Li": -1, "Cl": 1}, allow_negative=True)
-        )
+        self.assertEqual(c1 - 2 * c2, Composition({"Li": -1, "Cl": 1}, allow_negative=True))
         self.assertEqual((c1 + c2).allow_negative, True)
         self.assertEqual(c1 / -1, Composition("Li-1Cl-1", allow_negative=True))
 
@@ -499,9 +454,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.get_atomic_fraction("Mg"), 0.5)
         self.assertEqual(c1.get_atomic_fraction("Li"), 0.5)
-        self.assertEqual(
-            c1.fractional_composition, Composition("Mg-0.5Li0.5", allow_negative=True)
-        )
+        self.assertEqual(c1.fractional_composition, Composition("Mg-0.5Li0.5", allow_negative=True))
 
         # test copy
         self.assertEqual(c1.copy(), c1)
@@ -530,20 +483,14 @@ class CompositionTest(PymatgenTest):
             self.assertEqual(Composition(k).reduced_formula, v)
 
     def test_oxi_state_guesses(self):
-        self.assertEqual(
-            Composition("LiFeO2").oxi_state_guesses(), ({"Li": 1, "Fe": 3, "O": -2},)
-        )
+        self.assertEqual(Composition("LiFeO2").oxi_state_guesses(), ({"Li": 1, "Fe": 3, "O": -2},))
 
-        self.assertEqual(
-            Composition("Fe4O5").oxi_state_guesses(), ({"Fe": 2.5, "O": -2},)
-        )
+        self.assertEqual(Composition("Fe4O5").oxi_state_guesses(), ({"Fe": 2.5, "O": -2},))
 
         self.assertEqual(Composition("V2O3").oxi_state_guesses(), ({"V": 3, "O": -2},))
 
         # all_oxidation_states produces *many* possible responses
-        self.assertEqual(
-            len(Composition("MnO").oxi_state_guesses(all_oxi_states=True)), 4
-        )
+        self.assertEqual(len(Composition("MnO").oxi_state_guesses(all_oxi_states=True)), 4)
 
         # can't balance b/c missing V4+
         self.assertEqual(
@@ -559,27 +506,19 @@ class CompositionTest(PymatgenTest):
 
         # multiple solutions - Mn/Fe = 2+/4+ or 3+/3+ or 4+/2+
         self.assertEqual(
-            len(
-                Composition("MnFeO3").oxi_state_guesses(
-                    oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]}
-                )
-            ),
+            len(Composition("MnFeO3").oxi_state_guesses(oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})),
             3,
         )
 
         # multiple solutions prefers 3/3 over 2/4 or 4/2
         self.assertEqual(
-            Composition("MnFeO3").oxi_state_guesses(
-                oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]}
-            )[0],
+            Composition("MnFeO3").oxi_state_guesses(oxi_states_override={"Mn": [2, 3, 4], "Fe": [2, 3, 4]})[0],
             {"Mn": 3, "Fe": 3, "O": -2},
         )
 
         # target charge of 1
         self.assertEqual(
-            Composition("V2O6").oxi_state_guesses(
-                oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2
-            ),
+            Composition("V2O6").oxi_state_guesses(oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2),
             ({"V": 5, "O": -2},),
         )
 
@@ -591,9 +530,7 @@ class CompositionTest(PymatgenTest):
 
         # max_sites for very large composition - should timeout if incorrect
         self.assertEqual(
-            Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=-1)[
-                0
-            ],
+            Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=-1)[0],
             {"Li": 1, "Fe": 2, "P": 5, "O": -2},
         )
 
@@ -604,13 +541,9 @@ class CompositionTest(PymatgenTest):
             Composition("Sb10000O10000F10000").oxi_state_guesses(max_sites=-3)[0],
             {"Sb": 3, "O": -2, "F": -1},
         )
-        self.assertRaises(
-            ValueError, Composition("LiOF").oxi_state_guesses, max_sites=-2
-        )
+        self.assertRaises(ValueError, Composition("LiOF").oxi_state_guesses, max_sites=-2)
 
-        self.assertRaises(
-            ValueError, Composition("V2O3").oxi_state_guesses, max_sites=1
-        )
+        self.assertRaises(ValueError, Composition("V2O3").oxi_state_guesses, max_sites=1)
 
     def test_oxi_state_decoration(self):
         # Basic test: Get compositions where each element is in a single charge state

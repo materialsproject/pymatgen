@@ -149,6 +149,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def to_string(self, verbose=0):
         """String representation."""
+        # pylint: disable=E1101
         lines = []
         app = lines.append
         app("<%s: %s>" % (self.__class__.__name__, self.basename))
@@ -177,11 +178,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def filepath(self):
         """Absolute path to pseudopotential file."""
+        # pylint: disable=E1101
         return os.path.abspath(self.path)
 
     @property
     def basename(self):
         """File basename."""
+        # pylint: disable=E1101
         return os.path.basename(self.filepath)
 
     @property
@@ -240,6 +243,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
 
     def compute_md5(self):
         """Compute and erturn MD5 hash value."""
+        # pylint: disable=E1101
         import hashlib
 
         with open(self.path, "rt") as fh:
@@ -258,6 +262,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @pmg_serialize
     def as_dict(self, **kwargs):
         """Return dictionary for MSONable protocol."""
+        # pylint: disable=E1101
         return dict(
             basename=self.basename,
             type=self.type,
@@ -293,6 +298,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
             tmpdir: If None, a new temporary directory is created and files are copied here
                 else tmpdir is used.
         """
+        # pylint: disable=E1101
         import shutil
         import tempfile
 
@@ -316,11 +322,13 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
     @property
     def has_dojo_report(self):
         """True if the pseudo has an associated `DOJO_REPORT` section."""
+        # pylint: disable=E1101
         return hasattr(self, "dojo_report") and bool(self.dojo_report)
 
     @property
     def djrepo_path(self):
         """The path of the djrepo file. None if file does not exist."""
+        # pylint: disable=E1101
         root, ext = os.path.splitext(self.filepath)
         path = root + ".djrepo"
         return path
@@ -336,6 +344,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         Args:
             accuracy: ["low", "normal", "high"]
         """
+        # pylint: disable=E1101
         if not self.has_dojo_report:
             return Hint(ecut=0.0, pawecutdg=0.0)
 
@@ -404,9 +413,7 @@ class Pseudo(MSONable, metaclass=abc.ABCMeta):
         try:
             return PspsFile(filepath)
         except Exception as exc:
-            logger.critical(
-                "Exception while reading PSPS file at %s:\n%s" % (filepath, str(exc))
-            )
+            logger.critical("Exception while reading PSPS file at %s:\n%s" % (filepath, str(exc)))
             return None
 
 
@@ -499,23 +506,28 @@ class AbinitPseudo(Pseudo):
 
     @property
     def Z(self):
+        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
+        # pylint: disable=E1101
         return self._zion
 
     @property
     def l_max(self):
+        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
+        # pylint: disable=E1101
         return self._lloc
 
     @property
     def supports_soc(self):
         # Treate ONCVPSP pseudos
+        # pylint: disable=E1101
         if self._pspcod == 8:
             switch = self.header["extension_switch"]
             if switch in (0, 1):
@@ -539,23 +551,28 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
 
     @property
     def Z(self):
+        # pylint: disable=E1101
         return self._zatom
 
     @property
     def Z_val(self):
         """Number of valence electrons."""
+        # pylint: disable=E1101
         return self._zion
 
     @property
     def l_max(self):
+        # pylint: disable=E1101
         return self._lmax
 
     @property
     def l_local(self):
+        # pylint: disable=E1101
         return self._lloc
 
     @property
     def nlcc_radius(self):
+        # pylint: disable=E1101
         return self._rchrg
 
 
@@ -564,6 +581,7 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     @property
     def paw_radius(self):
+        # pylint: disable=E1101
         return self._r_cut
 
     # def orbitals(self):
@@ -706,9 +724,7 @@ class NcAbinitHeader(AbinitHeader):
         "r2well": _attr_desc(None, float),
         "mmax": _attr_desc(None, float),
         # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg": _attr_desc(
-            0.0, float
-        ),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
+        "rchrg": _attr_desc(0.0, float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
         "fchrg": _attr_desc(0.0, float),
         "qchrg": _attr_desc(0.0, float),
     }
@@ -735,9 +751,7 @@ class NcAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError(
-                        "Conversion Error for key %s, value %s" % (key, value)
-                    )
+                    raise RuntimeError("Conversion Error for key %s, value %s" % (key, value))
 
             self[key] = value
 
@@ -936,9 +950,7 @@ class PawAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except Exception:
-                    raise RuntimeError(
-                        "Conversion Error for key %s, with value %s" % (key, value)
-                    )
+                    raise RuntimeError("Conversion Error for key %s, with value %s" % (key, value))
 
             self[key] = value
 
@@ -999,9 +1011,7 @@ class PawAbinitHeader(AbinitHeader):
         """
         supported_formats = ["paw3", "paw4", "paw5"]
         if ppdesc.format not in supported_formats:
-            raise NotImplementedError(
-                "format %s not in %s" % (ppdesc.format, supported_formats)
-            )
+            raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
 
         lines = _read_nlines(filename, -1)
 
@@ -1097,12 +1107,7 @@ class PseudoParser:
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
             path = os.path.join(dirname, fname)
-            if (
-                ext in exclude_exts
-                or fname in exclude_fnames
-                or fname.startswith(".")
-                or not os.path.isfile(path)
-            ):
+            if ext in exclude_exts or fname in exclude_fnames or fname.startswith(".") or not os.path.isfile(path):
                 continue
             paths.append(path)
 
@@ -1158,10 +1163,7 @@ class PseudoParser:
                 #    return None
 
                 if pspcod not in self._PSPCODES:
-                    raise self.Error(
-                        "%s: Don't know how to handle pspcod %s\n"
-                        % (filename, pspcod)
-                    )
+                    raise self.Error("%s: Don't know how to handle pspcod %s\n" % (filename, pspcod))
 
                 ppdesc = self._PSPCODES[pspcod]
 
@@ -1231,6 +1233,7 @@ class RadialFunction(namedtuple("RadialFunction", "mesh values")):
     """
     Radial Function class.
     """
+
     pass
 
 
@@ -1238,10 +1241,12 @@ class PawXmlSetup(Pseudo, PawPseudo):
     """
     Setup class for PawXml.
     """
+
     def __init__(self, filepath):
         """
         :param filepath:
         """
+        # pylint: disable=E1101
         self.path = os.path.abspath(filepath)
 
         # Get the XML root (this trick is used to that the object is pickleable).
@@ -1255,9 +1260,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         # self._symbol = atom_attrib["symbol"]
         self._zatom = int(float(atom_attrib["Z"]))
-        self.core, self.valence = map(
-            float, [atom_attrib["core"], atom_attrib["valence"]]
-        )
+        self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
 
         # Build xc from header.
         xc_info = root.find("xc_functional").attrib
@@ -1395,6 +1398,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_radfunc(self, func_name):
         """Parse the first occurence of func_name in the XML file."""
+        # pylint: disable=E1101
         node = self.root.find(func_name)
         grid = node.attrib["grid"]
         values = np.array([float(s) for s in node.text.split()])
@@ -1403,6 +1407,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     def _parse_all_radfuncs(self, func_name):
         """Parse all the nodes with tag func_name in the XML file."""
+        # pylint: disable=E1101
         for node in self.root.findall(func_name):
             grid = node.attrib["grid"]
             values = np.array([float(s) for s in node.text.split()])
@@ -1500,6 +1505,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         Returns: `matplotlib` figure
         """
+        # pylint: disable=E1101
         ax, fig, plt = get_ax_fig_plt(ax)
 
         ax.grid(True)
@@ -1510,14 +1516,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.pseudo_partial_waves.items():
-            ax.plot(
-                rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="PS-WAVE: " + state
-            )
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="PS-WAVE: " + state)
 
         for state, rfunc in self.ae_partial_waves.items():
-            ax.plot(
-                rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state
-            )
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)
 
         ax.legend(loc="best", shadow=True, fontsize=fontsize)
 
@@ -1533,6 +1535,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         Returns: `matplotlib` figure
         """
+        # pylint: disable=E1101
         ax, fig, plt = get_ax_fig_plt(ax)
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
@@ -1686,9 +1689,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
             symbols = [p.symbol for p in pseudo_list]
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
-                raise ValueError(
-                    "All symbols must be equal while they are: %s" % str(symbols)
-                )
+                raise ValueError("All symbols must be equal while they are: %s" % str(symbols))
 
             setattr(self, symbol, pseudo_list)
 
@@ -1806,9 +1807,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         """
         pseudos = self.select_symbols(symbol, ret_list=True)
         if not pseudos or (len(pseudos) > 1 and not allow_multi):
-            raise ValueError(
-                "Found %d occurrences of symbol %s" % (len(pseudos), symbol)
-            )
+            raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
         if not allow_multi:
             return pseudos[0]
@@ -1823,21 +1822,14 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         """
         pseudos = self.select_symbols(symbols, ret_list=True)
         found_symbols = [p.symbol for p in pseudos]
-        duplicated_elements = [
-            s for s, o in collections.Counter(found_symbols).items() if o > 1
-        ]
+        duplicated_elements = [s for s, o in collections.Counter(found_symbols).items() if o > 1]
 
         if duplicated_elements:
-            raise ValueError(
-                "Found multiple occurrences of symbol(s) %s"
-                % ", ".join(duplicated_elements)
-            )
+            raise ValueError("Found multiple occurrences of symbol(s) %s" % ", ".join(duplicated_elements))
         missing_symbols = [s for s in symbols if s not in found_symbols]
 
         if missing_symbols:
-            raise ValueError(
-                "Missing data for symbol(s) %s" % ", ".join(missing_symbols)
-            )
+            raise ValueError("Missing data for symbol(s) %s" % ", ".join(missing_symbols))
 
         return pseudos
 
@@ -1855,9 +1847,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
 
         if exclude:
             if not all(s.startswith("-") for s in symbols):
-                raise ValueError(
-                    "When excluding symbols, all strings must start with `-`"
-                )
+                raise ValueError("When excluding symbols, all strings must start with `-`")
             symbols = [s[1:] for s in symbols]
 
         symbols = set(symbols)
@@ -1908,9 +1898,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
         for p in self:
             if filter_function is not None and filter_function(p):
                 continue
-            table.append(
-                [p.basename, p.symbol, p.Z_val, p.l_max, p.l_local, p.xc, p.type]
-            )
+            table.append([p.basename, p.symbol, p.Z_val, p.l_max, p.l_local, p.xc, p.type])
         return tabulate(
             table,
             headers=["basename", "symbol", "Z_val", "l_max", "l_local", "XC", "type"],
@@ -1933,9 +1921,7 @@ class PseudoTable(collections.abc.Sequence, MSONable, metaclass=abc.ABCMeta):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        return self.__class__(
-            [self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)]
-        )
+        return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
 
     def sort_by_z(self):
         """Return a new :class:`PseudoTable` with pseudos sorted by Z"""

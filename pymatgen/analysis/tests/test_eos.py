@@ -132,9 +132,7 @@ class EOSTest(PymatgenTest):
             for param in ("b0", "b1", "e0", "b0"):
                 # TODO: solutions only stable to 2 decimal places
                 # between different machines, this seems far too low?
-                self.assertArrayAlmostEqual(
-                    _.results[param], test_output[eos_name][param], decimal=1
-                )
+                self.assertArrayAlmostEqual(_.results[param], test_output[eos_name][param], decimal=1)
 
     def test_fitting(self):
 
@@ -224,9 +222,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp153_volumes, mp153_energies)
 
-        np.testing.assert_array_almost_equal(
-            fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5
-        )
+        np.testing.assert_array_almost_equal(fit.func(mp153_volumes), mp153_known_energies_vinet, decimal=5)
 
         self.assertAlmostEqual(mp153_known_e0_vinet, fit.e0, places=4)
         self.assertAlmostEqual(mp153_known_v0_vinet, fit.v0, places=4)
@@ -317,9 +313,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp149_volumes, mp149_energies)
 
-        np.testing.assert_array_almost_equal(
-            fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5
-        )
+        np.testing.assert_array_almost_equal(fit.func(mp149_volumes), mp149_known_energies_vinet, decimal=5)
 
         self.assertAlmostEqual(mp149_known_e0_vinet, fit.e0, places=4)
         self.assertAlmostEqual(mp149_known_v0_vinet, fit.v0, places=4)
@@ -410,9 +404,7 @@ class EOSTest(PymatgenTest):
 
         fit = eos.fit(mp72_volumes, mp72_energies)
 
-        np.testing.assert_array_almost_equal(
-            fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5
-        )
+        np.testing.assert_array_almost_equal(fit.func(mp72_volumes), mp72_known_energies_vinet, decimal=5)
 
         self.assertAlmostEqual(mp72_known_e0_vinet, fit.e0, places=4)
         self.assertAlmostEqual(mp72_known_v0_vinet, fit.v0, places=4)
@@ -429,9 +421,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(float(numerical_eos.v0), self.num_eos_fit.v0, 3)
         self.assertAlmostEqual(float(numerical_eos.b0), self.num_eos_fit.b0, 3)
         self.assertAlmostEqual(float(numerical_eos.b1), self.num_eos_fit.b1, 3)
-        self.assertArrayAlmostEqual(
-            numerical_eos.eos_params, self.num_eos_fit.eos_params
-        )
+        self.assertArrayAlmostEqual(numerical_eos.eos_params, self.num_eos_fit.eos_params)
 
     def test_numerical_eos_values(self):
         np.testing.assert_almost_equal(self.num_eos_fit.e0, -10.84749, decimal=3)
@@ -456,15 +446,11 @@ class EOSTest(PymatgenTest):
         )
         # test the eos function: energy = f(volume)
         # numerical eos evaluated at volume=0 == a0 of the fit polynomial
-        np.testing.assert_almost_equal(
-            self.num_eos_fit.func(0.0), self.num_eos_fit.eos_params[-1], decimal=6
-        )
+        np.testing.assert_almost_equal(self.num_eos_fit.func(0.0), self.num_eos_fit.eos_params[-1], decimal=6)
         birch_eos = EOS(eos_name="birch")
         birch_eos_fit = birch_eos.fit(self.volumes, self.energies)
         # birch eos evaluated at v0 == e0
-        np.testing.assert_almost_equal(
-            birch_eos_fit.func(birch_eos_fit.v0), birch_eos_fit.e0, decimal=6
-        )
+        np.testing.assert_almost_equal(birch_eos_fit.func(birch_eos_fit.v0), birch_eos_fit.e0, decimal=6)
 
         # TODO: Reactivate
         # fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
@@ -472,9 +458,7 @@ class EOSTest(PymatgenTest):
 
     def test_eos_func_call(self):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
-        np.testing.assert_almost_equal(
-            self.num_eos_fit.func(0.0), self.num_eos_fit(0.0), decimal=10
-        )
+        np.testing.assert_almost_equal(self.num_eos_fit.func(0.0), self.num_eos_fit(0.0), decimal=10)
 
     def test_summary_dict(self):
         d = {

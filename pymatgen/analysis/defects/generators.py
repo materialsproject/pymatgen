@@ -87,9 +87,7 @@ class VacancyGenerator(DefectGenerator):
             vac_site = self.equiv_site_seq.pop(0)
             charge = 0.0
             if self.struct_valences:
-                site_index = self.structure.get_sites_in_sphere(
-                    vac_site[0].coords, 0.1, include_index=True
-                )[0][2]
+                site_index = self.structure.get_sites_in_sphere(vac_site[0].coords, 0.1, include_index=True)[0][2]
                 charge = -1 * self.struct_valences[site_index]
 
             return Vacancy(self.structure, vac_site[0], charge=charge)
@@ -121,9 +119,7 @@ class SubstitutionGenerator(DefectGenerator):
         self.equiv_sub = []
         for equiv_site_set in list(self.symm_structure.equivalent_sites):
             vac_site = equiv_site_set[0]
-            if isinstance(
-                element, str
-            ):  # make sure you compare with specie symbol or Element type
+            if isinstance(element, str):  # make sure you compare with specie symbol or Element type
                 vac_specie = vac_site.specie.symbol
             else:
                 vac_specie = vac_site.specie
@@ -144,8 +140,7 @@ class SubstitutionGenerator(DefectGenerator):
         """
         if len(self.equiv_sub) > 0:
             return self.equiv_sub.pop(0)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class InterstitialGenerator(DefectGenerator):
@@ -199,8 +194,7 @@ class InterstitialGenerator(DefectGenerator):
             self.count_def += 1
             site_name = "InFiT" + str(self.count_def)
             return Interstitial(self.structure, inter_site, site_name=site_name)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class VoronoiInterstitialGenerator(DefectGenerator):
@@ -219,18 +213,14 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         self.element = element
 
         framework = list(self.structure.symbol_set)
-        get_voronoi = TopographyAnalyzer(
-            self.structure, framework, [], check_volume=False
-        )
+        get_voronoi = TopographyAnalyzer(self.structure, framework, [], check_volume=False)
         get_voronoi.cluster_nodes()
         get_voronoi.remove_collisions()
 
         # trim equivalent nodes with symmetry analysis
         struct_to_trim = self.structure.copy()
         for poss_inter in get_voronoi.vnodes:
-            struct_to_trim.append(
-                self.element, poss_inter.frac_coords, coords_are_cartesian=False
-            )
+            struct_to_trim.append(self.element, poss_inter.frac_coords, coords_are_cartesian=False)
 
         symmetry_finder = SpacegroupAnalyzer(struct_to_trim, symprec=1e-1)
         equiv_sites_list = symmetry_finder.get_symmetrized_structure().equivalent_sites
@@ -263,8 +253,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             self.count_def += 1
             site_name = "Voronoi" + str(self.count_def)
             return Interstitial(self.structure, inter_site, site_name=site_name)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class SimpleChargeGenerator(DefectGenerator):
@@ -300,9 +289,7 @@ class SimpleChargeGenerator(DefectGenerator):
             self.charges = [-1 * def_site_valence]
         elif isinstance(defect, Substitution):
             # (minimize difference with host site specie)
-            probable_chgs = [
-                ox - def_site_valence for ox in self.defect.site.specie.oxidation_states
-            ]
+            probable_chgs = [ox - def_site_valence for ox in self.defect.site.specie.oxidation_states]
             self.charges = [min(probable_chgs, key=abs)]
         elif isinstance(defect, Interstitial):
             self.charges = [0]
@@ -319,5 +306,4 @@ class SimpleChargeGenerator(DefectGenerator):
             defect = self.defect.copy()
             defect.set_charge(charge)
             return defect
-        else:
-            raise StopIteration
+        raise StopIteration

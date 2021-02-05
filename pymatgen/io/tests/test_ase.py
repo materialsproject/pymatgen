@@ -7,7 +7,8 @@ import os
 import unittest
 
 import pymatgen.io.ase as aio
-from pymatgen import Composition, Molecule
+from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Molecule
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 

@@ -67,9 +67,7 @@ def get_dimensionality_larsen(bonded_structure):
     Returns:
         (int): The dimensionality of the structure.
     """
-    return max(
-        [c["dimensionality"] for c in get_structure_components(bonded_structure)]
-    )
+    return max([c["dimensionality"] for c in get_structure_components(bonded_structure)])
 
 
 def get_structure_components(
@@ -124,10 +122,7 @@ def get_structure_components(
     """
     import networkx as nx  # optional dependency therefore not top level import
 
-    comp_graphs = (
-        bonded_structure.graph.subgraph(c)
-        for c in nx.weakly_connected_components(bonded_structure.graph)
-    )
+    comp_graphs = (bonded_structure.graph.subgraph(c) for c in nx.weakly_connected_components(bonded_structure.graph))
 
     components = []
     for graph in comp_graphs:
@@ -159,18 +154,12 @@ def get_structure_components(
             component["site_ids"] = tuple(graph.nodes())
 
         if inc_molecule_graph and dimensionality == 0:
-            component["molecule_graph"] = zero_d_graph_to_molecule_graph(
-                bonded_structure, graph
-            )
+            component["molecule_graph"] = zero_d_graph_to_molecule_graph(bonded_structure, graph)
 
-        component_structure = Structure.from_sites(
-            [bonded_structure.structure[n] for n in sorted(graph.nodes())]
-        )
+        component_structure = Structure.from_sites([bonded_structure.structure[n] for n in sorted(graph.nodes())])
 
         sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
-        component_graph = StructureGraph(
-            component_structure, graph_data=json_graph.adjacency_data(sorted_graph)
-        )
+        component_graph = StructureGraph(component_structure, graph_data=json_graph.adjacency_data(sorted_graph))
         component["structure_graph"] = component_graph
 
         components.append(component)
@@ -204,10 +193,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
     """
 
     def neighbours(comp_index):
-        return [
-            (s.index, s.jimage)
-            for s in bonded_structure.get_connected_sites(comp_index)
-        ]
+        return [(s.index, s.jimage) for s in bonded_structure.get_connected_sites(comp_index)]
 
     def rank(vertices):
         if len(vertices) == 0:
@@ -222,9 +208,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         rank1 = rank(seen.union({candidate}))
         return rank1 > rank0
 
-    connected_sites = {
-        i: neighbours(i) for i in range(bonded_structure.structure.num_sites)
-    }
+    connected_sites = {i: neighbours(i) for i in range(bonded_structure.structure.num_sites)}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
@@ -353,9 +337,7 @@ def get_dimensionality_cheon(
         or molecules it returns 'intercalated ion/molecule'
     """
     if standardize:
-        structure = SpacegroupAnalyzer(
-            structure_raw
-        ).get_conventional_standard_structure()
+        structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     else:
         structure = structure_raw
     structure_save = copy.copy(structure_raw)
@@ -363,9 +345,7 @@ def get_dimensionality_cheon(
     max1, min1, clusters1 = find_clusters(structure, connected_list1)
     if larger_cell:
         structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-        connected_list3 = find_connected_atoms(
-            structure, tolerance=tolerance, ldict=ldict
-        )
+        connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max3, min3, clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
             if max3 == max1:
@@ -380,9 +360,7 @@ def get_dimensionality_cheon(
                 return None
     else:
         structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
-        connected_list2 = find_connected_atoms(
-            structure, tolerance=tolerance, ldict=ldict
-        )
+        connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
         max2, min2, clusters2 = find_clusters(structure, connected_list2)
         if min2 == 1:
             dim = "intercalated ion"
@@ -398,9 +376,7 @@ def get_dimensionality_cheon(
             else:
                 structure = copy.copy(structure_save)
                 structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-                connected_list3 = find_connected_atoms(
-                    structure, tolerance=tolerance, ldict=ldict
-                )
+                connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
                 max3, min3, clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
                     if max3 == max2:

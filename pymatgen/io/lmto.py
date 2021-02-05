@@ -75,9 +75,7 @@ class LMTOCtrl:
         if "VERS" in ctrl_dict:
             lines.append("VERS".ljust(10) + self.version)
 
-        lines.append(
-            "STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs))
-        )
+        lines.append("STRUC".ljust(10) + "ALAT=" + str(round(ctrl_dict["ALAT"], sigfigs)))
         for l, latt in enumerate(ctrl_dict["PLAT"]):
             if l == 0:
                 line = "PLAT=".rjust(15)
@@ -94,9 +92,7 @@ class LMTOCtrl:
                     line = [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
                     if token == "POS":
-                        line.append(
-                            "POS=" + " ".join([str(round(p, sigfigs)) for p in val])
-                        )
+                        line.append("POS=" + " ".join([str(round(p, sigfigs)) for p in val]))
                     else:
                         line.append(token + "=" + str(val))
                 line = " ".join(line)
@@ -148,9 +144,7 @@ class LMTOCtrl:
             else:
                 num_atoms[atom.symbol] = 1
                 classes.append({"ATOM": atom.symbol, "Z": atom.Z})
-            sites.append(
-                {"ATOM": classes[label_index]["ATOM"], "POS": site.coords / alat}
-            )
+            sites.append({"ATOM": classes[label_index]["ATOM"], "POS": site.coords / alat})
 
         ctrl_dict.update(
             {
@@ -238,16 +232,9 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array(
-                            [round(float(i), sigfigs) for i in fields[f + 1].split()]
-                        )
+                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()])
                     except ValueError:
-                        arr = np.array(
-                            [
-                                round(float(i), sigfigs)
-                                for i in fields[f + 1].split()[:-1]
-                            ]
-                        )
+                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()[:-1]])
                     if token == "PLAT":
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
@@ -310,9 +297,7 @@ class LMTOCtrl:
         # If lattice and the spacegroup don't match, assume it's primitive.
         if "CLASS" in d and "SPCGRP" in d and len(d["SITE"]) == len(d["CLASS"]):
             try:
-                structure = Structure.from_spacegroup(
-                    d["SPCGRP"], plat, species, positions, coords_are_cartesian=True
-                )
+                structure = Structure.from_spacegroup(d["SPCGRP"], plat, species, positions, coords_are_cartesian=True)
             except ValueError:
                 structure = Structure(
                     plat,
@@ -322,9 +307,7 @@ class LMTOCtrl:
                     to_unit_cell=True,
                 )
         else:
-            structure = Structure(
-                plat, species, positions, coords_are_cartesian=True, to_unit_cell=True
-            )
+            structure = Structure(plat, species, positions, coords_are_cartesian=True, to_unit_cell=True)
 
         return cls(structure, header=d["HEADER"], version=d["VERS"])
 
@@ -377,9 +360,7 @@ class LMTOCopl:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array(
-            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 2 :]]
-        ).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 2 :]]).transpose()
         if to_eV:
             # LMTO energies have 5 sig figs
             self.energies = np.array(
@@ -394,25 +375,14 @@ class LMTOCopl:
         cohp_data = {}
         for bond in range(num_bonds):
             label, length, sites = self._get_bond_data(contents[2 + bond])
-            cohp = {
-                spin: data[2 * (bond + s * num_bonds) + 1]
-                for s, spin in enumerate(spins)
-            }
+            cohp = {spin: data[2 * (bond + s * num_bonds) + 1] for s, spin in enumerate(spins)}
             if to_eV:
                 icohp = {
-                    spin: np.array(
-                        [
-                            round_to_sigfigs(i, 5)
-                            for i in data[2 * (bond + s * num_bonds) + 2] * Ry_to_eV
-                        ]
-                    )
+                    spin: np.array([round_to_sigfigs(i, 5) for i in data[2 * (bond + s * num_bonds) + 2] * Ry_to_eV])
                     for s, spin in enumerate(spins)
                 }
             else:
-                icohp = {
-                    spin: data[2 * (bond + s * num_bonds) + 2]
-                    for s, spin in enumerate(spins)
-                }
+                icohp = {spin: data[2 * (bond + s * num_bonds) + 2] for s, spin in enumerate(spins)}
 
             # This takes care of duplicate labels
             if label in cohp_data:

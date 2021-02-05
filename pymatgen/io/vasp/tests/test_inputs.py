@@ -14,7 +14,8 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.tempfile import ScratchDir
 
-from pymatgen import Composition, Structure
+from pymatgen.core.composition import Composition
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.vasp.inputs import (
     BadIncarWarning,
@@ -81,16 +82,12 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_string(poscar_string)
-        self.assertEqual(
-            poscar.selective_dynamics, [[True, True, True], [False, False, False]]
-        )
+        self.assertEqual(poscar.selective_dynamics, [[True, True, True], [False, False, False]])
         self.selective_poscar = poscar
 
     def test_from_file(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR.symbols_natoms_multilines"
-        poscar = Poscar.from_file(
-            filepath, check_for_POTCAR=False, read_velocities=False
-        )
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False, read_velocities=False)
         ordered_expected_elements = [
             "Fe",
             "Cr",
@@ -146,9 +143,7 @@ direct
             "Fe",
             "Fe",
         ]
-        self.assertEqual(
-            [site.specie.symbol for site in poscar.structure], ordered_expected_elements
-        )
+        self.assertEqual([site.specie.symbol for site in poscar.structure], ordered_expected_elements)
 
     def test_to_from_dict(self):
         poscar_string = """Test3
@@ -183,9 +178,7 @@ cart
 """
         p = Poscar.from_string(poscar_string)
         site = p.structure[1]
-        self.assertArrayAlmostEqual(
-            site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1
-        )
+        self.assertArrayAlmostEqual(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_significant_figures(self):
         si = 14
@@ -286,14 +279,10 @@ direct
         p.write_file(tempfname)
         p3 = Poscar.from_file(tempfname)
 
-        self.assertArrayAlmostEqual(
-            p.structure.lattice.abc, p3.structure.lattice.abc, 5
-        )
+        self.assertArrayAlmostEqual(p.structure.lattice.abc, p3.structure.lattice.abc, 5)
         self.assertArrayAlmostEqual(p.velocities, p3.velocities, 5)
         self.assertArrayAlmostEqual(p.predictor_corrector, p3.predictor_corrector, 5)
-        self.assertEqual(
-            p.predictor_corrector_preamble, p3.predictor_corrector_preamble
-        )
+        self.assertEqual(p.predictor_corrector_preamble, p3.predictor_corrector_preamble)
         tempfname.unlink()
 
     def test_setattr(self):
@@ -358,32 +347,16 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7)
 
-        temperature = (
-            struct[0].specie.atomic_mass.to("kg")
-            * np.sum(v ** 2)
-            / (3 * const.k)
-            * 1e10
-        )
-        self.assertAlmostEqual(
-            temperature, 900, 4, "Temperature instantiated incorrectly"
-        )
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
+        self.assertAlmostEqual(temperature, 900, 4, "Temperature instantiated incorrectly")
 
         poscar.set_temperature(700)
         v = np.array(poscar.velocities)
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(
-                x, 0, 7, "Velocities initialized with a net momentum"
-            )
+            self.assertAlmostEqual(x, 0, 7, "Velocities initialized with a net momentum")
 
-        temperature = (
-            struct[0].specie.atomic_mass.to("kg")
-            * np.sum(v ** 2)
-            / (3 * const.k)
-            * 1e10
-        )
-        self.assertAlmostEqual(
-            temperature, 700, 4, "Temperature instantiated incorrectly"
-        )
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
+        self.assertAlmostEqual(temperature, 700, 4, "Temperature instantiated incorrectly")
 
     def test_write(self):
         filepath = PymatgenTest.TEST_FILES_DIR / "POSCAR"
@@ -391,9 +364,7 @@ direct
         tempfname = Path("POSCAR.testing")
         poscar.write_file(tempfname)
         p = Poscar.from_file(tempfname)
-        self.assertArrayAlmostEqual(
-            poscar.structure.lattice.abc, p.structure.lattice.abc, 5
-        )
+        self.assertArrayAlmostEqual(poscar.structure.lattice.abc, p.structure.lattice.abc, 5)
         tempfname.unlink()
 
 
@@ -617,16 +588,11 @@ TIME       =  0.4"""
         magmom2 = [-1, -1, -1, 0, 0, 0, 0, 0]
         magmom4 = [Magmom([1.0, 2.0, 2.0])]
 
-        ans_string1 = (
-            "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\n"
-            "MAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
-        )
+        ans_string1 = "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\n" "MAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
         ans_string2 = "LANGEVIN_GAMMA = 10\nLSORBIT = True\n" "MAGMOM = 3*3*-1 3*5*0\n"
         ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
         ans_string4_nolsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = False\nMAGMOM = 1*3.0\n"
-        ans_string4_lsorbit = (
-            "LANGEVIN_GAMMA = 10\nLSORBIT = True\nMAGMOM = 1.0 2.0 2.0\n"
-        )
+        ans_string4_lsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = True\nMAGMOM = 1.0 2.0 2.0\n"
 
         incar = Incar({})
         incar["MAGMOM"] = magmom1
@@ -882,9 +848,7 @@ class PotcarSingleTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.psingle = PotcarSingle.from_file(
-            PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Mn_pv.gz"
-        )
+        self.psingle = PotcarSingle.from_file(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Mn_pv.gz")
 
     def test_keywords(self):
         data = {
@@ -950,14 +914,10 @@ class PotcarSingleTest(PymatgenTest):
             PotcarSingle.parse_functions["BAD_KEY"]
 
     def test_bad_value(self):
-        self.assertRaises(
-            ValueError, PotcarSingle.parse_functions["ENMAX"], "ThisShouldBeAFloat"
-        )
+        self.assertRaises(ValueError, PotcarSingle.parse_functions["ENMAX"], "ThisShouldBeAFloat")
 
     def test_hash(self):
-        self.assertEqual(
-            self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98"
-        )
+        self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_functional_types(self):
         self.assertEqual(self.psingle.functional, "PBE")
@@ -966,9 +926,7 @@ class PotcarSingleTest(PymatgenTest):
 
         self.assertEqual(self.psingle.potential_type, "PAW")
 
-        psingle = PotcarSingle.from_file(
-            PymatgenTest.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz"
-        )
+        psingle = PotcarSingle.from_file(PymatgenTest.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz")
 
         self.assertEqual(psingle.functional, "Perdew-Zunger81")
 
@@ -986,22 +944,12 @@ class PotcarSingleTest(PymatgenTest):
         assert "Fe" in psingle.identify_potcar()[1]
 
     def test_potcar_hash_warning(self):
-        filename = (
-            PymatgenTest.TEST_FILES_DIR
-            / "modified_potcars_data"
-            / "POT_GGA_PAW_PBE"
-            / "POTCAR.Fe_pv"
-        )
+        filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_data" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
         with pytest.warns(UnknownPotcarWarning, match="integrity"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
-        filename = (
-            PymatgenTest.TEST_FILES_DIR
-            / "modified_potcars_header"
-            / "POT_GGA_PAW_PBE"
-            / "POTCAR.Fe_pv"
-        )
+        filename = PymatgenTest.TEST_FILES_DIR / "modified_potcars_header" / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv"
         with pytest.warns(UnknownPotcarWarning, match="following"):
             PotcarSingle.from_file(filename)
 
@@ -1022,25 +970,17 @@ class PotcarTest(PymatgenTest):
         self.potcar = Potcar.from_file(filepath)
 
     def test_init(self):
-        self.assertEqual(
-            self.potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR"
-        )
+        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"], "Wrong symbols read in for POTCAR")
         potcar = Potcar(["Fe_pv", "O"])
         self.assertEqual(potcar[0].enmax, 293.238)
 
     def test_potcar_map(self):
-        fe_potcar = (
-            zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz")
-            .read()
-            .decode("utf-8")
-        )
+        fe_potcar = zopen(PymatgenTest.TEST_FILES_DIR / "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv.gz").read().decode("utf-8")
         # specify V instead of Fe - this makes sure the test won't pass if the
         # code just grabs the POTCAR from the config file (the config file would
         # grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
-        self.assertEqual(
-            potcar.symbols, ["Fe_pv"], "Wrong symbols read in " "for POTCAR"
-        )
+        self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in " "for POTCAR")
 
     def test_to_from_dict(self):
         d = self.potcar.as_dict()
@@ -1119,9 +1059,7 @@ class VaspInputTest(PymatgenTest):
                 self.assertEqual(output.split("\n")[0], "ALGO = Damped")
 
     def test_from_directory(self):
-        vi = VaspInput.from_directory(
-            PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar}
-        )
+        vi = VaspInput.from_directory(PymatgenTest.TEST_FILES_DIR, optional_files={"CONTCAR.Li2O": Poscar})
         self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
         self.assertIn("CONTCAR.Li2O", vi)
         d = vi.as_dict()

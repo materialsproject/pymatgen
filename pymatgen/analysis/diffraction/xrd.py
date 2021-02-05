@@ -48,9 +48,7 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(
-    os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")
-) as f:
+with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 
@@ -212,9 +210,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         peaks = {}
         two_thetas = []
 
-        for hkl, g_hkl, ind, _ in sorted(
-            recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])
-        ):
+        for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
@@ -243,9 +239,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 #      coeff = ATOMIC_SCATTERING_PARAMS[el.symbol]
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
-                fs = zs - 41.78214 * s2 * np.sum(
-                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1
-                )
+                fs = zs - 41.78214 * s2 * np.sum(coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
 
                 dw_correction = np.exp(-dwfactors * s2)
 
@@ -255,9 +249,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r) * dw_correction)
 
                 # Lorentz polarization correction for hkl
-                lorentz_factor = (1 + cos(2 * theta) ** 2) / (
-                    sin(theta) ** 2 * cos(theta)
-                )
+                lorentz_factor = (1 + cos(2 * theta) ** 2) / (sin(theta) ** 2 * cos(theta))
 
                 # Intensity for hkl is modulus square of structure factor.
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
@@ -269,8 +261,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                     hkl = (hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2])
                 # Deal with floating point precision issues.
                 ind = np.where(
-                    np.abs(np.subtract(two_thetas, two_theta))
-                    < AbstractDiffractionPatternCalculator.TWO_THETA_TOL
+                    np.abs(np.subtract(two_thetas, two_theta)) < AbstractDiffractionPatternCalculator.TWO_THETA_TOL
                 )
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
@@ -288,15 +279,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         for k in sorted(peaks.keys()):
             v = peaks[k]
             fam = get_unique_families(v[1])
-            if (
-                v[0] / max_intensity * 100
-                > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL
-            ):
+            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v[0])
-                hkls.append(
-                    [{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()]
-                )
+                hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
                 d_hkls.append(v[2])
         xrd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:

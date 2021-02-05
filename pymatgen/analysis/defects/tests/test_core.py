@@ -22,9 +22,7 @@ from pymatgen.util.testing import PymatgenTest
 
 class DefectsCoreTest(PymatgenTest):
     def test_supercell_lattice_mismatch(self):
-        struct = Structure.from_file(
-            os.path.join(self.TEST_FILES_DIR, "POSCAR.CdS_HSE")
-        )
+        struct = Structure.from_file(os.path.join(self.TEST_FILES_DIR, "POSCAR.CdS_HSE"))
 
         import tempfile
 
@@ -41,9 +39,7 @@ class DefectsCoreTest(PymatgenTest):
         self.assertNotEqual(struct.lattice, struct_copy.lattice)
 
         # Looser absolute tolerance for defect supercells
-        lattice_match = np.allclose(
-            struct.lattice.matrix, struct_copy.lattice.matrix, atol=1e-5
-        )
+        lattice_match = np.allclose(struct.lattice.matrix, struct_copy.lattice.matrix, atol=1e-5)
         self.assertTrue(lattice_match)
 
     def test_vacancy(self):
@@ -61,9 +57,7 @@ class DefectsCoreTest(PymatgenTest):
         vac_struc = vac.generate_defect_structure(3)
         self.assertEqual(vac_struc.composition.as_dict(), {"V": 53, "O": 108})
 
-        vac_struc = vac.generate_defect_structure(
-            [[2.0, 0, 0], [0, 0, -3.0], [0, 2.0, 0]]
-        )
+        vac_struc = vac.generate_defect_structure([[2.0, 0, 0], [0, 0, -3.0], [0, 2.0, 0]])
         self.assertEqual(vac_struc.composition.as_dict(), {"V": 23, "O": 48})
 
         # test charge
@@ -97,27 +91,21 @@ class DefectsCoreTest(PymatgenTest):
         self.assertRaises(ValueError, Vacancy, sc_scaled_struc, struc[V_index])
 
         # test value error raised for site not in the structure
-        non_site = PeriodicSite(
-            "V", struc[V_index].frac_coords + [0.0, 0.0, 0.1], struc.lattice
-        )
+        non_site = PeriodicSite("V", struc[V_index].frac_coords + [0.0, 0.0, 0.1], struc.lattice)
         self.assertRaises(ValueError, Vacancy, struc, non_site)
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
         V_index = struc.indices_from_symbol("V")[0]
 
-        int_site = PeriodicSite(
-            "V", struc[V_index].coords + [0.1, 0.1, 0.1], struc.lattice
-        )
+        int_site = PeriodicSite("V", struc[V_index].coords + [0.1, 0.1, 0.1], struc.lattice)
         interstitial = Interstitial(struc, int_site)
 
         # test generation and super cell
         int_struc = interstitial.generate_defect_structure(1)
         self.assertEqual(int_struc.composition.as_dict(), {"V": 3, "O": 4})
         # Ensure the site is in the right place
-        self.assertEqual(
-            int_site, int_struc.get_sites_in_sphere(int_site.coords, 0.1)[0][0]
-        )
+        self.assertEqual(int_site, int_struc.get_sites_in_sphere(int_site.coords, 0.1)[0][0])
 
         int_struc = interstitial.generate_defect_structure(2)
         self.assertEqual(int_struc.composition.as_dict(), {"V": 17, "O": 32})
@@ -125,9 +113,7 @@ class DefectsCoreTest(PymatgenTest):
         int_struc = interstitial.generate_defect_structure(3)
         self.assertEqual(int_struc.composition.as_dict(), {"V": 55, "O": 108})
 
-        int_struc = interstitial.generate_defect_structure(
-            [[2.0, 0, 0], [0, 0, -3.0], [0, 2.0, 0]]
-        )
+        int_struc = interstitial.generate_defect_structure([[2.0, 0, 0], [0, 0, -3.0], [0, 2.0, 0]])
         self.assertEqual(int_struc.composition.as_dict(), {"V": 25, "O": 48})
 
         # test charge
@@ -152,9 +138,7 @@ class DefectsCoreTest(PymatgenTest):
         self.assertEqual(interstitial.multiplicity, 4.0)
 
         # Test composition
-        self.assertEqual(
-            dict(interstitial.defect_composition.as_dict()), {"V": 3, "O": 4}
-        )
+        self.assertEqual(dict(interstitial.defect_composition.as_dict()), {"V": 3, "O": 4})
 
         # test that structure generation doesn't break if velocities existed previously
         # (previously caused failures for structure printing)
@@ -172,9 +156,7 @@ class DefectsCoreTest(PymatgenTest):
         struc = PymatgenTest.get_structure("VO2")
         V_index = struc.indices_from_symbol("V")[0]
 
-        sub_site = PeriodicSite(
-            "Sr", struc[V_index].coords, struc.lattice, coords_are_cartesian=True
-        )
+        sub_site = PeriodicSite("Sr", struc[V_index].coords, struc.lattice, coords_are_cartesian=True)
         substitution = Substitution(struc, sub_site)
 
         # test generation and super cell
@@ -187,9 +169,7 @@ class DefectsCoreTest(PymatgenTest):
         sub_struc = substitution.generate_defect_structure(3)
         self.assertEqual(sub_struc.composition.as_dict(), {"V": 53, "Sr": 1, "O": 108})
 
-        sub_struc = substitution.generate_defect_structure(
-            [[2.0, 0, 0], [0, 0, -3.0], [0, 2.0, 0]]
-        )
+        sub_struc = substitution.generate_defect_structure([[2.0, 0, 0], [0, 0, -3.0], [0, 2.0, 0]])
         self.assertEqual(sub_struc.composition.as_dict(), {"V": 23, "O": 48, "Sr": 1})
 
         # test charge
@@ -210,16 +190,12 @@ class DefectsCoreTest(PymatgenTest):
         self.assertEqual(substitution.multiplicity, 2.0)
 
         O_index = struc.indices_from_symbol("O")[0]
-        sub_site = PeriodicSite(
-            "Sr", struc[O_index].coords, struc.lattice, coords_are_cartesian=True
-        )
+        sub_site = PeriodicSite("Sr", struc[O_index].coords, struc.lattice, coords_are_cartesian=True)
         substitution = Substitution(struc, sub_site)
         self.assertEqual(substitution.multiplicity, 4)
 
         # Test composition
-        self.assertEqual(
-            dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3}
-        )
+        self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
 
         # test that structure generation doesn't break if velocities existed previously
         # (previously caused failures for structure printing)
@@ -235,9 +211,7 @@ class DefectsCoreTest(PymatgenTest):
         self.assertTrue("velocities" not in sub_struc.site_properties)
 
         # test value error raised for site not in the structure
-        non_site = PeriodicSite(
-            "Sr", struc[V_index].frac_coords - [0.0, 0.0, 0.1], struc.lattice
-        )
+        non_site = PeriodicSite("Sr", struc[V_index].frac_coords - [0.0, 0.0, 0.1], struc.lattice)
         self.assertRaises(ValueError, Substitution, struc, non_site)
 
 
@@ -259,18 +233,14 @@ class create_saturated_interstitial_structureTest(PymatgenTest):
         decorated_cl_vac = create_saturated_interstitial_structure(cl_vac)
         self.assertEqual(len(decorated_cl_vac), len(sc_struc))
 
-        sub_site = PeriodicSite(
-            "Sr", sc_struc[Cs_index].coords, sc_struc.lattice, coords_are_cartesian=True
-        )
+        sub_site = PeriodicSite("Sr", sc_struc[Cs_index].coords, sc_struc.lattice, coords_are_cartesian=True)
 
         sub = Substitution(sc_struc, sub_site)
         decorated_sub = create_saturated_interstitial_structure(sub)
         self.assertEqual(len(decorated_sub), len(sc_struc))
 
         # test interstitial in symmorphic structure type
-        inter_site = PeriodicSite(
-            "H", [0.0, 1.05225, 2.1045], struc.lattice, coords_are_cartesian=True
-        )  # voronoi type
+        inter_site = PeriodicSite("H", [0.0, 1.05225, 2.1045], struc.lattice, coords_are_cartesian=True)  # voronoi type
         interstitial = Interstitial(struc, inter_site)
         decorated_inter = create_saturated_interstitial_structure(interstitial)
         self.assertEqual(len(decorated_inter), 14)
@@ -391,43 +361,31 @@ class DefectEntryTest(PymatgenTest):
         self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2}), 2.0)
         self.assertAlmostEqual(entry.formation_energy({"V": 0.2}), 2.4)
         self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}), 2.2)
-        self.assertAlmostEqual(
-            entry.formation_energy({"Sr": 0.2, "V": 0.2, "O": 2}), 2.2
-        )
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2, "O": 2}), 2.2)
 
         # Test Fermi level on formation energy
-        self.assertAlmostEqual(
-            entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.2
-        )
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.2)
         entry.parameters["vbm"] = 0
-        self.assertAlmostEqual(
-            entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.2
-        )
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.2)
         entry.defect._charge = 1
-        self.assertAlmostEqual(
-            entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.4
-        )
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.4)
 
     def test_defect_concentration(self):
         entry = DefectEntry(self.substitution, 0.5, corrections={})
         entry.defect._charge = -1
 
         chem_pots = {"Sr": 0.0, "V": 0.0, "O": 0.0}
-        self.assertAlmostEqual(
-            entry.defect_concentration(chem_pots) / 1.2878334860092098e14, 1
-        )
+        self.assertAlmostEqual(entry.defect_concentration(chem_pots) / 1.2878334860092098e14, 1)
 
         # #test temperature dependence
         self.assertAlmostEqual(
-            entry.defect_concentration(chem_pots, temperature=600)
-            / 2.0402099809985405e18,
+            entry.defect_concentration(chem_pots, temperature=600) / 2.0402099809985405e18,
             1,
         )
 
         # test fermi level dependence
         self.assertAlmostEqual(
-            entry.defect_concentration(chem_pots, fermi_level=0.3)
-            / 1.411360305591838e19,
+            entry.defect_concentration(chem_pots, fermi_level=0.3) / 1.411360305591838e19,
             1,
         )
 

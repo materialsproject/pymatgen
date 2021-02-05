@@ -7,6 +7,8 @@ import os
 import unittest
 import warnings
 
+import pytest
+
 from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -15,14 +17,8 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "functional_groups")
 
-try:
-    import networkx as nx
-    from openbabel import openbabel as ob
-    from openbabel import pybel as pb
-except ImportError:
-    pb = None
-    ob = None
-    nx = None
+pytest.importorskip("openbabel", reason="OpenBabel not installed")
+pytest.importorskip("networkx", reason="NetworkX not installed")
 
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
@@ -33,9 +29,6 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-@unittest.skipIf(
-    not (pb and ob and nx), "OpenBabel or NetworkX not present. Skipping..."
-)
 class FunctionalGroupExtractorTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
@@ -117,9 +110,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         self.assertEqual(len(basics), 1)
         self.assertEqual(len(basics[0]), 4)
 
-        basics_no_methyl = self.extractor.get_basic_functional_groups(
-            func_groups=["phenyl"]
-        )
+        basics_no_methyl = self.extractor.get_basic_functional_groups(func_groups=["phenyl"])
         self.assertEqual(len(basics_no_methyl), 0)
 
     def test_get_all_functional_groups(self):
