@@ -523,26 +523,44 @@ class QCInput(MSONable):
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
-            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer,)
+            c_table = read_table_pattern(
+                string,
+                header_pattern=c_header,
+                row_pattern=c_row,
+                footer_pattern=c_footer,
+            )
             opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"
             f_row = r"(\w.*)\n"
             f_footer = r"^\s*ENDFIXED\n"
-            f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer,)
+            f_table = read_table_pattern(
+                string,
+                header_pattern=f_header,
+                row_pattern=f_row,
+                footer_pattern=f_footer,
+            )
             opt["FIXED"] = [val[0] for val in f_table[0]]
         if "DUMMY" in opt_sections:
             d_header = r"^\s*DUMMY\n"
             d_row = r"(\w.*)\n"
             d_footer = r"^\s*ENDDUMMY\n"
-            d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer,)
+            d_table = read_table_pattern(
+                string,
+                header_pattern=d_header,
+                row_pattern=d_row,
+                footer_pattern=d_footer,
+            )
             opt["DUMMY"] = [val[0] for val in d_table[0]]
         if "CONNECT" in opt_sections:
             cc_header = r"^\s*CONNECT\n"
             cc_row = r"(\w.*)\n"
             cc_footer = r"^\s*ENDCONNECT\n"
             cc_table = read_table_pattern(
-                string, header_pattern=cc_header, row_pattern=cc_row, footer_pattern=cc_footer,
+                string,
+                header_pattern=cc_header,
+                row_pattern=cc_row,
+                footer_pattern=cc_footer,
             )
             opt["CONNECT"] = [val[0] for val in cc_table[0]]
         return opt

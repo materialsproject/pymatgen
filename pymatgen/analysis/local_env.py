@@ -473,7 +473,14 @@ class NearNeighbors:
 
         # If not, Get the N-1 NNs of these allowed steps
         terminal_neighbors = [
-            self._get_nn_shell_info(structure, all_nn_info, x["site_index"], shell - 1, _previous_steps, x["image"],)
+            self._get_nn_shell_info(
+                structure,
+                all_nn_info,
+                x["site_index"],
+                shell - 1,
+                _previous_steps,
+                x["image"],
+            )
             for x in allowed_steps
         ]
 
@@ -844,7 +851,12 @@ class VoronoiNN(NearNeighbors):
                 #   the face up in to segments (0,1,2), (0,2,3), ... to compute
                 #   its area where each number is a vertex size
                 for j, k in zip(vind[1:], vind[2:]):
-                    volume += vol_tetra(center_coords, all_vertices[vind[0]], all_vertices[j], all_vertices[k],)
+                    volume += vol_tetra(
+                        center_coords,
+                        all_vertices[vind[0]],
+                        all_vertices[j],
+                        all_vertices[k],
+                    )
 
                 # Compute the distance of the site to the face
                 face_dist = np.linalg.norm(center_coords - sites[other_site].coords) / 2
@@ -1433,7 +1445,12 @@ class OpenBabelNN(NearNeighbors):
                 weight = bond.GetLength()
 
             siw.append(
-                {"site": site, "image": (0, 0, 0), "weight": weight, "site_index": index,}
+                {
+                    "site": site,
+                    "image": (0, 0, 0),
+                    "weight": weight,
+                    "site_index": index,
+                }
             )
 
         return siw
@@ -1588,7 +1605,12 @@ class CovalentBondNN(NearNeighbors):
                     weight = bond.length
 
                 siw.append(
-                    {"site": site, "image": (0, 0, 0), "weight": weight, "site_index": index,}
+                    {
+                        "site": site,
+                        "image": (0, 0, 0),
+                        "weight": weight,
+                        "site_index": index,
+                    }
                 )
 
         return siw
@@ -2049,7 +2071,9 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10.0
     neighs_cent = get_neighbors_of_site_with_index(struct, n, approach=approach, delta=delta, cutoff=cutoff)
     neighs_cent.append(struct.sites[n])
     opvals = ops.get_order_parameters(
-        neighs_cent, len(neighs_cent) - 1, indices_neighs=list(range(len(neighs_cent) - 1)),
+        neighs_cent,
+        len(neighs_cent) - 1,
+        indices_neighs=list(range(len(neighs_cent) - 1)),
     )
     cn = int(opvals[0] + 0.5)
     motif_type = "unrecognized"
@@ -2621,7 +2645,12 @@ class LocalStructOrderParams:
         ]
         pre_y_6_1 = [
             i16 * sqrt_273_2pi * val[0] * (33.0 * val[1] - 30.0 * val[2] + 5.0 * val[3])
-            for val in zip(self._pow_sin_t[1], self._pow_cos_t[5], self._pow_cos_t[3], self._pow_cos_t[1],)
+            for val in zip(
+                self._pow_sin_t[1],
+                self._pow_cos_t[5],
+                self._pow_cos_t[3],
+                self._pow_cos_t[1],
+            )
         ]
 
         acc = 0.0
@@ -2922,7 +2951,12 @@ class LocalStructOrderParams:
                 if -left_of_unity < vec[2] < left_of_unity:
                     # x is prime meridian --> phi between projection of vec
                     # into x-y plane and (1, 0, 0)^T
-                    tmpphi = acos(max(-1.0, min(vec[0] / (sqrt(vec[0] * vec[0] + vec[1] * vec[1])), 1.0),))
+                    tmpphi = acos(
+                        max(
+                            -1.0,
+                            min(vec[0] / (sqrt(vec[0] * vec[0] + vec[1] * vec[1])), 1.0),
+                        )
+                    )
                     if vec[1] < 0.0:
                         tmpphi = -tmpphi
                 phis.append(tmpphi)
@@ -3050,7 +3084,10 @@ class LocalStructOrderParams:
                                     phi = acos(max(-1.0, min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
                                     if self._comp_azi:
-                                        phi2 = atan2(np.dot(xtwoaxis, yaxis), np.dot(xtwoaxis, xaxis),)
+                                        phi2 = atan2(
+                                            np.dot(xtwoaxis, yaxis),
+                                            np.dot(xtwoaxis, xaxis),
+                                        )
                                 # South pole contributions of m.
                                 if t in [
                                     "tri_bipyr",
@@ -3545,7 +3582,11 @@ class EconNN(NearNeighbors):
     """
 
     def __init__(
-        self, tol: float = 0.2, cutoff: float = 10.0, cation_anion: bool = False, use_fictive_radius: bool = False,
+        self,
+        tol: float = 0.2,
+        cutoff: float = 10.0,
+        cation_anion: bool = False,
+        use_fictive_radius: bool = False,
     ):
         """
         Args:
@@ -3672,7 +3713,10 @@ def _get_fictive_ionic_radius(site: Site, neighbor: PeriodicNeighbor) -> float:
     return neighbor.nn_distance * (r_h / (r_h + r_i))
 
 
-def _get_mean_fictive_ionic_radius(fictive_ionic_radii: List[float], minimum_fir: Optional[float] = None,) -> float:
+def _get_mean_fictive_ionic_radius(
+    fictive_ionic_radii: List[float],
+    minimum_fir: Optional[float] = None,
+) -> float:
     """
     Returns the mean fictive ionic radius.
 
