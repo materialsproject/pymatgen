@@ -26,7 +26,6 @@ class Stringify:
         str_ = self.__str__()
         if self.STRING_MODE == "SUBSCRIPT":
             return re.sub(r"([A-Za-z\(\)])([^A-Za-z\(\)]+)", r"\1$_{\2}$", str_)
-
         return re.sub(r"([A-Za-z\(\)])([^A-Za-z\(\)]+)", r"\1$^{\2}$", str_)
 
     def to_html(self) -> str:

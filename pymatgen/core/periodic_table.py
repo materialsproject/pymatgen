@@ -1083,6 +1083,7 @@ class Species(MSONable, Stringify):
     assigned to Site objects, and not Species.
     """
 
+    STRING_MODE = "SUPERSCRIPT"
     supported_properties = ("spin",)
 
     def __init__(
