@@ -396,7 +396,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             self.entries_with_temps = {
                 temp: GibbsComputedStructureEntry(
                     self.struct,
-                    -2.436 * self.num_atoms,
+                    -2.436,
                     temp=temp,
                     gibbs_model="SISSO",
                     parameters=vasprun.incar,
@@ -426,7 +426,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
 
     def test_interpolation(self):
         temp = 450
-        e = GibbsComputedStructureEntry(self.struct, -2.436 * self.num_atoms, temp=temp)
+        e = GibbsComputedStructureEntry(self.struct, -2.436, temp=temp)
         self.assertAlmostEqual(e.energy, -53.7243542548528)
 
     def test_expt_gas_entry(self):
