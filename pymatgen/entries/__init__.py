@@ -10,10 +10,7 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-import copy
-
 from numbers import Number
-from typing import Optional
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
