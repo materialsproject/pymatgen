@@ -21,6 +21,7 @@ from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
+from pymatgen.util.string import Stringify
 
 SYMM_DATA = None
 
@@ -32,10 +33,12 @@ def _get_symm_data(name):
     return SYMM_DATA[name]
 
 
-class SymmetryGroup(Sequence, metaclass=ABCMeta):
+class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
     """
     Abstract class representation a symmetry group.
     """
+
+    STRING_MODE = "Spacegroup"
 
     @property
     @abstractmethod
@@ -500,6 +503,12 @@ class SpaceGroup(SymmetryGroup):
             self.int_number,
             len(self.symmetry_ops),
         )
+
+    def to_pretty_string(self):
+        """
+        :return: Spacegroup string.
+        """
+        return self.symbol
 
 
 def sg_symbol_from_int_number(int_number, hexagonal=True):

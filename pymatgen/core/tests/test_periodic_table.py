@@ -405,7 +405,7 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(str(mo0), "Mo,spin=5")
 
     def test_stringify(self):
-        self.assertEqual(self.specie2.to_latex(), "Fe$^{3+}$")
+        self.assertEqual(self.specie2.to_latex_string(), "Fe$^{3+}$")
 
 
 class DummySpecieTestCase(unittest.TestCase):
@@ -427,10 +427,13 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecies.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
-        self.assertEqual(sp.to_latex(), "X$^{2+}$")
+        self.assertEqual(sp.to_latex_string(), "X$^{2+}$")
         sp = DummySpecies.from_string("X2+spin=5")
         self.assertEqual(sp.oxi_state, 2)
         self.assertEqual(sp.spin, 5)
+        self.assertEqual(sp.to_latex_string(), "X$^{2+}$")
+        self.assertEqual(sp.to_html_string(), "X<sup>2+</sup>")
+        self.assertEqual(sp.to_unicode_string(), "X²⁺")
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
