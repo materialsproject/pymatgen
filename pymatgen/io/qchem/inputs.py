@@ -7,6 +7,7 @@ Classes for reading/manipulating/writing QChem input files.
 """
 import logging
 from typing import Union, Dict, List, Optional
+from typing_extensions import Literal
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -35,7 +36,7 @@ class QCInput(MSONable):
 
     def __init__(
         self,
-        molecule: Union[Molecule, str],
+        molecule: Union[Molecule, Literal["read"]],
         rem: Dict,
         opt: Optional[Dict[str, List]] = None,
         pcm: Optional[Dict] = None,
@@ -85,15 +86,6 @@ class QCInput(MSONable):
         self.smx = lower_and_check_unique(smx)
         self.scan = lower_and_check_unique(scan)
         self.plots = lower_and_check_unique(plots)
-
-        # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
-
-        if isinstance(self.molecule, str):
-            self.molecule = self.molecule.lower()
-            if self.molecule != "read":
-                raise ValueError('The only acceptable text value for molecule is "read"')
-        elif not isinstance(self.molecule, Molecule):
-            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -267,7 +259,7 @@ class QCInput(MSONable):
             return input_list
 
     @staticmethod
-    def molecule_template(molecule: Union[Molecule, str]) -> str:
+    def molecule_template(molecule: Union[Molecule, Literal["read"]]) -> str:
         """
         Args:
             molecule (Molecule): molecule
@@ -458,7 +450,7 @@ class QCInput(MSONable):
         return sections
 
     @staticmethod
-    def read_molecule(string: str) -> Union[Molecule, str]:
+    def read_molecule(string: str) -> Union[Molecule, Literal["read"]]:
         """
         Read molecule from string.
 
