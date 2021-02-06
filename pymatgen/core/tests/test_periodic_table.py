@@ -406,6 +406,9 @@ class SpecieTestCase(PymatgenTest):
 
     def test_stringify(self):
         self.assertEqual(self.specie2.to_latex_string(), "Fe$^{3+}$")
+        self.assertEqual(self.specie2.to_unicode_string(), "Fe³⁺")
+        self.assertEqual(Species("S", -2).to_latex_string(), "S$^{2-}$")
+        self.assertEqual(Species("S", -2).to_unicode_string(), "S²⁻")
 
 
 class DummySpecieTestCase(unittest.TestCase):

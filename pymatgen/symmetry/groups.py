@@ -38,8 +38,6 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
     Abstract class representation a symmetry group.
     """
 
-    STRING_MODE = "Spacegroup"
-
     @property
     @abstractmethod
     def symmetry_ops(self):
@@ -88,6 +86,14 @@ class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
         """
         warnings.warn("This is not fully functional. Only trivial subsets are " "tested right now. ")
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
+
+    def to_latex_string(self) -> str:
+        r"""
+        Returns:
+            A latex formatted group symbol with proper subscripts and overlines.
+        """
+        sym = re.sub(r"_(\d+)", r"$_{\1}$", self.to_pretty_string())
+        return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
 
 @cached_class
