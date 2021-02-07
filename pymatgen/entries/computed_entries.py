@@ -13,6 +13,7 @@ diagram analysis.
 import abc
 import json
 import os
+import warnings
 from itertools import combinations
 from typing import List
 
@@ -576,8 +577,8 @@ class ComputedStructureEntry(ComputedEntry):
         self,
         structure: Structure,
         energy: float,
-        composition: Composition = None,
         correction: float = 0.0,
+        composition: Composition = None,
         energy_adjustments: list = None,
         parameters: dict = None,
         data: dict = None,
@@ -646,10 +647,11 @@ class ComputedStructureEntry(ComputedEntry):
         # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
         if d["correction"] != 0 and not d.get("energy_adjustments"):
+            struct = dec.process_decoded(d["structure"])
             return cls(
-                dec.process_decoded(d["structure"]),
+                struct,
                 d["energy"],
-                d["correction"],
+                correction=d["correction"],
                 parameters={k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()},
                 data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
                 entry_id=d.get("entry_id", None),
@@ -667,6 +669,32 @@ class ComputedStructureEntry(ComputedEntry):
             data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
             entry_id=d.get("entry_id", None),
         )
+
+    def normalize(self, mode: str = "formula_unit") -> "ComputedStructureEntry":
+        """
+        Normalize the entry's composition and energy. The structure remains
+        unchanged.
+        Args:
+            mode: "formula_unit" is the default, which normalizes to
+                composition.reduced_formula. The other option is "atom",
+                which normalizes such that the composition amounts sum to 1.
+        """
+        # TODO this should raise TypeError
+        # raise TypeError("You cannot normalize a structure.")
+        warnings.warn(
+            (
+                f"Normalization of a `{self.__class__.__name__}` makes "
+                "`self.composition` and `self.structure.composition` inconsistent"
+                " - please use self.composition for all further calculations."
+            )
+        )
+        # TODO: find a better solution for creating copies instead of as/from dict
+        factor = self._normalization_factor(mode)
+        d = super().normalize(mode).as_dict()
+        d["structure"] = self.structure.as_dict()
+        entry = self.from_dict(d)
+        entry._composition /= factor
+        return entry
 
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
