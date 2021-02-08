@@ -10,10 +10,7 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-import copy
-
 from numbers import Number
-from typing import Optional
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -95,7 +92,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["Entry"]:
+    def normalize(self, mode: str = "formula_unit") -> "Entry":
         """
         Normalize the entry's composition and energy.
 
@@ -103,18 +100,17 @@ class Entry(MSONable, metaclass=ABCMeta):
             mode: "formula_unit" is the default, which normalizes to
                 composition.reduced_formula. The other option is "atom", which
                 normalizes such that the composition amounts sum to 1.
-            inplace: "True" is the default which normalises the current Entry object.
-                Setting inplace to "False" returns a normalized copy of the Entry object.
         """
-        if inplace:
-            factor = self._normalization_factor(mode)
-            self._composition /= factor
-            self._energy /= factor
-            return None
 
-        entry = copy.deepcopy(self)
-        entry.normalize(mode, inplace=True)
-        return entry
+        factor = self._normalization_factor(mode)
+        new_composition = self._composition / factor
+        new_energy = self._energy / factor
+
+        new_entry_dict = self.as_dict()
+        new_entry_dict["composition"] = new_composition.as_dict()
+        new_entry_dict["energy"] = new_energy
+
+        return self.from_dict(new_entry_dict)
 
     def _normalization_factor(self, mode: str = "formula_unit") -> float:
         # NOTE here we use composition rather than _composition in order to ensure
@@ -141,15 +137,19 @@ class Entry(MSONable, metaclass=ABCMeta):
         }
 
     def __eq__(self, other):
-        # NOTE Scaled duplicates i.e. physically equivalent materials
-        # are not equal unless normalized separately
+        # NOTE: Scaled duplicates i.e. physically equivalent materials
+        # are not equal unless normalized separately.
         if self is other:
             return True
 
-        if isinstance(other, self.__class__):
-            return self._is_dict_eq(other)
+        # Equality is defined based on composition and energy
+        # If structures are involved, it is assumed that a {composition, energy} is
+        # vanishingly unlikely to be the same if the structures are different
 
-        return False
+        if not np.allclose(self.energy, other.energy):
+            return False
+
+        return self.composition == other.composition
 
     def _is_dict_eq(self, other):
         """
