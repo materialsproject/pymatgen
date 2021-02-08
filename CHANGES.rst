@@ -3,6 +3,8 @@ Change log
 
 v2021.2.8
 ---------
+* Addition of new job types to Q-Chem IO (@espottesmith, #2055), 
+  note `metal_edge_extender` has been moved into `local_env` for this change
 * Improvements to string utils, new Stringify mixin with 
   to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (@shyuep)
 * Improvements to build system (@shyuep, @ltalirz, see #2046)
