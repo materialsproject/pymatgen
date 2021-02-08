@@ -5,15 +5,18 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.entries.compatibility
    pymatgen.entries.computed_entries
+   pymatgen.entries.correction_calculator
    pymatgen.entries.entry_tools
    pymatgen.entries.exp_entries
 

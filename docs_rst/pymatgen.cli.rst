@@ -5,8 +5,8 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
-   pymatgen.cli.feff_input_generation
    pymatgen.cli.feff_plot_cross_section
    pymatgen.cli.feff_plot_dos
    pymatgen.cli.gaussian_analyzer

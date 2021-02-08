@@ -7,10 +7,10 @@ INCAR:
   EDIFF_PER_ATOM: 5.0e-05
   ENCUT: 520
   IBRION: 2
-  ICHARG: 1
   ISIF: 3
   ISMEAR: -5
   ISPIN: 2
+  LASPH: true
   LDAU: true
   LDAUJ:
     F:

@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.ewald &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.ewald &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.ewald</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.ewald</h1><div class="highlight"><pre>
@@ -49,20 +49,19 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">log</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span><span class="p">,</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
-<span class="kn">import</span> <span class="nn">bisect</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">erfc</span><span class="p">,</span> <span class="n">comb</span>
-<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">constants</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides classes for calculating the ewald sum of a structure.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span><span class="p">,</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">bisect</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">erfc</span><span class="p">,</span> <span class="n">comb</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">constants</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, William Davidson Richard&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -78,7 +77,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the electrostatic energy of a periodic array of charges using</span>
 <span class="sd">    the Ewald technique.</span>
-<span class="sd">    Ref: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html</span>
+
+
+<span class="sd">    Ref:</span>
+<span class="sd">    Ewald summation techniques in perspective: a survey</span>
+<span class="sd">    Abdulnour Y. Toukmaji and John A. Board Jr.</span>
+<span class="sd">    DOI: 10.1016/0010-4655(96)00016-1</span>
+<span class="sd">    URL: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html</span>
 
 <span class="sd">    This matrix can be used to do fast calculations of ewald sums after species</span>
 <span class="sd">    removal.</span>
@@ -91,7 +96,7 @@
     <span class="c1"># Converts unit of q*q/r into eV</span>
     <span class="n">CONV_FACT</span> <span class="o">=</span> <span class="mf">1e10</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">e</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">epsilon_0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">real_space_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recip_space_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">real_space_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recip_space_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">acc_factor</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">compute_forces</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes and calculates the Ewald sum. Default convergence</span>
@@ -417,9 +422,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">eta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: eta value used in Ewald summation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_forces</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Real = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_space_energy</span><span class="p">),</span>
                       <span class="s2">&quot;Reciprocal = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_space_energy</span><span class="p">),</span>
@@ -452,21 +460,6 @@
 <span class="sd">    order disordered structure transformation.</span>
 
 <span class="sd">    Author - Will Richards</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        matrix: A matrix of the ewald sum interaction energies. This is stored</span>
-<span class="sd">            in the class as a diagonally symmetric array and so</span>
-<span class="sd">            self._matrix will not be the same as the input matrix.</span>
-<span class="sd">        m_list: list of manipulations. each item is of the form</span>
-<span class="sd">            (multiplication fraction, number_of_indices, indices, species)</span>
-<span class="sd">            These are sorted such that the first manipulation contains the</span>
-<span class="sd">            most permutations. this is actually evaluated last in the</span>
-<span class="sd">            recursion since I&#39;m using pop.</span>
-<span class="sd">        num_to_return: The minimizer will find the number_returned lowest</span>
-<span class="sd">            energy structures. This is likely to return a number of duplicate</span>
-<span class="sd">            structures so it may be necessary to overestimate and then</span>
-<span class="sd">            remove the duplicates later. (duplicate checking in this</span>
-<span class="sd">            process is extremely expensive)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ALGO_FAST</span> <span class="o">=</span> <span class="mi">0</span>
@@ -480,7 +473,23 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ALGO_TIME_LIMIT</span> <span class="o">=</span> <span class="mi">3</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">num_to_return</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="n">ALGO_FAST</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">m_list</span><span class="p">,</span> <span class="n">num_to_return</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="n">ALGO_FAST</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            matrix: A matrix of the ewald sum interaction energies. This is stored</span>
+<span class="sd">                in the class as a diagonally symmetric array and so</span>
+<span class="sd">                self._matrix will not be the same as the input matrix.</span>
+<span class="sd">            m_list: list of manipulations. each item is of the form</span>
+<span class="sd">                (multiplication fraction, number_of_indices, indices, species)</span>
+<span class="sd">                These are sorted such that the first manipulation contains the</span>
+<span class="sd">                most permutations. this is actually evaluated last in the</span>
+<span class="sd">                recursion since I&#39;m using pop.</span>
+<span class="sd">            num_to_return: The minimizer will find the number_returned lowest</span>
+<span class="sd">                energy structures. This is likely to return a number of duplicate</span>
+<span class="sd">                structures so it may be necessary to overestimate and then</span>
+<span class="sd">                remove the duplicates later. (duplicate checking in this</span>
+<span class="sd">                process is extremely expensive)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Setup and checking of inputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
         <span class="c1"># Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])</span>
@@ -671,14 +680,23 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">best_m_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Best m_list found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_m_list</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minimized_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Minimized sum</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_minimized_sum</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">output_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: output lists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_lists</span></div>
 
 
@@ -707,22 +725,8 @@
                          <span class="s2">&quot;site charges.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -735,15 +739,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.ewald</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

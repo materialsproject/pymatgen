@@ -10,14 +10,21 @@ import itertools
 import os
 import warnings
 from fnmatch import fnmatch
-from typing import List, Union, Sequence
+from typing import List, Sequence, Union
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-from pymatgen.core.structure import Structure, Lattice, Element, Specie, DummySpecie, Composition
-from pymatgen.io.vasp.outputs import Xdatcar, Vasprun
 
+from pymatgen.core.structure import (
+    Composition,
+    DummySpecies,
+    Element,
+    Lattice,
+    Species,
+    Structure,
+)
+from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath"
 __version__ = "0.0"
@@ -30,15 +37,18 @@ class Trajectory(MSONable):
     Provides basic functions such as slicing trajectory or obtaining displacements.
     """
 
-    def __init__(self, lattice: Union[List, np.ndarray, Lattice],
-                 species: List[Union[str, Element, Specie, DummySpecie, Composition]],
-                 frac_coords: List[Sequence[Sequence[float]]],
-                 time_step: float = 2,
-                 site_properties: dict = None,
-                 frame_properties: dict = None,
-                 constant_lattice: bool = True,
-                 coords_are_displacement: bool = False,
-                 base_positions: Sequence[Sequence[float]] = None):
+    def __init__(
+        self,
+        lattice: Union[Sequence[float], Sequence[Sequence[float]], np.ndarray, Lattice],
+        species: List[Union[str, Element, Species, DummySpecies, Composition]],
+        frac_coords: Union[List[Sequence[Sequence[float]]], np.ndarray],
+        time_step: float = 2,
+        site_properties: dict = None,
+        frame_properties: dict = None,
+        constant_lattice: bool = True,
+        coords_are_displacement: bool = False,
+        base_positions: Sequence[Sequence[float]] = None,
+    ):
         """
         Create a trajectory object
         Args:
@@ -47,9 +57,9 @@ class Trajectory(MSONable):
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species: List of species on each site. Can take in flexible input,
                 including:
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
@@ -83,8 +93,10 @@ class Trajectory(MSONable):
         self.frac_coords = frac_coords
         if coords_are_displacement:
             if base_positions is None:
-                warnings.warn("Without providing an array of starting positions, \
-                               the positions for each time step will not be available")
+                warnings.warn(
+                    "Without providing an array of starting positions, \
+                               the positions for each time step will not be available"
+                )
             self.base_positions = base_positions
         else:
             self.base_positions = frac_coords[0]
@@ -93,7 +105,7 @@ class Trajectory(MSONable):
         if not constant_lattice and np.shape(lattice) == (3, 3):
             self.lattice = [lattice for i in range(np.shape(self.frac_coords)[0])]
         else:
-            self.lattice = lattice
+            self.lattice = lattice  # type: ignore
         self.constant_lattice = constant_lattice
         self.species = species
         self.site_properties = site_properties
@@ -140,26 +152,35 @@ class Trajectory(MSONable):
             trajectory (Trajectory): Trajectory to add
         """
         if self.time_step != trajectory.time_step:
-            raise ValueError('Trajectory not extended: Time steps of trajectories is incompatible')
+            raise ValueError("Trajectory not extended: Time steps of trajectories is incompatible")
 
         if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
-            raise ValueError('Trajectory not extended: species in trajectory do not match')
+            raise ValueError("Trajectory not extended: species in trajectory do not match")
 
         # Ensure both trajectories are in positions before combining
         self.to_positions()
         trajectory.to_positions()
 
-        self.site_properties = self._combine_site_props(self.site_properties, trajectory.site_properties,
-                                                        np.shape(self.frac_coords)[0],
-                                                        np.shape(trajectory.frac_coords)[0])
-        self.frame_properties = self._combine_frame_props(self.frame_properties, trajectory.frame_properties,
-                                                          np.shape(self.frac_coords)[0],
-                                                          np.shape(trajectory.frac_coords)[0])
+        self.site_properties = self._combine_site_props(
+            self.site_properties,
+            trajectory.site_properties,
+            np.shape(self.frac_coords)[0],
+            np.shape(trajectory.frac_coords)[0],
+        )
+        self.frame_properties = self._combine_frame_props(
+            self.frame_properties,
+            trajectory.frame_properties,
+            np.shape(self.frac_coords)[0],
+            np.shape(trajectory.frac_coords)[0],
+        )
 
         self.frac_coords = np.concatenate((self.frac_coords, trajectory.frac_coords), axis=0)
-        self.lattice, self.constant_lattice = self._combine_lattice(self.lattice, trajectory.lattice,
-                                                                    np.shape(self.frac_coords)[0],
-                                                                    np.shape(trajectory.frac_coords)[0])
+        self.lattice, self.constant_lattice = self._combine_lattice(
+            self.lattice,
+            trajectory.lattice,
+            np.shape(self.frac_coords)[0],
+            np.shape(trajectory.frac_coords)[0],
+        )
 
     def __iter__(self):
         for i in range(np.shape(self.frac_coords)[0]):
@@ -180,7 +201,7 @@ class Trajectory(MSONable):
         if self.coords_are_displacement:
             if isinstance(frames, int):
                 if frames >= np.shape(self.frac_coords)[0]:
-                    raise ValueError('Selected frame exceeds trajectory length')
+                    raise ValueError("Selected frame exceeds trajectory length")
                 # For integer input, return the displacements at that timestep
                 return self.frac_coords[frames]
             if isinstance(frames, slice):
@@ -191,21 +212,25 @@ class Trajectory(MSONable):
                 # For list input, return a list of the displacements
                 pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
                 if len(pruned_frames) < len(frames):
-                    warnings.warn('Some or all selected frames exceed trajectory length')
+                    warnings.warn("Some or all selected frames exceed trajectory length")
                 return [self.frac_coords[i] for i in pruned_frames]
-            raise Exception('Given accessor is not of type int, slice, list, or array')
+            raise Exception("Given accessor is not of type int, slice, list, or array")
 
         # If trajectory is in positions mode, return a structure for the given frame or trajectory for the given frames
         if isinstance(frames, int):
             if frames >= np.shape(self.frac_coords)[0]:
-                raise ValueError('Selected frame exceeds trajectory length')
+                raise ValueError("Selected frame exceeds trajectory length")
             # For integer input, return the structure at that timestep
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
             site_properties = self.site_properties[frames] if self.site_properties else None
             site_properties = self.site_properties[frames] if self.site_properties else None
-            return Structure(Lattice(lattice), self.species, self.frac_coords[frames],
-                             site_properties=site_properties,
-                             to_unit_cell=True)
+            return Structure(
+                Lattice(lattice),
+                self.species,
+                self.frac_coords[frames],
+                site_properties=site_properties,
+                to_unit_cell=True,
+            )
         if isinstance(frames, slice):
             # For slice input, return a trajectory of the sliced time
             start, stop, step = frames.indices(len(self))
@@ -222,15 +247,22 @@ class Trajectory(MSONable):
                     frame_properties[key] = [item[i] for i in pruned_frames]
             else:
                 frame_properties = None
-            return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
-                              site_properties=site_properties, frame_properties=frame_properties,
-                              constant_lattice=self.constant_lattice, coords_are_displacement=False,
-                              base_positions=self.base_positions)
+            return Trajectory(
+                lattice,
+                self.species,
+                frac_coords,
+                time_step=self.time_step,
+                site_properties=site_properties,
+                frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+            )
         if isinstance(frames, (list, np.ndarray)):
             # For list input, return a trajectory of the specified times
             pruned_frames = [i for i in frames if i < len(self)]  # Get rid of frames that exceed trajectory length
             if len(pruned_frames) < len(frames):
-                warnings.warn('Some or all selected frames exceed trajectory length')
+                warnings.warn("Some or all selected frames exceed trajectory length")
             lattice = self.lattice if self.constant_lattice else [self.lattice[i] for i in pruned_frames]
             frac_coords = [self.frac_coords[i] for i in pruned_frames]
             if self.site_properties is not None:
@@ -243,20 +275,34 @@ class Trajectory(MSONable):
                     frame_properties[key] = [item[i] for i in pruned_frames]
             else:
                 frame_properties = None
-            return Trajectory(lattice, self.species, frac_coords, time_step=self.time_step,
-                              site_properties=site_properties, frame_properties=frame_properties,
-                              constant_lattice=self.constant_lattice, coords_are_displacement=False,
-                              base_positions=self.base_positions)
-        raise Exception('Given accessor is not of type int, slice, tuple, list, or array')
+            return Trajectory(
+                lattice,
+                self.species,
+                frac_coords,
+                time_step=self.time_step,
+                site_properties=site_properties,
+                frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+            )
+        raise Exception("Given accessor is not of type int, slice, tuple, list, or array")
 
     def copy(self):
         """
         :return: Copy of Trajectory.
         """
-        return Trajectory(self.lattice, self.species, self.frac_coords, time_step=self.time_step,
-                          site_properties=self.site_properties, frame_properties=self.frame_properties,
-                          constant_lattice=self.constant_lattice, coords_are_displacement=False,
-                          base_positions=self.base_positions)
+        return Trajectory(
+            self.lattice,
+            self.species,
+            self.frac_coords,
+            time_step=self.time_step,
+            site_properties=self.site_properties,
+            frame_properties=self.frame_properties,
+            constant_lattice=self.constant_lattice,
+            coords_are_displacement=False,
+            base_positions=self.base_positions,
+        )
 
     @classmethod
     def from_structures(cls, structures, constant_lattice=True, **kwargs):
@@ -279,8 +325,14 @@ class Trajectory(MSONable):
         site_properties = {}
 
         site_properties = [structure.site_properties for structure in structures]
-        return cls(lattice, structures[0].species, frac_coords, site_properties=site_properties,
-                   constant_lattice=constant_lattice, **kwargs)
+        return cls(
+            lattice,
+            structures[0].species,
+            frac_coords,
+            site_properties=site_properties,
+            constant_lattice=constant_lattice,
+            **kwargs,
+        )
 
     @classmethod
     def from_file(cls, filename, constant_lattice=True, **kwargs):
@@ -309,14 +361,17 @@ class Trajectory(MSONable):
         """
         :return: MSONAble dict.
         """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "species": self.species, "time_step": self.time_step,
-             "site_properties": self.site_properties,
-             "frame_properties": self.frame_properties,
-             "constant_lattice": self.constant_lattice,
-             "coords_are_displacement": self.coords_are_displacement,
-             "base_positions": self.base_positions}
+        d = {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "species": self.species,
+            "time_step": self.time_step,
+            "site_properties": self.site_properties,
+            "frame_properties": self.frame_properties,
+            "constant_lattice": self.constant_lattice,
+            "coords_are_displacement": self.coords_are_displacement,
+            "base_positions": self.base_positions,
+        }
         d["lattice"] = self.lattice.tolist()
         d["frac_coords"] = self.frac_coords.tolist()
 
@@ -436,7 +491,7 @@ class Trajectory(MSONable):
         self.to_positions()
 
         if system is None:
-            system = f'{self[0].composition.reduced_formula}'
+            system = f"{self[0].composition.reduced_formula}"
 
         lines = []
         format_str = "{{:.{0}f}}".format(significant_figures)

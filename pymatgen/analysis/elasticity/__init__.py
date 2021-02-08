@@ -6,6 +6,6 @@
 Package for analyzing elastic tensors and properties.
 """
 
-from .elastic import *
-from .stress import *
-from .strain import *
+from .elastic import *  # noqa
+from .strain import *  # noqa
+from .stress import *  # noqa

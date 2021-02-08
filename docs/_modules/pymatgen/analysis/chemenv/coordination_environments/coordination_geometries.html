@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</h1><div class="highlight"><pre>
@@ -68,10 +68,10 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">factorial</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">factorial</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
@@ -89,7 +89,7 @@
 <span class="sd">    of the Continuous Symmetry Measure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm_type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Base constructor for ChemenvAlgorithm.</span>
 
@@ -115,7 +115,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algorithm_type</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span></div>
 
 
@@ -124,7 +124,7 @@
 <span class="sd">    Class representing the algorithm doing the explicit permutations for the calculation of</span>
 <span class="sd">    the Continuous Symmetry Measure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Initializes a separation plane for a given perfect coordination geometry.</span>
 
@@ -135,7 +135,7 @@
             <span class="n">algorithm_type</span><span class="o">=</span><span class="n">EXPLICIT_PERMUTATIONS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_permutations</span> <span class="o">=</span> <span class="n">permutations</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_type</span>
 
     <span class="nd">@property</span>
@@ -176,7 +176,7 @@
 <span class="sd">    Class representing the algorithm using separation planes for the calculation of</span>
 <span class="sd">    the Continuous Symmetry Measure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plane_points</span><span class="p">,</span> <span class="n">mirror_plane</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ordered_plane</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plane_points</span><span class="p">,</span> <span class="n">mirror_plane</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ordered_plane</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">point_groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ordered_point_groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># include_inverted_plane=False,</span>
                  <span class="c1"># do_inverse_pt_gp_permutations=False, plane_type=&#39;MIRROR&#39;,</span>
@@ -405,7 +405,7 @@
                        <span class="s1">&#39;other_plane_points&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;other_plane_points&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">minimum_number_of_points</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;minimum_number_of_points&#39;</span><span class="p">])</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;Separation plane algorithm with the following reference separation :</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">] | [</span><span class="si">{}</span><span class="s1">] | [</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">point_groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]]),</span>
@@ -432,7 +432,7 @@
 
         <span class="n">ALLOWED_HINTS_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;single_cap&#39;</span><span class="p">,</span> <span class="s1">&#39;double_cap&#39;</span><span class="p">,</span> <span class="s1">&#39;triple_cap&#39;</span><span class="p">]</span>
 
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hints_type</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hints_type</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Constructor for this NeighborsSetsHints.</span>
 
@@ -567,7 +567,7 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">hints_type</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;hints_type&#39;</span><span class="p">],</span>
                        <span class="n">options</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">])</span></div></div>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">alternative_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">alternative_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">IUPAC_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">IUCr_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">central_site</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solid_angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">permutations_safe_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -682,7 +682,7 @@
                                          <span class="k">for</span> <span class="n">nbshd</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">]]</span>
                    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;neighbors_sets_hints&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="ow">and</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">symbol</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IUPAC_symbol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">symbol</span> <span class="o">+=</span> <span class="s1">&#39; (IUPAC: </span><span class="si">{s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">IUPAC_symbol</span><span class="p">)</span>
@@ -707,7 +707,7 @@
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">symbol</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IUPAC_symbol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">symbol</span> <span class="o">+=</span> <span class="s1">&#39; (IUPAC: </span><span class="si">{s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">IUPAC_symbol</span><span class="p">)</span>
@@ -725,7 +725,7 @@
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination</span>
 
 <div class="viewcode-block" id="CoordinationGeometry.set_permutations_safe_override"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override">[docs]</a>    <span class="k">def</span> <span class="nf">set_permutations_safe_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="p">):</span>
@@ -976,7 +976,7 @@
 <span class="sd">    classes)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the list of Coordination Geometries.</span>
 
@@ -1040,17 +1040,17 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">maxpoints</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxpoints</span><span class="p">[</span><span class="n">cn</span><span class="p">],</span> <span class="n">algo</span><span class="o">.</span><span class="n">maximum_number_of_points</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maxpoints_inplane</span> <span class="o">=</span> <span class="p">{</span><span class="n">cn</span><span class="p">:</span> <span class="nb">max</span><span class="p">([</span><span class="n">sep</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">sep</span> <span class="ow">in</span> <span class="n">seps</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span> <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">seps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">separations_cg</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_geometry_from_mp_symbol</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string with the list of coordination geometries.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1062,7 +1062,7 @@
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string with the list of coordination geometries that are implemented.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1396,22 +1396,8 @@
         <span class="k">return</span> <span class="n">mystring</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1424,15 +1410,16 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

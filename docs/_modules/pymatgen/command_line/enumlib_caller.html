@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.command_line.enumlib_caller &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.command_line.enumlib_caller</h1><div class="highlight"><pre>
@@ -49,35 +49,13 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">lcm</span>
-<span class="kn">import</span> <span class="nn">fractions</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Poscar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">DummySpecie</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
-<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Timer</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements an interface to enumlib, Gus Hart&quot;s excellent Fortran</span>
 <span class="sd">code for enumerating derivative structures.</span>
 
 <span class="sd">This module depends on a compiled enumlib with the executables enum.x and</span>
 <span class="sd">makestr.x available in the path. Please download the library at</span>
-<span class="sd">http://enum.sourceforge.net/ and follow the instructions in the README to</span>
+<span class="sd">https://github.com/msg-byu/enumlib and follow the instructions in the README to</span>
 <span class="sd">compile these two executables accordingly.</span>
 
 <span class="sd">If you use this module, please cite the following:</span>
@@ -91,7 +69,33 @@
 <span class="sd">Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, &quot;Generating</span>
 <span class="sd">derivative structures at a fixed concentration,&quot; Comp. Mat. Sci. 59</span>
 <span class="sd">101-107 (March 2012)</span>
+
+<span class="sd">Wiley S. Morgan, Gus L. W. Hart, Rodney W. Forcade, &quot;Generating derivative</span>
+<span class="sd">superstructures for systems with high configurational freedom,&quot; Comp. Mat.</span>
+<span class="sd">Sci. 136 144-149 (May 2017)</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="kn">import</span> <span class="n">lcm</span>
+<span class="kn">import</span> <span class="nn">fractions</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">DummySpecie</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Timer</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -111,11 +115,11 @@
 <span class="n">makestr_cmd</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makestr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.x&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;makeStr.py&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="EnumlibAdaptor"><a class="viewcode-back" href="../../../pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumlibAdaptor">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">enum_cmd</span> <span class="ow">and</span> <span class="n">makestr_cmd</span><span class="p">,</span>
+<span class="nd">@requires</span><span class="p">(</span><span class="n">enum_cmd</span> <span class="ow">and</span> <span class="n">makestr_cmd</span><span class="p">,</span>
           <span class="s2">&quot;EnumlibAdaptor requires the executables &#39;enum.x&#39; or &#39;multienum.x&#39; &quot;</span>
           <span class="s2">&quot;and &#39;makestr.x&#39; or &#39;makeStr.py&#39; to be in the path. Please download the &quot;</span>
-          <span class="s2">&quot;library at http://enum.sourceforge.net/ and follow the instructions in &quot;</span>
-          <span class="s2">&quot;the README to compile these two executables accordingly.&quot;</span><span class="p">)</span>
+          <span class="s2">&quot;library at https://github.com/msg-byu/enumlib and follow the instructions &quot;</span>
+          <span class="s2">&quot;in the README to compile these two executables accordingly.&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">EnumlibAdaptor</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An adaptor for enumlib.</span>
@@ -126,7 +130,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">amount_tol</span> <span class="o">=</span> <span class="mf">1e-5</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">min_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">min_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">symm_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
                  <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -454,29 +458,18 @@
                 <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sites</span><span class="p">)))</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read in a total of </span><span class="si">{}</span><span class="s2"> structures.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_structs</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">structs</span></div>
+        <span class="k">return</span> <span class="n">structs</span>
 
 
 <div class="viewcode-block" id="EnumError"><a class="viewcode-back" href="../../../pymatgen.command_line.enumlib_caller.html#pymatgen.command_line.enumlib_caller.EnumError">[docs]</a><span class="k">class</span> <span class="nc">EnumError</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Error subclass for enumeration errors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -489,15 +482,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.command_line.enumlib_caller</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

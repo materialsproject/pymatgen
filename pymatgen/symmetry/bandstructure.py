@@ -7,9 +7,21 @@ generate high-symmetry k-paths using different conventions.
 """
 
 import itertools
-import numpy as np
+from warnings import warn
+
 import networkx as nx
-from pymatgen.symmetry.kpath import KPathBase, KPathSetyawanCurtarolo, KPathLatimerMunro, KPathSeek
+import numpy as np
+
+
+from pymatgen.symmetry.kpath import (
+    KPathBase,
+    KPathLatimerMunro,
+    KPathSeek,
+    KPathSetyawanCurtarolo,
+)
+
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin
 
 __author__ = "Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -36,8 +48,15 @@ class HighSymmKpath(KPathBase):
     """
 
     def __init__(
-            self, structure, has_magmoms=False, magmom_axis=None, path_type="sc",
-            symprec=0.01, angle_tolerance=5, atol=1e-5):
+        self,
+        structure,
+        has_magmoms=False,
+        magmom_axis=None,
+        path_type="sc",
+        symprec=0.01,
+        angle_tolerance=5,
+        atol=1e-5,
+    ):
         """
         Args:
             structure (Structure): Structure object
@@ -115,7 +134,10 @@ class HighSymmKpath(KPathBase):
                 for block in bs.kpath["path"]:
                     new_block = []
                     for label in block:
-                        for ind in range(len(label_index) - len(bs.kpath["kpoints"]), len(label_index),):
+                        for ind in range(
+                            len(label_index) - len(bs.kpath["kpoints"]),
+                            len(label_index),
+                        ):
                             if label_index[ind] == label:
                                 new_block.append(ind)
 
@@ -200,6 +222,14 @@ class HighSymmKpath(KPathBase):
         for key in kpoints:
             kpoints[key] = np.dot(np.transpose(np.linalg.inv(tmat)), kpoints[key])
 
+        bs.kpath["kpoints"] = kpoints
+        self._rec_lattice = self._structure.lattice.reciprocal_lattice
+
+        warn(
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
+of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+        )
+
         return bs
 
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
@@ -276,21 +306,20 @@ class HighSymmKpath(KPathBase):
         return labels
 
     @staticmethod
-    def get_continuous_path(bandstructure=None):
+    def get_continuous_path(bandstructure):
         """
         Obtain a continous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
         odd-degree to ensure a Eulerian path can be formed. Initial
-        k-path must be able to be converted to a connected graph.
+        k-path must be able to be converted to a connected graph. See
+        npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+        for more details.
 
         Args:
-        bandstructure (Bandstructure): Bandstructure object.
+        bandstructure (BandstructureSymmLine): BandstructureSymmLine object.
 
         Returns:
-        distances_map (list): Mapping of 'distance' segments for altering a
-            BSPlotter object to new continuous path. List of tuples indicating the
-            new order of distances, and whether they should be plotted in reverse.
-        kpath_euler (list): New continuous kpath in the HighSymmKpath format.
+        bandstructure (BandstructureSymmLine): New BandstructureSymmLine object with continous path.
         """
 
         G = nx.Graph()
@@ -320,4 +349,56 @@ class HighSymmKpath(KPathBase):
                 elif edge_euler[::-1] == edge_reg:
                     distances_map.append((plot_axis.index(edge_reg), True))
 
-        return distances_map, kpath_euler
+        if bandstructure.is_spin_polarized:
+            spins = [Spin.up, Spin.down]
+        else:
+            spins = [Spin.up]
+
+        new_kpoints = []
+        new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
+        new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
+
+        for entry in distances_map:
+            if not entry[1]:
+                branch = bandstructure.branches[entry[0]]
+                start = branch["start_index"]
+                stop = branch["end_index"] + 1
+                step = 1
+
+            else:
+                branch = bandstructure.branches[entry[0]]
+                start = branch["end_index"]
+                stop = branch["start_index"] - 1
+                step = -1
+
+            # kpoints
+            new_kpoints += [point.frac_coords for point in bandstructure.kpoints[start:stop:step]]
+
+            # eigenvals
+            for spin in spins:
+                for n, band in enumerate(bandstructure.bands[spin]):
+
+                    new_bands[spin][n] = np.concatenate((new_bands[spin][n], band[start:stop:step]))
+
+            # projections
+            for spin in spins:
+                for n, band in enumerate(bandstructure.projections[spin]):
+
+                    new_projections[spin][n] += band[start:stop:step].tolist()
+
+        for spin in spins:
+            new_projections[spin] = np.array(new_projections[spin])
+
+        new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
+
+        new_bandstructure = BandStructureSymmLine(
+            kpoints=new_kpoints,
+            eigenvals=new_bands,
+            lattice=bandstructure.lattice_rec,
+            efermi=bandstructure.efermi,
+            labels_dict=new_labels_dict,
+            structure=bandstructure.structure,
+            projections=new_projections,
+        )
+
+        return new_bandstructure

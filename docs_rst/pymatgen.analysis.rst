@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.chemenv
    pymatgen.analysis.defects
@@ -13,13 +14,16 @@ Subpackages
    pymatgen.analysis.ferroelectricity
    pymatgen.analysis.gb
    pymatgen.analysis.magnetism
+   pymatgen.analysis.solar
    pymatgen.analysis.structure_prediction
+   pymatgen.analysis.topological
    pymatgen.analysis.xas
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.adsorption
    pymatgen.analysis.bond_dissociation

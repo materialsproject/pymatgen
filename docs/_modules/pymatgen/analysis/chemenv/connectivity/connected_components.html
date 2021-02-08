@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.connectivity.connected_components &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.chemenv.connectivity.connected_components &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.connectivity.connected_components</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.chemenv.connectivity.connected_components</h1><div class="highlight"><pre>
@@ -53,19 +53,19 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="k">import</span> <span class="n">FancyArrowPatch</span><span class="p">,</span> <span class="n">Circle</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">FancyArrowPatch</span><span class="p">,</span> <span class="n">Circle</span>
 
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
-<span class="kn">from</span> <span class="nn">networkx.algorithms.traversal</span> <span class="k">import</span> <span class="n">bfs_tree</span>
-<span class="kn">from</span> <span class="nn">networkx.algorithms.components</span> <span class="k">import</span> <span class="n">is_connected</span>
+<span class="kn">from</span> <span class="nn">networkx.algorithms.traversal</span> <span class="kn">import</span> <span class="n">bfs_tree</span>
+<span class="kn">from</span> <span class="nn">networkx.algorithms.components</span> <span class="kn">import</span> <span class="n">is_connected</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">jsanitize</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.graph_utils</span> <span class="k">import</span> <span class="n">get_delta</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="k">import</span> <span class="n">ChemenvError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="k">import</span> <span class="n">get_linearly_independent_vectors</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.connectivity.environment_nodes</span> <span class="k">import</span> <span class="n">EnvironmentNode</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.graph_utils</span> <span class="kn">import</span> <span class="n">get_delta</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="kn">import</span> <span class="n">ChemenvError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="kn">import</span> <span class="n">get_linearly_independent_vectors</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.connectivity.environment_nodes</span> <span class="kn">import</span> <span class="n">EnvironmentNode</span>
 
 
 <div class="viewcode-block" id="draw_network"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.draw_network">[docs]</a><span class="k">def</span> <span class="nf">draw_network</span><span class="p">(</span><span class="n">env_graph</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">sg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">periodicity_vectors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -225,7 +225,7 @@
 <span class="sd">    Class used to describe the connected components in a structure in terms of coordination environments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">links</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environments_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">links_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">links</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environments_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">links_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the ConnectedComponent object.</span>
 
@@ -390,7 +390,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Coordination type &quot;</span><span class="si">{}</span><span class="s1">&quot; is not valid for coordination_sequence.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordination</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cseq</span></div>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ConnectedComponent.compute_periodicity"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity">[docs]</a>    <span class="k">def</span> <span class="nf">compute_periodicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;all_simple_paths&#39;</span><span class="p">):</span>
@@ -962,22 +962,8 @@
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -990,15 +976,16 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.chemenv.connectivity.connected_components</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

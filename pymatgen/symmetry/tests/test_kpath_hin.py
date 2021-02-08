@@ -4,15 +4,20 @@
 
 
 import unittest
-import os
 
-from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
+from pymatgen.util.testing import PymatgenTest
+
+try:
+    from seekpath import get_path  # type: ignore
+except ImportError:
+    get_path = None
 
 
 class KPathSeekTest(PymatgenTest):
+    @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)
@@ -28,7 +33,11 @@ class KPathSeekTest(PymatgenTest):
             sg_num = i + 1
             if sg_num in triclinic:
                 lattice = Lattice(
-                    [[3.0233057319441246, 1, 0], [0, 7.9850357844548681, 1], [0, 1.2, 8.1136762279561818]]
+                    [
+                        [3.0233057319441246, 1, 0],
+                        [0, 7.9850357844548681, 1],
+                        [0, 1.2, 8.1136762279561818],
+                    ]
                 )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
@@ -45,7 +54,9 @@ class KPathSeekTest(PymatgenTest):
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
+            kpoints = kpath.get_kpoints()  # noqa: F841
 
+    @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
@@ -59,7 +70,23 @@ class KPathSeekTest(PymatgenTest):
         self.assertEqual(
             sorted(labels),
             sorted(
-                ["B_0", "B_2", "DELTA_0", "F_0", "GAMMA", "G_0", "G_2", "R", "R_2", "S", "T", "T_2", "Y", "Z", "Z_2"]
+                [
+                    "B_0",
+                    "B_2",
+                    "DELTA_0",
+                    "F_0",
+                    "GAMMA",
+                    "G_0",
+                    "G_2",
+                    "R",
+                    "R_2",
+                    "S",
+                    "T",
+                    "T_2",
+                    "Y",
+                    "Z",
+                    "Z_2",
+                ]
             ),
         )
 
