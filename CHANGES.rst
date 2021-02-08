@@ -1,6 +1,15 @@
 Change log
 ==========
 
+v2021.2.8
+---------
+* Improvements to string utils, new Stringify mixin with 
+  to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (@shyuep)
+* Improvements to build system (@shyuep, @ltalirz, see #2046)
+* Entry is now immutable, removing "in_place" option for normalize (@mkhorton, @mattmcdermott, #2060)
+* Bug fix for co-ordination geometry finder (@davidwaroquiers, #2035)
+* Bug fix for GibbsComputedStructureEntry (@mattmcdermott)
+
 v2021.1.28
 ----------
 * Ability to read Lobster wavefunctions (@JaGeo, #2034) 
