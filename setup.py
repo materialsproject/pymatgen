@@ -138,6 +138,9 @@ setup(
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
         ],
+        ':python_version < "3.8"': [
+            "typing-extensions>=3.7.4.3",
+        ],
     },
     package_data={
         "pymatgen": json_yaml_csv_files,

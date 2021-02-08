@@ -209,8 +209,13 @@ class MPRester:
                 )
             d["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
 
-            # write out new database log
-            dumpfn(d, SETTINGS_FILE)
+            # write out new database log if possible
+            # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
+            # and should be allowed to fail regardless of reason
+            try:
+                dumpfn(d, SETTINGS_FILE)
+            except Exception:
+                pass
 
     def __enter__(self):
         """

@@ -24,6 +24,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
+from monty.dev import deprecated
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 try:
@@ -32,6 +33,7 @@ except ImportError:
     from scipy.misc import comb
 
 from tqdm import tqdm
+
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
@@ -43,6 +45,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify
+
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -1138,6 +1141,10 @@ def generate_entry_label(entry):
     return latexify_ion(latexify(entry.name))
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def latexify_ion(formula):
     """
     Convert a formula to latex format.
