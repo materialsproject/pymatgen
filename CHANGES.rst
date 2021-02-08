@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2021.2.8.1
+-----------
+* Patch release to restore `CompositionError` to preserve backwards compatibility.
+
 v2021.2.8
 ---------
 * Addition of new job types to Q-Chem IO (@espottesmith, #2055), 
