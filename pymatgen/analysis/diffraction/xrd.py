@@ -130,9 +130,13 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         """
         if isinstance(wavelength, float):
             self.wavelength = wavelength
-        else:
+        elif isinstance(wavelength, int):
+            self.wavelength = float(wavelength)
+        elif isinstance(wavelength, str):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
+        else:
+            raise TypeError("'wavelength' must be either of: float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
