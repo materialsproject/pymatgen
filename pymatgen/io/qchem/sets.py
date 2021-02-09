@@ -213,14 +213,7 @@ class QChemDictSet(QCInput):
                         myplots[k] = v
 
         super().__init__(
-            self.molecule,
-            rem=myrem,
-            opt=myopt,
-            pcm=mypcm,
-            solvent=mysolvent,
-            smx=mysmx,
-            scan=myscan,
-            plots=myplots,
+            self.molecule, rem=myrem, opt=myopt, pcm=mypcm, solvent=mysolvent, smx=mysmx, scan=myscan, plots=myplots,
         )
 
     def write(self, input_file: str):
