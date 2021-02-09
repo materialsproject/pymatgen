@@ -13,7 +13,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __email__ = "b.wood@berkeley.edu"
@@ -118,6 +118,22 @@ $end"""
    solvent water
 $end"""
         self.assertEqual(smx_actual, smx_test)
+
+    def test_scan_template(self):
+        scan_params = {"stre": ["3 6 1.5 1.9 0.01"],
+                       "tors": ["1 2 3 4 -180 180 30"]}
+        scan_test = QCInput.scan_template(scan_params)
+        scan_actual = """$scan
+   stre 3 6 1.5 1.9 0.01
+   tors 1 2 3 4 -180 180 30
+$end"""
+        self.assertEqual(scan_test, scan_actual)
+
+        bad_scan = {"stre": ["1 2 1.0 2.0 0.05",
+                             "3 4 1.5 2.0 0.05"],
+                    "bend": ["7 8 9 90 120 10"]}
+        with self.assertRaises(ValueError):
+            bad_scan_test = QCInput.scan_template(bad_scan)
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
@@ -671,6 +687,42 @@ $end"""
         smx_test = QCInput.read_smx(str_smx)
         smx_actual = {}
         self.assertDictEqual(smx_actual, smx_test)
+
+    def test_read_scan(self):
+        str_scan = """Once more, I'm trying to break you!
+        
+$scan
+   stre 1 2 1.1 1.4 0.03
+   bend 3 4 5 60 90 5
+$end"""
+        scan_test = QCInput.read_scan(str_scan)
+        scan_actual = {"stre": ["1 2 1.1 1.4 0.03"],
+                       "bend": ["3 4 5 60 90 5"],
+                       "tors": []}
+
+        self.assertDictEqual(scan_test, scan_actual)
+
+    def test_read_bad_scan(self):
+        str_scan_1 = """Once more, I"m trying to break you!
+$scan
+   boo 1 4 1.2 1.5 0.02
+   tors = 3 6 1.5 1.9 0.01        
+$end
+"""
+        scan_test_1 = QCInput.read_scan(str_scan_1)
+        scan_actual_1 = dict()
+        self.assertDictEqual(scan_test_1, scan_actual_1)
+
+        str_scan_2 = """Once more, I'm trying to break you!
+        
+$scan
+   stre 1 2 1.1 1.4 0.03
+   bend 3 4 5 60 90 5
+   tors 6 7 8 9 -180 180 30
+$end"""
+
+        with self.assertRaises(ValueError):
+            scan_test_2 = QCInput.read_scan(str_scan_2)
 
     def test_read_negative(self):
         str_molecule = """$molecule

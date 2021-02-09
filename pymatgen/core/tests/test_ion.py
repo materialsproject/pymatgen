@@ -143,6 +143,9 @@ class IonTest(unittest.TestCase):
     def test_len(self):
         self.assertEqual(len(self.comp[1]), 2, "Lengths are not equal!")
 
+    def test_to_string(self):
+        self.assertEqual(self.comp[1].to_latex_string(), "Mn$_{1}$ O$_{4}$$^{-1}$")
+
 
 if __name__ == "__main__":
     unittest.main()

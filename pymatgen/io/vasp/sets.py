@@ -1155,7 +1155,7 @@ class MPStaticSet(MPRelaxSet):
         if kpoints is not None:
             if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
                 if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (not self.lepsilon):
-                    k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]
+                    k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
                     kpoints = Kpoints.monkhorst_automatic(k_div)
                 else:
                     kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
@@ -1422,7 +1422,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             comment=comment,
             style=Kpoints.supported_modes.Reciprocal,
             num_kpts=len(kpts),
-            kpts=kpts,
+            kpts=kpts,  # type: ignore
             kpts_weights=weights,
             labels=all_labels,
         )

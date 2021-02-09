@@ -18,15 +18,16 @@ from pymatgen.core.periodic_table import Element, Species
 
 class CompositionTest(PymatgenTest):
     def setUp(self):
-        self.comp = list()
-        self.comp.append(Composition("Li3Fe2(PO4)3"))
-        self.comp.append(Composition("Li3Fe(PO4)O"))
-        self.comp.append(Composition("LiMn2O4"))
-        self.comp.append(Composition("Li4O4"))
-        self.comp.append(Composition("Li3Fe2Mo3O12"))
-        self.comp.append(Composition("Li3Fe2((PO4)3(CO3)5)2"))
-        self.comp.append(Composition("Li1.5Si0.5"))
-        self.comp.append(Composition("ZnOH"))
+        self.comp = [
+            Composition("Li3Fe2(PO4)3"),
+            Composition("Li3Fe(PO4)O"),
+            Composition("LiMn2O4"),
+            Composition("Li4O4"),
+            Composition("Li3Fe2Mo3O12"),
+            Composition("Li3Fe2((PO4)3(CO3)5)2"),
+            Composition("Li1.5Si0.5"),
+            Composition("ZnOH"),
+        ]
 
         self.indeterminate_comp = []
         self.indeterminate_comp.append(Composition.ranked_compositions_from_indeterminate_formula("Co1", True))
@@ -117,6 +118,11 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition("K3 Na 2").reduced_formula, "K3Na2")
 
         self.assertEqual(Composition("Na 3 Zr (PO 4) 3").reduced_formula, "Na3Zr(PO4)3")
+
+    def test_to_latex_html_unicode(self):
+        self.assertEqual(self.comp[0].to_latex_string(), "Li$_{3}$Fe$_{2}$P$_{3}$O$_{12}$")
+        self.assertEqual(self.comp[0].to_html_string(), "Li<sub>3</sub>Fe<sub>2</sub>P<sub>3</sub>O<sub>12</sub>")
+        self.assertEqual(self.comp[0].to_unicode_string(), "Li₃Fe₂P₃O₁₂")
 
     def test_iupac_formula(self):
         correct_formulas = [

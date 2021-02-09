@@ -24,14 +24,13 @@ from multiprocessing import Pool
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
+from monty.dev import deprecated
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 try:
     from scipy.special import comb
 except ImportError:
     from scipy.misc import comb
-
-from tqdm import tqdm
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
@@ -43,6 +42,8 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify
+from pymatgen.util.sequence import PBar
+
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -658,11 +659,11 @@ class PourbaixDiagram(MSONable):
         if nproc is not None:
             f = partial(self.process_multientry, prod_comp=tot_comp)
             with Pool(nproc) as p:
-                multi_entries = list(tqdm(p.imap(f, all_combos), total=len(all_combos)))
+                multi_entries = list(PBar(p.imap(f, all_combos), total=len(all_combos)))
             multi_entries = list(filter(bool, multi_entries))
         else:
             # Serial processing of multi-entry generation
-            for combo in tqdm(all_combos):
+            for combo in PBar(all_combos):
                 multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
                 if multi_entry:
                     multi_entries.append(multi_entry)
@@ -705,7 +706,7 @@ class PourbaixDiagram(MSONable):
         if nproc is not None:
             f = partial(self.process_multientry, prod_comp=total_comp)
             with Pool(nproc) as p:
-                processed_entries = list(tqdm(p.imap(f, entry_combos), total=total))
+                processed_entries = list(PBar(p.imap(f, entry_combos), total=total))
             processed_entries = list(filter(bool, processed_entries))
         # Serial processing of multi-entry generation
         else:
@@ -1138,6 +1139,10 @@ def generate_entry_label(entry):
     return latexify_ion(latexify(entry.name))
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def latexify_ion(formula):
     """
     Convert a formula to latex format.
