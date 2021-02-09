@@ -253,18 +253,48 @@ class SinglePointSet(QChemDictSet):
         overwrite_inputs: Optional[Dict] = None,
     ):
         """
-
         Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            plot_cubes() :
-            overwrite_inputs ():
+            molecule (Pymatgen Molecule object)
+            job_type (str): QChem job type to run. Valid options are "opt" for optimization,
+                "sp" for single point, "freq" for frequency calculation, or "force" for
+                force evaluation.
+            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
+                (Default: "diis")
+            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
+                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
+                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+
+                To set a functional not given by one of the above, set the overwrite_inputs
+                argument to {"method":"<NAME OF FUNCTIONAL>"}
+
+                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
+                Ladder of Density Functional Approxmations"**
+            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
+
+                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+            custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
+                Must be given as a string of seven comma separated values in the following order:
+                "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
+                electronegative halogenicity"
+                Refer to the QChem manual for further details.
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
+                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                a new variable to the rem section that sets symmetry to false, use
+
+                overwrite_inputs = {"rem": {"symmetry": "false"}}
+
+                **Note that if something like basis is added to the rem dict it will overwrite
+                the default basis.**
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -306,18 +336,48 @@ class OptSet(QChemDictSet):
     ):
         """
         Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            opt_variables ():
-            geom_opt_max_cycles ():
-            plot_cubes ():
-            overwrite_inputs ():
+            molecule (Pymatgen Molecule object)
+            job_type (str): QChem job type to run. Valid options are "opt" for optimization,
+                "sp" for single point, "freq" for frequency calculation, or "force" for
+                force evaluation.
+            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
+                (Default: "diis")
+            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
+                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
+                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+
+                To set a functional not given by one of the above, set the overwrite_inputs
+                argument to {"method":"<NAME OF FUNCTIONAL>"}
+
+                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
+                Ladder of Density Functional Approxmations"**
+            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
+
+                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+            custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
+                Must be given as a string of seven comma separated values in the following order:
+                "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
+                electronegative halogenicity"
+                Refer to the QChem manual for further details.
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
+                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                a new variable to the rem section that sets symmetry to false, use
+
+                overwrite_inputs = {"rem": {"symmetry": "false"}}
+
+                **Note that if something like basis is added to the rem dict it will overwrite
+                the default basis.**
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -362,17 +422,45 @@ class TransitionStateSet(QChemDictSet):
     ):
         """
         Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            opt_variables ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            geom_opt_max_cycles ():
-            overwrite_inputs ():
+            molecule (Pymatgen Molecule object)
+            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
+                (Default: "diis")
+            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
+                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
+                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+
+                To set a functional not given by one of the above, set the overwrite_inputs
+                argument to {"method":"<NAME OF FUNCTIONAL>"}
+
+                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
+                Ladder of Density Functional Approxmations"**
+            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
+
+                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+            custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
+                Must be given as a string of seven comma separated values in the following order:
+                "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
+                electronegative halogenicity"
+                Refer to the QChem manual for further details.
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
+                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                a new variable to the rem section that sets symmetry to false, use
+
+                overwrite_inputs = {"rem": {"symmetry": "false"}}
+
+                **Note that if something like basis is added to the rem dict it will overwrite
+                the default basis.**
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -415,16 +503,45 @@ class ForceSet(QChemDictSet):
     ):
         """
         Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            plot_cubes ():
-            overwrite_inputs ():
+            molecule (Pymatgen Molecule object)
+            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
+                (Default: "diis")
+            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
+                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
+                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+
+                To set a functional not given by one of the above, set the overwrite_inputs
+                argument to {"method":"<NAME OF FUNCTIONAL>"}
+
+                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
+                Ladder of Density Functional Approxmations"**
+            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
+
+                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+            custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
+                Must be given as a string of seven comma separated values in the following order:
+                "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
+                electronegative halogenicity"
+                Refer to the QChem manual for further details.
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
+                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                a new variable to the rem section that sets symmetry to false, use
+
+                overwrite_inputs = {"rem": {"symmetry": "false"}}
+
+                **Note that if something like basis is added to the rem dict it will overwrite
+                the default basis.**
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -464,16 +581,45 @@ class FreqSet(QChemDictSet):
     ):
         """
         Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            plot_cubes ():
-            overwrite_inputs ():
+            molecule (Pymatgen Molecule object)
+            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
+                (Default: "diis")
+            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
+                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
+                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+
+                To set a functional not given by one of the above, set the overwrite_inputs
+                argument to {"method":"<NAME OF FUNCTIONAL>"}
+
+                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
+                Ladder of Density Functional Approxmations"**
+            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
+
+                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+            custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
+                Must be given as a string of seven comma separated values in the following order:
+                "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
+                electronegative halogenicity"
+                Refer to the QChem manual for further details.
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
+                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                a new variable to the rem section that sets symmetry to false, use
+
+                overwrite_inputs = {"rem": {"symmetry": "false"}}
+
+                **Note that if something like basis is added to the rem dict it will overwrite
+                the default basis.**
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -521,18 +667,47 @@ class PESScanSet(QChemDictSet):
     ):
         """
         Args:
-            molecule ():
-            dft_rung ():
-            basis_set ():
-            pcm_dielectric ():
-            smd_solvent ():
-            custom_smd ():
-            opt_variables ():
-            scan_variables ():
-            scf_algorithm ():
-            max_scf_cycles ():
-            plot_cubes ():
-            overwrite_inputs ():
+            molecule (Pymatgen Molecule object)
+            opt_variables (str or list):
+            scan_variables (str or list): 
+            basis_set (str): Basis set to use. (Default: "def2-tzvppd")
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
+                (Default: "diis")
+            dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
+                in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
+                4=ωB97X-V, 5=ωB97M-V. (Default: 3)
+
+                To set a functional not given by one of the above, set the overwrite_inputs
+                argument to {"method":"<NAME OF FUNCTIONAL>"}
+
+                **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
+                Ladder of Density Functional Approxmations"**
+            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
+
+                **Note that only one of smd_solvent and pcm_dielectric may be set.**
+            custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
+                Must be given as a string of seven comma separated values in the following order:
+                "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
+                electronegative halogenicity"
+                Refer to the QChem manual for further details.
+            max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
+            geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
+            plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
+                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                a new variable to the rem section that sets symmetry to false, use
+
+                overwrite_inputs = {"rem": {"symmetry": "false"}}
+
+                **Note that if something like basis is added to the rem dict it will overwrite
+                the default basis.**
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
