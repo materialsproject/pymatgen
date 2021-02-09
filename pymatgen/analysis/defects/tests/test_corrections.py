@@ -31,17 +31,9 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         abc = struc.lattice.abc
         axisdata = [np.arange(0.0, lattval, 0.2) for lattval in abc]
-        bldata = [
-            np.array([1.0 for u in np.arange(0.0, lattval, 0.2)]) for lattval in abc
-        ]
+        bldata = [np.array([1.0 for u in np.arange(0.0, lattval, 0.2)]) for lattval in abc]
         dldata = [
-            np.array(
-                [
-                    (-1 - np.cos(2 * np.pi * u / lattval))
-                    for u in np.arange(0.0, lattval, 0.2)
-                ]
-            )
-            for lattval in abc
+            np.array([(-1 - np.cos(2 * np.pi * u / lattval)) for u in np.arange(0.0, lattval, 0.2)]) for lattval in abc
         ]
         params = {
             "axis_grid": axisdata,
@@ -57,9 +49,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(es_corr, 0.975893)
 
         # test potential alignment method
-        pot_corr = fc.perform_pot_corr(
-            axisdata[0], bldata[0], dldata[0], struc.lattice, -3, vac.site.coords, 0
-        )
+        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, -3, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, 2.836369987722345)
 
         # test entry full correction method
@@ -90,9 +80,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         es_corr = fc.perform_es_corr(struc.lattice, 2)
         self.assertAlmostEqual(es_corr, 0.43373)
         #   for potential alignment method
-        pot_corr = fc.perform_pot_corr(
-            axisdata[0], bldata[0], dldata[0], struc.lattice, 2, vac.site.coords, 0
-        )
+        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, 2, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, -2.1375685936497768)
 
         # test an input anisotropic dielectric constant
@@ -122,14 +110,10 @@ class DefectsCorrectionsTest(PymatgenTest):
     def test_kumagai(self):
         gamma = 0.19357221
         prec = 28
-        lattice = Lattice(
-            [[4.692882, -8.12831, 0.0], [4.692882, 8.12831, 0.0], [0.0, 0.0, 10.03391]]
-        )
+        lattice = Lattice([[4.692882, -8.12831, 0.0], [4.692882, 8.12831, 0.0], [0.0, 0.0, 10.03391]])
 
         # note that real/recip vector generation is not dependent on epsilon
-        g_vecs, _, r_vecs, _ = generate_R_and_G_vecs(
-            gamma, prec, lattice, 80.0 * np.identity(3)
-        )
+        g_vecs, _, r_vecs, _ = generate_R_and_G_vecs(gamma, prec, lattice, 80.0 * np.identity(3))
 
         # test real space summation (bigger for large epsilon)
         kc_high_diel = KumagaiCorrection(80.0 * np.identity(3), gamma=gamma)
@@ -150,9 +134,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(ps_corr, -0.00871593)
 
         # """Test Defect Entry approach to correction """
-        bulk_struc = Poscar.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "CONTCAR_bulk")
-        ).structure
+        bulk_struc = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "CONTCAR_bulk")).structure
         bulk_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_bulk.gz"))
         defect_out = Outcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "defect", "OUTCAR_vac_Ga_-3.gz"))
         epsilon = 18.118 * np.identity(3)
@@ -183,18 +165,13 @@ class DefectsCorrectionsTest(PymatgenTest):
         # test pot correction
         site_list = []
         for bs_ind, ds_ind in dentry.parameters["site_matching_indices"]:
-            Vqb = -(
-                defect_out.electrostatic_potential[ds_ind]
-                - bulk_out.electrostatic_potential[bs_ind]
-            )
+            Vqb = -(defect_out.electrostatic_potential[ds_ind] - bulk_out.electrostatic_potential[bs_ind])
             site_list.append([defect_structure[ds_ind], Vqb])
 
         sampling_radius = dentry.parameters["kumagai_meta"]["sampling_radius"]
         gamma = dentry.parameters["kumagai_meta"]["gamma"]
         q = -3
-        g_vecs, _, r_vecs, _ = generate_R_and_G_vecs(
-            gamma, 28, defect_structure.lattice, np.identity(3)
-        )
+        g_vecs, _, r_vecs, _ = generate_R_and_G_vecs(gamma, 28, defect_structure.lattice, np.identity(3))
         high_diel_pot_corr = kc_high_diel.perform_pot_corr(
             defect_structure,
             defect_frac_coords,
@@ -272,9 +249,7 @@ class DefectsCorrectionsTest(PymatgenTest):
                     else:
                         hole_eigenvalues[spinkey][-1].append(eig)
 
-        hole_bf_corr = bfc.perform_bandfill_corr(
-            hole_eigenvalues, kptweights, potalign, vbm, cbm
-        )
+        hole_bf_corr = bfc.perform_bandfill_corr(hole_eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(hole_bf_corr, -0.41138336)
         self.assertAlmostEqual(bfc.metadata["num_hole_vbm"], 0.8125000649)
         self.assertFalse(bfc.metadata["num_elec_cbm"])
@@ -282,9 +257,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         # test case with only one spin and eigen-occupations are 1.
         one_spin_eigen = hole_eigenvalues.copy()
         del one_spin_eigen[list(eigenvalues.keys())[0]]
-        bf_corr = bfc.perform_bandfill_corr(
-            one_spin_eigen, kptweights, potalign, vbm, cbm
-        )
+        bf_corr = bfc.perform_bandfill_corr(one_spin_eigen, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bf_corr, -0.14487501159000005)
 
         # test case with only one spin and eigen-occupations are 2.
@@ -296,9 +269,7 @@ class DefectsCorrectionsTest(PymatgenTest):
                         occuset[1] = 2.0
                     elif occuset[1] == 0.5:
                         occuset[1] = 1.0
-        bf_corr = bfc.perform_bandfill_corr(
-            one_spin_eigen_twooccu, kptweights, potalign, vbm, cbm
-        )
+        bf_corr = bfc.perform_bandfill_corr(one_spin_eigen_twooccu, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bf_corr, -0.14487501159000005)
 
     def test_bandedgeshifting(self):

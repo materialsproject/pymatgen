@@ -83,9 +83,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
         # But it's possible to enforce a particular value of typat and znucl.
         enforce_znucl = [7, 31]
         enforce_typat = [2, 2, 1, 1]
-        enf_vars = structure_to_abivars(
-            gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat
-        )
+        enf_vars = structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat)
         self.assertArrayEqual(enf_vars["znucl"], enforce_znucl)
         self.assertArrayEqual(enf_vars["typat"], enforce_typat)
         self.assertArrayEqual(def_vars["xred"], enf_vars["xred"])

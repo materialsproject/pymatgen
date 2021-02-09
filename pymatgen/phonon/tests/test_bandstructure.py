@@ -43,9 +43,7 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
         self.assertAlmostEqual(self.bs.min_freq()[1], -0.03700895020)
         self.assertTrue(self.bs.has_imaginary_freq())
         self.assertFalse(self.bs.has_imaginary_freq(tol=0.5))
-        self.assertArrayAlmostEqual(
-            self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897]
-        )
+        self.assertArrayAlmostEqual(self.bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
 
         self.assertEqual(self.bs.nb_bands, 6)
         self.assertEqual(self.bs.nb_qpoints, 204)
@@ -55,9 +53,7 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
     def test_nac(self):
         self.assertTrue(self.bs.has_nac)
         self.assertFalse(self.bs2.has_nac)
-        self.assertAlmostEqual(
-            self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143
-        )
+        self.assertAlmostEqual(self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143)
         self.assertIsNone(self.bs.get_nac_frequencies_along_dir([0, 1, 1]))
         self.assertIsNone(self.bs2.get_nac_frequencies_along_dir([0, 0, 1]))
         self.assertArrayAlmostEqual(

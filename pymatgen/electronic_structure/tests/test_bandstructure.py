@@ -11,7 +11,7 @@ from io import open
 
 from monty.serialization import loadfn
 
-from pymatgen import Lattice
+from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
     Kpoint,
@@ -50,28 +50,20 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.bs_spin = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "NiO_19009_bandstructure.json"))
         self.bs_cbm0 = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "InN_22205_bandstructure.json"))
         self.bs_cu = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu_30_bandstructure.json"))
-        self.bs_diff_spins = loadfn(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "VBr2_971787_bandstructure.json")
-        )
+        self.bs_diff_spins = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "VBr2_971787_bandstructure.json"))
         warnings.simplefilter("ignore")
 
     def tearDown(self):
         warnings.simplefilter("default")
 
     def test_basic(self):
-        self.assertArrayAlmostEqual(
-            self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        )
+        self.assertArrayAlmostEqual(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.assertArrayAlmostEqual(
             self.bs.projections[Spin.up][25][0][Orbital.dyz.value],
             [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069],
         )
-        self.assertAlmostEqual(
-            self.bs.get_projection_on_elements()[Spin.up][25][10]["O"], 0.0328
-        )
-        self.assertAlmostEqual(
-            self.bs.get_projection_on_elements()[Spin.up][22][25]["Cu"], 0.8327
-        )
+        self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][25][10]["O"], 0.0328)
+        self.assertAlmostEqual(self.bs.get_projection_on_elements()[Spin.up][22][25]["Cu"], 0.8327)
         proj = self.bs.get_projections_on_elements_and_orbitals({"Cu": ["s", "d"]})
         self.assertAlmostEqual(proj[Spin.up][25][0]["Cu"]["s"], 0.0027)
         self.assertAlmostEqual(proj[Spin.up][25][0]["Cu"]["d"], 0.8495999999999999)
@@ -131,71 +123,39 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(cbm["energy"], 5.8709, "wrong CBM energy")
         self.assertEqual(cbm["band_index"][Spin.up][0], 8, "wrong CBM band index")
         self.assertEqual(cbm["kpoint_index"][0], 15, "wrong CBM kpoint index")
-        self.assertEqual(
-            cbm["kpoint"].frac_coords[0], 0.5, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm["kpoint"].frac_coords[2], 0.5, "wrong CBM kpoint frac coords"
-        )
+        self.assertEqual(cbm["kpoint"].frac_coords[0], 0.5, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm["kpoint"].frac_coords[2], 0.5, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm["kpoint"].label, "X", "wrong CBM kpoint label")
         cbm_spin = self.bs_spin.get_cbm()
         self.assertAlmostEqual(cbm_spin["energy"], 8.0458, "wrong CBM energy")
         self.assertEqual(cbm_spin["band_index"][Spin.up][0], 12, "wrong CBM band index")
-        self.assertEqual(
-            len(cbm_spin["band_index"][Spin.down]), 0, "wrong CBM band index"
-        )
+        self.assertEqual(len(cbm_spin["band_index"][Spin.down]), 0, "wrong CBM band index")
         self.assertEqual(cbm_spin["kpoint_index"][0], 0, "wrong CBM kpoint index")
-        self.assertEqual(
-            cbm_spin["kpoint"].frac_coords[0], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm_spin["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm_spin["kpoint"].frac_coords[2], 0.0, "wrong CBM kpoint frac coords"
-        )
+        self.assertEqual(cbm_spin["kpoint"].frac_coords[0], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm_spin["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm_spin["kpoint"].frac_coords[2], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm_spin["kpoint"].label, "\\Gamma", "wrong CBM kpoint label")
 
     def test_get_vbm(self):
         vbm = self.bs2.get_vbm()
         self.assertAlmostEqual(vbm["energy"], 2.2361, "wrong VBM energy")
-        self.assertEqual(
-            len(vbm["band_index"][Spin.up]), 3, "wrong VBM number of bands"
-        )
+        self.assertEqual(len(vbm["band_index"][Spin.up]), 3, "wrong VBM number of bands")
         self.assertEqual(vbm["band_index"][Spin.up][0], 5, "wrong VBM band index")
         self.assertEqual(vbm["kpoint_index"][0], 0, "wrong VBM kpoint index")
-        self.assertEqual(
-            vbm["kpoint"].frac_coords[0], 0.0, "wrong VBM kpoint frac coords"
-        )
-        self.assertEqual(
-            vbm["kpoint"].frac_coords[1], 0.0, "wrong VBM kpoint frac coords"
-        )
-        self.assertEqual(
-            vbm["kpoint"].frac_coords[2], 0.0, "wrong VBM kpoint frac coords"
-        )
+        self.assertEqual(vbm["kpoint"].frac_coords[0], 0.0, "wrong VBM kpoint frac coords")
+        self.assertEqual(vbm["kpoint"].frac_coords[1], 0.0, "wrong VBM kpoint frac coords")
+        self.assertEqual(vbm["kpoint"].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm["kpoint"].label, "\\Gamma", "wrong VBM kpoint label")
         vbm_spin = self.bs_spin.get_vbm()
         self.assertAlmostEqual(vbm_spin["energy"], 5.731, "wrong VBM energy")
-        self.assertEqual(
-            len(vbm_spin["band_index"][Spin.up]), 2, "wrong VBM number of bands"
-        )
-        self.assertEqual(
-            len(vbm_spin["band_index"][Spin.down]), 0, "wrong VBM number of bands"
-        )
+        self.assertEqual(len(vbm_spin["band_index"][Spin.up]), 2, "wrong VBM number of bands")
+        self.assertEqual(len(vbm_spin["band_index"][Spin.down]), 0, "wrong VBM number of bands")
         self.assertEqual(vbm_spin["band_index"][Spin.up][0], 10, "wrong VBM band index")
         self.assertEqual(vbm_spin["kpoint_index"][0], 79, "wrong VBM kpoint index")
-        self.assertEqual(
-            vbm_spin["kpoint"].frac_coords[0], 0.5, "wrong VBM kpoint frac coords"
-        )
-        self.assertEqual(
-            vbm_spin["kpoint"].frac_coords[1], 0.5, "wrong VBM kpoint frac coords"
-        )
-        self.assertEqual(
-            vbm_spin["kpoint"].frac_coords[2], 0.5, "wrong VBM kpoint frac coords"
-        )
+        self.assertEqual(vbm_spin["kpoint"].frac_coords[0], 0.5, "wrong VBM kpoint frac coords")
+        self.assertEqual(vbm_spin["kpoint"].frac_coords[1], 0.5, "wrong VBM kpoint frac coords")
+        self.assertEqual(vbm_spin["kpoint"].frac_coords[2], 0.5, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm_spin["kpoint"].label, "L", "wrong VBM kpoint label")
 
     def test_get_band_gap(self):
@@ -234,14 +194,10 @@ class BandStructureSymmLine_test(PymatgenTest):
         self.assertIsNotNone(s)
 
     def test_old_format_load(self):
-        with open(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json"), "r", encoding="utf-8"
-        ) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "bs_ZnS_old.json"), "r", encoding="utf-8") as f:
             d = json.load(f)
             bs_old = BandStructureSymmLine.from_dict(d)
-            self.assertEqual(
-                bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"], 0.0971
-            )
+            self.assertEqual(bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"], 0.0971)
 
 
 class ReconstructBandStructureTest(PymatgenTest):
@@ -255,9 +211,7 @@ class ReconstructBandStructureTest(PymatgenTest):
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
-        self.assertEqual(
-            bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints"
-        )
+        self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
 
     def test_vasprun_bs(self):
         bsv = BSVasprun(
@@ -275,18 +229,14 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         with open(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json"
-            ),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json"),
             "r",
         ) as f:
             bs_spin_dict = json.load(f)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
-            os.path.join(
-                PymatgenTest.TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure.json"
-            ),
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp/Fatband_SiO2/Test_p/lobster_band_structure.json"),
             "r",
         ) as f:
             bs_dict = json.load(f)
@@ -332,24 +282,18 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(bs_p.distance[30], 0.49251552363382556)
         self.assertTrue(bs_p.branches[0]["name"], "\\Gamma-K")
         self.assertAlmostEqual(bs_p.get_band_gap()["energy"], 5.6739999999999995)
+        self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
         self.assertAlmostEqual(
-            bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064)
-        )
-        self.assertAlmostEqual(
-            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][
-                0
-            ]["Si"]["3p"],
+            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
             0.003,
         )
         self.assertAlmostEqual(
-            bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0][
-                "O"
-            ]["2p"],
+            bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3,
         )
-        dict_here = bs_p.get_projections_on_elements_and_orbitals(
-            {"Si": ["3s", "3p"], "O": ["2s", "2p"]}
-        )[Spin.up][0][0]
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
+            0
+        ]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
@@ -360,21 +304,17 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
             3 * (0.001 + 0.064),
         )
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][
-                0
-            ][0]["Si"]["3p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
             0.003,
         )
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][
-                0
-            ]["O"]["2p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3,
         )
 
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals(
-            {"Si": ["3s", "3p"], "O": ["2s", "2p"]}
-        )[Spin.up][0][0]
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
+            0
+        ][0]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
@@ -384,20 +324,16 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
             3 * (0.001 + 0.064),
         )
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][
-                0
-            ][0]["Si"]["3p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"],
             0.003,
         )
         self.assertAlmostEqual(
-            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][
-                0
-            ][0]["O"]["2p"],
+            bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3,
         )
-        dict_here = bs_spin.get_projections_on_elements_and_orbitals(
-            {"Si": ["3s", "3p"], "O": ["2s", "2p"]}
-        )[Spin.down][0][0]
+        dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[
+            Spin.down
+        ][0][0]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
@@ -442,40 +378,24 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertAlmostEqual(cbm["energy"], 6.3037028799999995, "wrong CBM energy")
         self.assertEqual(cbm["band_index"][Spin.up][0], 24, "wrong CBM band index")
         self.assertEqual(cbm["kpoint_index"][0], 0, "wrong CBM kpoint index")
-        self.assertEqual(
-            cbm["kpoint"].frac_coords[0], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm["kpoint"].frac_coords[2], 0.0, "wrong CBM kpoint frac coords"
-        )
+        self.assertEqual(cbm["kpoint"].frac_coords[0], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm["kpoint"].frac_coords[2], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm["kpoint"].label, "\\Gamma", "wrong CBM kpoint label")
         cbm_spin = self.bs_spin.get_cbm()
         self.assertAlmostEqual(cbm_spin["energy"], 6.30370274, "wrong CBM energy")
         self.assertEqual(cbm_spin["band_index"][Spin.up][0], 24, "wrong CBM band index")
-        self.assertEqual(
-            len(cbm_spin["band_index"][Spin.down]), 1, "wrong CBM band index"
-        )
+        self.assertEqual(len(cbm_spin["band_index"][Spin.down]), 1, "wrong CBM band index")
         self.assertEqual(cbm_spin["kpoint_index"][0], 0, "wrong CBM kpoint index")
-        self.assertEqual(
-            cbm_spin["kpoint"].frac_coords[0], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm_spin["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords"
-        )
-        self.assertEqual(
-            cbm_spin["kpoint"].frac_coords[2], 0.0, "wrong CBM kpoint frac coords"
-        )
+        self.assertEqual(cbm_spin["kpoint"].frac_coords[0], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm_spin["kpoint"].frac_coords[1], 0.0, "wrong CBM kpoint frac coords")
+        self.assertEqual(cbm_spin["kpoint"].frac_coords[2], 0.0, "wrong CBM kpoint frac coords")
         self.assertEqual(cbm_spin["kpoint"].label, "\\Gamma", "wrong CBM kpoint label")
 
     def test_get_vbm(self):
         vbm = self.bs_p.get_vbm()
         self.assertAlmostEqual(vbm["energy"], 0.62970288, "wrong VBM energy")
-        self.assertEqual(
-            len(vbm["band_index"][Spin.up]), 1, "wrong VBM number of bands"
-        )
+        self.assertEqual(len(vbm["band_index"][Spin.up]), 1, "wrong VBM number of bands")
         self.assertEqual(vbm["band_index"][Spin.up][0], 23, "wrong VBM band index")
         self.assertEqual(vbm["kpoint_index"][0], 68, "wrong VBM kpoint index")
         self.assertAlmostEqual(
@@ -488,20 +408,12 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
             0.30769230769231,
             "wrong VBM kpoint frac coords",
         )
-        self.assertAlmostEqual(
-            vbm["kpoint"].frac_coords[2], 0.0, "wrong VBM kpoint frac coords"
-        )
+        self.assertAlmostEqual(vbm["kpoint"].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm["kpoint"].label, None, "wrong VBM kpoint label")
         vbm_spin = self.bs_spin.get_vbm()
-        self.assertAlmostEqual(
-            vbm_spin["energy"], 0.6297027399999999, "wrong VBM energy"
-        )
-        self.assertEqual(
-            len(vbm_spin["band_index"][Spin.up]), 1, "wrong VBM number of bands"
-        )
-        self.assertEqual(
-            len(vbm_spin["band_index"][Spin.down]), 1, "wrong VBM number of bands"
-        )
+        self.assertAlmostEqual(vbm_spin["energy"], 0.6297027399999999, "wrong VBM energy")
+        self.assertEqual(len(vbm_spin["band_index"][Spin.up]), 1, "wrong VBM number of bands")
+        self.assertEqual(len(vbm_spin["band_index"][Spin.down]), 1, "wrong VBM number of bands")
         self.assertEqual(vbm_spin["band_index"][Spin.up][0], 23, "wrong VBM band index")
         self.assertEqual(vbm_spin["kpoint_index"][0], 68, "wrong VBM kpoint index")
         self.assertAlmostEqual(
@@ -514,17 +426,13 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
             0.30769230769231,
             "wrong VBM kpoint frac coords",
         )
-        self.assertAlmostEqual(
-            vbm_spin["kpoint"].frac_coords[2], 0.0, "wrong VBM kpoint frac coords"
-        )
+        self.assertAlmostEqual(vbm_spin["kpoint"].frac_coords[2], 0.0, "wrong VBM kpoint frac coords")
         self.assertEqual(vbm_spin["kpoint"].label, None, "wrong VBM kpoint label")
 
     def test_get_band_gap(self):
         bg = self.bs_p.get_band_gap()
         self.assertAlmostEqual(bg["energy"], 5.6739999999999995, "wrong gap energy")
-        self.assertEqual(
-            bg["transition"], "(0.346,0.308,0.000)-\\Gamma", "wrong kpoint transition"
-        )
+        self.assertEqual(bg["transition"], "(0.346,0.308,0.000)-\\Gamma", "wrong kpoint transition")
         self.assertFalse(bg["direct"], "wrong nature of the gap")
         bg_spin = self.bs_spin.get_band_gap()
         self.assertAlmostEqual(bg_spin["energy"], 5.674, "wrong gap energy")

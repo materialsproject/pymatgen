@@ -27,9 +27,7 @@ def run_aconvasp_command(command, structure):
     Helper function for calling aconvasp with different arguments
     """
     poscar = Poscar(structure)
-    p = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     output = p.communicate(input=poscar.get_string())
     return output
 

@@ -48,10 +48,9 @@ class SubstitutionGeneratorTest(PymatgenTest):
         self.assertEqual(sub[0].site.specie.symbol, "V")
         self.assertEqual(sub[0].multiplicity, 4)
         #   test vacant site symbol
-        defindex = sorted(
-            struc.get_sites_in_sphere(sub[0].site.coords, 2, include_index=True),
-            key=lambda x: x[1],
-        )[0][2]
+        defindex = sorted(struc.get_sites_in_sphere(sub[0].site.coords, 2, include_index=True), key=lambda x: x[1],)[
+            0
+        ][2]
         self.assertEqual(struc[defindex].specie.symbol, "O")
 
         # test substitutional
@@ -77,11 +76,15 @@ class InterstitialGeneratorTest(PymatgenTest):
         self.assertEqual(str(ints[0].site.specie), "Li")
         self.assertEqual(str(ints[1].site.specie), "Li")
 
+        self.assertArrayAlmostEqual(ints[0].site.coords, (0.9106, 0.3078, 0.3078), decimal=4)
         self.assertArrayAlmostEqual(
-            ints[0].site.coords, (0.9106, 0.3078, 0.3078), decimal=4
-        )
-        self.assertArrayAlmostEqual(
-            ints[1].site.coords, (1.5177, 1.7444, 0.3078,), decimal=4
+            ints[1].site.coords,
+            (
+                1.5177,
+                1.7444,
+                0.3078,
+            ),
+            decimal=4,
         )
 
 
@@ -101,16 +104,10 @@ class VoronoiInterstitialGeneratorTest(PymatgenTest):
         self.assertEqual(str(ints[2].site.specie), "Li")
         # self.assertEqual(str(ints[3].site.specie), "Li")
 
-        self.assertArrayAlmostEqual(
-            ints[0].site.coords, (1.5177146, 2.6784354, 3.9481299)
-        )
-        self.assertArrayAlmostEqual(
-            ints[1].site.coords, (1.7357692, 3.8392513, 3.8392513)
-        )
+        self.assertArrayAlmostEqual(ints[0].site.coords, (1.5177146, 2.6784354, 3.9481299))
+        self.assertArrayAlmostEqual(ints[1].site.coords, (1.7357692, 3.8392513, 3.8392513))
         # self.assertArrayAlmostEqual(ints[2].site.coords, (1.5177146, 3.7168193, 3.7168193))
-        self.assertArrayAlmostEqual(
-            ints[2].site.coords, [2.2765713, 4.5150233, 2.2575138]
-        )
+        self.assertArrayAlmostEqual(ints[2].site.coords, [2.2765713, 4.5150233, 2.2575138])
 
 
 class SimpleChargeGeneratorTest(PymatgenTest):

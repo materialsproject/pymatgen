@@ -30,9 +30,7 @@ class SpectrumPlotter:
         plotter.add_spectra({"dos1": dos1, "dos2": dos2})
     """
 
-    def __init__(
-        self, xshift=0.0, yshift=0.0, stack=False, color_cycle=("qualitative", "Set1_9")
-    ):
+    def __init__(self, xshift=0.0, yshift=0.0, stack=False, color_cycle=("qualitative", "Set1_9")):
         """
         Args:
             xshift (float): A shift that is applied to the x values. This is
@@ -69,9 +67,7 @@ class SpectrumPlotter:
                 the default color cycle.
         """
         self._spectra[label] = spectrum
-        self.colors.append(
-            color or self.colors_cycle[len(self._spectra) % len(self.colors_cycle)]
-        )
+        self.colors.append(color or self.colors_cycle[len(self._spectra) % len(self.colors_cycle)])
 
     def add_spectra(self, spectra_dict, key_sort_func=None):
         """

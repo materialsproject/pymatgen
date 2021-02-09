@@ -94,9 +94,7 @@ def get_structure_from_dict(d):
     else:
         raise ValueError("The dict does not contain structural information")
 
-    return Structure(
-        d["lattice"], species, frac_coords, site_properties={"phonopy_masses": masses}
-    )
+    return Structure(d["lattice"], species, frac_coords, site_properties={"phonopy_masses": masses})
 
 
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
@@ -253,9 +251,7 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
 
 
 @requires(Phonopy, "phonopy not installed!")
-def get_displaced_structures(
-    pmg_structure, atom_disp=0.01, supercell_matrix=None, yaml_fname=None, **kwargs
-):
+def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=None, yaml_fname=None, **kwargs):
     r"""
     Generate a set of symmetrically inequivalent displaced structures for
     phonon calculations.
@@ -319,7 +315,7 @@ def get_phonon_dos_from_fc(
     force_constants: np.ndarray,
     mesh_density: float = 100.0,
     num_dos_steps: int = 200,
-    **kwargs
+    **kwargs,
 ) -> CompletePhononDos:
     """
     Get a projected phonon density of states from phonopy force constants.
@@ -353,12 +349,10 @@ def get_phonon_dos_from_fc(
     freq_max = frequencies.max()
     freq_pitch = (freq_max - freq_min) / num_dos_steps
 
-    phonon.run_projected_dos(
-        freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch
-    )
+    phonon.run_projected_dos(freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch)
 
     dos_raw = phonon.projected_dos.get_partial_dos()
-    pdoss = {s: dos for s, dos in zip(structure, dos_raw[1])}
+    pdoss = dict(zip(structure, dos_raw[1]))
 
     total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
     return CompletePhononDos(structure, total_dos, pdoss)
@@ -370,7 +364,7 @@ def get_phonon_band_structure_from_fc(
     supercell_matrix: np.ndarray,
     force_constants: np.ndarray,
     mesh_density: float = 100.0,
-    **kwargs
+    **kwargs,
 ) -> PhononBandStructure:
     """
     Get a uniform phonon band structure from phonopy force constants.
@@ -403,7 +397,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     force_constants: np.ndarray,
     line_density: float = 20.0,
     symprec: float = 0.01,
-    **kwargs
+    **kwargs,
 ) -> PhononBandStructureSymmLine:
     """
     Get a phonon band structure along a high symmetry path from phonopy force
@@ -423,22 +417,16 @@ def get_phonon_band_structure_symm_line_from_fc(
         The line mode band structure.
     """
     structure_phonopy = get_phonopy_structure(structure)
-    phonon = Phonopy(
-        structure_phonopy, supercell_matrix=supercell_matrix, symprec=symprec, **kwargs
-    )
+    phonon = Phonopy(structure_phonopy, supercell_matrix=supercell_matrix, symprec=symprec, **kwargs)
     phonon.set_force_constants(force_constants)
 
     kpath = HighSymmKpath(structure, symprec=symprec)
 
-    kpoints, labels = kpath.get_kpoints(
-        line_density=line_density, coords_are_cartesian=False
-    )
+    kpoints, labels = kpath.get_kpoints(line_density=line_density, coords_are_cartesian=False)
 
     phonon.run_qpoints(kpoints)
     frequencies = phonon.qpoints.get_frequencies().T
 
-    labels_dict = dict([(a, k) for a, k in zip(labels, kpoints) if a != ""])
+    labels_dict = {a: k for a, k in zip(labels, kpoints) if a != ""}
 
-    return PhononBandStructureSymmLine(
-        kpoints, frequencies, structure.lattice, labels_dict=labels_dict
-    )
+    return PhononBandStructureSymmLine(kpoints, frequencies, structure.lattice, labels_dict=labels_dict)

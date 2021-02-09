@@ -52,9 +52,7 @@ class BabelMolAdaptor:
         """
         if isinstance(mol, IMolecule):
             if not mol.is_ordered:
-                raise ValueError(
-                    "OpenBabel Molecule only supports ordered " "molecules."
-                )
+                raise ValueError("OpenBabel Molecule only supports ordered " "molecules.")
 
             # For some reason, manually adding atoms does not seem to create
             # the correct OBMol representation to do things like force field
@@ -151,14 +149,12 @@ class BabelMolAdaptor:
             idx2: The atom index of the other atom participating in the bond
         """
         for obbond in ob.OBMolBondIter(self._obmol):
-            if (
-                obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2
-            ) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
+            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (
+                obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1
+            ):
                 self._obmol.DeleteBond(obbond)
 
-    def rotor_conformer(
-        self, *rotor_args, algo="WeightedRotorSearch", forcefield="mmff94"
-    ):
+    def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch", forcefield="mmff94"):
         """
         Conformer search based on several Rotor Search algorithms of openbabel.
         If the input molecule is not 3D, make3d will be called (generate 3D

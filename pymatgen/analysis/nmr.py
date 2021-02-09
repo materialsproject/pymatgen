@@ -35,12 +35,8 @@ class ChemicalShielding(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple(
-        "HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta"
-    )
-    MehringNotation = namedtuple(
-        "MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33"
-    )
+    HaeberlenNotation = namedtuple("HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta")
+    MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
     MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
 
     def __new__(cls, cs_matrix, vscale=None):
@@ -245,8 +241,6 @@ class ElectricFieldGradient(SquareTensor):
         elif isinstance(specie, Species):
             Q = specie.get_nmr_quadrupole_moment()
         else:
-            raise ValueError(
-                "Invalid speciie provided for quadrupolar coupling constant calcuations"
-            )
+            raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")
 
         return (e * Q * Vzz / planks_constant).to("MHz")

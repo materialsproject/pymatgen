@@ -2,14 +2,8 @@ import os
 import unittest
 import warnings
 
-from pymatgen import (
-    SETTINGS,
-    SETTINGS_FILE,
-    Structure,
-    _load_pmg_settings,
-    get_structure_from_mp,
-    loadfn,
-)
+from pymatgen import SETTINGS, get_structure_from_mp, loadfn
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 

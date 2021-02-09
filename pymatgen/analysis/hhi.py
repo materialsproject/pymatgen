@@ -17,7 +17,8 @@ import os
 
 from monty.design_patterns import singleton
 
-from pymatgen import Composition, Element
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 
 __author__ = "Anubhav Jain"
 __copyright__ = "Copyright 2014, The Materials Project"
@@ -115,7 +116,8 @@ class HHIModel:
         """
         return self.get_hhi(comp_or_form)[1]
 
-    def get_hhi_designation(self, hhi):
+    @staticmethod
+    def get_hhi_designation(hhi):
         """
         Gets a designation for low, medium, high HHI, as specified in "U.S.
         Department of Justice and the Federal Trade Commission, Horizontal
@@ -137,5 +139,4 @@ class HHIModel:
         if 1500 <= hhi <= 2500:
             return "medium"
 
-        if hhi > 2500:
-            return "high"
+        return "high"

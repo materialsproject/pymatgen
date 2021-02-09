@@ -42,9 +42,7 @@ class BatteryAnalyzer:
         """
         for site in struc_oxid:
             if not hasattr(site.specie, "oxi_state"):
-                raise ValueError(
-                    "BatteryAnalyzer requires oxidation states assigned to structure!"
-                )
+                raise ValueError("BatteryAnalyzer requires oxidation states assigned to structure!")
 
         self.struc_oxid = struc_oxid
         self.comp = self.struc_oxid.composition  # shortcut for later
@@ -66,8 +64,7 @@ class BatteryAnalyzer:
         # how much 'spare charge' is left in the redox metals for oxidation?
         oxid_pot = sum(
             [
-                (Element(spec.symbol).max_oxidation_state - spec.oxi_state)
-                * self.comp[spec]
+                (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
                 for spec in self.comp
                 if is_redox_active_intercalation(Element(spec.symbol))
             ]
@@ -97,11 +94,7 @@ class BatteryAnalyzer:
             [
                 (
                     spec.oxi_state
-                    - min(
-                        e
-                        for e in Element(spec.symbol).oxidation_states
-                        if e >= lowest_oxid[spec.symbol]
-                    )
+                    - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])
                 )
                 * self.comp[spec]
                 for spec in self.comp
@@ -175,17 +168,11 @@ class BatteryAnalyzer:
         """
 
         # the elements that can possibly be oxidized
-        oxid_els = [
-            Element(spec.symbol)
-            for spec in self.comp
-            if is_redox_active_intercalation(spec)
-        ]
+        oxid_els = [Element(spec.symbol) for spec in self.comp if is_redox_active_intercalation(spec)]
 
         numa = set()
         for oxid_el in oxid_els:
-            numa = numa.union(
-                self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa)
-            )
+            numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
 
         # convert from num A in structure to num A removed
         num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
@@ -206,9 +193,7 @@ class BatteryAnalyzer:
 
         # If Mn is the oxid_el, we have a mixture of Mn2+, Mn3+, determine the minimum oxidation state for Mn
         # this is the state we want to oxidize!
-        oxid_old = min(
-            [spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol]
-        )
+        oxid_old = min([spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol])
         oxid_new = math.floor(oxid_old + 1)
         # if this is not a valid solution, break out of here and don't add anything to the list
         if oxid_new > oxid_el.max_oxidation_state:
@@ -224,11 +209,7 @@ class BatteryAnalyzer:
 
         # determine the amount of cation A in the structure needed for charge balance and add it to the list
         oxi_noA = sum(
-            [
-                spec.oxi_state * spec_amts_oxi[spec]
-                for spec in spec_amts_oxi
-                if spec.symbol not in self.cation.symbol
-            ]
+            [spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol]
         )
         a = max(0, -oxi_noA / self.cation_charge)
         numa = numa.union({a})
@@ -237,9 +218,7 @@ class BatteryAnalyzer:
         if a == 0:
             return numa
         for ox in oxid_els:
-            numa = numa.union(
-                self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa)
-            )
+            numa = numa.union(self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa))
         return numa
 
 

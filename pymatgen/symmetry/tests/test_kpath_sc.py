@@ -50,9 +50,7 @@ class BandStructureSCTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathSetyawanCurtarolo(
-                struct
-            )  # Throws error if something doesn't work, causing test to fail.
+            kpath = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "ICSD_170.cif")
         struct = Structure.from_file(struct_file_path)

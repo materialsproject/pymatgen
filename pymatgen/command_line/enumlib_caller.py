@@ -205,9 +205,7 @@ class EnumlibAdaptor:
                         index_amounts[ind] += species[sp] * len(sites)
                 sp_label = "/".join(["{}".format(i) for i in sorted(sp_label)])
                 for site in sites:
-                    coord_str.append(
-                        "{} {}".format(coord_format.format(*site.coords), sp_label)
-                    )
+                    coord_str.append("{} {}".format(coord_format.format(*site.coords), sp_label))
                 disordered_sites.append(sites)
 
         def get_sg_info(ss):
@@ -229,16 +227,12 @@ class EnumlibAdaptor:
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
                 if sgnum != new_sgnum:
-                    logger.debug(
-                        "Adding %s in enum. New sg # %d" % (sites[0].specie, new_sgnum)
-                    )
+                    logger.debug("Adding %s in enum. New sg # %d" % (sites[0].specie, new_sgnum))
                     index_species.append(sites[0].specie)
                     index_amounts.append(len(sites))
                     sp_label = len(index_species) - 1
                     for site in sites:
-                        coord_str.append(
-                            "{} {}".format(coord_format.format(*site.coords), sp_label)
-                        )
+                        coord_str.append("{} {}".format(coord_format.format(*site.coords), sp_label))
                     disordered_sites.append(sites)
                     curr_sites = temp_sites
                     sgnum = new_sgnum
@@ -289,11 +283,7 @@ class EnumlibAdaptor:
             conc = amt / total_amounts
 
             if abs(conc * base - round(conc * base)) < 1e-5:
-                output.append(
-                    "{} {} {}".format(
-                        int(round(conc * base)), int(round(conc * base)), base
-                    )
-                )
+                output.append("{} {} {}".format(int(round(conc * base)), int(round(conc * base)), base))
             else:
                 min_conc = int(math.floor(conc * base))
                 output.append("{} {} {}".format(min_conc - 1, min_conc + 1, base))
@@ -304,9 +294,7 @@ class EnumlibAdaptor:
 
     def _run_multienum(self):
 
-        p = subprocess.Popen(
-            [enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True
-        )
+        p = subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
 
         if self.timeout:
 
@@ -400,9 +388,7 @@ class EnumlibAdaptor:
 
                 if len(self.ordered_sites) > 0:
                     transformation = np.dot(new_latt.matrix, inv_org_latt)
-                    transformation = [
-                        [int(round(cell)) for cell in row] for row in transformation
-                    ]
+                    transformation = [[int(round(cell)) for cell in row] for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
                     s = ordered_structure * transformation
                     sites.extend([site.to_unit_cell() for site in s])

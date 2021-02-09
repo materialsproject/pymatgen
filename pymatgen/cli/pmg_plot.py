@@ -9,7 +9,7 @@ Implementation for `pmg plot` CLI.
 
 from collections import OrderedDict
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vasp import Chgcar, Vasprun
@@ -33,9 +33,7 @@ def get_dos_plot(args):
 
     if args.site:
         for i, site in enumerate(structure):
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(
-                site
-            )
+            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]
@@ -65,9 +63,7 @@ def get_chgint_plot(args):
         atom_ind = [int(i) for i in args.inds[0].split(",")]
     else:
         finder = SpacegroupAnalyzer(s, symprec=0.1)
-        sites = [
-            sites[0] for sites in finder.get_symmetrized_structure().equivalent_sites
-        ]
+        sites = [sites[0] for sites in finder.get_symmetrized_structure().equivalent_sites]
         atom_ind = [s.sites.index(site) for site in sites]
 
     from pymatgen.util.plotting import pretty_plot
