@@ -19,16 +19,16 @@ from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
-    """
-    #TODO: Missing doc
-    Args:
-        env_graph ():
-        pos ():
-        ax ():
-        sg ():
-        periodicity_vectors ():
+    """Draw network of environments in a matplotlib figure axes.
 
-    Returns:
+    Args:
+        env_graph: Graph of environments.
+        pos: Positions of the nodes of the environments in the 2D figure.
+        ax: Axes object in which the network should be drawn.
+        sg: Not used currently (drawing of supergraphs).
+        periodicity_vectors: List of periodicity vectors that should be drawn.
+
+    Returns: None
 
     """
     for n in env_graph:
@@ -122,18 +122,16 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         seen[(u, v)] = rad
         ax.add_patch(e)
 
-    return e
-
 
 def make_supergraph(graph, multiplicity, periodicity_vectors):
-    """
+    """Make supergraph from a graph of environments.
 
     Args:
-        graph ():
-        multiplicity ():
-        periodicity_vectors ():
+        graph: Graph of environments.
+        multiplicity: Multiplicity of the supergraph.
+        periodicity_vectors: Periodicity vectors needed to make the supergraph.
 
-    Returns:
+    Returns: Super graph of the environments.
 
     """
     supergraph = nx.MultiGraph()

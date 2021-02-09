@@ -18,7 +18,7 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Length, Mass, Unit
-from pymatgen.util.string import formula_double_format
+from pymatgen.util.string import formula_double_format, Stringify
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -1073,7 +1073,7 @@ class Element(ElementBase):
     Og = "Og"
 
 
-class Species(MSONable):
+class Species(MSONable, Stringify):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Species should be "idealized"
@@ -1083,6 +1083,7 @@ class Species(MSONable):
     assigned to Site objects, and not Species.
     """
 
+    STRING_MODE = "SUPERSCRIPT"
     supported_properties = ("spin",)
 
     def __init__(
@@ -1265,6 +1266,18 @@ class Species(MSONable):
                 output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
             output += ",%s=%s" % (p, v)
+        return output
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: String without properties.
+        """
+        output = self.symbol
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: Optional[str] = None) -> float:

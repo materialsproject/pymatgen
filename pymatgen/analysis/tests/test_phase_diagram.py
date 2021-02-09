@@ -138,7 +138,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         self.assertIsNotNone(str(self.transformed_entry))
 
     def test_normalize(self):
-        norm_entry = self.transformed_entry.normalize(mode="atom", inplace=False)
+        norm_entry = self.transformed_entry.normalize(mode="atom")
         expected_comp = Composition(
             {DummySpecies("Xf"): 7 / 23, DummySpecies("Xg"): 15 / 23, DummySpecies("Xh"): 1 / 23}
         )
@@ -272,7 +272,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_quasi_e_to_hull(self):
         for entry in self.pd.unstable_entries:
             # catch duplicated stable entries
-            if entry.normalize(inplace=False) in self.pd.get_stable_entries_normed():
+            if entry.normalize() in self.pd.get_stable_entries_normed():
                 self.assertLessEqual(
                     self.pd.get_quasi_e_to_hull(entry),
                     0,

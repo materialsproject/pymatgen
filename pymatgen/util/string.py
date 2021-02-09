@@ -7,6 +7,94 @@ This module provides utility classes for string operations.
 import re
 from fractions import Fraction
 
+from monty.dev import deprecated
+
+SUBSCRIPT_UNICODE = {
+    "0": "₀",
+    "1": "₁",
+    "2": "₂",
+    "3": "₃",
+    "4": "₄",
+    "5": "₅",
+    "6": "₆",
+    "7": "₇",
+    "8": "₈",
+    "9": "₉",
+}
+
+SUPERSCRIPT_UNICODE = {
+    "0": "⁰",
+    "1": "¹",
+    "2": "²",
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵",
+    "6": "⁶",
+    "7": "⁷",
+    "8": "⁸",
+    "9": "⁹",
+    "+": "⁺",
+    "-": "⁻",
+}
+
+
+class Stringify:
+    """
+    Mix-in class for string formatting, e.g. superscripting numbers and symbols or superscripting.
+    """
+
+    STRING_MODE = "SUBSCRIPT"
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: A pretty string representation. By default, the __str__ output is used, but this method can be
+            overridden if a different representation from default is desired.
+        """
+        return self.__str__()
+
+    def to_latex_string(self) -> str:
+        """
+        Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
+        "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
+        superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
+
+        :return: String for display as in LaTeX with proper superscripts and subscripts.
+        """
+        str_ = self.to_pretty_string()
+        # First we process strings that already have _ and ^ by escaping the relevant parts.
+        str_ = re.sub(r"_(\d+)", r"$_{\1}$", str_)
+        str_ = re.sub(r"\^([\d\+\-]+)", r"$^{\1}$", str_)
+        if self.STRING_MODE == "SUBSCRIPT":
+            return re.sub(r"([A-Za-z\(\)])([\d\+\-\.]+)", r"\1$_{\2}$", str_)
+        if self.STRING_MODE == "SUPERSCRIPT":
+            return re.sub(r"([A-Za-z\(\)])([\d\+\-\.]+)", r"\1$^{\2}$", str_)
+        return str_
+
+    def to_html_string(self) -> str:
+        """
+        Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
+        :return: HTML formatted string.
+        """
+        str_ = re.sub(r"\$_\{([^}]+)\}\$", r"<sub>\1</sub>", self.to_latex_string())
+        str_ = re.sub(r"\$\^\{([^}]+)\}\$", r"<sup>\1</sup>", str_)
+        return re.sub(r"\$\\overline\{([^}]+)\}\$", r'<span style="text-decoration:overline">\1</span>', str_)
+
+    def to_unicode_string(self):
+        """
+        :return: Unicode string with proper sub and superscripts. Note that this works only with systems where the sub
+            and superscripts are pure integers.
+        """
+        str_ = self.to_latex_string()
+        for m in re.finditer(r"\$_\{(\d+)\}\$", str_):
+            s1 = m.group()
+            s2 = [SUBSCRIPT_UNICODE[s] for s in m.group(1)]
+            str_ = str_.replace(s1, "".join(s2))
+        for m in re.finditer(r"\$\^\{([\d\+\-]+)\}\$", str_):
+            s1 = m.group()
+            s2 = [SUPERSCRIPT_UNICODE[s] for s in m.group(1)]
+            str_ = str_.replace(s1, "".join(s2))
+        return str_
+
 
 def str_delimited(results, header=None, delimiter="\t"):
     """
@@ -50,6 +138,10 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     return str(round(afloat, 8))
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def latexify(formula):
     """
     Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
@@ -64,6 +156,10 @@ def latexify(formula):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\2}$", formula)
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def htmlify(formula):
     """
     Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
@@ -75,6 +171,10 @@ def htmlify(formula):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def unicodeify(formula):
     """
     Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
@@ -87,25 +187,16 @@ def unicodeify(formula):
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
 
-    subscript_unicode_map = {
-        0: "₀",
-        1: "₁",
-        2: "₂",
-        3: "₃",
-        4: "₄",
-        5: "₅",
-        6: "₆",
-        7: "₇",
-        8: "₈",
-        9: "₉",
-    }
-
-    for original_subscript, subscript_unicode in subscript_unicode_map.items():
+    for original_subscript, subscript_unicode in SUBSCRIPT_UNICODE.items():
         formula = formula.replace(str(original_subscript), subscript_unicode)
 
     return formula
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def latexify_spacegroup(spacegroup_symbol):
     r"""
     Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
@@ -121,6 +212,10 @@ def latexify_spacegroup(spacegroup_symbol):
     return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def unicodeify_spacegroup(spacegroup_symbol):
     r"""
     Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
@@ -136,22 +231,9 @@ def unicodeify_spacegroup(spacegroup_symbol):
     if not spacegroup_symbol:
         return ""
 
-    subscript_unicode_map = {
-        0: "₀",
-        1: "₁",
-        2: "₂",
-        3: "₃",
-        4: "₄",
-        5: "₅",
-        6: "₆",
-        7: "₇",
-        8: "₈",
-        9: "₉",
-    }
-
     symbol = latexify_spacegroup(spacegroup_symbol)
 
-    for number, unicode_number in subscript_unicode_map.items():
+    for number, unicode_number in SUBSCRIPT_UNICODE.items():
         symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
         symbol = symbol.replace("_" + str(number), unicode_number)
 
@@ -166,6 +248,10 @@ def unicodeify_spacegroup(spacegroup_symbol):
     return symbol
 
 
+@deprecated(
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
+)
 def unicodeify_species(specie_string):
     r"""
     Generates a unicode formatted species string, with appropriate
@@ -181,22 +267,7 @@ def unicodeify_species(specie_string):
     if not specie_string:
         return ""
 
-    superscript_unicode_map = {
-        "0": "⁰",
-        "1": "¹",
-        "2": "²",
-        "3": "³",
-        "4": "⁴",
-        "5": "⁵",
-        "6": "⁶",
-        "7": "⁷",
-        "8": "⁸",
-        "9": "⁹",
-        "+": "⁺",
-        "-": "⁻",
-    }
-
-    for character, unicode_character in superscript_unicode_map.items():
+    for character, unicode_character in SUPERSCRIPT_UNICODE.items():
         specie_string = specie_string.replace(character, unicode_character)
 
     return specie_string

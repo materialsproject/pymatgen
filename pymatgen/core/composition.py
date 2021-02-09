@@ -22,7 +22,7 @@ from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.units import Mass
-from pymatgen.util.string import formula_double_format
+from pymatgen.util.string import formula_double_format, Stringify
 
 
 SpeciesLike = Union[str, Element, Species, DummySpecies]
@@ -38,7 +38,7 @@ __date__ = "Nov 10, 2012"
 
 
 @total_ordering
-class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
+class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
@@ -476,6 +476,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return " ".join(
             ["{}{}".format(k, formula_double_format(v, ignore_ones=False)) for k, v in self.as_dict().items()]
         )
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: Same as __str__ but without spaces.
+        """
+        return re.sub(r"\s+", "", self.__str__())
 
     @property
     def num_atoms(self) -> float:
@@ -1237,6 +1243,8 @@ class ChemicalPotential(dict, MSONable):
     def __repr__(self):
         return "ChemPots: " + super().__repr__()
 
+class CompositionError(Exception):
+    """Exception class for composition errors"""
 
 if __name__ == "__main__":
     import doctest

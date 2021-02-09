@@ -258,12 +258,13 @@ class TransformedPDEntry(PDEntry):
         Returns:
             MSONable dictionary representation of TransformedPDEntry
         """
-        return {
+        d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "entry": self.original_entry.as_dict(),
             "sp_mapping": self.sp_mapping,
         }
+        d.update(self.original_entry.as_dict())
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -274,8 +275,10 @@ class TransformedPDEntry(PDEntry):
         Returns:
             TransformedPDEntry
         """
-        entry = MontyDecoder().process_decoded(d["entry"])
-        return cls(entry, d["sp_mapping"])
+        sp_mapping = d["sp_mapping"]
+        del d["sp_mapping"]
+        entry = MontyDecoder().process_decoded(d)
+        return cls(entry, sp_mapping)
 
 
 class TransformedPDEntryError(Exception):
@@ -473,7 +476,7 @@ class BasePhaseDiagram(MSONable):
         Returns:
             list of normalized stable entries in the phase diagram.
         """
-        return [e.normalize(mode, inplace=False) for e in self._stable_entries]
+        return [e.normalize(mode) for e in self._stable_entries]
 
     def get_form_energy(self, entry):
         """
@@ -726,7 +729,7 @@ class BasePhaseDiagram(MSONable):
         """
 
         # For unstable or novel materials use simplex approach
-        if entry.normalize(mode="atom", inplace=False) not in self.get_stable_entries_normed(mode="atom"):
+        if entry.normalize(mode="atom") not in self.get_stable_entries_normed(mode="atom"):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
@@ -738,7 +741,7 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if (c.normalize(mode="atom", inplace=False) != entry.normalize(mode="atom", inplace=False))
+            if (c.normalize(mode="atom") != entry.normalize(mode="atom"))
             if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
@@ -801,7 +804,7 @@ class BasePhaseDiagram(MSONable):
             unstable entries should have energies > 0.
         """
         # Handle unstable and novel materials
-        if entry.normalize(mode="atom", inplace=False) not in self.get_stable_entries_normed(mode="atom"):
+        if entry.normalize(mode="atom") not in self.get_stable_entries_normed(mode="atom"):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
         # Handle stable elemental materials
@@ -856,7 +859,7 @@ class BasePhaseDiagram(MSONable):
             negative to more negative.
         """
         if element not in self.elements:
-            raise ValueError("get_transition_chempots can only be called with " "elements in the phase diagram.")
+            raise ValueError("get_transition_chempots can only be called with elements in the phase diagram.")
 
         critical_chempots = []
         for facet in self.facets:

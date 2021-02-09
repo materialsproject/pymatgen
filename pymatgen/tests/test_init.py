@@ -21,9 +21,7 @@ class SettingsTestCase(unittest.TestCase):
     #         for k, v in SETTINGS.items():
     #             self.assertEqual(v, os.environ.get(k))
 
-    @unittest.skipIf(
-        not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
-    )
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
     def test_get_structure_from_mp(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

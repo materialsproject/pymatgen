@@ -27,10 +27,10 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 
 def get_lower_and_upper_f(surface_calculation_options):
-    """
-    #TODO: Missing doc
-    :param surface_calculation_options:
-    :return:
+    """Get the lower and upper functions defining a surface in the distance-angle space of neighbors.
+
+    :param surface_calculation_options: Options for the surface.
+    :return: Dictionary containing the "lower" and "upper" functions for the surface.
     """
     mindist = surface_calculation_options["distance_bounds"]["lower"]
     maxdist = surface_calculation_options["distance_bounds"]["upper"]
@@ -524,10 +524,10 @@ def anticlockwise_sort_indices(pps):
 
 
 def sort_separation(separation):
-    """
-    #TODO: Missing doc
-    :param separation:
-    :return:
+    """Sort a separation.
+
+    :param separation: Initial separation.
+    :return: Sorted list of separation.
     """
     if len(separation[0]) > len(separation[2]):
         return [sorted(separation[2]), sorted(separation[1]), sorted(separation[0])]
@@ -535,10 +535,10 @@ def sort_separation(separation):
 
 
 def sort_separation_tuple(separation):
-    """
-    #TODO: Missing doc
-    :param separation:
-    :return:
+    """Sort a separation
+
+    :param separation: Initial separation
+    :return: Sorted tuple of separation
     """
     if len(separation[0]) > len(separation[2]):
         return (
@@ -646,11 +646,11 @@ class Plane:
         self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
-        """
-        #TODO: Missing doc
-        :param nonzeros:
-        :param zeros:
-        :return:
+        """Initialialize three random points on this plane.
+
+        :param nonzeros: Indices of plane coefficients ([a, b, c]) that are not zero.
+        :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
+        :return: None
         """
         if len(nonzeros) == 3:
             self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
@@ -879,11 +879,11 @@ class Plane:
         return xypps
 
     def fit_error(self, points, fit="least_square_distance"):
-        """
-        #TODO: Missing doc
-        :param points:
-        :param fit:
-        :return:
+        """Evaluate the error for a list of points with respect to this plane.
+
+        :param points: List of points.
+        :param fit: Type of fit error.
+        :return: Error for a list of points with respect to this plane.
         """
         if fit == "least_square_distance":
             return self.fit_least_square_distance_error(points)
@@ -892,34 +892,34 @@ class Plane:
         return None
 
     def fit_least_square_distance_error(self, points):
-        """
-        #TODO: Missing doc
-        :param points:
-        :return:
+        """Evaluate the sum of squared distances error for a list of points with respect to this plane.
+
+        :param points: List of points.
+        :return: Sum of squared distances error for a list of points with respect to this plane.
         """
         return np.sum([self.distance_to_point(pp) ** 2.0 for pp in points])
 
     def fit_maximum_distance_error(self, points):
-        """
-        #TODO: Missing doc
-        :param points:
-        :return:
+        """Evaluate the max distance error for a list of points with respect to this plane.
+
+        :param points: List of points.
+        :return: Max distance error for a list of points with respect to this plane.
         """
         return np.max([self.distance_to_point(pp) for pp in points])
 
     @property
     def coefficients(self):
-        """
-        #TODO: Missing doc
-        :return:
+        """Return a copy of the plane coefficients.
+
+        :return: Plane coefficients as a numpy array.
         """
         return np.copy(self._coefficients)
 
     @property
     def abcd(self):
-        """
-        #TODO: Missing doc
-        :return:
+        """Return a tuple with the plane coefficients.
+
+        :return: Tuple with the plane coefficients.
         """
         return (
             self._coefficients[0],
@@ -930,52 +930,52 @@ class Plane:
 
     @property
     def a(self):
-        """#TODO: Missing doc"""
+        """Coefficient a of the plane."""
         return self._coefficients[0]
 
     @property
     def b(self):
-        """#TODO: Missing doc"""
+        """Coefficient b of the plane."""
         return self._coefficients[1]
 
     @property
     def c(self):
-        """#TODO: Missing doc"""
+        """Coefficient c of the plane."""
         return self._coefficients[2]
 
     @property
     def d(self):
-        """#TODO: Missing doc"""
+        """Coefficient d of the plane."""
         return self._coefficients[3]
 
     @property
     def distance_to_origin(self):
-        """#TODO: Missing doc"""
+        """Distance of the plane to the origin."""
         return self._coefficients[3]
 
     @property
     def crosses_origin(self):
-        """#TODO: Missing doc"""
+        """Whether this plane crosses the origin (i.e. coefficient d is 0.0)."""
         return self._crosses_origin
 
     @classmethod
     def from_2points_and_origin(cls, p1, p2):
-        """
-        #TODO: Missing doc
-        :param p1:
-        :param p2:
-        :return:
+        """Initializes plane from two points and the origin.
+
+        :param p1: First point.
+        :param p2: Second point.
+        :return: Plane.
         """
         return cls.from_3points(p1, p2, np.zeros(3))
 
     @classmethod
     def from_3points(cls, p1, p2, p3):
-        """
-        #TODO: Missing doc
-        :param p1:
-        :param p2:
-        :param p3:
-        :return:
+        """Initializes plane from three points.
+
+        :param p1: First point.
+        :param p2: Second point.
+        :param p3: Third point.
+        :return: Plane.
         """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
@@ -988,11 +988,13 @@ class Plane:
 
     @classmethod
     def from_npoints(cls, points, best_fit="least_square_distance"):
-        """
-        #TODO: Missing doc
-        :param points:
-        :param best_fit:
-        :return:
+        """Initializes plane from a list of points.
+
+        If the number of points is larger than 3, will use a least square fitting or max distance fitting.
+
+        :param points: List of points.
+        :param best_fit: Type of fitting procedure for more than 3 points.
+        :return: Plane
         """
         if len(points) == 2:
             return cls.from_2points_and_origin(points[0], points[1])
@@ -1006,10 +1008,10 @@ class Plane:
 
     @classmethod
     def from_npoints_least_square_distance(cls, points):
-        """
-        #TODO: Missing doc
-        :param points:
-        :return:
+        """Initializes plane from a list of points using a least square fitting procedure.
+
+        :param points: List of points.
+        :return: Plane.
         """
         mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float_)
         mean_point /= len(points)
@@ -1029,11 +1031,14 @@ class Plane:
 
     @classmethod
     def perpendicular_bisector(cls, p1, p2):
-        """
-        #TODO: Missing doc
-        :param p1:
-        :param p2:
-        :return:
+        """Initialize a plane from the perpendicular bisector of two points.
+
+        The perpendicular bisector of two points is the plane perpendicular to the vector joining these two points
+        and passing through the middle of the segment joining the two points.
+
+        :param p1: First point.
+        :param p2: Second point.
+        :return: Plane.
         """
         middle_point = 0.5 * (p1 + p2)
         normal_vector = p2 - p1
@@ -1042,10 +1047,10 @@ class Plane:
 
     @classmethod
     def from_npoints_maximum_distance(cls, points):
-        """
-        #TODO: Missing doc
-        :param points:
-        :return:
+        """Initializes plane from a list of points using a max distance fitting procedure.
+
+        :param points: List of points.
+        :return: Plane.
         """
         convex_hull = ConvexHull(points)
         heights = []
@@ -1069,12 +1074,12 @@ class Plane:
 
     @classmethod
     def from_coefficients(cls, a, b, c, d):
-        """
-        #TODO: Missing doc
-        :param a:
-        :param b:
-        :param c:
-        :param d:
-        :return:
+        """Initialize plane from its coefficients.
+
+        :param a: a coefficient of the plane.
+        :param b: b coefficient of the plane.
+        :param c: c coefficient of the plane.
+        :param d: d coefficient of the plane.
+        :return: Plane.
         """
         return cls(np.array([a, b, c, d], np.float_))

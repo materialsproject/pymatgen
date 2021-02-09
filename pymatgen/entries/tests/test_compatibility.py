@@ -104,7 +104,7 @@ def test_energy_adjustment_normalize():
     by the normalize method
     """
     entry = ComputedEntry("Fe4O6", -2, correction=-4)
-    entry.normalize()
+    entry = entry.normalize()
     for ea in entry.energy_adjustments:
         if "Manual" in ea.name:
             assert ea.value == -2
@@ -112,7 +112,7 @@ def test_energy_adjustment_normalize():
     compat = DummyCompatibility()
     entry = ComputedEntry("Fe4O6", -2, correction=-4)
     entry = compat.process_entries(entry)[0]
-    entry.normalize()
+    entry = entry.normalize()
     for ea in entry.energy_adjustments:
         if "Dummy" in ea.name:
             assert ea.value == -5
