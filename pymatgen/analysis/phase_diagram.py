@@ -1651,8 +1651,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         See PhaseDiagram
 
-        NOTE this is only approximately the same as the what we would get from
-        a full phase diagram as we make use of the slsqp approach from
+        NOTE this is only approximately the same as the what we would get
+        from `PhaseDiagram` as we make use of the slsqp approach from
         get_quasi_e_to_hull().
 
         Args:
@@ -1671,7 +1671,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`_get_facet_and_simplex` not implemented for PatchedPhaseDiagram"
+            "`_get_facet_and_simplex` not implemented for `PatchedPhaseDiagram`"
         )
 
     def _get_all_facets_and_simplexes(self):
@@ -1679,7 +1679,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`_get_all_facets_and_simplexes` not implemented for PatchedPhaseDiagram"
+            "`_get_all_facets_and_simplexes` not implemented for `PatchedPhaseDiagram`"
         )
 
     def _get_facet_chempots(self):
@@ -1687,7 +1687,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`_get_facet_chempots` not implemented for PatchedPhaseDiagram"
+            "`_get_facet_chempots` not implemented for `PatchedPhaseDiagram`"
         )
 
     def _get_simplex_intersections(self):
@@ -1695,7 +1695,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`_get_simplex_intersections` not implemented for PatchedPhaseDiagram"
+            "`_get_simplex_intersections` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_composition_chempots(self):
@@ -1703,7 +1703,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_composition_chempots` not implemented for PatchedPhaseDiagram"
+            "`get_composition_chempots` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_all_chempots(self):
@@ -1711,7 +1711,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_all_chempots` not implemented for PatchedPhaseDiagram"
+            "`get_all_chempots` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_transition_chempots(self):
@@ -1719,7 +1719,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_transition_chempots` not implemented for PatchedPhaseDiagram"
+            "`get_transition_chempots` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_critical_compositions(self):
@@ -1727,7 +1727,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_critical_compositions` not implemented for PatchedPhaseDiagram"
+            "`get_critical_compositions` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_element_profile(self,):
@@ -1735,7 +1735,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_element_profile` not implemented for PatchedPhaseDiagram"
+            "`get_element_profile` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_chempot_range_map(self):
@@ -1743,7 +1743,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_chempot_range_map` not implemented for PatchedPhaseDiagram"
+            "`get_chempot_range_map` not implemented for `PatchedPhaseDiagram`"
         )
 
     def getmu_vertices_stability_phase(self):
@@ -1751,7 +1751,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`getmu_vertices_stability_phase` not implemented for PatchedPhaseDiagram"
+            "`getmu_vertices_stability_phase` not implemented for `PatchedPhaseDiagram`"
         )
 
     def get_chempot_range_stability_phase(self):
@@ -1759,7 +1759,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError(
-            "`get_chempot_range_stability_phase` not implemented for PatchedPhaseDiagram"
+            "`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`"
         )
 
 
