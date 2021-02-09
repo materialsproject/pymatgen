@@ -48,10 +48,9 @@ class QChemDictSet(QCInput):
                 "sp" for single point, "freq" for frequency calculation, or "force" for
                 force evaluation.
             basis_set (str): Basis set to use. For example, "def2-tzvpd".
-            scf_algorithm (str): Algorithm to use for converging the SCF. Valid choices are
-                "DIIS", "DM", "DIIS_DM", "DIIS_GDM", "LS_DIIS", "GDM", "RCA", "RCA_DIIS", and
-                "ROOTHAN". In general, "DIIS" is recommended. Refer to the QChem manual for
-                further details.
+            scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
+                "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
+                module will also likely perform well. Refer to the QChem manual for further details.
             dft_rung (int): Select the DFT functional among 5 recommended levels of theory,
                 in order of increasing accuracy/cost. 1 = B3LYP, 2=B3lYP+D3, 3=ωB97X-D,
                 4=ωB97X-V, 5=ωB97M-V. (Default: 4)
@@ -63,9 +62,9 @@ class QChemDictSet(QCInput):
                 Ladder of Density Functional Approxmations"**
             pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
-                Examples include "water", "tetrahydrofuran", "ethanol", "methanol", and "acetonitrile".
-                Refer to the QChem manual for a complete list of solvents available. To define a custom
-                solvent, set this argument to "custom" and populate custom_smd with the necessary parameters.
+                Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
+                manual for a complete list of solvents available. To define a custom solvent, set this
+                argument to "custom" and populate custom_smd with the necessary parameters.
 
                 **Note that only one of smd_solvent and pcm_dielectric may be set.**
             custom_smd (str): List of parameters to define a custom solvent in SMD. (Default: None)
@@ -77,7 +76,7 @@ class QChemDictSet(QCInput):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, and solvent. The value of
+                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
                 each key is a dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
