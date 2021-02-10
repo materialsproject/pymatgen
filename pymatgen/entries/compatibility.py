@@ -1127,7 +1127,7 @@ class MITAqueousCompatibility(CorrectionsList):
             ]
         )
 
-
+@due.dcite(Doi("10.1103/PhysRevB.85.235438", "Pourbaix scheme to combine calculated and experimental data")
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the Aqueous energy referencing scheme for constructing

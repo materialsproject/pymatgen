@@ -25,6 +25,7 @@ from uncertainties import ufloat
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
+from pymatgen.util import due, Doi
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
@@ -772,6 +773,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         self._energy = self.gibbs_fn()
 
+    @due.dcite(Doi("10.1038/s41467-018-06682-4", "Gibbs free energy SISSO descriptor"))
     def gf_sisso(self) -> float:
         """
         Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
