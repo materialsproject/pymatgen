@@ -3,9 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
-
-import matplotlib as mpl
-
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
