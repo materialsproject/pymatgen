@@ -24,6 +24,11 @@ __date__ = "5/22/14"
 
 
 class XRDCalculatorTest(PymatgenTest):
+    def test_type_wavelength(self):
+        """Test TypeError is raised if wavelength is unaccepted type"""
+        wavelength = [1.78, 2.78]  # just a list
+        self.assertRaises(TypeError, XRDCalculator, wavelength)
+
     def test_get_pattern(self):
         s = self.get_structure("CsCl")
         c = XRDCalculator()
