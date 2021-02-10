@@ -605,6 +605,18 @@ class BasePhaseDiagram(MSONable):
             self.qhull_entries[f]: amt for f, amt in zip(facet, decomp_amts) if abs(amt) > PhaseDiagram.numerical_tol
         }
 
+    def get_hull_energy_per_atom(self, comp):
+        """
+        Args:
+            comp (Composition): Input composition
+
+        Returns:
+            Energy of lowest energy equilibrium at desired composition per atom
+        """
+        #TODO does this need a direct test? indirect via tests on get_hull_energy
+        decomp = self.get_decomposition(comp)
+        return sum([e.energy_per_atom * n for e, n in decomp.items()])
+
     def get_hull_energy(self, comp):
         """
         Args:
@@ -614,8 +626,7 @@ class BasePhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition. Not
                 normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
         """
-        decomp = self.get_decomposition(comp)
-        return comp.num_atoms * sum([e.energy_per_atom * n for e, n in decomp.items()])
+        return comp.num_atoms * self.get_hull_energy_per_atom(comp)
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
