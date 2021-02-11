@@ -1243,8 +1243,10 @@ class ChemicalPotential(dict, MSONable):
     def __repr__(self):
         return "ChemPots: " + super().__repr__()
 
+
 class CompositionError(Exception):
     """Exception class for composition errors"""
+
 
 if __name__ == "__main__":
     import doctest
