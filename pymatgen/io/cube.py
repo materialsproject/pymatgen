@@ -38,6 +38,7 @@ each voxel is 0.283459 units wide and the volume is aligned with the coordinate 
 """
 
 import numpy as np
+from multiprocessing import Pool
 from monty.io import zopen
 from pymatgen import Site, Structure
 from pymatgen.core.units import bohr_to_angstrom
@@ -46,6 +47,9 @@ from pymatgen.core.units import bohr_to_angstrom
 class Cube:
     """
     Class to read Gaussian cube file formats for volumetric data.
+
+    Cube files are, by default, written in units of 1/Bohr^3, and this file will convert
+    the data into the pymatgen default of 1/Angstroms^3
     """
 
     def __init__(self, fname):
@@ -69,14 +73,17 @@ class Cube:
         line = f.readline().split()
         self.NX = int(line[0])
         self.X = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        self.dX = np.linalg.norm(self.X)
 
         line = f.readline().split()
         self.NY = int(line[0])
         self.Y = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        self.dY = np.linalg.norm(self.Y)
 
         line = f.readline().split()
         self.NZ = int(line[0])
         self.Z = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
+        self.dZ = np.linalg.norm(self.Z)
 
         self.voxelVolume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
         self.volume = abs(np.dot(np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)))
@@ -103,3 +110,115 @@ class Cube:
                     int(i % self.NZ),
                 ] = float(v)
                 i += 1
+        self.data /= bohr_to_angstrom**3
+
+    def mask_sphere(self, radius, cx, cy, cz):
+        """
+        Create a mask for a sphere with radius=radius, centered at cx, cy, cz.
+
+        Args:
+            radius: (flaot) of the mask (in Angstroms)
+            Cx, Cy, Cz: (float) the fractional coordinates of the center of the sphere
+        """
+
+        r = np.floor(radius / np.linalg.norm(self.X)).astype(int), \
+            np.floor(radius / np.linalg.norm(self.Y)).astype(int), \
+            np.floor(radius / np.linalg.norm(self.Z)).astype(int)
+
+        a = np.zeros((self.NX, self.NY, self.NZ))
+
+        x0, y0, z0 = int(np.round(self.NX * cx)), \
+            int(np.round(self.NY * cy)), \
+            int(np.round(self.NZ * cz))
+
+        for x in range(x0 - r[0], x0 + r[0] + 1):
+            for y in range(y0 - r[1], y0 + r[1] + 1):
+                for z in range(z0 - r[2], z0 + r[2] + 1):
+                    dist = np.subtract(r, [abs(x0 - x), abs(y0 - y), abs(z0 - z)])
+
+                    if all([_ > 0 for _ in dist]):
+                        a[x % a.shape[0], y % a.shape[0], z % a.shape[0]] = 1
+        return a
+
+    def get_atomic_site_averages(self, atomic_site_radii=None, nproc=4):
+        """
+        Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
+
+        Args:
+            cube (Cube): pymatgen cube object
+            atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
+                for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
+                not provided, then the
+            nproc (int or None): number of processes to use in calculating atomic site averages. If
+                nproc=None, then Pool will use os.cpu_count() to set nproc as the number of available
+                cpus.
+
+        returns:
+            Array of site averages, [Average around site 1, Average around site 2, ...]
+        """
+        pool = Pool(nproc)
+        results = pool.map(self, [(s, atomic_site_radii[s.species_string]) for s in self.structure.sites])
+        pool.close()
+        pool.join()
+        return results
+
+    def _get_atomic_site_averages(self, args):
+        """
+        Helper function for get_atomic_site_averages.
+
+        Args:
+            args: (tuple) Contains the site and the atomic_site_radius for given atomic species
+
+        returns:
+            Average around the atomic site
+        """
+        _s, _r = args[0], args[1]
+        print('working on it...')
+        mask = self.mask_sphere(_r, *_s.frac_coords)
+        return np.sum(self.data * mask) / np.count_nonzero(mask)
+
+    def __call__(self, args):
+        """
+        Call function used by site averaging Pool
+        """
+        return self._get_atomic_site_averages(args)
+
+    def get_axis_grid(self, ind):
+        """
+        Modified from pymatgen.io.vasp.outputs
+
+        Returns the grid for a particular axis.
+
+        Args:
+            ind (int): Axis index.
+        """
+        ng = self.data.shape
+        num_pts = ng[ind]
+        lengths = self.structure.lattice.abc
+        return [i / num_pts * lengths[ind] for i in range(num_pts)]
+
+    def get_average_along_axis(self, ind):
+        """
+        Modified from pymatgen.io.vasp.outputs
+
+        Get the averaged total of the volumetric data a certain axis direction.
+        For example, useful for visualizing Hartree Potentials from a LOCPOT
+        file.
+
+        Args:
+            ind (int): Index of axis.
+
+        Returns:
+            Average total along axis
+        """
+        ng = self.data.shape
+        if ind == 0:
+            m = self.data * np.linalg.norm(np.cross(self.Z * self.NZ, self.Y * self.NY))
+            total = np.sum(np.sum(m, axis=1), 1)
+        elif ind == 1:
+            m = self.data * np.linalg.norm(np.cross(self.X * self.NX, self.Z * self.NZ))
+            total = np.sum(np.sum(m, axis=0), 1)
+        else:
+            m = self.data * np.linalg.norm(np.cross(self.X * self.NX, self.Y * self.NY))
+            total = np.sum(np.sum(m, axis=0), 0)
+        return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
