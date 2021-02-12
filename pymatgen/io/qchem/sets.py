@@ -76,6 +76,18 @@ class QChemDictSet(QCInput):
                 "dielectric, refractive index, acidity, basicity, surface tension, aromaticity,
                 electronegative halogenicity"
                 Refer to the QChem manual for further details.
+            opt_variables (dict): A dictionary of opt sections, where each opt section is a key
+                and the corresponding values are a list of strings. Stings must be formatted
+                as instructed by the QChem manual. The different opt sections are: CONSTRAINT, FIXED,
+                DUMMY, and CONNECT.
+
+                Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
+            scan_variables (dict): A dictionary of scan variables. Because two constraints of the
+                same type are allowed (for instance, two torsions or two bond stretches), each TYPE of
+                variable (stre, bend, tors) should be its own key in the dict, rather than each variable.
+                Note that the total number of variable (sum of lengths of all lists) CANNOT be more than two.
+
+                Ex. scan_variables = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
@@ -661,8 +673,18 @@ class PESScanSet(QChemDictSet):
         """
         Args:
             molecule (Pymatgen Molecule object)
-            opt_variables (str or list):
-            scan_variables (str or list): 
+            opt_variables (dict): A dictionary of opt sections, where each opt section is a key
+                and the corresponding values are a list of strings. Stings must be formatted
+                as instructed by the QChem manual. The different opt sections are: CONSTRAINT, FIXED,
+                DUMMY, and CONNECT.
+
+                Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
+            scan_variables (dict): A dictionary of scan variables. Because two constraints of the
+                same type are allowed (for instance, two torsions or two bond stretches), each TYPE of
+                variable (stre, bend, tors) should be its own key in the dict, rather than each variable.
+                Note that the total number of variable (sum of lengths of all lists) CANNOT be more than two.
+
+                Ex. scan_variables = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
             basis_set (str): Basis set to use. (Default: "def2-tzvppd")
             scf_algorithm (str): Algorithm to use for converging the SCF. Recommended choices are
                 "DIIS", "GDM", and "DIIS_GDM". Other algorithms supported by Qchem's GEN_SCFMAN
