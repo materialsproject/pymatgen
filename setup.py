@@ -115,7 +115,7 @@ setup(
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.6",
     install_requires=[
-        "numpy>=1.18.0",
+        "numpy>=1.20.1",
         "requests",
         "ruamel.yaml>=0.15.6",
         "monty>=3.0.2",
