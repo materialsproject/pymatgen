@@ -155,7 +155,7 @@ single_job_out_names = {
     "new_qchem_files/roothaan_diis_gdm.qout",
     "new_qchem_files/pes_scan_single_variable.qout",
     "new_qchem_files/pes_scan_double_variable.qout",
-    "new_qchem_files/ts.out"
+    "new_qchem_files/ts.out",
 }
 
 multi_job_out_names = {
