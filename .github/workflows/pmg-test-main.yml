@@ -1,4 +1,4 @@
-name: Testing - main
+name: Testing
 
 on: [push, pull_request]
 
@@ -8,11 +8,9 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        include:
-          - os: macos-latest
-            python-version: 3.8
-          - os: windows-latest
-            python-version: 3.8
+        os: [macos-latest, windows-latest]
+        python-version: [3.8]
+        pkg: [analysis, command_line, electronic_structure, io, plugins, transformations, apps, core, entries, optimization, symmetry, util, alchemy, ext, phonon, tests, vis]
 
     runs-on: ${{ matrix.os }}
 
@@ -42,4 +40,4 @@ jobs:
         MPLBACKEND: "Agg"
       run: |
         echo "PATH=$PATH"
-        pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes
+        pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes

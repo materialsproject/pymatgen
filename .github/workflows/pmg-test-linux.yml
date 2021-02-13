@@ -1,4 +1,4 @@
-name: Testing - main - Linux
+name: Testing - all - Linux
 
 on: [push, pull_request]
 
