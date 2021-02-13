@@ -44,7 +44,9 @@ jobs:
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
+        github-token: ${{ secrets.GITHUB_TOKEN }}
       run: |
         echo "PATH=$PATH"
         rm -rf .pytest_cache
-        pytest pymatgen -rxXs --ignore=pymatgen/analysis --color=yes
+        pytest pymatgen -rxXs --color=yes --cov=pymatgen
+        coveralls
