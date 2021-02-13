@@ -89,12 +89,12 @@ dependencies manually. Please refer to the official `pymatgen page`_ for
 installation details and requirements, including instructions for the
 bleeding edge developmental version. For people who are absolutely new to
 Python packages, it is highly recommended you do the installation using
-conda, which will make things a lot easier, especially on Windows:
+conda, which will make things a lot easier, especially on Windows::
 
     conda install --channel conda-forge pymatgen
 
 In line with the Scientific Python stack, pymatgen will now support only
-Py3.x from v2019.1.1. Specifically, we now only run testing on Py3.6+ so
+Py3.x from v2019.1.1. Specifically, we now only run testing on Py3.7+ so
 this is our officially  supported minimum Python version.
 
 Users who need Python 2.7 support should install v2018.x,
@@ -105,8 +105,6 @@ is always the latest stable release that is relatively bug-free. The easiest
 way to install pymatgen on any system is via pip::
 
     pip install pymatgen
-
-Wheels for Mac and Windows have been built for convenience.
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see the `pymatgen page`_).

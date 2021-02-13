@@ -195,20 +195,6 @@ def set_ver(ctx):
 
 
 @task
-def merge_stable(ctx):
-    """
-    Tag and merge into stable branch.
-
-    :param ctx:
-    """
-    ctx.run("git checkout stable")
-    ctx.run("git pull")
-    ctx.run("git merge master")
-    ctx.run("git push")
-    ctx.run("git checkout master")
-
-
-@task
 def release_github(ctx):
     """
     Release to Github using Github API.
@@ -299,7 +285,6 @@ def release(ctx, nodoc=False):
         ctx.run("git add .")
         ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
-    merge_stable(ctx)
     release_github(ctx)
     # post_discourse(ctx, warn=True)
 
