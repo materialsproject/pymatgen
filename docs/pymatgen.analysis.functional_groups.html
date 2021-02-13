@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.functional_groups module &mdash; pymatgen 2021.1.28 documentation</title>
+  <title>pymatgen.analysis.functional_groups module &mdash; pymatgen 2021.2.12 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.graphs module" href="pymatgen.analysis.graphs.html" />
@@ -61,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.1.28
+                2021.2.12
               </div>
             
           
@@ -88,6 +88,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +136,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +175,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -207,7 +209,7 @@
 <p>Determine functional groups present in a Molecule.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor">
-<em class="property">class </em><code class="sig-name descname">FunctionalGroupExtractor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">optimize</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L35-L392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FunctionalGroupExtractor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">optimize</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L32-L361"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class is used to algorithmically parse a molecule (represented by an
 instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary
@@ -226,7 +228,7 @@ etc.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups">
-<code class="sig-name descname">categorize_functional_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">groups</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L347-L392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">categorize_functional_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">groups</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L322-L361"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine classes of functional groups present in a set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -242,7 +244,7 @@ type of group there is.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups">
-<code class="sig-name descname">get_all_functional_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_groups</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">catch_basic</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L320-L345"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_functional_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func_groups</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">catch_basic</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L297-L320"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify all functional groups (or all within a certain subset) in the
 molecule, combining the methods described above.</p>
 <dl class="field-list simple">
@@ -266,7 +268,7 @@ other methods</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups">
-<code class="sig-name descname">get_basic_functional_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_groups</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L250-L318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_basic_functional_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func_groups</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L233-L295"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify functional groups that cannot be identified by the Ertl method
 of get_special_carbon and get_heteroatoms, such as benzene rings, methyl
 groups, and ethyl groups.</p>
@@ -286,7 +288,7 @@ defined in this function will be sought.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms">
-<code class="sig-name descname">get_heteroatoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L114-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_heteroatoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L105-L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify non-H, non-C atoms in the MoleculeGraph, returning a list of
 their node indices.</p>
 <dl class="field-list simple">
@@ -302,7 +304,7 @@ functional groups are of interest).</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon">
-<code class="sig-name descname">get_special_carbon</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L136-L214"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_special_carbon</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L127-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify Carbon atoms in the MoleculeGraph that fit the characteristics
 defined Ertl (2017), returning a list of their node indices.</p>
 <dl class="simple">
@@ -328,7 +330,7 @@ Default None.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms">
-<code class="sig-name descname">link_marked_atoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/analysis/functional_groups.py#L216-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">link_marked_atoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.12/pymatgen/analysis/functional_groups.py#L201-L231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take a list of marked “interesting” atoms (heteroatoms, special carbons)
 and attempt to connect them, returning a list of disjoint groups of
 special atoms (and their connected hydrogens).</p>
@@ -358,11 +360,19 @@ using other functions in this class.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -373,7 +383,6 @@ using other functions in this class.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

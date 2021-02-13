@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2021.1.28 documentation</title>
+  <title>Change log &mdash; pymatgen 2021.2.12 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Usage" href="usage.html" />
@@ -61,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.1.28
+                2021.2.12
               </div>
             
           
@@ -88,6 +88,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,6 +100,9 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-12">v2021.2.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-8-1">v2021.2.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-8">v2021.2.8</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2021-1-28">v2021.1.28</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-12-31">v2020.12.31</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-12-18">v2020.12.18</a></li>
@@ -374,6 +378,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -412,7 +417,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Change log</li>
     
@@ -437,12 +442,38 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2021-2-12">
+<h2>v2021.2.12<a class="headerlink" href="#v2021-2-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-8-1">
+<h2>v2021.2.8.1<a class="headerlink" href="#v2021-2-8-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Patch release to restore <cite>CompositionError</cite> to preserve backwards compatibility.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-8">
+<h2>v2021.2.8<a class="headerlink" href="#v2021-2-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Addition of new job types to Q-Chem IO (&#64;espottesmith, #2055),
+note <cite>metal_edge_extender</cite> has been moved into <cite>local_env</cite> for this change</p></li>
+<li><p>Improvements to string utils, new Stringify mixin with
+to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (&#64;shyuep)</p></li>
+<li><p>Improvements to build system (&#64;shyuep, &#64;ltalirz, see #2046)</p></li>
+<li><p>Entry is now immutable, removing “in_place” option for normalize (&#64;mkhorton, &#64;mattmcdermott, #2060)</p></li>
+<li><p>Bug fix for co-ordination geometry finder (&#64;davidwaroquiers, #2035)</p></li>
+<li><p>Bug fix for GibbsComputedStructureEntry (&#64;mattmcdermott)</p></li>
+</ul>
+</div>
 <div class="section" id="v2021-1-28">
 <h2>v2021.1.28<a class="headerlink" href="#v2021-1-28" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Ability to read Lobster wavefunctions (&#64;JaGeo, #2034)</p></li>
 <li><p>Method to estimate number of bands for VASP calculation (&#64;rwoodsrobinson, #2044)</p></li>
 <li><p>Q-Chem cube file plotting and improvements to output parsring (&#64;samblau, #2032)</p></li>
+<li><p>Improvements to PhaseDiagram hashing and equality checking (&#64;CompRhys, #2014)</p></li>
 <li><p>Improvements to pymatgen import speed (&#64;mkhorton, #2031)</p></li>
 <li><p>Bug fix for k-path generation (&#64;munrojm, #2037)</p></li>
 <li><p>Bug fix for parsing of core potentials from VASP (&#64;utf, #2033)</p></li>
@@ -2987,11 +3018,19 @@ environment variable.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -3002,7 +3041,6 @@ environment variable.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
