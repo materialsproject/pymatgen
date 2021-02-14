@@ -9,7 +9,7 @@ jobs:
       max-parallel: 20
       matrix:
         os: [macos-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.8]
         pkg: [analysis/defects, analysis, io, symmetry, electronic_structure, others]
 
     runs-on: ${{ matrix.os }}
