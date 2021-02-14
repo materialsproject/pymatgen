@@ -1,15 +1,16 @@
-name: Testing - all - Linux
+name: Testing - Linux
 
 on: [push, pull_request]
 
 jobs:
 
-  build:
+  test:
     strategy:
       max-parallel: 20
       matrix:
         os: [ubuntu-latest]
         python-version: [3.7, 3.8]
+        pkg: [analysis, others]
 
     runs-on: ${{ matrix.os }}
 
@@ -39,15 +40,53 @@ jobs:
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
         pip install -e .
-    - name: pytest
+    - name: pytest ${{ matrix.pkg }}
       shell: bash -l {0}
+      if: matrix.pkg != 'others'
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
-        github-token: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "PATH=$PATH"
-        rm -rf .pytest_cache
-        pytest pymatgen -rxXs --color=yes --cov=pymatgen
+        pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes --cov=pymatgen
+    - name: pytest others
+      shell: bash -l {0}
+      if: matrix.pkg == 'others'
+      env:
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+        MPLBACKEND: "Agg"
+      run: |
+        pytest pymatgen -rxXs --color=yes --cov=pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/io
+    - name: Upload coverage
+      uses: actions/upload-artifact@v1
+      with:
+        name: coverage${{ matrix.pkg }}
+        path: .coverage
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Download coverageanalysis
+        uses: actions/download-artifact@v1
+        with:
+          name: coverageanalysis
+      - name: Download coverageothers
+        uses: actions/download-artifact@v1
+        with:
+          name: coverageothers
+      - name: Run coverage
+        run: |
+          coverage combine coverage*/.coverage*
+          coverage report --fail-under=100
+          coverage xml
     - name: Coveralls Python
       uses: AndreMiras/coveralls-python-action@v20201129

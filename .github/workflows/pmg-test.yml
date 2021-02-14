@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [macos-latest]
         python-version: [3.8]
-        pkg: [analysis/defects, io, others]
+        pkg: [analysis/defects, analysis, io, others]
 
     runs-on: ${{ matrix.os }}
 
@@ -30,18 +30,23 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -e .
     - name: pytest ${{ matrix.pkg }}
-      if: matrix.pkg != 'others'
+      if: matrix.pkg != 'others' && matrix.pkg != 'analysis'
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        echo "PATH=$PATH"
         pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes
+    - name: pytest ${{ matrix.pkg }}
+      if: matrix.pkg == 'analysis'
+      env:
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+        MPLBACKEND: "Agg"
+      run: |
+        pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes --ignore=pymatgen/analysis/defects
     - name: pytest others
       if: matrix.pkg == 'others'
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        echo "PATH=$PATH"
-        pytest pymatgen --ignore=pymatgen/analysis/defects,pymatgen/io  -rxXs --color=yes
+        pytest pymatgen   -rxXs --color=yes --ignore=pymatgen/analysis --ignore=pymatgen/io
