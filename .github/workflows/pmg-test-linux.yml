@@ -55,7 +55,7 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        pytest pymatgen -rxXs --color=yes --cov=pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/io
+        pytest pymatgen -rxXs --color=yes --cov=pymatgen --ignore=pymatgen/analysis
     - name: Upload coverage
       uses: actions/upload-artifact@v1
       with:
@@ -86,7 +86,7 @@ jobs:
     - name: Run coverage
       run: |
         coverage combine coverage*/.coverage*
-        coverage report --fail-under=100
+        coverage report
         coverage xml
     - name: Coveralls Python
       uses: AndreMiras/coveralls-python-action@v20201129
