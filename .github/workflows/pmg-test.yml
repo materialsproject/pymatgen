@@ -9,8 +9,8 @@ jobs:
       max-parallel: 20
       matrix:
         os: [macos-latest]
-        python-version: [3.8]
-        pkg: [analysis/defects, analysis, io, others]
+        python-version: [3.7, 3.8]
+        pkg: [analysis/defects, analysis, io, symmetry, electronic_structure, others]
 
     runs-on: ${{ matrix.os }}
 
@@ -49,4 +49,4 @@ jobs:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
-        pytest pymatgen   -rxXs --color=yes --ignore=pymatgen/analysis --ignore=pymatgen/io
+        pytest pymatgen -rxXs --color=yes --ignore=pymatgen/analysis --ignore=pymatgen/io --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry
