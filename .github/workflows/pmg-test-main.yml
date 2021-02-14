@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
         python-version: [3.8]
-        pkg: [analysis, command_line, electronic_structure, io, plugins, transformations, apps, core, entries, optimization, symmetry, util, alchemy, ext, phonon, tests, vis]
+        pkg: [analysis, electronic_structure, io, symmetry, others]
 
     runs-on: ${{ matrix.os }}
 
@@ -35,9 +35,18 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -e .
     - name: pytest
+      if: matrix.pkg != 'others'
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
         echo "PATH=$PATH"
         pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes
+    - name: pytest others
+      if: matrix.pkg == 'others'
+      env:
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+        MPLBACKEND: "Agg"
+      run: |
+        echo "PATH=$PATH"
+        pytest pymatgen --ignore=pymatgen/analysis,pymatgen/electronic_structure,pymatgen/io,pymatgen/symmetry, -rxXs --color=yes
