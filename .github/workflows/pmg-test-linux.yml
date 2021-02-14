@@ -49,7 +49,5 @@ jobs:
         echo "PATH=$PATH"
         rm -rf .pytest_cache
         pytest pymatgen -rxXs --color=yes --cov=pymatgen
-    - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@v1.1.2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Coveralls Python
+      uses: AndreMiras/coveralls-python-action@v20201129

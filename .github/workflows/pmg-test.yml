@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
         python-version: [3.8]
-        pkg: [analysis, electronic_structure, io, symmetry, others]
+        pkg: [analysis, command_line, ext, io, others]
 
     runs-on: ${{ matrix.os }}
 
@@ -20,13 +20,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Set Mac Paths
-      if: matrix.os == 'macos-latest'
-      run: |
-        # Note that this is the way to update env variables in a way that persist for the entire job.
-        for pkg in `ls cmd_line`; do echo "`pwd`/cmd_line/$pkg/Darwin_64bit" >> $GITHUB_PATH; done
-        echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
-        echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
         pip install --upgrade pip
@@ -39,6 +32,8 @@ jobs:
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
+        PMG_TEST_FILES_DIR: "test_files"
+        GULP_LIB: "cmd_line/gulp/Libraries"
       run: |
         echo "PATH=$PATH"
         pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes
@@ -47,6 +42,8 @@ jobs:
       env:
         PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
+        PMG_TEST_FILES_DIR: "test_files"
+        GULP_LIB: "cmd_line/gulp/Libraries"
       run: |
         echo "PATH=$PATH"
-        pytest pymatgen --ignore=pymatgen/analysis,pymatgen/electronic_structure,pymatgen/io,pymatgen/symmetry, -rxXs --color=yes
+        pytest pymatgen --ignore=pymatgen/analysis,pymatgen/command_line,pymatgen/ext,pymatgen/io  -rxXs --color=yes
