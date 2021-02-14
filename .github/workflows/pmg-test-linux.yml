@@ -66,27 +66,27 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Download coverageanalysis
-        uses: actions/download-artifact@v1
-        with:
-          name: coverageanalysis
-      - name: Download coverageothers
-        uses: actions/download-artifact@v1
-        with:
-          name: coverageothers
-      - name: Run coverage
-        run: |
-          coverage combine coverage*/.coverage*
-          coverage report --fail-under=100
-          coverage xml
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - name: Install deps
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Download coverageanalysis
+      uses: actions/download-artifact@v1
+      with:
+        name: coverageanalysis
+    - name: Download coverageothers
+      uses: actions/download-artifact@v1
+      with:
+        name: coverageothers
+    - name: Run coverage
+      run: |
+        coverage combine coverage*/.coverage*
+        coverage report --fail-under=100
+        coverage xml
     - name: Coveralls Python
       uses: AndreMiras/coveralls-python-action@v20201129
