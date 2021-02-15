@@ -10,11 +10,10 @@ Bug reports can be posted to our GitHub Issues page. Code contributions and work
 
 .. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
       :alt: Conda Downloads
-      :target: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
       :alt: Coveralls Coverage Report
-      :target: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
+      :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
 
 .. image:: https://img.shields.io/github/commit-activity/y/materialsproject/pymatgen
       :target: https://img.shields.io/github/commit-activity/y/materialsproject/pymatgen

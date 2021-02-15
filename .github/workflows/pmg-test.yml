@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ macos-latest ]
+        os: [ macos-latest, windows-latest ]
         python-version: [ 3.8 ]
         pkg: [ analysis, others ]
 
