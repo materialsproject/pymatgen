@@ -13,7 +13,11 @@ jobs:
         pkg: [analysis, others]
 
     runs-on: ${{ matrix.os }}
-
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: "Agg"
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -29,8 +33,6 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
-        echo "GULP_LIB=`pwd`/cmd_line/gulp/Libraries" >> $GITHUB_ENV
-        echo "PMG_TEST_FILES_DIR=`pwd`/test_files" >> $GITHUB_ENV
         pip install --upgrade pip wheel
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
@@ -38,15 +40,7 @@ jobs:
         pip install -e .
     - name: pytest ${{ matrix.pkg }}
       if: matrix.pkg != 'others'
-      env:
-        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-        MPLBACKEND: "Agg"
-      run: |
-        pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes
+      run: pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes
     - name: pytest others
       if: matrix.pkg == 'others'
-      env:
-        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-        MPLBACKEND: "Agg"
-      run: |
-        pytest pymatgen -rxXs --color=yes --ignore=pymatgen/analysis
+      run: pytest pymatgen -rxXs --color=yes --ignore=pymatgen/analysis
