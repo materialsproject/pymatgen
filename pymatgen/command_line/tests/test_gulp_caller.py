@@ -28,7 +28,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
-gulp_present = which("gulp") and os.environ.get("GULP_LIB") and "win" in sys.platform
+gulp_present = which("gulp") and os.environ.get("GULP_LIB") and ("win" not in sys.platform)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
