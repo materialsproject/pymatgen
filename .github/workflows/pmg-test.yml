@@ -1,6 +1,6 @@
 name: Testing
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -8,39 +8,39 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [macos-latest]
-        python-version: [3.8]
-        pkg: [analysis, others]
+        os: [ macos-latest ]
+        python-version: [ 3.8 ]
+        pkg: [ analysis, others ]
 
     runs-on: ${{ matrix.os }}
+
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       MPLBACKEND: "Agg"
       PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
       GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v2
-      if: startsWith(runner.os, 'macOS')
-      with:
-        path: ~/Library/Caches/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-optional.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip wheel
-        pip install -r requirements.txt
-        pip install -r requirements-optional.txt
-        pip install -r requirements-dev.txt
-        pip install -e .
-    - name: pytest ${{ matrix.pkg }}
-      if: matrix.pkg != 'others'
-      run: pytest pymatgen/${{ matrix.pkg }} -rxXs --color=yes
-    - name: pytest others
-      if: matrix.pkg == 'others'
-      run: pytest pymatgen -rxXs --color=yes --ignore=pymatgen/analysis
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-optional.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip wheel
+          pip install -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+          pip install -e .
+      - name: pytest ${{ matrix.pkg }}
+        if: matrix.pkg != 'others'
+        run: pytest pymatgen/${{ matrix.pkg }}
+      - name: pytest others
+        if: matrix.pkg == 'others'
+        run: pytest pymatgen --ignore=pymatgen/analysis
