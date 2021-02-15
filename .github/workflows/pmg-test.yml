@@ -3,7 +3,7 @@ name: Testing
 on: [ push, pull_request ]
 
 jobs:
-  build:
+  test:
 
     strategy:
       max-parallel: 20
