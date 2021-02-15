@@ -50,7 +50,7 @@ jobs:
   release:
     needs: test
     strategy:
-      max-parallel: 20
+      max-parallel: 2
       matrix:
         os: [ macos-latest ]
         python-version: [ 3.7, 3.8 ]
@@ -73,9 +73,7 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           pip install -r requirements.txt
-          pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install -e .
-
       - name: Release
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
