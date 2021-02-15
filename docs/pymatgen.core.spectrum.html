@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.core.spectrum module &mdash; pymatgen 2021.2.13 documentation</title>
+  <title>pymatgen.core.spectrum module &mdash; pymatgen 2021.2.14 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.2.13
+                2021.2.14
               </div>
             
           
@@ -210,7 +210,7 @@
 x y value pairs.</p>
 <dl class="py class">
 <dt id="pymatgen.core.spectrum.Spectrum">
-<em class="property">class </em><code class="sig-name descname">Spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">, </span>Sequence<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">]</span><span class="p">]</span><span class="p">, </span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>Any<span class="p">]</span><span class="p">]</span><span class="p">, </span>numpy.typing._array_like._SupportsArray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">, </span>Sequence<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">]</span><span class="p">]</span><span class="p">, </span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>Any<span class="p">]</span><span class="p">]</span><span class="p">, </span>numpy.typing._array_like._SupportsArray<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py#L21-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Spectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">, </span>Sequence<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">]</span><span class="p">]</span><span class="p">, </span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>Any<span class="p">]</span><span class="p">]</span><span class="p">, </span>numpy.typing._array_like._SupportsArray<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">, </span>Sequence<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>float<span class="p">, </span>complex<span class="p">, </span>str<span class="p">, </span>bytes<span class="p">, </span>numpy.generic<span class="p">]</span><span class="p">]</span><span class="p">, </span>Sequence<span class="p">[</span>Sequence<span class="p">[</span>Any<span class="p">]</span><span class="p">]</span><span class="p">, </span>numpy.typing._array_like._SupportsArray<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py#L21-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Base class for any type of xas, essentially just x, y values. Examples
 include XRD patterns, XANES, EXAFS, NMR, DOS, etc.</p>
@@ -235,17 +235,17 @@ etc. operators work properly.</p></li>
 </dl>
 <dl class="py attribute">
 <dt id="pymatgen.core.spectrum.Spectrum.XLABEL">
-<code class="sig-name descname">XLABEL</code><em class="property"> = 'x'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.XLABEL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">XLABEL</code><em class="property"> = 'x'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.XLABEL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.core.spectrum.Spectrum.YLABEL">
-<code class="sig-name descname">YLABEL</code><em class="property"> = 'y'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.YLABEL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">YLABEL</code><em class="property"> = 'y'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.YLABEL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.spectrum.Spectrum.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py#L114-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py#L114-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.copy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Copy of Spectrum object.</p>
@@ -255,7 +255,7 @@ etc. operators work properly.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.spectrum.Spectrum.get_interpolated_value">
-<code class="sig-name descname">get_interpolated_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>float<span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py#L100-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_interpolated_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>float<span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py#L100-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an interpolated y value for a particular x value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -269,7 +269,7 @@ etc. operators work properly.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.spectrum.Spectrum.normalize">
-<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'max'</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py#L67-L84"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.normalize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'max'</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py#L67-L84"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize the spectrum with respect to the sum of intensity</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -285,7 +285,7 @@ sum of y to a value, i.e., like a probability density).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.spectrum.Spectrum.smear">
-<code class="sig-name descname">smear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/core/spectrum.py#L86-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.smear" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">smear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/core/spectrum.py#L86-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.spectrum.Spectrum.smear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply Gaussian smearing to spectrum y value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

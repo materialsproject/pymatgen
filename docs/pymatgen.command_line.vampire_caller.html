@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.vampire_caller module &mdash; pymatgen 2021.2.13 documentation</title>
+  <title>pymatgen.command_line.vampire_caller module &mdash; pymatgen 2021.2.14 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.2.13
+                2021.2.14
               </div>
             
           
@@ -217,7 +217,7 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</p>
 <dl class="py class">
 <dt id="pymatgen.command_line.vampire_caller.VampireCaller">
-<em class="property">class </em><code class="sig-name descname">VampireCaller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ordered_structures</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">energies</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mc_box_size</span><span class="o">=</span><span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">equil_timesteps</span><span class="o">=</span><span class="default_value">2000</span></em>, <em class="sig-param"><span class="n">mc_timesteps</span><span class="o">=</span><span class="default_value">4000</span></em>, <em class="sig-param"><span class="n">save_inputs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">hm</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">avg</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">user_input_settings</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/command_line/vampire_caller.py#L40-L416"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VampireCaller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ordered_structures</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">energies</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mc_box_size</span><span class="o">=</span><span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">equil_timesteps</span><span class="o">=</span><span class="default_value">2000</span></em>, <em class="sig-param"><span class="n">mc_timesteps</span><span class="o">=</span><span class="default_value">4000</span></em>, <em class="sig-param"><span class="n">save_inputs</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">hm</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">avg</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">user_input_settings</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/command_line/vampire_caller.py#L40-L416"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
 temperature with classical Monte Carlo.</p>
@@ -253,7 +253,7 @@ indexing.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout">
-<em class="property">static </em><code class="sig-name descname">parse_stdout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vamp_stdout</span></em>, <em class="sig-param"><span class="n">nmats</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/command_line/vampire_caller.py#L391-L416"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">parse_stdout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vamp_stdout</span></em>, <em class="sig-param"><span class="n">nmats</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/command_line/vampire_caller.py#L391-L416"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse stdout from Vampire.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -276,7 +276,7 @@ critical_temp (float): Calculated critical temp.</p>
 
 <dl class="py class">
 <dt id="pymatgen.command_line.vampire_caller.VampireOutput">
-<em class="property">class </em><code class="sig-name descname">VampireOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parsed_out</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nmats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">critical_temp</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/command_line/vampire_caller.py#L419-L436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VampireOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parsed_out</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nmats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">critical_temp</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/command_line/vampire_caller.py#L419-L436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This class processes results from a Vampire Monte Carlo simulation
 and returns the critical temperature.</p>

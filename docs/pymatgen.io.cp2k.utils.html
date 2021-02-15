@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.cp2k.utils module &mdash; pymatgen 2021.2.13 documentation</title>
+  <title>pymatgen.io.cp2k.utils module &mdash; pymatgen 2021.2.14 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.2.13
+                2021.2.14
               </div>
             
           
@@ -211,7 +211,7 @@
 <p>Utility functions for assisting with cp2k IO</p>
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_aux_basis">
-<code class="sig-name descname">get_aux_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basis_type</span></em>, <em class="sig-param"><span class="n">default_basis_type</span><span class="o">=</span><span class="default_value">'cFIT'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/io/cp2k/utils.py#L178-L213"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_aux_basis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_aux_basis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">basis_type</span></em>, <em class="sig-param"><span class="n">default_basis_type</span><span class="o">=</span><span class="default_value">'cFIT'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/io/cp2k/utils.py#L178-L213"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_aux_basis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get auxiliary basis info for a list of species.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,7 +237,7 @@ aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_basis_and_potential">
-<code class="sig-name descname">get_basis_and_potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">cardinality</span><span class="o">=</span><span class="default_value">'DZVP'</span></em>, <em class="sig-param"><span class="n">functional</span><span class="o">=</span><span class="default_value">'PBE'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/io/cp2k/utils.py#L107-L175"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_basis_and_potential" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_basis_and_potential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">d</span></em>, <em class="sig-param"><span class="n">cardinality</span><span class="o">=</span><span class="default_value">'DZVP'</span></em>, <em class="sig-param"><span class="n">functional</span><span class="o">=</span><span class="default_value">'PBE'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/io/cp2k/utils.py#L107-L175"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_basis_and_potential" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
 Generally, the GTH potentials are used with the GTH basis sets.</p>
 <dl class="field-list simple">
@@ -262,7 +262,7 @@ E.g. {‘Si’: {‘cardinality’: ‘DZVP’, ‘sr’: True}, ‘O’: {‘ca
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.get_unique_site_indices">
-<code class="sig-name descname">get_unique_site_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/io/cp2k/utils.py#L216-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_unique_site_indices" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_unique_site_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/io/cp2k/utils.py#L216-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.get_unique_site_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get unique site indices for a structure according to site properties. Whatever site-property has the most
 unique values is used for indexing.</p>
 <p>For example, if you have magnetic CoO with half Co atoms having a positive moment, and the other
@@ -273,7 +273,7 @@ those site properties into CP2K input parameters.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.cp2k.utils.natural_keys">
-<code class="sig-name descname">natural_keys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.13/pymatgen/io/cp2k/utils.py#L94-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.natural_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">natural_keys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/io/cp2k/utils.py#L94-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cp2k.utils.natural_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort text by numbers coming after an underscore with natural number
 convention,
 Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12]</p>
