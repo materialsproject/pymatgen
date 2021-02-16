@@ -497,6 +497,13 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(bs.get_branch(0)[0]["start_index"], 0)
             self.assertEqual(bs.get_branch(0)[0]["end_index"], 0)
 
+    def test_projected_magnetisation(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
+        vasprun = Vasprun(filepath, parse_projected_eigen=True)
+        self.assertTrue(vasprun.projected_magnetisation is not None)
+        self.assertEqual(vasprun.projected_magnetisation.shape, (76, 240, 4, 9, 3))
+        self.assertAlmostEqual(vasprun.projected_magnetisation[0, 0, 0, 0, 0], -0.0712)
+
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiF")
