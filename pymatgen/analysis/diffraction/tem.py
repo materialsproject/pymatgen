@@ -96,8 +96,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         )
         return wavelength_rel
 
-    @classmethod
-    def generate_points(cls, coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
+    @staticmethod
+    def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
         """
         Generates a bunch of 3D points that span a cube.
         Args:
@@ -372,8 +372,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 max_d = spacings[plane]
         return {max_d_plane: max_d}
 
-    @classmethod
-    def get_interplanar_angle(cls, structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) -> float:
+    @staticmethod
+    def get_interplanar_angle(structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) -> float:
         """
         Returns the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
@@ -424,9 +424,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         phi = np.arccos(r1_dot_r2 / (r1_norm * r2_norm))
         return np.rad2deg(phi)
 
-    @classmethod
+    @staticmethod
     def get_plot_coeffs(
-        cls,
         p1: Tuple[int, int, int],
         p2: Tuple[int, int, int],
         p3: Tuple[int, int, int],
