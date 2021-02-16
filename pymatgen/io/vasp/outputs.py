@@ -431,7 +431,10 @@ class Vasprun(MSONable):
                 elif parse_eigen and tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
+                    (
+                        self.projected_eigenvalues,
+                        self.projected_magnetisation,
+                    ) = self._parse_projected_eigen(elem)
                 elif tag == "dielectricfunction":
                     if (
                         "comment" not in elem.attrib
@@ -828,12 +831,13 @@ class Vasprun(MSONable):
             data=data,
         )
 
-    def get_band_structure(self,
-                           kpoints_filename: Optional[str] = None,
-                           efermi: Optional[Union[float, str]] = None,
-                           line_mode: bool = False,
-                           force_hybrid_mode: bool = False
-                           ):
+    def get_band_structure(
+        self,
+        kpoints_filename: Optional[str] = None,
+        efermi: Optional[Union[float, str]] = None,
+        line_mode: bool = False,
+        force_hybrid_mode: bool = False,
+    ):
         """
         Returns the band structure as a BandStructure object
 
@@ -1516,11 +1520,13 @@ class BSVasprun(Vasprun):
     etc. are ignored.
     """
 
-    def __init__(self,
-                 filename: str,
-                 parse_projected_eigen: Union[bool, str] = False,
-                 parse_potcar_file: Union[bool, str] = False,
-                 occu_tol: float = 1e-8):
+    def __init__(
+        self,
+        filename: str,
+        parse_projected_eigen: Union[bool, str] = False,
+        parse_potcar_file: Union[bool, str] = False,
+        occu_tol: float = 1e-8,
+    ):
         """
         Args:
             filename: Filename to parse
@@ -1574,7 +1580,10 @@ class BSVasprun(Vasprun):
                 elif tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    self.projected_eigenvalues, self.projected_magnetisation = self._parse_projected_eigen(elem)
+                    (
+                        self.projected_eigenvalues,
+                        self.projected_magnetisation,
+                    ) = self._parse_projected_eigen(elem)
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
         self.vasp_version = self.generator["version"]
@@ -2326,10 +2335,10 @@ class Outcar:
 
     def read_cs_core_contribution(self):
         """
-            Parse the core contribution of NMR chemical shielding.
+        Parse the core contribution of NMR chemical shielding.
 
-            Returns:
-            G0 contribution matrix as list of list.
+        Returns:
+        G0 contribution matrix as list of list.
         """
         header_pattern = (
             r"^\s+Core NMR properties\s*$\n"
@@ -3311,7 +3320,7 @@ class Outcar:
                         npots = int((len(line) - 1) / 17)
                         for i in range(npots):
                             start = i * 17
-                            ap.append(float(line[start + 8:start + 17]))
+                            ap.append(float(line[start + 8 : start + 17]))
 
         return aps
 
@@ -5688,8 +5697,8 @@ class Waveder:
         with open(filename, "rb") as fp:
 
             def readData(dtype):
-                """ Read records from Fortran binary file and convert to
-                np.array of given dtype. """
+                """Read records from Fortran binary file and convert to
+                np.array of given dtype."""
                 data = b""
                 while True:
                     prefix = np.fromfile(fp, dtype=np.int32, count=1)[0]
