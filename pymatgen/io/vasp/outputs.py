@@ -1471,7 +1471,6 @@ class Vasprun(MSONable):
             spin = int(re.match(r"spin(\d+)", s.attrib["comment"]).group(1))
 
             # Force spin to be +1 or -1
-            # spin = Spin.up if spin == 1 else Spin.down
             for kpt, ss in enumerate(s.findall("set")):
                 dk = []
                 for band, sss in enumerate(ss.findall("set")):
