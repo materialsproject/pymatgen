@@ -29,7 +29,7 @@ def run_aconvasp_command(command, structure):
     poscar = Poscar(structure)
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     output = p.communicate(input=bytes(poscar.get_string(), "utf-8"))
-    return output
+    return [o.decode("utf-8") if o is not None else "" for o in output]
 
 
 def get_num_division_kpoints(structure, kppa):
