@@ -1514,7 +1514,6 @@ class ChgcarTest(PymatgenTest):
         os.remove("CHGCAR_pmg_soc")
 
     def test_hdf5(self):
-        print(self.TEST_FILES_DIR)
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
         import h5py
