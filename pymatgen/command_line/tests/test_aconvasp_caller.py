@@ -17,7 +17,6 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Lattice, Structure
 
 aconvasp_present = which("aconvasp")
-aconvasp_present = False  # disable aconvasp testing for now.
 
 
 @unittest.skipIf(not aconvasp_present, "aconvasp not present.")

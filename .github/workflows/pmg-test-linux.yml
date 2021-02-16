@@ -1,3 +1,6 @@
+# This workflow runs only on Ubuntu and aims to be more complete than the Mac and Windows workflows.
+# In particular, Openbabel and many of the external command line dependencies are included for testing.defaults:
+# The ext package is also only tested in this workflow. Coverage is also computed based on this platform.
 name: Testing - Linux
 
 on: [ push, pull_request ]
@@ -46,6 +49,7 @@ jobs:
           pip install --upgrade pip wheel
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install scikit-image==0.18.1
           pip install -e .
       - name: pytest ${{ matrix.pkg }}
         shell: bash -l {0}

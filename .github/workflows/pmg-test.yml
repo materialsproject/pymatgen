@@ -33,6 +33,13 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'Windows')
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
@@ -43,5 +50,7 @@ jobs:
         if: matrix.pkg != 'others'
         run: pytest pymatgen/${{ matrix.pkg }}
       - name: pytest others
+        # We forgo testing the ext package on Mac and Windows to avoid overload the API. Test completeness is targeted
+        # in the Linux tests.
         if: matrix.pkg == 'others'
-        run: pytest pymatgen --ignore=pymatgen/analysis
+        run: pytest pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/ext
