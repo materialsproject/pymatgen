@@ -1410,9 +1410,7 @@ class Vasprun(MSONable):
             proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)
             proj_eigen = {Spin.up: proj_eigen[1]}
         else:
-            proj_eigen = {
-                Spin.up if k == 1 else Spin.down: v for k, v in proj_eigen.items()
-            }
+            proj_eigen = {Spin.up if k == 1 else Spin.down: v for k, v in proj_eigen.items()}
             proj_mag = None
 
         elem.clear()
