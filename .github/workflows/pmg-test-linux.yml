@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest ]
         python-version: [ 3.8 ]
-        pkg: [ analysis, others ]
+        pkg: [ analysis, ext, others ]
 
     runs-on: ${{ matrix.os }}
 
@@ -60,7 +60,7 @@ jobs:
         shell: bash -l {0}
         if: matrix.pkg == 'others'
         run: |
-          pytest pymatgen --cov=pymatgen --ignore=pymatgen/analysis
+          pytest pymatgen --cov=pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/ext
       - name: Upload coverage
         uses: actions/upload-artifact@v1
         with:
