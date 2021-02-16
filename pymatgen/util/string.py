@@ -139,7 +139,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def latexify(formula):
@@ -157,7 +157,7 @@ def latexify(formula):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def htmlify(formula):
@@ -172,7 +172,7 @@ def htmlify(formula):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def unicodeify(formula):
@@ -194,7 +194,7 @@ def unicodeify(formula):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def latexify_spacegroup(spacegroup_symbol):
@@ -213,7 +213,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def unicodeify_spacegroup(spacegroup_symbol):
@@ -249,7 +249,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def unicodeify_species(specie_string):
