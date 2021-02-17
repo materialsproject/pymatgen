@@ -173,7 +173,7 @@ class OptimadeRester:
 
         def _sanitize_symbol(symbol):
             if symbol == "vacancy":
-                symbol = DummySpecies(f"X_vacancy", oxidation_state=None)
+                symbol = DummySpecies("X_vacancy", oxidation_state=None)
             elif symbol == "X":
                 symbol = DummySpecies("X", oxidation_state=None)
             return symbol
@@ -199,7 +199,7 @@ class OptimadeRester:
                     coords_are_cartesian=True,
                 )
                 structures[data["id"]] = structure
-            except Exception as exc:
+            except Exception:
 
                 try:
                     # e.g. MP (all ordered, no vacancies)
@@ -210,8 +210,7 @@ class OptimadeRester:
                         coords_are_cartesian=True,
                     )
                     structures[data["id"]] = structure
-                except Exception as exc:
-                    # print(exc)
+                except Exception:
                     pass
 
         return structures
