@@ -16,7 +16,7 @@ __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 
 
-@unittest.skipIf(not which("mcsqs"), "mcsqs executable not present")
+@unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
 class McsqsCallerTest(PymatgenTest):
     def setUp(self):
         self.pztstructs = loadfn(os.path.join(test_dir, "pztstructs.json"))

@@ -36,10 +36,9 @@ from pymatgen.analysis.local_env import (
     site_is_of_motif_type,
     solid_angle,
     IsayevNN,
-    metal_edge_extender
+    metal_edge_extender,
 )
 from pymatgen.util.testing import PymatgenTest
-
 
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")

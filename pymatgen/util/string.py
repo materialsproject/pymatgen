@@ -139,7 +139,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def latexify(formula):
@@ -157,7 +157,7 @@ def latexify(formula):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def htmlify(formula):
@@ -172,7 +172,7 @@ def htmlify(formula):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def unicodeify(formula):
@@ -194,7 +194,7 @@ def unicodeify(formula):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def latexify_spacegroup(spacegroup_symbol):
@@ -213,7 +213,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def unicodeify_spacegroup(spacegroup_symbol):
@@ -249,7 +249,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
 
 @deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
+    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides "
     "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
 )
 def unicodeify_species(specie_string):
@@ -428,40 +428,4 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     disordered_formula.append(" ")
     disordered_formula += ["{}={} ".format(k, formula_double_format(v)) for k, v in variable_map.items()]
 
-    comp = disordered_struct.composition
-
     return "".join(map(str, disordered_formula))[0:-1]
-
-
-class StringColorizer:
-    """
-    Provides coloring for strings in terminals.
-    """
-
-    # pylint: disable=R0903
-    colours = {
-        "default": "",
-        "blue": "\x1b[01;34m",
-        "cyan": "\x1b[01;36m",
-        "green": "\x1b[01;32m",
-        "red": "\x1b[01;31m",
-    }
-
-    def __init__(self, stream):
-        """
-        :param stream: Input stream
-        """
-        self.has_colours = stream_has_colours(stream)
-
-    def __call__(self, string, colour):
-        """
-        :param string: Actual string
-        :param colour: Color to assign.
-        :return: Colored string.
-        """
-        if self.has_colours:
-            code = self.colours.get(colour.lower(), "")
-            if code:
-                return code + string + "\x1b[00m"
-            return string
-        return string

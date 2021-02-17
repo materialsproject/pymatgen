@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2021.1.28 documentation</title>
+  <title>Introduction &mdash; pymatgen 2021.2.14 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
@@ -61,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.1.28
+                2021.2.14
               </div>
             
           
@@ -88,6 +88,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -101,7 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2021-1-28">v2021.1.28</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2021-2-14">v2021.2.14</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -129,6 +130,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -167,7 +169,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Introduction</li>
     
@@ -193,7 +195,7 @@
   <a class="reference internal image-reference" href="_images/pymatgen.png"><img alt="pymatgen" class="align-center" src="_images/pymatgen.png" style="width: 300px;" /></a>
 <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" /><img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" /><img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
+<img alt="https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg" /><img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:</p>
 <ol class="arabic simple">
@@ -208,7 +210,12 @@ diagrams, diffusion analyses, reactions, etc.</p></li>
 <li><p>Integration with the Materials Project REST API, Crystallography Open
 Database and other external data sources.</p></li>
 </ol>
-<p>As of 2020, pymatgen only supports Python 3 and above.</p>
+<p>As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule
+follows closely to the support schedule of the Scientific Python software stack.
+When packages such as numpy drops support for Python versions, we will drop
+support for newer versions. Similarly, support for new Python versions will
+be adopted only when most of the core dependencies support the new Python
+versions.</p>
 <p>Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
@@ -289,15 +296,10 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2021-1-28">
-<h3>v2021.1.28<a class="headerlink" href="#v2021-1-28" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2021-2-14">
+<h3>v2021.2.14<a class="headerlink" href="#v2021-2-14" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Ability to read Lobster wavefunctions (&#64;JaGeo, #2034)</p></li>
-<li><p>Method to estimate number of bands for VASP calculation (&#64;rwoodsrobinson, #2044)</p></li>
-<li><p>Q-Chem cube file plotting and improvements to output parsring (&#64;samblau, #2032)</p></li>
-<li><p>Improvements to pymatgen import speed (&#64;mkhorton, #2031)</p></li>
-<li><p>Bug fix for k-path generation (&#64;munrojm, #2037)</p></li>
-<li><p>Bug fix for parsing of core potentials from VASP (&#64;utf, #2033)</p></li>
+<li><p>Misc bug fixes.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -702,11 +704,19 @@ to indicate the copyright and license terms:</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -717,7 +727,6 @@ to indicate the copyright and license terms:</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

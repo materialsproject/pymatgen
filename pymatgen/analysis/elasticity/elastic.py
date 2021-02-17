@@ -987,8 +987,8 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol=1e-10, add_eq=T
         with stress-strain data corresponding to strain state
     """
     # Recast stress/strains
-    vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])
-    vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])
+    vstrains = np.array([Strain(s).zeroed(tol).voigt for s in strains])  # pylint: disable=E1101
+    vstresses = np.array([Stress(s).zeroed(tol).voigt for s in stresses])  # pylint: disable=E1101
     # Collect independent strain states:
     independent = {tuple(np.nonzero(vstrain)[0].tolist()) for vstrain in vstrains}
     strain_state_dict = OrderedDict()

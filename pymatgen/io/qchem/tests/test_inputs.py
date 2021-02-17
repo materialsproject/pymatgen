@@ -120,8 +120,7 @@ $end"""
         self.assertEqual(smx_actual, smx_test)
 
     def test_scan_template(self):
-        scan_params = {"stre": ["3 6 1.5 1.9 0.01"],
-                       "tors": ["1 2 3 4 -180 180 30"]}
+        scan_params = {"stre": ["3 6 1.5 1.9 0.01"], "tors": ["1 2 3 4 -180 180 30"]}
         scan_test = QCInput.scan_template(scan_params)
         scan_actual = """$scan
    stre 3 6 1.5 1.9 0.01
@@ -129,9 +128,7 @@ $end"""
 $end"""
         self.assertEqual(scan_test, scan_actual)
 
-        bad_scan = {"stre": ["1 2 1.0 2.0 0.05",
-                             "3 4 1.5 2.0 0.05"],
-                    "bend": ["7 8 9 90 120 10"]}
+        bad_scan = {"stre": ["1 2 1.0 2.0 0.05", "3 4 1.5 2.0 0.05"], "bend": ["7 8 9 90 120 10"]}
         with self.assertRaises(ValueError):
             bad_scan_test = QCInput.scan_template(bad_scan)
 
@@ -696,9 +693,7 @@ $scan
    bend 3 4 5 60 90 5
 $end"""
         scan_test = QCInput.read_scan(str_scan)
-        scan_actual = {"stre": ["1 2 1.1 1.4 0.03"],
-                       "bend": ["3 4 5 60 90 5"],
-                       "tors": []}
+        scan_actual = {"stre": ["1 2 1.1 1.4 0.03"], "bend": ["3 4 5 60 90 5"], "tors": []}
 
         self.assertDictEqual(scan_test, scan_actual)
 
