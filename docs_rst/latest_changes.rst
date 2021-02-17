@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2021.2.14
+v2021.2.16
 ----------
-* Misc bug fixes.
+* Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (@mkhorton, #2066)

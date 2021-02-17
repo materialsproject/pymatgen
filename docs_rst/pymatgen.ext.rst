@@ -18,6 +18,7 @@ Submodules
    pymatgen.ext.crystalsai
    pymatgen.ext.jhu
    pymatgen.ext.matproj
+   pymatgen.ext.optimade
 
 Module contents
 ---------------
