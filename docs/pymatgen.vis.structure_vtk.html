@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.vis.structure_vtk module &mdash; pymatgen 2021.1.28 documentation</title>
+  <title>pymatgen.vis.structure_vtk module &mdash; pymatgen 2021.2.14 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.dao module" href="pymatgen.dao.html" />
@@ -61,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2021.1.28
+                2021.2.14
               </div>
             
           
@@ -88,6 +88,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +136,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +175,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -207,7 +209,7 @@
 <p>This module contains classes to wrap Python VTK to make nice molecular plots.</p>
 <dl class="py class">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle">
-<em class="property">class </em><code class="sig-name descname">MultiStructuresInteractorStyle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1271-L1356"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MultiStructuresInteractorStyle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1235-L1308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="pymatgen.vis.structure_vtk.StructureInteractorStyle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.vis.structure_vtk.StructureInteractorStyle</span></code></a></p>
 <p>Interactor for MultiStructureVis.</p>
 <dl class="field-list simple">
@@ -217,7 +219,7 @@
 </dl>
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent">
-<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1283-L1356"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1247-L1308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -232,7 +234,7 @@
 
 <dl class="py class">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis">
-<em class="property">class </em><code class="sig-name descname">MultiStructuresVis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element_color_mapping</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_unit_cell</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_bonds</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">show_polyhedron</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">poly_radii_tol_factor</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">animated_movie_options</span><span class="o">=</span><span class="default_value">{'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L999-L1268"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MultiStructuresVis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element_color_mapping</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_unit_cell</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_bonds</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">show_polyhedron</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">poly_radii_tol_factor</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">animated_movie_options</span><span class="o">=</span><span class="default_value">{'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L971-L1232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.vis.structure_vtk.StructureVis" title="pymatgen.vis.structure_vtk.StructureVis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.vis.structure_vtk.StructureVis</span></code></a></p>
 <p>Visualization for multiple structures.</p>
 <dl class="field-list simple">
@@ -262,24 +264,24 @@ framework (e.g., Li in a Li-ion battery cathode material).</p></li>
 </dl>
 <dl class="py attribute">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS">
-<code class="sig-name descname">DEFAULT_ANIMATED_MOVIE_OPTIONS</code><em class="property"> = {'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">DEFAULT_ANIMATED_MOVIE_OPTIONS</code><em class="property"> = {'looping_type': 'restart', 'number_of_loops': 1, 'time_between_frames': 0.1, 'time_between_loops': 1.0}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.DEFAULT_ANIMATED_MOVIE_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags">
-<code class="sig-name descname">apply_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1109-L1173"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1077-L1139"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply tags.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.display_help">
-<code class="sig-name descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1189-L1212"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_help" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1155-L1176"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the help for various keyboard shortcuts.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.display_info">
-<code class="sig-name descname">display_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">info</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1242-L1262"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">info</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1206-L1226"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_info" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>info</strong> (<em>str</em>) – Information.</p>
@@ -289,7 +291,7 @@ framework (e.g., Li in a Li-ion battery cathode material).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning">
-<code class="sig-name descname">display_warning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warning</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1214-L1234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_warning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warning</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1178-L1198"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>warning</strong> (<em>str</em>) – Warning</p>
@@ -299,19 +301,19 @@ framework (e.g., Li in a Li-ion battery cathode material).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info">
-<code class="sig-name descname">erase_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1264-L1268"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">erase_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1228-L1232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Erase all info.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning">
-<code class="sig-name descname">erase_warning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1236-L1240"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">erase_warning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1200-L1204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove warnings.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options">
-<code class="sig-name descname">set_animated_movie_options</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animated_movie_options</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1175-L1187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_animated_movie_options</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">animated_movie_options</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1141-L1153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>animated_movie_options</em>) – </p>
@@ -321,7 +323,7 @@ framework (e.g., Li in a Li-ion battery cathode material).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure">
-<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">reset_camera</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">to_unit_cell</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1094-L1107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">reset_camera</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">to_unit_cell</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1064-L1075"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a structure to the visualizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,7 +339,7 @@ determined based on the structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures">
-<code class="sig-name descname">set_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L1060-L1092"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_structures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L1032-L1062"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add list of structures to the visualizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -353,7 +355,7 @@ determined based on the structure.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle">
-<em class="property">class </em><code class="sig-name descname">StructureInteractorStyle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L843-L946"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StructureInteractorStyle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parent</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L825-L926"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A custom interactor style for visualizing structures.</p>
 <dl class="field-list simple">
@@ -363,7 +365,7 @@ determined based on the structure.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent">
-<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L890-L946"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">keyPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L872-L926"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -376,7 +378,7 @@ determined based on the structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent">
-<code class="sig-name descname">leftButtonPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L859-L866"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">leftButtonPressEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L841-L848"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -389,7 +391,7 @@ determined based on the structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent">
-<code class="sig-name descname">leftButtonReleaseEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L877-L888"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">leftButtonReleaseEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L859-L870"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -402,7 +404,7 @@ determined based on the structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent">
-<code class="sig-name descname">mouseMoveEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L868-L875"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">mouseMoveEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L850-L857"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -417,7 +419,7 @@ determined based on the structure.</p></li>
 
 <dl class="py class">
 <dt id="pymatgen.vis.structure_vtk.StructureVis">
-<em class="property">class </em><code class="sig-name descname">StructureVis</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L38-L840"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StructureVis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">element_color_mapping</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_unit_cell</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_bonds</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">show_polyhedron</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">poly_radii_tol_factor</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L38-L822"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provides Structure object visualization using VTK.</p>
 <p>Constructs a Structure Visualization.</p>
@@ -463,7 +465,7 @@ clock/anticlockwise</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_bonds">
-<code class="sig-name descname">add_bonds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neighbors</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L727-L767"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_bonds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_bonds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neighbors</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L712-L752"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_bonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds bonds for a site.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -480,7 +482,7 @@ clock/anticlockwise</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_edges">
-<code class="sig-name descname">add_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edges</span></em>, <em class="sig-param"><span class="n">type</span><span class="o">=</span><span class="default_value">'line'</span></em>, <em class="sig-param"><span class="n">linewidth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">[0.0, 0.0, 0.0]</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L696-L725"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_edges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edges</span></em>, <em class="sig-param"><span class="n">type</span><span class="o">=</span><span class="default_value">'line'</span></em>, <em class="sig-param"><span class="n">linewidth</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">[0.0, 0.0, 0.0]</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L681-L710"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_edges" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -495,7 +497,7 @@ clock/anticlockwise</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_faces">
-<code class="sig-name descname">add_faces</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">faces</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">0.35</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L604-L694"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_faces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_faces</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">faces</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">0.35</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L589-L679"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_faces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adding face of polygon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -510,7 +512,7 @@ clock/anticlockwise</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_line">
-<code class="sig-name descname">add_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">0.5, 0.5, 0.5</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L446-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_line" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">(0.5, 0.5, 0.5)</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L432-L460"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a line.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -526,7 +528,7 @@ clock/anticlockwise</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere">
-<code class="sig-name descname">add_partial_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">360</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L396-L423"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_partial_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">360</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L382-L409"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adding a partial sphere (to display partial occupancies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -544,19 +546,19 @@ clock/anticlockwise</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_picker">
-<code class="sig-name descname">add_picker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L803-L840"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_picker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L786-L822"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a cell picker.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed">
-<code class="sig-name descname">add_picker_fixed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L769-L801"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_picker_fixed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L754-L784"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a cell picker.Returns:</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_polyhedron">
-<code class="sig-name descname">add_polyhedron</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neighbors</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">draw_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">edges_color</span><span class="o">=</span><span class="default_value">[0.0, 0.0, 0.0]</span></em>, <em class="sig-param"><span class="n">edges_linewidth</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L476-L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_polyhedron</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neighbors</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">draw_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">edges_color</span><span class="o">=</span><span class="default_value">[0.0, 0.0, 0.0]</span></em>, <em class="sig-param"><span class="n">edges_linewidth</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L462-L523"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a polyhedron.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -575,7 +577,7 @@ clock/anticlockwise</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_site">
-<code class="sig-name descname">add_site</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">site</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L351-L394"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_site" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_site</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">site</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L339-L380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a site to the render window. The site is displayed as a sphere, the
 color of which is determined based on the element. Partially occupied
 sites are displayed as a single element color, though the site info
@@ -589,7 +591,7 @@ still shows the partial occupancy.</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_text">
-<code class="sig-name descname">add_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">0, 0, 0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L425-L444"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_text" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">(0, 0, 0)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L411-L430"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_text" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add text at a coordinate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -604,7 +606,7 @@ still shows the partial occupancy.</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_triangle">
-<code class="sig-name descname">add_triangle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neighbors</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">0.4</span></em>, <em class="sig-param"><span class="n">draw_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">edges_color</span><span class="o">=</span><span class="default_value">[0.0, 0.0, 0.0]</span></em>, <em class="sig-param"><span class="n">edges_linewidth</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L539-L602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_triangle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neighbors</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="o">=</span><span class="default_value">0.4</span></em>, <em class="sig-param"><span class="n">draw_edges</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">edges_color</span><span class="o">=</span><span class="default_value">[0.0, 0.0, 0.0]</span></em>, <em class="sig-param"><span class="n">edges_linewidth</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L525-L587"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a triangular surface between three atoms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -623,19 +625,19 @@ still shows the partial occupancy.</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.display_help">
-<code class="sig-name descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L199-L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.display_help" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">display_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L195-L213"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.display_help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the help for various keyboard shortcuts.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure">
-<code class="sig-name descname">orthongonalize_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L191-L197"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">orthongonalize_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L187-L193"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Orthogonalize the structure.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.redraw">
-<code class="sig-name descname">redraw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reset_camera</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L169-L189"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.redraw" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">redraw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reset_camera</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L165-L185"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.redraw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Redraw the render window.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -647,7 +649,7 @@ pre-determined default for each structure.  Defaults to False.</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.rotate_view">
-<code class="sig-name descname">rotate_view</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axis_ind</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">angle</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L124-L139"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.rotate_view" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rotate_view</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">axis_ind</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">angle</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L120-L135"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.rotate_view" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate the camera view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -661,7 +663,7 @@ pre-determined default for each structure.  Defaults to False.</p>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.set_structure">
-<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">reset_camera</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">to_unit_cell</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L221-L331"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.set_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">reset_camera</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">to_unit_cell</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L215-L319"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.set_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a structure to the visualizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -677,13 +679,13 @@ determined based on the structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.show">
-<code class="sig-name descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L341-L349"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.show" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L329-L337"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the visualizer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.write_image">
-<code class="sig-name descname">write_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'image.png'</span></em>, <em class="sig-param"><span class="n">magnification</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">image_format</span><span class="o">=</span><span class="default_value">'png'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L141-L167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.write_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">'image.png'</span></em>, <em class="sig-param"><span class="n">magnification</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">image_format</span><span class="o">=</span><span class="default_value">'png'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L137-L163"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.write_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save render window to an image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -698,7 +700,7 @@ determined based on the structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.zoom">
-<code class="sig-name descname">zoom</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">factor</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L333-L339"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.zoom" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">zoom</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">factor</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L321-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.zoom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zoom the camera view by a factor.</p>
 </dd></dl>
 
@@ -706,7 +708,7 @@ determined based on the structure.</p></li>
 
 <dl class="py function">
 <dt id="pymatgen.vis.structure_vtk.make_movie">
-<code class="sig-name descname">make_movie</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">output_filename</span><span class="o">=</span><span class="default_value">'movie.mp4'</span></em>, <em class="sig-param"><span class="n">zoom</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">fps</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">bitrate</span><span class="o">=</span><span class="default_value">'10000k'</span></em>, <em class="sig-param"><span class="n">quality</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.1.28/pymatgen/vis/structure_vtk.py#L949-L996"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.make_movie" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make_movie</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structures</span></em>, <em class="sig-param"><span class="n">output_filename</span><span class="o">=</span><span class="default_value">'movie.mp4'</span></em>, <em class="sig-param"><span class="n">zoom</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">fps</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">bitrate</span><span class="o">=</span><span class="default_value">'10000k'</span></em>, <em class="sig-param"><span class="n">quality</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.14/pymatgen/vis/structure_vtk.py#L929-L968"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.make_movie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a movie from a sequence of structures using vtk and ffmpeg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -739,11 +741,19 @@ generated.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -754,7 +764,6 @@ generated.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
