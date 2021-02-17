@@ -1090,7 +1090,7 @@ class Species(MSONable, Stringify):
         self,
         symbol: str,
         oxidation_state: Optional[float] = 0.0,
-        properties: dict = None,
+        properties: Optional[dict] = None,
     ):
         """
         Initializes a Species.
@@ -1188,19 +1188,20 @@ class Species(MSONable, Stringify):
 
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
-        d = self._el.data
-        oxstr = str(int(self._oxi_state))
-        if oxstr in d.get("Ionic radii hs", {}):
-            warnings.warn("No default ionic radius for %s. Using hs data." % self)
-            return d["Ionic radii hs"][oxstr]
-        if oxstr in d.get("Ionic radii ls", {}):
-            warnings.warn("No default ionic radius for %s. Using ls data." % self)
-            return d["Ionic radii ls"][oxstr]
+        if self._oxi_state:
+            d = self._el.data
+            oxstr = str(int(self._oxi_state))
+            if oxstr in d.get("Ionic radii hs", {}):
+                warnings.warn("No default ionic radius for %s. Using hs data." % self)
+                return d["Ionic radii hs"][oxstr]
+            if oxstr in d.get("Ionic radii ls", {}):
+                warnings.warn("No default ionic radius for %s. Using ls data." % self)
+                return d["Ionic radii ls"][oxstr]
         warnings.warn("No ionic radius for {}!".format(self))
         return None
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
         Oxidation state of Species.
         """
@@ -1436,7 +1437,7 @@ class DummySpecies(Species):
         self,
         symbol: str = "X",
         oxidation_state: Optional[float] = 0,
-        properties: dict = None,
+        properties: Optional[dict] = None,
     ):
         """
         Args:
@@ -1518,7 +1519,7 @@ class DummySpecies(Species):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
         Oxidation state associated with DummySpecies
         """
@@ -1583,7 +1584,7 @@ class DummySpecies(Species):
             "oxidation_state": self._oxi_state,
         }
         if self._properties:
-            d["properties"] = self._properties
+            d["properties"] = self._properties  # type: ignore
         return d
 
     @classmethod
