@@ -333,7 +333,7 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(fe_two_plus.energy, -1.6228450214319294, places=2)
 
         feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
-        self.assertAlmostEqual(feo2.energy, 4.424365035000003, places=2)
+        self.assertAlmostEqual(feo2.energy, 2.5523680849999995, places=2)
 
         # Test S, which has Na in reference solids
         pbx_entries = self.rester.get_pourbaix_entries(["S"])
