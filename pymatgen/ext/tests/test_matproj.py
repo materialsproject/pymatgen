@@ -520,7 +520,6 @@ class MPResterTest(PymatgenTest):
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
 
-
     def test_database_version(self):
 
         with MPRester(notify_db_version=True) as mpr:

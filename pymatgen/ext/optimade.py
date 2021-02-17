@@ -1,11 +1,15 @@
+"""
+Optimade support.
+"""
+
 from collections import namedtuple
 from typing import Dict
 
 import requests
 
-from pymatgen.util.sequence import PBar
 from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.core.structure import Structure
+from pymatgen.util.sequence import PBar
 
 
 class OptimadeRester:
@@ -113,7 +117,12 @@ class OptimadeRester:
         return " AND ".join(filters)
 
     def get_structures(
-        self, elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None,
+        self,
+        elements=None,
+        nelements=None,
+        nsites=None,
+        chemical_formula_anonymous=None,
+        chemical_formula_hill=None,
     ) -> Dict[str, Structure]:
         """
         Retrieve structures from the OPTIMADE database.
