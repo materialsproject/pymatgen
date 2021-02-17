@@ -39,7 +39,7 @@ jobs:
         shell: bash -l {0}
         run: |
           # Required for gulp.
-          sudo apt-get install csh gfortran libgfortran3
+          sudo apt-get install csh gfortran
           conda install -c conda-forge openbabel
       - name: Install dependencies
         shell: bash -l {0}
