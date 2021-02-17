@@ -1,1 +1,3 @@
-
+"""
+Coordination geometry files.
+"""
