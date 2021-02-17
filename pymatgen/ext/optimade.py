@@ -116,8 +116,10 @@ class OptimadeRester:
         self, elements=None, nelements=None, nsites=None, chemical_formula_anonymous=None, chemical_formula_hill=None,
     ) -> Dict[str, Structure]:
         """
+        Retrieve structures from the OPTIMADE database.
+
         Not all functionality of OPTIMADE is currently exposed in this convenience method. To
-        use a custom filter, call get_structures_by_filter().
+        use a custom filter, call get_structures_with_filter().
 
         Args:
             elements: List of elements
