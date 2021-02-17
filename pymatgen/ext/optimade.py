@@ -190,8 +190,6 @@ class OptimadeRester:
 
             try:
                 # e.g. COD
-                print(data["attributes"].keys())
-                print(data["attributes"])
                 structure = Structure(
                     lattice=data["attributes"]["lattice_vectors"],
                     species=[_get_comp(d) for d in data["attributes"]["species"]],
