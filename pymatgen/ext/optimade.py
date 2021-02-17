@@ -249,7 +249,7 @@ class OptimadeRester:
                             description=link["attributes"]["description"],
                             homepage=link["attributes"].get("homepage"),
                         )
-            except Exception as exc:
+            except Exception:
                 # print(f"Failed to parse {provider}: {exc}")
                 # Not all providers parse yet.
                 pass
