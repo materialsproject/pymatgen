@@ -29,6 +29,9 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.util.testing import PymatgenTest
 
 gulp_present = which("gulp") and os.environ.get("GULP_LIB") and ("win" not in sys.platform)
+# disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
+# Ubuntu 20.04.
+gulp_present = False
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
