@@ -37,8 +37,7 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-molecule_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            "test_files", "molecules")
+molecule_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files", "molecules")
 
 
 class StructureGraphTest(PymatgenTest):
@@ -745,25 +744,27 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(eth_copy.graph.number_of_edges(), 2)
 
     def test_get_disconnected(self):
-        disconnected = Molecule(["C", "H", "H", "H", "H", "He"],
+        disconnected = Molecule(
+            ["C", "H", "H", "H", "H", "He"],
             [
                 [0.0000, 0.0000, 0.0000],
                 [-0.3633, -0.5138, -0.8900],
                 [1.0900, 0.0000, 0.0000],
                 [-0.3633, 1.0277, 0.0000],
                 [-0.3633, -0.5138, -0.8900],
-                [5.0000, 5.0000, 5.0000]
+                [5.0000, 5.0000, 5.0000],
             ],
         )
 
-        no_he = Molecule(["C", "H", "H", "H", "H"],
+        no_he = Molecule(
+            ["C", "H", "H", "H", "H"],
             [
                 [0.0000, 0.0000, 0.0000],
                 [-0.3633, -0.5138, -0.8900],
                 [1.0900, 0.0000, 0.0000],
                 [-0.3633, 1.0277, 0.0000],
-                [-0.3633, -0.5138, -0.8900]
-            ]
+                [-0.3633, -0.5138, -0.8900],
+            ],
         )
 
         just_he = Molecule(["He"], [[5.0000, 5.0000, 5.0000]])
