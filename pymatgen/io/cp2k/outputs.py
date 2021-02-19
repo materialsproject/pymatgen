@@ -92,9 +92,7 @@ class Cp2kOutput:
             self.ran_successfully()  # Only if job completed. No info about convergence etc.
             self.convergence()  # Checks to see if job converged
 
-            self.parse_initial_structure()  # Get the initial structure by parsing lattice and then parsing coords
             self.parse_structures()  # collect all structures from the run
-
             self.parse_energies()  # get total energy for each ionic step
             self.parse_forces()  # get forces on all atoms (in order), if available
             self.parse_stresses()  # get stress tensor and total stress at each ionic step, if available
@@ -243,6 +241,8 @@ class Cp2kOutput:
         Cp2k does not output the trajectory in the main output file by default, so non static calculations have to
         reference the trajectory file.
         """
+        self.parse_initial_structure()
+
         if lattice_file is None:
             if len(self.filenames["cell"]) == 0:
                 lattice = self.parse_cell_params()
@@ -251,9 +251,8 @@ class Cp2kOutput:
                 lattice = (
                     [l[2:11].reshape(3, 3) for l in latfile]
                     if len(latfile.shape) > 1
-                    else latfile[2:11].reshape(3, 3)
+                    else [latfile[2:11].reshape(3, 3)]
                 )
-                lattice.append(lattice[-1])  # TODO is this always needed? from re-eval at minimum
             else:
                 raise FileNotFoundError(
                     "Unable to automatically determine lattice file. More than one exist."
@@ -265,13 +264,14 @@ class Cp2kOutput:
         if trajectory_file is None:
             if len(self.filenames["trajectory"]) == 0:
                 self.structures = []
-                self.structures.append(self.parse_initial_structure())
+                self.structures.append(self.initial_structure)
                 self.final_structure = self.structures[-1]
             elif len(self.filenames["trajectory"]) == 1:
                 mols = XYZ.from_file(
                     self.filenames["trajectory"][0]
                 ).all_molecules
                 self.structures = []
+                gs = self.initial_structure.site_properties.get('ghost')
                 for m, l in zip(mols, lattice):
                     self.structures.append(
                         Structure(
@@ -279,6 +279,7 @@ class Cp2kOutput:
                             coords=[s.coords for s in m.sites],
                             species=[s.specie for s in m.sites],
                             coords_are_cartesian=True,
+                            site_properties={'ghost': gs} if gs else {}
                         )
                     )
                 self.final_structure = self.structures[-1]
@@ -482,6 +483,7 @@ class Cp2kOutput:
         """
         if len(self.filenames['stress']) == 1:
             dat = np.loadtxt(self.filenames['stress'][0], skiprows=1)
+            dat = [dat] if len(np.shape(dat)) == 1 else dat
             self.data['stress_tensor'] = [
                 [
                     list(d[2:5]), list(d[5:8]), list(d[8:11])
@@ -788,8 +790,8 @@ class Cp2kOutput:
         row = (
             r"(\d+)\s+(\S+\s?\S+)\s+" +
             r"(-?\d+\.\d+E[+\-]?\d+)" +
-            r"\s+(\d+\.\d+)\s+(\d+\.\d+)?" +
-            r"\s+(-?\d+\.\d+)" +
+            r"\s+(-?\d+\.\d+E[+\-]?\d+)\s+(-?\d+\.\d+E[+\-]?\d+)?" +
+            r"\s+(-?\d+\.\d+E[+\-]?\d+)" +
             r"(\s+-?\d+\.\d+E[+\-]?\d+)?"
         )
         footer = r"^$"
