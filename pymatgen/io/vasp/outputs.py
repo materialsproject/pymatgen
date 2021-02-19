@@ -1712,7 +1712,13 @@ class Outcar:
             else:
                 if time_patt.search(line):
                     tok = line.strip().split(":")
-                    run_stats[tok[0].strip()] = float(tok[1].strip())
+                    try:
+                        # try-catch because VASP 6.2.0 my print
+                        # Average memory used (kb):          N/A
+                        # which cannot be parsed as float
+                        run_stats[tok[0].strip()] = float(tok[1].strip())
+                    except ValueError:
+                        run_stats[tok[0].strip()] = None
                     continue
                 m = efermi_patt.search(clean)
                 if m:
