@@ -10,9 +10,11 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from ruamel.yaml import YAML
 
-from pymatgen import Element, Lattice, Molecule, Structure
+from pymatgen import yaml
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.lammps.data import (
     CombinedData,
     ForceField,
@@ -24,9 +26,7 @@ from pymatgen.io.lammps.data import (
 )
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "lammps"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps")
 
 
 class LammpsBoxTest(PymatgenTest):
@@ -68,15 +68,9 @@ class LammpsBoxTest(PymatgenTest):
         self.assertEqual(peptide.get_box_shift([1, 0, 0])[0], 64.211560 - 36.840194)
         self.assertEqual(peptide.get_box_shift([0, 0, -1])[-1], 29.768095 - 57.139462)
         quartz = self.quartz
-        np.testing.assert_array_almost_equal(
-            quartz.get_box_shift([0, 0, 1]), [0, 0, 5.4052], 4
-        )
-        np.testing.assert_array_almost_equal(
-            quartz.get_box_shift([0, 1, -1]), [-2.4567, 4.2551, -5.4052], 4
-        )
-        np.testing.assert_array_almost_equal(
-            quartz.get_box_shift([1, -1, 0]), [4.9134 + 2.4567, -4.2551, 0], 4
-        )
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 0, 1]), [0, 0, 5.4052], 4)
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 1, -1]), [-2.4567, 4.2551, -5.4052], 4)
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([1, -1, 0]), [4.9134 + 2.4567, -4.2551, 0], 4)
 
     def test_to_lattice(self):
         peptide = self.peptide.to_lattice()
@@ -92,18 +86,10 @@ class LammpsBoxTest(PymatgenTest):
 class LammpsDataTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData.from_file(
-            filename=os.path.join(test_dir, "data.peptide")
-        )
-        cls.ethane = LammpsData.from_file(
-            filename=os.path.join(test_dir, "ethane.data")
-        )
-        cls.quartz = LammpsData.from_file(
-            filename=os.path.join(test_dir, "data.quartz"), atom_style="atomic"
-        )
-        cls.virus = LammpsData.from_file(
-            filename=os.path.join(test_dir, "virus.data"), atom_style="angle"
-        )
+        cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide"))
+        cls.ethane = LammpsData.from_file(filename=os.path.join(test_dir, "ethane.data"))
+        cls.quartz = LammpsData.from_file(filename=os.path.join(test_dir, "data.quartz"), atom_style="atomic")
+        cls.virus = LammpsData.from_file(filename=os.path.join(test_dir, "virus.data"), atom_style="angle")
         cls.tatb = LammpsData.from_file(
             filename=os.path.join(test_dir, "tatb.data"),
             atom_style="charge",
@@ -124,19 +110,13 @@ class LammpsDataTest(unittest.TestCase):
         lbounds = np.array(self.ethane.box.bounds)[:, 0]
         coords = self.ethane.atoms[["x", "y", "z"]].values - lbounds
         np.testing.assert_array_almost_equal(ethane.cart_coords, coords)
-        np.testing.assert_array_almost_equal(
-            ethane.site_properties["charge"], self.ethane.atoms["q"]
-        )
+        np.testing.assert_array_almost_equal(ethane.site_properties["charge"], self.ethane.atoms["q"])
         tatb = self.tatb.structure
         frac_coords = tatb.frac_coords[381]
         real_frac_coords = frac_coords - np.floor(frac_coords)
-        np.testing.assert_array_almost_equal(
-            real_frac_coords, [0.01553397, 0.71487872, 0.14134139]
-        )
+        np.testing.assert_array_almost_equal(real_frac_coords, [0.01553397, 0.71487872, 0.14134139])
 
-        co = Structure.from_spacegroup(
-            194, Lattice.hexagonal(2.50078, 4.03333), ["Co"], [[1 / 3, 2 / 3, 1 / 4]]
-        )
+        co = Structure.from_spacegroup(194, Lattice.hexagonal(2.50078, 4.03333), ["Co"], [[1 / 3, 2 / 3, 1 / 4]])
         ld_co = LammpsData.from_structure(co)
         self.assertEqual(ld_co.structure.composition.reduced_formula, "Co")
         ni = Structure.from_spacegroup(225, Lattice.cubic(3.50804), ["Ni"], [[0, 0, 0]])
@@ -266,9 +246,7 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(c2h6_header, c2h6_header_5)
         # distance and charge
         c2h6_atom = c2h6_lines[kw_inds["Atoms"] + 2]
-        self.assertEqual(
-            c2h6_atom, "1  1  1 -0.080 4.46291 5.14833 -5.00041" "  0  0  0"
-        )
+        self.assertEqual(c2h6_atom, "1  1  1 -0.080 4.46291 5.14833 -5.00041" "  0  0  0")
         # no floats in topology sections
         c2h6_topos = "\n".join(c2h6_lines[kw_inds["Bonds"] :])
         self.assertNotIn(".", c2h6_topos)
@@ -298,7 +276,7 @@ class LammpsDataTest(unittest.TestCase):
         virus = self.virus.get_string()
         virus_lines = virus.split("\n")
         pairij_coeff = virus_lines[virus_lines.index("PairIJ Coeffs") + 5]
-        self.assertEqual(pairij_coeff.strip(), "1  4  1  1.000  1.12250")
+        self.assertEqual(pairij_coeff.strip().split(), ["1", "4", "1", "1.000", "1.12250"])
 
     def test_write_file(self):
         filename1 = "test1.data"
@@ -307,19 +285,13 @@ class LammpsDataTest(unittest.TestCase):
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
         ff_kw = random.sample(self.ethane.force_field.keys(), 1)[0]
-        pd.testing.assert_frame_equal(
-            c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw
-        )
+        pd.testing.assert_frame_equal(c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw)
         topo_kw = random.sample(self.ethane.topology.keys(), 1)[0]
-        pd.testing.assert_frame_equal(
-            c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw
-        )
+        pd.testing.assert_frame_equal(c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw)
         filename2 = "test2.data"
         self.virus.write_file(filename=filename2)
         v = LammpsData.from_file(filename2, atom_style="angle")
-        pd.testing.assert_frame_equal(
-            v.force_field["PairIJ Coeffs"], self.virus.force_field["PairIJ Coeffs"]
-        )
+        pd.testing.assert_frame_equal(v.force_field["PairIJ Coeffs"], self.virus.force_field["PairIJ Coeffs"])
 
     def test_disassemble(self):
         # general tests
@@ -347,22 +319,16 @@ class LammpsDataTest(unittest.TestCase):
             ("O3", 15.9994),
         ]
         self.assertListEqual(c_ff.mass_info, mass_info)
-        np.testing.assert_array_equal(
-            c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values
-        )
+        np.testing.assert_array_equal(c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values)
         base_kws = ["Bond", "Angle", "Dihedral", "Improper"]
         for kw in base_kws:
             ff_kw = kw + " Coeffs"
             i = random.randint(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
             sample_coeff = c_ff.topo_coeffs[ff_kw][i]
-            np.testing.assert_array_equal(
-                sample_coeff["coeffs"], c.force_field[ff_kw].iloc[i].values, ff_kw
-            )
+            np.testing.assert_array_equal(sample_coeff["coeffs"], c.force_field[ff_kw].iloc[i].values, ff_kw)
         topo = topos[-1]
         atoms = c.atoms[c.atoms["molecule-ID"] == 46]
-        np.testing.assert_array_almost_equal(
-            topo.sites.cart_coords, atoms[["x", "y", "z"]]
-        )
+        np.testing.assert_array_almost_equal(topo.sites.cart_coords, atoms[["x", "y", "z"]])
         np.testing.assert_array_equal(topo.charges, atoms["q"])
         atom_labels = [m[0] for m in mass_info]
         self.assertListEqual(
@@ -377,14 +343,10 @@ class LammpsDataTest(unittest.TestCase):
             topos_df = c.topology[topo_kw]
             topo_df = topos_df[topos_df["atom1"] >= shift]
             topo_arr = topo_df.drop("type", axis=1).values
-            np.testing.assert_array_equal(
-                topo.topologies[topo_kw], topo_arr - shift, topo_kw
-            )
+            np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
             sample_topo = random.sample(list(topo_df.itertuples(False, None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
-            topo_type = tuple(
-                [atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"]]
-            )
+            topo_type = tuple([atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"]])
 
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
@@ -500,48 +462,34 @@ class LammpsDataTest(unittest.TestCase):
         nonbond_coeffs = [[0.00774378, 0.98], [0.1502629, 3.1169]]
         topo_coeffs = {
             "Bond Coeffs": [{"coeffs": [176.864, 0.9611], "types": [("H", "O")]}],
-            "Angle Coeffs": [
-                {"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}
-            ],
+            "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "O", "H")]}],
         }
         ff = ForceField(mass.items(), nonbond_coeffs, topo_coeffs)
         with gzip.open(os.path.join(test_dir, "topologies_ice.json.gz")) as f:
             topo_dicts = json.load(f)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
-        box = LammpsBox(
-            [[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]]
-        )
+        box = LammpsBox([[-0.75694412, 44.165558], [0.38127473, 47.066074], [0.17900842, 44.193867]])
         ice = LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=topologies)
         atoms = ice.atoms
         bonds = ice.topology["Bonds"]
         angles = ice.topology["Angles"]
         np.testing.assert_array_equal(atoms.index.values, np.arange(1, len(atoms) + 1))
         np.testing.assert_array_equal(bonds.index.values, np.arange(1, len(bonds) + 1))
-        np.testing.assert_array_equal(
-            angles.index.values, np.arange(1, len(angles) + 1)
-        )
+        np.testing.assert_array_equal(angles.index.values, np.arange(1, len(angles) + 1))
 
         i = random.randint(0, len(topologies) - 1)
         sample = topologies[i]
         in_atoms = ice.atoms[ice.atoms["molecule-ID"] == i + 1]
-        np.testing.assert_array_equal(
-            in_atoms.index.values, np.arange(3 * i + 1, 3 * i + 4)
-        )
+        np.testing.assert_array_equal(in_atoms.index.values, np.arange(3 * i + 1, 3 * i + 4))
         np.testing.assert_array_equal(in_atoms["type"].values, [2, 1, 1])
         np.testing.assert_array_equal(in_atoms["q"].values, sample.charges)
-        np.testing.assert_array_equal(
-            in_atoms[["x", "y", "z"]].values, sample.sites.cart_coords
-        )
+        np.testing.assert_array_equal(in_atoms[["x", "y", "z"]].values, sample.sites.cart_coords)
         broken_topo_coeffs = {
             "Bond Coeffs": [{"coeffs": [176.864, 0.9611], "types": [("H", "O")]}],
-            "Angle Coeffs": [
-                {"coeffs": [42.1845, 109.4712], "types": [("H", "H", "H")]}
-            ],
+            "Angle Coeffs": [{"coeffs": [42.1845, 109.4712], "types": [("H", "H", "H")]}],
         }
         broken_ff = ForceField(mass.items(), nonbond_coeffs, broken_topo_coeffs)
-        ld_woangles = LammpsData.from_ff_and_topologies(
-            box=box, ff=broken_ff, topologies=[sample]
-        )
+        ld_woangles = LammpsData.from_ff_and_topologies(box=box, ff=broken_ff, topologies=[sample])
         self.assertNotIn("Angles", ld_woangles.topology)
 
     def test_from_structure(self):
@@ -558,17 +506,13 @@ class LammpsDataTest(unittest.TestCase):
         )
         velocities = np.random.randn(20, 3) * 0.1
         structure.add_site_property("velocities", velocities)
-        ld = LammpsData.from_structure(
-            structure=structure, ff_elements=["O", "Os", "Na"]
-        )
+        ld = LammpsData.from_structure(structure=structure, ff_elements=["O", "Os", "Na"])
         i = random.randint(0, 19)
         a = latt.matrix[0]
         va = velocities[i].dot(a) / np.linalg.norm(a)
         self.assertAlmostEqual(va, ld.velocities.loc[i + 1, "vx"])
         self.assertAlmostEqual(velocities[i, 1], ld.velocities.loc[i + 1, "vy"])
-        np.testing.assert_array_almost_equal(
-            ld.masses["mass"], [22.989769, 190.23, 15.9994]
-        )
+        np.testing.assert_array_almost_equal(ld.masses["mass"], [22.989769, 190.23, 15.9994])
         np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
 
     def test_json_dict(self):
@@ -580,16 +524,12 @@ class LammpsDataTest(unittest.TestCase):
         ff = self.ethane.force_field
         key, target_df = random.sample(ff.items(), 1)[0]
         self.assertIsNone(
-            pd.testing.assert_frame_equal(
-                c2h6.force_field[key], target_df, check_dtype=False
-            ),
+            pd.testing.assert_frame_equal(c2h6.force_field[key], target_df, check_dtype=False),
             key,
         )
         topo = self.ethane.topology
         key, target_df = random.sample(topo.items(), 1)[0]
-        self.assertIsNone(
-            pd.testing.assert_frame_equal(c2h6.topology[key], target_df), key
-        )
+        self.assertIsNone(pd.testing.assert_frame_equal(c2h6.topology[key], target_df), key)
 
     @classmethod
     def tearDownClass(cls):
@@ -620,9 +560,7 @@ class TopologyTest(unittest.TestCase):
         np.testing.assert_array_equal(topo.charges, inner_charge)
         np.testing.assert_array_equal(topo.velocities, inner_velo)
         # q and v from overriding, while type from site property
-        topo_override = Topology(
-            sites=m, ff_label="ff_map", charges=outer_charge, velocities=outer_velo
-        )
+        topo_override = Topology(sites=m, ff_label="ff_map", charges=outer_charge, velocities=outer_velo)
         self.assertListEqual(topo_override.type_by_sites, ["D"] * 10)
         np.testing.assert_array_equal(topo_override.charges, outer_charge)
         np.testing.assert_array_equal(topo_override.velocities, outer_velo)
@@ -713,9 +651,7 @@ class TopologyTest(unittest.TestCase):
         np.testing.assert_array_equal(tp_etoh["Dihedrals"], etoh_dihedrals)
         self.assertIsNotNone(json.dumps(topo_etoh.as_dict()))
         # bond flag to off
-        topo_etoh0 = Topology.from_bonding(
-            molecule=etoh, bond=False, angle=True, dihedral=True
-        )
+        topo_etoh0 = Topology.from_bonding(molecule=etoh, bond=False, angle=True, dihedral=True)
         self.assertIsNone(topo_etoh0.topologies)
         # angle or dihedral flag to off
         topo_etoh1 = Topology.from_bonding(molecule=etoh, angle=False)
@@ -751,9 +687,7 @@ class ForceFieldTest(unittest.TestCase):
                 {"coeffs": [50, 0.855906], "types": [("B", "C")]},
             ]
         }
-        cls.virus = ForceField(
-            mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs
-        )
+        cls.virus = ForceField(mass_info=mass_info, nonbond_coeffs=nonbond_coeffs, topo_coeffs=topo_coeffs)
         cls.ethane = ForceField.from_file(os.path.join(test_dir, "ff_ethane.yaml"))
 
     def test_init(self):
@@ -799,9 +733,7 @@ class ForceFieldTest(unittest.TestCase):
         self.assertEqual(e_ff["AngleAngle Coeffs"].at[1, "coeff2"], -0.4825)
         e_maps = e.maps
         self.assertDictEqual(e_maps["Atoms"], {"c4": 1, "h1": 2})
-        self.assertDictEqual(
-            e_maps["Bonds"], {("c4", "c4"): 1, ("c4", "h1"): 2, ("h1", "c4"): 2}
-        )
+        self.assertDictEqual(e_maps["Bonds"], {("c4", "c4"): 1, ("c4", "h1"): 2, ("h1", "c4"): 2})
         self.assertDictEqual(
             e_maps["Angles"],
             {("c4", "c4", "h1"): 1, ("h1", "c4", "c4"): 1, ("h1", "c4", "h1"): 2},
@@ -822,18 +754,16 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
-        yaml = YAML(typ="safe")
+        yml = yaml.YAML(typ="safe")
         with open(filename, "r") as f:
-            d = yaml.load(f)
+            d = yml.load(f)
         self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
         self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)
 
     def test_from_file(self):
         e = self.ethane
         self.assertListEqual(e.mass_info, [("c4", 12.01115), ("h1", 1.00797)])
-        np.testing.assert_array_equal(
-            e.nonbond_coeffs, [[0.062, 3.854], [0.023, 2.878]]
-        )
+        np.testing.assert_array_equal(e.nonbond_coeffs, [[0.062, 3.854], [0.023, 2.878]])
         e_tc = e.topo_coeffs
         self.assertIn("Bond Coeffs", e_tc)
         self.assertIn("BondAngle Coeffs", e_tc["Angle Coeffs"][0])
@@ -861,11 +791,7 @@ class ForceFieldTest(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
     def test_lattice_2_lmpbox(self):
-        matrix = (
-            np.diag(np.random.randint(5, 14, size=(3,)))
-            + np.random.rand(3, 3) * 0.2
-            - 0.1
-        )
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
         init_latt = Lattice(matrix)
         frac_coords = np.random.rand(10, 3)
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
@@ -875,9 +801,7 @@ class FuncTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(init_latt.abc, boxed_latt.abc)
         np.testing.assert_array_almost_equal(init_latt.angles, boxed_latt.angles)
         cart_coords = symmop.operate_multi(init_structure.cart_coords) - origin
-        boxed_structure = Structure(
-            boxed_latt, ["H"] * 10, cart_coords, coords_are_cartesian=True
-        )
+        boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords, coords_are_cartesian=True)
         np.testing.assert_array_almost_equal(boxed_structure.frac_coords, frac_coords)
         tetra_latt = Lattice.tetragonal(5, 5)
         tetra_box, _ = lattice_2_lmpbox(tetra_latt)
@@ -898,11 +822,7 @@ class FuncTest(unittest.TestCase):
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
-        matrix = (
-            np.diag(np.random.randint(5, 14, size=(3,)))
-            + np.random.rand(3, 3) * 0.2
-            - 0.1
-        )
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
         latt = Lattice(matrix)
         frac_coords = np.random.rand(10, 3)
         structure = Structure(latt, ["H"] * 10, frac_coords)
@@ -918,17 +838,13 @@ class FuncTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(new_latt.abc, latt.abc)
         np.testing.assert_array_almost_equal(new_latt.angles, latt.angles)
         coords = ld.atoms[["x", "y", "z"]].values
-        new_structure = Structure(
-            new_latt, ["H"] * 10, coords, coords_are_cartesian=True
-        )
+        new_structure = Structure(new_latt, ["H"] * 10, coords, coords_are_cartesian=True)
         np.testing.assert_array_almost_equal(new_structure.frac_coords, frac_coords)
         self.assertEqual(len(ld.masses), 1)
         # test additional elements
         ld_elements = structure_2_lmpdata(structure=structure, ff_elements=["C", "H"])
         self.assertEqual(len(ld_elements.masses), 2)
-        np.testing.assert_array_almost_equal(
-            ld_elements.masses["mass"], [1.00794, 12.01070]
-        )
+        np.testing.assert_array_almost_equal(ld_elements.masses["mass"], [1.00794, 12.01070])
 
 
 class CombinedDataTest(unittest.TestCase):
@@ -936,18 +852,14 @@ class CombinedDataTest(unittest.TestCase):
     def setUpClass(cls):
         cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data"))
         cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data"))
-        cls.coord = CombinedData.parse_xyz(
-            filename=os.path.join(test_dir, "ec_fec.xyz")
-        )
+        cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
         cls.ec_fec1 = CombinedData.from_files(
             os.path.join(test_dir, "ec_fec.xyz"),
             [1200, 300],
             os.path.join(test_dir, "ec.data"),
             os.path.join(test_dir, "fec.data"),
         )
-        cls.ec_fec2 = CombinedData.from_lammpsdata(
-            [cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord
-        )
+        cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
 
     def test_from_files(self):
         # general tests
@@ -957,9 +869,7 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ec_fec.nums, [1200, 300])
         self.assertEqual(ec_fec.masses.shape, (12, 1))
         self.assertEqual(ec_fec.atoms.shape, (15000, 6))
-        self.assertListEqual(
-            list(ec_fec.atoms.columns), ["molecule-ID", "type", "q", "x", "y", "z"]
-        )
+        self.assertListEqual(list(ec_fec.atoms.columns), ["molecule-ID", "type", "q", "x", "y", "z"])
         topo = ec_fec.topology
         self.assertEqual(topo["Bonds"].shape, (15000, 3))
         self.assertEqual(topo["Angles"].shape, (25500, 4))
@@ -1010,9 +920,7 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ec_fec.nums, [1200, 300])
         self.assertEqual(ec_fec.masses.shape, (12, 1))
         self.assertEqual(ec_fec.atoms.shape, (15000, 6))
-        self.assertListEqual(
-            list(ec_fec.atoms.columns), ["molecule-ID", "type", "q", "x", "y", "z"]
-        )
+        self.assertListEqual(list(ec_fec.atoms.columns), ["molecule-ID", "type", "q", "x", "y", "z"])
         topo = ec_fec.topology
         self.assertEqual(topo["Bonds"].shape, (15000, 3))
         self.assertEqual(topo["Angles"].shape, (25500, 4))

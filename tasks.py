@@ -4,17 +4,18 @@ Pyinvoke tasks.py file for automating releases and admin stuff.
 Author: Shyue Ping Ong
 """
 
-from invoke import task
+import datetime
 import glob
-import os
 import json
-import webbrowser
-import requests
+import os
 import re
 import subprocess
-import datetime
+import webbrowser
 
+import requests
+from invoke import task
 from monty.os import cd
+
 from pymatgen import __version__ as CURRENT_VER
 
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
@@ -45,11 +46,11 @@ def make_doc(ctx):
         ctx.run("sphinx-apidoc --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
-            if f.startswith('pymatgen') and f.endswith('rst'):
+            if f.startswith("pymatgen") and f.endswith("rst"):
                 newoutput = []
                 suboutput = []
                 subpackage = False
-                with open(f, 'r') as fid:
+                with open(f, "r") as fid:
                     for line in fid:
                         clean = line.strip()
                         if clean == "Subpackages":
@@ -64,7 +65,7 @@ def make_doc(ctx):
                                 subpackage = False
                                 suboutput = []
 
-                with open(f, 'w') as fid:
+                with open(f, "w") as fid:
                     fid.write("".join(newoutput))
         ctx.run("make html")
 
@@ -79,7 +80,7 @@ def make_doc(ctx):
         ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Github page
-        ctx.run("echo \"pymatgen.org\" > CNAME")
+        ctx.run('echo "pymatgen.org" > CNAME')
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
@@ -93,8 +94,8 @@ def make_dash(ctx):
     """
     ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
     make_doc(ctx)
-    ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
-    ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
+    ctx.run("rm docs/_static/pymatgen.docset.tgz", warn=True)
+    ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/")
     plist = "pymatgen.docset/Contents/Info.plist"
     xml = []
     with open(plist, "rt") as f:
@@ -116,14 +117,14 @@ def make_dash(ctx):
     #             xml.append(l)
     # with open("docs/pymatgen.xml", "wt") as f:
     #     f.write("\n".join(xml))
-    ctx.run('rm -r pymatgen.docset')
+    ctx.run("rm -r pymatgen.docset")
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
 
 
 @task
 def contribute_dash(ctx):
     make_dash(ctx)
-    ctx.run('cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
+    ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
         with open("docset.json", "rt") as f:
             data = json.load(f)
@@ -131,7 +132,7 @@ def contribute_dash(ctx):
         with open("docset.json", "wt") as f:
             json.dump(data, f, indent=4)
         ctx.run('git commit --no-verify -a -m "Update to v%s"' % NEW_VER)
-        ctx.run('git push')
+        ctx.run("git push")
     ctx.run("rm pymatgen.tgz")
 
 
@@ -142,11 +143,11 @@ def submit_dash_pr(ctx):
             "title": "Update pymatgen docset to v%s" % NEW_VER,
             "body": "Update pymatgen docset to v%s" % NEW_VER,
             "head": "Dash-User-Contributions:master",
-            "base": "master"
+            "base": "master",
         }
         response = requests.post(
-            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls",
-            data=json.dumps(payload))
+            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls", data=json.dumps(payload)
+        )
         print(response.text)
 
 
@@ -160,7 +161,7 @@ def update_doc(ctx):
     ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
     make_doc(ctx)
     ctx.run("git add .")
-    ctx.run("git commit -a -m \"Update docs\"")
+    ctx.run('git commit -a -m "Update docs"')
     ctx.run("git push")
 
 
@@ -187,24 +188,10 @@ def set_ver(ctx):
 
     with open("setup.py", "rt") as f:
         contents = f.read()
-        contents = re.sub(r'version=([^,]+),', 'version="%s",' % NEW_VER, contents)
+        contents = re.sub(r"version=([^,]+),", 'version="%s",' % NEW_VER, contents)
 
     with open("setup.py", "wt") as f:
         f.write(contents)
-
-
-@task
-def merge_stable(ctx):
-    """
-    Tag and merge into stable branch.
-
-    :param ctx:
-    """
-    ctx.run("git checkout stable")
-    ctx.run("git pull")
-    ctx.run("git merge master")
-    ctx.run("git push")
-    ctx.run("git checkout master")
 
 
 @task
@@ -226,12 +213,13 @@ def release_github(ctx):
         "name": "v" + NEW_VER,
         "body": desc,
         "draft": False,
-        "prerelease": False
+        "prerelease": False,
     }
     response = requests.post(
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
-        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]})
+        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+    )
     print(response.text)
 
 
@@ -256,9 +244,7 @@ def post_discourse(ctx):
     response = requests.post(
         "https://discuss.matsci.org/c/pymatgen/posts.json",
         data=payload,
-        params={
-            "api_username": os.environ["DISCOURSE_API_USERNAME"],
-            "api_key": os.environ["DISCOURSE_API_KEY"]}
+        params={"api_username": os.environ["DISCOURSE_API_USERNAME"], "api_key": os.environ["DISCOURSE_API_KEY"]},
     )
     print(response.text)
 
@@ -270,8 +256,7 @@ def update_changelog(ctx):
 
     :param ctx:
     """
-    output = subprocess.check_output(["git", "log", "--pretty=format:%s",
-                                      "v%s..HEAD" % CURRENT_VER])
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", "v%s..HEAD" % CURRENT_VER])
     lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
     with open("CHANGES.rst") as f:
         contents = f.read()
@@ -298,11 +283,10 @@ def release(ctx, nodoc=False):
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
-        ctx.run("git commit -a -m \"Update docs\"")
+        ctx.run('git commit -a -m "Update docs"')
         ctx.run("git push")
-    merge_stable(ctx)
     release_github(ctx)
-    post_discourse(ctx, warn=True)
+    # post_discourse(ctx, warn=True)
 
 
 @task

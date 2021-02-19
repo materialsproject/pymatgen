@@ -4,12 +4,11 @@ from os.path import join
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "molecules"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -114,9 +113,7 @@ class AdfKeyTest(unittest.TestCase):
             "converge",
             [("e", 1.0e-3), ("grad", 3.0e-4), ("rad", 1.0e-2), ("angle", 0.5)],
         )
-        geo = AdfKey(
-            "geometry", subkeys=[smooth, optim, iterations, step, hessupd, converge]
-        )
+        geo = AdfKey("geometry", subkeys=[smooth, optim, iterations, step, hessupd, converge])
         self.assertEqual(str(geo), geometry_string)
         self.assertEqual(str(AdfKey.from_dict(geo.as_dict())), geometry_string)
         self.assertTrue(geo.has_subkey("optim"))
@@ -126,9 +123,7 @@ class AdfKeyTest(unittest.TestCase):
         self.assertEqual(str(geo), "GEOMETRY\nEND\n")
 
     def test_subkeys_subkeys(self):
-        atom_dep_quality = AdfKey(
-            "AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])]
-        )
+        atom_dep_quality = AdfKey("AtomDepQuality", subkeys=[AdfKey("10", ["good"]), AdfKey("12", ["normal"])])
         zlmfit = AdfKey("zlmfit", subkeys=[atom_dep_quality])
         self.assertEqual(str(zlmfit), zlmfit_string)
         self.assertEqual(str(AdfKey.from_dict(zlmfit.as_dict())), zlmfit_string)

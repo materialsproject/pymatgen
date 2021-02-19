@@ -21,6 +21,7 @@ from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
+from pymatgen.util.string import Stringify
 
 SYMM_DATA = None
 
@@ -32,7 +33,7 @@ def _get_symm_data(name):
     return SYMM_DATA[name]
 
 
-class SymmetryGroup(Sequence, metaclass=ABCMeta):
+class SymmetryGroup(Sequence, Stringify, metaclass=ABCMeta):
     """
     Abstract class representation a symmetry group.
     """
@@ -70,9 +71,7 @@ class SymmetryGroup(Sequence, metaclass=ABCMeta):
         Returns:
             True if this group is a subgroup of the supplied group.
         """
-        warnings.warn(
-            "This is not fully functional. Only trivial subsets are tested right now. "
-        )
+        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
     def is_supergroup(self, subgroup):
@@ -85,11 +84,16 @@ class SymmetryGroup(Sequence, metaclass=ABCMeta):
         Returns:
             True if this group is a supergroup of the supplied group.
         """
-        warnings.warn(
-            "This is not fully functional. Only trivial subsets are "
-            "tested right now. "
-        )
+        warnings.warn("This is not fully functional. Only trivial subsets are " "tested right now. ")
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
+
+    def to_latex_string(self) -> str:
+        r"""
+        Returns:
+            A latex formatted group symbol with proper subscripts and overlines.
+        """
+        sym = re.sub(r"_(\d+)", r"$_{\1}$", self.to_pretty_string())
+        return re.sub(r"-(\d)", r"$\\overline{\1}$", sym)
 
 
 @cached_class
@@ -120,13 +124,9 @@ class PointGroup(SymmetryGroup):
         """
         self.symbol = int_symbol
         self.generators = [
-            _get_symm_data("generator_matrices")[c]
-            for c in _get_symm_data("point_group_encoding")[int_symbol]
+            _get_symm_data("generator_matrices")[c] for c in _get_symm_data("point_group_encoding")[int_symbol]
         ]
-        self._symmetry_ops = {
-            SymmOp.from_rotation_and_translation(m)
-            for m in self._generate_full_symmetry_ops()
-        }
+        self._symmetry_ops = {SymmOp.from_rotation_and_translation(m) for m in self._generate_full_symmetry_ops()}
         self.order = len(self._symmetry_ops)
 
     @property
@@ -206,9 +206,7 @@ class SpaceGroup(SymmetryGroup):
     sgencoding = _get_symm_data("space_group_encoding")
     abbrev_sg_mapping = _get_symm_data("abbreviated_spacegroup_symbols")
     translations = {k: Fraction(v) for k, v in _get_symm_data("translations").items()}
-    full_sg_mapping = {
-        v["full_symbol"]: k for k, v in _get_symm_data("space_group_encoding").items()
-    }
+    full_sg_mapping = {v["full_symbol"]: k for k, v in _get_symm_data("space_group_encoding").items()}
 
     def __init__(self, int_symbol):
         """
@@ -261,11 +259,7 @@ class SpaceGroup(SymmetryGroup):
             ngen = int(enc.pop(0))
             symm_ops = [np.eye(4)]
             if inversion:
-                symm_ops.append(
-                    np.array(
-                        [[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]
-                    )
-                )
+                symm_ops.append(np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]))
             for i in range(ngen):
                 m = np.eye(4)
                 m[:3, :3] = SpaceGroup.gen_matrices[enc.pop(0)]
@@ -382,9 +376,7 @@ class SpaceGroup(SymmetryGroup):
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
-            return all(
-                [abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None]
-            )
+            return all([abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None])
 
         if crys_system == "cubic":
             a = abc[0]
@@ -417,20 +409,14 @@ class SpaceGroup(SymmetryGroup):
             )
         ):
             a = abc[0]
-            return check(abc, [a, a, None], tol) and check(
-                angles, [90, 90, 120], angle_tol
-            )
+            return check(abc, [a, a, None], tol) and check(angles, [90, 90, 120], angle_tol)
         if crys_system == "trigonal":
             a = abc[0]
             alpha = angles[0]
-            return check(abc, [a, a, a], tol) and check(
-                angles, [alpha, alpha, alpha], angle_tol
-            )
+            return check(abc, [a, a, a], tol) and check(angles, [alpha, alpha, alpha], angle_tol)
         if crys_system == "tetragonal":
             a = abc[0]
-            return check(abc, [a, a, None], tol) and check(
-                angles, [90, 90, 90], angle_tol
-            )
+            return check(abc, [a, a, None], tol) and check(angles, [90, 90, 90], angle_tol)
         if crys_system == "orthorhombic":
             return check(angles, [90, 90, 90], angle_tol)
         if crys_system == "monoclinic":
@@ -472,15 +458,11 @@ class SpaceGroup(SymmetryGroup):
 
         groups = [[supergroup.int_number]]
         all_groups = [supergroup.int_number]
-        max_subgroups = {
-            int(k): v for k, v in _get_symm_data("maximal_subgroups").items()
-        }
+        max_subgroups = {int(k): v for k, v in _get_symm_data("maximal_subgroups").items()}
         while True:
             new_sub_groups = set()
             for i in groups[-1]:
-                new_sub_groups.update(
-                    [j for j in max_subgroups[i] if j not in all_groups]
-                )
+                new_sub_groups.update([j for j in max_subgroups[i] if j not in all_groups])
             if self.int_number in new_sub_groups:
                 return True
 
@@ -527,6 +509,12 @@ class SpaceGroup(SymmetryGroup):
             self.int_number,
             len(self.symmetry_ops),
         )
+
+    def to_pretty_string(self):
+        """
+        :return: Spacegroup string.
+        """
+        return self.symbol
 
 
 def sg_symbol_from_int_number(int_number, hexagonal=True):

@@ -3,9 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
-
-import matplotlib as mpl
-
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -24,6 +21,11 @@ __date__ = "5/22/14"
 
 
 class XRDCalculatorTest(PymatgenTest):
+    def test_type_wavelength(self):
+        """Test TypeError is raised if wavelength is unaccepted type"""
+        wavelength = [1.78, 2.78]  # just a list
+        self.assertRaises(TypeError, XRDCalculator, wavelength)
+
     def test_get_pattern(self):
         s = self.get_structure("CsCl")
         c = XRDCalculator()
@@ -78,9 +80,7 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertEqual(len(xrd), 18)
 
         # Test with and without Debye-Waller factor
-        tungsten = Structure(
-            Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]]
-        )
+        tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]])
         xrd = c.get_pattern(tungsten, scaled=False)
         self.assertAlmostEqual(xrd.x[0], 40.294828554672264)
         self.assertAlmostEqual(xrd.y[0], 2414237.5633093244)

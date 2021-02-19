@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 import numpy as np
 
-from pymatgen import Molecule, Structure
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import Coord, Cp2kInput, Keyword, KeywordList, Kind
 from pymatgen.util.testing import PymatgenTest
 
@@ -17,7 +17,7 @@ Si_structure = Structure(
 )
 
 nonsense_Structure = Structure(
-    lattice=[[-1, -10, -100], [0.1, 0.01, 0.001], [7, 11, 21]],
+    lattice=[[-1.0, -10.0, -100.0], [0.1, 0.01, 0.001], [7.0, 11.0, 21.0]],
     species=["X"],
     coords=[[-1, -1, -1]],
 )
@@ -71,14 +71,10 @@ class InputTest(PymatgenTest):
         )
 
         # proper type retrieval
-        self.assertIsInstance(
-            self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int
-        )
+        self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["MGRID"]["NGRIDS"].values[0], int)
         # self.assertIsInstance(self.ci["FORCE_EVAL"]["SUBSYS"]["COORD"]["Si"], Sequence)
         self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["UKS"].values[0], bool)
-        self.assertIsInstance(
-            self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float
-        )
+        self.assertIsInstance(self.ci["FORCE_EVAL"]["DFT"]["QS"]["EPS_DEFAULT"].values[0], float)
 
         # description retrieval
         self.assertEqual(
@@ -122,9 +118,7 @@ class InputTest(PymatgenTest):
         self.assertTrue(self.ci.check("INCLUDE"))
         self.assertEqual(self.ci["INCLUDE"]["KEYWORD"], Keyword("KEYWORD", "VALUE"))
         self.assertEqual(self.ci["FORCE_EVAL"]["METHOD"], Keyword("METHOD", "QS"))
-        self.assertEqual(
-            self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"], Keyword("MAX_SCF", 20)
-        )
+        self.assertEqual(self.ci["FORCE_EVAL"]["DFT"]["SCF"]["MAX_SCF"], Keyword("MAX_SCF", 20))
 
     def test_mongo(self):
         s = """

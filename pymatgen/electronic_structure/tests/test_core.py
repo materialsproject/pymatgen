@@ -58,14 +58,10 @@ class MagmomTest(unittest.TestCase):
 
         # simple cases
         magmom_along_x = Magmom([1, 0, 0])
-        self.assertTrue(
-            np.allclose(magmom_along_x.get_moment(saxis=[1, 0, 0]), [0, 0, 1])
-        )
+        self.assertTrue(np.allclose(magmom_along_x.get_moment(saxis=[1, 0, 0]), [0, 0, 1]))
 
         magmom_along_y = Magmom([0, 1, 0])
-        self.assertTrue(
-            np.allclose(magmom_along_y.get_moment(saxis=[0, 1, 0]), [0, 0, 1])
-        )
+        self.assertTrue(np.allclose(magmom_along_y.get_moment(saxis=[0, 1, 0]), [0, 0, 1]))
 
         # test transformations
         magmoms = [
@@ -85,18 +81,10 @@ class MagmomTest(unittest.TestCase):
             magmom3 = magmom2.get_xyz_magmom_with_001_saxis()
             self.assertTrue(np.allclose(magmom1.moment, magmom))
             self.assertTrue(np.allclose(magmom1.saxis, [0, 0, 1]))
-            self.assertTrue(
-                np.allclose(magmom1.get_moment(saxis=magmom1.saxis), magmom1.moment)
-            )
-            self.assertTrue(
-                np.allclose(magmom1.get_moment(saxis=magmom2.saxis), magmom2.moment)
-            )
-            self.assertTrue(
-                np.allclose(magmom2.get_moment(saxis=[0, 0, 1]), magmom1.moment)
-            )
-            self.assertTrue(
-                np.allclose(magmom2.get_moment(saxis=magmom2.saxis), magmom2.moment)
-            )
+            self.assertTrue(np.allclose(magmom1.get_moment(saxis=magmom1.saxis), magmom1.moment))
+            self.assertTrue(np.allclose(magmom1.get_moment(saxis=magmom2.saxis), magmom2.moment))
+            self.assertTrue(np.allclose(magmom2.get_moment(saxis=[0, 0, 1]), magmom1.moment))
+            self.assertTrue(np.allclose(magmom2.get_moment(saxis=magmom2.saxis), magmom2.moment))
             self.assertTrue(np.allclose(magmom3.moment, magmom1.moment))
 
     def test_is_collinear(self):
@@ -136,9 +124,7 @@ class MagmomTest(unittest.TestCase):
         moment = [1, 0, 2]
         magmom = Magmom.from_moment_relative_to_crystal_axes(moment, lattice)
         self.assertTrue(np.allclose(magmom.moment, [0.93969262, 0.0, 1.65797986]))
-        self.assertTrue(
-            np.allclose(magmom.get_moment_relative_to_crystal_axes(lattice), moment)
-        )
+        self.assertTrue(np.allclose(magmom.get_moment_relative_to_crystal_axes(lattice), moment))
 
     def test_equality(self):
         self.assertTrue(Magmom([1, 1, 1]) == Magmom([1, 1, 1]))

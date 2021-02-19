@@ -18,20 +18,17 @@ from pymatgen.analysis.diffusion_analyzer import (
     fit_arrhenius,
     get_conversion_factor,
 )
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 class FuncTest(unittest.TestCase):
     def test_get_conversion_factor(self):
-        filepath = os.path.join(test_dir, "LiFePO4.cif")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif")
         s = Structure.from_file(filepath)
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        self.assertAlmostEqual(
-            41370704.343540139, get_conversion_factor(s, "Li", 600), delta=20
-        )
+        self.assertAlmostEqual(41370704.343540139, get_conversion_factor(s, "Li", 600), delta=20)
 
     def test_fit_arrhenius(self):
         Ea = 0.5
@@ -57,7 +54,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
-        with open(os.path.join(test_dir, "DiffusionAnalyzer.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "DiffusionAnalyzer.json")) as f:
             dd = json.load(f)
 
             d = DiffusionAnalyzer.from_dict(dd)
@@ -70,23 +67,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertAlmostEqual(d.chg_diffusivity_std_dev, 7.20911399729e-10, 5)
             self.assertAlmostEqual(d.haven_ratio, 0.31854161048867402, 7)
-            self.assertArrayAlmostEqual(
-                d.conductivity_components, [45.7903694, 26.1651956, 150.5406140], 3
-            )
+            self.assertArrayAlmostEqual(d.conductivity_components, [45.7903694, 26.1651956, 150.5406140], 3)
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.49601236e-07, 4.90254273e-07, 2.24649255e-06],
             )
-            self.assertArrayAlmostEqual(
-                d.conductivity_components_std_dev, [0.0063566, 0.0180854, 0.0217918]
-            )
+            self.assertArrayAlmostEqual(d.conductivity_components_std_dev, [0.0063566, 0.0180854, 0.0217918])
             self.assertArrayAlmostEqual(
                 d.diffusivity_components_std_dev,
                 [8.9465670e-09, 2.4931224e-08, 2.2636384e-08],
             )
-            self.assertArrayAlmostEqual(
-                d.mscd[0:4], [0.69131064, 0.71794072, 0.74315283, 0.76703961]
-            )
+            self.assertArrayAlmostEqual(d.mscd[0:4], [0.69131064, 0.71794072, 0.74315283, 0.76703961])
 
             self.assertArrayAlmostEqual(
                 d.max_ion_displacements,
@@ -250,7 +241,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
         # Diffusion vasprun.xmls are rather large. We are only going to use a
         # very small preprocessed run for testing. Note that the results are
         # unreliable for short runs.
-        with open(os.path.join(test_dir, "DiffusionAnalyzer_NPT.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "DiffusionAnalyzer_NPT.json"), "r") as f:
             dd = json.load(f)
             d = DiffusionAnalyzer.from_dict(dd)
             # large tolerance because scipy constants changed between 0.16.1 and 0.17
@@ -262,16 +253,12 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity_std_dev, 9.1013023085561779e-09, 7)
             self.assertAlmostEqual(d.chg_diffusivity_std_dev, 1.20834853646e-08, 6)
             self.assertAlmostEqual(d.haven_ratio, 0.409275240679, 7)
-            self.assertArrayAlmostEqual(
-                d.conductivity_components, [455.178101, 602.252644, 440.0210014], 3
-            )
+            self.assertArrayAlmostEqual(d.conductivity_components, [455.178101, 602.252644, 440.0210014], 3)
             self.assertArrayAlmostEqual(
                 d.diffusivity_components,
                 [7.66242570e-06, 1.01382648e-05, 7.40727250e-06],
             )
-            self.assertArrayAlmostEqual(
-                d.conductivity_components_std_dev, [0.1196577, 0.0973347, 0.1525400]
-            )
+            self.assertArrayAlmostEqual(d.conductivity_components_std_dev, [0.1196577, 0.0973347, 0.1525400])
             self.assertArrayAlmostEqual(
                 d.diffusivity_components_std_dev,
                 [2.0143072e-09, 1.6385239e-09, 2.5678445e-09],
@@ -475,20 +462,13 @@ class DiffusionAnalyzerTest(PymatgenTest):
             os.remove("test.csv")
 
     def test_from_structure_NPT(self):
-        from pymatgen import Lattice, Structure
 
         coords1 = np.array([[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]])
         coords2 = np.array([[0.0, 0.0, 0.0], [0.6, 0.6, 0.6]])
         coords3 = np.array([[0.0, 0.0, 0.0], [0.7, 0.7, 0.7]])
-        lattice1 = Lattice.from_parameters(
-            a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90
-        )
-        lattice2 = Lattice.from_parameters(
-            a=2.1, b=2.1, c=2.1, alpha=90, beta=90, gamma=90
-        )
-        lattice3 = Lattice.from_parameters(
-            a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90
-        )
+        lattice1 = Lattice.from_parameters(a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90)
+        lattice2 = Lattice.from_parameters(a=2.1, b=2.1, c=2.1, alpha=90, beta=90, gamma=90)
+        lattice3 = Lattice.from_parameters(a=2.0, b=2.0, c=2.0, alpha=90, beta=90, gamma=90)
         s1 = Structure(coords=coords1, lattice=lattice1, species=["F", "Li"])
         s2 = Structure(coords=coords2, lattice=lattice2, species=["F", "Li"])
         s3 = Structure(coords=coords3, lattice=lattice3, species=["F", "Li"])

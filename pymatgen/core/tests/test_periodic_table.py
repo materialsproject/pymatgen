@@ -4,6 +4,7 @@
 
 
 import math
+import os
 import pickle
 import unittest
 import warnings
@@ -11,7 +12,6 @@ from copy import deepcopy
 
 import numpy as np
 
-from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
 from pymatgen.util.testing import PymatgenTest
 
@@ -242,9 +242,7 @@ class ElementTestCase(PymatgenTest):
         el1 = Element.Fe
         el2 = Element.Na
         ellist = [el1, el2]
-        self.assertEqual(
-            ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy"
-        )
+        self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy")
 
     def test_radii(self):
         el = Element.Pd
@@ -303,9 +301,7 @@ class SpecieTestCase(PymatgenTest):
             self.specie3,
             "Static and actual constructor gives unequal result!",
         )
-        self.assertNotEqual(
-            self.specie1, self.specie2, "Fe2+ should not be equal to Fe3+"
-        )
+        self.assertNotEqual(self.specie1, self.specie2, "Fe2+ should not be equal to Fe3+")
         self.assertNotEqual(self.specie4, self.specie3)
         self.assertFalse(self.specie1 == Element("Fe"))
         self.assertFalse(Element("Fe") == self.specie1)
@@ -315,18 +311,14 @@ class SpecieTestCase(PymatgenTest):
         self.assertLess(Species("C", 1), Species("Se", 1))
 
     def test_attr(self):
-        self.assertEqual(
-            self.specie1.Z, 26, "Z attribute for Fe2+ should be = Element Fe."
-        )
+        self.assertEqual(self.specie1.Z, 26, "Z attribute for Fe2+ should be = Element Fe.")
         self.assertEqual(self.specie4.spin, 5)
 
     def test_deepcopy(self):
         el1 = Species("Fe", 4)
         el2 = Species("Na", 1)
         ellist = [el1, el2]
-        self.assertEqual(
-            ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy."
-        )
+        self.assertEqual(ellist, deepcopy(ellist), "Deepcopy operation doesn't produce exact copy.")
 
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
@@ -341,9 +333,6 @@ class SpecieTestCase(PymatgenTest):
         with open("cscl.pickle", "rb") as f:
             d = pickle.load(f)
             self.assertEqual(d, (cs, cl))
-
-        import os
-
         os.remove("cscl.pickle")
 
     def test_get_crystal_field_spin(self):
@@ -393,9 +382,7 @@ class SpecieTestCase(PymatgenTest):
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
-        self.assertEqual(
-            sorted(els), [Species("Si", 3), Species("Si", 4), Species("N", -3)]
-        )
+        self.assertEqual(sorted(els), [Species("Si", 3), Species("Si", 4), Species("N", -3)])
 
     def test_to_from_string(self):
         fe3 = Species("Fe", 3, {"spin": 5})
@@ -406,13 +393,22 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(str(mo0), "Mo0+,spin=5")
         mo = Species.from_string("Mo0+,spin=4")
         self.assertEqual(mo.spin, 4)
-        fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
-        fe_no_ox_from_str = Species.from_string("Fe,spin=5")
-        self.assertEqual(fe_no_ox, fe_no_ox_from_str)
+
+        # Shyue Ping: I don't understand the need for a None for oxidation state. That to me is basically an element.
+        # Why make the thing so complicated for a use case that I have never seen???
+        # fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
+        # fe_no_ox_from_str = Species.from_string("Fe,spin=5")
+        # self.assertEqual(fe_no_ox, fe_no_ox_from_str)
 
     def test_no_oxidation_state(self):
         mo0 = Species("Mo", None, {"spin": 5})
         self.assertEqual(str(mo0), "Mo,spin=5")
+
+    def test_stringify(self):
+        self.assertEqual(self.specie2.to_latex_string(), "Fe$^{3+}$")
+        self.assertEqual(self.specie2.to_unicode_string(), "Fe³⁺")
+        self.assertEqual(Species("S", -2).to_latex_string(), "S$^{2-}$")
+        self.assertEqual(Species("S", -2).to_unicode_string(), "S²⁻")
 
 
 class DummySpecieTestCase(unittest.TestCase):
@@ -434,9 +430,13 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecies.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+        self.assertEqual(sp.to_latex_string(), "X$^{2+}$")
         sp = DummySpecies.from_string("X2+spin=5")
         self.assertEqual(sp.oxi_state, 2)
         self.assertEqual(sp.spin, 5)
+        self.assertEqual(sp.to_latex_string(), "X$^{2+}$")
+        self.assertEqual(sp.to_html_string(), "X<sup>2+</sup>")
+        self.assertEqual(sp.to_unicode_string(), "X²⁺")
 
     def test_pickle(self):
         el1 = DummySpecies("X", 3)
@@ -457,9 +457,6 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(get_el_sp("U"), Element.U)
         self.assertEqual(get_el_sp("X2+"), DummySpecies("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Species("Mn", 3))
-        self.assertEqual(
-            get_el_sp(["Li+", "Mn3+"]), [Species("Li", 1), Species("Mn", 3)]
-        )
 
 
 if __name__ == "__main__":

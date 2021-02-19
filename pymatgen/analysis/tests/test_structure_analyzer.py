@@ -8,7 +8,9 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Element, Lattice, Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,
@@ -23,14 +25,12 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class VoronoiAnalyzerTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        self.ss = Xdatcar(os.path.join(test_dir, "XDATCAR.MD")).structures
+        self.ss = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD")).structures
         self.s = self.ss[1]
         self.va = VoronoiAnalyzer(cutoff=4.0)
 
@@ -44,9 +44,7 @@ class VoronoiAnalyzerTest(PymatgenTest):
         )
         # Check for the presence of a Voronoi index and its frequency in
         # a ensemble (list) of Structures
-        ensemble = self.va.analyze_structures(
-            self.ss, step_freq=2, most_frequent_polyhedra=10
-        )
+        ensemble = self.va.analyze_structures(self.ss, step_freq=2, most_frequent_polyhedra=10)
         self.assertIn(
             ("[1 3 4 7 1 0 0 0]", 3),
             ensemble,
@@ -56,13 +54,9 @@ class VoronoiAnalyzerTest(PymatgenTest):
 
 class RelaxationAnalyzerTest(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.Li2O"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O"), check_for_POTCAR=False)
         s1 = p.structure
-        p = Poscar.from_file(
-            os.path.join(test_dir, "CONTCAR.Li2O"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CONTCAR.Li2O"), check_for_POTCAR=False)
         s2 = p.structure
         self.analyzer = RelaxationAnalyzer(s1, s2)
 
@@ -100,7 +94,7 @@ class VoronoiConnectivityTest(PymatgenTest):
 
 class MiscFunctionTest(PymatgenTest):
     def test_average_coordination_number(self):
-        xdatcar = Xdatcar(os.path.join(test_dir, "XDATCAR.MD"))
+        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "XDATCAR.MD"))
         coordination_numbers = average_coordination_number(xdatcar.structures, freq=1)
         self.assertAlmostEqual(
             coordination_numbers["Fe"],
@@ -136,9 +130,7 @@ class MiscFunctionTest(PymatgenTest):
     def test_oxide_type(self):
         el_li = Element("Li")
         el_o = Element("O")
-        latt = Lattice(
-            [[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]]
-        )
+        latt = Lattice([[3.985034, 0.0, 0.0], [0.0, 4.881506, 0.0], [0.0, 0.0, 2.959824]])
         elts = [el_li, el_li, el_o, el_o, el_o, el_o]
         coords = list()
         coords.append([0.500000, 0.500000, 0.500000])
@@ -153,9 +145,7 @@ class MiscFunctionTest(PymatgenTest):
         el_li = Element("Li")
         el_o = Element("O")
         elts = [el_li, el_o, el_o, el_o]
-        latt = Lattice.from_parameters(
-            3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342
-        )
+        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
         coords = [
             [0.513004, 0.513004, 1.000000],
             [0.017616, 0.017616, 0.000000],
@@ -165,9 +155,7 @@ class MiscFunctionTest(PymatgenTest):
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "ozonide")
 
-        latt = Lattice.from_parameters(
-            3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510
-        )
+        latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
         el_li = Element("Li")
         el_o = Element("O")
         elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
@@ -187,9 +175,7 @@ class MiscFunctionTest(PymatgenTest):
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
-        latt = Lattice.from_parameters(
-            3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000
-        )
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
         elts = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [
             [0.000000, 0.500000, 0.413969],
@@ -205,9 +191,7 @@ class MiscFunctionTest(PymatgenTest):
         el_li = Element("Li")
         el_n = Element("N")
         el_h = Element("H")
-        latt = Lattice.from_parameters(
-            3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000
-        )
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
         elts = [el_h, el_h, el_li, el_li, el_n, el_n]
         coords = [
             [0.000000, 0.500000, 0.413969],
@@ -221,9 +205,7 @@ class MiscFunctionTest(PymatgenTest):
         self.assertEqual(oxide_type(struct, 1.1), "None")
 
         el_o = Element("O")
-        latt = Lattice.from_parameters(
-            4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828
-        )
+        latt = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828)
         elts = [el_o, el_o, el_o, el_o, el_o, el_o, el_o, el_o]
         coords = [
             [0.844609, 0.273459, 0.786089],

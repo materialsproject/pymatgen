@@ -386,9 +386,7 @@ class Magmom(MSONable):
         # use first moment as reference to compare against
         ref_magmom = magmoms[0]
         # magnitude of cross products != 0 if non-collinear with reference
-        num_ncl = np.count_nonzero(
-            np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1)
-        )
+        num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
         if num_ncl > 0:
             return False
         return True

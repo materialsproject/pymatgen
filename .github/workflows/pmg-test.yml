@@ -1,0 +1,56 @@
+name: Testing
+
+on: [ pull_request ]
+
+jobs:
+  test:
+
+    strategy:
+      max-parallel: 20
+      matrix:
+        os: [ macos-latest, windows-latest ]
+        python-version: [ 3.8 ]
+        pkg: [ analysis, others ]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+      MPLBACKEND: "Agg"
+      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
+      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - uses: actions/cache@v2
+        if: startsWith(runner.os, 'Windows')
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip wheel
+          pip install -r requirements.txt
+          pip install -r requirements-optional.txt -r requirements-dev.txt
+          pip install -e .
+      - name: pytest ${{ matrix.pkg }}
+        if: matrix.pkg != 'others'
+        run: pytest pymatgen/${{ matrix.pkg }}
+      - name: pytest others
+        # We forgo testing the ext package on Mac and Windows to avoid overload the API. Test completeness is targeted
+        # in the Linux tests.
+        if: matrix.pkg == 'others'
+        run: pytest pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/ext

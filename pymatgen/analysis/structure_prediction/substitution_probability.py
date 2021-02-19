@@ -133,11 +133,7 @@ class SubstitutionProbability:
         Returns:
             The pair correlation of 2 species
         """
-        return (
-            math.exp(self.get_lambda(s1, s2))
-            * self.Z
-            / (self.get_px(s1) * self.get_px(s2))
-        )
+        return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
         """
@@ -216,10 +212,7 @@ class SubstitutionPredictor:
         """
         for sp in species:
             if get_el_sp(sp) not in self.p.species:
-                raise ValueError(
-                    "the species {} is not allowed for the"
-                    "probability model you are using".format(sp)
-                )
+                raise ValueError("the species {} is not allowed for the" "probability model you are using".format(sp))
         max_probabilities = []
         for s1 in species:
             if to_this_composition:

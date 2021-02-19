@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.12.18 documentation</title>
+  <title>Change log &mdash; pymatgen 2021.2.16 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.12.18
+                2021.2.16
               </div>
             
           
@@ -99,6 +99,13 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-16">v2021.2.16</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-14">v2021.2.14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-12">v2021.2.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-8-1">v2021.2.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-8">v2021.2.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-1-28">v2021.1.28</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-12-31">v2020.12.31</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-12-18">v2020.12.18</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-12-3">v2020.12.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-11-11">v2020.11.11</a></li>
@@ -435,6 +442,61 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2021-2-16">
+<h2>v2021.2.16<a class="headerlink" href="#v2021-2-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (&#64;mkhorton, #2066)</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-14">
+<h2>v2021.2.14<a class="headerlink" href="#v2021-2-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-12">
+<h2>v2021.2.12<a class="headerlink" href="#v2021-2-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-8-1">
+<h2>v2021.2.8.1<a class="headerlink" href="#v2021-2-8-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Patch release to restore <cite>CompositionError</cite> to preserve backwards compatibility.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-8">
+<h2>v2021.2.8<a class="headerlink" href="#v2021-2-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Addition of new job types to Q-Chem IO (&#64;espottesmith, #2055),
+note <cite>metal_edge_extender</cite> has been moved into <cite>local_env</cite> for this change</p></li>
+<li><p>Improvements to string utils, new Stringify mixin with
+to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (&#64;shyuep)</p></li>
+<li><p>Improvements to build system (&#64;shyuep, &#64;ltalirz, see #2046)</p></li>
+<li><p>Entry is now immutable, removing “in_place” option for normalize (&#64;mkhorton, &#64;mattmcdermott, #2060)</p></li>
+<li><p>Bug fix for co-ordination geometry finder (&#64;davidwaroquiers, #2035)</p></li>
+<li><p>Bug fix for GibbsComputedStructureEntry (&#64;mattmcdermott)</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-1-28">
+<h2>v2021.1.28<a class="headerlink" href="#v2021-1-28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Ability to read Lobster wavefunctions (&#64;JaGeo, #2034)</p></li>
+<li><p>Method to estimate number of bands for VASP calculation (&#64;rwoodsrobinson, #2044)</p></li>
+<li><p>Q-Chem cube file plotting and improvements to output parsring (&#64;samblau, #2032)</p></li>
+<li><p>Improvements to PhaseDiagram hashing and equality checking (&#64;CompRhys, #2014)</p></li>
+<li><p>Improvements to pymatgen import speed (&#64;mkhorton, #2031)</p></li>
+<li><p>Bug fix for k-path generation (&#64;munrojm, #2037)</p></li>
+<li><p>Bug fix for parsing of core potentials from VASP (&#64;utf, #2033)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-12-31">
+<h2>v2020.12.31<a class="headerlink" href="#v2020-12-31" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>End of 2020 release with minor bug fixes for cli scripts.</p></li>
+</ul>
+</div>
 <div class="section" id="v2020-12-18">
 <h2>v2020.12.18<a class="headerlink" href="#v2020-12-18" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">

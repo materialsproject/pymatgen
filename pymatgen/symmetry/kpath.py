@@ -43,9 +43,7 @@ class KPathBase(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(
-        self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs
-    ):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
         structure (Structure): Structure object
@@ -110,8 +108,7 @@ class KPathBase(metaclass=abc.ABCMeta):
                 start = np.array(self.kpath["kpoints"][b[i - 1]])
                 end = np.array(self.kpath["kpoints"][b[i]])
                 distance = np.linalg.norm(
-                    self._rec_lattice.get_cartesian_coords(start)
-                    - self._rec_lattice.get_cartesian_coords(end)
+                    self._rec_lattice.get_cartesian_coords(start) - self._rec_lattice.get_cartesian_coords(end)
                 )
                 nb = int(ceil(distance * line_density))
                 if nb == 0:
@@ -122,19 +119,14 @@ class KPathBase(metaclass=abc.ABCMeta):
                         self._rec_lattice.get_cartesian_coords(start)
                         + float(i)
                         / float(nb)
-                        * (
-                            self._rec_lattice.get_cartesian_coords(end)
-                            - self._rec_lattice.get_cartesian_coords(start)
-                        )
+                        * (self._rec_lattice.get_cartesian_coords(end) - self._rec_lattice.get_cartesian_coords(start))
                         for i in range(0, nb + 1)
                     ]
                 )
         if coords_are_cartesian:
             return list_k_points, sym_point_labels
 
-        frac_k_points = [
-            self._rec_lattice.get_fractional_coords(k) for k in list_k_points
-        ]
+        frac_k_points = [self._rec_lattice.get_fractional_coords(k) for k in list_k_points]
         return frac_k_points, sym_point_labels
 
 
@@ -159,13 +151,13 @@ class KPathSetyawanCurtarolo(KPathBase):
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
         """
-            Args:
-            structure (Structure): Structure object
-            symprec (float): Tolerance for symmetry finding
-            angle_tolerance (float): Angle tolerance for symmetry finding.
-            atol (float): Absolute tolerance used to compare the input
-                structure with the one expected as primitive standard.
-                A warning will be issued if the lattices don't match.
+        Args:
+        structure (Structure): Structure object
+        symprec (float): Tolerance for symmetry finding
+        angle_tolerance (float): Angle tolerance for symmetry finding.
+        atol (float): Absolute tolerance used to compare the input
+            structure with the one expected as primitive standard.
+            A warning will be issued if the lattices don't match.
         """
         if "magmom" in structure.site_properties.keys():
             warn(
@@ -173,27 +165,17 @@ class KPathSetyawanCurtarolo(KPathBase):
                   for the Setyawan and Curtarolo convention."
             )
 
-        super().__init__(
-            structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol
-        )
+        super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
-        self._sym = SpacegroupAnalyzer(
-            structure, symprec=symprec, angle_tolerance=angle_tolerance
-        )
-        self._prim = self._sym.get_primitive_standard_structure(
-            international_monoclinic=False
-        )
-        self._conv = self._sym.get_conventional_standard_structure(
-            international_monoclinic=False
-        )
+        self._sym = SpacegroupAnalyzer(structure, symprec=symprec, angle_tolerance=angle_tolerance)
+        self._prim = self._sym.get_primitive_standard_structure(international_monoclinic=False)
+        self._conv = self._sym.get_conventional_standard_structure(international_monoclinic=False)
         self._rec_lattice = self._prim.lattice.reciprocal_lattice
 
         # Note: this warning will be issued for space groups 38-41, since the primitive cell must be
         # reformatted to match Setyawan/Curtarolo convention in order to work with the current k-path
         # generation scheme.
-        if not np.allclose(
-            self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol
-        ):
+        if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warn(
                 "The input structure does not match the expected standard primitive! "
                 "The path can be incorrect. Use at your own risk."
@@ -274,23 +256,11 @@ class KPathSetyawanCurtarolo(KPathBase):
                 if kgamma == 90:
                     self._kpath = self.mclc2(a, b, c, alpha * pi / 180)
                 if kgamma < 90:
-                    if (
-                        b * cos(alpha * pi / 180) / c
-                        + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2
-                        < 1
-                    ):
+                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 < 1:
                         self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
-                    if (
-                        b * cos(alpha * pi / 180) / c
-                        + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2
-                        == 1
-                    ):
+                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 == 1:
                         self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
-                    if (
-                        b * cos(alpha * pi / 180) / c
-                        + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2
-                        > 1
-                    ):
+                    if b * cos(alpha * pi / 180) / c + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
                 warn("Unexpected value for spg_symbol: %s" % spg_symbol)
@@ -885,9 +855,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         mu = eta / 2 + b ** 2 / (4 * a ** 2) - b * c * cos(alpha) / (2 * a ** 2)
         nu = 2 * mu - zeta
         rho = 1 - zeta * a ** 2 / b ** 2
-        omega = (
-            (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2) * c / (2 * b * cos(alpha))
-        )
+        omega = (4 * nu - 1 - b ** 2 * sin(alpha) ** 2 / a ** 2) * c / (2 * b * cos(alpha))
         delta = zeta * c * cos(alpha) / b + omega / 2 - 0.25
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -984,9 +952,7 @@ class KPathSeek(KPathBase):
         get_path is not None,
         "SeeK-path is required to use the convention by Hinuma et al.",
     )
-    def __init__(
-        self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True
-    ):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
             structure (Structure): Structure object
@@ -998,9 +964,7 @@ class KPathSeek(KPathBase):
                 invariant.
         """
 
-        super().__init__(
-            structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol
-        )
+        super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         positions = structure.frac_coords
 
@@ -1009,9 +973,7 @@ class KPathSeek(KPathBase):
         site_data = species
 
         if not system_is_tri:
-            warn(
-                "Non-zero 'magmom' data will be used to define unique atoms in the cell."
-            )
+            warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
             site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])
 
         unique_species = []
@@ -1032,9 +994,7 @@ class KPathSeek(KPathBase):
         )
 
         spg_struct = (lattice, scale_pos, atom_num)
-        spath_dat = get_path(
-            spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance
-        )
+        spath_dat = get_path(spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance)
 
         self._tmat = self._trans_sc_to_Hin(spath_dat["bravais_lattice_extended"])
         self._rec_lattice = Lattice(spath_dat["reciprocal_primitive_lattice"])
@@ -1103,13 +1063,10 @@ class KPathSeek(KPathBase):
 class KPathLatimerMunro(KPathBase):
     """
     This class looks for a path along high symmetry lines in the
-    Brillouin zone.
-    It is based on the derived symmetry of the energy spectrum
-    for a crystalline solid given by A P Cracknell in J. Phys. C:
-    Solid State Phys. Vol. 6 (1973), pp. 826-840 ('Van Hove
-    singularities and zero-slope points in crystals') and pp. 841-
-    854 ('Van Hove singularities and zero-slope points in magnetic
-    crystals').
+    Brillouin zone. It is based on the method outlined in:
+
+    npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+
     The user should ensure that the lattice of the input structure
     is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
@@ -1153,9 +1110,7 @@ class KPathLatimerMunro(KPathBase):
             atol (float): Absolute tolerance used to determine symmetric
                 equivalence of points and lines on the BZ.
         """
-        super().__init__(
-            structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol
-        )
+        super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         # Check to see if input lattice is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
         # pp. 433-440 ('The Relationship between Reduced Cells in a General Bravais lattice').
@@ -1191,9 +1146,7 @@ class KPathLatimerMunro(KPathBase):
         else:
             axis_specified = True
 
-        self._kpath = self._get_ksymm_kpath(
-            has_magmoms, magmom_axis, axis_specified, symprec, angle_tolerance, atol
-        )
+        self._kpath = self._get_ksymm_kpath(has_magmoms, magmom_axis, axis_specified, symprec, angle_tolerance, atol)
 
     @property
     def mag_type(self):
@@ -1206,9 +1159,7 @@ class KPathLatimerMunro(KPathBase):
         """
         return self._mag_type
 
-    def _get_ksymm_kpath(
-        self, has_magmoms, magmom_axis, axis_specified, symprec, angle_tolerance, atol
-    ):
+    def _get_ksymm_kpath(self, has_magmoms, magmom_axis, axis_specified, symprec, angle_tolerance, atol):
         ID = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         # parity, aka the inversion operation (not calling it
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
@@ -1226,16 +1177,10 @@ class KPathLatimerMunro(KPathBase):
         if has_magmoms:
             grey_struct = self._structure.copy()
             grey_struct.remove_site_property("magmom")
-            sga = SpacegroupAnalyzer(
-                grey_struct, symprec=symprec, angle_tolerance=angle_tolerance
-            )
+            sga = SpacegroupAnalyzer(grey_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             grey_ops = sga.get_symmetry_operations()
-            self._structure = self._convert_all_magmoms_to_vectors(
-                magmom_axis, axis_specified
-            )
-            mag_ops = self._get_magnetic_symmetry_operations(
-                self._structure, grey_ops, atol
-            )
+            self._structure = self._convert_all_magmoms_to_vectors(magmom_axis, axis_specified)
+            mag_ops = self._get_magnetic_symmetry_operations(self._structure, grey_ops, atol)
 
             D = [
                 SymmOp.from_rotation_and_translation(
@@ -1255,29 +1200,18 @@ class KPathLatimerMunro(KPathBase):
                 if op.time_reversal == -1
             ]
 
-            if np.array(
-                [
-                    m == np.array([0, 0, 0])
-                    for m in self._structure.site_properties["magmom"]
-                ]
-            ).all():
+            if np.array([m == np.array([0, 0, 0]) for m in self._structure.site_properties["magmom"]]).all():
                 fD = D
                 D = []
 
             if len(fD) == 0:  # no operations contain time reversal; type 1
                 self._mag_type = "1"
                 isomorphic_point_group = [d.rotation_matrix for d in D]
-                recip_point_group = self._get_reciprocal_point_group(
-                    isomorphic_point_group, ID, A
-                )
-            elif (
-                len(D) == 0
-            ):  # all operations contain time reversal / all magmoms zero; type 2
+                recip_point_group = self._get_reciprocal_point_group(isomorphic_point_group, ID, A)
+            elif len(D) == 0:  # all operations contain time reversal / all magmoms zero; type 2
                 self._mag_type = "2"
                 isomorphic_point_group = [d.rotation_matrix for d in fD]
-                recip_point_group = self._get_reciprocal_point_group(
-                    isomorphic_point_group, PAR, A
-                )
+                recip_point_group = self._get_reciprocal_point_group(isomorphic_point_group, PAR, A)
             else:  # half and half; type 3 or 4
                 self._mag_type = "3/4"
                 f = self._get_coset_factor(D + fD, D)
@@ -1297,9 +1231,7 @@ class KPathLatimerMunro(KPathBase):
             ops = sga.get_symmetry_operations()
             isomorphic_point_group = [op.rotation_matrix for op in ops]
 
-            recip_point_group = self._get_reciprocal_point_group(
-                isomorphic_point_group, PAR, A
-            )
+            recip_point_group = self._get_reciprocal_point_group(isomorphic_point_group, PAR, A)
 
         self._rpg = recip_point_group
 
@@ -1316,9 +1248,7 @@ class KPathLatimerMunro(KPathBase):
         # 4: Get all lines on BZ between adjacent key points and between gamma
         # and key points ("key lines")
 
-        key_lines = self._get_key_lines(
-            key_points=key_points, bz_as_key_point_inds=bz_as_key_point_inds
-        )
+        key_lines = self._get_key_lines(key_points=key_points, bz_as_key_point_inds=bz_as_key_point_inds)
 
         # 5: Find symmetry-equivalent key lines, defined as endpoints of first line being equivalent
         # to end points of second line, and a random point in between being equivalent to the mapped
@@ -1358,9 +1288,7 @@ class KPathLatimerMunro(KPathBase):
         # by the reciprocal point and lattice symmetries). This is accomplished by identifying the boundary
         # planes of the IRBZ. Also, get labels for points according to distance away from axes.
 
-        IRBZ_points_inds = self._get_IRBZ(
-            recip_point_group, W, key_points, face_center_inds, atol
-        )
+        IRBZ_points_inds = self._get_IRBZ(recip_point_group, W, key_points, face_center_inds, atol)
         lines_in_path_inds = []
         for ind in line_orbits_in_path:
             for tup in key_lines_inds_orbits[ind]:
@@ -1383,10 +1311,7 @@ class KPathLatimerMunro(KPathBase):
                                 j,
                                 np.round(
                                     np.dot(key_points[k], self.LabelPoints(j))
-                                    / (
-                                        np.linalg.norm(key_points[k])
-                                        * np.linalg.norm(self.LabelPoints(j))
-                                    ),
+                                    / (np.linalg.norm(key_points[k]) * np.linalg.norm(self.LabelPoints(j))),
                                     decimals=3,
                                 ),
                             )
@@ -1400,9 +1325,7 @@ class KPathLatimerMunro(KPathBase):
                 )
             )
 
-        orbit_labels = self._get_orbit_labels(
-            orbit_cosines, key_points_inds_orbits, atol
-        )
+        orbit_labels = self._get_orbit_labels(orbit_cosines, key_points_inds_orbits, atol)
         key_points_labels = ["" for i in range(len(key_points))]
         for i, orbit in enumerate(key_points_inds_orbits):
             for point_ind in orbit:
@@ -1418,26 +1341,16 @@ class KPathLatimerMunro(KPathBase):
             else:
                 existing_labels = [key for key in kpoints.keys() if point_label in key]
                 if "'" not in point_label:
-                    existing_labels[:] = [
-                        label for label in existing_labels if "'" not in label
-                    ]
+                    existing_labels[:] = [label for label in existing_labels if "'" not in label]
                 if len(existing_labels) == 1:
                     max_occurence = 0
                 else:
                     if "'" not in point_label:
-                        max_occurence = max(
-                            [int(label[3:-1]) for label in existing_labels[1:]]
-                        )
+                        max_occurence = max([int(label[3:-1]) for label in existing_labels[1:]])
                     else:
-                        max_occurence = max(
-                            [int(label[4:-1]) for label in existing_labels[1:]]
-                        )
-                kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[
-                    point_ind
-                ]
-                reverse_kpoints[point_ind] = (
-                    point_label + "_{" + str(max_occurence + 1) + "}"
-                )
+                        max_occurence = max([int(label[4:-1]) for label in existing_labels[1:]])
+                kpoints[point_label + "_{" + str(max_occurence + 1) + "}"] = key_points[point_ind]
+                reverse_kpoints[point_ind] = point_label + "_{" + str(max_occurence + 1) + "}"
 
         path = []
         i = 0
@@ -1584,11 +1497,7 @@ class KPathLatimerMunro(KPathBase):
         for (i, facet) in enumerate(bz):
             bz_as_key_point_inds.append([])
             for (j, vert) in enumerate(facet):
-                edge_center = (
-                    (vert + facet[j + 1]) / 2.0
-                    if j != len(facet) - 1
-                    else (vert + facet[0]) / 2.0
-                )
+                edge_center = (vert + facet[j + 1]) / 2.0 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
                 duplicatevert = False
                 duplicateedge = False
                 for (k, point) in enumerate(key_points):
@@ -1613,9 +1522,7 @@ class KPathLatimerMunro(KPathBase):
                 face_center_inds.append(len(key_points) - 1)
                 bz_as_key_point_inds[i].append(len(key_points) - 1)
             else:  # hexagonal facet
-                face_center = (
-                    facet[0] + facet[1] + facet[2] + facet[3] + facet[4] + facet[5]
-                ) / 6.0
+                face_center = (facet[0] + facet[1] + facet[2] + facet[3] + facet[4] + facet[5]) / 6.0
                 key_points.append(face_center)
                 face_center_inds.append(len(key_points) - 1)
                 bz_as_key_point_inds[i].append(len(key_points) - 1)
@@ -1625,9 +1532,7 @@ class KPathLatimerMunro(KPathBase):
         return key_points, bz_as_key_point_inds, face_center_inds
 
     def _get_key_point_orbits(self, key_points):
-        key_points_copy = dict(
-            zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1])
-        )
+        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1]))
         # gamma not equivalent to any on BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
@@ -1663,9 +1568,7 @@ class KPathLatimerMunro(KPathBase):
         gamma_ind = len(key_points) - 1
 
         for (i, facet_as_key_point_inds) in enumerate(bz_as_key_point_inds):
-            facet_as_key_point_inds_bndy = facet_as_key_point_inds[
-                : len(facet_as_key_point_inds) - 1
-            ]
+            facet_as_key_point_inds_bndy = facet_as_key_point_inds[: len(facet_as_key_point_inds) - 1]
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
             face_center_ind = facet_as_key_point_inds[-1]
@@ -1723,33 +1626,13 @@ class KPathLatimerMunro(KPathBase):
                 equivline = False
 
                 if (
-                    np.array(
-                        [
-                            l0[0] in orbit and l1[0] in orbit
-                            for orbit in key_points_inds_orbits
-                        ]
-                    ).any()
-                    and np.array(
-                        [
-                            l0[1] in orbit and l1[1] in orbit
-                            for orbit in key_points_inds_orbits
-                        ]
-                    ).any()
+                    np.array([l0[0] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
+                    and np.array([l0[1] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
                 ):
                     equivptspar = True
                 elif (
-                    np.array(
-                        [
-                            l0[1] in orbit and l1[0] in orbit
-                            for orbit in key_points_inds_orbits
-                        ]
-                    ).any()
-                    and np.array(
-                        [
-                            l0[0] in orbit and l1[1] in orbit
-                            for orbit in key_points_inds_orbits
-                        ]
-                    ).any()
+                    np.array([l0[1] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
+                    and np.array([l0[0] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
                 ):
                     equivptsperp = True
 
@@ -1762,9 +1645,9 @@ class KPathLatimerMunro(KPathBase):
                             if self._all_ints(diff0, atol=self._atol):
                                 pmid0pr = np.dot(op, pmid0) + diff0
                                 p01pr = np.dot(op, p01) + diff0
-                                if np.allclose(
-                                    p11, p01pr, atol=self._atol
-                                ) and np.allclose(pmid1, pmid0pr, atol=self._atol):
+                                if np.allclose(p11, p01pr, atol=self._atol) and np.allclose(
+                                    pmid1, pmid0pr, atol=self._atol
+                                ):
                                     equivline = True
 
                 elif equivptsperp:
@@ -1776,9 +1659,9 @@ class KPathLatimerMunro(KPathBase):
                             if self._all_ints(diff0, atol=self._atol):
                                 pmid0pr = np.dot(op, pmid0) + diff0
                                 p01pr = np.dot(op, p01) + diff0
-                                if np.allclose(
-                                    p10, p01pr, atol=self._atol
-                                ) and np.allclose(pmid1, pmid0pr, atol=self._atol):
+                                if np.allclose(p10, p01pr, atol=self._atol) and np.allclose(
+                                    pmid1, pmid0pr, atol=self._atol
+                                ):
                                     equivline = True
 
                 if equivline:
@@ -1791,13 +1674,9 @@ class KPathLatimerMunro(KPathBase):
 
         return key_lines_inds_orbits
 
-    def _get_little_groups(
-        self, key_points, key_points_inds_orbits, key_lines_inds_orbits
-    ):
+    def _get_little_groups(self, key_points, key_points_inds_orbits, key_lines_inds_orbits):
 
-        little_groups_points = (
-            []
-        )  # elements are lists of indicies of recip_point_group. the
+        little_groups_points = []  # elements are lists of indicies of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
         for (i, orbit) in enumerate(key_points_inds_orbits):
@@ -1839,9 +1718,7 @@ class KPathLatimerMunro(KPathBase):
                 "The 'magmom' property is not set in the structure's site properties."
                 "All magnetic moments are being set to zero."
             )
-            struct.add_site_property(
-                "magmom", [np.array([0, 0, 0]) for i in range(len(struct.sites))]
-            )
+            struct.add_site_property("magmom", [np.array([0, 0, 0]) for i in range(len(struct.sites))])
 
             return struct
 
@@ -1859,10 +1736,7 @@ class KPathLatimerMunro(KPathBase):
                 new_magmoms.append(magmom * magmom_axis)
 
         if found_scalar and not axis_specified:
-            warn(
-                "At least one magmom had a scalar value and magmom_axis was not specified."
-                "Defaulted to z+ spinor."
-            )
+            warn("At least one magmom had a scalar value and magmom_axis was not specified." "Defaulted to z+ spinor.")
 
         struct.remove_site_property("magmom")
         struct.add_site_property("magmom", new_magmoms)
@@ -1871,26 +1745,14 @@ class KPathLatimerMunro(KPathBase):
     def _get_magnetic_symmetry_operations(self, struct, grey_ops, atol):
         mag_ops = []
         magmoms = struct.site_properties["magmom"]
-        nonzero_magmom_inds = [
-            i
-            for i in range(len(struct.sites))
-            if not (magmoms[i] == np.array([0, 0, 0])).all()
-        ]
-        init_magmoms = [
-            site.properties["magmom"]
-            for (i, site) in enumerate(struct.sites)
-            if i in nonzero_magmom_inds
-        ]
-        sites = [
-            site for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds
-        ]
+        nonzero_magmom_inds = [i for i in range(len(struct.sites)) if not (magmoms[i] == np.array([0, 0, 0])).all()]
+        init_magmoms = [site.properties["magmom"] for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds]
+        sites = [site for (i, site) in enumerate(struct.sites) if i in nonzero_magmom_inds]
         init_site_coords = [site.frac_coords for site in sites]
         for op in grey_ops:
             r = op.rotation_matrix
             t = op.translation_vector
-            xformed_magmoms = [
-                self._apply_op_to_magmom(r, magmom) for magmom in init_magmoms
-            ]
+            xformed_magmoms = [self._apply_op_to_magmom(r, magmom) for magmom in init_magmoms]
             xformed_site_coords = [np.dot(r, site.frac_coords) + t for site in sites]
             permutation = ["a" for i in range(len(sites))]
             not_found = list(range(len(sites)))
@@ -1961,10 +1823,7 @@ class KPathLatimerMunro(KPathBase):
         if len(pos1) != len(pos2):
             return False
         for i, v in enumerate(pos1):
-            if (
-                abs(pos1[i] - pos2[i]) > tolerance[i]
-                and abs(pos1[i] - pos2[i]) < 1.0 - tolerance[i]
-            ):
+            if abs(pos1[i] - pos2[i]) > tolerance[i] and abs(pos1[i] - pos2[i]) < 1.0 - tolerance[i]:
                 return False
         return True
 
@@ -1976,9 +1835,7 @@ class KPathLatimerMunro(KPathBase):
         for i, op1 in enumerate(G):
             in_H = False
             for op2 in H:
-                if np.allclose(
-                    op1.rotation_matrix, op2.rotation_matrix, atol=self._atol
-                ) and self._closewrapped(
+                if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
                     op1.translation_vector,
                     op2.translation_vector,
                     np.ones(3) * self._atol,
@@ -1993,9 +1850,7 @@ class KPathLatimerMunro(KPathBase):
             is_coset_factor = True
             for op1 in opH:
                 for op2 in H:
-                    if np.allclose(
-                        op1.rotation_matrix, op2.rotation_matrix, atol=self._atol
-                    ) and self._closewrapped(
+                    if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
                         op1.translation_vector,
                         op2.translation_vector,
                         np.ones(3) * self._atol,
@@ -2045,9 +1900,7 @@ class KPathLatimerMunro(KPathBase):
                 if secondary_orientation is None:
                     secondary_orientation = norm
                     planar_boundaries.append(norm)
-                elif np.isclose(
-                    np.dot(secondary_orientation, np.dot(g, norm)), 0, atol=atol
-                ):
+                elif np.isclose(np.dot(secondary_orientation, np.dot(g, norm)), 0, atol=atol):
                     if tertiary_orientation is None:
                         tertiary_orientation = norm
                         planar_boundaries.append(norm)
@@ -2090,9 +1943,7 @@ class KPathLatimerMunro(KPathBase):
                                 rot_boundaries = [cross, -1 * np.dot(op, cross)]
                                 used_axes.append(ax)
                                 break
-                    IRBZ_points = self._reduce_IRBZ(
-                        IRBZ_points, rot_boundaries, g, atol
-                    )
+                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["rotoinv-four-fold"]:
             ax = rotn["axis"]
@@ -2116,9 +1967,7 @@ class KPathLatimerMunro(KPathBase):
                                 rot_boundaries = [cross, -1 * np.dot(op, cross)]
                                 used_axes.append(ax)
                                 break
-                    IRBZ_points = self._reduce_IRBZ(
-                        IRBZ_points, rot_boundaries, g, atol
-                    )
+                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["four-fold"]:
             ax = rotn["axis"]
@@ -2142,9 +1991,7 @@ class KPathLatimerMunro(KPathBase):
                                 rot_boundaries = [cross, -1 * np.dot(op, cross)]
                                 used_axes.append(ax)
                                 break
-                    IRBZ_points = self._reduce_IRBZ(
-                        IRBZ_points, rot_boundaries, g, atol
-                    )
+                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["rotoinv-three-fold"]:
             ax = rotn["axis"]
@@ -2171,9 +2018,7 @@ class KPathLatimerMunro(KPathBase):
                                 rot_boundaries = [cross, -1 * np.dot(op, cross)]
                                 used_axes.append(ax)
                                 break
-                    IRBZ_points = self._reduce_IRBZ(
-                        IRBZ_points, rot_boundaries, g, atol
-                    )
+                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["three-fold"]:
             ax = rotn["axis"]
@@ -2197,9 +2042,7 @@ class KPathLatimerMunro(KPathBase):
                                 rot_boundaries = [cross, -1 * np.dot(op, cross)]
                                 used_axes.append(ax)
                                 break
-                    IRBZ_points = self._reduce_IRBZ(
-                        IRBZ_points, rot_boundaries, g, atol
-                    )
+                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         for rotn in rpgdict["rotations"]["two-fold"]:
             ax = rotn["axis"]
@@ -2223,9 +2066,7 @@ class KPathLatimerMunro(KPathBase):
                                 rot_boundaries = [cross, -1 * np.dot(op, cross)]
                                 used_axes.append(ax)
                                 break
-                    IRBZ_points = self._reduce_IRBZ(
-                        IRBZ_points, rot_boundaries, g, atol
-                    )
+                    IRBZ_points = self._reduce_IRBZ(IRBZ_points, rot_boundaries, g, atol)
 
         return [point[0] for point in IRBZ_points]
 
@@ -2264,26 +2105,18 @@ class KPathLatimerMunro(KPathBase):
                     d["rotations"]["two-fold"].append({"ind": i, "axis": ax, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotation
                     for j in range(3):
-                        if np.isreal(evals[j]) and np.isclose(
-                            np.absolute(evals[j]), 1, atol=atol
-                        ):
+                        if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["three-fold"].append(
-                        {"ind": i, "axis": ax, "op": op}
-                    )
+                    d["rotations"]["three-fold"].append({"ind": i, "axis": ax, "op": op})
                 # four-fold rotation
                 elif np.isclose(tr, 1, atol=atol):
                     for j in range(3):
-                        if np.isreal(evals[j]) and np.isclose(
-                            np.absolute(evals[j]), 1, atol=atol
-                        ):
+                        if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
                     d["rotations"]["four-fold"].append({"ind": i, "axis": ax, "op": op})
                 elif np.isclose(tr, 2, atol=atol):  # six-fold rotation
                     for j in range(3):
-                        if np.isreal(evals[j]) and np.isclose(
-                            np.absolute(evals[j]), 1, atol=atol
-                        ):
+                        if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
                     d["rotations"]["six-fold"].append({"ind": i, "axis": ax, "op": op})
 
@@ -2298,33 +2131,21 @@ class KPathLatimerMunro(KPathBase):
                     d["reflections"].append({"ind": i, "normal": norm, "op": op})
                 elif np.isclose(tr, 0, atol=atol):  # three-fold rotoinversion
                     for j in range(3):
-                        if np.isreal(evals[j]) and np.isclose(
-                            np.absolute(evals[j]), 1, atol=atol
-                        ):
+                        if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-three-fold"].append(
-                        {"ind": i, "axis": ax, "op": op}
-                    )
+                    d["rotations"]["rotoinv-three-fold"].append({"ind": i, "axis": ax, "op": op})
                 # four-fold rotoinversion
                 elif np.isclose(tr, -1, atol=atol):
                     for j in range(3):
-                        if np.isreal(evals[j]) and np.isclose(
-                            np.absolute(evals[j]), 1, atol=atol
-                        ):
+                        if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-four-fold"].append(
-                        {"ind": i, "axis": ax, "op": op}
-                    )
+                    d["rotations"]["rotoinv-four-fold"].append({"ind": i, "axis": ax, "op": op})
                 # six-fold rotoinversion
                 elif np.isclose(tr, -2, atol=atol):
                     for j in range(3):
-                        if np.isreal(evals[j]) and np.isclose(
-                            np.absolute(evals[j]), 1, atol=atol
-                        ):
+                        if np.isreal(evals[j]) and np.isclose(np.absolute(evals[j]), 1, atol=atol):
                             ax = evects[:, j]
-                    d["rotations"]["rotoinv-six-fold"].append(
-                        {"ind": i, "axis": ax, "op": op}
-                    )
+                    d["rotations"]["rotoinv-six-fold"].append({"ind": i, "axis": ax, "op": op})
 
         return d
 
@@ -2352,18 +2173,14 @@ class KPathLatimerMunro(KPathBase):
                     [
                         (
                             np.dot(point[1], np.dot(g, boundary)) >= 0
-                            or np.isclose(
-                                np.dot(point[1], np.dot(g, boundary)), 0, atol=atol
-                            )
+                            or np.isclose(np.dot(point[1], np.dot(g, boundary)), 0, atol=atol)
                         )
                         for boundary in boundaries
                     ]
                 )
             )
 
-        return [
-            IRBZ_points[i] for i in range(len(IRBZ_points)) if in_reduced_section[i]
-        ]
+        return [IRBZ_points[i] for i in range(len(IRBZ_points)) if in_reduced_section[i]]
 
     def _get_orbit_labels(self, orbit_cosines_orig, key_points_inds_orbits, atol):
 
@@ -2380,9 +2197,7 @@ class KPathLatimerMunro(KPathBase):
                 pop_orbits.append(i)
                 pop_labels.append(orb_cos[0][0])
 
-        orbit_cosines_copy = self._reduce_cosines_array(
-            orbit_cosines_copy, pop_orbits, pop_labels
-        )
+        orbit_cosines_copy = self._reduce_cosines_array(orbit_cosines_copy, pop_orbits, pop_labels)
         orbit_inds_remaining = [i for i in orbit_inds_remaining if i not in pop_orbits]
 
         # orbit_labels_unsorted already contains gamma orbit
@@ -2391,9 +2206,7 @@ class KPathLatimerMunro(KPathBase):
             pop_labels = []
             max_cosine_value = max([orb_cos[0][1] for orb_cos in orbit_cosines_copy])
             max_cosine_value_inds = [
-                j
-                for j in range(len(orbit_cosines_copy))
-                if orbit_cosines_copy[j][0][1] == max_cosine_value
+                j for j in range(len(orbit_cosines_copy)) if orbit_cosines_copy[j][0][1] == max_cosine_value
             ]
             max_cosine_label_inds = self._get_max_cosine_labels(
                 [orbit_cosines_copy[j] for j in max_cosine_value_inds],
@@ -2402,18 +2215,12 @@ class KPathLatimerMunro(KPathBase):
             )
 
             for j, label_ind in enumerate(max_cosine_label_inds):
-                orbit_labels_unsorted.append(
-                    (orbit_inds_remaining[max_cosine_value_inds[j]], label_ind)
-                )
+                orbit_labels_unsorted.append((orbit_inds_remaining[max_cosine_value_inds[j]], label_ind))
                 pop_orbits.append(max_cosine_value_inds[j])
                 pop_labels.append(label_ind)
-            orbit_cosines_copy = self._reduce_cosines_array(
-                orbit_cosines_copy, pop_orbits, pop_labels
-            )
+            orbit_cosines_copy = self._reduce_cosines_array(orbit_cosines_copy, pop_orbits, pop_labels)
             orbit_inds_remaining = [
-                orbit_inds_remaining[j]
-                for j in range(len(orbit_inds_remaining))
-                if j not in pop_orbits
+                orbit_inds_remaining[j] for j in range(len(orbit_inds_remaining)) if j not in pop_orbits
             ]
 
         orbit_labels = np.zeros(len(key_points_inds_orbits))
@@ -2430,17 +2237,11 @@ class KPathLatimerMunro(KPathBase):
             if j not in pop_orbits
         ]
 
-    def _get_max_cosine_labels(
-        self, max_cosine_orbits_orig, key_points_inds_orbits, atol
-    ):
+    def _get_max_cosine_labels(self, max_cosine_orbits_orig, key_points_inds_orbits, atol):
         max_cosine_orbits_copy = max_cosine_orbits_orig.copy()
         max_cosine_label_inds = np.zeros(len(max_cosine_orbits_copy))
-        initial_max_cosine_label_inds = [
-            max_cos_orb[0][0] for max_cos_orb in max_cosine_orbits_copy
-        ]
-        u, inds, counts = np.unique(
-            initial_max_cosine_label_inds, return_index=True, return_counts=True
-        )
+        initial_max_cosine_label_inds = [max_cos_orb[0][0] for max_cos_orb in max_cosine_orbits_copy]
+        u, inds, counts = np.unique(initial_max_cosine_label_inds, return_index=True, return_counts=True)
         grouped_inds = [
             [
                 i
@@ -2462,34 +2263,23 @@ class KPathLatimerMunro(KPathBase):
                 for grouped_ind in grouped_inds[i]:
                     j = 1
                     while True:
-                        if (
-                            max_cosine_orbits_copy[grouped_ind][j][0]
-                            not in initial_max_cosine_label_inds
-                        ):
-                            next_choices.append(
-                                max_cosine_orbits_copy[grouped_ind][j][1]
-                            )
+                        if max_cosine_orbits_copy[grouped_ind][j][0] not in initial_max_cosine_label_inds:
+                            next_choices.append(max_cosine_orbits_copy[grouped_ind][j][1])
                             break
                         j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
                 for grouped_ind in grouped_inds[i]:
                     if grouped_ind != worst_next_choice:
                         unassigned_orbits.append(grouped_ind)
-                max_cosine_label_inds[
+                max_cosine_label_inds[grouped_inds[i][worst_next_choice]] = initial_max_cosine_label_inds[
                     grouped_inds[i][worst_next_choice]
-                ] = initial_max_cosine_label_inds[grouped_inds[i][worst_next_choice]]
+                ]
                 pop_orbits.append(grouped_inds[i][worst_next_choice])
-                pop_labels.append(
-                    initial_max_cosine_label_inds[grouped_inds[i][worst_next_choice]]
-                )
+                pop_labels.append(initial_max_cosine_label_inds[grouped_inds[i][worst_next_choice]])
 
         if len(unassigned_orbits) != 0:
-            max_cosine_orbits_copy = self._reduce_cosines_array(
-                max_cosine_orbits_copy, pop_orbits, pop_labels
-            )
-            unassigned_orbits_labels = self._get_orbit_labels(
-                max_cosine_orbits_copy, key_points_inds_orbits, atol
-            )
+            max_cosine_orbits_copy = self._reduce_cosines_array(max_cosine_orbits_copy, pop_orbits, pop_labels)
+            unassigned_orbits_labels = self._get_orbit_labels(max_cosine_orbits_copy, key_points_inds_orbits, atol)
             for i, unassigned_orbit in enumerate(unassigned_orbits):
                 max_cosine_label_inds[unassigned_orbit] = unassigned_orbits_labels[i]
 

@@ -2,19 +2,10 @@ import os
 import unittest
 import warnings
 
-import ruamel.yaml as yaml
-
-from pymatgen import (
-    SETTINGS,
-    SETTINGS_FILE,
-    Structure,
-    _load_pmg_settings,
-    get_structure_from_mp,
-    loadfn,
-)
+from pymatgen import SETTINGS, get_structure_from_mp, loadfn
+from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class SettingsTestCase(unittest.TestCase):
@@ -30,9 +21,7 @@ class SettingsTestCase(unittest.TestCase):
     #         for k, v in SETTINGS.items():
     #             self.assertEqual(v, os.environ.get(k))
 
-    @unittest.skipIf(
-        not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set."
-    )
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
     def test_get_structure_from_mp(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -42,13 +31,13 @@ class SettingsTestCase(unittest.TestCase):
     def test_loadfn(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            obj = loadfn(os.path.join(test_dir, "Li2O.cif"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
             self.assertIsInstance(obj, Structure)
-            obj = loadfn(os.path.join(test_dir, "POSCAR"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
             self.assertIsInstance(obj, Structure)
-            obj = loadfn(os.path.join(test_dir, "LiFePO4.vasp"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.vasp"))
             self.assertIsInstance(obj, Structure)
-            obj = loadfn(os.path.join(test_dir, "vasprun.xml"))
+            obj = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml"))
             self.assertIsInstance(obj, Vasprun)
 
 

@@ -128,15 +128,9 @@ class MathUtilsTest(unittest.TestCase):
 
     def test_powern_parts_step(self):
         vals = np.linspace(5.0, 12.0, num=8)
-        self.assertEqual(
-            powern_parts_step(vals, edges=[0.0, 1.0], nn=2).tolist(), [1.0] * 8
-        )
-        self.assertEqual(
-            powern_parts_step(vals, edges=[0.0, 1.0], nn=3).tolist(), [1.0] * 8
-        )
-        self.assertEqual(
-            powern_parts_step(vals, edges=[0.0, 1.0], nn=4).tolist(), [1.0] * 8
-        )
+        self.assertEqual(powern_parts_step(vals, edges=[0.0, 1.0], nn=2).tolist(), [1.0] * 8)
+        self.assertEqual(powern_parts_step(vals, edges=[0.0, 1.0], nn=3).tolist(), [1.0] * 8)
+        self.assertEqual(powern_parts_step(vals, edges=[0.0, 1.0], nn=4).tolist(), [1.0] * 8)
         self.assertEqual(
             powern_parts_step(vals, edges=[7.0, 11.0], nn=2).tolist(),
             [0.0, 0.0, 0.0, 0.125, 0.5, 0.875, 1.0, 1.0],

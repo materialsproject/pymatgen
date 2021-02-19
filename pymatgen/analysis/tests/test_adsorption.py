@@ -1,19 +1,16 @@
 import unittest
 
-from pymatgen import Lattice, Molecule, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule
 from pymatgen.analysis.adsorption import *
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class AdsorbateSiteFinderTest(PymatgenTest):
     def setUp(self):
-        self.structure = Structure.from_spacegroup(
-            "Fm-3m", Lattice.cubic(3.5), ["Ni"], [[0, 0, 0]]
-        )
+        self.structure = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"], [[0, 0, 0]])
         lattice = Lattice.cubic(3.010)
         frac_coords = [
             [0.00000, 0.00000, 0.00000],
@@ -36,16 +33,12 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             max_normal_search=1,
             center_slab=True,
         )
-        self.slab_dict = {
-            "".join([str(i) for i in slab.miller_index]): slab for slab in slabs
-        }
+        self.slab_dict = {"".join([str(i) for i in slab.miller_index]): slab for slab in slabs}
         self.asf_211 = AdsorbateSiteFinder(self.slab_dict["211"])
         self.asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
         self.asf_111 = AdsorbateSiteFinder(self.slab_dict["111"])
         self.asf_110 = AdsorbateSiteFinder(self.slab_dict["110"])
-        self.asf_struct = AdsorbateSiteFinder(
-            Structure.from_sites(self.slab_dict["111"].sites)
-        )
+        self.asf_struct = AdsorbateSiteFinder(Structure.from_sites(self.slab_dict["111"].sites))
 
     def test_init(self):
         asf_100 = AdsorbateSiteFinder(self.slab_dict["100"])
@@ -63,9 +56,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = asf.find_adsorption_sites()
         self.assertEqual(len(sites["all"]), 3)
         self.assertEqual(len(sites["bridge"]), 2)
-        asf = AdsorbateSiteFinder.from_bulk_and_miller(
-            self.structure, (1, 1, 0), undercoord_threshold=0.1
-        )
+        asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 0), undercoord_threshold=0.1)
         self.assertEqual(len(asf.surface_sites), 1)
         # Subsurface site finding
         asf = AdsorbateSiteFinder.from_bulk_and_miller(self.structure, (1, 1, 1))
@@ -94,21 +85,13 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_111.find_adsorption_sites()
         # Check repeat functionality
         self.assertEqual(
-            len(
-                [
-                    site
-                    for site in structures[0]
-                    if site.properties["surface_properties"] != "adsorbate"
-                ]
-            ),
+            len([site for site in structures[0] if site.properties["surface_properties"] != "adsorbate"]),
             4 * len(self.asf_111.slab),
         )
         for n, structure in enumerate(structures):
             self.assertArrayAlmostEqual(structure[-2].coords, sites["all"][n])
         find_args = {"positions": ["hollow"]}
-        structures_hollow = self.asf_111.generate_adsorption_structures(
-            co, find_args=find_args
-        )
+        structures_hollow = self.asf_111.generate_adsorption_structures(co, find_args=find_args)
         self.assertEqual(len(structures_hollow), len(sites["hollow"]))
         for n, structure in enumerate(structures_hollow):
             self.assertTrue(in_coord_list(sites["hollow"], structure[-2].coords, 1e-4))
@@ -128,9 +111,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
         sites = self.asf_111.find_adsorption_sites()
         ads_site_coords = sites["all"][0]
         c_site = structures[0].sites[-2]
-        self.assertArrayAlmostEqual(
-            c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3])
-        )
+        self.assertArrayAlmostEqual(c_site.coords, ads_site_coords + np.array([1.0, -0.5, 3]))
 
     def test_adsorb_both_surfaces(self):
 
@@ -161,9 +142,7 @@ class AdsorbateSiteFinderTest(PymatgenTest):
     def test_generate_substitution_structures(self):
 
         # Test this for a low miller index halite structure
-        slabs = generate_all_slabs(
-            self.MgO, 1, 10, 10, center_slab=True, max_normal_search=1
-        )
+        slabs = generate_all_slabs(self.MgO, 1, 10, 10, center_slab=True, max_normal_search=1)
         for slab in slabs:
             adsgen = AdsorbateSiteFinder(slab)
 
@@ -178,22 +157,15 @@ class AdsorbateSiteFinderTest(PymatgenTest):
             # Test out whether it can correctly dope both
             # sides. Avoid (111) becasue it is not symmetric
             if tuple(slab.miller_index) != (1, 1, 1):
-                adslabs = adsgen.generate_substitution_structures(
-                    "Ni", sub_both_sides=True, target_species=["Mg"]
-                )
+                adslabs = adsgen.generate_substitution_structures("Ni", sub_both_sides=True, target_species=["Mg"])
                 # Test if default parameters dope the surface site
                 for i, site in enumerate(adslabs[0]):
-                    if (
-                        adsgen.slab[i].surface_properties == "surface"
-                        and site.species_string == "Mg"
-                    ):
+                    if adsgen.slab[i].surface_properties == "surface" and site.species_string == "Mg":
                         print(
                             adslabs[0][i].surface_properties,
                             adsgen.slab[i].surface_properties,
                         )
-                        self.assertTrue(
-                            adslabs[0][i].surface_properties == "substitute"
-                        )
+                        self.assertTrue(adslabs[0][i].surface_properties == "substitute")
 
                 self.assertTrue(adslabs[0].is_symmetric())
                 # Correctly dope the target species

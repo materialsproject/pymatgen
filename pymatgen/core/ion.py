@@ -13,10 +13,10 @@ import numpy as np
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
-from pymatgen.util.string import formula_double_format
+from pymatgen.util.string import formula_double_format, Stringify
 
 
-class Ion(Composition, MSONable):
+class Ion(Composition, MSONable, Stringify):
     """
     Basic ion object. It is just a Composition object with an additional
     variable to store charge.
@@ -213,3 +213,14 @@ class Ion(Composition, MSONable):
 
     def __repr__(self):
         return "Ion: " + self.formula
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: Pretty string with proper superscripts.
+        """
+        str_ = super().formula
+        if self.charge > 0:
+            str_ += "^+" + formula_double_format(self.charge, False)
+        elif self._charge < 0:
+            str_ += "^" + formula_double_format(self.charge, False)
+        return str_

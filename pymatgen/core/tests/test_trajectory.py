@@ -9,13 +9,11 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class TrajectoryTest(PymatgenTest):
     def setUp(self):
-        xdatcar = Xdatcar(os.path.join(test_dir, "Traj_XDATCAR"))
-        self.traj = Trajectory.from_file(os.path.join(test_dir, "Traj_XDATCAR"))
+        xdatcar = Xdatcar(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
+        self.traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_XDATCAR"))
         self.structures = xdatcar.structures
 
     def _check_traj_equality(self, traj_1, traj_2):
@@ -28,28 +26,14 @@ class TrajectoryTest(PymatgenTest):
         return all([i == j for i, j in zip(self.traj, traj_2)])
 
     def test_single_index_slice(self):
-        self.assertTrue(
-            all(
-                [
-                    self.traj[i] == self.structures[i]
-                    for i in range(0, len(self.structures), 19)
-                ]
-            )
-        )
+        self.assertTrue(all([self.traj[i] == self.structures[i] for i in range(0, len(self.structures), 19)]))
 
     def test_slice(self):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(
-                all(
-                    [
-                        sliced_traj[i] == sliced_traj_from_structs[i]
-                        for i in range(len(sliced_traj))
-                    ]
-                )
-            )
+            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
         else:
             self.assertTrue(False)
 
@@ -57,32 +41,16 @@ class TrajectoryTest(PymatgenTest):
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(
-                all(
-                    [
-                        sliced_traj[i] == sliced_traj_from_structs[i]
-                        for i in range(len(sliced_traj))
-                    ]
-                )
-            )
+            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
         else:
             self.assertTrue(False)
 
     def test_list_slice(self):
         sliced_traj = self.traj[[10, 30, 70]]
-        sliced_traj_from_structs = Trajectory.from_structures(
-            [self.structures[i] for i in [10, 30, 70]]
-        )
+        sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
         if len(sliced_traj) == len(sliced_traj_from_structs):
-            self.assertTrue(
-                all(
-                    [
-                        sliced_traj[i] == sliced_traj_from_structs[i]
-                        for i in range(len(sliced_traj))
-                    ]
-                )
-            )
+            self.assertTrue(all([sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj))]))
         else:
             self.assertTrue(False)
 
@@ -91,9 +59,7 @@ class TrajectoryTest(PymatgenTest):
         self.traj.to_displacements()
         self.traj.to_positions()
 
-        self.assertTrue(
-            all([struct == self.structures[i] for i, struct in enumerate(self.traj)])
-        )
+        self.assertTrue(all([struct == self.structures[i] for i, struct in enumerate(self.traj)]))
 
     def test_copy(self):
         traj_copy = self.traj.copy()
@@ -121,9 +87,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties
-        )
+        traj = Trajectory(lattice, species, frac_coords, site_properties=site_properties)
 
         # compare the overall site properties list
         self.assertEqual(traj.site_properties, site_properties)
@@ -172,20 +136,16 @@ class TrajectoryTest(PymatgenTest):
         traj = self.traj.copy()
 
         # Case of compatible trajectories
-        compatible_traj = Trajectory.from_file(
-            os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_1")
-        )
+        compatible_traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_1"))
         traj.extend(compatible_traj)
 
-        full_traj = Trajectory.from_file(
-            os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_Full")
-        )
+        full_traj = Trajectory.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_Full"))
         compatible_success = self._check_traj_equality(self.traj, full_traj)
 
         # Case of incompatible trajectories
         traj = self.traj.copy()
         incompatible_traj = Trajectory.from_file(
-            os.path.join(test_dir, "Traj_Combine_Test_XDATCAR_2")
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "Traj_Combine_Test_XDATCAR_2")
         )
         incompatible_test_success = False
         try:
@@ -229,9 +189,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             }
         ]
-        traj_1 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_1
-        )
+        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
         site_properties_2 = [
             {
@@ -239,9 +197,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             }
         ]
-        traj_2 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_2
-        )
+        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
         traj_combined = traj_1.copy()
@@ -264,9 +220,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             }
         ]
-        traj_1 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_1
-        )
+        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
         site_properties_2 = [
             {
@@ -274,9 +228,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             }
         ]
-        traj_2 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_2
-        )
+        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
         traj_combined = traj_1.copy()
@@ -316,9 +268,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             }
         ]
-        traj_1 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_1
-        )
+        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
         site_properties_2 = [
             {
@@ -334,9 +284,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj_2 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_2
-        )
+        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
         traj_combined = traj_1.copy()
@@ -402,9 +350,7 @@ class TrajectoryTest(PymatgenTest):
 
         # Trajectory with no and trajectory with changing site properties
         site_properties_1 = None
-        traj_1 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_1
-        )
+        traj_1 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_1)
 
         site_properties_2 = [
             {
@@ -420,9 +366,7 @@ class TrajectoryTest(PymatgenTest):
                 "magmom": [5, 5],
             },
         ]
-        traj_2 = Trajectory(
-            lattice, species, frac_coords, site_properties=site_properties_2
-        )
+        traj_2 = Trajectory(lattice, species, frac_coords, site_properties=site_properties_2)
 
         # Test combining two trajectories with similar site_properties
         traj_combined = traj_1.copy()
@@ -497,14 +441,10 @@ class TrajectoryTest(PymatgenTest):
 
         # Trajectories with constant site properties
         frame_properties_1 = {"energy": [-3, -3.9, -4.1]}
-        traj_1 = Trajectory(
-            lattice, species, frac_coords, frame_properties=frame_properties_1
-        )
+        traj_1 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_1)
 
         frame_properties_2 = {"energy": [-4.2, -4.25, -4.3]}
-        traj_2 = Trajectory(
-            lattice, species, frac_coords, frame_properties=frame_properties_2
-        )
+        traj_2 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_2)
 
         # Test combining two trajectories with similar site_properties
         traj_combined = traj_1.copy()
@@ -514,9 +454,7 @@ class TrajectoryTest(PymatgenTest):
 
         # Mismatched frame propertied
         frame_properties_3 = {"energy": [-4.2, -4.25, -4.3], "pressure": [2, 2.5, 2.5]}
-        traj_3 = Trajectory(
-            lattice, species, frac_coords, frame_properties=frame_properties_3
-        )
+        traj_3 = Trajectory(lattice, species, frac_coords, frame_properties=frame_properties_3)
         traj_combined = traj_1.copy()
         traj_combined.extend(traj_3)
         expected_frame_properties = {
@@ -529,17 +467,13 @@ class TrajectoryTest(PymatgenTest):
         self.assertTrue(len(self.traj) == len(self.structures))
 
     def test_displacements(self):
-        poscar = Poscar.from_file(os.path.join(test_dir, "POSCAR"))
+        poscar = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
         structures = [poscar.structure]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
         for i in range(10):
-            displacement = (
-                np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
-            )
+            displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
-            structures.append(
-                Structure(structures[-1].lattice, structures[-1].species, new_coords)
-            )
+            structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
             displacements[i + 1, :, :] = displacement
 
         traj = Trajectory.from_structures(structures, constant_lattice=True)
@@ -553,9 +487,7 @@ class TrajectoryTest(PymatgenTest):
         # Generate structures with different lattices
         structures = []
         for i in range(10):
-            new_lattice = np.dot(
-                structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20)
-            )
+            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)
@@ -564,12 +496,7 @@ class TrajectoryTest(PymatgenTest):
 
         # Check if lattices were properly stored
         self.assertTrue(
-            all(
-                [
-                    np.allclose(struct.lattice.matrix, structures[i].lattice.matrix)
-                    for i, struct in enumerate(traj)
-                ]
-            )
+            all([np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj)])
         )
 
     def test_to_from_dict(self):
