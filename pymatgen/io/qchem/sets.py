@@ -64,7 +64,7 @@ class QChemDictSet(QCInput):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
@@ -173,7 +173,7 @@ class QChemDictSet(QCInput):
 
         if self.pcm_dielectric is not None:
             mypcm = pcm_defaults
-            mysolvent["dielectric"] = str(self.pcm_dielectric)
+            mysolvent["dielectric"] = self.pcm_dielectric
             myrem["solvent_method"] = "pcm"
 
         if self.smd_solvent is not None:
@@ -277,7 +277,7 @@ class SinglePointSet(QChemDictSet):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
@@ -359,7 +359,7 @@ class OptSet(QChemDictSet):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
@@ -442,7 +442,7 @@ class TransitionStateSet(QChemDictSet):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
@@ -523,7 +523,7 @@ class ForceSet(QChemDictSet):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
@@ -601,7 +601,7 @@ class FreqSet(QChemDictSet):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
@@ -699,7 +699,7 @@ class PESScanSet(QChemDictSet):
 
                 **Note that the "rungs" in this argument do NOT correspond to rungs on "Jacob's
                 Ladder of Density Functional Approxmations"**
-            pcm_dielectric (int): Dielectric constant to use for PCM implicit solvation model. (Default: None)
+            pcm_dielectric (float): Dielectric constant to use for PCM implicit solvation model. (Default: None)
             smd_solvent (str): Solvent to use for SMD implicit solvation model. (Default: None)
                 Examples include "water", "ethanol", "methanol", and "acetonitrile". Refer to the QChem
                 manual for a complete list of solvents available. To define a custom solvent, set this
