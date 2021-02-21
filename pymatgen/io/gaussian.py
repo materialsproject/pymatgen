@@ -461,13 +461,13 @@ class GaussianInput:
         bset_str = '' if self.basis_set is None else self.basis_set.strip()
 
         if func_str != "" and bset_str != "":
-            func_bset_str = "{}/{}".format(func_str, bset_str)
+            func_bset_str = " {}/{}".format(func_str, bset_str)
         else:
             # don't use the slash if either or both are set as empty
-             func_bset_str = "{}{}".format(func_str, bset_str)
+            func_bset_str = " {}{}".format(func_str, bset_str).rstrip()
 
         output.append(
-            "{diez} {func_bset} {route}".format(
+            "{diez}{func_bset} {route}".format(
                 diez=self.dieze_tag,
                 func_bset=func_bset_str,
                 route=para_dict_to_string(self.route_parameters),
@@ -477,9 +477,9 @@ class GaussianInput:
         output.append(self.title)
         output.append("")
 
-        charge_str = '' if self.charge is None else str(self.charge)
-        multip_str = '' if self.spin_multiplicity is None else str(self.spin_multiplicity)
-        output.append("%s %s" % (charge_str, multip_str))
+        charge_str = "" if self.charge is None else "%d" % self.charge
+        multip_str = "" if self.spin_multiplicity is None else " %d" % self.spin_multiplicity
+        output.append("{}{}".format(charge_str, multip_str))
 
         if isinstance(self._mol, Molecule):
             if cart_coords is True:
