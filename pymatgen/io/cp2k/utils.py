@@ -141,7 +141,10 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
         if 'sr' not in d[s]:
             d[s]['sr'] = True
         if 'cardinality' not in d[s]:
-            d[s]['cardinality'] = cardinality
+            if s == 'Mg':
+                d[s]['cardinality'] = 'DZVPd'
+            else:
+                d[s]['cardinality'] = cardinality
 
     with open(os.path.join(MODULE_DIR, 'basis_molopt.yaml'), 'rt') as f:
         data_b = yaml.load(f, Loader=yaml.Loader)
@@ -150,17 +153,20 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
 
     for s in species:
         basis_and_potential[s] = {}
-        b = [_ for _ in data_b[s] if d[s]['cardinality'] in _.split('-')]
-        if d[s]['sr'] and any(['SR' in _ for _ in b]):
-            b = [_ for _ in b if 'SR' in _]
+        if 'basis' in d[s]:
+            b = [d[s]['basis']] if d[s]['basis'] in data_b[s] else []
         else:
-            b = [_ for _ in b if 'SR' not in _]
-        if 'q' in d[s]:
-            b = [_ for _ in b if d[s]['q'] in _]
-        else:
-            def srt(x):
-                return int(x.split('q')[-1])
-            b = sorted(b, key=srt)[-1:]
+            b = [_ for _ in data_b[s] if d[s]['cardinality'] in _.split('-')]
+            if d[s]['sr'] and any(['SR' in _ for _ in b]):
+                b = [_ for _ in b if 'SR' in _]
+            else:
+                b = [_ for _ in b if 'SR' not in _]
+            if 'q' in d[s]:
+                b = [_ for _ in b if d[s]['q'] in _]
+            else:
+                def srt(x):
+                    return int(x.split('q')[-1])
+                b = sorted(b, key=srt)[-1:]
         if len(b) == 0:
             raise LookupError('NO BASIS OF THAT TYPE AVAILABLE')
         elif len(b) > 1:
@@ -178,7 +184,7 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     return basis_and_potential
 
 
-def get_aux_basis(basis_type, default_basis_type='cFIT'):
+def get_aux_basis(basis_type, default_basis_type='cpFIT'):
     """
     Get auxiliary basis info for a list of species.
 
@@ -203,6 +209,9 @@ def get_aux_basis(basis_type, default_basis_type='cFIT'):
     basis = {k: {} for k in basis_type}
     aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
     for k in basis_type:
+        if aux_bases.get(k) is None:
+            basis[k] = None
+            continue
         for i in aux_bases[k]:
             if i.startswith(basis_type[k]):
                 basis[k] = i
@@ -222,13 +231,26 @@ def get_unique_site_indices(structure):
     unique values is used for indexing.
 
     For example, if you have magnetic CoO with half Co atoms having a positive moment, and the other
-    half having a negative moment. Then this function will create a dict of sites for Co_1, Co_2, O.
+    half having a negative moment. Then this function will create a dict of sites for Co_1, Co_2, O. This
+    function also deals with "Species" properties like oxi_state and spin by pushing them to site
+    properties.
 
     This creates unique sites, based on site properties, but does not have anything to do with turning
     those site properties into CP2K input parameters.
     """
     sites = {}
     _property = None
+
+    spins = []
+    oxi_states = []
+
+    for site in structure:
+        for sp, occu in site.species.items():
+            oxi_states.append(getattr(sp, "oxi_state", 0))
+            spins.append(getattr(sp, "_properties", {}).get('spin', 0))
+    structure.add_site_property('oxi_state', oxi_states)
+    structure.add_site_property('spin', spins)
+
     for s in structure.symbol_set:
         s_ids = structure.indices_from_symbol(s)
         unique = [0]
