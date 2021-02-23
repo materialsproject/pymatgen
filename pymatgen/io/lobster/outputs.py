@@ -1600,3 +1600,51 @@ class Wavefunction:
             self.volumetricdata_density.write_file(filename)
         else:
             raise ValueError('part can be only "real" or "imaginary" or "density"')
+
+
+
+    # def get_integrated_cohp_in_energy_range(cohp, label, energy_range):
+    #
+    #     energies_corrected = cohp.energies - cohp.efermi
+    #     cohps = cohp.all_cohps[label].get_icohp(spin=None)
+    #     try:
+    #         summedcohp = cohps[Spin.up] + cohps[Spin.down]
+    #     except:
+    #         summedcohp = cohps[Spin.up]
+    #     energy, idx1 = find_nearest(energies_corrected, energy_range[0])
+    #     energy2, idx2 = find_nearest(energies_corrected, energy_range[1])
+    #     spl = InterpolatedUnivariateSpline(energies_corrected, summedcohp, ext=0)
+    #     return (summedcohp[idx2] - summedcohp[idx1]), (spl(energy_range[1]) - spl(energy_range[0]))
+    #
+    # def get_integrated_cohp_in_energy_range_orbitals(cohp, label, orbitals, energy_range):
+    #
+    #     energies_corrected = cohp.energies - cohp.efermi
+    #     cohps = cohp.get_orbital_resolved_cohp(label=label, orbitals=orbitals)
+    #     try:
+    #         summedcohp = cohps.icohp[Spin.up] + cohps.icohp[Spin.down]
+    #     except:
+    #         summedcohp = cohps.icohp[Spin.up]
+    #     energy, idx1 = find_nearest(energies_corrected, energy_range[0])
+    #     energy2, idx2 = find_nearest(energies_corrected, energy_range[1])
+    #
+    #     spl = InterpolatedUnivariateSpline(energies_corrected, summedcohp, ext=0)
+    #
+    #     return (summedcohp[idx2] - summedcohp[idx1]), (spl(energy_range[1]) - spl(energy_range[0]))
+    #
+    # def get_integrated_cohp_orbitals(cohp, label, orbitals):
+    #     """
+    #     will always integrate up to Fermi level
+    #     :param cohp:
+    #     :param label:
+    #     :param orbitals:
+    #     :return:
+    #     """
+    #     energies_corrected = cohp.energies - cohp.efermi
+    #     cohps = cohp.get_orbital_resolved_cohp(label=label, orbitals=orbitals)
+    #     try:
+    #         summedcohp = cohps.icohp[Spin.up] + cohps.icohp[Spin.down]
+    #     except:
+    #         summedcohp = cohps.icohp[Spin.up]
+    #     energy, idx1 = find_nearest(energies_corrected, 0)
+    #     spl = InterpolatedUnivariateSpline(energies_corrected, summedcohp, ext=0)
+    #     return (summedcohp[idx1]), (spl(0))

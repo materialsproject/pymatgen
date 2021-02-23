@@ -19,6 +19,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.electronic_structure.cohp import CompleteCohp
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.plotter import CohpPlotter
 from pymatgen.io.lobster import Charge, Icohplist
 
@@ -257,7 +258,7 @@ class LobsterNeighbors(NearNeighbors):
 
     # TODO: maybe include focus on certain type of atom
     def plot_cohps_of_neighbors(self, path_to_COHPCAR="COHPCAR.lobster", isites=[], onlycation_isites=True,
-                                only_bonds_to=None, per_bond=False, xlim=[], ylim=[]):
+                                only_bonds_to=None, per_bond=False, summed_spin_channels=False,xlim=[], ylim=[]):
         # TODO: maybe only return summed COHP and label?
         # One might be able to use this to evaluate antibonding interactions close to the Fermi level
 
@@ -284,16 +285,16 @@ class LobsterNeighbors(NearNeighbors):
 
         plotlabel, summed_cohp = self.get_info_cohps_to_neighbors(path_to_COHPCAR, isites, only_bonds_to,
                                                                   onlycation_isites,
-                                                                  per_bond)
+                                                                  per_bond, summed_spin_channels=summed_spin_channels)
 
         cp.add_cohp(plotlabel, summed_cohp)
-        x = cp.get_plot(integrated=False)
+        x = cp.get_plot(integrated=True)
         x.ylim([-10, 6])
 
         return x
 
     def get_info_cohps_to_neighbors(self, path_to_COHPCAR, isites, only_bonds_to, onlycation_isites=True,
-                                    per_bond=True):
+                                    per_bond=True, summed_spin_channels=False):
 
         summed_icohps, list_icohps, number_bonds, labels, atoms = self.get_info_icohps_to_neighbors(isites=isites,
                                                                                                     onlycation_isites=onlycation_isites)
@@ -305,6 +306,14 @@ class LobsterNeighbors(NearNeighbors):
 
             completecohp = CompleteCohp.from_file(fmt="LOBSTER", filename=path_to_COHPCAR, structure_file=path)
 
+        # will check that the number of bonds in ICOHPLIST and COHPCAR are identical
+        # further checks could be implemented
+        if len(self.Icohpcollection._list_atom1) != len(completecohp.bonds.keys()):
+            raise ValueError("COHPCAR and ICOHPLIST do not fit together")
+        is_spin_completecohp = (Spin.down in completecohp.get_cohp_by_label("1").cohp)
+        if self.Icohpcollection.is_spin_polarized != is_spin_completecohp:
+            raise ValueError("COHPCAR and ICOHPLIST do not fit together")
+
         if only_bonds_to is None:
             # sort by anion type
             if per_bond:
@@ -313,7 +322,9 @@ class LobsterNeighbors(NearNeighbors):
                 divisor = 1
 
             plotlabel = self._get_plot_label(atoms, per_bond)
-            summed_cohp = completecohp.get_summed_cohp_by_label_list(label_list=labels, divisor=divisor)
+            #TODO: include summed_spin_channels!
+            summed_cohp = completecohp.get_summed_cohp_by_label_list(label_list=labels, divisor=divisor,
+                                                                     summed_spin_channels=summed_spin_channels)
 
         else:
             # labels of the COHPs that will be summed!
@@ -331,17 +342,18 @@ class LobsterNeighbors(NearNeighbors):
                     new_labels.append(label)
                     new_atoms.append(atompair)
 
-            if len(new_labels)>0:
+            if len(new_labels) > 0:
                 if per_bond:
                     divisor = len(new_labels)
                 else:
                     divisor = 1
 
                 plotlabel = self._get_plot_label(new_atoms, per_bond)
-                summed_cohp = completecohp.get_summed_cohp_by_label_list(label_list=new_labels, divisor=divisor)
+                summed_cohp = completecohp.get_summed_cohp_by_label_list(label_list=new_labels, divisor=divisor, summed_spin_channels=summed_spin_channels)
             else:
-                plotlabel=None
-                summed_cohp=None
+                plotlabel = None
+                summed_cohp = None
+
         return plotlabel, summed_cohp
 
     def _get_plot_label(self, atoms, per_bond):

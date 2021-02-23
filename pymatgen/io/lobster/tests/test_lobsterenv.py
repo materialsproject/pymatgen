@@ -1,9 +1,11 @@
 import os
 import unittest
 
+import numpy as np
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import Cohp
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.util.testing import PymatgenTest
 
@@ -342,28 +344,53 @@ class TestLobsterNeighbors(unittest.TestCase):
                                                         ['Re1', 'O4']], per_bond=True), "6 x O-Re (per bond)")
 
     def test_get_info_cohps_to_neighbors(self):
-        self.assertEqual(self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
-                                                                                                       "COHPCAR.lobster.mp-190.gz"),
-                                                                          isites=[0], only_bonds_to=["O"])[0],
+        chemenvlobster1 = LobsterNeighbors(are_coops=False,
+                                           filename_ICOHP=os.path.join(test_dir_env, "ICOHPLIST.lobster.mp_190_2.gz"),
+                                           structure=Structure.from_file(
+                                               os.path.join(test_dir_env, "POSCAR.mp_190")),
+                                           additional_condition=1)
+        self.assertEqual(chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                                  "COHPCAR.lobster.mp-190.gz"),
+                                                                     isites=[0], only_bonds_to=["O"])[0],
                          "6 x O-Re (per bond)")
-        self.assertEqual(type(self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(
+        self.assertEqual(type(chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(
             test_dir_env,
             "COHPCAR.lobster.mp-190.gz"),
             isites=[0], only_bonds_to=["O"])[1]), Cohp)
 
-        # print(self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
-        #
-        #                                                                                               "COHPCAR.lobster.mp-190.gz"),
-        #                                                                  isites=[0], only_bonds_to=["O"])[1].cohp[
-        #          Spin.up])
+        cophthing = chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                             "COHPCAR.lobster.mp-190.gz"),
+                                                                isites=[0], only_bonds_to=None,
+                                                                per_bond=False)[1]
+        self.assertAlmostEqual(np.sum([cophthing.icohp[Spin.up], cophthing.icohp[Spin.down]], axis=0)[300],
+                               chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
-        self.assertEqual(self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
-                                                                                                       "COHPCAR.lobster.mp-190.gz"),
-                                                                          isites=[0], only_bonds_to=["Te"])[0], None)
+        self.assertEqual(chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                                  "COHPCAR.lobster.mp-190.gz"),
+                                                                     isites=[0], only_bonds_to=["Te"])[0], None)
 
-        self.assertEqual(self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
-                                                                                                       "COHPCAR.lobster.mp-190.gz"),
-                                                                          isites=[0], only_bonds_to=["Te"])[1], None)
+        self.assertEqual(chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                                  "COHPCAR.lobster.mp-190.gz"),
+                                                                     isites=[0], only_bonds_to=["Te"])[1], None)
+
+        chemenvlobster1.plot_cohps_of_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                             "COHPCAR.lobster.mp-190.gz"),
+                                                isites=[0], only_bonds_to=["O"],
+                                                summed_spin_channels=True)
+
+        with self.assertRaises(ValueError):
+            # icohplist and cohpcar do not fit together
+            self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                          "COHPCAR.lobster.mp-190.gz"),
+                                                             isites=[0], only_bonds_to=None,
+                                                             per_bond=False)
+
+        with self.assertRaises(ValueError):
+            # icohplist and cohpcar do not fit together
+            self.chemenvlobster2.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                          "COHPCAR.lobster.mp-190.gz"),
+                                                             isites=[0], only_bonds_to=None,
+                                                             per_bond=False)
 
 
 if __name__ == "__main__":
