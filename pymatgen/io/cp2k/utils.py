@@ -286,10 +286,11 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
         Ideal cutoff for calculation.
     """
     with open(os.path.join(MODULE_DIR, 'basis_largest_exponents.yaml'), 'rt') as f:
-        exponents = yaml.load(f, Loader=yaml.Loader)
+        _exponents = yaml.load(f, Loader=yaml.Loader)
+        exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
         return max(
             [
-                np.ceil(exponents[el][basis])*rel_cutoff for el, basis in zip(els, bases)
+                np.ceil(exponents[el.upper()][basis.upper()])*rel_cutoff for el, basis in zip(els, bases)
             ]
         )
 
