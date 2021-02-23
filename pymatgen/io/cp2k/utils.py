@@ -10,7 +10,7 @@ from monty.serialization import loadfn
 from monty.io import zopen
 from pathlib import Path
 
-from pymatgen import SETTINGS
+from pymatgen import SETTINGS, Element
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -154,7 +154,7 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     for s in species:
         basis_and_potential[s] = {}
         if 'basis' in d[s]:
-            b = [d[s]['basis']] if d[s]['basis'] in data_b[s] else []
+            b = [d[s]['basis']] if d[s]['basis'].upper() in [_.upper() for _ in data_b[s]] else []
         else:
             b = [_ for _ in data_b[s] if d[s]['cardinality'] in _.split('-')]
             if d[s]['sr'] and any(['SR' in _ for _ in b]):
@@ -271,3 +271,48 @@ def get_unique_site_indices(structure):
                     if site == u:
                         sites[s + "_" + str(i + 1)].append(j)
     return sites
+
+
+def get_cutoff_from_basis(els, bases, rel_cutoff=50):
+    """
+    Gets the appropriate cutoff for the calculation given the elements/basis sets being used
+    and the desired relative cutoff.
+
+    Args:
+        els: list of element symbols
+        bases: corresponding basis set names for the elements
+        rel_cutoff: The desired relative cutoff
+    Returns:
+        Ideal cutoff for calculation.
+    """
+    with open(os.path.join(MODULE_DIR, 'basis_largest_exponents.yaml'), 'rt') as f:
+        exponents = yaml.load(f, Loader=yaml.Loader)
+        return max(
+            [
+                np.ceil(exponents[el][basis])*rel_cutoff for el, basis in zip(els, bases)
+            ]
+        )
+
+
+def generate_max_exponents(files):
+    """
+    Helper function to get the max exponent for each basis set and write to a yaml file.
+    """
+    exponents = {}
+    els = [str(e) for e in Element]
+    for file in files:
+        with open(file) as f:
+            lines = f.readlines()
+            i = 0
+            while i < len(lines):
+                if lines[i].split():
+                    el = lines[i].split()[0]
+                    basis = lines[i].split()[-1]
+                    if el in els:
+                        i += 3
+                        if el not in exponents:
+                            exponents[el] = {}
+                        exponents[el][basis] = float(lines[i].split()[0])
+                i += 1
+    with open(os.path.join(MODULE_DIR, 'basis_largest_exponents.yaml'), 'w') as f:
+        yaml.dump(exponents, f, Dumper=yaml.Dumper, allow_unicode=True, default_flow_style=False)
