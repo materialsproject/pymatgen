@@ -1089,8 +1089,8 @@ class Species(MSONable, Stringify):
     def __init__(
         self,
         symbol: str,
-        oxidation_state: float = 0.0,
-        properties: dict = None,
+        oxidation_state: Optional[float] = 0.0,
+        properties: Optional[dict] = None,
     ):
         """
         Initializes a Species.
@@ -1188,19 +1188,20 @@ class Species(MSONable, Stringify):
 
         if self._oxi_state in self.ionic_radii:
             return self.ionic_radii[self._oxi_state]
-        d = self._el.data
-        oxstr = str(int(self._oxi_state))
-        if oxstr in d.get("Ionic radii hs", {}):
-            warnings.warn("No default ionic radius for %s. Using hs data." % self)
-            return d["Ionic radii hs"][oxstr]
-        if oxstr in d.get("Ionic radii ls", {}):
-            warnings.warn("No default ionic radius for %s. Using ls data." % self)
-            return d["Ionic radii ls"][oxstr]
+        if self._oxi_state:
+            d = self._el.data
+            oxstr = str(int(self._oxi_state))
+            if oxstr in d.get("Ionic radii hs", {}):
+                warnings.warn("No default ionic radius for %s. Using hs data." % self)
+                return d["Ionic radii hs"][oxstr]
+            if oxstr in d.get("Ionic radii ls", {}):
+                warnings.warn("No default ionic radius for %s. Using ls data." % self)
+                return d["Ionic radii ls"][oxstr]
         warnings.warn("No ionic radius for {}!".format(self))
         return None
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
         Oxidation state of Species.
         """
@@ -1266,6 +1267,18 @@ class Species(MSONable, Stringify):
                 output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
             output += ",%s=%s" % (p, v)
+        return output
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: String without properties.
+        """
+        output = self.symbol
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: Optional[str] = None) -> float:
@@ -1423,8 +1436,8 @@ class DummySpecies(Species):
     def __init__(
         self,
         symbol: str = "X",
-        oxidation_state: float = 0,
-        properties: dict = None,
+        oxidation_state: Optional[float] = 0,
+        properties: Optional[dict] = None,
     ):
         """
         Args:
@@ -1506,7 +1519,7 @@ class DummySpecies(Species):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
         Oxidation state associated with DummySpecies
         """
@@ -1571,7 +1584,7 @@ class DummySpecies(Species):
             "oxidation_state": self._oxi_state,
         }
         if self._properties:
-            d["properties"] = self._properties
+            d["properties"] = self._properties  # type: ignore
         return d
 
     @classmethod

@@ -13,6 +13,7 @@ from monty.os.path import which
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import (
     BrunnerNN_real,
     BrunnerNN_reciprocal,
@@ -35,8 +36,12 @@ from pymatgen.analysis.local_env import (
     site_is_of_motif_type,
     solid_angle,
     IsayevNN,
+    metal_edge_extender,
 )
 from pymatgen.util.testing import PymatgenTest
+
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "fragmenter_files")
 
 
 class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
@@ -1475,6 +1480,32 @@ class Critic2NNTest(PymatgenTest):
     def test_cn(self):
         nn = Critic2NN()
         # self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+
+class MetalEdgeExtenderTest(PymatgenTest):
+    def setUp(self):
+        self.LiEC = Molecule.from_file(os.path.join(test_dir, "LiEC.xyz"))
+
+    def test_metal_edge_extender(self):
+        mol_graph = MoleculeGraph.with_edges(
+            molecule=self.LiEC,
+            edges={
+                (0, 2): None,
+                (0, 1): None,
+                (1, 3): None,
+                (1, 4): None,
+                (2, 7): None,
+                (2, 5): None,
+                (2, 8): None,
+                (3, 6): None,
+                (4, 5): None,
+                (5, 9): None,
+                (5, 10): None,
+            },
+        )
+        self.assertEqual(len(mol_graph.graph.edges), 11)
+        extended_mol_graph = metal_edge_extender(mol_graph)
+        self.assertEqual(len(extended_mol_graph.graph.edges), 12)
 
 
 if __name__ == "__main__":

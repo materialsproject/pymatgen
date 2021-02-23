@@ -220,7 +220,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, v in site.species.items():
                 if v != 0:
                     types.append(sp)
-        return tuple(set(types))  # type: ignore
+        return tuple(sorted(set(types)))  # type: ignore
 
     @property
     def types_of_specie(self) -> Tuple[Union[Element, Species, DummySpecies]]:

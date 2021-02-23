@@ -1,6 +1,36 @@
 Change log
 ==========
 
+v2021.2.16
+----------
+* Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (@mkhorton, #2066)
+* Addresses missing text file, all_cg.txt, in package
+* Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version
+* Previous release also dropped support for aconvasp since this the interface has not been maintained
+
+v2021.2.14
+----------
+* Misc bug fixes.
+
+v2021.2.12
+----------
+* Misc bug fixes.
+
+v2021.2.8.1
+-----------
+* Patch release to restore `CompositionError` to preserve backwards compatibility.
+
+v2021.2.8
+---------
+* Addition of new job types to Q-Chem IO (@espottesmith, #2055), 
+  note `metal_edge_extender` has been moved into `local_env` for this change
+* Improvements to string utils, new Stringify mixin with 
+  to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (@shyuep)
+* Improvements to build system (@shyuep, @ltalirz, see #2046)
+* Entry is now immutable, removing "in_place" option for normalize (@mkhorton, @mattmcdermott, #2060)
+* Bug fix for co-ordination geometry finder (@davidwaroquiers, #2035)
+* Bug fix for GibbsComputedStructureEntry (@mattmcdermott)
+
 v2021.1.28
 ----------
 * Ability to read Lobster wavefunctions (@JaGeo, #2034) 

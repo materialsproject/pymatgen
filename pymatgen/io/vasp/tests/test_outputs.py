@@ -497,6 +497,13 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(bs.get_branch(0)[0]["start_index"], 0)
             self.assertEqual(bs.get_branch(0)[0]["end_index"], 0)
 
+    def test_projected_magnetisation(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
+        vasprun = Vasprun(filepath, parse_projected_eigen=True)
+        self.assertTrue(vasprun.projected_magnetisation is not None)
+        self.assertEqual(vasprun.projected_magnetisation.shape, (76, 240, 4, 9, 3))
+        self.assertAlmostEqual(vasprun.projected_magnetisation[0, 0, 0, 0, 0], -0.0712)
+
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.LiF")
@@ -693,7 +700,7 @@ class VasprunTest(PymatgenTest):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
-
+        
 
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1395,6 +1402,11 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(outcar.data["nplwv"], [[None]])
         self.assertEqual(outcar.data["nplwvs_at_kpoints"], [85687])
 
+    def test_vasp620_format(self):
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats['Average memory used (kb)'], None)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1514,7 +1526,6 @@ class ChgcarTest(PymatgenTest):
         os.remove("CHGCAR_pmg_soc")
 
     def test_hdf5(self):
-        print(self.TEST_FILES_DIR)
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
         import h5py

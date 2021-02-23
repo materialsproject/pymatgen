@@ -111,11 +111,11 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2021.1.28",
+    version="2021.2.16",
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.6",
     install_requires=[
-        "numpy>=1.18.0",
+        "numpy>=1.20.1",
         "requests",
         "ruamel.yaml>=0.15.6",
         "monty>=3.0.2",
@@ -137,6 +137,9 @@ setup(
         "abinit": ["netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
+        ],
+        ':python_version < "3.8"': [
+            "typing-extensions>=3.7.4.3",
         ],
     },
     package_data={
@@ -178,7 +181,6 @@ setup(
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
