@@ -643,6 +643,26 @@ class Cp2kOutput:
         poisson_periodic = {'poisson_periodicity': re.compile(r"POISSON\| Periodicity\s+(\w+)")}
         self.read_pattern(poisson_periodic, terminate_on_match=True)
 
+    def parse_qs_params(self):
+        """
+        Parse the DFT parameters (as well as functional, HF, vdW params)
+        """
+        pat = re.compile(r"\s+QS\|\s+(\w.*)\s\s\s(.*)$")
+        self.read_pattern(
+            {"QS": pat},
+            terminate_on_match=False,
+            postprocess=_postprocessor,
+            reverse=False,
+        )
+        self.data["QS"] = dict(self.data["QS"])
+        tmp = {}
+        i = 1
+        for k in list(self.data['QS']):
+            if str(k).__contains__('grid_level') and not str(k).__contains__('Number'):
+                tmp[i] = self.data['QS'].pop(k)
+                i += 1
+        self.data['QS']['Multi_grid_cutoffs_[a.u.]'] = tmp
+
     def parse_overlap_condition(self):
         """
         Retrieve the overlap condition number
@@ -1351,6 +1371,7 @@ class Cp2kOutput:
         d["input"]["global"] = self.data.get("global")
         d["input"]["dft"] = self.data.get("dft", None)
         d["input"]["scf"] = self.data.get("scf", None)
+        d['input']['qs'] = self.data.get('QS', None)
         d["input"]["structure"] = self.initial_structure.as_dict()
         d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info", None)
         d["input"]["cp2k_input"] = self.input
