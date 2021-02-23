@@ -365,6 +365,14 @@ class TestLobsterNeighbors(unittest.TestCase):
         self.assertAlmostEqual(np.sum([cophthing.icohp[Spin.up], cophthing.icohp[Spin.down]], axis=0)[300],
                                chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
 
+        #summed_spin_channel
+        cophthing = chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                                             "COHPCAR.lobster.mp-190.gz"),
+                                                                isites=[0], only_bonds_to=None,
+                                                                per_bond=False, summed_spin_channels=True)[1]
+        self.assertAlmostEqual(cophthing.icohp[Spin.up][300],
+                               chemenvlobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+
         self.assertEqual(chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
                                                                                                   "COHPCAR.lobster.mp-190.gz"),
                                                                      isites=[0], only_bonds_to=["Te"])[0], None)
@@ -391,6 +399,9 @@ class TestLobsterNeighbors(unittest.TestCase):
                                                                                           "COHPCAR.lobster.mp-190.gz"),
                                                              isites=[0], only_bonds_to=None,
                                                              per_bond=False)
+
+        #TODO: check if summed spin channel works for non-spinpolarized cases!
+
 
 
 if __name__ == "__main__":

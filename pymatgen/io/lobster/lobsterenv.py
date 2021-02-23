@@ -322,7 +322,6 @@ class LobsterNeighbors(NearNeighbors):
                 divisor = 1
 
             plotlabel = self._get_plot_label(atoms, per_bond)
-            #TODO: include summed_spin_channels!
             summed_cohp = completecohp.get_summed_cohp_by_label_list(label_list=labels, divisor=divisor,
                                                                      summed_spin_channels=summed_spin_channels)
 
