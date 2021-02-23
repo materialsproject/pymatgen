@@ -147,9 +147,9 @@ class Keyword(MSONable):
             description = None
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
-        return Keyword(*map(_postprocessor, s.split()),
-                       units=units[0],
-                       description=description)
+        args = list(map(_postprocessor, s.split()))
+        args[0] = str(args[0])
+        return Keyword(*args, units=units[0], description=description)
 
     def verbosity(self, v):
         """
