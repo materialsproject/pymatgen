@@ -615,18 +615,21 @@ class BasePhaseDiagram(MSONable):
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
-    def get_decomp_and_quasi_e_to_hull(self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000):
+    def get_decomp_and_phase_separation_energy(
+        self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000
+    ):
         """
         Provides the combination of entries in the PhaseDiagram that gives the
         lowest formation enthalpy with the same composition as the given entry
-        and the energy difference per atom between the given entry and the energy
-        of the combination found.
+        excluding entries with the same composition and the energy difference
+        per atom between the given entry and the energy of the combination found.
 
-        For unstable entries (or novel entries) this is simply the energy above
-        (or below) the convex hull.
+        For unstable entries that are not polymorphs of stable entries (or completely
+        novel entries) this is simply the energy above (or below) the convex hull.
 
-        For stable entries when `stable_only` is `False` (Default) allows for entries
-        not previously on the convect hull to be considered in the combination.
+        For entries with the same composition as one of the stable entries in the
+        phase diagram setting `stable_only` to `False` (Default) allows for entries
+        not previously on the convex hull to be considered in the combination.
         In this case the energy returned is what is referred to as the decomposition
         enthalpy in:
 
@@ -654,7 +657,7 @@ class BasePhaseDiagram(MSONable):
         Returns:
             (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
             for all entries in the decomp reaction where amount is the amount of the
-            fractional composition. The energy is given per atom.
+            fractional composition. The phase separation energy is given per atom.
         """
 
         # For unstable or novel materials use simplex approach
@@ -716,11 +719,11 @@ class BasePhaseDiagram(MSONable):
 
         raise ValueError("No valid decomp found for {}!".format(entry))
 
-    def get_quasi_e_to_hull(self, entry, **kwargs):
+    def get_phase_separation_energy(self, entry, **kwargs):
         """
         Provides the energy to the convex hull for the given entry. For stable entries
-        already in the phase diagram the algorithm provides a quasi energy to the convex
-        hull which is refered to as the decomposition enthalpy in:
+        already in the phase diagram the algorithm provides the phase separation energy
+        which is refered to as the decomposition enthalpy in:
 
         1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
             A critical examination of compound stability predictions from
@@ -737,11 +740,13 @@ class BasePhaseDiagram(MSONable):
                     when finding the equilibrium reaction.
 
         Returns:
-            Decomposition energy per atom of entry. Stable entries should have
+            phase separation energy per atom of entry. Stable entries should have
             energies <= 0, Stable elemental entries should have energies = 0 and
-            unstable entries should have energies > 0.
+            unstable entries should have energies > 0. Entries that have the same
+            composition as a stable energy may have postive or negative phase
+            separation energies depending on their own energy.
         """
-        return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
+        return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):
         """

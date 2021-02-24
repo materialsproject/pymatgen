@@ -266,13 +266,13 @@ class PhaseDiagramTest(unittest.TestCase):
                 "Stable entries should have negative equilibrium reaction energy!",
             )
 
-    def test_get_quasi_e_to_hull(self):
+    def test_get_phase_separation_energy(self):
         for entry in self.pd.unstable_entries:
             if entry.composition.fractional_composition not in [
                 e.composition.fractional_composition for e in self.pd.stable_entries
             ]:
                 self.assertGreaterEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
+                    self.pd.get_phase_separation_energy(entry),
                     0,
                     "Unstable entries should have positive decomposition energy!",
                 )
@@ -280,7 +280,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 if entry.is_element:
                     el_ref = self.pd.el_refs[entry.composition.elements[0]]
                     e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    self.assertAlmostEqual(self.pd.get_quasi_e_to_hull(entry), e_d)
+                    self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
                 pass
@@ -288,16 +288,18 @@ class PhaseDiagramTest(unittest.TestCase):
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
                 self.assertEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
+                    self.pd.get_phase_separation_energy(entry),
                     0,
                     "Stable elemental entries should have decomposition energy of zero!",
                 )
             else:
                 self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0, "Stable entries should have negative decomposition energy!"
+                    self.pd.get_phase_separation_energy(entry),
+                    0,
+                    "Stable entries should have negative decomposition energy!",
                 )
                 self.assertAlmostEqual(
-                    self.pd.get_quasi_e_to_hull(entry, stable_only=True),
+                    self.pd.get_phase_separation_energy(entry, stable_only=True),
                     self.pd.get_equilibrium_reaction_energy(entry),
                     7,
                     (
@@ -308,14 +310,14 @@ class PhaseDiagramTest(unittest.TestCase):
 
         novel_stable_entry = PDEntry("Li5FeO4", -999)
         self.assertLess(
-            self.pd.get_quasi_e_to_hull(novel_stable_entry),
+            self.pd.get_phase_separation_energy(novel_stable_entry),
             0,
             "Novel stable entries should have negative decomposition energy!",
         )
 
         novel_unstable_entry = PDEntry("Li5FeO4", 999)
         self.assertGreater(
-            self.pd.get_quasi_e_to_hull(novel_unstable_entry),
+            self.pd.get_phase_separation_energy(novel_unstable_entry),
             0,
             "Novel unstable entries should have positive decomposition energy!",
         )
@@ -325,14 +327,14 @@ class PhaseDiagramTest(unittest.TestCase):
         stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
 
         self.assertEqual(
-            self.pd.get_quasi_e_to_hull(duplicate_entry),
-            self.pd.get_quasi_e_to_hull(stable_entry),
+            self.pd.get_phase_separation_energy(duplicate_entry),
+            self.pd.get_phase_separation_energy(stable_entry),
             "Novel duplicates of stable entries should have same decomposition energy!",
         )
 
         self.assertEqual(
-            self.pd.get_quasi_e_to_hull(scaled_dup_entry),
-            self.pd.get_quasi_e_to_hull(stable_entry),
+            self.pd.get_phase_separation_energy(scaled_dup_entry),
+            self.pd.get_phase_separation_energy(stable_entry),
             "Novel scaled duplicates of stable entries should have same decomposition energy!",
         )
 
