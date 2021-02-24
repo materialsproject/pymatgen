@@ -20,7 +20,12 @@ test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")
 class QChemDictSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        test_DictSet = QChemDictSet(molecule=test_molecule, job_type="opt", basis_set="6-31G*", scf_algorithm="diis",)
+        test_DictSet = QChemDictSet(
+            molecule=test_molecule,
+            job_type="opt",
+            basis_set="6-31G*",
+            scf_algorithm="diis",
+        )
         self.assertEqual(
             test_DictSet.rem,
             {
@@ -73,7 +78,13 @@ class QChemDictSetTest(PymatgenTest):
         )
         self.assertEqual(
             test_DictSet.pcm,
-            {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1",},
+            {
+                "heavypoints": "194",
+                "hpoints": "194",
+                "radii": "uff",
+                "theory": "cpcm",
+                "vdwscale": "1.1",
+            },
         )
         self.assertEqual(test_DictSet.solvent, {"dielectric": 10.0})
         self.assertEqual(test_DictSet.molecule, test_molecule)
@@ -109,7 +120,14 @@ class QChemDictSetTest(PymatgenTest):
 
     def test_overwrite_input(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        overwrite_inputs = {"rem": {"method": "b3lyp", "basis": "6-31g*", "thresh": 10, "xc_grid": "000150000302",}}
+        overwrite_inputs = {
+            "rem": {
+                "method": "b3lyp",
+                "basis": "6-31g*",
+                "thresh": 10,
+                "xc_grid": "000150000302",
+            }
+        }
         test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
         act_rem = {
             "job_type": "opt",
@@ -303,7 +321,13 @@ class SinglePointSetTest(PymatgenTest):
         )
         self.assertEqual(
             test_SPSet.pcm,
-            {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1",},
+            {
+                "heavypoints": "194",
+                "hpoints": "194",
+                "radii": "uff",
+                "theory": "cpcm",
+                "vdwscale": "1.1",
+            },
         )
         self.assertEqual(test_SPSet.solvent, {"dielectric": 10.0})
         self.assertEqual(test_SPSet.molecule, test_molecule)
@@ -405,7 +429,13 @@ class OptSetTest(PymatgenTest):
         )
         self.assertEqual(
             test_OptSet.pcm,
-            {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1",},
+            {
+                "heavypoints": "194",
+                "hpoints": "194",
+                "radii": "uff",
+                "theory": "cpcm",
+                "vdwscale": "1.1",
+            },
         )
         self.assertEqual(test_OptSet.solvent, {"dielectric": 10.0})
         self.assertEqual(test_OptSet.molecule, test_molecule)
@@ -714,7 +744,13 @@ class FreqSetTest(PymatgenTest):
         )
         self.assertEqual(
             test_FreqSet.pcm,
-            {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1",},
+            {
+                "heavypoints": "194",
+                "hpoints": "194",
+                "radii": "uff",
+                "theory": "cpcm",
+                "vdwscale": "1.1",
+            },
         )
         self.assertEqual(test_FreqSet.solvent, {"dielectric": 10.0})
         self.assertEqual(test_FreqSet.molecule, test_molecule)
