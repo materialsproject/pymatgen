@@ -946,7 +946,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
             list_neighisite: list of neighboring isites (number of a site)
             valences: list of valences
 
-        Returns:
+        Returns: LobsterLightStructureEnvironments
 
         """
         strategy = None
@@ -1023,6 +1023,9 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
     @property
     def uniquely_determines_coordination_environments(self):
+        """
+           True if the coordination environments are uniquely determined.
+        """
         return True
 
     def as_dict(self):
