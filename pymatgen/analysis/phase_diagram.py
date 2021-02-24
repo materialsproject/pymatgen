@@ -15,7 +15,7 @@ import os
 import re
 import warnings
 from multiprocessing import Pool, cpu_count
-from functools import lru_cache, partial
+from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
@@ -30,6 +30,7 @@ from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import latexify
+from pymatgen.util.sequence import PBar
 
 logger = logging.getLogger(__name__)
 
@@ -613,7 +614,7 @@ class BasePhaseDiagram(MSONable):
         Returns:
             Energy of lowest energy equilibrium at desired composition per atom
         """
-        #TODO does this need a direct test? indirect via tests on get_hull_energy
+        # TODO does this need a direct test? indirect via tests on get_hull_energy
         decomp = self.get_decomposition(comp)
         return sum([e.energy_per_atom * n for e, n in decomp.items()])
 
@@ -1448,6 +1449,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements=None,
         keep_all_spaces=False,
         workers=0,
+        verbose=False,
     ):
         """
         Args:
@@ -1485,9 +1487,13 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         self.min_entries = min_entries
 
+        # print(sorted(elements))
+        # print(sorted(el_refs.keys()))
+
         if len(el_refs) != dim:
+            missing = set(elements)-set(el_refs.keys())
             raise PhaseDiagramError(
-                "There are no entries associated with a terminal element!."
+                f"There are no entries for the terminal elements : {missing}"
             )
 
         # Get all chemical spaces
@@ -1515,14 +1521,25 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Calculate pds for higher dimension spaces first
         spaces.sort(key=len, reverse=True)
 
-        if workers == 0:
-            results = [self._get_pd_for_space(space) for space in spaces]
+        # TODO is there a smart way to set up chunk sizes?
+        # TODO PBarSafe is not safe as it cannot take an iteratble as input.
+
+        if workers == 0 or len(spaces) < 200: # serial if not a large number of PDs
+            results = [self._get_pd_for_space(space) for space in PBar(spaces, disable=(not verbose))]
         else:
             if workers < 0:
                 workers = cpu_count()
 
             with Pool(workers) as p:
-                results = p.map(func=self._get_pd_for_space, iterable=spaces)
+                results = [*PBar(
+                    p.imap_unordered(
+                        func=self._get_pd_for_space,
+                        iterable=spaces,
+                        chunksize=100,  # using large chunksize reduces overhead
+                    ),
+                    disable=(not verbose),
+                    total=len(spaces)
+                )]
 
         pds = dict(results)
 
@@ -2041,7 +2058,9 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
             if amt > PhaseDiagram.numerical_tol
         }
 
-    raise ValueError("No valid decomp found for {}!".format(comp))
+    return {PDEntry(comp, -99): 1.0}
+
+    # raise ValueError("No valid decomp found for {}!".format(comp))
 
 
 def _get_useful_entries(entries):
