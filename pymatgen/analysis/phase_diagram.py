@@ -1201,6 +1201,10 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
 
+
+
+
+
         all_entries = [
             GrandPotPDEntry(e, self.chempots) for e in entries if len(elements.intersection(e.composition.elements)) > 0
         ]
