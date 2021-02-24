@@ -940,8 +940,8 @@ class LobsterNeighbors(NearNeighbors):
         if not self.are_coops:
             max_here = min(extremum_based, -0.1)
             return -100000, max_here
-        else:
-            return extremum_based, 100000
+        #else:
+        #    return extremum_based, 100000
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
