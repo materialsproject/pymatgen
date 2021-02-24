@@ -51,11 +51,7 @@ class PDEntry(Entry):
     """
 
     def __init__(
-        self,
-        composition: Composition,
-        energy: float,
-        name: str = None,
-        attribute: object = None,
+        self, composition: Composition, energy: float, name: str = None, attribute: object = None,
     ):
         """
         Args:
@@ -74,11 +70,6 @@ class PDEntry(Entry):
         """
         :return: the energy of the entry.
         """
-
-
-
-
-
         return self._energy
 
     def as_dict(self):
@@ -294,15 +285,7 @@ class BasePhaseDiagram(MSONable):
     numerical_tol = 1e-8
 
     def __init__(
-        self,
-        facets,
-        simplexes,
-        all_entries,
-        qhull_data,
-        dim,
-        el_refs,
-        elements,
-        qhull_entries,
+        self, facets, simplexes, all_entries, qhull_data, dim, el_refs, elements, qhull_entries,
     ):
         """
         This class uses casting to bypass the init, so this constructor should only be
@@ -358,9 +341,7 @@ class BasePhaseDiagram(MSONable):
 
         if len(el_refs) != dim:
             missing = set(elements).difference(el_refs.keys())
-            raise ValueError(
-                f"There are no entries for the terminal elements: {missing}"
-            )
+            raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -1444,12 +1425,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "%s %s + %s %s -> " % (
-                            fmt(c1),
-                            r1.reduced_formula,
-                            fmt(c2),
-                            r2.reduced_formula,
-                        )
+                        rxn_str = "%s %s + %s %s -> " % (fmt(c1), r1.reduced_formula, fmt(c2), r2.reduced_formula,)
                         products = []
                         product_entries = []
 
@@ -1464,24 +1440,13 @@ class ReactionDiagram:
 
                         rxn_str += " + ".join(products)
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
-                        entry = PDEntry(
-                            Composition(dict(zip(elements, comp))),
-                            energy=energy,
-                            attribute=rxn_str,
-                        )
+                        entry = PDEntry(Composition(dict(zip(elements, comp))), energy=energy, attribute=rxn_str,)
                         entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
                     logger.debug(
                         "Reactants = %s"
-                        % (
-                            ", ".join(
-                                [
-                                    entry1.composition.reduced_formula,
-                                    entry2.composition.reduced_formula,
-                                ]
-                            )
-                        )
+                        % (", ".join([entry1.composition.reduced_formula, entry2.composition.reduced_formula,]))
                     )
                     logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
 
@@ -1513,10 +1478,7 @@ class ReactionDiagram:
 
         cpd = CompoundPhaseDiagram(
             self.rxn_entries + [entry1, entry2],
-            [
-                Composition(entry1.composition.reduced_formula),
-                Composition(entry2.composition.reduced_formula),
-            ],
+            [Composition(entry1.composition.reduced_formula), Composition(entry2.composition.reduced_formula),],
             normalize_terminal_compositions=False,
         )
         return cpd
@@ -1613,11 +1575,7 @@ class PDPlotter:
     """
 
     def __init__(
-        self,
-        phasediagram: PhaseDiagram,
-        show_unstable: float = 0.2,
-        backend: str = "plotly",
-        **plotkwargs,
+        self, phasediagram: PhaseDiagram, show_unstable: float = 0.2, backend: str = "plotly", **plotkwargs,
     ):
         """
         Args:
@@ -1829,10 +1787,7 @@ class PDPlotter:
                     if p.reduced_formula != element.symbol
                 ]
                 plt.annotate(
-                    ", ".join(products),
-                    xy=(v + 0.05, y1 + 0.05),
-                    fontsize=24,
-                    color="r",
+                    ", ".join(products), xy=(v + 0.05, y1 + 0.05), fontsize=24, color="r",
                 )
                 plt.plot([x1, x2], [y1, y1], "r", linewidth=3)
             else:
@@ -1907,13 +1862,7 @@ class PDPlotter:
             if energy_colormap == "default":
                 mid = -vmin / (vmax - vmin)
                 cmap = LinearSegmentedColormap.from_list(
-                    "my_colormap",
-                    [
-                        (0.0, "#005500"),
-                        (mid, "#55FF55"),
-                        (mid, "#FFAAAA"),
-                        (1.0, "#FF0000"),
-                    ],
+                    "my_colormap", [(0.0, "#005500"), (mid, "#55FF55"), (mid, "#FFAAAA"), (1.0, "#FF0000"),],
                 )
             else:
                 cmap = energy_colormap
@@ -2075,14 +2024,7 @@ class PDPlotter:
         newlabels = list()
         for x, y, z in lines:
             ax.plot(
-                x,
-                y,
-                z,
-                "bo-",
-                linewidth=3,
-                markeredgecolor="b",
-                markerfacecolor="r",
-                markersize=10,
+                x, y, z, "bo-", linewidth=3, markeredgecolor="b", markerfacecolor="r", markersize=10,
             )
         for coords in sorted(labels.keys()):
             entry = labels[coords]
@@ -2226,11 +2168,7 @@ class PDPlotter:
                 xy = (center_x / (n + 1), center_y / (n + 1))
 
             plt.annotate(
-                latexify(entry.name),
-                xy,
-                horizontalalignment="center",
-                verticalalignment="center",
-                fontsize=22,
+                latexify(entry.name), xy, horizontalalignment="center", verticalalignment="center", fontsize=22,
             )
 
         plt.xlabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)".format(el0.symbol))
@@ -2305,10 +2243,7 @@ class PDPlotter:
                 z.extend(list(line[2]) + [None])
 
         plot_args = dict(
-            mode="lines",
-            hoverinfo="none",
-            line={"color": "rgba(0,0,0,1.0)", "width": 7.0},
-            showlegend=False,
+            mode="lines", hoverinfo="none", line={"color": "rgba(0,0,0,1.0)", "width": 7.0}, showlegend=False,
         )
 
         if self._dim == 2:
@@ -2438,13 +2373,7 @@ class PDPlotter:
 
             annotation = plotly_layouts["default_annotation_layout"].copy()
             annotation.update(
-                {
-                    "x": x,
-                    "y": y,
-                    "font": font_dict,
-                    "text": clean_formula,
-                    "opacity": opacity,
-                }
+                {"x": x, "y": y, "font": font_dict, "text": clean_formula, "opacity": opacity,}
             )
 
             if self._dim == 3 or self._dim == 4:
@@ -2576,11 +2505,7 @@ class PDPlotter:
                     opacity=0.9,
                     hovertext=stable_props["texts"],
                     error_y=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="gray",
-                        thickness=2.5,
-                        width=5,
+                        array=list(stable_props["uncertainties"]), type="data", color="gray", thickness=2.5, width=5,
                     ),
                 )
             )
@@ -2609,19 +2534,10 @@ class PDPlotter:
                     y=list(stable_props["x"]),
                     z=list(stable_props["z"]),
                     name="Stable",
-                    marker=dict(
-                        color="black",
-                        size=12,
-                        opacity=0.8,
-                        line=dict(color="black", width=3),
-                    ),
+                    marker=dict(color="black", size=12, opacity=0.8, line=dict(color="black", width=3),),
                     hovertext=stable_props["texts"],
                     error_z=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="darkgray",
-                        width=10,
-                        thickness=5,
+                        array=list(stable_props["uncertainties"]), type="data", color="darkgray", width=10, thickness=5,
                     ),
                 )
             )
@@ -2865,13 +2781,7 @@ def tet_coord(coord):
     Returns:
         coordinates in a tetrahedron-based coordinate system.
     """
-    unitvec = np.array(
-        [
-            [1, 0, 0],
-            [0.5, math.sqrt(3) / 2, 0],
-            [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3],
-        ]
-    )
+    unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0], [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3],])
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
 
@@ -2973,17 +2883,11 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
             newlines.append([newx, newy])
         newstable_entries = {
-            (
-                -c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
-                -s120 * (c[0] - 1.0) + c120 * c[1],
-            ): entry
+            (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0, -s120 * (c[0] - 1.0) + c120 * c[1],): entry
             for c, entry in stable_entries.items()
         }
         newunstable_entries = {
-            entry: (
-                -c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
-                -s120 * (c[0] - 1.0) + c120 * c[1],
-            )
+            entry: (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0, -s120 * (c[0] - 1.0) + c120 * c[1],)
             for entry, c in unstable_entries.items()
         }
         return newlines, newstable_entries, newunstable_entries
