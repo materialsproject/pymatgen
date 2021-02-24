@@ -449,18 +449,6 @@ class BasePhaseDiagram(MSONable):
         """
         return self._stable_entries
 
-    @lru_cache(2)  # cache in case of repeated calls
-    def get_stable_entries_normed(self, mode="formula_unit"):
-        """
-        Args:
-            mode (str): type of normalization to perform.
-                Allowed ["atom", "formula_unit"]
-
-        Returns:
-            list of normalized stable entries in the phase diagram.
-        """
-        return [e.normalize(mode) for e in self._stable_entries]
-
     def get_form_energy(self, entry):
         """
         Returns the formation energy for an entry (NOT normalized) from the
@@ -670,9 +658,16 @@ class BasePhaseDiagram(MSONable):
         """
 
         # For unstable or novel materials use simplex approach
-        if entry.normalize(mode="atom") not in self.get_stable_entries_normed(mode="atom"):
+        if entry.composition.fractional_composition not in [
+            e.composition.fractional_composition for e in self.stable_entries
+        ]:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
+        # Handle elemental materials
+        if entry.is_element:
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+
+        # Select space to compare against
         if stable_only:
             compare_entries = self.stable_entries
         else:
@@ -682,7 +677,7 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if (c.normalize(mode="atom") != entry.normalize(mode="atom"))
+            if (c.composition.fractional_composition != entry.composition.fractional_composition)
             if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
@@ -746,15 +741,6 @@ class BasePhaseDiagram(MSONable):
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0.
         """
-        # Handle unstable and novel materials
-        if entry.normalize(mode="atom") not in self.get_stable_entries_normed(mode="atom"):
-            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
-
-        # Handle stable elemental materials
-        if entry.is_element:
-            return 0
-
-        # Handle stable compounds
         return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):

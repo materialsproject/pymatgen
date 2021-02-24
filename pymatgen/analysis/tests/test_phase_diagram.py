@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 import os
 import unittest
 import warnings
@@ -269,19 +268,23 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_get_quasi_e_to_hull(self):
         for entry in self.pd.unstable_entries:
-            # catch duplicated stable entries
-            if entry.normalize() in self.pd.get_stable_entries_normed():
-                self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
-                    0,
-                    "Duplicated stable entries should have negative decomposition energy!",
-                )
-            else:
+            if entry.composition.fractional_composition not in [e.composition.fractional_composition for e in self.pd.stable_entries]:
                 self.assertGreaterEqual(
                     self.pd.get_quasi_e_to_hull(entry),
                     0,
                     "Unstable entries should have positive decomposition energy!",
                 )
+            else:
+                if entry.is_element:
+                    el_ref = self.pd.el_refs[entry.composition.elements[0]]
+                    e_d = entry.energy_per_atom - el_ref.energy_per_atom
+                    self.assertAlmostEqual(
+                        self.pd.get_quasi_e_to_hull(entry),
+                        e_d
+                    )
+                # NOTE the remaining materials would require explicit tests as they
+                # could be either positive or negative
+                pass
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
