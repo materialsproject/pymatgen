@@ -767,9 +767,8 @@ class MaterialsProjectCompatibility(CorrectionsList):
     Using this compatibility scheme on runs with different parameters is not
     valid.
     """
-    def __init__(
-        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
-    ):
+
+    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -1157,11 +1156,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self,
-                 solid_compat: Optional[Type[Compatibility]] = MaterialsProject2020Compatibility,
-                 o2_energy: Optional[float] = None,
-                 h2o_energy: Optional[float] = None,
-                 h2o_adjustments: Optional[float] = None):
+    def __init__(
+        self,
+        solid_compat: Optional[Type[Compatibility]] = MaterialsProject2020Compatibility,
+        o2_energy: Optional[float] = None,
+        h2o_energy: Optional[float] = None,
+        h2o_adjustments: Optional[float] = None,
+    ):
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
 

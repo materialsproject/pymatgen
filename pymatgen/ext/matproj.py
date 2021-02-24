@@ -569,7 +569,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProjectCompatibility"):
+    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -590,11 +590,14 @@ class MPRester:
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
             MaterialsProjectAqueousCompatibility,
+            MaterialsProject2020Compatibility,
             MaterialsProjectCompatibility,
         )
 
         if solid_compat == "MaterialsProjectCompatibility":
             solid_compat = MaterialsProjectCompatibility
+        elif solid_compat == "MaterialsProject2020Compatibility":
+            solid_compat = MaterialsProject2020Compatibility
 
         pbx_entries = []
 
