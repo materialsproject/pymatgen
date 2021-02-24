@@ -937,9 +937,9 @@ class LobsterNeighbors(NearNeighbors):
         """
         # TODO: make it work for COOPs
         extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
-        if not self.are_coops:
-            max_here = min(extremum_based, -0.1)
-            return -100000, max_here
+        #if not self.are_coops:
+        max_here = min(extremum_based, -0.1)
+        return -100000, max_here
         #else:
         #    return extremum_based, 100000
 
