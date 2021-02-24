@@ -1,4 +1,4 @@
-pymatgen/analysis
-pymatgen/ext pymatgen/command_line pymatgen/symmetry
-pymatgen/electronic_structure pymatgen/io pymatgen/transformations 
-pymatgen/apps pymatgen/core pymatgen/entries pymatgen/optimization pymatgen/util pymatgen/alchemy pymatgen/cli pymatgen/phonon pymatgen/tests pymatgen/vis
+pymatgen/analysis/defects
+pymatgen/analysis --ignore=pymatgen/analysis/defects
+pymatgen/electronic_structure pymatgen/io
+pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/io
