@@ -268,7 +268,9 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_get_quasi_e_to_hull(self):
         for entry in self.pd.unstable_entries:
-            if entry.composition.fractional_composition not in [e.composition.fractional_composition for e in self.pd.stable_entries]:
+            if entry.composition.fractional_composition not in [
+                e.composition.fractional_composition for e in self.pd.stable_entries
+            ]:
                 self.assertGreaterEqual(
                     self.pd.get_quasi_e_to_hull(entry),
                     0,
@@ -278,10 +280,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 if entry.is_element:
                     el_ref = self.pd.el_refs[entry.composition.elements[0]]
                     e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    self.assertAlmostEqual(
-                        self.pd.get_quasi_e_to_hull(entry),
-                        e_d
-                    )
+                    self.assertAlmostEqual(self.pd.get_quasi_e_to_hull(entry), e_d)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
                 pass
