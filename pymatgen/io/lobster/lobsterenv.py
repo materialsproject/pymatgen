@@ -338,9 +338,27 @@ class LobsterNeighbors(NearNeighbors):
         return plot
 
     def get_info_cohps_to_neighbors(
-        self, path_to_COHPCAR, isites, only_bonds_to, onlycation_isites=True, per_bond=True, summed_spin_channels=False
+        self, path_to_COHPCAR="COHPCAR.lobster",
+        isites=[],
+        only_bonds_to=None,
+        onlycation_isites=True,
+        per_bond=True,
+        summed_spin_channels=False
     ):
+        """
+        will return info about the cohps from all sites mentioned in isites with neighbors
+        Args:
+            path_to_COHPCAR: str, path to COHPCAR
+            isites: list of int that indicate the number of the site
+            only_bonds_to: list of str, e.g. ["O"] to only show cohps of anything to oxygen
+            onlycation_isites: if isites=[], only cation sites will be returned
+            per_bond: will normalize per bond
+            summed_spin_channels: will sum all spin channels
 
+        Returns: label for cohp (str), CompleteCohp object which describes all cohps of the sites as given by isites
+        and the other parameters
+
+        """
         # TODO: add options for orbital-resolved cohps
         summed_icohps, list_icohps, number_bonds, labels, atoms = self.get_info_icohps_to_neighbors(
             isites=isites, onlycation_isites=onlycation_isites
