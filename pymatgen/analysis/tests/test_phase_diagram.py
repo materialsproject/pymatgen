@@ -19,7 +19,6 @@ from pymatgen.analysis.phase_diagram import (
     PDEntry,
     PDPlotter,
     PhaseDiagram,
-    PhaseDiagramError,
     ReactionDiagram,
     TransformedPDEntry,
     tet_coord,
@@ -160,7 +159,7 @@ class PhaseDiagramTest(unittest.TestCase):
             lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
             self.entries,
         )
-        self.assertRaises(PhaseDiagramError, PhaseDiagram, entries)
+        self.assertRaises(ValueError, PhaseDiagram, entries)
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can eb generated.
