@@ -193,16 +193,38 @@ H 0
         self.assertEqual(gin.spin_multiplicity, 1)
 
     def test_no_molecule(self):
-        """Test that we can write output files without a geometry"""
-
-        # Note that we must manually specify charge
-        with self.assertRaises(ValueError):
-            GaussianInput(None)
+        """Test that we can write input files without a geometry"""
 
         # Makes a file without geometry
         input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
         input_str = input_file.to_string().strip()
         self.assertTrue(input_str.endswith("0 2"))
+
+    def test_no_molecule_func_bset_charge_mult(self):
+        """
+        Test that we can write inputs files without a geometry,
+        functional, basis set, charge or multiplicity
+        (mainly for postprocessing jobs where this info is read from .chk)
+        """
+        gau_str = "#P chkbasis geom=allcheck guess=(only,read) pop=naturalorbital\n"
+        gau_str += "\n"
+        gau_str += "Restart"
+        
+        input_file = GaussianInput(
+            None,
+            charge=None,
+            spin_multiplicity=None,
+            functional=None,
+            basis_set=None,
+            route_parameters = {
+                "chkbasis": None,
+                "geom": "allcheck",
+                "guess": {"only": None,"read": None},
+                "pop": "naturalorbital",
+            },
+        )
+        input_str = input_file.to_string().strip()
+        self.assertEqual(input_str, gau_str)
 
 
 class GaussianOutputTest(unittest.TestCase):

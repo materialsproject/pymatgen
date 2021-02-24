@@ -103,9 +103,7 @@ class PymatgenTest(unittest.TestCase):
                 if not pass_test:
                     return False
             elif isinstance(v, (int, float)):
-                pass_test = PymatgenTest.assertAlmostEqual(v, v2)
-                if not pass_test:
-                    return False
+                PymatgenTest.assertAlmostEqual(v, v2)  # pylint: disable=E1120
             else:
                 assert v == v2
         return True

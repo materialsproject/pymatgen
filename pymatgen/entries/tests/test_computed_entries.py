@@ -457,8 +457,7 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         for e in self.entries_with_temps.values():
             entry = copy.deepcopy(e)
             normed_entry = entry.normalize(mode="atom")
-            self.assertAlmostEqual(entry.uncorrected_energy,
-                                   normed_entry.uncorrected_energy*self.num_atoms, 11)
+            self.assertAlmostEqual(entry.uncorrected_energy, normed_entry.uncorrected_energy * self.num_atoms, 11)
 
 
 if __name__ == "__main__":

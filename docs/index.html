@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2021.1.28 documentation</title>
+  <title>Introduction &mdash; pymatgen 2021.2.16 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2021.1.28
+                2021.2.16
               </div>
             
           
@@ -173,7 +173,8 @@
 <a class="reference internal image-reference" href="_images/pymatgen.png"><img alt="pymatgen" class="align-center" src="_images/pymatgen.png" style="width: 300px;" /></a>
 <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" /><img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" /><img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
+<a class="reference external image-reference" href="https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg"><img alt="CI Status" src="https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg" /></a>
+<img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><a class="reference external image-reference" href="https://coveralls.io/github/materialsproject/pymatgen?branch=master"><img alt="Coveralls Coverage Report" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" /></a>
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:</p>
 <ol class="arabic simple">
@@ -188,7 +189,12 @@ diagrams, diffusion analyses, reactions, etc.</p></li>
 <li><p>Integration with the Materials Project REST API, Crystallography Open
 Database and other external data sources.</p></li>
 </ol>
-<p>As of 2020, pymatgen only supports Python 3 and above.</p>
+<p>As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule
+follows closely to the support schedule of the Scientific Python software stack.
+When packages such as numpy drops support for Python versions, we will drop
+support for newer versions. Similarly, support for new Python versions will
+be adopted only when most of the core dependencies support the new Python
+versions.</p>
 <p>Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
@@ -269,15 +275,10 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2021-1-28">
-<h3>v2021.1.28<a class="headerlink" href="#v2021-1-28" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2021-2-16">
+<h3>v2021.2.16<a class="headerlink" href="#v2021-2-16" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Ability to read Lobster wavefunctions (&#64;JaGeo, #2034)</p></li>
-<li><p>Method to estimate number of bands for VASP calculation (&#64;rwoodsrobinson, #2044)</p></li>
-<li><p>Q-Chem cube file plotting and improvements to output parsring (&#64;samblau, #2032)</p></li>
-<li><p>Improvements to pymatgen import speed (&#64;mkhorton, #2031)</p></li>
-<li><p>Bug fix for k-path generation (&#64;munrojm, #2037)</p></li>
-<li><p>Bug fix for parsing of core potentials from VASP (&#64;utf, #2033)</p></li>
+<li><p>Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (&#64;mkhorton, #2066)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
