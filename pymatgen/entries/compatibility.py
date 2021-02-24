@@ -374,8 +374,7 @@ class AqueousCorrection(Correction):
                 correction -= ufloat((comp["H"] - nH2O / 2) * self.comp_correction["H"], 0.0)
                 # No. of O atoms not in a water
                 correction -= ufloat(
-                    (comp["O"] - nH2O) * (self.comp_correction["oxide"] + self.oxide_correction["oxide"]),
-                    0.0,
+                    (comp["O"] - nH2O) * (self.comp_correction["oxide"] + self.oxide_correction["oxide"]), 0.0,
                 )
                 # next, add MU_H2O for each water molecule present
                 correction += ufloat(-1 * MU_H2O * nH2O, 0.0)
@@ -602,9 +601,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         print(
             "The uncorrected energy of {} is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.composition,
-                entry.uncorrected_energy,
-                entry.uncorrected_energy / entry.composition.num_atoms,
+                entry.composition, entry.uncorrected_energy, entry.uncorrected_energy / entry.composition.num_atoms,
             )
         )
 
@@ -655,14 +652,7 @@ class CorrectionsList(Compatibility):
                 uncertainty = np.nan
             else:
                 uncertainty = uncertainties[k]
-            adjustment_list.append(
-                ConstantEnergyAdjustment(
-                    v,
-                    uncertainty=uncertainty,
-                    name=k,
-                    cls=self.as_dict(),
-                )
-            )
+            adjustment_list.append(ConstantEnergyAdjustment(v, uncertainty=uncertainty, name=k, cls=self.as_dict(),))
 
         return adjustment_list
 
@@ -767,9 +757,8 @@ class MaterialsProjectCompatibility(CorrectionsList):
     Using this compatibility scheme on runs with different parameters is not
     valid.
     """
-    def __init__(
-        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
-    ):
+
+    def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -810,10 +799,7 @@ class MaterialsProject2020Compatibility(Compatibility):
     """
 
     def __init__(
-        self,
-        compat_type="Advanced",
-        correct_peroxide=True,
-        check_potcar_hash=False,
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False,
     ):
         """
         Args:
@@ -1150,11 +1136,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self,
-                 solid_compat: Optional[Type[Compatibility]] = MaterialsProject2020Compatibility,
-                 o2_energy: Optional[float] = None,
-                 h2o_energy: Optional[float] = None,
-                 h2o_adjustments: Optional[float] = None):
+    def __init__(
+        self,
+        solid_compat: Optional[Type[Compatibility]] = MaterialsProject2020Compatibility,
+        o2_energy: Optional[float] = None,
+        h2o_energy: Optional[float] = None,
+        h2o_adjustments: Optional[float] = None,
+    ):
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
 
@@ -1248,10 +1236,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         )
 
         # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
-        self.fit_h2o_energy = round(
-            (2 * self.h2_energy + (self.o2_energy - self.cpd_entropies["O2"]) + MU_H2O) / 3,
-            6,
-        )
+        self.fit_h2o_energy = round((2 * self.h2_energy + (self.o2_energy - self.cpd_entropies["O2"]) + MU_H2O) / 3, 6,)
 
         comp = entry.composition
         rform = comp.reduced_formula
