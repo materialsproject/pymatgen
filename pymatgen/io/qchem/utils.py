@@ -40,13 +40,7 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
 
 def read_table_pattern(
-    text_str,
-    header_pattern,
-    row_pattern,
-    footer_pattern,
-    postprocess=str,
-    attribute_name=None,
-    last_one_only=False,
+    text_str, header_pattern, row_pattern, footer_pattern, postprocess=str, attribute_name=None, last_one_only=False,
 ):
     r"""
     Parse table-like data. A table composes of three parts: header,
