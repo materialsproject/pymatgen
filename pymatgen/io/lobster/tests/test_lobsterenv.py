@@ -386,6 +386,11 @@ class TestLobsterNeighbors(unittest.TestCase):
                                                 isites=[0], only_bonds_to=["O"],
                                                 summed_spin_channels=True)
 
+        chemenvlobster1.plot_cohps_of_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
+                                                                             "COHPCAR.lobster.mp-190.gz"),
+                                                isites=[0], only_bonds_to=["O"],
+                                                summed_spin_channels=True, xlim=[-10,10],ylim=None)
+
         with self.assertRaises(ValueError):
             # icohplist and cohpcar do not fit together
             self.chemenvlobster1.get_info_cohps_to_neighbors(path_to_COHPCAR=os.path.join(test_dir_env,
@@ -400,7 +405,7 @@ class TestLobsterNeighbors(unittest.TestCase):
                                                              isites=[0], only_bonds_to=None,
                                                              per_bond=False)
 
-        #TODO: check if summed spin channel works for non-spinpolarized cases!
+
 
 
 

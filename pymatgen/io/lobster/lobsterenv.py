@@ -256,22 +256,22 @@ class LobsterNeighbors(NearNeighbors):
 
         return summed_icohps, list_icohps, number_bonds, labels, atoms
 
-    # TODO: maybe include focus on certain type of atom
+
     def plot_cohps_of_neighbors(self, path_to_COHPCAR="COHPCAR.lobster", isites=[], onlycation_isites=True,
-                                only_bonds_to=None, per_bond=False, summed_spin_channels=False,xlim=[], ylim=[]):
-        # TODO: maybe only return summed COHP and label?
-        # One might be able to use this to evaluate antibonding interactions close to the Fermi level
+                                only_bonds_to=None, per_bond=False, summed_spin_channels=False, xlim=None, ylim=[-10,
+                                                                                                                 6]):
 
         """
         will plot summed cohps (please be careful in the spin polarized case (plots might overlap (exactly!))
         Args:
             isites: list of site ids, if isite==[], all isites will be used to add the icohps of the neighbors
-            onlycation_isites: will only use cations, if isite==[]
-            per_bond: will lead to a normalization of the plotted COHP per number of bond if True, otherwise the sum
+            onlycation_isites: bool, will only use cations, if isite==[]
+            only_bonds_to: list of str, only anions in this list will be considered
+            per_bond: bool, will lead to a normalization of the plotted COHP per number of bond if True,
+            otherwise the sum
             will be plotted
-            only_bonds_to: only anions in this list will be considered
-            xlim: limits of x values
-            ylim: limits of z values
+            xlim: list of float, limits of x values
+            ylim: list of float, limits of y values
 
         Returns:
             plt of the cohps
@@ -288,14 +288,19 @@ class LobsterNeighbors(NearNeighbors):
                                                                   per_bond, summed_spin_channels=summed_spin_channels)
 
         cp.add_cohp(plotlabel, summed_cohp)
-        x = cp.get_plot(integrated=True)
-        x.ylim([-10, 6])
+        plot = cp.get_plot(integrated=True)
+        if xlim is not None:
+            plot.xlim(xlim)
 
-        return x
+        if ylim is not None:
+            plot.ylim(ylim)
+
+        return plot
 
     def get_info_cohps_to_neighbors(self, path_to_COHPCAR, isites, only_bonds_to, onlycation_isites=True,
                                     per_bond=True, summed_spin_channels=False):
 
+        #TODO: add options for orbital-resolved cohps
         summed_icohps, list_icohps, number_bonds, labels, atoms = self.get_info_icohps_to_neighbors(isites=isites,
                                                                                                     onlycation_isites=onlycation_isites)
         import tempfile
@@ -519,9 +524,9 @@ class LobsterNeighbors(NearNeighbors):
         will find all relevant neighbors based on certain restrictions
         Args:
             additional_condition (int): additional condition (see above)
-            lowerlimit:
-            only_bonds_to:
-            upperlimit:
+            lowerlimit (float): lower limit that tells you which ICOHPs are considered
+            upperlimit (float): upper limit that tells you which ICOHPs are considerd
+            only_bonds_to (list): list of str, e.g. ["O"] that will ensure that only bonds to "O" will be considered
 
         Returns:
 

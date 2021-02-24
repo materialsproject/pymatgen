@@ -339,45 +339,32 @@ class CompleteCohp(Cohp):
         Returns:
             Returns the COHP object to simplify plotting
         """
+        # TODO: possibly add option to only get one spin channel as Spin.down in the future!
+        if label.lower() == "average":
+            divided_cohp = self.cohp
+            divided_icohp = self.icohp
 
-        if not summed_spin_channels:
-            if label.lower() == "average":
-                return Cohp(
-                    efermi=self.efermi,
-                    energies=self.energies,
-                    cohp=self.cohp,
-                    are_coops=self.are_coops,
-                    icohp=self.icohp,
-                )
-            return Cohp(
-                efermi=self.efermi,
-                energies=self.energies,
-                cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False),
-                are_coops=self.are_coops,
-                icohp=self.all_cohps[label].get_icohp(spin=None),
-            )
         else:
+            divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
+            divided_icohp = self.all_cohps[label].get_icohp(spin=None)
+
+        if summed_spin_channels and Spin.down in self.cohp:
             final_cohp = {}
             final_icohp = {}
-            if label.lower() == "average":
-
-                divided_cohp = self.cohp
-                divided_icohp = self.icohp
-
-            else:
-                divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
-                divided_icohp = self.all_cohps[label].get_icohp(spin=None, integrated=False)
             final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
             final_icohp[Spin.up] = np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
-            return Cohp(
-                efermi=self.efermi,
-                energies=self.energies,
-                cohp=final_cohp,
-                are_coops=self.are_coops,
-                icohp=self.all_cohps[label].get_icohp(spin=None),
-            )
+        else:
+            final_cohp = divided_cohp
+            final_icohp = divided_icohp
 
-    # TODO: add tests for summed_spin_channels (What happens if data is not spinpolarized?
+        return Cohp(
+            efermi=self.efermi,
+            energies=self.energies,
+            cohp=final_cohp,
+            are_coops=self.are_coops,
+            icohp=final_icohp,
+        )
+
     def get_summed_cohp_by_label_list(self, label_list, divisor=1, summed_spin_channels=False):
         """
         Returns a COHP object that includes a summed COHP divided by divisor
@@ -416,7 +403,6 @@ class CompleteCohp(Cohp):
         if summed_spin_channels and Spin.down in summed_cohp:
             final_cohp = {}
             final_icohp = {}
-
             final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
             final_icohp[Spin.up] = np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
         else:
@@ -446,7 +432,6 @@ class CompleteCohp(Cohp):
         Returns:
             Returns a COHP object including a summed COHP
         """
-        # TODO: add tests for summed_spin_channels
         # check length of label_list and orbital_list:
         if not len(label_list) == len(orbital_list):
             raise ValueError("label_list and orbital_list don't have the same length!")
@@ -490,7 +475,6 @@ class CompleteCohp(Cohp):
         )
 
     def get_orbital_resolved_cohp(self, label, orbitals, summed_spin_channels=False):
-        # TODO: add test summed_spin_channels
         """
         Get orbital-resolved COHP.
 
@@ -500,6 +484,7 @@ class CompleteCohp(Cohp):
             orbitals: The orbitals as a label, or list or tuple of the form
                 [(n1, orbital1), (n2, orbital2)]. Orbitals can either be str,
                 int, or Orbital.
+
             summed_spin_channels: bool, will sum the spin channels and return the sum in Spin.up if true
 
         Returns:
@@ -535,36 +520,26 @@ class CompleteCohp(Cohp):
         except KeyError:
             icohp = None
 
-        if not summed_spin_channels:
-            return Cohp(
-                self.efermi,
-                self.energies,
-                self.orb_res_cohp[label][orb_label]["COHP"],
-                icohp=icohp,
-                are_coops=self.are_coops,
-            )
-        else:
-            # TODO simplify code!
-            divided_cohp = self.orb_res_cohp[label][orb_label]["COHP"]
-            divided_icohp = self.orb_res_cohp[label][orb_label]["ICOHP"]
+        start_cohp = self.orb_res_cohp[label][orb_label]["COHP"]
+        start_icohp = icohp
+
+        if summed_spin_channels and Spin.down in start_cohp:
             final_cohp = {}
             final_icohp = {}
-            if Spin.down in divided_cohp:
-                final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
-            else:
-                final_cohp = divided_cohp
-            if Spin.down in divided_icohp:
-                final_icohp[Spin.up] = np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
-            else:
-                final_icohp = divided_icohp
+            final_cohp[Spin.up] = np.sum([start_cohp[Spin.up], start_cohp[Spin.down]], axis=0)
+            if start_icohp is not None:
+                final_icohp[Spin.up] = np.sum([start_icohp[Spin.up], start_icohp[Spin.down]], axis=0)
+        else:
+            final_cohp = start_cohp
+            final_icohp = start_icohp
 
-            return Cohp(
-                self.efermi,
-                self.energies,
-                final_cohp,
-                icohp=final_icohp,
-                are_coops=self.are_coops,
-            )
+        return Cohp(
+            self.efermi,
+            self.energies,
+            final_cohp,
+            icohp=final_icohp,
+            are_coops=self.are_coops,
+        )
 
     @classmethod
     def from_dict(cls, d):
