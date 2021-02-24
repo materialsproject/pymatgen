@@ -74,6 +74,11 @@ class PDEntry(Entry):
         """
         :return: the energy of the entry.
         """
+
+
+
+
+
         return self._energy
 
     def as_dict(self):
