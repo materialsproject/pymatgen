@@ -114,7 +114,7 @@ class LobsterNeighbors(NearNeighbors):
         else:
             self.valences = valences
 
-        if limits == None:
+        if limits is None:
             self.lowerlimit = None
             self.upperlimit = None
 
@@ -567,11 +567,11 @@ class LobsterNeighbors(NearNeighbors):
 
         """
         # get extremum
-        if lowerlimit == None and upperlimit == None:
+        if lowerlimit is None and upperlimit is None:
             lowerlimit, upperlimit = self._get_limit_from_extremum(self.Icohpcollection, percentage=perc_strength_ICOHP)
-        elif lowerlimit == None and upperlimit != None:
+        elif lowerlimit is None and upperlimit is not None:
             raise ValueError("Please give two limits or leave them both at None")
-        elif upperlimit == None and lowerlimit != None:
+        elif upperlimit is None and lowerlimit is not None:
             raise ValueError("Please give two limits or leave them both at None")
 
         # find environments based on ICOHP values
