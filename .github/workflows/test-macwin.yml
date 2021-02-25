@@ -1,4 +1,4 @@
-name: Testing
+name: Testing Mac Windows
 
 on: [ pull_request ]
 
@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [ macos-latest, windows-latest ]
         python-version: [ 3.8 ]
-        pkg: [ analysis, others ]
+        pkg: [ 1, 2, 3, 4 ]
 
     runs-on: ${{ matrix.os }}
 
@@ -46,11 +46,7 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install -e .
-      - name: pytest ${{ matrix.pkg }}
-        if: matrix.pkg != 'others'
-        run: pytest pymatgen/${{ matrix.pkg }}
-      - name: pytest others
-        # We forgo testing the ext package on Mac and Windows to avoid overload the API. Test completeness is targeted
-        # in the Linux tests.
-        if: matrix.pkg == 'others'
-        run: pytest pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/ext
+      - name: pytest group ${{ matrix.pkg }}
+        run: |
+          echo "Testing `sed -n '${{ matrix.pkg }}p' pytest-groups`"
+          pytest `sed -n '${{ matrix.pkg }}p' pytest-groups` --cov=pymatgen

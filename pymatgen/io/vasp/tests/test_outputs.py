@@ -700,7 +700,7 @@ class VasprunTest(PymatgenTest):
         vpath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
-        
+
 
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1405,7 +1405,7 @@ class OutcarTest(PymatgenTest):
     def test_vasp620_format(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
         outcar = Outcar(filepath)
-        self.assertEqual(outcar.run_stats['Average memory used (kb)'], None)
+        self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
 
 
 class BSVasprunTest(PymatgenTest):

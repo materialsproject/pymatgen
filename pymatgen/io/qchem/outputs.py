@@ -697,7 +697,7 @@ class QCOutput(MSONable):
 
         parsed_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         for ii, parsed_geometry in enumerate(parsed_geometries):
-            if parsed_geometry == [] or None:
+            if not parsed_geometry:
                 geoms.append(None)
             else:
                 geoms.append(process_parsed_coords(parsed_geometry))
@@ -718,7 +718,7 @@ class QCOutput(MSONable):
 
         parsed_optimized_geometries = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
-        if parsed_optimized_geometries == [] or None:
+        if not parsed_optimized_geometries:
             self.data["optimized_geometry"] = None
             header_pattern = (
                 r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+"
