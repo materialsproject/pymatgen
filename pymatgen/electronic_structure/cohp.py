@@ -14,7 +14,7 @@ import warnings
 
 import numpy as np
 from monty.json import MSONable
-
+from scipy.interpolate import InterpolatedUnivariateSpline
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -329,39 +329,51 @@ class CompleteCohp(Cohp):
 
         return d
 
-    def get_cohp_by_label(self, label):
+    def get_cohp_by_label(self, label, summed_spin_channels=False):
         """
         Get specific COHP object.
 
         Args:
             label: string (for newer Lobster versions: a number)
+            summed_spin_channels: bool, will sum the spin channels and return the sum in Spin.up if true
 
         Returns:
             Returns the COHP object to simplify plotting
         """
+        # TODO: possibly add option to only get one spin channel as Spin.down in the future!
         if label.lower() == "average":
-            return Cohp(
-                efermi=self.efermi,
-                energies=self.energies,
-                cohp=self.cohp,
-                are_coops=self.are_coops,
-                icohp=self.icohp,
-            )
+            divided_cohp = self.cohp
+            divided_icohp = self.icohp
+
+        else:
+            divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
+            divided_icohp = self.all_cohps[label].get_icohp(spin=None)
+
+        if summed_spin_channels and Spin.down in self.cohp:
+            final_cohp = {}
+            final_icohp = {}
+            final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
+            final_icohp[Spin.up] = np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
+        else:
+            final_cohp = divided_cohp
+            final_icohp = divided_icohp
+
         return Cohp(
             efermi=self.efermi,
             energies=self.energies,
-            cohp=self.all_cohps[label].get_cohp(spin=None, integrated=False),
+            cohp=final_cohp,
             are_coops=self.are_coops,
-            icohp=self.all_cohps[label].get_icohp(spin=None),
+            icohp=final_icohp,
         )
 
-    def get_summed_cohp_by_label_list(self, label_list, divisor=1):
+    def get_summed_cohp_by_label_list(self, label_list, divisor=1, summed_spin_channels=False):
         """
         Returns a COHP object that includes a summed COHP divided by divisor
 
         Args:
             label_list: list of labels for the COHP that should be included in the summed cohp
             divisor: float/int, the summed cohp will be divided by this divisor
+            summed_spin_channels: bool, will sum the spin channels and return the sum in Spin.up if true
         Returns:
             Returns a COHP object including a summed COHP
         """
@@ -372,9 +384,12 @@ class CompleteCohp(Cohp):
         for label in label_list[1:]:
             cohp_here = self.get_cohp_by_label(label)
             summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp_here.cohp[Spin.up]], axis=0)
+
             if Spin.down in summed_cohp:
                 summed_cohp[Spin.down] = np.sum([summed_cohp[Spin.down], cohp_here.cohp[Spin.down]], axis=0)
+
             summed_icohp[Spin.up] = np.sum([summed_icohp[Spin.up], cohp_here.icohp[Spin.up]], axis=0)
+
             if Spin.down in summed_icohp:
                 summed_icohp[Spin.down] = np.sum([summed_icohp[Spin.down], cohp_here.icohp[Spin.down]], axis=0)
 
@@ -386,15 +401,26 @@ class CompleteCohp(Cohp):
             divided_cohp[Spin.down] = np.divide(summed_cohp[Spin.down], divisor)
             divided_icohp[Spin.down] = np.divide(summed_icohp[Spin.down], divisor)
 
+        if summed_spin_channels and Spin.down in summed_cohp:
+            final_cohp = {}
+            final_icohp = {}
+            final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
+            final_icohp[Spin.up] = np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
+        else:
+            final_cohp = divided_cohp
+            final_icohp = divided_icohp
+
         return Cohp(
             efermi=first_cohpobject.efermi,
             energies=first_cohpobject.energies,
-            cohp=divided_cohp,
+            cohp=final_cohp,
             are_coops=first_cohpobject.are_coops,
-            icohp=divided_icohp,
+            icohp=final_icohp,
         )
 
-    def get_summed_cohp_by_label_and_orbital_list(self, label_list, orbital_list, divisor=1):
+    def get_summed_cohp_by_label_and_orbital_list(
+        self, label_list, orbital_list, divisor=1, summed_spin_channels=False
+    ):
         """
         Returns a COHP object that includes a summed COHP divided by divisor
 
@@ -403,6 +429,8 @@ class CompleteCohp(Cohp):
             orbital_list: list of orbitals for the COHPs that should be included in the summed cohp (same order as
                 label_list)
             divisor: float/int, the summed cohp will be divided by this divisor
+            summed_spin_channels: bool, will sum the spin channels and return the sum in Spin.up if true
+
         Returns:
             Returns a COHP object including a summed COHP
         """
@@ -430,15 +458,25 @@ class CompleteCohp(Cohp):
             divided_cohp[Spin.down] = np.divide(summed_cohp[Spin.down], divisor)
             divided_icohp[Spin.down] = np.divide(summed_icohp[Spin.down], divisor)
 
+        if summed_spin_channels and Spin.down in divided_cohp:
+            final_cohp = {}
+            final_icohp = {}
+
+            final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
+            final_icohp[Spin.up] = np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
+        else:
+            final_cohp = divided_cohp
+            final_icohp = divided_icohp
+
         return Cohp(
             efermi=first_cohpobject.efermi,
             energies=first_cohpobject.energies,
-            cohp=divided_cohp,
+            cohp=final_cohp,
             are_coops=first_cohpobject.are_coops,
-            icohp=divided_icohp,
+            icohp=final_icohp,
         )
 
-    def get_orbital_resolved_cohp(self, label, orbitals):
+    def get_orbital_resolved_cohp(self, label, orbitals, summed_spin_channels=False):
         """
         Get orbital-resolved COHP.
 
@@ -448,6 +486,8 @@ class CompleteCohp(Cohp):
             orbitals: The orbitals as a label, or list or tuple of the form
                 [(n1, orbital1), (n2, orbital2)]. Orbitals can either be str,
                 int, or Orbital.
+
+            summed_spin_channels: bool, will sum the spin channels and return the sum in Spin.up if true
 
         Returns:
             A Cohp object if CompleteCohp contains orbital-resolved cohp,
@@ -481,11 +521,25 @@ class CompleteCohp(Cohp):
             icohp = self.orb_res_cohp[label][orb_label]["ICOHP"]
         except KeyError:
             icohp = None
+
+        start_cohp = self.orb_res_cohp[label][orb_label]["COHP"]
+        start_icohp = icohp
+
+        if summed_spin_channels and Spin.down in start_cohp:
+            final_cohp = {}
+            final_icohp = {}
+            final_cohp[Spin.up] = np.sum([start_cohp[Spin.up], start_cohp[Spin.down]], axis=0)
+            if start_icohp is not None:
+                final_icohp[Spin.up] = np.sum([start_icohp[Spin.up], start_icohp[Spin.down]], axis=0)
+        else:
+            final_cohp = start_cohp
+            final_icohp = start_icohp
+
         return Cohp(
             self.efermi,
             self.energies,
-            self.orb_res_cohp[label][orb_label]["COHP"],
-            icohp=icohp,
+            final_cohp,
+            icohp=final_icohp,
             are_coops=self.are_coops,
         )
 
@@ -1140,3 +1194,97 @@ class IcohpCollection(MSONable):
         :return: Whether this is coops.
         """
         return self._are_coops
+
+
+def get_integrated_cohp_in_energy_range(
+    cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+):
+    """
+    Method that can integrate completecohp objects which include data on integrated COHPs
+    Args:
+        cohp: CompleteCOHP object
+        label: label of the COHP data
+        orbital: If not None, a orbital resolved integrated COHP will be returned
+        energy_range:   if None, returns icohp value at Fermi level;
+                        if float, integrates from this float up to the Fermi level;
+                        if [float,float], will integrate in between
+        relative_E_Fermi: if True, energy scale with E_Fermi at 0 eV is chosen
+        summed_spin_channels: if True, Spin channels will be summed
+
+    Returns:
+        float indicating the integrated COHP if summed_spin_channels==True, otherwise dict of the following form {
+        Spin.up:float, Spin.down:float}
+    """
+    summedicohp = {}
+    if orbital is None:
+        icohps = cohp.all_cohps[label].get_icohp(spin=None)
+        if summed_spin_channels and Spin.down in icohps:
+            summedicohp[Spin.up] = icohps[Spin.up] + icohps[Spin.down]
+        else:
+            summedicohp = icohps
+    else:
+        icohps = cohp.get_orbital_resolved_cohp(label=label, orbitals=orbital).icohp
+        if summed_spin_channels and Spin.down in icohps:
+            summedicohp[Spin.up] = icohps[Spin.up] + icohps[Spin.down]
+        else:
+            summedicohp = icohps
+
+    if energy_range is None:
+
+        energies_corrected = cohp.energies - cohp.efermi
+        spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
+
+        if not summed_spin_channels and Spin.down in icohps:
+            spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
+            return {Spin.up: spl_spinup(0.0), Spin.down: spl_spindown(0.0)}
+        if summed_spin_channels:
+            return spl_spinup(0.0)
+
+        return {Spin.up: spl_spinup(0.0)}
+
+    # returns icohp value at the Fermi level!
+    if isinstance(energy_range, float):
+        if relative_E_Fermi:
+            energies_corrected = cohp.energies - cohp.efermi
+            spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
+
+            if not summed_spin_channels and Spin.down in icohps:
+                spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
+                return {
+                    Spin.up: spl_spinup(0) - spl_spinup(energy_range),
+                    Spin.down: spl_spindown(0) - spl_spindown(energy_range),
+                }
+            if summed_spin_channels:
+                return spl_spinup(0) - spl_spinup(energy_range)
+            return {Spin.up: spl_spinup(0) - spl_spinup(energy_range)}
+
+        energies_corrected = cohp.energies
+        spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
+
+        if not summed_spin_channels and Spin.down in icohps:
+            spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
+            return {
+                Spin.up: spl_spinup(cohp.efermi) - spl_spinup(energy_range),
+                Spin.down: spl_spindown(cohp.efermi) - spl_spindown(energy_range),
+            }
+        if summed_spin_channels:
+            return spl_spinup(cohp.efermi) - spl_spinup(energy_range)
+        return {Spin.up: spl_spinup(cohp.efermi) - spl_spinup(energy_range)}
+
+    if relative_E_Fermi:
+        energies_corrected = cohp.energies - cohp.efermi
+    else:
+        energies_corrected = cohp.energies
+
+    spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
+
+    if not summed_spin_channels and Spin.down in icohps:
+        spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
+        return {
+            Spin.up: spl_spinup(energy_range[1]) - spl_spinup(energy_range[0]),
+            Spin.down: spl_spindown(energy_range[1]) - spl_spindown(energy_range[0]),
+        }
+    if summed_spin_channels:
+        return spl_spinup(energy_range[1]) - spl_spinup(energy_range[0])
+
+    return {Spin.up: spl_spinup(energy_range[1]) - spl_spinup(energy_range[0])}
