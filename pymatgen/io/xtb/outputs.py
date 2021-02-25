@@ -92,7 +92,7 @@ class CRESTOutput(MSONable):
                 chg = int(str_chg)
             else:
                 chg = int(str_chg[-1])
-        elif "chrg" in self.cmd_options.keys():
+        elif "c" in self.cmd_options.keys():
             str_chg = self.cmd_options["c"]
             if '-' in str_chg:
                 chg = int(str_chg)
