@@ -401,16 +401,8 @@ class CompositionTest(PymatgenTest):
         c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*1.01}")
         c3 = Composition(f"O{0.2}Fe{0.8}")
 
-        self.assertEqual(
-            c1 == c3,
-            hash(c1) == hash(c3),
-            "Hash not robust"
-        )
-        self.assertEqual(
-            c2 == c3,
-            hash(c2) == hash(c3),
-            "Hash not robust"
-        )
+        self.assertEqual(c1 == c3, hash(c1) == hash(c3), "Hash not robust")
+        self.assertEqual(c2 == c3, hash(c2) == hash(c3), "Hash not robust")
 
     def test_comparisons(self):
         c1 = Composition({"S": 1})
