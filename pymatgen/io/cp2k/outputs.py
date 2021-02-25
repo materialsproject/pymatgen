@@ -230,7 +230,7 @@ class Cp2kOutput:
             else:
                 self.filenames["wfn"] = w
         for f in self.filenames:
-            if f != 'wfn':
+            if hasattr(self.filenames[f], 'sort'):
                 self.filenames[f].sort(key=natural_keys)
 
     def parse_structures(self, trajectory_file=None, lattice_file=None):
@@ -810,7 +810,7 @@ class Cp2kOutput:
         )
         row = (
             r"(\d+)" +
-            r"\s+(\S+\s?\S+)" +
+            r"\s+([A-Za-z\./]+\s?[A-Za-z\./]+)" +
             r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)" +
             r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)" +
             r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?" +
