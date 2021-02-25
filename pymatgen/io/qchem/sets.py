@@ -223,6 +223,10 @@ class QChemDictSet(QCInput):
                     temp_plots = lower_and_check_unique(sec_dict)
                     for k, v in temp_plots.items():
                         myplots[k] = v
+                if sec == "opt":
+                    temp_opts = lower_and_check_unique(sec_dict)
+                    for k, v in temp_opts.items():
+                        myopt[k] = v
 
         super().__init__(
             self.molecule,
