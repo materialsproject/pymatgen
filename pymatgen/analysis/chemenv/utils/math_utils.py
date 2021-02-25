@@ -15,16 +15,16 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
+from functools import reduce
 from math import sqrt
 
 import numpy as np
 from scipy.special import erf
-from functools import reduce
-
 
 ##############################################################
 # cartesian product of lists ##################################
 ##############################################################
+
 
 def _append_es2sequences(sequences, es):
     result = []
@@ -94,6 +94,12 @@ def divisors(n):
 
 
 def get_center_of_arc(p1, p2, radius):
+    """
+    :param p1:
+    :param p2:
+    :param radius:
+    :return:
+    """
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
     dd = np.sqrt(dx * dx + dy * dy)
@@ -107,6 +113,10 @@ def get_center_of_arc(p1, p2, radius):
 
 
 def get_linearly_independent_vectors(vectors_list):
+    """
+    :param vectors_list:
+    :return:
+    """
     independent_vectors_list = []
     for vector in vectors_list:
         if np.any(vector != 0):
@@ -126,11 +136,25 @@ def get_linearly_independent_vectors(vectors_list):
 
 
 def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
+    """
+    :param xx:
+    :param edge0:
+    :param edge1:
+    :param clamp0:
+    :param clamp1:
+    :return:
+    """
     return np.clip((xx - edge0) / (edge1 - edge0), clamp0, clamp1)
 
 
 # Step function based on the cumulative distribution function of the normal law
 def normal_cdf_step(xx, mean, scale):
+    """
+    :param xx:
+    :param mean:
+    :param scale:
+    :return:
+    """
     return 0.5 * (1.0 + erf((xx - mean) / (np.sqrt(2.0) * scale)))
 
 
@@ -140,67 +164,101 @@ def normal_cdf_step(xx, mean, scale):
 # (except if edges is given in which case a the values are first scaled and clamped to the interval given by edges)
 # The derivative at x = 0.0 and x = 1.0 have to be 0.0
 
+
 def smoothstep(xx, edges=None, inverse=False):
+    """
+    :param xx:
+    :param edges:
+    :param inverse:
+    :return:
+    """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if inverse:
             return 1.0 - xx_clipped * xx_clipped * (3.0 - 2.0 * xx_clipped)
-        else:
-            return xx_clipped * xx_clipped * (3.0 - 2.0 * xx_clipped)
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return smoothstep(xx_scaled_and_clamped, inverse=inverse)
+        return xx_clipped * xx_clipped * (3.0 - 2.0 * xx_clipped)
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return smoothstep(xx_scaled_and_clamped, inverse=inverse)
 
 
 def smootherstep(xx, edges=None, inverse=False):
+    """
+    :param xx:
+    :param edges:
+    :param inverse:
+    :return:
+    """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if inverse:
             return 1.0 - xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
-        else:
-            return xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return smootherstep(xx_scaled_and_clamped, inverse=inverse)
+        return xx_clipped * xx_clipped * xx_clipped * (xx_clipped * (xx_clipped * 6 - 15) + 10)
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return smootherstep(xx_scaled_and_clamped, inverse=inverse)
 
 
 def cosinus_step(xx, edges=None, inverse=False):
+    """
+    :param xx:
+    :param edges:
+    :param inverse:
+    :return:
+    """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if inverse:
             return (np.cos(xx_clipped * np.pi) + 1.0) / 2.0
-        else:
-            return 1.0 - (np.cos(xx_clipped * np.pi) + 1.0) / 2.0
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return cosinus_step(xx_scaled_and_clamped, inverse=inverse)
+        return 1.0 - (np.cos(xx_clipped * np.pi) + 1.0) / 2.0
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return cosinus_step(xx_scaled_and_clamped, inverse=inverse)
 
 
 def power3_step(xx, edges=None, inverse=False):
+    """
+    :param xx:
+    :param edges:
+    :param inverse:
+    :return:
+    """
     return smoothstep(xx, edges=edges, inverse=inverse)
 
 
 def powern_parts_step(xx, edges=None, inverse=False, nn=2):
+    """
+    :param xx:
+    :param edges:
+    :param inverse:
+    :param nn:
+    :return:
+    """
     if edges is None:
         aa = np.power(0.5, 1.0 - nn)
         xx_clipped = np.clip(xx, 0.0, 1.0)
         if np.mod(nn, 2) == 0:
             if inverse:
-                return 1.0 - np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                      1.0 - aa * np.power(xx_clipped - 1.0, nn))
-            else:
-                return np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                1.0 - aa * np.power(xx_clipped - 1.0, nn))
-        else:
-            if inverse:
-                return 1.0 - np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                      1.0 + aa * np.power(xx_clipped - 1.0, nn))
-            else:
-                return np.where(xx_clipped < 0.5, aa * np.power(xx_clipped, nn),
-                                1.0 + aa * np.power(xx_clipped - 1.0, nn))
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return powern_parts_step(xx_scaled_and_clamped, inverse=inverse, nn=nn)
+                return 1.0 - np.where(
+                    xx_clipped < 0.5,
+                    aa * np.power(xx_clipped, nn),
+                    1.0 - aa * np.power(xx_clipped - 1.0, nn),
+                )
+            return np.where(
+                xx_clipped < 0.5,
+                aa * np.power(xx_clipped, nn),
+                1.0 - aa * np.power(xx_clipped - 1.0, nn),
+            )
+        if inverse:
+            return 1.0 - np.where(
+                xx_clipped < 0.5,
+                aa * np.power(xx_clipped, nn),
+                1.0 + aa * np.power(xx_clipped - 1.0, nn),
+            )
+        return np.where(
+            xx_clipped < 0.5,
+            aa * np.power(xx_clipped, nn),
+            1.0 + aa * np.power(xx_clipped - 1.0, nn),
+        )
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return powern_parts_step(xx_scaled_and_clamped, inverse=inverse, nn=nn)
 
 
 # FINITE DECREASING FUNCTIONS
@@ -209,21 +267,31 @@ def powern_parts_step(xx, edges=None, inverse=False, nn=2):
 
 
 def powern_decreasing(xx, edges=None, nn=2):
+    """
+    :param xx:
+    :param edges:
+    :param nn:
+    :return:
+    """
     if edges is None:
         aa = 1.0 / np.power(-1.0, nn)
         return aa * np.power(xx - 1.0, nn)
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return powern_decreasing(xx_scaled_and_clamped, nn=nn)
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return powern_decreasing(xx_scaled_and_clamped, nn=nn)
 
 
 def power2_decreasing_exp(xx, edges=None, alpha=1.0):
+    """
+    :param xx:
+    :param edges:
+    :param alpha:
+    :return:
+    """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2)
         return aa * np.power(xx - 1.0, 2) * np.exp(-alpha * xx)
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_decreasing_exp(xx_scaled_and_clamped, alpha=alpha)
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return power2_decreasing_exp(xx_scaled_and_clamped, alpha=alpha)
 
 
 # INFINITE TO FINITE DECREASING FUNCTIONS
@@ -232,18 +300,30 @@ def power2_decreasing_exp(xx, edges=None, alpha=1.0):
 
 
 def power2_tangent_decreasing(xx, edges=None, prefactor=None):
+    """
+    :param xx:
+    :param edges:
+    :param prefactor:
+    :return:
+    """
     if edges is None:
         if prefactor is None:
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
-        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_tangent_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
+        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)  # pylint: disable=E1130
+
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return power2_tangent_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
 
 
 def power2_inverse_decreasing(xx, edges=None, prefactor=None):
+    """
+    :param xx:
+    :param edges:
+    :param prefactor:
+    :return:
+    """
     if edges is None:
         if prefactor is None:
             aa = 1.0 / np.power(-1.0, 2)
@@ -251,30 +331,45 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
             aa = prefactor
         return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx)
         # return aa * np.power(xx-1.0, 2) / xx if xx != 0 else aa * float("inf")
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_inverse_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return power2_inverse_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
 
 
 def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
+    """
+    :param xx:
+    :param edges:
+    :param prefactor:
+    :return:
+    """
     if edges is None:
         if prefactor is None:
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
-        return np.where(np.isclose(xx, 0.0), aa * float("inf"), aa * np.power(xx - 1.0, 2) / xx ** 2.0)
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
+        return np.where(
+            np.isclose(xx, 0.0),
+            aa * float("inf"),
+            aa * np.power(xx - 1.0, 2) / xx ** 2.0,
+        )
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return power2_inverse_power2_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
 
 
 def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0):
+    """
+    :param xx:
+    :param edges:
+    :param prefactor:
+    :param powern:
+    :return:
+    """
     if edges is None:
         if prefactor is None:
             aa = 1.0 / np.power(-1.0, 2)
         else:
             aa = prefactor
         return aa * np.power(xx - 1.0, 2) / xx ** powern
-    else:
-        xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
-        return power2_inverse_powern_decreasing(xx_scaled_and_clamped, prefactor=prefactor, powern=powern)
+
+    xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
+    return power2_inverse_powern_decreasing(xx_scaled_and_clamped, prefactor=prefactor, powern=powern)

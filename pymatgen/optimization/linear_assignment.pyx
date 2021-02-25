@@ -1,3 +1,4 @@
+#cython: language_level=3
 # coding: utf-8
 
 from __future__ import division, unicode_literals
@@ -16,10 +17,10 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
-from libc.stdlib cimport malloc, free
-from libc.math cimport fabs
-cimport numpy as np
 cimport cython
+cimport numpy as np
+from libc.math cimport fabs
+from libc.stdlib cimport free, malloc
 
 
 class LinearAssignment:

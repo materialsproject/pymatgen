@@ -1,10 +1,9 @@
 Change log
 ==========
 
-v2020.7.10
+v2021.2.16
 ----------
-* Bug fix: serialization of slabs (@utf)
-* Bug fix: enumlib url (@wsyxbcl)
-* Bug fix: change in tolerance for Lattice comparison (@mbjumar)
-* Bug fix: k-path division by zero (@mfherbst)
-* New: support for openbabel 3.0 (@orioncohen)
+* Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (@mkhorton, #2066)
+* Addresses missing text file, all_cg.txt, in package
+* Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version
+* Previous release also dropped support for aconvasp since this the interface has not been maintained

@@ -7,26 +7,16 @@
 This module implements input and output processing from PWSCF.
 """
 
-
 import re
-
-from monty.io import zopen
-
-from monty.re import regrep
 from collections import defaultdict
 
-from pymatgen.core.periodic_table import Element
+from monty.io import zopen
+from monty.re import regrep
+
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.io_utils import clean_lines
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "3/27/15"
 
 
 class PWInput:
@@ -35,9 +25,19 @@ class PWInput:
     very basic.
     """
 
-    def __init__(self, structure, pseudo=None, control=None, system=None,
-                 electrons=None, ions=None, cell=None, kpoints_mode="automatic",
-                 kpoints_grid=(1, 1, 1), kpoints_shift=(0, 0, 0)):
+    def __init__(
+        self,
+        structure,
+        pseudo=None,
+        control=None,
+        system=None,
+        electrons=None,
+        ions=None,
+        cell=None,
+        kpoints_mode="automatic",
+        kpoints_grid=(1, 1, 1),
+        kpoints_shift=(0, 0, 0),
+    ):
         """
         Initializes a PWSCF input file.
 
@@ -72,15 +72,13 @@ class PWInput:
         if pseudo is None:
             for site in structure:
                 try:
-                    site.properties['pseudo']
+                    site.properties["pseudo"]
                 except KeyError:
-                    raise PWInputError("Missing %s in pseudo specification!"
-                                       % site)
+                    raise PWInputError("Missing %s in pseudo specification!" % site)
         else:
             for species in self.structure.composition.keys():
                 if species.symbol not in pseudo:
-                    raise PWInputError("Missing %s in pseudo specification!"
-                                       % species.symbol)
+                    raise PWInputError("Missing %s in pseudo specification!" % species.symbol)
         self.pseudo = pseudo
 
         self.sections = sections
@@ -110,13 +108,12 @@ class PWInput:
         def to_str(v):
             if isinstance(v, str):
                 return "'%s'" % v
-            elif isinstance(v, float):
+            if isinstance(v, float):
                 return "%s" % str(v).replace("e", "d")
-            elif isinstance(v, bool):
+            if isinstance(v, bool):
                 if v:
                     return ".TRUE."
-                else:
-                    return ".FALSE."
+                return ".FALSE."
             return v
 
         for k1 in ["control", "system", "electrons", "ions", "cell"]:
@@ -126,17 +123,17 @@ class PWInput:
             for k2 in sorted(v1.keys()):
                 if isinstance(v1[k2], list):
                     n = 1
-                    for l in v1[k2][:len(site_descriptions)]:
+                    for l in v1[k2][: len(site_descriptions)]:
                         sub.append("  %s(%d) = %s" % (k2, n, to_str(v1[k2][n - 1])))
                         n += 1
                 else:
                     sub.append("  %s = %s" % (k2, to_str(v1[k2])))
             if k1 == "system":
-                if 'ibrav' not in self.sections[k1]:
+                if "ibrav" not in self.sections[k1]:
                     sub.append("  ibrav = 0")
-                if 'nat' not in self.sections[k1]:
+                if "nat" not in self.sections[k1]:
                     sub.append("  nat = %d" % len(self.structure))
-                if 'ntyp' not in self.sections[k1]:
+                if "ntyp" not in self.sections[k1]:
                     sub.append("  ntyp = %d" % len(site_descriptions))
             sub.append("/")
             out.append(",\n".join(sub))
@@ -147,19 +144,17 @@ class PWInput:
             if self.pseudo is not None:
                 p = v
             else:
-                p = v['pseudo']
+                p = v["pseudo"]
             out.append("  %s  %.4f %s" % (k, Element(e).atomic_mass, p))
 
         out.append("ATOMIC_POSITIONS crystal")
         if self.pseudo is not None:
             for site in self.structure:
-                out.append("  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a,
-                                                    site.b, site.c))
+                out.append("  %s %.6f %.6f %.6f" % (site.specie.symbol, site.a, site.b, site.c))
         else:
             for site in self.structure:
                 name = None
-                for k, v in sorted(site_descriptions.items(),
-                                   key=lambda i: i[0]):
+                for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
                     if v == site.properties:
                         name = k
                 out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
@@ -180,12 +175,14 @@ class PWInput:
         Returns:
             dict
         """
-        pwinput_dict = {'structure': self.structure.as_dict(),
-                        'pseudo': self.pseudo,
-                        'sections': self.sections,
-                        'kpoints_mode': self.kpoints_mode,
-                        'kpoints_grid': self.kpoints_grid,
-                        'kpoints_shift': self.kpoints_shift}
+        pwinput_dict = {
+            "structure": self.structure.as_dict(),
+            "pseudo": self.pseudo,
+            "sections": self.sections,
+            "kpoints_mode": self.kpoints_mode,
+            "kpoints_grid": self.kpoints_grid,
+            "kpoints_shift": self.kpoints_shift,
+        }
         return pwinput_dict
 
     @classmethod
@@ -199,16 +196,18 @@ class PWInput:
         Returns:
             PWInput object
         """
-        pwinput = cls(structure=Structure.from_dict(pwinput_dict['structure']),
-                      pseudo=pwinput_dict['pseudo'],
-                      control=pwinput_dict['sections']['control'],
-                      system=pwinput_dict['sections']['system'],
-                      electrons=pwinput_dict['sections']['electrons'],
-                      ions=pwinput_dict['sections']['ions'],
-                      cell=pwinput_dict['sections']['cell'],
-                      kpoints_mode=pwinput_dict['kpoints_mode'],
-                      kpoints_grid=pwinput_dict['kpoints_grid'],
-                      kpoints_shift=pwinput_dict['kpoints_shift'])
+        pwinput = cls(
+            structure=Structure.from_dict(pwinput_dict["structure"]),
+            pseudo=pwinput_dict["pseudo"],
+            control=pwinput_dict["sections"]["control"],
+            system=pwinput_dict["sections"]["system"],
+            electrons=pwinput_dict["sections"]["electrons"],
+            ions=pwinput_dict["sections"]["ions"],
+            cell=pwinput_dict["sections"]["cell"],
+            kpoints_mode=pwinput_dict["kpoints_mode"],
+            kpoints_grid=pwinput_dict["kpoints_grid"],
+            kpoints_shift=pwinput_dict["kpoints_shift"],
+        )
         return pwinput
 
     def write_file(self, filename):
@@ -251,19 +250,23 @@ class PWInput:
         def input_mode(line):
             if line[0] == "&":
                 return ("sections", line[1:].lower())
-            elif "ATOMIC_SPECIES" in line:
+            if "ATOMIC_SPECIES" in line:
                 return ("pseudo",)
-            elif "K_POINTS" in line:
-                return ("kpoints", line.split("{")[1][:-1])
-            elif "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
-                return ("structure", line.split("{")[1][:-1])
-            elif line == "/":
+            if "K_POINTS" in line:
+                return "kpoints", line.split("{")[1][:-1]
+            if "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
+                return "structure", line.split("{")[1][:-1]
+            if line == "/":
                 return None
-            else:
-                return mode
+            return mode
 
-        sections = {"control": {}, "system": {}, "electrons": {},
-                    "ions": {}, "cell": {}}
+        sections = {
+            "control": {},
+            "system": {},
+            "electrons": {},
+            "ions": {},
+            "cell": {},
+        }
         pseudo = {}
         pseudo_index = 0
         lattice = []
@@ -278,7 +281,7 @@ class PWInput:
                 pass
             elif mode[0] == "sections":
                 section = mode[1]
-                m = re.match(r'(\w+)\(?(\d*?)\)?\s*=\s*(.*)', line)
+                m = re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line)
                 if m:
                     key = m.group(1).strip()
                     key_ = m.group(2).strip()
@@ -296,24 +299,28 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                m = re.match(r'(\w+)\s+(\d*.\d*)\s+(.*)', line)
+                m = re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line)
                 if m:
                     pseudo[m.group(1).strip()] = {}
                     pseudo[m.group(1).strip()]["index"] = pseudo_index
                     pseudo[m.group(1).strip()]["pseudopot"] = m.group(3).strip()
                     pseudo_index += 1
             elif mode[0] == "kpoints":
-                m = re.match(r'(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)', line)
+                m = re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line)
                 if m:
                     kpoints_grid = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
                     kpoints_shift = (int(m.group(4)), int(m.group(5)), int(m.group(6)))
                 else:
                     kpoints_mode = mode[1]
             elif mode[0] == "structure":
-                m_l = re.match(r'(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
-                m_p = re.match(r'(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)', line)
+                m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
+                m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
-                    lattice += [float(m_l.group(1)), float(m_l.group(2)), float(m_l.group(3))]
+                    lattice += [
+                        float(m_l.group(1)),
+                        float(m_l.group(2)),
+                        float(m_l.group(3)),
+                    ]
                 elif m_p:
                     site_properties["pseudo"].append(pseudo[m_p.group(1)]["pseudopot"])
                     species += [pseudo[m_p.group(1)]["pseudopot"].split(".")[0]]
@@ -321,20 +328,32 @@ class PWInput:
 
                     for k, v in site_properties.items():
                         if k != "pseudo":
-                            site_properties[k].append(sections['system'][k][pseudo[m_p.group(1)]["index"]])
+                            site_properties[k].append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
                 if mode[1] == "angstrom":
                     coords_are_cartesian = True
                 elif mode[1] == "crystal":
                     coords_are_cartesian = False
 
-        structure = Structure(Lattice(lattice), species, coords,
-                              coords_are_cartesian=coords_are_cartesian,
-                              site_properties=site_properties)
-        return PWInput(structure=structure, control=sections["control"],
-                       system=sections["system"], electrons=sections["electrons"],
-                       ions=sections["ions"], cell=sections["cell"], kpoints_mode=kpoints_mode,
-                       kpoints_grid=kpoints_grid, kpoints_shift=kpoints_shift)
+        structure = Structure(
+            Lattice(lattice),
+            species,
+            coords,
+            coords_are_cartesian=coords_are_cartesian,
+            site_properties=site_properties,
+        )
+        return PWInput(
+            structure=structure,
+            control=sections["control"],
+            system=sections["system"],
+            electrons=sections["electrons"],
+            ions=sections["ions"],
+            cell=sections["cell"],
+            kpoints_mode=kpoints_mode,
+            kpoints_grid=kpoints_grid,
+            kpoints_shift=kpoints_shift,
+        )
 
+    @staticmethod
     def proc_val(key, val):
         """
         Static helper method to convert PWINPUT parameters to proper type, e.g.,
@@ -344,37 +363,112 @@ class PWInput:
             key: PWINPUT parameter key
             val: Actual value of PWINPUT parameter.
         """
-        float_keys = ('etot_conv_thr', 'forc_conv_thr', 'conv_thr', 'Hubbard_U', 'Hubbard_J0', 'defauss',
-                      'starting_magnetization',)
+        float_keys = (
+            "etot_conv_thr",
+            "forc_conv_thr",
+            "conv_thr",
+            "Hubbard_U",
+            "Hubbard_J0",
+            "defauss",
+            "starting_magnetization",
+        )
 
-        int_keys = ('nstep', 'iprint', 'nberrycyc', 'gdir', 'nppstr', 'ibrav', 'nat', 'ntyp', 'nbnd', 'nr1',
-                    'nr2', 'nr3', 'nr1s', 'nr2s', 'nr3s', 'nspin', 'nqx1', 'nqx2', 'nqx3', 'lda_plus_u_kind',
-                    'edir', 'report', 'esm_nfit', 'space_group', 'origin_choice', 'electron_maxstep',
-                    'mixing_ndim', 'mixing_fixed_ns', 'ortho_para', 'diago_cg_maxiter', 'diago_david_ndim',
-                    'nraise', 'bfgs_ndim', 'if_pos', 'nks', 'nk1', 'nk2', 'nk3', 'sk1', 'sk2', 'sk3', 'nconstr')
+        int_keys = (
+            "nstep",
+            "iprint",
+            "nberrycyc",
+            "gdir",
+            "nppstr",
+            "ibrav",
+            "nat",
+            "ntyp",
+            "nbnd",
+            "nr1",
+            "nr2",
+            "nr3",
+            "nr1s",
+            "nr2s",
+            "nr3s",
+            "nspin",
+            "nqx1",
+            "nqx2",
+            "nqx3",
+            "lda_plus_u_kind",
+            "edir",
+            "report",
+            "esm_nfit",
+            "space_group",
+            "origin_choice",
+            "electron_maxstep",
+            "mixing_ndim",
+            "mixing_fixed_ns",
+            "ortho_para",
+            "diago_cg_maxiter",
+            "diago_david_ndim",
+            "nraise",
+            "bfgs_ndim",
+            "if_pos",
+            "nks",
+            "nk1",
+            "nk2",
+            "nk3",
+            "sk1",
+            "sk2",
+            "sk3",
+            "nconstr",
+        )
 
-        bool_keys = ('wf_collect', 'tstress', 'tprnfor', 'lkpoint_dir', 'tefield', 'dipfield', 'lelfield',
-                     'lorbm', 'lberry', 'lfcpopt', 'monopole', 'nosym', 'nosym_evc', 'noinv', 'no_t_rev',
-                     'force_symmorphic', 'use_all_frac', 'one_atom_occupations', 'starting_spin_angle',
-                     'noncolin', 'x_gamma_extrapolation', 'lda_plus_u', 'lspinorb', 'london',
-                     'ts_vdw_isolated', 'xdm', 'uniqueb', 'rhombohedral', 'realxz', 'block',
-                     'scf_must_converge', 'adaptive_thr', 'diago_full_acc', 'tqr', 'remove_rigid_rot',
-                     'refold_pos')
+        bool_keys = (
+            "wf_collect",
+            "tstress",
+            "tprnfor",
+            "lkpoint_dir",
+            "tefield",
+            "dipfield",
+            "lelfield",
+            "lorbm",
+            "lberry",
+            "lfcpopt",
+            "monopole",
+            "nosym",
+            "nosym_evc",
+            "noinv",
+            "no_t_rev",
+            "force_symmorphic",
+            "use_all_frac",
+            "one_atom_occupations",
+            "starting_spin_angle",
+            "noncolin",
+            "x_gamma_extrapolation",
+            "lda_plus_u",
+            "lspinorb",
+            "london",
+            "ts_vdw_isolated",
+            "xdm",
+            "uniqueb",
+            "rhombohedral",
+            "realxz",
+            "block",
+            "scf_must_converge",
+            "adaptive_thr",
+            "diago_full_acc",
+            "tqr",
+            "remove_rigid_rot",
+            "refold_pos",
+        )
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
-            else:
-                return int(numstr)
+            return int(numstr)
 
         try:
             if key in bool_keys:
                 if val.lower() == ".true.":
                     return True
-                elif val.lower() == ".false.":
+                if val.lower() == ".false.":
                     return False
-                else:
-                    raise ValueError(key + " should be a boolean type!")
+                raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower()).group(0).replace("d", "e"))
@@ -405,6 +499,7 @@ class PWInputError(BaseException):
     """
     Error for PWInput
     """
+
     pass
 
 
@@ -412,17 +507,18 @@ class PWOutput:
     """
     Parser for PWSCF output file.
     """
+
     patterns = {
-        "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
-        "ecut": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
-        "lattice_type": r'bravais\-lattice index\s+=\s+(\d+)',
+        "energies": r"total energy\s+=\s+([\d\.\-]+)\sRy",
+        "ecut": r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
+        "lattice_type": r"bravais\-lattice index\s+=\s+(\d+)",
         "celldm1": r"celldm\(1\)=\s+([\d\.]+)\s",
         "celldm2": r"celldm\(2\)=\s+([\d\.]+)\s",
         "celldm3": r"celldm\(3\)=\s+([\d\.]+)\s",
         "celldm4": r"celldm\(4\)=\s+([\d\.]+)\s",
         "celldm5": r"celldm\(5\)=\s+([\d\.]+)\s",
         "celldm6": r"celldm\(6\)=\s+([\d\.]+)\s",
-        "nkpts": r"number of k points=\s+([\d]+)"
+        "nkpts": r"number of k points=\s+([\d]+)",
     }
 
     def __init__(self, filename):
@@ -441,8 +537,7 @@ class PWOutput:
             else:
                 self.data[k] = float(v[0][0][0])
 
-    def read_pattern(self, patterns, reverse=False,
-                     terminate_on_match=False, postprocess=str):
+    def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
         r"""
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.
@@ -466,9 +561,13 @@ class PWOutput:
             values are lists of lists, because you can grep multiple
             items on one line.
         """
-        matches = regrep(self.filename, patterns, reverse=reverse,
-                         terminate_on_match=terminate_on_match,
-                         postprocess=postprocess)
+        matches = regrep(
+            self.filename,
+            patterns,
+            reverse=reverse,
+            terminate_on_match=terminate_on_match,
+            postprocess=postprocess,
+        )
         self.data.update(matches)
 
     def get_celldm(self, i):

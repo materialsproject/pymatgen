@@ -1,13 +1,10 @@
 # coding: utf-8
-
-#from __future__ import division, unicode_literals
+#cython: language_level=3
 
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
 """
-
-from six.moves import zip
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -18,10 +15,10 @@ __date__ = "Nov 27, 2011"
 
 import numpy as np
 
-from libc.stdlib cimport malloc, free
-from libc.math cimport round, fabs, sqrt, acos, M_PI, cos, sin
-cimport numpy as np
 cimport cython
+cimport numpy as np
+from libc.math cimport M_PI, acos, cos, fabs, round, sin, sqrt
+from libc.stdlib cimport free, malloc
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
 r = np.arange(-1, 2, dtype=np.float_)

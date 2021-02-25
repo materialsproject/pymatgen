@@ -3,18 +3,20 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
+
 import numpy as np
 
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
-from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
+from pymatgen.util.testing import PymatgenTest
 
-test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+
+test_dir_structs = PymatgenTest.TEST_FILES_DIR
 
 
 class KPathLatimerMunroTest(PymatgenTest):
@@ -33,7 +35,11 @@ class KPathLatimerMunroTest(PymatgenTest):
             sg_num = i + 1
             if sg_num in triclinic:
                 lattice = Lattice(
-                    [[3.0233057319441246, 1, 0], [0, 7.9850357844548681, 1], [0, 1.2, 8.1136762279561818]]
+                    [
+                        [3.0233057319441246, 1, 0],
+                        [0, 7.9850357844548681, 1],
+                        [0, 1.2, 8.1136762279561818],
+                    ]
                 )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
@@ -68,7 +74,8 @@ class KPathLatimerMunroTest(PymatgenTest):
         labels = list(kpoints.keys())
 
         self.assertEqual(
-            sorted(labels), sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"]),
+            sorted(labels),
+            sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"]),
         )
 
         self.assertAlmostEqual(kpoints["a"][0], 0.0)
@@ -135,7 +142,8 @@ class KPathLatimerMunroTest(PymatgenTest):
         labels = list(kpoints.keys())
 
         self.assertEqual(
-            sorted(labels), sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"]),
+            sorted(labels),
+            sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"]),
         )
 
         self.assertAlmostEqual(kpoints["e"][0], -0.4999999999999998)

@@ -3,9 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 
-'''
+"""
 Created on Jan 24, 2012
-'''
+"""
 
 
 __author__ = "Shyue Ping Ong"
@@ -15,22 +15,19 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
-import unittest
 import os
+import unittest
 
+from pymatgen.core.structure import Structure
 from pymatgen.io.cssr import Cssr
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.structure import Structure
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+from pymatgen.util.testing import PymatgenTest
 
 
 class CssrTest(unittest.TestCase):
-
     def setUp(self):
 
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.cssr = Cssr(p.structure)
 
@@ -66,7 +63,7 @@ class CssrTest(unittest.TestCase):
         self.assertEqual(str(self.cssr), expected_string)
 
     def test_from_file(self):
-        filename = os.path.join(test_dir, "Si.cssr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "Si.cssr")
         cssr = Cssr.from_file(filename)
         self.assertIsInstance(cssr.structure, Structure)
 

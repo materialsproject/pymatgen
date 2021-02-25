@@ -2,24 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import warnings
-
 import os
 import unittest
+import warnings
+
 import pandas as pd
 
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-from pymatgen import Structure
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
-    "magnetic_orderings",
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 
 
 class HeisenbergMapperTest(unittest.TestCase):
@@ -90,7 +83,7 @@ class HeisenbergMapperTest(unittest.TestCase):
     def test_heisenberg_model(self):
         for hm in self.hms:
             hmodel = hm.get_heisenberg_model()
-            self.assertEqual(hmodel.formula, 'Mn3Al')
+            self.assertEqual(hmodel.formula, "Mn3Al")
 
 
 if __name__ == "__main__":

@@ -6,16 +6,14 @@
 A module for NMR analysis
 """
 
-from pymatgen.core.tensors import SquareTensor
 from collections import namedtuple
-
-from pymatgen.core.units import FloatWithUnit
-
-from pymatgen.core.periodic_table import Specie
-from pymatgen.core.structure import Site
 
 import numpy as np
 
+from pymatgen.core.periodic_table import Species
+from pymatgen.core.structure import Site
+from pymatgen.core.tensors import SquareTensor
+from pymatgen.core.units import FloatWithUnit
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -37,7 +35,7 @@ class ChemicalShielding(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple("HaeberlenNotion", "sigma_iso, delta_sigma_iso, zeta, eta")
+    HaeberlenNotation = namedtuple("HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta")
     MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
     MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
 
@@ -60,8 +58,9 @@ class ChemicalShielding(SquareTensor):
 
         if t_array.shape == (3,):
             return super().__new__(cls, np.diag(cs_matrix), vscale)
-        elif t_array.shape == (3, 3):
+        if t_array.shape == (3, 3):
             return super().__new__(cls, cs_matrix, vscale)
+        return None
 
     @property
     def principal_axis_system(self):
@@ -155,8 +154,9 @@ class ElectricFieldGradient(SquareTensor):
 
         if t_array.shape == (3,):
             return super().__new__(cls, np.diag(efg_matrix), vscale)
-        elif t_array.shape == (3, 3):
+        if t_array.shape == (3, 3):
             return super().__new__(cls, efg_matrix, vscale)
+        return None
 
     @property
     def principal_axis_system(self):
@@ -214,31 +214,31 @@ class ElectricFieldGradient(SquareTensor):
 
         Args:
             specie: flexible input to specify the species at this site.
-                    Can take a isotope or element string, Specie object,
+                    Can take a isotope or element string, Species object,
                     or Site object
 
         Return:
 
             the coupling constant as a FloatWithUnit in MHz
         """
-        planks_constant = FloatWithUnit(6.62607004E-34, "m^2 kg s^-1")
+        planks_constant = FloatWithUnit(6.62607004e-34, "m^2 kg s^-1")
         Vzz = FloatWithUnit(self.V_zz, "V ang^-2")
-        e = FloatWithUnit(-1.60217662E-19, "C")
+        e = FloatWithUnit(-1.60217662e-19, "C")
 
-        # Convert from string to Specie object
+        # Convert from string to Species object
         if isinstance(specie, str):
             # isotope was provided in string format
             if len(specie.split("-")) > 1:
                 isotope = str(specie)
-                specie = Specie(specie.split("-")[0])
+                specie = Species(specie.split("-")[0])
                 Q = specie.get_nmr_quadrupole_moment(isotope)
             else:
-                specie = Specie(specie)
+                specie = Species(specie)
                 Q = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Site):
             specie = specie.specie
             Q = specie.get_nmr_quadrupole_moment()
-        elif isinstance(specie, Specie):
+        elif isinstance(specie, Species):
             Q = specie.get_nmr_quadrupole_moment()
         else:
             raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")

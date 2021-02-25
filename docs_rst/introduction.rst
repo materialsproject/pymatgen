@@ -7,13 +7,15 @@
 Introduction
 ============
 
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
-
-.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
+.. image:: https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg
+      :alt: CI Status
+      :target: https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg
 
 .. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
+      :alt: Coveralls Coverage Report
+      :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
@@ -27,7 +29,14 @@ for materials analysis. These are some of the main features:
    diagrams, diffusion analyses, reactions, etc.
 4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the Materials Project REST API, Crystallography Open
-   Database.
+   Database and other external data sources.
+
+As of 2021, pymatgen only supports Python 3.7 and above. Our support schedule
+follows closely to the support schedule of the Scientific Python software stack.
+When packages such as numpy drops support for Python versions, we will drop
+support for newer versions. Similarly, support for new Python versions will
+be adopted only when most of the core dependencies support the new Python
+versions.
 
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions. These contributions can be in the
@@ -53,26 +62,6 @@ are two options:
 1. Clone the Github repo and the latest html docs are in the "docs" folder.
 2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to
    "User Contributed Docsets", search for pymatgen and install.
-
-Development News
-================
-
-Py3k-only with effect from 2019.1.1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
-With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going forward. Dual support imposes costs in
-terms of developmental effort, and also forces compromises in code quality and
-efficiency. Though some legacy clusters may only come with Py2k installed by
-default, the recommended approach in any case is to create an isolated Py3k
-environment.
-
-The pymatgen development team will phase out Py2k support over the course of
-2018. From v2018.1.1, new features implemented in pymatgen no longer need to
-support Py2k (i.e., unittests do not need to pass Py2k testing), though
-existing features will still be Py2k compatible. From v2019.1.1, pymatgen will
-be Py3k only.
 
 Matgenie & Examples
 ===================

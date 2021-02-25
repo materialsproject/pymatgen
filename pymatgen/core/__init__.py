@@ -7,10 +7,10 @@ This package contains core modules and classes for representing structures and
 operations on them.
 """
 
-from .periodic_table import Element, Specie, DummySpecie
-from .composition import Composition
-from .structure import Structure, IStructure, Molecule, IMolecule
-from .lattice import Lattice
-from .sites import Site, PeriodicSite
-from .operations import SymmOp
-from .units import Unit, FloatWithUnit, ArrayWithUnit
+from .composition import Composition  # noqa
+from .lattice import Lattice  # noqa
+from .operations import SymmOp  # noqa
+from .periodic_table import DummySpecies, Element, Species  # noqa
+from .sites import PeriodicSite, Site  # noqa
+from .structure import IMolecule, IStructure, Molecule, Structure  # noqa
+from .units import ArrayWithUnit, FloatWithUnit, Unit  # noqa

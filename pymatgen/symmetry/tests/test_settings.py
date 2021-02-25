@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+
 import numpy as np
 
 from pymatgen.symmetry.settings import *
@@ -15,16 +16,19 @@ __date__ = "Apr 2017"
 
 
 class JonesFaithfulTransformationTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_strings = ['a,b,c;0,0,0',  # identity
-                             'a-b,a+b,2c;0,0,1/2',
-                             'a/4+b/4-c/2,a/4-b/4,-a/2-b/2;0,0,0',
-                             'a,b,c;1/4,1/2,3/4']  # pure translation
-        self.test_Pps = [([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0, 0, 0]),
-                         ([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], [0, 0, 0.5]),
-                         ([[0.25, 0.25, -0.5], [0.25, -0.25, -0.5], [-0.5, 0, 0]], [0, 0, 0]),
-                         ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0.25, 0.5, 0.75])]
+        self.test_strings = [
+            "a,b,c;0,0,0",  # identity
+            "a-b,a+b,2c;0,0,1/2",
+            "a/4+b/4-c/2,a/4-b/4,-a/2-b/2;0,0,0",
+            "a,b,c;1/4,1/2,3/4",
+        ]  # pure translation
+        self.test_Pps = [
+            ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0, 0, 0]),
+            ([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], [0, 0, 0.5]),
+            ([[0.25, 0.25, -0.5], [0.25, -0.25, -0.5], [-0.5, 0, 0]], [0, 0, 0]),
+            ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [0.25, 0.5, 0.75]),
+        ]
 
     def test_init(self):
         for test_string, test_Pp in zip(self.test_strings, self.test_Pps):
@@ -44,10 +48,12 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
     def test_transform_lattice(self):
         lattice = Lattice.cubic(5)
 
-        all_ref_lattices = [[[5., 0., 0.], [0., 5., 0.], [0., 0., 5.]],
-                            [[5., 5., 0.], [-5., 5., 0.], [0., 0., 10.]],
-                            [[1.25, 1.25, -2.5], [1.25, -1.25, -2.5], [-2.5, 0., 0.]],
-                            [[5., 0., 0.], [0., 5., 0.], [0., 0., 5.]]]
+        all_ref_lattices = [
+            [[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+            [[5.0, 5.0, 0.0], [-5.0, 5.0, 0.0], [0.0, 0.0, 10.0]],
+            [[1.25, 1.25, -2.5], [1.25, -1.25, -2.5], [-2.5, 0.0, 0.0]],
+            [[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+        ]
 
         for ref_lattice, (P, p) in zip(all_ref_lattices, self.test_Pps):
             jft = JonesFaithfulTransformation(P, p)
@@ -56,10 +62,12 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
     def test_transform_coords(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
 
-        all_ref_coords = [[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
-                          [[0.0, 0.0, -0.25], [0.0, 0.5, 0.0]],
-                          [[0.0, 0.0, 0.0], [-1.0, 0.0, -1.5]],
-                          [[-0.25, -0.5, -0.75], [0.25, 0.0, -0.25]]]
+        all_ref_coords = [
+            [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            [[0.0, 0.0, -0.25], [0.0, 0.5, 0.0]],
+            [[0.0, 0.0, 0.0], [-1.0, 0.0, -1.5]],
+            [[-0.25, -0.5, -0.75], [0.25, 0.0, -0.25]],
+        ]
 
         for ref_coords, (P, p) in zip(all_ref_coords, self.test_Pps):
             jft = JonesFaithfulTransformation(P, p)
@@ -183,5 +191,5 @@ y,-x,-z+1/2
             self.assertEqual(transformed_op, ref_transformed_op)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

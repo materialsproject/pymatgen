@@ -7,19 +7,11 @@ Most features of this module has been moved to monty. Please refer to
 monty.json and monty.serialization documentation.
 """
 
-import json
 import functools
+import json
 import pickle
 
 from pymatgen.core.periodic_table import Element
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 30, 2012"
 
 
 def pmg_serialize(method):
@@ -62,10 +54,9 @@ class PmgPickler(pickle.Pickler):
             # Here, our persistent ID is simply a tuple, containing a tag and
             # a key
             return obj.__class__.__name__, obj.symbol
-        else:
-            # If obj does not have a persistent ID, return None. This means obj
-            # needs to be pickled as usual.
-            return None
+        # If obj does not have a persistent ID, return None. This means obj
+        # needs to be pickled as usual.
+        return None
 
 
 class PmgUnpickler(pickle.Unpickler):
@@ -86,16 +77,15 @@ class PmgUnpickler(pickle.Unpickler):
             # of a real tuple. Use ast to evalute the expression (much safer
             # than eval).
             import ast
+
             type_tag, key_id = ast.literal_eval(pid)
 
         if type_tag == "Element":
             return Element(key_id)
-        else:
-            # Always raises an error if you cannot return the correct object.
-            # Otherwise, the unpickler will think None is the object referenced
-            # by the persistent ID.
-            raise pickle.UnpicklingError(
-                "unsupported persistent object with pid %s" % pid)
+        # Always raises an error if you cannot return the correct object.
+        # Otherwise, the unpickler will think None is the object referenced
+        # by the persistent ID.
+        raise pickle.UnpicklingError("unsupported persistent object with pid %s" % pid)
 
 
 def pmg_pickle_load(filobj, **kwargs):
@@ -131,10 +121,7 @@ class SlotPickleMixin:
     """
 
     def __getstate__(self):
-        return dict(
-            (slot, getattr(self, slot))
-            for slot in self.__slots__ if hasattr(self, slot)
-        )
+        return dict((slot, getattr(self, slot)) for slot in self.__slots__ if hasattr(self, slot))
 
     def __setstate__(self, state):
         for slot, value in state.items():

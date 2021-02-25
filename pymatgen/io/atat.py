@@ -7,10 +7,10 @@ Classes for reading/writing mcsqs files following the rndstr.in format.
 """
 
 import numpy as np
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import get_el_sp, Specie
 
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -52,8 +52,10 @@ class Mcsqs:
         for site in self.structure:
             species_str = []
             for sp, occu in sorted(site.species.items()):
-                if isinstance(sp, Specie):
-                    sp = sp.element
+                sp = str(sp)
+                if ("," in sp) or ("=" in sp):
+                    # Invalid species string for AT-AT input, so modify
+                    sp = sp.replace(",", "__").replace("=", "___")
                 species_str.append("{}={}".format(sp, occu))
             species_str = ",".join(species_str)
             output.append(
@@ -70,10 +72,10 @@ class Mcsqs:
     @staticmethod
     def structure_from_string(data):
         """
-        Parses a rndstr.in or lat.in file into pymatgen's
+        Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen's
         Structure format.
 
-        :param data: contents of a rndstr.in or lat.in file
+        :param data: contents of a rndstr.in, lat.in or bestsqs.out file
         :return: Structure object
         """
 
@@ -112,7 +114,7 @@ class Mcsqs:
             )
             first_species_line = 6
 
-        scaled_matrix = np.matmul(coord_system, lattice_vecs)
+        scaled_matrix = np.matmul(lattice_vecs, coord_system)
         lattice = Lattice(scaled_matrix)
 
         all_coords = []
@@ -129,12 +131,22 @@ class Mcsqs:
 
             species = {}
 
-            for species_str in species_strs:
-                species_str = species_str.split("=")
-                if len(species_str) == 1:
+            for species_occ in species_strs:
+
+                # gets a species, occupancy pair
+                species_occ = species_occ.split("=")
+
+                if len(species_occ) == 1:
                     # assume occupancy is 1.0
-                    species_str = [species_str[0], 1.0]
-                species[get_el_sp(species_str[0])] = float(species_str[1])
+                    species_occ = [species_occ[0], 1.0]
+
+                if "_" in species_occ[0]:
+                    # see to_string() method in this file, since , and = are not valid
+                    # species names in AT-AT we replace "," with "__" and "=" with "___",
+                    # for pymatgen to parse these back correctly we have to replace them back
+                    species_occ[0] = species_occ[0].replace("___", "=").replace("__", ",")
+
+                species[get_el_sp(species_occ[0])] = float(species_occ[1])
 
             all_species.append(species)
 

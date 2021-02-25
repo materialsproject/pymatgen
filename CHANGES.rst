@@ -1,6 +1,139 @@
 Change log
 ==========
 
+v2021.2.16
+----------
+* Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (@mkhorton, #2066)
+* Addresses missing text file, all_cg.txt, in package
+* Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version
+* Previous release also dropped support for aconvasp since this the interface has not been maintained
+
+v2021.2.14
+----------
+* Misc bug fixes.
+
+v2021.2.12
+----------
+* Misc bug fixes.
+
+v2021.2.8.1
+-----------
+* Patch release to restore `CompositionError` to preserve backwards compatibility.
+
+v2021.2.8
+---------
+* Addition of new job types to Q-Chem IO (@espottesmith, #2055), 
+  note `metal_edge_extender` has been moved into `local_env` for this change
+* Improvements to string utils, new Stringify mixin with 
+  to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (@shyuep)
+* Improvements to build system (@shyuep, @ltalirz, see #2046)
+* Entry is now immutable, removing "in_place" option for normalize (@mkhorton, @mattmcdermott, #2060)
+* Bug fix for co-ordination geometry finder (@davidwaroquiers, #2035)
+* Bug fix for GibbsComputedStructureEntry (@mattmcdermott)
+
+v2021.1.28
+----------
+* Ability to read Lobster wavefunctions (@JaGeo, #2034) 
+* Method to estimate number of bands for VASP calculation (@rwoodsrobinson, #2044)
+* Q-Chem cube file plotting and improvements to output parsring (@samblau, #2032)
+* Improvements to PhaseDiagram hashing and equality checking (@CompRhys, #2014)
+* Improvements to pymatgen import speed (@mkhorton, #2031)
+* Bug fix for k-path generation (@munrojm, #2037)
+* Bug fix for parsing of core potentials from VASP (@utf, #2033)
+
+v2020.12.31
+-----------
+* End of 2020 release with minor bug fixes for cli scripts.
+
+v2020.12.18
+-----------
+* New IsayevNN nearest-neighbor algorithm (@utf, #2011)
+* Improvements to electrode objects (@jmmshn, #2016)
+* Improvements to Element and PhaseDiagram (@jmmshn, #2005) 
+* Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (@shyuep, see issue #2010)
+* Bug fix to VASP run type detection (@rkingsbury, #2007)
+
+v2020.12.3
+----------
+* Site insertion algorithm based on charge density (@jmmshn, #1997)
+* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
+* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
+* Improvement to allow general input for exciting (@vorwerkc, #1975)
+* Improvements to code formatting (@mkhorton, #2008)
+* Bug fix for VASP run type detection (@rkingsbury, #1996)
+
+v2020.11.11
+-----------
+* Bug fix for PhononBandStructureSymmLine. (@gpetretto)
+* Improved robustness in ABINIT input generation. (@gpetretto)
+* Other minor bug fixes.
+
+v2020.10.20
+-----------
+1. Cp2K support (@nwinner)
+2. Better BSPlotter (@fraricci)
+3. Better deprecation warnings.
+4. Bug fix for Py3.9 support.
+5. Bug fix for neutron diffraction get_plot.
+
+v2020.10.9
+----------
+* Cube parsing and Cube integration to Bader (@nwinner, #1967)
+* Improvements to PhaseDiagram (@CompRhys, #1899)
+* Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (@jmmshn, #1959)
+* Changes to MPRelaxSet, default to low spin for Co (@shyuep, #1976)
+* Changes to MPScanSet (@rkingsbury, #1952)
+* Rename of `Specie` to `Species`, `Specie` will be retained for backwards compatibility (@shyuep, #1963)
+* Bug fix for VASP sets (@utf, #1979)
+* Bug fix for PDPlotter (@mattmcdermott, #1973)
+* Bug fix for EnergyAdjustment (@rkingsbury, #1960)
+
+v2020.9.14
+----------
+
+* New Plotly backend for PhaseDiagram plotting (@mattmcdermott, #1936)
+* New reporting and logging of Materials Project database version in MPRester (@mkhorton, #1945)
+* Improvements and bug fixes with mcsqs integration (@rwoodsrobinson, #1942)
+* Improvements to PackmolRunner (@rkingsbury, #1947)
+* Improvements to ComputerEntry (@rkingsbury, #1948)
+* Improvements for MPScanSet (@rkingsbury, #1940)
+* Bug fix for Surface and Composition (@gpetretto, #1937)
+* Bug fix for EwaldSummation serialization (@lbluque, #1932)
+* Bug fix for SeeK k-path (@Ian496, #1930)
+* Fix for deprecation warning in MPRester (@rkingsbury, #1951)
+
+v2020.8.13
+----------
+
+* New GibbsComputedStructureEntry (@mattmcdermott, #1921)
+* Changes to MPScanRelaxSet and new MPScanStaticSet (@rkingsbury, #1917)
+* Changes to LobsterSet (@JaGeo, #1928)
+* Bug fix and change for MPRelaxSet (@mkhorton, 9eb3ac2)
+* Bug fix for JMolNN (@utf, #1920)
+* Bug fix for Element valences (@rkurchin, #1926)
+* Bug fix for BabelMolAdaptor (@smheidrich, #1924)
+* Bug fix for Gaussion IO (@eimrek, #1918)
+
+v2020.8.3
+---------
+* Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (@chc273)
+* Add I/O for JARVIS Atoms (@knc6)
+
+v2020.7.18
+----------
+* Add validation and extrapolation for stitching XAS (@yimingcheng)
+* Better error handling and possibly verbose warning to get_structure_by_material_id
+
+v2020.7.16
+----------
+* Bug fix for boltztrap2 spin support. (@fraricci)
+
+v2020.7.14
+----------
+* EwaldSummation is now MSONAble (@lbluque).
+* Fix for QChem freq parsing (@samblau)
+* Much improved linting and workflows.
+
 v2020.7.10
 ----------
 * Bug fix: serialization of slabs (@utf)

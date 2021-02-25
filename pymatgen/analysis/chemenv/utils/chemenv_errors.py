@@ -17,109 +17,85 @@ __date__ = "Feb 20, 2016"
 
 
 class AbstractChemenvError(Exception):
+    """
+    Abstract class for Chemenv errors.
+    """
+
     def __init__(self, cls, method, msg):
+        """
+        :param cls:
+        :param method:
+        :param msg:
+        """
         self.cls = cls
         self.method = method
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ': ' + self.method + '\n' + repr(self.msg)
-
-
-class ClassTypeChemenvError(AbstractChemenvError):
-    def __init__(self, object, classtype):
-        self.object = object
-        self.classtype = classtype
-
-    def __str__(self):
-        return '"{}" expected, {} found\n'.format(self.classtype.__name__, self.object.__class__.__name__)
+        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)
 
 
 class NeighborsNotComputedChemenvError(AbstractChemenvError):
+    """
+    Neighbors not computed error.
+    """
+
     def __init__(self, site):
+        """
+        :param site:
+        """
         self.site = site
 
     def __str__(self):
-        return 'The neighbors were not computed for the following site : \n' + str(self.site)
-
-
-class BVAValencesNotFoundChemenvError(AbstractChemenvError):
-    def __init__(self, structure):
-        self.structure = structure
-
-    def __str__(self):
-        return 'The valences were not found for the following structure : \n' + \
-               self.structure.composition.reduced_formula
-
-
-class ChemenvStrategyError(AbstractChemenvError):
-    def __init__(self, cls, method, msg):
-        self.cls = cls
-        self.method = method
-        self.msg = msg
-
-    def __str__(self):
-        return str(self.cls) + ': ' + self.method + '\n' + repr(self.msg)
-
-
-class InitializationChemenvError(AbstractChemenvError):
-    def __init__(self, cls):
-        self.cls = cls
-
-    def __str__(self):
-        return 'There is some missing arguments for the initialization of a {} object'.format(self.cls)
+        return "The neighbors were not computed for the following site : \n" + str(self.site)
 
 
 class EquivalentSiteSearchError(AbstractChemenvError):
+    """
+    Equivalent site search error.
+    """
+
     def __init__(self, site):
+        """
+        :param site:
+        """
         self.site = site
 
     def __str__(self):
-        return 'Equivalent site could not be found for the following site : {}'.format(str(self.site))
-
-
-class VoronoiParametersError(AbstractChemenvError):
-    def __init__(self, vp):
-        self.vp = vp
-
-    def __str__(self):
-        return 'The list of Voronoi parameters does not contain the following set of parameters :\n' \
-               ' - distfactor : {},\n' \
-               ' - angfactor : {},\n' \
-               ' - only_anion_cation_bond : {}'.format(self.vp.distance_parameter, self.vp.angle_parameter,
-                                                       self.vp.only_anion_cation_bond)
+        return "Equivalent site could not be found for the following site : {}".format(str(self.site))
 
 
 class SolidAngleError(AbstractChemenvError):
+    """
+    Solid angle error.
+    """
+
     def __init__(self, cosinus):
+        """
+        :param cosinus:
+        """
         self.cosinus = cosinus
 
     def __str__(self):
-        return 'Value of cosinus ({}) from which an angle should be retrieved' \
-               'is not between -1.0 and 1.0'.format(self.cosinus)
-
-
-class RatioFunctionError(AbstractChemenvError):
-    def __init__(self, function):
-        self.function = function
-
-    def __str__(self):
-        return 'Function "{}" is not allowed as a ratio function.'.format(self.function)
-
-
-class PenaltyFunctionError(AbstractChemenvError):
-    def __init__(self, function):
-        self.function = function
-
-    def __str__(self):
-        return 'Function "{}" is not possible.'.format(self.function)
+        return "Value of cosinus ({}) from which an angle should be retrieved" "is not between -1.0 and 1.0".format(
+            self.cosinus
+        )
 
 
 class ChemenvError(Exception):
+    """
+    Chemenv error.
+    """
+
     def __init__(self, cls, method, msg):
+        """
+        :param cls:
+        :param method:
+        :param msg:
+        """
         self.cls = cls
         self.method = method
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ': ' + self.method + '\n' + repr(self.msg)
+        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)

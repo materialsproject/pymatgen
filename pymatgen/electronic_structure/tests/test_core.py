@@ -5,13 +5,13 @@
 
 import unittest
 
-from pymatgen.core import Lattice
-from pymatgen.electronic_structure.core import Orbital, Spin, Magmom
 import numpy as np
+
+from pymatgen.core import Lattice
+from pymatgen.electronic_structure.core import Magmom, Orbital, Spin
 
 
 class SpinTest(unittest.TestCase):
-
     def test_init(self):
         self.assertEqual(int(Spin.up), 1)
         self.assertEqual(int(Spin.down), -1)
@@ -26,7 +26,6 @@ class SpinTest(unittest.TestCase):
 
 
 class OrbitalTest(unittest.TestCase):
-
     def test_init(self):
         for orb in Orbital:
             self.assertEqual(Orbital(orb.value), orb)
@@ -37,7 +36,6 @@ class OrbitalTest(unittest.TestCase):
 
 
 class MagmomTest(unittest.TestCase):
-
     def test_init(self):
         # backwards compatibility for scalar-like magmoms
         magmom = Magmom(2.0)
@@ -48,7 +46,7 @@ class MagmomTest(unittest.TestCase):
         self.assertEqual(magmom2.global_moment.tolist(), [1, 2, 3])
         # non-default saxis, normalized internally
         magmom3 = Magmom([1, 2, 3], saxis=[1, 1, 1])
-        self.assertTrue(np.allclose(magmom3.saxis, [np.sqrt(1 / 3.)] * 3))
+        self.assertTrue(np.allclose(magmom3.saxis, [np.sqrt(1 / 3.0)] * 3))
         # test construction from known global moment and desired, non-default saxis
         magmom4 = Magmom.from_global_moment_and_saxis([1, 2, 3], saxis=[1, 0, 0])
         self.assertTrue(np.allclose(magmom4.moment, [-3, 2, 1]))
@@ -66,12 +64,14 @@ class MagmomTest(unittest.TestCase):
         self.assertTrue(np.allclose(magmom_along_y.get_moment(saxis=[0, 1, 0]), [0, 0, 1]))
 
         # test transformations
-        magmoms = [[0, 0, 0],
-                   [0, 0, 1],
-                   [0, 0, -1],
-                   [1, 2, 3],
-                   [-1, 2, 3],
-                   [-1, -2, -3]]
+        magmoms = [
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 0, -1],
+            [1, 2, 3],
+            [-1, 2, 3],
+            [-1, -2, -3],
+        ]
 
         for magmom in magmoms:
             magmom1 = Magmom(magmom)
@@ -88,12 +88,14 @@ class MagmomTest(unittest.TestCase):
             self.assertTrue(np.allclose(magmom3.moment, magmom1.moment))
 
     def test_is_collinear(self):
-        magmoms_list = [[0, 0, 0],
-                        [1, 1, 1],
-                        [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-                        [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
-                        [[0, 0, -1], [0, 0, 1], [0, 0, 1]],
-                        [[2, 2, 2], [-2, -2, -2], [2, 2, 2]]]
+        magmoms_list = [
+            [0, 0, 0],
+            [1, 1, 1],
+            [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
+            [[0, 0, -1], [0, 0, 1], [0, 0, 1]],
+            [[2, 2, 2], [-2, -2, -2], [2, 2, 2]],
+        ]
         for magmoms in magmoms_list:
             self.assertEqual(Magmom.are_collinear(magmoms), True)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
@@ -113,11 +115,9 @@ class MagmomTest(unittest.TestCase):
         magmoms, saxis = Magmom.get_consistent_set_and_saxis(magmoms)
         self.assertTrue(np.allclose(saxis, [0, 0, 1]))
 
-        magmoms = [[0, 0, 0],
-                   [1, 1, 1],
-                   [2, 2, 2]]
+        magmoms = [[0, 0, 0], [1, 1, 1], [2, 2, 2]]
         magmoms, saxis = Magmom.get_consistent_set_and_saxis(magmoms)
-        self.assertTrue(np.allclose(saxis, [np.sqrt(1 / 3.)] * 3))
+        self.assertTrue(np.allclose(saxis, [np.sqrt(1 / 3.0)] * 3))
 
     def test_relative_to_crystal_axes(self):
         lattice = Lattice.from_parameters(5, 10, 5, 90, 110, 90)
@@ -135,5 +135,5 @@ class MagmomTest(unittest.TestCase):
         self.assertEqual(-Magmom([1, 2, 3]), Magmom([-1, -2, -3]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
