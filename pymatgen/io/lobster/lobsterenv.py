@@ -104,12 +104,7 @@ class LobsterNeighbors(NearNeighbors):
                     self.valences = bv_analyzer.get_valences(structure=self.structure)
                 except ValueError:
                     self.valences = None
-                    if (
-                        additional_condition == 1
-                        or additional_condition == 3
-                        or additional_condition == 5
-                        or additional_condition == 6
-                    ):
+                    if additional_condition in [1, 3, 5, 6]:
                         print("Valences cannot be assigned, additional_conditions 1 and 3 and 5 and 6 will not work")
         else:
             self.valences = valences
@@ -261,7 +256,7 @@ class LobsterNeighbors(NearNeighbors):
             if onlycation_isites:
                 isites = [i for i in range(len(self.structure)) if self.valences[i] >= 0.0]
             else:
-                isites = [i for i in range(len(self.structure))]
+                isites = list(range(len(self.structure)))
 
         summed_icohps = 0.0
         list_icohps = []
@@ -338,12 +333,13 @@ class LobsterNeighbors(NearNeighbors):
         return plot
 
     def get_info_cohps_to_neighbors(
-        self, path_to_COHPCAR="COHPCAR.lobster",
+        self,
+        path_to_COHPCAR="COHPCAR.lobster",
         isites=[],
         only_bonds_to=None,
         onlycation_isites=True,
         per_bond=True,
-        summed_spin_channels=False
+        summed_spin_channels=False,
     ):
         """
         will return info about the cohps from all sites mentioned in isites with neighbors
@@ -402,7 +398,7 @@ class LobsterNeighbors(NearNeighbors):
                 # new_label
                 present = False
                 for atomtype in only_bonds_to:
-                    if atomtype == self._split_string(atompair[0])[0] or atomtype == self._split_string(atompair[1])[0]:
+                    if atomtype in (self._split_string(atompair[0])[0], self._split_string(atompair[1])[0]):
                         present = True
                 if present:
                     new_labels.append(label)
@@ -463,7 +459,7 @@ class LobsterNeighbors(NearNeighbors):
             if onlycation_isites:
                 isites = [i for i in range(len(self.structure)) if self.valences[i] >= 0.0]
             else:
-                isites = [i for i in range(len(self.structure))]
+                isites = list(range(len(self.structure)))
 
         summed_icohps = 0.0
         list_icohps = []
@@ -746,12 +742,7 @@ class LobsterNeighbors(NearNeighbors):
             atomnr2 = self._get_atomnumber(icohp._atom2)
 
             # test additional conditions
-            if (
-                additional_condition == 1
-                or additional_condition == 3
-                or additional_condition == 5
-                or additional_condition == 6
-            ):
+            if additional_condition in (1, 3, 5, 6):
                 val1 = self.valences[atomnr1]
                 val2 = self.valences[atomnr2]
 
@@ -770,7 +761,7 @@ class LobsterNeighbors(NearNeighbors):
 
             elif additional_condition == 1:
                 # ONLY_ANION_CATION_BONDS
-                if (val1 < 0.0 and val2 > 0.0) or (val1 > 0.0 and val2 < 0.0):
+                if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
                     if atomnr1 == isite:
                         neighbors_from_ICOHPs.append(atomnr2)
                         lengths_from_ICOHPs.append(icohp._length)
@@ -800,7 +791,7 @@ class LobsterNeighbors(NearNeighbors):
 
             elif additional_condition == 3:
                 # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-                if (val1 < 0.0 and val2 > 0.0) or (val1 > 0.0 and val2 < 0.0):
+                if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
                     if icohp._atom1.rstrip("0123456789") != icohp._atom2.rstrip("0123456789"):
                         if atomnr1 == isite:
                             neighbors_from_ICOHPs.append(atomnr2)
@@ -862,7 +853,8 @@ class LobsterNeighbors(NearNeighbors):
 
         return keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, icohps_from_ICOHPs
 
-    def _get_icohps(self, icohpcollection, isite, lowerlimit, upperlimit, only_bonds_to):
+    @staticmethod
+    def _get_icohps(icohpcollection, isite, lowerlimit, upperlimit, only_bonds_to):
         """
         will return icohp dict for certain site
         Args:
@@ -895,7 +887,8 @@ class LobsterNeighbors(NearNeighbors):
         """
         return int(self._split_string(atomstring)[1]) - 1
 
-    def _split_string(self, s):
+    @staticmethod
+    def _split_string(s):
         """
         will split strings such as "Na1" in "Na" and "1" and return "1"
         Args:
@@ -908,7 +901,8 @@ class LobsterNeighbors(NearNeighbors):
         tail = s[len(head) :]
         return head, tail
 
-    def _determine_unit_cell(self, site):
+    @staticmethod
+    def _determine_unit_cell(site):
         """
         based on the site it will determine the unit cell, in which this site is based
         Args:
@@ -924,7 +918,8 @@ class LobsterNeighbors(NearNeighbors):
 
         return unitcell
 
-    def _get_limit_from_extremum(self, icohpcollection, percentage=0.15):
+    @staticmethod
+    def _get_limit_from_extremum(icohpcollection, percentage=0.15):
         """
         will return limits for the evaluation of the icohp values from an icohpcollection
         will return -100000, min(max_icohp*0.15,-0.1)
@@ -937,10 +932,10 @@ class LobsterNeighbors(NearNeighbors):
         """
         # TODO: make it work for COOPs
         extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
-        #if not self.are_coops:
+        # if not self.are_coops:
         max_here = min(extremum_based, -0.1)
         return -100000, max_here
-        #else:
+        # else:
         #    return extremum_based, 100000
 
 
@@ -1042,7 +1037,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
     @property
     def uniquely_determines_coordination_environments(self):
         """
-           True if the coordination environments are uniquely determined.
+        True if the coordination environments are uniquely determined.
         """
         return True
 

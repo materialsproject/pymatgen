@@ -234,13 +234,13 @@ class CompleteCohp(Cohp):
     """
 
     def __init__(
-            self,
-            structure,
-            avg_cohp,
-            cohp_dict,
-            bonds=None,
-            are_coops=False,
-            orb_res_cohp=None,
+        self,
+        structure,
+        avg_cohp,
+        cohp_dict,
+        bonds=None,
+        are_coops=False,
+        orb_res_cohp=None,
     ):
         """
         Args:
@@ -419,7 +419,7 @@ class CompleteCohp(Cohp):
         )
 
     def get_summed_cohp_by_label_and_orbital_list(
-            self, label_list, orbital_list, divisor=1, summed_spin_channels=False
+        self, label_list, orbital_list, divisor=1, summed_spin_channels=False
     ):
         """
         Returns a COHP object that includes a summed COHP divided by divisor
@@ -834,21 +834,6 @@ class IcohpValue(MSONable):
         if not self._are_coops:
             if self._is_spin_polarized:
                 return (
-                        "ICOHP "
-                        + str(self._label)
-                        + " between "
-                        + str(self._atom1)
-                        + " and "
-                        + str(self._atom2)
-                        + " ("
-                        + str(self._translation)
-                        + "): "
-                        + str(self._icohp[Spin.up])
-                        + " eV (Spin up) and "
-                        + str(self._icohp[Spin.down])
-                        + " eV (Spin down)"
-                )
-            return (
                     "ICOHP "
                     + str(self._label)
                     + " between "
@@ -859,25 +844,25 @@ class IcohpValue(MSONable):
                     + str(self._translation)
                     + "): "
                     + str(self._icohp[Spin.up])
-                    + " eV (Spin up)"
+                    + " eV (Spin up) and "
+                    + str(self._icohp[Spin.down])
+                    + " eV (Spin down)"
+                )
+            return (
+                "ICOHP "
+                + str(self._label)
+                + " between "
+                + str(self._atom1)
+                + " and "
+                + str(self._atom2)
+                + " ("
+                + str(self._translation)
+                + "): "
+                + str(self._icohp[Spin.up])
+                + " eV (Spin up)"
             )
         if self._is_spin_polarized:
             return (
-                    "ICOOP "
-                    + str(self._label)
-                    + " between "
-                    + str(self._atom1)
-                    + " and "
-                    + str(self._atom2)
-                    + " ("
-                    + str(self._translation)
-                    + "): "
-                    + str(self._icohp[Spin.up])
-                    + " (Spin up) and "
-                    + str(self._icohp[Spin.down])
-                    + " (Spin down)"
-            )
-        return (
                 "ICOOP "
                 + str(self._label)
                 + " between "
@@ -888,7 +873,22 @@ class IcohpValue(MSONable):
                 + str(self._translation)
                 + "): "
                 + str(self._icohp[Spin.up])
-                + " (Spin up)"
+                + " (Spin up) and "
+                + str(self._icohp[Spin.down])
+                + " (Spin down)"
+            )
+        return (
+            "ICOOP "
+            + str(self._label)
+            + " between "
+            + str(self._atom1)
+            + " and "
+            + str(self._atom2)
+            + " ("
+            + str(self._translation)
+            + "): "
+            + str(self._icohp[Spin.up])
+            + " (Spin up)"
         )
 
     @property
@@ -967,16 +967,16 @@ class IcohpCollection(MSONable):
     """
 
     def __init__(
-            self,
-            list_labels,
-            list_atom1,
-            list_atom2,
-            list_length,
-            list_translation,
-            list_num,
-            list_icohp,
-            is_spin_polarized,
-            are_coops=False,
+        self,
+        list_labels,
+        list_atom1,
+        list_atom2,
+        list_length,
+        list_translation,
+        list_num,
+        list_icohp,
+        is_spin_polarized,
+        are_coops=False,
     ):
         """
         Args:
@@ -1085,13 +1085,13 @@ class IcohpCollection(MSONable):
         return newicohp_dict
 
     def get_icohp_dict_of_site(
-            self,
-            site,
-            minsummedicohp=None,
-            maxsummedicohp=None,
-            minbondlength=0.0,
-            maxbondlength=8.0,
-            only_bonds_to=None,
+        self,
+        site,
+        minsummedicohp=None,
+        maxsummedicohp=None,
+        minbondlength=0.0,
+        maxbondlength=8.0,
+        only_bonds_to=None,
     ):
         """
         get a dict of IcohpValue for a certain site (indicated by integer)
@@ -1197,7 +1197,7 @@ class IcohpCollection(MSONable):
 
 
 def get_integrated_cohp_in_energy_range(
-        cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
+    cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
 ):
     """
     Method that can integrate completecohp objects which include data on integrated COHPs
@@ -1205,7 +1205,9 @@ def get_integrated_cohp_in_energy_range(
         cohp: CompleteCOHP object
         label: label of the COHP data
         orbital: If not None, a orbital resolved integrated COHP will be returned
-        energy_range: if None, returns icohp value at Fermi level; if float, integrates from this float up to the Fermi level; if [float,float], will integrate in between
+        energy_range:   if None, returns icohp value at Fermi level;
+                        if float, integrates from this float up to the Fermi level;
+                        if [float,float], will integrate in between
         relative_E_Fermi: if True, energy scale with E_Fermi at 0 eV is chosen
         summed_spin_channels: if True, Spin channels will be summed
 
@@ -1235,13 +1237,13 @@ def get_integrated_cohp_in_energy_range(
         if not summed_spin_channels and Spin.down in icohps:
             spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
             return {Spin.up: spl_spinup(0.0), Spin.down: spl_spindown(0.0)}
-        elif summed_spin_channels:
+        if summed_spin_channels:
             return spl_spinup(0.0)
-        else:
-            return {Spin.up: spl_spinup(0.0)}
+
+        return {Spin.up: spl_spinup(0.0)}
 
     # returns icohp value at the Fermi level!
-    elif type(energy_range) == float:
+    if isinstance(energy_range, float):
         if relative_E_Fermi:
             energies_corrected = cohp.energies - cohp.efermi
             spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
@@ -1252,40 +1254,37 @@ def get_integrated_cohp_in_energy_range(
                     Spin.up: spl_spinup(0) - spl_spinup(energy_range),
                     Spin.down: spl_spindown(0) - spl_spindown(energy_range),
                 }
-            elif summed_spin_channels:
+            if summed_spin_channels:
                 return spl_spinup(0) - spl_spinup(energy_range)
-            else:
-                return {Spin.up: spl_spinup(0) - spl_spinup(energy_range)}
-        else:
-            energies_corrected = cohp.energies
-            spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
+            return {Spin.up: spl_spinup(0) - spl_spinup(energy_range)}
 
-            if not summed_spin_channels and Spin.down in icohps:
-                spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
-                return {
-                    Spin.up: spl_spinup(cohp.efermi) - spl_spinup(energy_range),
-                    Spin.down: spl_spindown(cohp.efermi) - spl_spindown(energy_range),
-                }
-            elif summed_spin_channels:
-                return spl_spinup(cohp.efermi) - spl_spinup(energy_range)
-            else:
-                return {Spin.up: spl_spinup(cohp.efermi) - spl_spinup(energy_range)}
-
-    else:
-        if relative_E_Fermi:
-            energies_corrected = cohp.energies - cohp.efermi
-        else:
-            energies_corrected = cohp.energies
-
+        energies_corrected = cohp.energies
         spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
 
         if not summed_spin_channels and Spin.down in icohps:
             spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
             return {
-                Spin.up: spl_spinup(energy_range[1]) - spl_spinup(energy_range[0]),
-                Spin.down: spl_spindown(energy_range[1]) - spl_spindown(energy_range[0]),
+                Spin.up: spl_spinup(cohp.efermi) - spl_spinup(energy_range),
+                Spin.down: spl_spindown(cohp.efermi) - spl_spindown(energy_range),
             }
-        elif summed_spin_channels:
-            return spl_spinup(energy_range[1]) - spl_spinup(energy_range[0])
-        else:
-            return {Spin.up: spl_spinup(energy_range[1]) - spl_spinup(energy_range[0])}
+        if summed_spin_channels:
+            return spl_spinup(cohp.efermi) - spl_spinup(energy_range)
+        return {Spin.up: spl_spinup(cohp.efermi) - spl_spinup(energy_range)}
+
+    if relative_E_Fermi:
+        energies_corrected = cohp.energies - cohp.efermi
+    else:
+        energies_corrected = cohp.energies
+
+    spl_spinup = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.up], ext=0)
+
+    if not summed_spin_channels and Spin.down in icohps:
+        spl_spindown = InterpolatedUnivariateSpline(energies_corrected, summedicohp[Spin.down], ext=0)
+        return {
+            Spin.up: spl_spinup(energy_range[1]) - spl_spinup(energy_range[0]),
+            Spin.down: spl_spindown(energy_range[1]) - spl_spindown(energy_range[0]),
+        }
+    if summed_spin_channels:
+        return spl_spinup(energy_range[1]) - spl_spinup(energy_range[0])
+
+    return {Spin.up: spl_spinup(energy_range[1]) - spl_spinup(energy_range[0])}
