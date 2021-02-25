@@ -658,7 +658,7 @@ class LobsterNeighbors(NearNeighbors):
                     include_image=True,
                     include_index=True,
                 )
-                
+
                 neighbors_by_distance = []
                 list_distances = []
                 index_here_list = []
