@@ -594,7 +594,7 @@ class BasePhaseDiagram(MSONable):
             self.qhull_entries[f]: amt for f, amt in zip(facet, decomp_amts) if abs(amt) > PhaseDiagram.numerical_tol
         }
 
-    def get_hull_energy_per_atom(self, comp):
+    def get_decomp_and_hull_energy_per_atom(self, comp):
         """
         Args:
             comp (Composition): Input composition
@@ -604,7 +604,7 @@ class BasePhaseDiagram(MSONable):
         """
         # TODO does this need a direct test? indirect via tests on get_hull_energy
         decomp = self.get_decomposition(comp)
-        return sum([e.energy_per_atom * n for e, n in decomp.items()])
+        return decomp, sum([e.energy_per_atom * n for e, n in decomp.items()])
 
     def get_hull_energy(self, comp):
         """
@@ -615,7 +615,8 @@ class BasePhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition. Not
                 normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
         """
-        return comp.num_atoms * self.get_hull_energy_per_atom(comp)
+        _, hull_energy = self.get_decomp_and_hull_energy_per_atom(comp)
+        return comp.num_atoms * hull_energy
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -639,8 +640,8 @@ class BasePhaseDiagram(MSONable):
         if entry in list(self.stable_entries):
             return {entry: 1}, 0
 
-        decomp = self.get_decomposition(entry.composition)
-        e_above_hull = entry.energy_per_atom - sum([e.energy_per_atom * n for e, n in decomp.items()])
+        decomp, hull_energy = self.get_decomp_and_hull_energy_per_atom(entry.composition)
+        e_above_hull = entry.energy_per_atom - hull_energy
 
         if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
             return decomp, e_above_hull
@@ -676,7 +677,7 @@ class BasePhaseDiagram(MSONable):
         # NOTE scaled duplicates of stable_entries will not be caught.
         if entry not in self.stable_entries:
             raise ValueError(
-                "{} is unstable, the equilibrium reaction energy is" "available only for stable entries.".format(entry)
+                f"{entry} is unstable, the equilibrium reaction energy is available only for stable entries."
             )
 
         if entry.is_element:
