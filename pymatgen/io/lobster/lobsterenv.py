@@ -289,6 +289,7 @@ class LobsterNeighbors(NearNeighbors):
         summed_spin_channels=False,
         xlim=None,
         ylim=[-10, 6],
+        integrated=False,
     ):
 
         """
@@ -302,6 +303,7 @@ class LobsterNeighbors(NearNeighbors):
             will be plotted
             xlim: list of float, limits of x values
             ylim: list of float, limits of y values
+            integrated: bool, if true will show integrated cohp instead of cohp
 
         Returns:
             plt of the cohps
@@ -323,7 +325,7 @@ class LobsterNeighbors(NearNeighbors):
         )
 
         cp.add_cohp(plotlabel, summed_cohp)
-        plot = cp.get_plot(integrated=True)
+        plot = cp.get_plot(integrated=integrated)
         if xlim is not None:
             plot.xlim(xlim)
 
