@@ -12,6 +12,7 @@ import numbers
 import os
 import re
 import string
+from math import floor
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from typing import List, Tuple, Union, Dict
@@ -244,14 +245,15 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __hash__(self):
         """
-        Minimally effective hash function that just distinguishes between
-        Compositions with different elements.
+        A robust hash that allows for variations in amounts up to Composition.amount_tolerance
         """
-        hashcode = 0
-        for el, amt in self.items():
-            if abs(amt) > Composition.amount_tolerance:
-                hashcode += el.Z
-        return hashcode
+        sym_amt = {
+            el: floor((amt + Composition.amount_tolerance * 2) / (Composition.amount_tolerance * 10))
+            for el, amt in self.items()
+            if abs(amt) > Composition.amount_tolerance
+        }
+
+        return hash(frozenset(sym_amt.items()))
 
     @property
     def average_electroneg(self) -> float:
