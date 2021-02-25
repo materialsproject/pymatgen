@@ -290,18 +290,23 @@ class DftSet(Cp2kInputSet):
                 only change from theses two when simulation cell gets to be VERY large,
                 in which case FULL_KINETIC might be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
-                have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
+                have very accurate calculations PROVIDED that REL_CUTOFF is appropriate. By default cutoff is set to 0,
+                which will assign it to be the largest exponent of your basis times the rel_cutoff.
             rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
-                multigrid. From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
+                multigrid. If REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be
+                mapped onto the coarsest level of the multi-grid, and thus the effective integration grid for
+                the calculation may still be too coarse. By default 50Ry is chosen, which should be sufficient
+                given the cutoff is large enough.
+                    From CP2K manual: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
                     function will cover number of grid points greater than or equal to the number of grid points
                     will cover on a reference grid defined by REL_CUTOFF.
+            ngrids (int): number of multi-grids to use. CP2K default is 4, but the molopt basis files recommend 5.
             progression_factor (int): Divisor of CUTOFF to get the cutoff for the next level of the multigrid.
-
-            Takeaway for the cutoffs: https://www.cp2k.org/howto:converging_cutoff
-            If CUTOFF is too low, then all grids will be coarse and the calculation may become inaccurate; and if
-            REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be mapped onto the coarsest
-            level of the multi-grid, and thus the effective integration grid for the calculation may still be too
-            coarse.
+            wfn_restart_file_name (str): RESTART file for the initial wavefunction guess.
+            kpoints (Kpoints): kpoints object from pymatgen.io.vasp.inputs.Kpoints. By default, CP2K runs with gamma
+                point only.
+            smearing (bool): whether or not to activate smearing (should be done for systems containing no (or a very
+                small) band gap.
         """
 
         super().__init__(structure, **kwargs)

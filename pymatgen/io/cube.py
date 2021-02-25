@@ -110,7 +110,6 @@ class Cube:
                     int(i % self.NZ),
                 ] = float(v)
                 i += 1
-        self.data /= bohr_to_angstrom**3
 
     def mask_sphere(self, radius, cx, cy, cz):
         """
@@ -212,13 +211,11 @@ class Cube:
             Average total along axis
         """
         ng = self.data.shape
+        m = self.data
         if ind == 0:
-            m = self.data * np.linalg.norm(np.cross(self.Z * self.NZ, self.Y * self.NY))
             total = np.sum(np.sum(m, axis=1), 1)
         elif ind == 1:
-            m = self.data * np.linalg.norm(np.cross(self.X * self.NX, self.Z * self.NZ))
             total = np.sum(np.sum(m, axis=0), 1)
         else:
-            m = self.data * np.linalg.norm(np.cross(self.X * self.NX, self.Y * self.NY))
             total = np.sum(np.sum(m, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]

@@ -215,8 +215,6 @@ class Cp2kOutput:
         self.filenames["v_hartree"] = glob.glob(
             os.path.join(self.dir, "*hartree*.cube*")
         )
-        self.filenames["v_hartree"].sort(key=natural_keys)
-
         restart = glob.glob(os.path.join(self.dir, "*restart*"))
         self.filenames['restart.bak'] = []
         for r in restart:
@@ -231,6 +229,9 @@ class Cp2kOutput:
                 self.filenames["wfn.bak"].append(w)
             else:
                 self.filenames["wfn"] = w
+        for f in self.filenames:
+            if f != 'wfn':
+                self.filenames[f].sort(key=natural_keys)
 
     def parse_structures(self, trajectory_file=None, lattice_file=None):
         """
@@ -808,12 +809,15 @@ class Cp2kOutput:
             + r"\s+\-+"
         )
         row = (
-            r"(\d+)\s+(\S+\s?\S+)\s+" +
-            r"(-?\d+\.\d+E[+\-]?\d+)" +
-            r"\s+(-?\d+\.\d+E[+\-]?\d+)\s+(-?\d+\.\d+E[+\-]?\d+)?" +
-            r"\s+(-?\d+\.\d+E[+\-]?\d+)" +
-            r"(\s+-?\d+\.\d+E[+\-]?\d+)?"
+            r"(\d+)" +
+            r"\s+(\S+\s?\S+)" +
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)" +
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)" +
+            r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?" +
+            r"\s+(-?\d+\.\d+(?:[eE][+\-]?\d+)?)" +
+            r"(\s+-?\d+\.\d+(?:[eE][+\-]?\d+)?)?"
         )
+
         footer = r"^$"
 
         scfs = self.read_table_pattern(
