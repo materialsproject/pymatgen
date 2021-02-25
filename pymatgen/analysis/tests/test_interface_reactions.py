@@ -282,7 +282,7 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertEqual(
             str(self.ir[3]._get_reaction(0.666666)),
             "0.5 Li2O + 0.5 Mn -> Li + 0.25 MnO2 + 0.25 Mn",
-            "_get_reaction: reaction involving chempots species gets error!"
+            "_get_reaction: reaction involving chempots species gets error!",
         )
 
     def test_get_get_elmt_amt_in_rxt(self):
