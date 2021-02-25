@@ -11,11 +11,17 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ 3.8 ]
-        pkg: [ 1, 2, 3, 4 ]
+        include:
+          - pkg: pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
+            pkg_id: 1
+          - pkg: pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
+            pkg_id: 2
+          - pkg: pymatgen/electronic_structure pymatgen/symmetry pymatgen/ext pymatgen/command_line
+            pkg_id: 3
+          - pkg: pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
+            pkg_id: 4
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
@@ -27,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.8
       - name: Cache pip
         uses: actions/cache@v2
         with:
@@ -51,15 +57,14 @@ jobs:
           pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install scikit-image==0.18.1
           pip install -e .
-      - name: pytest group ${{ matrix.pkg }}
+      - name: pytest ${{ matrix.pkg }}
         shell: bash -l {0}
         run: |
-          echo "Testing `sed -n '${{ matrix.pkg }}p' pytest-groups`"
-          pytest `sed -n '${{ matrix.pkg }}p' pytest-groups` --cov=pymatgen
+          pytest ${{ matrix.pkg }} --cov=pymatgen
       - name: Upload coverage
         uses: actions/upload-artifact@v1
         with:
-          name: coverage-${{ matrix.pkg }}
+          name: coverage-${{ matrix.pkg_id }}
           path: .coverage
 
   coverage:
