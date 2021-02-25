@@ -352,7 +352,8 @@ class BasePhaseDiagram(MSONable):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            raise PhaseDiagramError("There are no entries associated with a terminal element!.")
+            missing = set(elements).difference(el_refs.keys())
+            raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -1512,14 +1513,6 @@ class ReactionDiagram:
             normalize_terminal_compositions=False,
         )
         return cpd
-
-
-class PhaseDiagramError(Exception):
-    """
-    An exception class for Phase Diagram generation.
-    """
-
-    pass
 
 
 def get_facets(qhull_data, joggle=False):

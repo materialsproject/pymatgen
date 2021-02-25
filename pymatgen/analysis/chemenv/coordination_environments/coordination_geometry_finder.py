@@ -6,7 +6,6 @@
 """
 This module contains the main object used to identify the coordination environments in a given structure.
 If you use this module, please cite the following:
-
 David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,
 Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,
 "Statistical analysis of coordination environments in oxides",
@@ -1418,7 +1417,6 @@ class LocalGeometryFinder:
         Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
         for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
         measures of each permutation
-
         :param coordination_geometry: The coordination geometry to be investigated
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
         """
@@ -1604,7 +1602,6 @@ class LocalGeometryFinder:
             points_perfect: Points corresponding to the perfect geometry.
             nb_set: Neighbor set for this set of points. (used to store already computed separation planes)
             optimization: Optimization level (1 or 2).
-
         Returns:
             tuple: Continuous symmetry measures for the given coordination geometry for each plane and permutation
                    investigated, corresponding permutations, corresponding algorithms,
@@ -2019,7 +2016,6 @@ class LocalGeometryFinder:
         Returns the symmetry measures for a random set of permutations for the coordination geometry
         "coordination_geometry". Fallback implementation for the plane separation algorithms measures
         of each permutation
-
         :param coordination_geometry: The coordination geometry to be investigated
         :param NRANDOM: Number of random permutations to be tested
         :return: The symmetry measures for the given coordination geometry for each permutation investigated
