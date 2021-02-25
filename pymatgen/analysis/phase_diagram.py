@@ -368,7 +368,8 @@ class BasePhaseDiagram(MSONable):
             all_entries.extend(g)
 
         if len(el_refs) != dim:
-            raise PhaseDiagramError("There are no entries associated with a terminal element!.")
+            missing = set(elements).difference(el_refs.keys())
+            raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
@@ -467,18 +468,6 @@ class BasePhaseDiagram(MSONable):
         """
         return self._stable_entries
 
-    @lru_cache(2)  # cache in case of repeated calls
-    def get_stable_entries_normed(self, mode="formula_unit"):
-        """
-        Args:
-            mode (str): type of normalization to perform.
-                Allowed ["atom", "formula_unit"]
-
-        Returns:
-            list of normalized stable entries in the phase diagram.
-        """
-        return [e.normalize(mode) for e in self._stable_entries]
-
     def get_form_energy(self, entry):
         """
         Returns the formation energy for an entry (NOT normalized) from the
@@ -543,8 +532,7 @@ class BasePhaseDiagram(MSONable):
         c = self.pd_coords(comp)
 
         all_facets = [
-            f for f, s in zip(self.facets, self.simplexes)
-            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
+            f for f, s in zip(self.facets, self.simplexes) if s.in_simplex(c, PhaseDiagram.numerical_tol / 10)
         ]
 
         if not len(all_facets):
@@ -741,9 +729,16 @@ class BasePhaseDiagram(MSONable):
         """
 
         # For unstable or novel materials use simplex approach
-        if entry.normalize(mode="atom") not in self.get_stable_entries_normed(mode="atom"):
+        if entry.composition.fractional_composition not in [
+            e.composition.fractional_composition for e in self.stable_entries
+        ]:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
+        # Handle elemental materials
+        if entry.is_element:
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+
+        # Select space to compare against
         if stable_only:
             compare_entries = self.stable_entries
         else:
@@ -753,7 +748,7 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if (c.normalize(mode="atom") != entry.normalize(mode="atom"))
+            if (c.composition.fractional_composition != entry.composition.fractional_composition)
             if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
@@ -763,28 +758,32 @@ class BasePhaseDiagram(MSONable):
         # requires computing the convex hull of a second (hopefully smallish) space
         # and so is not done by default
         if len(competing_entries) > space_limit and not stable_only:
-            reduced_space = list(set.intersection(
-                set(competing_entries),         # same chemical space
-                set(self.qhull_entries),        # negative E_f
-                set(self.unstable_entries),     # not already on hull
-            )) + list(self.el_refs.values())    # terminal points
+            reduced_space = list(
+                set.intersection(
+                    set(competing_entries),  # same chemical space
+                    set(self.qhull_entries),  # negative E_f
+                    set(self.unstable_entries),  # not already on hull
+                )
+            ) + list(
+                self.el_refs.values()
+            )  # terminal points
             inner_hull = PhaseDiagram(reduced_space)
 
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
 
             if len(competing_entries) > space_limit:
-                warnings.warn((
-                    f"After reduction {len(competing_entries)} competing entries "
-                    "remain - Using SLSQP to find decomposition likely to be slow"
-                ))
+                warnings.warn(
+                    (
+                        f"After reduction {len(competing_entries)} competing entries "
+                        "remain - Using SLSQP to find decomposition likely to be slow"
+                    )
+                )
 
         decomp = _get_slsqp_decomp(entry, competing_entries, tol, maxiter)
 
         # find the minimum alternative formation energy for the decomposition
-        decomp_enthalpy = np.sum(
-            [c.energy_per_atom * amt for c, amt in decomp.items()]
-        )
+        decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
 
         decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
 
@@ -815,15 +814,6 @@ class BasePhaseDiagram(MSONable):
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0.
         """
-        # Handle unstable and novel materials
-        if entry.normalize(mode="atom") not in self.get_stable_entries_normed(mode="atom"):
-            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
-
-        # Handle stable elemental materials
-        if entry.is_element:
-            return 0
-
-        # Handle stable compounds
         return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):
@@ -1443,6 +1433,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements ([Element, ]): List of elements in the phase diagram.
 
     """
+
     def __init__(
         self,
         entries,
@@ -1472,10 +1463,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             raise ValueError("only integer numbers of `workers` allowed")
 
         if elements is None:
-            elements = sorted({
-                els for e in entries
-                for els in e.composition.elements
-            })
+            elements = sorted({els for e in entries for els in e.composition.elements})
 
         elements = list(elements)
 
@@ -1491,16 +1479,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # print(sorted(el_refs.keys()))
 
         if len(el_refs) != dim:
-            missing = set(elements)-set(el_refs.keys())
-            raise PhaseDiagramError(
-                f"There are no entries for the terminal elements : {missing}"
-            )
+            missing = set(elements).difference(el_refs.keys())
+            raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         # Get all chemical spaces
-        spaces = {
-            e.composition.chemical_system for e in min_entries
-            if not e.is_element
-        }
+        spaces = {e.composition.chemical_system for e in min_entries if not e.is_element}
 
         # Remove redundant chemical spaces
         if not keep_all_spaces:
@@ -1510,13 +1493,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
             spaces = []
             # NOTE reduce the number of comparisons by only comparing to
             # larger sets
-            for i in range(2, max_size+1):
+            for i in range(2, max_size + 1):
                 test = [s for s in systems if len(s) == i]
                 refer = [set(s) for s in systems if len(s) > i]
-                spaces.extend([
-                    "-".join(t) for t in test
-                    if not any([set(t).issubset(r) for r in refer])
-                ])
+                spaces.extend(["-".join(t) for t in test if not any([set(t).issubset(r) for r in refer])])
 
         # Calculate pds for higher dimension spaces first
         spaces.sort(key=len, reverse=True)
@@ -1524,22 +1504,24 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # TODO is there a smart way to set up chunk sizes?
         # TODO PBarSafe is not safe as it cannot take an iteratble as input.
 
-        if workers == 0 or len(spaces) < 200: # serial if not a large number of PDs
+        if workers == 0 or len(spaces) < 200:  # serial if not a large number of PDs
             results = [self._get_pd_for_space(space) for space in PBar(spaces, disable=(not verbose))]
         else:
             if workers < 0:
                 workers = cpu_count()
 
             with Pool(workers) as p:
-                results = [*PBar(
-                    p.imap_unordered(
-                        func=self._get_pd_for_space,
-                        iterable=spaces,
-                        chunksize=100,  # using large chunksize reduces overhead
-                    ),
-                    disable=(not verbose),
-                    total=len(spaces)
-                )]
+                results = [
+                    *PBar(
+                        p.imap_unordered(
+                            func=self._get_pd_for_space,
+                            iterable=spaces,
+                            chunksize=100,  # using large chunksize reduces overhead
+                        ),
+                        disable=(not verbose),
+                        total=len(spaces),
+                    )
+                ]
 
         pds = dict(results)
 
@@ -1553,10 +1535,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self._stable_entries = {se for pd in pds.values() for se in pd.stable_entries}
 
     def __repr__(self):
-        output = [
-            "{}\nSub-Spaces: ".format(self.__class__.__name__),
-            ", ".join(list(self.spaces))
-        ]
+        output = ["{}\nSub-Spaces: ".format(self.__class__.__name__), ", ".join(list(self.spaces))]
         return "".join(output)
 
     @classmethod
@@ -1600,9 +1579,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             PhaseDiagram for the given chemical space
         """
         space_entries = [
-            e for e in self.min_entries if set(space.split("-")).issuperset(
-                e.composition.chemical_system.split("-")
-            )
+            e for e in self.min_entries if set(space.split("-")).issuperset(e.composition.chemical_system.split("-"))
         ]
 
         return space, PhaseDiagram(space_entries)
@@ -1629,9 +1606,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 entry_pds[space] = self.pds[space]
 
         if not entry_pds:
-            raise ValueError(
-                "No suitable PhaseDiagrams found for {}.".format(entry)
-            )
+            raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
 
         return entry_pds
 
@@ -1669,10 +1644,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         except ValueError as e:
             # NOTE warn when stitching across pds is being used
             warnings.warn(str(e) + " Using SLSQP to find decomposition")
-            competing_entries = [
-                c for c in self.stable_entries
-                if set(c.composition.elements).issubset(comp.elements)
-            ]
+            competing_entries = [c for c in self.stable_entries if set(c.composition.elements).issubset(comp.elements)]
             return _get_slsqp_decomp(comp, competing_entries)
 
     def get_equilibrium_reaction_energy(self, entry):
@@ -1698,97 +1670,75 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`_get_facet_and_simplex` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`_get_facet_and_simplex` not implemented for `PatchedPhaseDiagram`")
 
     def _get_all_facets_and_simplexes(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`_get_all_facets_and_simplexes` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`_get_all_facets_and_simplexes` not implemented for `PatchedPhaseDiagram`")
 
     def _get_facet_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`_get_facet_chempots` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`_get_facet_chempots` not implemented for `PatchedPhaseDiagram`")
 
     def _get_simplex_intersections(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`_get_simplex_intersections` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`_get_simplex_intersections` not implemented for `PatchedPhaseDiagram`")
 
     def get_composition_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_composition_chempots` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_composition_chempots` not implemented for `PatchedPhaseDiagram`")
 
     def get_all_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_all_chempots` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_all_chempots` not implemented for `PatchedPhaseDiagram`")
 
     def get_transition_chempots(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_transition_chempots` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_transition_chempots` not implemented for `PatchedPhaseDiagram`")
 
     def get_critical_compositions(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_critical_compositions` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_critical_compositions` not implemented for `PatchedPhaseDiagram`")
 
-    def get_element_profile(self,):
+    def get_element_profile(
+        self,
+    ):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_element_profile` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_element_profile` not implemented for `PatchedPhaseDiagram`")
 
     def get_chempot_range_map(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_chempot_range_map` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_chempot_range_map` not implemented for `PatchedPhaseDiagram`")
 
     def getmu_vertices_stability_phase(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`getmu_vertices_stability_phase` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`getmu_vertices_stability_phase` not implemented for `PatchedPhaseDiagram`")
 
     def get_chempot_range_stability_phase(self):
         """
         Not Implemented - See PhaseDiagram
         """
-        raise NotImplementedError(
-            "`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`"
-        )
+        raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`")
 
 
 class ReactionDiagram:
@@ -1957,13 +1907,6 @@ class ReactionDiagram:
         return cpd
 
 
-class PhaseDiagramError(Exception):
-    """
-    An exception class for Phase Diagram generation.
-    """
-    pass
-
-
 def get_facets(qhull_data, joggle=False):
     """
     Get the simplex facets for the Convex hull.
@@ -2052,11 +1995,7 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
 
     if solution.success:
         decomp_amts = solution.x
-        return {
-            c: amt for c, amt
-            in zip(competing_entries, decomp_amts)
-            if amt > PhaseDiagram.numerical_tol
-        }
+        return {c: amt for c, amt in zip(competing_entries, decomp_amts) if amt > PhaseDiagram.numerical_tol}
 
     return {PDEntry(comp, -99): 1.0}
 
@@ -2081,9 +2020,7 @@ def _get_useful_entries(entries):
     el_refs = {}
     min_entries = []
     all_entries = []
-    for c, g in itertools.groupby(
-        entries, key=lambda e: e.composition.reduced_composition
-    ):
+    for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
         g = list(g)
         min_entry = min(g, key=lambda e: e.energy_per_atom)
         if c.is_element:
