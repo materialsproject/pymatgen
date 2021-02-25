@@ -12,7 +12,6 @@ import numbers
 import os
 import re
 import string
-from math import floor
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from typing import List, Tuple, Union, Dict
@@ -245,15 +244,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __hash__(self):
         """
-        A robust hash that allows for variations in amounts up to Composition.amount_tolerance
+        hash based on the chemical system
         """
-        sym_amt = {
-            el: floor((amt + Composition.amount_tolerance * 2) / (Composition.amount_tolerance * 10))
-            for el, amt in self.items()
-            if abs(amt) > Composition.amount_tolerance
-        }
-
-        return hash(frozenset(sym_amt.items()))
+        return hash(frozenset(self._data.keys()))
 
     @property
     def average_electroneg(self) -> float:
