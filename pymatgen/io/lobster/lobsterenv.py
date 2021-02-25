@@ -651,16 +651,14 @@ class LobsterNeighbors(NearNeighbors):
 
             if len(neighbors_from_ICOHPs) > 0:
                 centralsite = self.structure.sites[isite]
-                try:
-                    neighbors_by_distance_start = self.structure.get_sites_in_sphere(
-                        pt=centralsite.coords,
-                        r=np.max(lengths_from_ICOHPs) + 0.5,
-                        include_image=True,
-                        include_index=True,
-                    )
-                except:
-                    neighbors_by_distance_start = []
 
+                neighbors_by_distance_start = self.structure.get_sites_in_sphere(
+                    pt=centralsite.coords,
+                    r=np.max(lengths_from_ICOHPs) + 0.5,
+                    include_image=True,
+                    include_index=True,
+                )
+                
                 neighbors_by_distance = []
                 list_distances = []
                 index_here_list = []
