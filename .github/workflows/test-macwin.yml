@@ -10,6 +10,7 @@ jobs:
       matrix:
         os: [ macos-latest, windows-latest ]
         python-version: [ 3.8 ]
+        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         pkg:
           - pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
           - pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
@@ -50,6 +51,6 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install -e .
-      - name: pytest group ${{ matrix.pkg }}
+      - name: pytest ${{ matrix.pkg }}
         run: |
           pytest ${{ matrix.pkg }}
