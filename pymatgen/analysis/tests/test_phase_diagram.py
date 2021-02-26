@@ -331,6 +331,7 @@ class PhaseDiagramTest(unittest.TestCase):
             7,
         )
 
+        # Test that the method works for novel entries
         novel_stable_entry = PDEntry("Li5FeO4", -999)
         self.assertLess(
             self.pd.get_phase_separation_energy(novel_stable_entry),
