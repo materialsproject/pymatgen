@@ -280,7 +280,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 if entry.is_element:
                     el_ref = self.pd.el_refs[entry.composition.elements[0]]
                     e_d = entry.energy_per_atom - el_ref.energy_per_atom
-                    self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d)
+                    self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d, 7)
                 # NOTE the remaining materials would require explicit tests as they
                 # could be either positive or negative
                 pass
@@ -307,6 +307,29 @@ class PhaseDiagramTest(unittest.TestCase):
                         "equilibrium reaction energy!"
                     ),
                 )
+
+        # Test that we get correct behaviour with a polymorph
+        toy_entries = {
+            "Li": 0.0,
+            "Li2O": -5,
+            "LiO2": -4,
+            "O2": 0.0,
+        }
+
+        toy_pd = PhaseDiagram([PDEntry(c, e) for c, e in toy_entries.items()])
+
+        # stable entry
+        self.assertAlmostEqual(
+            toy_pd.get_phase_separation_energy(PDEntry("Li2O", -5)),
+            -1.0,
+            7,
+        )
+        # polymorph
+        self.assertAlmostEqual(
+            toy_pd.get_phase_separation_energy(PDEntry("Li2O", -4)),
+            -2.0 / 3.0,
+            7,
+        )
 
         novel_stable_entry = PDEntry("Li5FeO4", -999)
         self.assertLess(
@@ -363,7 +386,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "Fe6 O8": 0.33333333333333393,
         }
         for k, v in expected_ans.items():
-            self.assertAlmostEqual(ansdict[k], v)
+            self.assertAlmostEqual(ansdict[k], v, 7)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:
