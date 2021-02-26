@@ -15,7 +15,7 @@ __version__ = "0.1"
 __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
-test_dir_env = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp/environments")
+test_dir_env = os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "environments")
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 

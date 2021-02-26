@@ -11,6 +11,7 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
+        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
         include:
           - pkg: pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
             pkg_id: 1
