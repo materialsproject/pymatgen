@@ -12,6 +12,7 @@ bonding analysis with Lobster.
 import collections
 import copy
 import math
+import os
 
 import numpy as np
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -363,8 +364,8 @@ class LobsterNeighbors(NearNeighbors):
         )
         import tempfile
 
-        with tempfile.NamedTemporaryFile(delete=True, suffix="POSCAR.vasp") as t:
-            path = t.name
+        with tempfile.TemporaryDirectory() as t:
+            path = os.path.join(t, "POSCAR.vasp")
 
             self.structure.to(filename=path, fmt="POSCAR")
 
@@ -591,19 +592,17 @@ class LobsterNeighbors(NearNeighbors):
                 {
                     "site": neighbor,
                     "image": tuple(
-                        [
-                            int(round(i))
-                            for i in (
-                                neighbor.frac_coords
-                                - self.structure[
-                                    [
-                                        isite
-                                        for isite, site in enumerate(self.structure)
-                                        if neighbor.is_periodic_image(site)
-                                    ][0]
-                                ].frac_coords
-                            )
-                        ]
+                        int(round(i))
+                        for i in (
+                            neighbor.frac_coords
+                            - self.structure[
+                                [
+                                    isite
+                                    for isite, site in enumerate(self.structure)
+                                    if neighbor.is_periodic_image(site)
+                                ][0]
+                            ].frac_coords
+                        )
                     ),
                     "weight": 1,
                     "site_index": [
