@@ -225,7 +225,7 @@ class TransformedPDEntry(PDEntry):
         self.rxn.normalize_to(self.original_entry.composition)
 
         # NOTE We only allow reactions that have positive amounts of reactants.
-        if not all([self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping.keys()]):
+        if not all(self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping.keys()):
             raise TransformedPDEntryError("Only reactions with positive amounts of reactants allowed")
 
     @property
@@ -606,6 +606,16 @@ class BasePhaseDiagram(MSONable):
         decomp = self.get_decomposition(comp)
         return decomp, sum([e.energy_per_atom * n for e, n in decomp.items()])
 
+    def get_hull_energy_per_atom(self, comp):
+        """
+        Args:
+            comp (Composition): Input composition
+
+        Returns:
+            Energy of lowest energy equilibrium at desired composition.
+        """
+        return self.get_decomp_and_hull_energy_per_atom(comp)[1]
+
     def get_hull_energy(self, comp):
         """
         Args:
@@ -683,6 +693,7 @@ class BasePhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
+        # TODO this should be restricted to only consider relevant chemical space
         entries = [e for e in self.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
@@ -781,7 +792,7 @@ class BasePhaseDiagram(MSONable):
                     )
                 )
 
-        decomp = _get_slsqp_decomp(entry, competing_entries, tol, maxiter)
+        decomp = _get_slsqp_decomp(entry.composition, competing_entries, tol, maxiter)
 
         # find the minimum alternative formation energy for the decomposition
         decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
@@ -1492,12 +1503,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
             max_size = max([len(s) for s in systems])
 
             spaces = []
-            # NOTE reduce the number of comparisons by only comparing to
-            # larger sets
+            # NOTE reduce the number of comparisons by only comparing to larger sets
             for i in range(2, max_size + 1):
-                test = [s for s in systems if len(s) == i]
-                refer = [set(s) for s in systems if len(s) > i]
-                spaces.extend(["-".join(t) for t in test if not any([set(t).issubset(r) for r in refer])])
+                test = (s for s in systems if len(s) == i)
+                refer = (set(s) for s in systems if len(s) > i)
+                spaces.extend(["-".join(t) for t in test if not any(set(t).issubset(r) for r in refer)])
 
         # Calculate pds for higher dimension spaces first
         spaces.sort(key=len, reverse=True)
@@ -1531,9 +1541,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.all_entries = all_entries
         self.el_refs = el_refs
         self.elements = elements
+
+        # NOTE add el_refs incase no multielement entries are present for el
         # NOTE qhull_entries for ppd is not in the same order as obtained in pd
-        self.qhull_entries = list({e for pd in pds.values() for e in pd.qhull_entries})
-        self._stable_entries = {se for pd in pds.values() for se in pd.stable_entries}
+        _qhull_entries = {e for pd in pds.values() for e in pd.qhull_entries}
+        self.qhull_entries = list(_qhull_entries.union(self.el_refs.values()))
+
+        _stable_entries = {se for pd in pds.values() for se in pd.stable_entries}
+        self._stable_entries = _stable_entries.union(self.el_refs.values())
 
     def __repr__(self):
         output = ["{}\nSub-Spaces: ".format(self.__class__.__name__), ", ".join(list(self.spaces))]
@@ -1801,7 +1816,7 @@ class ReactionDiagram:
             for face in itertools.combinations(facet, len(facet) - 1):
                 face_entries = [pd.qhull_entries[i] for i in face]
 
-                if any([e.composition.reduced_formula in terminal_formulas for e in face_entries]):
+                if any(e.composition.reduced_formula in terminal_formulas for e in face_entries):
                     continue
 
                 try:
@@ -1815,7 +1830,7 @@ class ReactionDiagram:
 
                     x = coeffs[-1]
                     # pylint: disable=R1716
-                    if all([c >= -tol for c in coeffs]) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
+                    if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
 
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -1825,7 +1840,7 @@ class ReactionDiagram:
                         c2 *= factor
 
                         # Avoid duplicate reactions.
-                        if any([np.allclose([c1, c2], cc) for cc in done]):
+                        if any(np.allclose([c1, c2], cc) for cc in done):
                             continue
 
                         done.append((c1, c2))
@@ -1927,7 +1942,7 @@ def get_facets(qhull_data, joggle=False):
     return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
-def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
+def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
     """
     Finds the amounts of competing compositions that minimize the energy of a
     given composition
@@ -1949,8 +1964,6 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
             decomposition as a dict of {PDEntry: amount} where amount
             is the amount of the fractional composition.
     """
-    if not isinstance(comp, Composition):
-        comp = comp.composition
 
     # Elemental amount present in given entry
     amts = comp.fractional_composition.get_el_amt_dict()
@@ -1982,7 +1995,7 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
 
     # NOTE the tolerence needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
-    # tol > 1e-7 in the fractional composition (default 1e-10).
+    # tol > 1e-7 in the fractional composition (default 1e-8).
     solution = minimize(
         fun=lambda x: np.dot(x, Es),
         x0=x0,
@@ -1998,9 +2011,7 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
         decomp_amts = solution.x
         return {c: amt for c, amt in zip(competing_entries, decomp_amts) if amt > PhaseDiagram.numerical_tol}
 
-    return {PDEntry(comp, -99): 1.0}
-
-    # raise ValueError("No valid decomp found for {}!".format(comp))
+    raise ValueError("No valid decomp found for {}!".format(comp))
 
 
 def _get_useful_entries(entries):
@@ -2590,7 +2601,7 @@ class PDPlotter:
             center_x = 0
             center_y = 0
             coords = []
-            contain_zero = any([comp.get_atomic_fraction(el) == 0 for el in elements])
+            contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()

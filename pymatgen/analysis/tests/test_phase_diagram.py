@@ -647,6 +647,9 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
 class PatchedPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
         self.entries = EntrySet.from_csv(str(module_dir / "reaction_entries_test.csv"))
+        # NOTE add He to test for correct behaviour despite no patches involving He
+        self.entries.add(PDEntry("He", -1.23))
+
         self.pd = PhaseDiagram(entries=self.entries)
         self.ppd = PatchedPhaseDiagram(entries=self.entries)
 
@@ -665,7 +668,7 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         # the order doesn't matter therefore just test if sorted versions are equal.
         self.assertEqual(
             sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
-            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition)
+            sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition),
         )
 
     def test_get_decomposition(self):
@@ -679,16 +682,12 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
 
     def test_get_quasi_e_to_hull(self):
         for e in self.novel_entries:
-            self.assertAlmostEqual(
-                self.pd.get_quasi_e_to_hull(e),
-                self.ppd.get_quasi_e_to_hull(e), 7
-            )
+            self.assertAlmostEqual(self.pd.get_quasi_e_to_hull(e), self.ppd.get_quasi_e_to_hull(e), 7)
 
     def test_get_equilibrium_reaction_energy(self):
         for e in self.pd.stable_entries:
             self.assertAlmostEqual(
-                self.pd.get_equilibrium_reaction_energy(e),
-                self.ppd.get_equilibrium_reaction_energy(e), 7
+                self.pd.get_equilibrium_reaction_energy(e), self.ppd.get_equilibrium_reaction_energy(e), 7
             )
 
 
