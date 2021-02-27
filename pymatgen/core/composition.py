@@ -244,14 +244,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __hash__(self):
         """
-        Minimally effective hash function that just distinguishes between
-        Compositions with different elements.
+        hash based on the chemical system
         """
-        hashcode = 0
-        for el, amt in self.items():
-            if abs(amt) > Composition.amount_tolerance:
-                hashcode += el.Z
-        return hashcode
+        return hash(frozenset(self._data.keys()))
 
     @property
     def average_electroneg(self) -> float:
