@@ -136,7 +136,7 @@ class Cube:
                     dist = np.subtract(r, [abs(x0 - x), abs(y0 - y), abs(z0 - z)])
 
                     if all([_ > 0 for _ in dist]):
-                        a[x % a.shape[0], y % a.shape[0], z % a.shape[0]] = 1
+                        a[x % a.shape[0], y % a.shape[1], z % a.shape[2]] = 1
         return a
 
     def get_atomic_site_averages(self, atomic_site_radii=None, nproc=4):
@@ -172,7 +172,6 @@ class Cube:
             Average around the atomic site
         """
         _s, _r = args[0], args[1]
-        print('working on it...')
         mask = self.mask_sphere(_r, *_s.frac_coords)
         return np.sum(self.data * mask) / np.count_nonzero(mask)
 
