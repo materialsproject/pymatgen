@@ -346,7 +346,6 @@ class Cp2kOutput:
                 coords=[
                     [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
                 ],
-                coords_are_cartesian=True,
                 site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
             )
         else:
@@ -742,37 +741,42 @@ class Cp2kOutput:
             reverse=False,
         )
         atomic_kind_info = {}
-        for i, kind in enumerate(self.data["kinds"]):
-            atomic_kind_info[kind[0]] = {
+        from itertools import chain
+        _kinds = []
+        for _ in list(chain.from_iterable(self.data['kinds'])):
+            if _ not in _kinds:
+                _kinds.append(_)
+        for i, kind in enumerate(_kinds):
+            atomic_kind_info[kind] = {
                 "orbital_basis_set": self.data.get("orbital_basis_set")[i][0],
                 "pseudo_potential": self.data.get("potential_info")[i][0],
                 "kind_number": i+1
             }
             try:
-                atomic_kind_info[kind[0]]["valence_electrons"] = self.data.get(
+                atomic_kind_info[kind]["valence_electrons"] = self.data.get(
                     "valence_electrons"
                 )[i][0]
             except (TypeError, IndexError):
-                atomic_kind_info[kind[0]]["valence_electrons"] = None
+                atomic_kind_info[kind]["valence_electrons"] = None
             try:
-                atomic_kind_info[kind[0]]["core_electrons"] = self.data.get(
+                atomic_kind_info[kind]["core_electrons"] = self.data.get(
                     "core_electrons"
                 )[i][0]
             except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]["core_electrons"] = None
             try:
-                atomic_kind_info[kind[0]][
+                atomic_kind_info[kind][
                     "auxiliary_basis_set"
                 ] = self.data.get("auxiliary_basis_set")[i]
             except (TypeError, IndexError):
-                atomic_kind_info[kind[0]]["auxiliary_basis_set"] = None
+                atomic_kind_info[kind]["auxiliary_basis_set"] = None
             try:
-                atomic_kind_info[kind[0]][
+                atomic_kind_info[kind][
                     "total_pseudopotential_energy"
                 ] = self.data.get(
                     "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
             except (TypeError, IndexError):
-                atomic_kind_info[kind[0]]["total_pseudopotential_energy"] = None
+                atomic_kind_info[kind]["total_pseudopotential_energy"] = None
         self.data["atomic_kind_info"] = atomic_kind_info
 
     def parse_total_numbers(self):
