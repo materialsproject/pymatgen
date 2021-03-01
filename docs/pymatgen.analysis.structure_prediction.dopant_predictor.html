@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>pymatgen.analysis.structure_prediction.dopant_predictor module &mdash; pymatgen 2021.2.16 documentation</title>
   
@@ -17,9 +17,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.structure_prediction.dopant_predictor.html"/>
+  
+
   
 
   
@@ -32,6 +35,7 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -60,7 +64,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -170,6 +174,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -189,7 +195,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.structure_prediction.dopant_predictor.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -210,7 +216,7 @@
 <p>Predicting potential dopants</p>
 <dl class="py function">
 <dt id="pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii">
-<code class="sig-name descname"><span class="pre">get_dopants_from_shannon_radii</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dopants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_oxi_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/structure_prediction/dopant_predictor.py#L61-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dopants_from_shannon_radii</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bonded_structure</span></em>, <em class="sig-param"><span class="n">num_dopants</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">match_oxi_sign</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/structure_prediction/dopant_predictor.py#L61-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get dopant suggestions based on Shannon radii differences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -245,7 +251,7 @@ dictionaries, each with they keys:</p>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities">
-<code class="sig-name descname"><span class="pre">get_dopants_from_substitution_probabilities</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dopants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_oxi_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/structure_prediction/dopant_predictor.py#L15-L58"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dopants_from_substitution_probabilities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">num_dopants</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">match_oxi_sign</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/structure_prediction/dopant_predictor.py#L15-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get dopant suggestions based on substitution probabilities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -285,28 +291,25 @@ dictionaries, each with they keys:</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2011, Pymatgen Development Team
+        &#169; Copyright 2011, Pymatgen Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

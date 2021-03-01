@@ -270,7 +270,7 @@ some quick examples of the core capabilities and objects:
     >>> # Integrated symmetry analysis tools from spglib.
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     >>> finder = SpacegroupAnalyzer(structure)
-    >>> finder.get_spacegroup_symbol()
+    >>> finder.get_space_group_symbol()
     'Pm-3m'
     >>>
     >>> # Convenient IO to various formats. You can specify various formats.
