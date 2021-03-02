@@ -14,6 +14,7 @@ import re
 import numpy as np
 import pandas as pd
 import warnings
+from itertools import chain
 
 from monty.io import zopen
 from monty.re import regrep
@@ -741,7 +742,6 @@ class Cp2kOutput:
             reverse=False,
         )
         atomic_kind_info = {}
-        from itertools import chain
         _kinds = []
         for _ in list(chain.from_iterable(self.data['kinds'])):
             if _ not in _kinds:
@@ -763,7 +763,7 @@ class Cp2kOutput:
                     "core_electrons"
                 )[i][0]
             except (TypeError, IndexError):
-                atomic_kind_info[kind[0]]["core_electrons"] = None
+                atomic_kind_info[kind]["core_electrons"] = None
             try:
                 atomic_kind_info[kind][
                     "auxiliary_basis_set"
