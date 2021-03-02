@@ -443,12 +443,10 @@ class BasePhaseDiagram(MSONable):
         Returns:
             The actual ndarray used to construct the convex hull.
         """
-        data = []
-        for entry in self.all_entries:
-            comp = entry.composition
-            row = [comp.get_atomic_fraction(el) for el in self.elements]
-            row.append(entry.energy_per_atom)
-            data.append(row)
+        data = [
+            [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
+            for e in self.all_entries
+        ]
         return np.array(data)[:, 1:]
 
     @property
