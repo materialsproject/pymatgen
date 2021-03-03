@@ -71,8 +71,48 @@ class Critic2Caller:
         "Critic2Caller requires the executable critic to be in the path. "
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
-    def __init__(
-        self,
+
+    def __init__(self, input_script):
+        """
+        Run Critic2 on a given input script
+
+        :param input_script: string defining the critic2 input
+        """
+
+        with open("input_script.cri", "w") as f:
+            f.write(input_script)
+
+        args = ["critic2", "input_script.cri"]
+        rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
+
+        stdout, stderr = rs.communicate()
+        stdout = stdout.decode()
+
+        if stderr:
+            stderr = stderr.decode()
+            warnings.warn(stderr)
+
+        if rs.returncode != 0:
+            raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
+
+        self._stdout = stdout
+        self._stderr = stderr
+
+        if os.path.exists("cpreport.json"):
+            cpreport = loadfn("cpreport.json")
+        else:
+            cpreport = None
+        self._cpreport = cpreport
+
+        if os.path.exists("yt.json"):
+            yt = loadfn("yt.json")
+        else:
+            yt = None
+        self._yt = yt
+
+    @classmethod
+    def from_chgcar(
+        cls,
         structure,
         chgcar=None,
         chgcar_ref=None,
@@ -178,14 +218,14 @@ class Critic2Caller:
 
         # store if examining the input script is useful,
         # not otherwise used
-        self._input_script = input_script
+        cls._input_script = input_script
 
         with ScratchDir(".") as temp_dir:
 
             os.chdir(temp_dir)
 
-            with open("input_script.cri", "w") as f:
-                f.write(input_script)
+            # with open("input_script.cri", "w") as f:
+            #     f.write(input_script)
 
             structure.to(filename="POSCAR")
 
@@ -199,38 +239,40 @@ class Critic2Caller:
             elif chgcar_ref:
                 os.symlink(chgcar_ref, "ref.CHGCAR")
 
-            args = ["critic2", "input_script.cri"]
-            rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
+            caller = cls(input_script)
 
-            stdout, stderr = rs.communicate()
-            stdout = stdout.decode()
+            # args = ["critic2", "input_script.cri"]
+            # rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
 
-            if stderr:
-                stderr = stderr.decode()
-                warnings.warn(stderr)
+            # stdout, stderr = rs.communicate()
+            # stdout = stdout.decode()
 
-            if rs.returncode != 0:
-                raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
+            # if stderr:
+            #     stderr = stderr.decode()
+            #     warnings.warn(stderr)
 
-            self._stdout = stdout
-            self._stderr = stderr
+            # if rs.returncode != 0:
+            #     raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
 
-            if os.path.exists("cpreport.json"):
-                cpreport = loadfn("cpreport.json")
-            else:
-                cpreport = None
+            # cls._stdout = stdout
+            # cls._stderr = stderr
 
-            if os.path.exists("yt.json"):
-                yt = loadfn("yt.json")
-            else:
-                yt = None
+            # if os.path.exists("cpreport.json"):
+            #     cpreport = loadfn("cpreport.json")
+            # else:
+            #     cpreport = None
 
-            self.output = Critic2Analysis(
+            # if os.path.exists("yt.json"):
+            #     yt = loadfn("yt.json")
+            # else:
+            #     yt = None
+
+            cls.output = Critic2Analysis(
                 structure,
-                stdout=stdout,
-                stderr=stderr,
-                cpreport=cpreport,
-                yt=yt,
+                stdout=caller._stdout,
+                stderr=caller._stderr,
+                cpreport=caller._cpreport,
+                yt=caller._yt,
                 zpsp=zpsp,
             )
 
@@ -294,7 +336,7 @@ class Critic2Caller:
 
             chgcar_ref = aeccar0.linear_add(aeccar2) if (aeccar0 and aeccar2) else None
 
-        return cls(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
+        return cls.from_chgcar(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 
 
 class CriticalPointType(Enum):
