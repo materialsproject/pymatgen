@@ -78,6 +78,10 @@ class Critic2Caller:
         :param input_script: string defining the critic2 input
         """
 
+        # store if examining the input script is useful,
+        # not otherwise used
+        self._input_script = input_script
+
         with open("input_script.cri", "w") as f:
             f.write(input_script)
 
@@ -215,10 +219,6 @@ class Critic2Caller:
 
         input_script = "\n".join(input_script)
 
-        # store if examining the input script is useful,
-        # not otherwise used
-        cls._input_script = input_script
-
         with ScratchDir(".") as temp_dir:
 
             os.chdir(temp_dir)
@@ -237,7 +237,7 @@ class Critic2Caller:
 
             caller = cls(input_script)
 
-            cls.output = Critic2Analysis(
+            caller.output = Critic2Analysis(
                 structure,
                 stdout=caller._stdout,
                 stderr=caller._stderr,
@@ -245,6 +245,8 @@ class Critic2Caller:
                 yt=caller._yt,
                 zpsp=zpsp,
             )
+
+            return caller
 
     @classmethod
     def from_path(cls, path, suffix="", zpsp=None):
