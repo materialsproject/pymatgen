@@ -113,7 +113,7 @@ setup(
     packages=find_packages(),
     version="2021.3.3",
     cmdclass={"build_ext": build_ext},
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "numpy>=1.20.1",
         "requests",
