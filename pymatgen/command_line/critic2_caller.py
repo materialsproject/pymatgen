@@ -71,7 +71,6 @@ class Critic2Caller:
         "Critic2Caller requires the executable critic to be in the path. "
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
-
     def __init__(self, input_script):
         """
         Run Critic2 on a given input script
@@ -224,9 +223,6 @@ class Critic2Caller:
 
             os.chdir(temp_dir)
 
-            # with open("input_script.cri", "w") as f:
-            #     f.write(input_script)
-
             structure.to(filename="POSCAR")
 
             if chgcar and isinstance(chgcar, VolumetricData):
@@ -240,32 +236,6 @@ class Critic2Caller:
                 os.symlink(chgcar_ref, "ref.CHGCAR")
 
             caller = cls(input_script)
-
-            # args = ["critic2", "input_script.cri"]
-            # rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
-
-            # stdout, stderr = rs.communicate()
-            # stdout = stdout.decode()
-
-            # if stderr:
-            #     stderr = stderr.decode()
-            #     warnings.warn(stderr)
-
-            # if rs.returncode != 0:
-            #     raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
-
-            # cls._stdout = stdout
-            # cls._stderr = stderr
-
-            # if os.path.exists("cpreport.json"):
-            #     cpreport = loadfn("cpreport.json")
-            # else:
-            #     cpreport = None
-
-            # if os.path.exists("yt.json"):
-            #     yt = loadfn("yt.json")
-            # else:
-            #     yt = None
 
             cls.output = Critic2Analysis(
                 structure,
