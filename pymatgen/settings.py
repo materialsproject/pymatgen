@@ -33,3 +33,4 @@ def _load_pmg_settings():
 
 
 SETTINGS = _load_pmg_settings()
+locals().update(SETTINGS)
