@@ -238,9 +238,6 @@ def get_unique_site_indices(structure):
     This creates unique sites, based on site properties, but does not have anything to do with turning
     those site properties into CP2K input parameters.
     """
-    sites = {}
-    _property = None
-
     spins = []
     oxi_states = []
 
@@ -248,28 +245,24 @@ def get_unique_site_indices(structure):
         for sp, occu in site.species.items():
             oxi_states.append(getattr(sp, "oxi_state", 0))
             spins.append(getattr(sp, "_properties", {}).get('spin', 0))
+
     structure.add_site_property('oxi_state', oxi_states)
     structure.add_site_property('spin', spins)
+    structure.remove_oxidation_states()
+    items = [
+        (site.species_string, *[structure.site_properties[k][i] for k in structure.site_properties])
+        for i, site in enumerate(structure)
+    ]
+    unique_itms = list(set(items))
+    _sites = {u: [] for u in unique_itms}
+    for i, itm in enumerate(items):
+        _sites[itm].append(i)
+    sites = {}
+    nums = {s: 1 for s in structure.symbol_set}
+    for s in _sites:
+        sites['{}_{}'.format(s[0], nums[s[0]])] = _sites[s]
+        nums[s[0]] += 1
 
-    for s in structure.symbol_set:
-        s_ids = structure.indices_from_symbol(s)
-        unique = [0]
-        for site_prop, vals in structure.site_properties.items():
-            _unique = np.unique([vals[i] for i in s_ids])
-            if len(unique) < len(_unique):
-                unique = _unique
-                _property = site_prop
-        if _property is None:
-            sites[s] = s_ids
-        else:
-            for i, u in enumerate(unique):
-                sites[s + "_" + str(i + 1)] = []
-                for j, site in zip(
-                    s_ids,
-                    [structure.site_properties[_property][ids] for ids in s_ids],
-                ):
-                    if site == u:
-                        sites[s + "_" + str(i + 1)].append(j)
     return sites
 
 
