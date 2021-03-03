@@ -7,6 +7,13 @@ import warnings
 from collections import OrderedDict
 from typing import Dict, List, Tuple, Union, Sequence
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import numpy as np
 import plotly.graph_objects as go
 from monty.serialization import loadfn
@@ -14,8 +21,6 @@ from scipy.optimize import curve_fit
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-
-from pymatgen import yaml
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 

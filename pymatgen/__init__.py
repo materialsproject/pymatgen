@@ -8,8 +8,6 @@ Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. This is the root package.
 """
 
-from monty.json import MontyDecoder, MontyEncoder, MSONable  # noqa
-
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
