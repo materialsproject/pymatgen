@@ -7,7 +7,7 @@ import os
 import unittest
 import warnings
 
-from pymatgen import SETTINGS
+from pymatgen.settings import SETTINGS
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.core.structure import Structure

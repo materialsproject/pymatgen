@@ -10,7 +10,7 @@ import json
 from os import makedirs
 from os.path import exists, expanduser
 
-from pymatgen import SETTINGS
+from pymatgen.settings import SETTINGS
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 
 

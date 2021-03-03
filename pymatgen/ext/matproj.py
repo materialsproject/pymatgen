@@ -23,11 +23,18 @@ from collections import defaultdict
 from enum import Enum, unique
 from time import sleep
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen.settings import SETTINGS, SETTINGS_FILE
 from pymatgen import __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
