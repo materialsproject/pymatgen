@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>Introduction &mdash; pymatgen 2021.3.3 documentation</title>
   
 
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgintroduction.html"/>
-  
-
   
 
   
@@ -35,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -74,7 +70,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2021.3.3
               </div>
             
           
@@ -105,7 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2021-2-16">v2021.2.16</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2021-3-3">v2021.3.3</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -168,8 +164,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -181,7 +175,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -259,12 +253,12 @@ pymatgen examples page in favor of this more sustainable approach going forward.
 One of the ways you can contribute is to fork the matgenb repo and add your own
 examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id2">
+<div class="figure align-center" id="id6">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
-DiffusionAnalyzer.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+DiffusionAnalyzer.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="why-use-pymatgen">
@@ -302,13 +296,18 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2021-2-16">
-<h3>v2021.2.16<a class="headerlink" href="#v2021-2-16" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2021-3-3">
+<h3>v2021.3.3<a class="headerlink" href="#v2021-3-3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (&#64;mkhorton, #2066)</p></li>
-<li><p>Addresses missing text file, all_cg.txt, in package</p></li>
-<li><p>Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version</p></li>
-<li><p>Previous release also dropped support for aconvasp since this the interface has not been maintained</p></li>
+<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Backwards incompatible*: pymatgen.SETTINGS have been moved to
+pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
+since most of these settings are used within pymatgen itself.</p></li>
+<li><p><a href="#id3"><span class="problematic" id="id4">**</span></a>Backwards incompatible*: pymatgen.loadfn and get_structure_from_mp have been
+removed since no one was using them.</p></li>
+<li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
+<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
+<li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
+<li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -384,9 +383,9 @@ conda install --yes --channel conda-forge pymatgen
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="id3">
+<div class="figure align-center" id="id7">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <p>The figure above provides an overview of the functionality in pymatgen. A
 typical workflow would involve a user converting data (structure, calculations,
@@ -516,9 +515,6 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># in the x-direction.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># If you set up your .pmgrc.yaml with your Materials Project API key</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># You can now easily grab structures from the Materials Project.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">lifepo4</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">get_structure_from_mp</span><span class="p">(</span><span class="s2">&quot;LiFePO4&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The above illustrates only the most basic capabilities of pymatgen. Users are
@@ -707,25 +703,28 @@ to indicate the copyright and license terms:</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.abinit.variable module &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>pymatgen.io.abinit.variable module &mdash; pymatgen 2021.3.3 documentation</title>
   
 
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.io.abinit.variable.html"/>
-  
-
   
 
   
@@ -35,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -74,7 +70,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2021.3.3
               </div>
             
           
@@ -121,7 +117,6 @@
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -174,8 +169,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -195,7 +188,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.abinit.variable.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -216,7 +209,7 @@
 <p>Support for Abinit input variables.</p>
 <dl class="py class">
 <dt id="pymatgen.io.abinit.variable.InputVariable">
-<em class="property">class </em><code class="sig-name descname">InputVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">units</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">valperline</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py#L28-L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">InputVariable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valperline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py#L28-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An Abinit input variable.</p>
 <dl class="field-list simple">
@@ -231,51 +224,51 @@
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.basename">
-<em class="property">property </em><code class="sig-name descname">basename</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.basename" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">basename</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.basename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the name trimmed of any dataset index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.dataset">
-<em class="property">property </em><code class="sig-name descname">dataset</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dataset</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the dataset index in string form.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.format_list">
-<code class="sig-name descname">format_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">floatdecimal</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py#L200-L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">format_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floatdecimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py#L200-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format a list of values into a string.
 The result might be spread among several lines.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.format_list2d">
-<em class="property">static </em><code class="sig-name descname">format_list2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">floatdecimal</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py#L159-L198"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_list2d" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">format_list2d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floatdecimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py#L159-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_list2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format a list of lists.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.format_scalar">
-<em class="property">static </em><code class="sig-name descname">format_scalar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">floatdecimal</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py#L128-L157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_scalar" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">format_scalar</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floatdecimal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py#L128-L157"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.format_scalar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format a single numerical value into a string
 with the appropriate number of decimal.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.get_value">
-<code class="sig-name descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py#L54-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.get_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_value</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py#L54-L58"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.get_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.name">
-<em class="property">property </em><code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the variable.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.variable.InputVariable.units">
-<em class="property">property </em><code class="sig-name descname">units</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/io/abinit/variable.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.units" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">units</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/abinit/variable.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.variable.InputVariable.units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the units.</p>
 </dd></dl>
 
@@ -288,25 +281,28 @@ with the appropriate number of decimal.</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

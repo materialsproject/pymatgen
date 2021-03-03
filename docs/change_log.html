@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>Change log &mdash; pymatgen 2021.3.3 documentation</title>
   
 
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgchange_log.html"/>
-  
-
   
 
   
@@ -35,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -74,7 +70,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2021.3.3
               </div>
             
           
@@ -103,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-3-3">v2021.3.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2021-2-16">v2021.2.16</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2021-2-14">v2021.2.14</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2021-2-12">v2021.2.12</a></li>
@@ -418,8 +415,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -431,7 +426,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/change_log.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -449,6 +444,20 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2021-3-3">
+<h2>v2021.3.3<a class="headerlink" href="#v2021-3-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Backwards incompatible*: pymatgen.SETTINGS have been moved to
+pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
+since most of these settings are used within pymatgen itself.</p></li>
+<li><p><a href="#id3"><span class="problematic" id="id4">**</span></a>Backwards incompatible*: pymatgen.loadfn and get_structure_from_mp have been
+removed since no one was using them.</p></li>
+<li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
+<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
+<li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
+<li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
+</ul>
+</div>
 <div class="section" id="v2021-2-16">
 <h2>v2021.2.16<a class="headerlink" href="#v2021-2-16" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -1583,7 +1592,7 @@ Ar, which are set to infinity with a warning.</p></li>
 <div class="section" id="v4-5-7">
 <h2>v4.5.7<a class="headerlink" href="#v4-5-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>PMG settings are now prefixed with <a href="#id5"><span class="problematic" id="id6">PMG_</span></a> to ensure proper namespacing.</p></li>
+<li><p>PMG settings are now prefixed with <a href="#id9"><span class="problematic" id="id10">PMG_</span></a> to ensure proper namespacing.</p></li>
 <li><p>Improve error output in command line bader caller.</p></li>
 <li><p>Add Py3.6 classifier.</p></li>
 <li><p>Misc bug fixes.</p></li>
@@ -2251,9 +2260,9 @@ document schema for use with MPRester.query method.</p></li>
 <ul class="simple">
 <li><p>Completely revamped symmetry package. The finder.SymmetryFinder and
 pointgroup and spacegroup modules are now deprecated. Instead,
-all symmetry analysis is in the <a href="#id1"><span class="problematic" id="id2">:module:`pymatgen.symmetry.analyzer`_</span></a>
+all symmetry analysis is in the <a href="#id5"><span class="problematic" id="id6">:module:`pymatgen.symmetry.analyzer`_</span></a>
 module. There is also a completely rewritten support for symmetry groups in
-<a href="#id3"><span class="problematic" id="id4">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
+<a href="#id7"><span class="problematic" id="id8">:module:`pymatgen.symmetry.groups`_</span></a>. Structure now supports a static
 constructor to generate a structure from a spacegroup (see examples).</p></li>
 <li><p>BatteryAnalyzer class (Anubhav Jain) to provide for some common analysis of
 intercalation electrodes.</p></li>
@@ -3034,25 +3043,28 @@ environment variable.</p></li>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

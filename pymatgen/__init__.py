@@ -12,7 +12,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2021.2.16"
+__version__ = "2021.3.3"
 
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.

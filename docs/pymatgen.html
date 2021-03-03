@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen package &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>pymatgen package &mdash; pymatgen 2021.3.3 documentation</title>
   
 
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.html"/>
-  
-
   
 
   
@@ -35,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -74,7 +70,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2021.3.3
               </div>
             
           
@@ -121,7 +117,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -130,6 +125,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.dao.html">pymatgen.dao module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.settings.html">pymatgen.settings module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-pymatgen">Module contents</a></li>
@@ -177,8 +173,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -192,7 +186,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -759,10 +753,6 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.phonon.html#module-pymatgen.phonon">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.plugins.html#module-pymatgen.plugins">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.symmetry.html#subpackages">Subpackages</a><ul class="simple">
 </ul>
@@ -841,6 +831,7 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.dao.html">pymatgen.dao module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.settings.html">pymatgen.settings module</a></li>
 </ul>
 </div>
 </div>
@@ -848,43 +839,6 @@
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen" title="Permalink to this headline">¶</a></h2>
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. This is the root package.</p>
-<dl class="py function">
-<dt id="pymatgen.get_structure_from_mp">
-<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/__init__.py#L67-L88"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience method to get a crystal from the Materials Project database via
-the API. Requires PMG_MAPI_KEY to be set.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>formula</strong> (<em>str</em>) – A formula</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>(Structure) The lowest energy structure in Materials Project with that</dt><dd><p>formula.</p>
-</dd>
-</dl>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pymatgen.loadfn">
-<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/__init__.py#L91-L117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience method to perform quick loading of data from a filename. The
-type of object returned depends the file type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>fname</strong> (<em>string</em>) – A filename.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Note that fname is matched using unix-style, i.e., fnmatch.
-(Structure) if <em>POSCAR</em>/<em>CONTCAR</em>/<em>.cif
-(Vasprun) *vasprun</em>
-(obj) if <em>json</em> (passthrough to monty.serialization.loadfn)</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 </div>
 
@@ -893,25 +847,28 @@ type of object returned depends the file type.</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

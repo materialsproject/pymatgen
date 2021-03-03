@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.electronic_structure.bandstructure module &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>pymatgen.electronic_structure.bandstructure module &mdash; pymatgen 2021.3.3 documentation</title>
   
 
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.electronic_structure.bandstructure.html"/>
-  
-
   
 
   
@@ -35,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -74,7 +70,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2021.3.3
               </div>
             
           
@@ -121,7 +117,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -174,8 +169,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -193,7 +186,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.electronic_structure.bandstructure.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -214,38 +207,38 @@
 <p>This module provides classes to define everything related to band structures.</p>
 <dl class="py class">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure">
-<em class="property">class </em><code class="sig-name descname">BandStructure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoints</span></em>, <em class="sig-param"><span class="n">eigenvals</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">efermi</span></em>, <em class="sig-param"><span class="n">labels_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projections</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L141-L716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">BandStructure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L141-L716"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is the most generic band structure data possible
 it’s defined by a list of kpoints + energies for each of them</p>
 <dl class="py attribute">
 <dt>
-<code class="sig-name descname">kpoints:</code></dt>
+<code class="sig-name descname"><span class="pre">kpoints:</span></code></dt>
 <dt>
-<code class="sig-name descname">the list of kpoints (as Kpoint objects) in the band structure</code></dt>
+<code class="sig-name descname"><span class="pre">the</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">kpoints</span> <span class="pre">(as</span> <span class="pre">Kpoint</span> <span class="pre">objects)</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">band</span> <span class="pre">structure</span></code></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.lattice_rec">
-<code class="sig-name descname">lattice_rec</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.lattice_rec" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">lattice_rec</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.lattice_rec" title="Permalink to this definition">¶</a></dt>
 <dd><p>the reciprocal lattice of the band structure.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.efermi">
-<code class="sig-name descname">efermi</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.efermi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">efermi</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.efermi" title="Permalink to this definition">¶</a></dt>
 <dd><p>the fermi energy</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.is_spin_polarized">
-<code class="sig-name descname">is_spin_polarized</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_spin_polarized" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">is_spin_polarized</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_spin_polarized" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the band structure is spin-polarized, False otherwise</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.bands">
-<code class="sig-name descname">bands</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.bands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">bands</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>The energy eigenvalues as a {spin: ndarray}. Note that the use of an
 ndarray is necessary for computational as well as memory efficiency
 due to the large amount of numerical data. The indices of the ndarray
@@ -254,19 +247,19 @@ are [band_index, kpoint_index].</p>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.nb_bands">
-<code class="sig-name descname">nb_bands</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.nb_bands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">nb_bands</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.nb_bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the number of bands in the band structure</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.structure">
-<code class="sig-name descname">structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">structure</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the structure</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.projections">
-<code class="sig-name descname">projections</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.projections" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">projections</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.projections" title="Permalink to this definition">¶</a></dt>
 <dd><p>The projections as a {spin: ndarray}. Note that the use of an
 ndarray is necessary for computational as well as memory efficiency
 due to the large amount of numerical data. The indices of the ndarray
@@ -303,13 +296,13 @@ store one data set under Spin.up.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L581-L625"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L581-L625"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of BandStructure.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L627-L674"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L627-L674"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create from dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -323,7 +316,7 @@ store one data set under Spin.up.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.from_old_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_old_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L676-L716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_old_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_old_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L676-L716"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_old_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
@@ -337,7 +330,7 @@ object.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap">
-<code class="sig-name descname">get_band_gap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L463-L495"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_band_gap</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L463-L495"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns band gap data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -353,7 +346,7 @@ object.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm">
-<code class="sig-name descname">get_cbm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L394-L461"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_cbm</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L394-L461"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns data about the CBM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -379,7 +372,7 @@ BandStructure: {spin:{‘Orbital’: [proj]}} where the array
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap">
-<code class="sig-name descname">get_direct_band_gap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L527-L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_direct_band_gap</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L527-L537"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the direct band gap.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -390,7 +383,7 @@ BandStructure: {spin:{‘Orbital’: [proj]}} where the array
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict">
-<code class="sig-name descname">get_direct_band_gap_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L497-L525"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_direct_band_gap_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L497-L525"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary of information about the direct
 band gap</p>
 <dl class="field-list simple">
@@ -403,7 +396,7 @@ along with their band indices and k-point index</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_kpoint_degeneracy">
-<code class="sig-name descname">get_kpoint_degeneracy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoint</span></em>, <em class="sig-param"><span class="n">cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.01</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L565-L579"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_kpoint_degeneracy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_kpoint_degeneracy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L565-L579"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_kpoint_degeneracy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns degeneracy of a given k-point based on structure symmetry
 :param kpoint: coordinate of the k-point
 :type kpoint: 1x3 array
@@ -423,7 +416,7 @@ along with their band indices and k-point index</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements">
-<code class="sig-name descname">get_projection_on_elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L251-L273"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_projection_on_elements</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L251-L273"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -440,7 +433,7 @@ returns an empty dict</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_projections_on_elements_and_orbitals">
-<code class="sig-name descname">get_projections_on_elements_and_orbitals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_orb_spec</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L275-L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projections_on_elements_and_orbitals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_projections_on_elements_and_orbitals</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_orb_spec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L275-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projections_on_elements_and_orbitals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements and specific
 orbitals</p>
 <dl class="field-list simple">
@@ -461,7 +454,7 @@ dict.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_sym_eq_kpoints">
-<code class="sig-name descname">get_sym_eq_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoint</span></em>, <em class="sig-param"><span class="n">cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.01</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L539-L563"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_sym_eq_kpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_sym_eq_kpoints</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L539-L563"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_sym_eq_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of unique symmetrically equivalent k-points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -482,7 +475,7 @@ dict.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm">
-<code class="sig-name descname">get_vbm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L328-L392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_vbm</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L328-L392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns data about the VBM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -508,7 +501,7 @@ BandStructure: {spin:{‘Orbital’: [proj]}} where the array
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructure.is_metal">
-<code class="sig-name descname">is_metal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">efermi_tol</span><span class="o">=</span><span class="default_value">0.0001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L314-L326"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_metal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">is_metal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">efermi_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L314-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_metal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the band structure indicates a metal by looking if the fermi
 level crosses a band.</p>
 <dl class="field-list simple">
@@ -522,7 +515,7 @@ level crosses a band.</p>
 
 <dl class="py class">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine">
-<em class="property">class </em><code class="sig-name descname">BandStructureSymmLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoints</span></em>, <em class="sig-param"><span class="n">eigenvals</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">efermi</span></em>, <em class="sig-param"><span class="n">labels_dict</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projections</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L719-L935"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">BandStructureSymmLine</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L719-L935"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="pymatgen.electronic_structure.bandstructure.BandStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructure</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This object stores band structures along selected (symmetry) lines in the
 Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
@@ -557,7 +550,7 @@ store one data set under Spin.up.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor">
-<code class="sig-name descname">apply_scissor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">new_band_gap</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L869-L927"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">apply_scissor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_band_gap</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L869-L927"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a scissor operator (shift of the CBM) to fit the given band gap.
 If it’s a metal. We look for the band crossing the fermi level
 and shift this one up. This will not work all the time for metals!</p>
@@ -573,13 +566,13 @@ and shift this one up. This will not work all the time for metals!</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L929-L935"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L929-L935"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of BandStructureSymmLine.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch">
-<code class="sig-name descname">get_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L841-L867"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_branch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L841-L867"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns in what branch(es) is the kpoint. There can be several
 branches.</p>
 <dl class="field-list simple">
@@ -597,7 +590,7 @@ branches</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints">
-<code class="sig-name descname">get_equivalent_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L814-L839"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_equivalent_kpoints</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L814-L839"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of kpoint indices equivalent (meaning they are the
 same frac coords) to the given one.</p>
 <dl class="field-list simple">
@@ -616,7 +609,7 @@ same frac coords) to the given one.</p>
 
 <dl class="py class">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint">
-<em class="property">class </em><code class="sig-name descname">Kpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">to_unit_cell</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L34-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Kpoint</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L34-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to store kpoint objects. A kpoint is defined with a lattice and frac
 or cartesian coordinates syntax similar than the site object in
@@ -638,49 +631,49 @@ in cartesian or fractional coordinates (by default fractional)</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.a">
-<em class="property">property </em><code class="sig-name descname">a</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.a" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">a</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.a" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fractional a coordinate of the kpoint</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L127-L138"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L127-L138"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of a kpoint</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.b">
-<em class="property">property </em><code class="sig-name descname">b</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.b" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">b</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.b" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fractional b coordinate of the kpoint</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.c">
-<em class="property">property </em><code class="sig-name descname">c</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.c" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">c</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.c" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fractional c coordinate of the kpoint</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.cart_coords">
-<em class="property">property </em><code class="sig-name descname">cart_coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.cart_coords" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cart_coords</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.cart_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>The cartesian coordinates of the kpoint as a numpy array</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.frac_coords">
-<em class="property">property </em><code class="sig-name descname">frac_coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.frac_coords" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">frac_coords</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.frac_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>The fractional coordinates of the kpoint as a numpy array</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.label">
-<em class="property">property </em><code class="sig-name descname">label</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.label" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.label" title="Permalink to this definition">¶</a></dt>
 <dd><p>The label associated with the kpoint</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.Kpoint.lattice">
-<em class="property">property </em><code class="sig-name descname">lattice</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.lattice" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">lattice</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>The lattice associated with the kpoint. It’s a
 pymatgen.core.lattice.Lattice object</p>
 </dd></dl>
@@ -689,7 +682,7 @@ pymatgen.core.lattice.Lattice object</p>
 
 <dl class="py class">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine">
-<em class="property">class </em><code class="sig-name descname">LobsterBandStructureSymmLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kpoints</span></em>, <em class="sig-param"><span class="n">eigenvals</span></em>, <em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">efermi</span></em>, <em class="sig-param"><span class="n">labels_dict</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">projections</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L938-L1117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">LobsterBandStructureSymmLine</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kpoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eigenvals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efermi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projections</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L938-L1117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructureSymmLine</span></code></a></p>
 <p>Lobster subclass of BandStructure with customized functions.</p>
 <dl class="field-list simple">
@@ -722,13 +715,13 @@ store one data set under Spin.up.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L943-L986"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L943-L986"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Json-serializable dict representation of BandStructureSymmLine.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L988-L1025"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L988-L1025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
@@ -742,7 +735,7 @@ object.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_old_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_old_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L1027-L1060"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_old_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_old_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L1027-L1060"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_old_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – A dict with all data for a band structure symm line
@@ -756,7 +749,7 @@ object.</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projection_on_elements">
-<code class="sig-name descname">get_projection_on_elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L1062-L1083"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_projection_on_elements</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L1062-L1083"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements.
 It sums over all available orbitals for each element.</p>
 <dl class="field-list simple">
@@ -774,7 +767,7 @@ returns an empty dict</p>
 
 <dl class="py method">
 <dt id="pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals">
-<code class="sig-name descname">get_projections_on_elements_and_orbitals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el_orb_spec</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L1085-L1117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_projections_on_elements_and_orbitals</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_orb_spec</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L1085-L1117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method returning a dictionary of projections on elements and specific
 orbitals</p>
 <dl class="field-list simple">
@@ -797,7 +790,7 @@ dict.</p>
 
 <dl class="py function">
 <dt id="pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure">
-<code class="sig-name descname">get_reconstructed_band_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">list_bs</span></em>, <em class="sig-param"><span class="n">efermi</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/electronic_structure/bandstructure.py#L1120-L1184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_reconstructed_band_structure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efermi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/electronic_structure/bandstructure.py#L1120-L1184"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method takes a list of band structures and reconstructs
 one band structure object from all of them.</p>
 <p>This is typically very useful when you split non self consistent
@@ -826,25 +819,28 @@ the type of the list_bs objects)</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 
