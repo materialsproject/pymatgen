@@ -397,12 +397,13 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(comp1.__hash__(), comp2.__hash__(), "Hashcode equality test failed!")
 
     def test_hash_robustness(self):
-        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance}")
+        c1 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*0.99}")
         c2 = Composition(f"O{0.2}Fe{0.8}Na{Composition.amount_tolerance*1.01}")
-        c3 = Composition(f"O{0.2}Fe{0.8}")
+        c3 = Composition(f"O{0.2}Fe{0.8+Composition.amount_tolerance*0.99}")
 
-        self.assertEqual(c1 == c3, hash(c1) == hash(c3), "Hash not robust")
-        self.assertEqual(c2 == c3, hash(c2) == hash(c3), "Hash not robust")
+        self.assertTrue(c1 == c3, "__eq__ not robust")
+        self.assertEqual(c1 == c3, hash(c1) == hash(c3), "Hash doesn't match eq when true")
+        self.assertFalse(hash(c1) == hash(c2), "Hash equal for different chemical systems")
 
     def test_comparisons(self):
         c1 = Composition({"S": 1})

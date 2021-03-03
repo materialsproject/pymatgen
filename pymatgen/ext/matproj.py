@@ -183,7 +183,7 @@ class MPRester:
 
         if notify_db_version:
             db_version = self.get_database_version()
-            logger.info(f"Connection established to Materials Project database, version {db_version}.")
+            logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
                 with open(SETTINGS_FILE, "rt") as f:
