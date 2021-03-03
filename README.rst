@@ -4,9 +4,9 @@
 
 Bug reports can be posted to our GitHub Issues page. Code contributions and work-in-progress pull requests welcome.
 
-.. image:: https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg
+.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
       :alt: CI Status
-      :target: https://github.com/materialsproject/pymatgen/workflows/Testing/badge.svg
+      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml
 
 .. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
       :alt: Conda Downloads
