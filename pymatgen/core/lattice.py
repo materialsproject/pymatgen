@@ -91,7 +91,7 @@ class Lattice(MSONable):
         """
         :return: Whether all angles are 90 degrees.
         """
-        return all([abs(a - 90) < 1e-5 for a in self.angles])
+        return all(abs(a - 90) < 1e-5 for a in self.angles)
 
     def __format__(self, fmt_spec=""):
         """

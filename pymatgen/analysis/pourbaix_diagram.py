@@ -749,7 +749,7 @@ class PourbaixDiagram(MSONable):
 
             # Check if reaction coeff threshold met for pourbaix compounds
             # All reactant/product coefficients must be positive nonzero
-            if all([coeff > coeff_threshold for coeff in all_coeffs]):
+            if all(coeff > coeff_threshold for coeff in all_coeffs):
                 return MultiEntry(entry_list, weights=react_coeffs)
 
             return None

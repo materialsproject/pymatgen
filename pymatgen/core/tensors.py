@@ -25,13 +25,8 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
-__copyright__ = "Copyright 2017, The Materials Project"
 __credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, " "Mark Asta, Anubhav Jain, Terence Lew"
-__version__ = "1.0"
-__maintainer__ = "Joseph Montoya"
-__email__ = "montoyjh@lbl.gov"
-__status__ = "Production"
-__date__ = "July 24, 2018"
+
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
@@ -71,7 +66,7 @@ class Tensor(np.ndarray, MSONable):
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
             raise ValueError("Voigt scaling matrix must be the shape of the " "voigt notation matrix or vector.")
-        if not all([i == 3 for i in obj.shape]):
+        if not all(i == 3 for i in obj.shape):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, "
                 "and default tensor constructor uses standard "
@@ -770,7 +765,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tol: tolerance
         :return: Whether all tensors are symmetric.
         """
-        return all([t.is_symmetric(tol) for t in self])
+        return all(t.is_symmetric(tol) for t in self)
 
     def fit_to_structure(self, structure, symprec=0.1):
         """
@@ -788,7 +783,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tol: tolerance
         :return: Whether all tensors are fitted to Structure.
         """
-        return all([t.is_fit_to_structure(structure, tol) for t in self])
+        return all(t.is_fit_to_structure(structure, tol) for t in self)
 
     @property
     def voigt(self):
@@ -809,7 +804,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tol: tolerance
         :return: Whether all tensors are voigt symmetric.
         """
-        return all([t.is_voigt_symmetric(tol) for t in self])
+        return all(t.is_voigt_symmetric(tol) for t in self)
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):

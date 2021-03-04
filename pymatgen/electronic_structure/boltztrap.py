@@ -1567,7 +1567,7 @@ class BoltztrapAnalyzer:
 
             st = sorted(x)
             return bool(
-                all([st[0], st[1], st[2]])
+                all(st[0], st[1], st[2])
                 and (abs((st[1] - st[0]) / st[1]) <= isotropy_tolerance)
                 and (abs((st[2] - st[0])) / st[2] <= isotropy_tolerance)
                 and (abs((st[2] - st[1]) / st[2]) <= isotropy_tolerance)

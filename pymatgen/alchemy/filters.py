@@ -371,4 +371,4 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         fcoords2 = fcoords[sp2_indices, :]
         lattice = structure.lattice
         dists = lattice.get_all_distances(fcoords1, fcoords2)
-        return all([any(row) for row in dists < self.max_dist])
+        return all(any(row) for row in dists < self.max_dist)

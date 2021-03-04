@@ -1288,7 +1288,7 @@ class GrainBoundaryGenerator:
         scale[l, l] = sigma / least_mul
         for i in range(least_mul):
             check_int = i * new_rot[:, k] + (sigma / least_mul) * new_rot[:, l]
-            if all([np.round(x, 5).is_integer() for x in list(check_int)]):
+            if all(np.round(x, 5).is_integer() for x in list(check_int)):
                 n_final = i
                 break
         try:
@@ -2320,11 +2320,11 @@ class GrainBoundaryGenerator:
             j = np.arange(-max_j, max_j + 1)
             for j1, j2 in itertools.product(j, repeat=2):
                 temp = mat[h] + j1 * mat[k] + j2 * mat[l]
-                if all([np.round(x, 5).is_integer() for x in list(temp / mag)]):
+                if all(np.round(x, 5).is_integer() for x in list(temp / mag)):
                     mat_copy = mat.copy()
                     mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])
                     new_mat = np.dot(mat_copy, np.linalg.inv(r_matrix.T))
-                    if all([np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]):
+                    if all(np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))):
                         reduced = True
                         mat[h] = np.array([int(round(ele / mag)) for ele in temp])
                         break

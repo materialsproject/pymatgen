@@ -213,7 +213,7 @@ class TransformedPDEntry(PDEntry):
         self.rxn.normalize_to(self.original_entry.composition)
 
         # NOTE We only allow reactions that have positive amounts of reactants.
-        if not all([self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping.keys()]):
+        if not all(self.rxn.get_coeff(comp) <= TransformedPDEntry.amount_tol for comp in self.sp_mapping.keys()):
             raise TransformedPDEntryError("Only reactions with positive amounts of reactants allowed")
 
     @property
@@ -1399,7 +1399,7 @@ class ReactionDiagram:
             for face in itertools.combinations(facet, len(facet) - 1):
                 face_entries = [pd.qhull_entries[i] for i in face]
 
-                if any([e.composition.reduced_formula in terminal_formulas for e in face_entries]):
+                if any(e.composition.reduced_formula in terminal_formulas for e in face_entries):
                     continue
 
                 try:
@@ -1413,7 +1413,7 @@ class ReactionDiagram:
 
                     x = coeffs[-1]
                     # pylint: disable=R1716
-                    if all([c >= -tol for c in coeffs]) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
+                    if all(c >= -tol for c in coeffs) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
 
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -1423,7 +1423,7 @@ class ReactionDiagram:
                         c2 *= factor
 
                         # Avoid duplicate reactions.
-                        if any([np.allclose([c1, c2], cc) for cc in done]):
+                        if any(np.allclose([c1, c2], cc) for cc in done):
                             continue
 
                         done.append((c1, c2))
@@ -2145,7 +2145,7 @@ class PDPlotter:
             center_x = 0
             center_y = 0
             coords = []
-            contain_zero = any([comp.get_atomic_fraction(el) == 0 for el in elements])
+            contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum([comp.get_atomic_fraction(el) for el in elements]) == 1
             for line in lines:
                 (x, y) = line.coords.transpose()
