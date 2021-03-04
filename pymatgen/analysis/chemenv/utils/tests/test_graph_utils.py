@@ -697,7 +697,7 @@ class GraphUtilsTest(PymatgenTest):
 
         # Testing all cases for a length-4 cycle
         nodes_ref = tuple(FakeNodeWithEqLtMethods(inode) for inode in [0, 1, 2, 3])
-        edges_ref = tuple(3, 6, 9, 12)
+        edges_ref = (3, 6, 9, 12)
         for inodes, iedges in [
             ((0, 1, 2, 3), (3, 6, 9, 12)),
             ((1, 2, 3, 0), (6, 9, 12, 3)),
