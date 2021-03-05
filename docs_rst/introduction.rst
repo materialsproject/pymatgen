@@ -264,13 +264,13 @@ some quick examples of the core capabilities and objects:
 
     >>> import pymatgen as mg
     >>>
-    >>> si = mg.Element("Si")
+    >>> si = mg.core.Element("Si")
     >>> si.atomic_mass
     28.0855
     >>> print(si.melting_point)
     1687.0 K
     >>>
-    >>> comp = mg.Composition("Fe2O3")
+    >>> comp = mg.core.Composition("Fe2O3")
     >>> comp.weight
     159.6882
     >>> # Note that Composition conveniently allows strings to be treated just
@@ -279,7 +279,7 @@ some quick examples of the core capabilities and objects:
     2.0
     >>> comp.get_atomic_fraction("Fe")
     0.4
-    >>> lattice = mg.Lattice.cubic(4.2)
+    >>> lattice = mg.core.Lattice.cubic(4.2)
     >>> structure = mg.Structure(lattice, ["Cs", "Cl"],
     ...                          [[0, 0, 0], [0.5, 0.5, 0.5]])
     >>> structure.volume
@@ -288,9 +288,9 @@ some quick examples of the core capabilities and objects:
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
     >>> # You can create a Structure using spacegroup symmetry as well.
-    >>> li2o = mg.Structure.from_spacegroup("Fm-3m", mg.Lattice.cubic(3),
-                                            ["Li", "O"],
-                                            [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>> li2o = mg.core.Structure.from_spacegroup("Fm-3m", mg.Lattice.cubic(3),
+                                                 ["Li", "O"],
+                                                 [[0.25, 0.25, 0.25], [0, 0, 0]])
     >>>
     >>> # Integrated symmetry analysis tools from spglib.
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -307,13 +307,13 @@ some quick examples of the core capabilities and objects:
     >>> structure.to(filename="CsCl.cif")
     >>>
     >>> # Reading a structure is similarly easy.
-    >>> structure = mg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
-    >>> structure = mg.Structure.from_file("CsCl.cif")
+    >>> structure = mg.core.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+    >>> structure = mg.core.Structure.from_file("CsCl.cif")
     >>>
     >>> # Reading and writing a molecule from a file. Supports XYZ and
     >>> # Gaussian input and output by default. Support for many other
     >>> # formats via the optional openbabel dependency (if installed).
-    >>> methane = mg.Molecule.from_file("methane.xyz")
+    >>> methane = mg.core.Molecule.from_file("methane.xyz")
     >>> mol.to("methane.gjf")
     >>>
     >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)

@@ -214,13 +214,13 @@ group has been deprecated in favor of Discourse.</p></li>
 </ul>
 <div class="section" id="major-announcement">
 <h2>Major Announcement<a class="headerlink" href="#major-announcement" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>backwards incompatible</strong> change has been introduced in v2021.3.4. Pymatgen root imports have been removed from
-in preparation for a change to a more modular, extensible architecture that will allow more developers to contribute.
-If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make modifications. MPRester should now
-be import from <cite>pymatgen.ext.matproj</cite>. All other convenience objects such as <cite>Element</cite>, <cite>Species</cite>, <cite>Lattice</cite>,
-<cite>Structure</cite>, etc. should be imported from <cite>pymatgen.core</cite>. The easiest way is to use an IDE such as Pycharm to run a
-Search and Replace. First, replace any <cite>from pymatgen import MPRester</cite> with <cite>from pymatgen.ext.matproj import MPRester</cite>.
-Then, replace <cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>.</p>
+<p>A <strong>backwards incompatible</strong> change has been introduced in v2021.3.4. Pymatgen root-level convenience imports have been
+removed from in preparation for a change to a more modular, extensible architecture that will allow more developers to
+contribute. If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make modifications.
+MPRester should now be imported from <cite>pymatgen.ext.matproj</cite>. All other convenience objects such as <cite>Element</cite>,
+<cite>Species</cite>, <cite>Lattice</cite>, <cite>Structure</cite>, etc. should be imported from <cite>pymatgen.core</cite>. The easiest way is to use an IDE such
+as Pycharm to run a Search and Replace. First, replace any <cite>from pymatgen import MPRester</cite> with
+<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace <cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>.</p>
 <p>Alternatively, if you are using a Mac command line, you can do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
 <span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
@@ -232,6 +232,8 @@ Then, replace <cite>from pymatgen import</cite> with <cite>from pymatgen.core im
 </pre></div>
 </div>
 <p>This should resolve most import errors and only a few more modifications may need to be done by hand.</p>
+<p>Last but not least, one option is to pin to pymatgen==2021.3.3, which is the last version to contain the root-level
+convenience imports, if you are not planning to use future new pymatgen functionality.</p>
 </div>
 <div class="section" id="offline-docs">
 <h2>Offline docs<a class="headerlink" href="#offline-docs" title="Permalink to this headline">¶</a></h2>
@@ -411,13 +413,13 @@ include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
 some quick examples of the core capabilities and objects:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="k">as</span> <span class="nn">mg</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span>
 <span class="go">28.0855</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
 <span class="go">1687.0 K</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">weight</span>
 <span class="go">159.6882</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Note that Composition conveniently allows strings to be treated just</span>
@@ -426,7 +428,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="go">2.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">)</span>
 <span class="go">0.4</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">lattice</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lattice</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span>
 <span class="gp">... </span>                         <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
@@ -435,9 +437,9 @@ some quick examples of the core capabilities and objects:</p>
 <span class="go">PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># You can create a Structure using spacegroup symmetry as well.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">li2o</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s2">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="go">                                        [&quot;Li&quot;, &quot;O&quot;],</span>
-<span class="go">                                        [[0.25, 0.25, 0.25], [0, 0, 0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">li2o</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s2">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="go">                                             [&quot;Li&quot;, &quot;O&quot;],</span>
+<span class="go">                                             [[0.25, 0.25, 0.25], [0, 0, 0]])</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Integrated symmetry analysis tools from spglib.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
@@ -454,13 +456,13 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading a structure is similarly easy.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;cif&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Reading and writing a molecule from a file. Supports XYZ and</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Gaussian input and output by default. Support for many other</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># formats via the optional openbabel dependency (if installed).</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">methane</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;methane.gjf&quot;</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Pythonic API for editing Structures and Molecules (v2.9.1 onwards)</span>
