@@ -35,7 +35,6 @@ from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
 from pymatgen.settings import SETTINGS, SETTINGS_FILE
-from pymatgen import __version__ as pmg_version
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -44,6 +43,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
+from pymatgen.settings import __version__ as PMG_VERSION
+
 
 logger = logging.getLogger(__name__)
 
@@ -181,7 +182,7 @@ class MPRester:
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_info = "pymatgen/" + pmg_version
+            pymatgen_info = "pymatgen/" + PMG_VERSION
             python_info = "Python/{}.{}.{}".format(
                 sys.version_info.major, sys.version_info.minor, sys.version_info.micro
             )
