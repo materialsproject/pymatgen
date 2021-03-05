@@ -8,7 +8,7 @@ import sys
 import platform
 import os
 
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, find_namespace_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
 
@@ -110,8 +110,8 @@ who require Python 2.7 should install pymatgen v2018.x.
 
 setup(
     name="pymatgen",
-    packages=find_packages(),
-    version="2021.3.5",
+    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"]),
+    version="2022.0.0",
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.7",
     install_requires=[
@@ -153,7 +153,7 @@ setup(
     author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
-    url="https://www.pymatgen.org",
+    url="http://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
     "analysis code that defines core object representations for "
