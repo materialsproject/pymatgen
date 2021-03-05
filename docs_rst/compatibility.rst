@@ -35,11 +35,10 @@ Issues page to see if it can be resolved.
 Recent Breaking Changes
 -----------------------
 
-v2021.3.4
+v2022.0.0
 ~~~~~~~~~
 
-Pymatgen root imports have been removed from
-v2021.3.4 in preparation for a change to a more modular, extensible
+Pymatgen root imports have been removed from v2022.0.0 in preparation for a change to a more modular, extensible
 architecture that will allow more developers to contribute.
 
 Specifically, the following "convenience imports" have been removed in favor of

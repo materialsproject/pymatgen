@@ -53,9 +53,9 @@ reports. The following are resources for pymatgen:
 
     *The code is mightier than the pen.*
 
-Major Announcement
-==================
-A **backwards incompatible** change has been introduced in v2021.3.4. Pymatgen root-level convenience imports have been
+Major Announcement (v2022.0.0)
+==============================
+A **backwards incompatible** change has been introduced in v2020.0.0. Pymatgen root-level convenience imports have been
 removed from in preparation for a change to a more modular, extensible architecture that will allow more developers to
 contribute. If your existing code uses `from pymatgen import <something>`, you will need to make modifications.
 MPRester should now be imported from `pymatgen.ext.matproj`. All other convenience objects such as `Element`,
@@ -75,8 +75,9 @@ From a Linux command line, you can do::
 
 This should resolve most import errors and only a few more modifications may need to be done by hand.
 
-Last but not least, one option is to pin to pymatgen==2021.3.3, which is the last version to contain the root-level
-convenience imports, if you are not planning to use future new pymatgen functionality.
+Last but not least, one option is to pin to pymatgen==2021.x.x, which is the last version to contain the root-level
+convenience imports, if you are not planning to use future new pymatgen functionality. The new breaking change will
+become default from 2022. Backports to 2021.x.x will still occur for critical bug fixes.
 
 Offline docs
 ============
