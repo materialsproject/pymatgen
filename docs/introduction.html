@@ -97,11 +97,12 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#major-announcement">Major Announcement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#offline-docs">Offline docs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2021-3-3">v2021.3.3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2021-3-4">v2021.3.4</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -232,6 +233,27 @@ group has been deprecated in favor of Discourse.</p></li>
 </div></blockquote>
 </li>
 </ul>
+<div class="section" id="major-announcement">
+<h2>Major Announcement<a class="headerlink" href="#major-announcement" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>backwards incompatible</strong> change has been introduced in v2021.3.4. Pymatgen root imports have been removed from
+in preparation for a change to a more modular, extensible architecture that will allow more developers to contribute.
+If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make modifications. MPRester should now
+be import from <cite>pymatgen.ext.matproj</cite>. All other convenience objects such as <cite>Element</cite>, <cite>Species</cite>, <cite>Lattice</cite>,
+<cite>Structure</cite>, etc. should be imported from <cite>pymatgen.core</cite>. The easiest way is to use an IDE such as Pycharm to run a
+Search and Replace. First, replace any <cite>from pymatgen import MPRester</cite> with <cite>from pymatgen.ext.matproj import MPRester</cite>.
+Then, replace <cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>.</p>
+<p>Alternatively, if you are using a Mac command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>From a Linux command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>This should resolve most import errors and only a few more modifications may need to be done by hand.</p>
+</div>
 <div class="section" id="offline-docs">
 <h2>Offline docs<a class="headerlink" href="#offline-docs" title="Permalink to this headline">¶</a></h2>
 <p>If you would like to have an offline version of the docs for reference, there
@@ -253,12 +275,12 @@ pymatgen examples page in favor of this more sustainable approach going forward.
 One of the ways you can contribute is to fork the matgenb repo and add your own
 examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id6">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
-DiffusionAnalyzer.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+DiffusionAnalyzer.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="why-use-pymatgen">
@@ -296,18 +318,30 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2021-3-3">
-<h3>v2021.3.3<a class="headerlink" href="#v2021-3-3" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Backwards incompatible*: pymatgen.SETTINGS have been moved to
-pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
-since most of these settings are used within pymatgen itself.</p></li>
-<li><p><a href="#id3"><span class="problematic" id="id4">**</span></a>Backwards incompatible*: pymatgen.loadfn and get_structure_from_mp have been
-removed since no one was using them.</p></li>
-<li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
-<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
-<li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
-<li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
+<div class="section" id="v2021-3-4">
+<h3>v2021.3.4<a class="headerlink" href="#v2021-3-4" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p><strong>Backwards incompatible</strong> Pymatgen root imports have been removed from
+v2021.3.4 in preparation for a change to a more modular, extensible
+architecture that will allow more developers to contribute. If your existing
+code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
+modifications. The easiest way is to use an IDE to run a Search and Replace.
+First, replace any <cite>from pymatgen import MPRester</cite> with
+<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
+<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternative, if you
+are using a Mac command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>From a Linux command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>This should resolve most import errors and only a few more modifications may
+need to be done by hand.</p>
+</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -383,9 +417,9 @@ conda install --yes --channel conda-forge pymatgen
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="id7">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 <p>The figure above provides an overview of the functionality in pymatgen. A
 typical workflow would involve a user converting data (structure, calculations,

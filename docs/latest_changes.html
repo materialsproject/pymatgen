@@ -170,18 +170,30 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2021-3-3">
-<h2>v2021.3.3<a class="headerlink" href="#v2021-3-3" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a>Backwards incompatible*: pymatgen.SETTINGS have been moved to
-pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
-since most of these settings are used within pymatgen itself.</p></li>
-<li><p><a href="#id3"><span class="problematic" id="id4">**</span></a>Backwards incompatible*: pymatgen.loadfn and get_structure_from_mp have been
-removed since no one was using them.</p></li>
-<li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
-<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
-<li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
-<li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
+<div class="section" id="v2021-3-4">
+<h2>v2021.3.4<a class="headerlink" href="#v2021-3-4" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>Backwards incompatible</strong> Pymatgen root imports have been removed from
+v2021.3.4 in preparation for a change to a more modular, extensible
+architecture that will allow more developers to contribute. If your existing
+code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
+modifications. The easiest way is to use an IDE to run a Search and Replace.
+First, replace any <cite>from pymatgen import MPRester</cite> with
+<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
+<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternative, if you
+are using a Mac command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>From a Linux command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>This should resolve most import errors and only a few more modifications may
+need to be done by hand.</p>
+</li>
 </ul>
 </div>
 </div>

@@ -10,11 +10,7 @@ intercalation batteries.
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Anubhav Jain"
-__email__ = "ajain@lbl.gov"
-__date__ = "Jan 13, 2012"
-__status__ = "Beta"
+
 
 import itertools
 from dataclasses import dataclass
