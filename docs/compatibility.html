@@ -205,7 +205,7 @@ Windows and Linux.</p>
 <h2>Guidance If An API Changes<a class="headerlink" href="#guidance-if-an-api-changes" title="Permalink to this headline">¶</a></h2>
 <p>You can pin your own script or library to an older version of pymatgen, or
 install an older version of pymatgen, for example <cite>pip install pymatgen==2021.3.3</cite>.</p>
-<p>If thee breaking change is causing significant issues, please post on the GitHub
+<p>If a breaking change is causing significant issues, please post on the GitHub
 Issues page to see if it can be resolved.</p>
 </div>
 <div class="section" id="recent-breaking-changes">
@@ -215,23 +215,6 @@ Issues page to see if it can be resolved.</p>
 <p>Pymatgen root imports have been removed from
 v2021.3.4 in preparation for a change to a more modular, extensible
 architecture that will allow more developers to contribute.</p>
-<p>If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
-modifications. The easiest way is to use an IDE to run a Search and Replace.
-First, replace any <cite>from pymatgen import MPRester</cite> with
-<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
-<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternatively, if you
-are using a Mac command line, you can do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
-<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
-</pre></div>
-</div>
-<p>From a Linux command line, you can do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
-<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
-</pre></div>
-</div>
-<p>This should resolve most import errors and only a few more modifications may
-need to be done by hand.</p>
 <p>Specifically, the following “convenience imports” have been removed in favor of
 their canonical import:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Composition</span>  <span class="c1"># now &quot;from pymatgen.core.composition import Composition&quot;</span>
@@ -245,6 +228,24 @@ their canonical import:</p>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">MPRester</span>  <span class="c1"># now &quot;from pymatgen.ext.matproj ...&quot;</span>
 </pre></div>
 </div>
+<p>If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
+modifications.</p>
+<p>The easiest way is to use an IDE to run a Search and Replace.
+First, replace any <cite>from pymatgen import MPRester</cite> with
+<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
+<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternatively, if you
+are using a Mac command line, you can try:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>From a Linux command line, you can try:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>This should resolve most import errors and only a few more modifications may
+need to be done by hand.</p>
 </div>
 <div class="section" id="v2020-3-3">
 <h3>v2020.3.3<a class="headerlink" href="#v2020-3-3" title="Permalink to this headline">¶</a></h3>

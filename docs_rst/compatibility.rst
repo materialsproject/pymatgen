@@ -29,7 +29,7 @@ Guidance If An API Changes
 You can pin your own script or library to an older version of pymatgen, or
 install an older version of pymatgen, for example `pip install pymatgen==2021.3.3`.
 
-If thee breaking change is causing significant issues, please post on the GitHub
+If a breaking change is causing significant issues, please post on the GitHub
 Issues page to see if it can be resolved.
 
 Recent Breaking Changes
@@ -41,24 +41,6 @@ v2021.3.4
 Pymatgen root imports have been removed from
 v2021.3.4 in preparation for a change to a more modular, extensible
 architecture that will allow more developers to contribute.
-
-If your existing code uses `from pymatgen import <something>`, you will need to make
-modifications. The easiest way is to use an IDE to run a Search and Replace.
-First, replace any `from pymatgen import MPRester` with
-`from pymatgen.ext.matproj import MPRester`. Then, replace
-`from pymatgen import` with `from pymatgen.core import`. Alternatively, if you
-are using a Mac command line, you can do::
-
-    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
-    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
-
-From a Linux command line, you can do::
-
-    find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
-    find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
-
-This should resolve most import errors and only a few more modifications may
-need to be done by hand.
 
 Specifically, the following "convenience imports" have been removed in favor of
 their canonical import::
@@ -72,6 +54,26 @@ their canonical import::
     from pymatgen import ArrayWithUnit, FloatWithUnit, Unit  # now "from pymatgen.core.units ..."
     from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.core ..."
     from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
+	
+If your existing code uses `from pymatgen import <something>`, you will need to make
+modifications.
+
+The easiest way is to use an IDE to run a Search and Replace. 
+First, replace any `from pymatgen import MPRester` with
+`from pymatgen.ext.matproj import MPRester`. Then, replace
+`from pymatgen import` with `from pymatgen.core import`. Alternatively, if you
+are using a Mac command line, you can try::
+
+    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
+
+From a Linux command line, you can try::
+
+    find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+    find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
+
+This should resolve most import errors and only a few more modifications may
+need to be done by hand.
 
 v2020.3.3
 ~~~~~~~~~
