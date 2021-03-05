@@ -74,7 +74,7 @@ From a Linux command line, you can try::
 This should resolve most import errors and only a few more modifications may
 need to be done by hand.
 
-v2020.3.3
+v2021.3.3
 ~~~~~~~~~
 
 The variable `pymatgen.SETTINGS` has been moved to `pymatgen.settings.SETTINGS`. Since this is
