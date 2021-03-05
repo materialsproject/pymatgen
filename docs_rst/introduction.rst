@@ -55,13 +55,13 @@ reports. The following are resources for pymatgen:
 
 Major Announcement
 ==================
-A **backwards incompatible** change has been introduced in v2021.3.4. Pymatgen root imports have been removed from
-in preparation for a change to a more modular, extensible architecture that will allow more developers to contribute.
-If your existing code uses `from pymatgen import <something>`, you will need to make modifications. MPRester should now
-be import from `pymatgen.ext.matproj`. All other convenience objects such as `Element`, `Species`, `Lattice`,
-`Structure`, etc. should be imported from `pymatgen.core`. The easiest way is to use an IDE such as Pycharm to run a
-Search and Replace. First, replace any `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`.
-Then, replace `from pymatgen import` with `from pymatgen.core import`.
+A **backwards incompatible** change has been introduced in v2021.3.4. Pymatgen root-level convenience imports have been
+removed from in preparation for a change to a more modular, extensible architecture that will allow more developers to
+contribute. If your existing code uses `from pymatgen import <something>`, you will need to make modifications.
+MPRester should now be imported from `pymatgen.ext.matproj`. All other convenience objects such as `Element`,
+`Species`, `Lattice`, `Structure`, etc. should be imported from `pymatgen.core`. The easiest way is to use an IDE such
+as Pycharm to run a Search and Replace. First, replace any `from pymatgen import MPRester` with
+`from pymatgen.ext.matproj import MPRester`. Then, replace `from pymatgen import` with `from pymatgen.core import`.
 
 Alternatively, if you are using a Mac command line, you can do::
 
@@ -74,6 +74,9 @@ From a Linux command line, you can do::
     find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
 
 This should resolve most import errors and only a few more modifications may need to be done by hand.
+
+Last but not least, one option is to pin to pymatgen==2021.3.3, which is the last version to contain the root-level
+convenience imports, if you are not planning to use future new pymatgen functionality.
 
 Offline docs
 ============
