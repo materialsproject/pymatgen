@@ -102,7 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2021-3-4">v2021.3.4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2021-3-5">v2021.3.5</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -322,43 +322,12 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2021-3-4">
-<h3>v2021.3.4<a class="headerlink" href="#v2021-3-4" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p><strong>Backwards incompatible</strong>: Pymatgen root imports have been removed from
-v2021.3.4 in preparation for a change to a more modular, extensible
-architecture that will allow more developers to contribute.</p>
-<p>If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
-modifications. The easiest way is to use an IDE to run a Search and Replace.
-First, replace any <cite>from pymatgen import MPRester</cite> with
-<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
-<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternatively, if you
-are using a Mac command line, you can do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
-<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
-</pre></div>
-</div>
-<p>From a Linux command line, you can do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
-<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
-</pre></div>
-</div>
-<p>This should resolve most import errors and only a few more modifications may
-need to be done by hand.</p>
-<p>Specifically, the following “convenience imports” have been removed in favor of
-their canonical import:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Composition</span>  <span class="c1"># now &quot;from pymatgen.core.composition import Composition&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Lattice</span>  <span class="c1"># now &quot;from pymatgen.core.lattice import Lattice&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">SymmOp</span>  <span class="c1"># now &quot;from pymatgen.core.operations import SymmOp&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">DummySpecies</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Species</span>  <span class="c1"># now &quot;from pymatgen.core.periodic_table ...&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span>  <span class="c1"># now &quot;from pymatgen.core.sites ...&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">IMolecule</span><span class="p">,</span> <span class="n">IStructure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Structure</span>  <span class="c1"># now &quot;from pymatgen.core.structure ...&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">ArrayWithUnit</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">Unit</span>  <span class="c1"># now &quot;from pymatgen.core.units ...&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">Spin</span>  <span class="c1"># now &quot;from pymatgen.electronic_structure.core ...&quot;</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">MPRester</span>  <span class="c1"># now &quot;from pymatgen.ext.matproj ...&quot;</span>
-</pre></div>
-</div>
-</li>
+<div class="section" id="v2021-3-5">
+<h3>v2021.3.5<a class="headerlink" href="#v2021-3-5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Backwards incompatible changes in v2021.3.4 have been removed. Instead another semantic version v2022.0.0 has been
+released. Future critical bug fixes will be backported to v2021.x.x, but the main line of development will occur on
+v2022.0.0 onwards.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
