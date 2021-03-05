@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.lammps.outputs module &mdash; pymatgen 2021.3.3 documentation</title>
+  <title>pymatgen.io.lammps.outputs module &mdash; pymatgen 2021.3.4 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2021.3.3
+                2021.3.4
               </div>
             
           
@@ -210,7 +210,7 @@
 files (log and dump).</p>
 <dl class="py class">
 <dt id="pymatgen.io.lammps.outputs.LammpsDump">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">LammpsDump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/lammps/outputs.py#L30-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">LammpsDump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.4/pymatgen/io/lammps/outputs.py#L30-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Object for representing dump data for a single snapshot.</p>
 <p>Base constructor.</p>
@@ -226,13 +226,13 @@ files (log and dump).</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.lammps.outputs.LammpsDump.as_dict">
-<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/lammps/outputs.py#L90-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.4/pymatgen/io/lammps/outputs.py#L90-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.lammps.outputs.LammpsDump.from_dict">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/lammps/outputs.py#L76-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.4/pymatgen/io/lammps/outputs.py#L76-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -245,7 +245,7 @@ files (log and dump).</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.lammps.outputs.LammpsDump.from_string">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/lammps/outputs.py#L51-L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.4/pymatgen/io/lammps/outputs.py#L51-L74"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.LammpsDump.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor from string parsing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -258,7 +258,7 @@ files (log and dump).</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.lammps.outputs.parse_lammps_dumps">
-<code class="sig-name descname"><span class="pre">parse_lammps_dumps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_pattern</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/lammps/outputs.py#L104-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.parse_lammps_dumps" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">parse_lammps_dumps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_pattern</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.4/pymatgen/io/lammps/outputs.py#L104-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.parse_lammps_dumps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator that parses dump file(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -274,7 +274,7 @@ in the sequence of timestep.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.lammps.outputs.parse_lammps_log">
-<code class="sig-name descname"><span class="pre">parse_lammps_log</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log.lammps'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.3/pymatgen/io/lammps/outputs.py#L136-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.parse_lammps_log" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">parse_lammps_log</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'log.lammps'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.4/pymatgen/io/lammps/outputs.py#L136-L193"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lammps.outputs.parse_lammps_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses log file with focus on thermo data. Both one and multi line
 formats are supported. Any incomplete runs (no “Loop time” marker)
 will not be parsed.</p>
