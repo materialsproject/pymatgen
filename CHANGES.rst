@@ -10,7 +10,7 @@ v2021.3.4
   modifications. The easiest way is to use an IDE to run a Search and Replace.
   First, replace any `from pymatgen import MPRester` with 
   `from pymatgen.ext.matproj import MPRester`. Then, replace 
-  `from pymatgen import` with `from pymatgen.core import`. Alternative, if you
+  `from pymatgen import` with `from pymatgen.core import`. Alternatively, if you
   are using a Mac command line, you can do::
 
     find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
@@ -26,10 +26,10 @@ v2021.3.4
 
 v2021.3.3
 ---------
-* **Backwards incompatible*: pymatgen.SETTINGS have been moved to 
+* **Backwards incompatible**: pymatgen.SETTINGS have been moved to 
   pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
   since most of these settings are used within pymatgen itself.
-* **Backwards incompatible*: pymatgen.loadfn and get_structure_from_mp have been
+* **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
   removed since no one was using them. 
 * critic2_caller has been refactored. (@samblau)
 * Improved hash for Compositon (@CompRhys)
