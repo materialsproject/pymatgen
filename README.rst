@@ -15,6 +15,10 @@ Bug reports can be posted to our GitHub Issues page. Code contributions and work
       :alt: Coveralls Coverage Report
       :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
 
+This is the repository for the legacy branch of pymatgen that maintains
+root-level imports. A new namespace version has version numbers starting with
+2022.
+
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
 
