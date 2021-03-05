@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,11 +12,6 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-
-  
   
   
   
@@ -23,19 +19,24 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Introduction" href="introduction.html" />
@@ -59,7 +60,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="#" class="icon icon-home"> pymatgen
           
 
           
@@ -86,7 +87,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -98,6 +98,7 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -107,7 +108,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -146,7 +146,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="#">Docs</a> &raquo;</li>
         
       <li>Introduction</li>
     
@@ -302,14 +302,14 @@ other research groups.</p></li>
 <div class="section" id="v2021-3-4">
 <h3>v2021.3.4<a class="headerlink" href="#v2021-3-4" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><p><strong>Backwards incompatible</strong> Pymatgen root imports have been removed from
+<li><p><strong>Backwards incompatible</strong>: Pymatgen root imports have been removed from
 v2021.3.4 in preparation for a change to a more modular, extensible
-architecture that will allow more developers to contribute. If your existing
-code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
+architecture that will allow more developers to contribute.</p>
+<p>If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
 modifications. The easiest way is to use an IDE to run a Search and Replace.
 First, replace any <cite>from pymatgen import MPRester</cite> with
 <cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
-<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternative, if you
+<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternatively, if you
 are using a Mac command line, you can do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
 <span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
@@ -322,6 +322,19 @@ are using a Mac command line, you can do:</p>
 </div>
 <p>This should resolve most import errors and only a few more modifications may
 need to be done by hand.</p>
+<p>Specifically, the following “convenience imports” have been removed in favor of
+their canonical import:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Composition</span>  <span class="c1"># now &quot;from pymatgen.core.composition import Composition&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Lattice</span>  <span class="c1"># now &quot;from pymatgen.core.lattice import Lattice&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">SymmOp</span>  <span class="c1"># now &quot;from pymatgen.core.operations import SymmOp&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">DummySpecies</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Species</span>  <span class="c1"># now &quot;from pymatgen.core.periodic_table ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span>  <span class="c1"># now &quot;from pymatgen.core.sites ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">IMolecule</span><span class="p">,</span> <span class="n">IStructure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Structure</span>  <span class="c1"># now &quot;from pymatgen.core.structure ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">ArrayWithUnit</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">Unit</span>  <span class="c1"># now &quot;from pymatgen.core.units ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">Spin</span>  <span class="c1"># now &quot;from pymatgen.electronic_structure.core ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">MPRester</span>  <span class="c1"># now &quot;from pymatgen.ext.matproj ...&quot;</span>
+</pre></div>
+</div>
 </li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
@@ -724,19 +737,11 @@ to indicate the copyright and license terms:</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -747,6 +752,7 @@ to indicate the copyright and license terms:</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {
