@@ -11,7 +11,7 @@ from monty.io import zopen
 from monty.serialization import loadfn
 from ruamel import yaml
 
-from pymatgen.settings import SETTINGS
+from pymatgen.core import SETTINGS
 
 MODULE_DIR = Path(__file__).resolve().parent
 

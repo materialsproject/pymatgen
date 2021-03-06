@@ -34,7 +34,7 @@ import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen.settings import SETTINGS, SETTINGS_FILE
+from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -43,7 +43,7 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
-from pymatgen.settings import __version__ as PMG_VERSION
+from pymatgen.core import __version__ as PMG_VERSION
 
 
 logger = logging.getLogger(__name__)

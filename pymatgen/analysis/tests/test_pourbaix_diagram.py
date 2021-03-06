@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen.settings import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.analysis.pourbaix_diagram import (
     IonEntry,
     MultiEntry,

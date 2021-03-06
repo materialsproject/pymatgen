@@ -30,7 +30,7 @@ from monty.os.path import zpath
 from monty.serialization import loadfn
 from tabulate import tabulate
 
-from pymatgen.settings import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure

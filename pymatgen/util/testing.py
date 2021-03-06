@@ -21,7 +21,7 @@ from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
-from pymatgen.settings import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.ext.matproj import MPRester
 
 

@@ -8,7 +8,7 @@ import warnings
 
 import requests
 
-from pymatgen.settings import SETTINGS, SETTINGS_FILE, yaml
+from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
