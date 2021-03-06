@@ -42,6 +42,13 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
 
+warnings.warn(
+    "All code in pymatgen.analysis.diffusion_analyzer has been moved to the separate add-on package"
+    "pymatgen-diffusion, which also includes a lot more functionality for analyzing diffusion"
+    "calculations. This module here is retained for backwards compatibility. It will be removed from"
+    "2022.1.1."
+)
+
 
 class DiffusionAnalyzer(MSONable):
     """
