@@ -15,7 +15,7 @@ import webbrowser
 import requests
 from invoke import task
 from monty.os import cd
-from pymatgen.settings import __version__ as CURRENT_VER
+from pymatgen.core import __version__ as CURRENT_VER
 
 
 @task
@@ -176,11 +176,11 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/settings.py", "rt") as f:
+    with open("pymatgen/core/__init__.py", "rt") as f:
         contents = f.read()
         contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % version, contents)
 
-    with open("pymatgen/settings.py", "wt") as f:
+    with open("pymatgen/core/__init__.py", "wt") as f:
         f.write(contents)
 
     with open("setup.py", "rt") as f:
