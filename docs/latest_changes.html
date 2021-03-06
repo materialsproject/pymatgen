@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Change log &mdash; pymatgen 2020.0.1 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.0.1 documentation</title>
   
 
   
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.0.1
+                2022.0.1
               </div>
             
           
@@ -176,11 +176,15 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2022-0-0">
-<h2>v2022.0.0<a class="headerlink" href="#v2022-0-0" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2022-0-1">
+<h2>v2022.0.1<a class="headerlink" href="#v2022-0-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>This is the new version of pymatgen going forward. Root-level imports have been removed. Please see
-<a class="reference external" href="https://pymatgen.org/compatibility.html">https://pymatgen.org/compatibility.html</a> on how to update your code for compatibility with v2022.</p></li>
+<li><p><cite>pymatgen</cite>, <cite>pymatgen.ext</cite>, <cite>pymatgen.io</cite> and <cite>pymatgen.analysis</cite> are now
+namespace packages. Note that this does not affect normal usage of pymatgen
+from v2022.0.0. All imports remain the same. However, it does allow developers
+to write “add-ons” to these subpackages. A full documentation with examples
+and templates is in the works to guide developers on how to write these
+packages.</p></li>
 </ul>
 </div>
 </div>
