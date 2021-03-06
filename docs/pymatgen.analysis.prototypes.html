@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pymatgen.analysis.prototypes module &mdash; pymatgen 2022.0.1 documentation</title>
+  <title>pymatgen.analysis.prototypes module &mdash; pymatgen 2022.0.2 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.1
+                2022.0.2
               </div>
             
           
@@ -207,8 +207,69 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pymatgen-analysis-prototypes-module">
-<h1>pymatgen.analysis.prototypes module<a class="headerlink" href="#pymatgen-analysis-prototypes-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.analysis.prototypes">
+<span id="pymatgen-analysis-prototypes-module"></span><h1>pymatgen.analysis.prototypes module<a class="headerlink" href="#module-pymatgen.analysis.prototypes" title="Permalink to this headline">¶</a></h1>
+<p>This module is intended to match crystal structures against known crystallographic “prototype”
+structures.</p>
+<p>In this module, the AflowPrototypeMatcher uses the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
+If using this particular class, please cite their publication appropriately:</p>
+<p>Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).
+The AFLOW library of crystallographic prototypes: part 1.
+Computational Materials Science, 136, S1-S828.
+<a class="reference external" href="http://doi.org/10.1016/j.commatsci.2017.01.017">http://doi.org/10.1016/j.commatsci.2017.01.017</a></p>
+<dl class="py class">
+<dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher">
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">AflowPrototypeMatcher</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_ltol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_stol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_angle_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/analysis/prototypes.py#L28-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class will match structures to their crystal prototypes, and will
+attempt to group species together to match structures derived from
+prototypes (e.g. an A_xB_1-x_C from a binary prototype), and will
+give these the names the “-like” suffix.</p>
+<p>This class uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
+If using this class, please cite their publication appropriately:</p>
+<p>Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).
+The AFLOW library of crystallographic prototypes: part 1.
+Computational Materials Science, 136, S1-S828.
+<a class="reference external" href="http://doi.org/10.1016/j.commatsci.2017.01.017">http://doi.org/10.1016/j.commatsci.2017.01.017</a></p>
+<p>Tolerances as defined in StructureMatcher. Tolerances will be
+gradually decreased until only a single match is found (if possible).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_ltol</strong> – fractional length tolerance</p></li>
+<li><p><strong>initial_stol</strong> – site tolerance</p></li>
+<li><p><strong>initial_angle_tol</strong> – angle tolerance</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes">
+<code class="sig-name descname"><span class="pre">get_prototypes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/analysis/prototypes.py#L84-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get prototype(s) structures for a given
+input structure. If you use this method in
+your work, please cite the appropriate
+AFLOW publication:</p>
+<p>Mehl, M. J., Hicks, D., Toher, C., Levy, O.,
+Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).
+The AFLOW library of crystallographic prototypes: part 1.
+Computational Materials Science, 136, S1-S828.
+<a class="reference external" href="http://doi.org/10.1016/j.commatsci.2017.01.017">http://doi.org/10.1016/j.commatsci.2017.01.017</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – structure to match</p>
+</dd>
+</dl>
+<p>Returns (list): A list of dicts with keys
+‘snl’ for the matched prototype and ‘tags’,
+a dict of tags (‘mineral’, ‘strukturbericht’
+and ‘aflow’) of that prototype. This should
+be a list containing just a single entry,
+but it is possible a material can match
+multiple prototypes.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

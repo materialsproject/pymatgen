@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pymatgen.io.abinit.netcdf module &mdash; pymatgen 2022.0.1 documentation</title>
+  <title>pymatgen.io.abinit.netcdf module &mdash; pymatgen 2022.0.2 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.1
+                2022.0.2
               </div>
             
           
@@ -214,39 +214,39 @@
 <p>Wrapper for netCDF readers.</p>
 <dl class="py class">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ETSF_Reader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L261-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ETSF_Reader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L261-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="pymatgen.io.abinit.netcdf.NetcdfReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.netcdf.NetcdfReader</span></code></a></p>
 <p>This object reads data from a file written according to the ETSF-IO specifications.</p>
 <p>We assume that the netcdf file contains at least the crystallographic section.</p>
 <p>Open the Netcdf file specified by path (read mode).</p>
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols">
-<code class="sig-name descname"><span class="pre">chemical_symbols</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">chemical_symbols</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Chemical symbols char [number of atom species][symbol length].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr">
-<code class="sig-name descname"><span class="pre">read_abinit_hdr</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L297-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_abinit_hdr</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L297-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the variables associated to the Abinit header.</p>
 <p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitHeader</span></code></p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc">
-<code class="sig-name descname"><span class="pre">read_abinit_xcfunc</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L290-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_abinit_xcfunc</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L290-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read ixc from an Abinit file. Return <code class="xref py py-class docutils literal notranslate"><span class="pre">XcFunc</span></code> object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure">
-<code class="sig-name descname"><span class="pre">read_structure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cls=&lt;class</span> <span class="pre">'pymatgen.core.structure.Structure'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L283-L288"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_structure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cls=&lt;class</span> <span class="pre">'pymatgen.core.structure.Structure'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L283-L288"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the crystalline structure.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol">
-<code class="sig-name descname"><span class="pre">typeidx_from_symbol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L279-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">typeidx_from_symbol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L279-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the type index from the chemical symbol. Note python convention.</p>
 </dd></dl>
 
@@ -254,14 +254,14 @@
 
 <dl class="py class">
 <dt id="pymatgen.io.abinit.netcdf.NO_DEFAULT">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">NO_DEFAULT</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L84-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NO_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">NO_DEFAULT</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L84-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NO_DEFAULT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Signal that read_value should raise an Error</p>
 </dd></dl>
 
 <dl class="py class">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">NetcdfReader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L88-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">NetcdfReader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L88-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.</p>
 <dl class="simple">
@@ -271,25 +271,25 @@
 <p>Open the Netcdf file specified by path (read mode).</p>
 <dl class="py attribute">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.Error">
-<code class="sig-name descname"><span class="pre">Error</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L80-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.Error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">Error</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L80-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.netcdf.NetcdfReaderError</span></code></p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.close">
-<code class="sig-name descname"><span class="pre">close</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L124-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.close" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">close</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L124-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.print_tree">
-<code class="sig-name descname"><span class="pre">print_tree</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L145-L149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">print_tree</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L145-L149"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print all the groups in the file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue">
-<code class="sig-name descname"><span class="pre">read_dimvalue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dimname</span></em>, <em class="sig-param"><span class="pre">path='/'</span></em>, <em class="sig-param"><span class="pre">default=&lt;class</span> <span class="pre">'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L151-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_dimvalue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dimname</span></em>, <em class="sig-param"><span class="pre">path='/'</span></em>, <em class="sig-param"><span class="pre">default=&lt;class</span> <span class="pre">'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L151-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of a dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -305,14 +305,14 @@
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_keys">
-<code class="sig-name descname"><span class="pre">read_keys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">keys</span></em>, <em class="sig-param"><span class="pre">dict_cls=&lt;class</span> <span class="pre">'monty.collections.AttrDict'&gt;</span></em>, <em class="sig-param"><span class="pre">path='/'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L241-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_keys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">keys</span></em>, <em class="sig-param"><span class="pre">dict_cls=&lt;class</span> <span class="pre">'monty.collections.AttrDict'&gt;</span></em>, <em class="sig-param"><span class="pre">path='/'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L241-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a list of variables/dimensions from file. If a key is not present the corresponding
 entry in the output dictionary is set to None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_value">
-<code class="sig-name descname"><span class="pre">read_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varname</span></em>, <em class="sig-param"><span class="pre">path='/'</span></em>, <em class="sig-param"><span class="pre">cmode=None</span></em>, <em class="sig-param"><span class="pre">default=&lt;class</span> <span class="pre">'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L176-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_value" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varname</span></em>, <em class="sig-param"><span class="pre">path='/'</span></em>, <em class="sig-param"><span class="pre">cmode=None</span></em>, <em class="sig-param"><span class="pre">default=&lt;class</span> <span class="pre">'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L176-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the values of variable with name varname in the group specified by path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -333,19 +333,19 @@ self.Error is raised if default is set to NO_DEFAULT</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_variable">
-<code class="sig-name descname"><span class="pre">read_variable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L211-L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_variable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L211-L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the variable with name varname in the group specified by path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames">
-<code class="sig-name descname"><span class="pre">read_varnames</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L169-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_varnames</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L169-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of variable names stored in the group specified by path.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree">
-<code class="sig-name descname"><span class="pre">walk_tree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L131-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">walk_tree</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L131-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Navigate all the groups in the file starting from top.
 If top is None, the root group is used.</p>
 </dd></dl>
@@ -354,13 +354,13 @@ If top is None, the root group is used.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.abinit.netcdf.as_etsfreader">
-<code class="sig-name descname"><span class="pre">as_etsfreader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L75-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.as_etsfreader" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_etsfreader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L75-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.as_etsfreader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an ETSF_Reader. Accepts filename or ETSF_Reader.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.io.abinit.netcdf.as_ncreader">
-<code class="sig-name descname"><span class="pre">as_ncreader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L66-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.as_ncreader" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_ncreader</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L66-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.as_ncreader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert file into a NetcdfReader instance.
 Returns reader, closeit where closeit is set to True
 if we have to close the file before leaving the procedure.</p>
@@ -368,7 +368,7 @@ if we have to close the file before leaving the procedure.</p>
 
 <dl class="py function">
 <dt id="pymatgen.io.abinit.netcdf.structure_from_ncdata">
-<code class="sig-name descname"><span class="pre">structure_from_ncdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ncdata</span></em>, <em class="sig-param"><span class="pre">site_properties=None</span></em>, <em class="sig-param"><span class="pre">cls=&lt;class</span> <span class="pre">'pymatgen.core.structure.Structure'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.1/pymatgen/io/abinit/netcdf.py#L325-L373"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.structure_from_ncdata" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">structure_from_ncdata</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ncdata</span></em>, <em class="sig-param"><span class="pre">site_properties=None</span></em>, <em class="sig-param"><span class="pre">cls=&lt;class</span> <span class="pre">'pymatgen.core.structure.Structure'&gt;</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/io/abinit/netcdf.py#L325-L373"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.structure_from_ncdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads and returns a pymatgen structure from a NetCDF file
 containing crystallographic data in the ETSF-IO format.</p>
 <dl class="field-list simple">

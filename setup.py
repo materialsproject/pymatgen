@@ -35,21 +35,6 @@ extra_link_args = []
 if sys.platform.startswith("win") and platform.machine().endswith("64"):
     extra_link_args.append("-Wl,--allow-multiple-definition")
 
-# thanks https://stackoverflow.com/a/36693250
-def package_files(directory, extensions):
-    """
-    Walk package directory to make sure we include all relevant files in
-    package.
-    """
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            if any([filename.endswith(ext) for ext in extensions]):
-                paths.append(os.path.join("..", path, filename))
-    return paths
-
-
-json_yaml_csv_files = package_files("pymatgen", ["yaml", "json", "csv", "yaml.gz", "json.gz", "csv.gz"])
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -111,7 +96,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"]),
-    version="2022.0.1",
+    version="2022.0.2",
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.7",
     install_requires=[
@@ -142,12 +127,29 @@ setup(
             "typing-extensions>=3.7.4.3",
         ],
     },
+    # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
+    # all sorts of useless files like test files and is prone to path errors.
     package_data={
-        "pymatgen": json_yaml_csv_files,
-        "pymatgen.core": ["py.typed"],
-        "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt"],
-        "pymatgen.symmetry": ["*.sqlite"],
+        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
+        "pymatgen.analysis.chemenv": [
+            "coordination_environments/coordination_geometries_files/*.json",
+            "coordination_environments/coordination_geometries_files/*.txt",
+            "coordination_environments/strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
+        ],
+        "pymatgen.analysis.structure_prediction": ["*.yaml", "data/*.json"],
+        "pymatgen.analysis.diffraction": ["*.json"],
+        "pymatgen.analysis.magnetism": ["default_magmoms.yaml"],
+        "pymatgen.entries": ["py.typed", "*.json.gz", "*.yaml", "data/*.json"],
+        "pymatgen.core": ["py.typed", "*.json"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.io.feff": ["*.yaml"],
+        "pymatgen.io.cp2k": ["*.yaml"],
+        "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
         "pymatgen.command_line": ["OxideTersoffPotentials"],
+        "pymatgen.util": ["structures/*.json", "*.json"],
+        "pymatgen.vis": ["*.yaml"],
+        "pymatgen.io.lammps": ["CoeffsDataType.yaml"],
+        "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
     },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
