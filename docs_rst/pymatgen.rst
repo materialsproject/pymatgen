@@ -31,4 +31,3 @@ Submodules
    :maxdepth: 7
 
    pymatgen.dao
-   pymatgen.settings

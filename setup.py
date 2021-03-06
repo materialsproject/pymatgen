@@ -96,7 +96,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"]),
-    version="2022.0.2",
+    version="2022.0.3",
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.7",
     install_requires=[

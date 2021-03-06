@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pymatgen.ext.cod module &mdash; pymatgen 2022.0.2 documentation</title>
+  <title>pymatgen.ext.cod module &mdash; pymatgen 2022.0.3 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.2
+                2022.0.3
               </div>
             
           
@@ -237,13 +237,13 @@ stipulated by the COD developers):</p>
 </div>
 <dl class="py class">
 <dt id="pymatgen.ext.cod.COD">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">COD</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/ext/cod.py#L44-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">COD</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../ext/cod.py#L44-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An interface to the Crystallography Open Database.</p>
 <p>Blank __init__. No args required.</p>
 <dl class="py method">
 <dt id="pymatgen.ext.cod.COD.get_cod_ids">
-<code class="sig-name descname"><span class="pre">get_cod_ids</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/../../../opt/miniconda3/envs/pmg/lib/python3.8/site-packages/monty/dev.py#L65-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_cod_ids" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_cod_ids</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../../../../opt/miniconda3/envs/pmg/lib/python3.8/site-packages/monty/dev.py#L65-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_cod_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queries the COD for all cod ids associated with a formula. Requires
 mysql executable to be in the path.</p>
 <dl class="field-list simple">
@@ -258,7 +258,7 @@ mysql executable to be in the path.</p>
 
 <dl class="py method">
 <dt id="pymatgen.ext.cod.COD.get_structure_by_formula">
-<code class="sig-name descname"><span class="pre">get_structure_by_formula</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/../../../opt/miniconda3/envs/pmg/lib/python3.8/site-packages/monty/dev.py#L105-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_structure_by_formula" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_structure_by_formula</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../../../../opt/miniconda3/envs/pmg/lib/python3.8/site-packages/monty/dev.py#L105-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_structure_by_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queries the COD for structures by formula. Requires mysql executable to
 be in the path.</p>
 <dl class="field-list simple">
@@ -278,7 +278,7 @@ be in the path.</p>
 
 <dl class="py method">
 <dt id="pymatgen.ext.cod.COD.get_structure_by_id">
-<code class="sig-name descname"><span class="pre">get_structure_by_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cod_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/ext/cod.py#L90-L103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_structure_by_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_structure_by_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cod_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../ext/cod.py#L90-L103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_structure_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queries the COD for a structure by id.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -296,7 +296,7 @@ be in the path.</p>
 
 <dl class="py method">
 <dt id="pymatgen.ext.cod.COD.query">
-<code class="sig-name descname"><span class="pre">query</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.2/pymatgen/ext/cod.py#L55-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.query" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">query</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sql</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../ext/cod.py#L55-L63"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a query.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

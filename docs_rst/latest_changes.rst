@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2022.0.2
+v2022.0.3
 ---------
-* Bug fix release for missing package data files in v2022.0.1
+* Another bug fix release! Now SETTINGS have been moved to pymatgen.core.
