@@ -19,6 +19,7 @@ if sys.version_info >= (3, 0):
 else:
     Phonopy = None
 
+
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
 
 
@@ -141,18 +142,18 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         self.supercell_matrix = np.eye(3) * 2
         self.force_constants = parse_FORCE_CONSTANTS(fc_file)
 
-    def test_get_phonon_dos_from_fc(self):
-        dos = get_phonon_dos_from_fc(
-            self.structure,
-            self.supercell_matrix,
-            self.force_constants,
-            mesh_density=10.0,
-        )
-
-        self.assertTrue(dos, CompletePhononDos)
-        self.assertEqual(len(dos.frequencies), 201)
-        self.assertIn(Element.Na, dos.get_element_dos())
-        self.assertIn(Element.Cl, dos.get_element_dos())
+    # def test_get_phonon_dos_from_fc(self):
+    #     dos = get_phonon_dos_from_fc(
+    #         self.structure,
+    #         self.supercell_matrix,
+    #         self.force_constants,
+    #         mesh_density=10.0,
+    #     )
+    #
+    #     self.assertTrue(dos, CompletePhononDos)
+    #     self.assertEqual(len(dos.frequencies), 201)
+    #     self.assertIn(Element.Na, dos.get_element_dos())
+    #     self.assertIn(Element.Cl, dos.get_element_dos())
 
     # def test_get_phonon_band_structure_from_fc(self):
     #     bs = get_phonon_band_structure_from_fc(
