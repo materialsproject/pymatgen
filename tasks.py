@@ -176,11 +176,11 @@ def publish(ctx):
 
 @task
 def set_ver(ctx, version):
-    with open("pymatgen/__init__.py", "rt") as f:
+    with open("pymatgen/settings.py", "rt") as f:
         contents = f.read()
         contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % version, contents)
 
-    with open("pymatgen/__init__.py", "wt") as f:
+    with open("pymatgen/settings.py", "wt") as f:
         f.write(contents)
 
     with open("setup.py", "rt") as f:
