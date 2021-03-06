@@ -121,14 +121,5 @@ following must be satisfied for your contributions to be accepted into pymatgen.
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.
 
-A word on coding for Python 2 compatibility
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As of 2019, pymatgen no longer requires code to be Python 2 compatible, and
-current versions of the code are not supported with Python 2. If you need a
-version of pymatgen that works with Python 2, please use a version before
-2018, but note this will be missing the latest bug fixes. This change follows
-the broader Python community no longer supporting Python 2, including numpy.
-
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`pymatgen GitHub repo`: https://github.com/materialsproject/pymatgen
