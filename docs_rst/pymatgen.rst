@@ -1,5 +1,5 @@
-pymatgen package
-================
+pymatgen namespace
+==================
 
 Subpackages
 -----------
@@ -32,11 +32,3 @@ Submodules
 
    pymatgen.dao
    pymatgen.settings
-
-Module contents
----------------
-
-.. automodule:: pymatgen
-   :members:
-   :undoc-members:
-   :show-inheritance:

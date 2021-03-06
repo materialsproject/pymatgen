@@ -40,7 +40,7 @@ def make_doc(ctx):
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --separate -d 7 -o . -f ../pymatgen")
+        ctx.run("sphinx-apidoc --implicit-namespaces --separate -d 7 -o . -f ../pymatgen")
         ctx.run("rm *.tests.*rst")
         for f in glob.glob("*.rst"):
             if f.startswith("pymatgen") and f.endswith("rst"):

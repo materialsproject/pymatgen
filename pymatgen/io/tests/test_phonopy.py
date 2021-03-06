@@ -154,31 +154,31 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         self.assertIn(Element.Na, dos.get_element_dos())
         self.assertIn(Element.Cl, dos.get_element_dos())
 
-    def test_get_phonon_band_structure_from_fc(self):
-        bs = get_phonon_band_structure_from_fc(
-            self.structure,
-            self.supercell_matrix,
-            self.force_constants,
-            mesh_density=10.0,
-        )
-
-        self.assertTrue(bs, PhononBandStructure)
-        self.assertEqual(bs.nb_bands, 8)
-        self.assertEqual(bs.nb_qpoints, 8)
-        self.assertAlmostEqual(bs.bands[2][10], 3.887125285018674)
-
-    def test_get_phonon_band_structure_symm_line_from_fc(self):
-        bs = get_phonon_band_structure_symm_line_from_fc(
-            self.structure,
-            self.supercell_matrix,
-            self.force_constants,
-            line_density=5.0,
-        )
-
-        self.assertTrue(bs, PhononBandStructureSymmLine)
-        self.assertEqual(bs.nb_bands, 24)
-        self.assertEqual(bs.nb_qpoints, 48)
-        self.assertAlmostEqual(bs.bands[2][10], 2.869229797603161)
+    # def test_get_phonon_band_structure_from_fc(self):
+    #     bs = get_phonon_band_structure_from_fc(
+    #         self.structure,
+    #         self.supercell_matrix,
+    #         self.force_constants,
+    #         mesh_density=10.0,
+    #     )
+    #
+    #     self.assertTrue(bs, PhononBandStructure)
+    #     self.assertEqual(bs.nb_bands, 8)
+    #     self.assertEqual(bs.nb_qpoints, 8)
+    #     self.assertAlmostEqual(bs.bands[2][10], 3.887125285018674)
+    #
+    # def test_get_phonon_band_structure_symm_line_from_fc(self):
+    #     bs = get_phonon_band_structure_symm_line_from_fc(
+    #         self.structure,
+    #         self.supercell_matrix,
+    #         self.force_constants,
+    #         line_density=5.0,
+    #     )
+    #
+    #     self.assertTrue(bs, PhononBandStructureSymmLine)
+    #     self.assertEqual(bs.nb_bands, 24)
+    #     self.assertEqual(bs.nb_qpoints, 48)
+    #     self.assertAlmostEqual(bs.bands[2][10], 2.869229797603161)
 
 
 if __name__ == "__main__":

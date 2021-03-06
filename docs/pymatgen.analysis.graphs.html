@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pymatgen.analysis.graphs module &mdash; pymatgen 2021.3.5 documentation</title>
+  <title>pymatgen.analysis.graphs module &mdash; pymatgen 2020.0.1 documentation</title>
   
 
   
@@ -17,9 +17,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.graphs.html"/>
+  
+
   
 
   
@@ -60,7 +63,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -70,7 +73,7 @@
             
             
               <div class="version">
-                2021.3.5
+                2020.0.1
               </div>
             
           
@@ -104,18 +107,18 @@
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
@@ -125,7 +128,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -170,6 +172,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -178,16 +182,16 @@
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
-          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
         
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
         
       <li>pymatgen.analysis.graphs module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.graphs.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -208,36 +212,36 @@
 <p>Module for graph representations of crystals.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.graphs.ConnectedSite">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ConnectedSite</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jimage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ConnectedSite</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jimage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of ConnectedSite(site, jimage, index, weight, dist)</p>
 <dl class="py attribute">
 <dt id="pymatgen.analysis.graphs.ConnectedSite.dist">
-<code class="sig-name descname"><span class="pre">dist</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.dist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">dist</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 4</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.analysis.graphs.ConnectedSite.index">
-<code class="sig-name descname"><span class="pre">index</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">index</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.analysis.graphs.ConnectedSite.jimage">
-<code class="sig-name descname"><span class="pre">jimage</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.jimage" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">jimage</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.jimage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.analysis.graphs.ConnectedSite.site">
-<code class="sig-name descname"><span class="pre">site</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.site" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">site</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.analysis.graphs.ConnectedSite.weight">
-<code class="sig-name descname"><span class="pre">weight</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.weight" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">weight</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.weight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
@@ -245,7 +249,7 @@
 
 <dl class="py exception">
 <dt id="pymatgen.analysis.graphs.MolGraphSplitError">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MolGraphSplitError</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1568-L1574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MolGraphSplitError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MolGraphSplitError</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1568-L1574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MolGraphSplitError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Raised when a molecule graph is failed to split into two disconnected
 subgraphs</p>
@@ -253,7 +257,7 @@ subgraphs</p>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MoleculeGraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1577-L2957"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MoleculeGraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1577-L2957"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This is a class for annotating a Molecule with
 bond information, stored in the form of a graph. A “bond” does
@@ -282,7 +286,7 @@ see as_dict method for format)</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.add_edge">
-<code class="sig-name descname"><span class="pre">add_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1810-L1864"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">add_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1810-L1864"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.add_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add edge to graph.</p>
 <p>Since physically a ‘bond’ (or other connection
 between sites) doesn’t have a direction, from_index,
@@ -310,7 +314,7 @@ store on graph edges, similar to Structure’s site_properties</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.alter_edge">
-<code class="sig-name descname"><span class="pre">alter_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1946-L1981"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">alter_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1946-L1981"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alters either the weight or the edge_properties of
 an edge in the MoleculeGraph.</p>
 <dl class="field-list simple">
@@ -336,7 +340,7 @@ it should be a dictionary of edge properties to be changed.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.as_dict">
-<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2730-L2744"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2730-L2744"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>As in :Class: <cite>pymatgen.core.Molecule</cite> except
 with using <cite>to_dict_of_dicts</cite> from NetworkX
 to store graph information.</p>
@@ -344,7 +348,7 @@ to store graph information.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.break_edge">
-<code class="sig-name descname"><span class="pre">break_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1983-L2014"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.break_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">break_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1983-L2014"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.break_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an edge from the MoleculeGraph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -364,7 +368,7 @@ will attempt to break (to_index, from_index).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments">
-<code class="sig-name descname"><span class="pre">build_unique_fragments</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2161-L2233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">build_unique_fragments</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2161-L2233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all possible fragment combinations of the MoleculeGraphs (in other
 words, all connected induced subgraphs)</p>
 <dl class="field-list simple">
@@ -376,7 +380,7 @@ words, all connected induced subgraphs)</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.diff">
-<code class="sig-name descname"><span class="pre">diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2890-L2957"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2890-L2957"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares two MoleculeGraphs. Returns dict with
 keys ‘self’, ‘other’, ‘both’ with edges that are
 present in only one MoleculeGraph (‘self’ and
@@ -410,7 +414,7 @@ number of occurrences of bonds</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file">
-<code class="sig-name descname"><span class="pre">draw_graph_to_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_unconnected_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_image_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VESTA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_dot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fdp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2553-L2728"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">draw_graph_to_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_unconnected_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_image_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VESTA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_dot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fdp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2553-L2728"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws graph using GraphViz.</p>
 <p>The networkx graph object itself can also be drawn
 with networkx’s in-built graph drawing methods, but
@@ -457,7 +461,7 @@ or “fdp” (for more crowded graphs) usually give good outputs</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the edge weight property of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -468,7 +472,7 @@ or “fdp” (for more crowded graphs) usually give good outputs</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.edge_weight_unit">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_unit</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_unit</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Units of the edge weight property of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -479,7 +483,7 @@ or “fdp” (for more crowded graphs) usually give good outputs</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.find_rings">
-<code class="sig-name descname"><span class="pre">find_rings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">including</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2451-L2499"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.find_rings" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">find_rings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">including</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2451-L2499"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.find_rings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find ring structures in the MoleculeGraph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -500,7 +504,7 @@ value will be an empty list.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.from_dict">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2746-L2754"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2746-L2754"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>As in :Class: <cite>pymatgen.core.Molecule</cite> except
 restoring graphs using <cite>from_dict_of_dicts</cite>
 from NetworkX to restore graph information.</p>
@@ -508,7 +512,7 @@ from NetworkX to restore graph information.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.get_connected_sites">
-<code class="sig-name descname"><span class="pre">get_connected_sites</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2501-L2540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_connected_sites</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2501-L2540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a named tuple of neighbors of site n:
 periodic_site, jimage, index, weight.
 Index is the index of the corresponding site
@@ -524,7 +528,7 @@ None if not defined.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.get_coordination_of_site">
-<code class="sig-name descname"><span class="pre">get_coordination_of_site</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2542-L2551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.get_coordination_of_site" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_coordination_of_site</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2542-L2551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.get_coordination_of_site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of neighbors of site n.
 In graph terms, simply returns degree
 of node corresponding to site n.
@@ -534,7 +538,7 @@ of node corresponding to site n.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.get_disconnected_fragments">
-<code class="sig-name descname"><span class="pre">get_disconnected_fragments</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2035-L2104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.get_disconnected_fragments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_disconnected_fragments</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2035-L2104"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.get_disconnected_fragments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if the MoleculeGraph is connected. If it is not, separate the
 MoleculeGraph into different MoleculeGraphs, where each resulting
 MoleculeGraph is a disconnected subgraph of the original.
@@ -550,7 +554,7 @@ returns two or more new MoleculeGraph objects.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.insert_node">
-<code class="sig-name descname"><span class="pre">insert_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1866-L1924"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.insert_node" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">insert_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1866-L1924"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.insert_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around Molecule.insert(), which also incorporates the new
 site into the MoleculeGraph.</p>
 <dl class="field-list simple">
@@ -579,7 +583,7 @@ least have a “to_index” and “from_index” key, and can also have a
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to">
-<code class="sig-name descname"><span class="pre">isomorphic_to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2873-L2888"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">isomorphic_to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2873-L2888"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the graphs of two MoleculeGraphs are isomorphic to one
 another. In order to prevent problems with misdirected edges, both
 graphs are converted into undirected nx.Graph objects.</p>
@@ -595,7 +599,7 @@ graphs are converted into undirected nx.Graph objects.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -606,7 +610,7 @@ graphs are converted into undirected nx.Graph objects.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.remove_nodes">
-<code class="sig-name descname"><span class="pre">remove_nodes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2016-L2033"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">remove_nodes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2016-L2033"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for Molecule.remove_sites().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -621,7 +625,7 @@ be removed.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.replace_group">
-<code class="sig-name descname"><span class="pre">replace_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_grp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2362-L2449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.replace_group" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">replace_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_grp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2362-L2449"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.replace_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds off of Molecule.substitute and MoleculeGraph.substitute_group
 to replace a functional group in self.molecule with a functional group.
 This method also amends self.graph to incorporate the new functional
@@ -668,7 +672,7 @@ If None, default parameters will be used.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes">
-<code class="sig-name descname"><span class="pre">set_node_attributes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1926-L1944"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_node_attributes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1926-L1944"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replicates molecule site properties (specie, coords, etc.) in the
 MoleculeGraph.</p>
 <dl class="field-list simple">
@@ -680,7 +684,7 @@ MoleculeGraph.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.sort">
-<code class="sig-name descname"><span class="pre">sort</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2811-L2842"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.sort" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">sort</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2811-L2842"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.sort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as Molecule.sort(), also remaps nodes in graph.
 :param key:
 :param reverse:
@@ -689,7 +693,7 @@ MoleculeGraph.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs">
-<code class="sig-name descname"><span class="pre">split_molecule_subgraphs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2106-L2159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">split_molecule_subgraphs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2106-L2159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split MoleculeGraph into two or more MoleculeGraphs by
 breaking a set of bonds. This function uses
 MoleculeGraph.break_edge repeatedly to create
@@ -730,7 +734,7 @@ will attempt to break (to_index, from_index).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.substitute_group">
-<code class="sig-name descname"><span class="pre">substitute_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_grp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L2235-L2360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">substitute_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_grp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L2235-L2360"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds off of Molecule.substitute to replace an atom in self.molecule
 with a functional group. This method also amends self.graph to
 incorporate the new functional group.</p>
@@ -783,7 +787,7 @@ If None, default parameters will be used.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.with_edges">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1671-L1716"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_edges" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1671-L1716"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, using pre-existing or pre-defined edges
 with optional edge parameters.</p>
 <dl class="field-list simple">
@@ -804,7 +808,7 @@ additional properties are to be specified.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">with_empty_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bonds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1633-L1669"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">with_empty_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bonds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1633-L1669"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, returns a MoleculeGraph
 object with an empty graph (no edges, only nodes defined
 that correspond to Sites in Molecule).</p>
@@ -826,7 +830,7 @@ e.g. “Å” or “eV”</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_local_env_strategy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1718-L1787"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_local_env_strategy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1718-L1787"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, using a strategy
 from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
 <dl class="field-list simple">
@@ -847,7 +851,7 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
 
 <dl class="py class">
 <dt id="pymatgen.analysis.graphs.StructureGraph">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">StructureGraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L107-L1565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">StructureGraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L107-L1565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This is a class for annotating a Structure with
 bond information, stored in the form of a graph. A “bond” does
@@ -879,7 +883,7 @@ dict format (not intended to be constructed manually,</p></li>
 <p>see as_dict method for format)</p>
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.add_edge">
-<code class="sig-name descname"><span class="pre">add_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L319-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">add_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L319-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.add_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add edge to graph.</p>
 <p>Since physically a ‘bond’ (or other connection
 between sites) doesn’t have a direction, from_index,
@@ -910,7 +914,7 @@ store on graph edges, similar to Structure’s site_properties</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.alter_edge">
-<code class="sig-name descname"><span class="pre">alter_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L516-L565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">alter_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_edge_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L516-L565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alters either the weight or the edge_properties of
 an edge in the StructureGraph.</p>
 <dl class="field-list simple">
@@ -937,7 +941,7 @@ it should be a dictionary of edge properties to be changed.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.as_dict">
-<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1066-L1080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1066-L1080"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>As in :Class: <cite>pymatgen.core.Structure</cite> except
 with using <cite>to_dict_of_dicts</cite> from NetworkX
 to store graph information.</p>
@@ -945,7 +949,7 @@ to store graph information.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.break_edge">
-<code class="sig-name descname"><span class="pre">break_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L567-L610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.break_edge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">break_edge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L567-L610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.break_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an edge from the StructureGraph. If no image is given, this method will fail.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -966,7 +970,7 @@ will attempt to break (to_index, from_index).</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.diff">
-<code class="sig-name descname"><span class="pre">diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1420-L1486"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1420-L1486"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares two StructureGraphs. Returns dict with
 keys ‘self’, ‘other’, ‘both’ with edges that are
 present in only one StructureGraph (‘self’ and
@@ -1000,7 +1004,7 @@ number of occurrences of bonds</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file">
-<code class="sig-name descname"><span class="pre">draw_graph_to_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_unconnected_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_image_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VESTA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_dot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fdp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L805-L977"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">draw_graph_to_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graph'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_unconnected_nodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_image_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VESTA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_dot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fdp'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L805-L977"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws graph using GraphViz.</p>
 <p>The networkx graph object itself can also be drawn
 with networkx’s in-built graph drawing methods, but
@@ -1047,7 +1051,7 @@ or “fdp” (for more crowded graphs) usually give good outputs</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.edge_weight_name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the edge weight property of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1058,7 +1062,7 @@ or “fdp” (for more crowded graphs) usually give good outputs</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.edge_weight_unit">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_unit</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">edge_weight_unit</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Units of the edge weight property of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1069,7 +1073,7 @@ or “fdp” (for more crowded graphs) usually give good outputs</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.from_dict">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1082-L1090"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1082-L1090"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>As in :Class: <cite>pymatgen.core.Structure</cite> except
 restoring graphs using <cite>from_dict_of_dicts</cite>
 from NetworkX to restore graph information.</p>
@@ -1077,7 +1081,7 @@ from NetworkX to restore graph information.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.get_connected_sites">
-<code class="sig-name descname"><span class="pre">get_connected_sites</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L744-L792"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_connected_sites</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jimage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L744-L792"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a named tuple of neighbors of site n:
 periodic_site, jimage, index, weight.
 Index is the index of the corresponding site
@@ -1093,7 +1097,7 @@ None if not defined.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site">
-<code class="sig-name descname"><span class="pre">get_coordination_of_site</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L794-L803"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_coordination_of_site</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L794-L803"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of neighbors of site n.
 In graph terms, simply returns degree
 of node corresponding to site n.
@@ -1103,7 +1107,7 @@ of node corresponding to site n.
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules">
-<code class="sig-name descname"><span class="pre">get_subgraphs_as_molecules</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1488-L1565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_subgraphs_as_molecules</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1488-L1565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve subgraphs as molecules, useful for extracting
 molecules from periodic crystals.</p>
 <p>Will only return unique molecules, not any duplicates
@@ -1126,7 +1130,7 @@ but will treat e.g. enantiomers as being duplicates.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.insert_node">
-<code class="sig-name descname"><span class="pre">insert_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L430-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.insert_node" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">insert_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords_are_cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_proximity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L430-L494"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.insert_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around Molecule.insert(), which also incorporates the new
 site into the MoleculeGraph.</p>
 <dl class="field-list simple">
@@ -1157,7 +1161,7 @@ least have a “to_index” and “from_index” key, and can also have a
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1168,7 +1172,7 @@ least have a “to_index” and “from_index” key, and can also have a
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.remove_nodes">
-<code class="sig-name descname"><span class="pre">remove_nodes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L612-L629"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">remove_nodes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L612-L629"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for Molecule.remove_sites().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1183,7 +1187,7 @@ be removed.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.set_node_attributes">
-<code class="sig-name descname"><span class="pre">set_node_attributes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L496-L514"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_node_attributes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L496-L514"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives each node a “specie” and a “coords” attribute, updated with the
 current species and coordinates.</p>
 <dl class="field-list simple">
@@ -1195,7 +1199,7 @@ current species and coordinates.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.sort">
-<code class="sig-name descname"><span class="pre">sort</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1361-L1392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.sort" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">sort</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1361-L1392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.sort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as Structure.sort(), also remaps nodes in graph.
 :param key:
 :param reverse:
@@ -1204,7 +1208,7 @@ current species and coordinates.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.substitute_group">
-<code class="sig-name descname"><span class="pre">substitute_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_grp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L631-L742"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">substitute_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_grp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L631-L742"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds off of Structure.substitute to replace an atom in self.structure
 with a functional group. This method also amends self.graph to
 incorporate the new functional group.</p>
@@ -1257,7 +1261,7 @@ If None, default parameters will be used.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.types_and_weights_of_connections">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">types_and_weights_of_connections</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.types_and_weights_of_connections" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">types_and_weights_of_connections</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.types_and_weights_of_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract a dictionary summarizing the types and weights
 of edges in the graph.</p>
 <dl class="field-list simple">
@@ -1272,7 +1276,7 @@ weights for those connections (e.g. bond lengths).</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.types_of_coordination_environments">
-<code class="sig-name descname"><span class="pre">types_of_coordination_environments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anonymous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L1024-L1064"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.types_of_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">types_of_coordination_environments</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anonymous</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L1024-L1064"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.types_of_coordination_environments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract information on the different co-ordination environments
 present in the graph.</p>
 <dl class="field-list simple">
@@ -1289,7 +1293,7 @@ e.g. [‘Mo-S(6)’, ‘S-Mo(3)’]</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.weight_statistics">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">weight_statistics</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.weight_statistics" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">weight_statistics</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.weight_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract a statistical summary of edge weights present in
 the graph.</p>
 <dl class="field-list simple">
@@ -1302,7 +1306,7 @@ the graph.</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.with_edges">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L203-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_edges" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L203-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, using pre-existing or pre-defined edges
 with optional edge parameters.</p>
 <dl class="field-list simple">
@@ -1324,7 +1328,7 @@ specified.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.with_empty_graph">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">with_empty_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bonds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L165-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">with_empty_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bonds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_weight_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L165-L201"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for StructureGraph, returns a StructureGraph
 object with an empty graph (no edges, only nodes defined
 that correspond to Sites in Structure).</p>
@@ -1346,7 +1350,7 @@ e.g. “Å” or “eV”</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_local_env_strategy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.3.5/pymatgen/analysis/graphs.py#L260-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">with_local_env_strategy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.0.1/pymatgen/analysis/graphs.py#L260-L296"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for StructureGraph, using a strategy
 from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
 <dl class="field-list simple">
@@ -1374,28 +1378,25 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2011, Pymatgen Development Team
+        &#169; Copyright 2011, Pymatgen Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
