@@ -1125,7 +1125,7 @@ class IStructure(SiteCollection, MSONable):
         """
         return self._lattice.volume
 
-    def get_distance(self, i, j, jimage=None):
+    def get_distance(self, i: int, j: int, jimage=None) -> float:
         """
         Get distance between site i and j assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
@@ -1178,8 +1178,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []  # type: List[PeriodicNeighbor]
@@ -1216,8 +1215,7 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         return self.get_all_neighbors(r, include_index=include_index, include_image=include_image, sites=[site])[0]
 
@@ -1236,8 +1234,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         nn = self.get_sites_in_sphere(site.coords, r, include_index=include_index, include_image=include_image)
         return [d for d in nn if site != d[0]]
@@ -1406,8 +1403,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [[:class:`pymatgen.core.structure.PeriodicNeighbor`], ..]
         """
         if sites is None:
             sites = self.sites
@@ -1495,8 +1491,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [[:class:`pymatgen.core.structure.PeriodicNeighbor`],...]
         """
 
         if sites is None:
@@ -1562,8 +1557,7 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            [Neighbor] where Neighbor is a namedtuple containing
-            (site, distance, index, image).
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -2808,8 +2802,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [Neighbor] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.Neighbor`]
         """
         neighbors = []
         for i, site in enumerate(self._sites):
@@ -2828,8 +2821,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.Neighbor`]
         """
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
@@ -2845,8 +2837,7 @@ class IMolecule(SiteCollection, MSONable):
             dr (float): Width of shell.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.Neighbor`]
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
