@@ -40,7 +40,7 @@ reports. The following are resources for pymatgen:
 * Offline docs: HTML are in the pymatgen Github repo's `docs` folder. `Dash <http://kapeli.com/dash>`_ or
   `Zeal <http://zealdocs.org/>`_ docs can be searched and downloaded from "User Contributed Docsets".
 * Bug reports or feature requests: Please submit a `GitHub Issue <http://github.com/materialsproject/pymatgen/issues>`_.
-* Code contributions `pull requests <https://github.com/materialsproject/pymatgen/pulls>`_ welcome.
+* Code contributions via `pull requests <https://github.com/materialsproject/pymatgen/pulls>`_ welcome.
 * For help with usage that are unrelated to bugs or feature requests, please use the pymatgen `Discourse page
   <https://discuss.matsci.org/c/pymatgen>`_.
 * `matgenb <http://matgenb.materialsvirtuallab.org>`_ provides some Jupyter notebooks demonstrating functionality.
