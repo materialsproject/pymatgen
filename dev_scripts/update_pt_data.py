@@ -5,24 +5,16 @@ Developer script to convert yaml periodic table to json format.
 Created on Nov 15, 2011
 """
 
-from __future__ import division
 import json
 from itertools import product
 
 import ruamel.yaml as yaml
 import re
 
-from monty.serialization import loadfn
+from monty.serialization import loadfn, dumpfn
 
-from pymatgen import Element
+from pymatgen.core import Element
 from pymatgen.core.periodic_table import get_el_sp
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Nov 15, 2011"
 
 
 def test_yaml():
@@ -263,6 +255,29 @@ def gen_iupac_ordering():
         periodic_table[el]["IUPAC ordering"] = iupac_ordering_dict[get_el_sp(el)]
 
 
+def add_ionization_energies():
+    from bs4 import BeautifulSoup
+    import requests
+    req = requests.get("https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on")
+    soup = BeautifulSoup(req.text, 'html.parser')
+    for t in soup.find_all('table'):
+        if "Hydrogen" in t.text:
+            break
+    data = []
+    for tr in t.find_all('tr'):
+        row = []
+        for td in tr.find_all('td'):
+            row.append(td.get_text().strip())#.replace(u'\xa0', ''))
+        data.append(row)
+    data.pop(0)
+    data = {int(r[0]): float(r[4].strip("()[]")) for r in data}
+    pt = loadfn('../pymatgen/core/periodic_table.json')
+    for k, v in pt.items():
+        v["Ionization energy"] = data.get(Element(k).Z, None)
+    dumpfn(pt, '../pymatgen/core/periodic_table.json')
+
+
 if __name__ == "__main__":
-    parse_shannon_radii()
+    # parse_shannon_radii()
+    add_ionization_energies()
     # gen_periodic_table()

@@ -239,6 +239,7 @@ class ElementBase(Enum):
             "coefficient_of_linear_thermal_expansion",
             "ground_state_term_symbol",
             "valence",
+            "ionization_energy",
         ]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
