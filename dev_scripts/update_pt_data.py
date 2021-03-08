@@ -256,6 +256,9 @@ def gen_iupac_ordering():
 
 
 def add_ionization_energies():
+    """
+    Update the periodic table data file with ground level and ionization energies from NIST.
+    """
     from bs4 import BeautifulSoup
     import requests
     req = requests.get("https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on")
@@ -272,6 +275,7 @@ def add_ionization_energies():
     data.pop(0)
     ground_level = {int(r[0]): r[3].strip("()[]") for r in data}
     ie = {int(r[0]): float(r[4].strip("()[]")) for r in data}
+    assert set(ie.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     pt = loadfn('../pymatgen/core/periodic_table.json')
     for k, v in pt.items():
         v["Ground level"] = ground_level.get(Element(k).Z, None)
