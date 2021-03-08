@@ -2,6 +2,11 @@
    :width: 300 px
    :alt: pymatgen
    :align: center
+   
+============
+Introduction
+============
+
 
 .. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
       :alt: CI Status
