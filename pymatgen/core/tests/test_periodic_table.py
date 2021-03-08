@@ -208,7 +208,7 @@ class ElementTestCase(PymatgenTest):
             "metallic_radius",
             "iupac_ordering",
             "ground_level",
-            "ionization_energy",
+            "ionization_energies",
         ]
 
         # Test all elements up to Uranium
@@ -233,6 +233,10 @@ class ElementTestCase(PymatgenTest):
                 self.assertTrue(el.X > 0, "No electroneg for %s" % el)
 
         self.assertRaises(ValueError, Element.from_Z, 1000)
+
+    def test_ionization_energies(self):
+        self.assertAlmostEqual(Element.Fe.ionization_energies[2], 30.651)
+        self.assertEqual(Element.Fe.ionization_energy, Element.Fe.ionization_energies[0])
 
     def test_oxidation_states(self):
         el = Element.Fe

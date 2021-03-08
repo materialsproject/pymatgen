@@ -171,9 +171,10 @@ class ElementBase(Enum):
 
             Ground level for element
 
-        .. attribute:: ionization_energy
+        .. attribute:: ionization_energies
 
-            Ionization energy for ground state
+            List of ionization energies. First value is the first ionization energy, second is the second ionization
+            energy, etc.
         """
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
@@ -248,13 +249,13 @@ class ElementBase(Enum):
             "ground_state_term_symbol",
             "valence",
             "ground_level",
-            "ionization_energy",
+            "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
-            elif isinstance(val, dict):
+            elif isinstance(val, (list, dict)):
                 pass
             else:
                 try:
@@ -294,6 +295,13 @@ class ElementBase(Enum):
         Returns dict of data for element.
         """
         return self._data.copy()
+
+    @property
+    def ionization_energy(self) -> float:
+        """
+        First ionization energy of element.
+        """
+        return self.ionization_energies[0]
 
     @property
     def electronic_structure(self) -> str:

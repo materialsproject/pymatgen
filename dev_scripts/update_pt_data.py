@@ -255,34 +255,67 @@ def gen_iupac_ordering():
         periodic_table[el]["IUPAC ordering"] = iupac_ordering_dict[get_el_sp(el)]
 
 
+# def add_ionization_energies():
+#     """
+#     Update the periodic table data file with ground level and ionization energies from NIST.
+#     """
+#     from bs4 import BeautifulSoup
+#     import requests
+#
+#     req = requests.get(
+#         "https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on"
+#     )
+#     soup = BeautifulSoup(req.text, "html.parser")
+#     for t in soup.find_all("table"):
+#         if "Hydrogen" in t.text:
+#             break
+#     data = []
+#     for tr in t.find_all("tr"):
+#         row = []
+#         for td in tr.find_all("td"):
+#             row.append(td.get_text().strip())
+#         data.append(row)
+#     data.pop(0)
+#     ground_level = {int(r[0]): r[3].strip("()[]") for r in data}
+#     ie = {int(r[0]): float(r[4].strip("()[]")) for r in data}
+#     assert set(ie.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+#     pt = loadfn("../pymatgen/core/periodic_table.json")
+#     for k, v in pt.items():
+#         v["Ground level"] = ground_level.get(Element(k).Z, None)
+#         v["Ionization energy"] = ie.get(Element(k).Z, None)
+#     dumpfn(pt, "../pymatgen/core/periodic_table.json")
+
+
 def add_ionization_energies():
     """
     Update the periodic table data file with ground level and ionization energies from NIST.
     """
     from bs4 import BeautifulSoup
-    import requests
+    import collections
 
-    req = requests.get(
-        "https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-DS+i&units=1&at_num_out=on&el_name_out=on&shells_out=on&level_out=on&e_out=0&unc_out=on&biblio=on"
-    )
-    soup = BeautifulSoup(req.text, "html.parser")
+    with open("NIST Atomic Ionization Energies Output.html") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
     for t in soup.find_all("table"):
         if "Hydrogen" in t.text:
             break
-    data = []
+    data = collections.defaultdict(list)
     for tr in t.find_all("tr"):
-        row = []
-        for td in tr.find_all("td"):
-            row.append(td.get_text().strip())
-        data.append(row)
-    data.pop(0)
-    ground_level = {int(r[0]): r[3].strip("()[]") for r in data}
-    ie = {int(r[0]): float(r[4].strip("()[]")) for r in data}
-    assert set(ie.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
+        row = [td.get_text().strip() for td in tr.find_all("td")]
+        if row:
+            Z = int(row[0])
+            val = re.sub("\s", "", row[8].strip("()[]"))
+            if val == "":
+                val = None
+            else:
+                val = float(val)
+            data[Z].append(val)
+    print(data)
+    print(data[51])
+    assert set(data.keys()).issuperset(range(1, 93))  # Ensure that we have data for up to U.
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for k, v in pt.items():
-        v["Ground level"] = ground_level.get(Element(k).Z, None)
-        v["Ionization energy"] = ie.get(Element(k).Z, None)
+        del v["Ionization energy"]
+        v["Ionization energies"] = data.get(Element(k).Z, [])
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 
