@@ -270,10 +270,12 @@ def add_ionization_energies():
             row.append(td.get_text().strip())#.replace(u'\xa0', ''))
         data.append(row)
     data.pop(0)
-    data = {int(r[0]): float(r[4].strip("()[]")) for r in data}
+    ground_level = {int(r[0]): r[3].strip("()[]") for r in data}
+    ie = {int(r[0]): float(r[4].strip("()[]")) for r in data}
     pt = loadfn('../pymatgen/core/periodic_table.json')
     for k, v in pt.items():
-        v["Ionization energy"] = data.get(Element(k).Z, None)
+        v["Ground level"] = ground_level.get(Element(k).Z, None)
+        v["Ionization energy"] = ie.get(Element(k).Z, None)
     dumpfn(pt, '../pymatgen/core/periodic_table.json')
 
 

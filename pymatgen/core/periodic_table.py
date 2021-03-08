@@ -166,6 +166,14 @@ class ElementBase(Enum):
         .. attribute:: coefficient_of_linear_thermal_expansion
 
             Coefficient of linear thermal expansion
+
+        .. attribute:: ground_level
+
+            Ground level for element
+
+        .. attribute:: ionization_energy
+
+            Ionization energy for ground state
         """
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
@@ -239,6 +247,7 @@ class ElementBase(Enum):
             "coefficient_of_linear_thermal_expansion",
             "ground_state_term_symbol",
             "valence",
+            "ground_level",
             "ionization_energy",
         ]:
             kstr = item.capitalize().replace("_", " ")
