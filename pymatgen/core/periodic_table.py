@@ -301,7 +301,7 @@ class ElementBase(Enum):
         """
         First ionization energy of element.
         """
-        return self.ionization_energies[0]
+        return self.ionization_energies[0]  # pylint: disable=E1101
 
     @property
     def electronic_structure(self) -> str:
