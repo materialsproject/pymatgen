@@ -208,7 +208,7 @@ class ElementTestCase(PymatgenTest):
             "metallic_radius",
             "iupac_ordering",
             "ground_level",
-            "ionization_energy"
+            "ionization_energy",
         ]
 
         # Test all elements up to Uranium
