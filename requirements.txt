@@ -10,7 +10,6 @@ palettable==3.3.0
 spglib==1.16.1
 pandas==1.2.3
 networkx==2.5
-dataclasses>=0.6; python_version < '3.7'
 plotly==4.14.3
 beautifulsoup4==4.9.3
 uncertainties==3.1.5

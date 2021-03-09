@@ -6,7 +6,6 @@
 
 import sys
 import platform
-import os
 
 from setuptools import setup, find_namespace_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
@@ -89,8 +88,7 @@ but pymatgen offer several advantages:
    and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org),
    the ABINIT group and many other research groups.
 
-With effect from version 2019.1.1, pymatgen only supports Python 3.x. Users
-who require Python 2.7 should install pymatgen v2018.x.
+With effect from version 2021.1.1, pymatgen only supports Python >3.7.
 """
 
 setup(
@@ -123,9 +121,6 @@ setup(
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        ':python_version < "3.7"': [
-            "dataclasses>=0.6",
-        ],
         ':python_version < "3.8"': [
             "typing-extensions>=3.7.4.3",
         ],
