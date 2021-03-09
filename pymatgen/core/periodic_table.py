@@ -174,7 +174,8 @@ class ElementBase(Enum):
         .. attribute:: ionization_energies
 
             List of ionization energies. First value is the first ionization energy, second is the second ionization
-            energy, etc.
+            energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
+            ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
