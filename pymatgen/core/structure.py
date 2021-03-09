@@ -1302,8 +1302,9 @@ class IStructure(SiteCollection, MSONable):
     ) -> Tuple[np.ndarray, ...]:
         """
         Get neighbor lists using numpy array representations without constructing
-        Neighbor objects. If the cython extension is installed,  this method will
-        be orders of magnitude faster than `get_all_neighbors`.
+        Neighbor objects. If the cython extension is installed, this method will
+        be orders of magnitude faster than `get_all_neighbors_old` and 2-3x faster
+        than `get_all_neighbors`.
         The returned values are a tuple of numpy arrays
         (center_indices, points_indices, offset_vectors, distances).
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
