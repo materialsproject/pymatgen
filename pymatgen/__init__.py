@@ -11,12 +11,13 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2021.3.5"
+__version__ = "2021.3.9"
 
 # Useful aliases for commonly used objects and modules.
 # Allows from pymatgen import <class> for quick usage.
 # Note that these have to come after the SETTINGS have been loaded. Otherwise, import does not work.
 
+from .core import SETTINGS, SETTINGS_FILE  # noqa
 from .core.composition import Composition  # noqa
 from .core.lattice import Lattice  # noqa
 from .core.operations import SymmOp  # noqa

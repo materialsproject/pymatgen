@@ -13,7 +13,7 @@ import sys
 
 from tabulate import tabulate, tabulate_formats
 
-from pymatgen.settings import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
