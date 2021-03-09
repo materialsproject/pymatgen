@@ -305,6 +305,13 @@ class ElementBase(Enum):
         return self._data["Ionization energies"][0]
 
     @property
+    def electron_affinity(self) -> float:
+        """
+        First ionization energy of element.
+        """
+        return self._data["Electron affinity"]
+
+    @property
     def electronic_structure(self) -> str:
         """
         Electronic structure as string, with only valence electrons.
