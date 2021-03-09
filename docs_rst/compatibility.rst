@@ -18,22 +18,39 @@ please post on the GitHub Issues page to see if it can be resolved.
 Depending on Pymatgen
 ---------------------
 
-Pymatgen versions (e.g. `2021.3.4`) follow the `semantic versioning <https://semver.org/>`_ 
-scheme and, as such, will increase the **major** version number (here: `2021`)
-whenever breaking changes are made to the API. 
+Pymatgen uses `calendar versioning <http://calver.org/>`_ based on a YYYY-MM-DD format.
+This has generally worked well since changes to core pymatgen functionality that most
+other codes depend on are rare. There have been only two instances in recent memory that
+breaking changes have been made.
 
-As the developer of a tool that depends on Pymatgen you can prevent upgrades of
-the major Pymatgen version by specifying a version range like
-`pymatgen>=2021.1,<2022` or, more succinctly, using the 
+* v2021.3.4 - Reorganization of pymatgen into namespace packages, which required the removal
+  of root-level imports.
+* v2019.3.13 - Renaming of `Site.species_and_occu` to `Site.species`.
+
+Where at all possible, the pymatgen maintainers try to allow for a reasonable deprecation
+schedule. For exampple, the `Site.species` change had a deprecation schedule of about 9 months.
+However, some changes such as the recent reorganization of pymatgen into namespace packages
+cannot be easily done via a deprecation schedule.
+
+As a compromise solution, pymatgen has adopted **temporary** semantic versioning. A v2021.3.5
+was released after v2021.3.4 to reverse the changes made, and new versions v2022.0.x were
+released that contains the breaking change (removal of root imports). We will continue to release
+critical updates to 2021.x.x versions. This allows end users to continue using 2021.x.x versions
+without having to deal with the breaking changes. However, it is recommended that users make the
+move to be compatible with 2022.0.x before Jan 1 2022, during which pymatgen will only support the
+new namespace architecture and the versioning scheme will go back to calendar versioning.
+
+As the developer of a tool that depends on Pymatgen, you can prevent upgrades of the major
+Pymatgen version by specifying a version range like `pymatgen>=2021.1,<2022` or, more
+succinctly, using the
 `compatible release operator <https://www.python.org/dev/peps/pep-0440/#compatible-release>`_
 `pymatgen~=2021.1`. This will prevent `pip` (and other package managers) from
 pulling in Pymatgen versions with breaking changes that may end up breaking
 your tool.
 
-An even more conservative approach is to pin the Pymatgen dependency to a fixed
-version, for example `pymatgen==2021.3.3`.
-While this will always install the the same version of pymatgen, it can lead to
-unnecessary dependency conflicts with other tools that depend on (a different
+An even more conservative approach is to pin the Pymatgen dependency to a fixed version, for
+example `pymatgen==2021.3.3`. While this will always install the the same version of pymatgen,
+it can lead to unnecessary dependency conflicts with other tools that depend on (a different
 version of) Pymatgen.
 
 Minimum Python Version

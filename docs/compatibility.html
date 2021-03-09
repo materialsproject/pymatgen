@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Compatibility &mdash; pymatgen 2022.0.3 documentation</title>
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgcompatibility.html"/>
-  
-
   
 
   
@@ -63,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -99,24 +96,12 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Major Announcement (v2022.0.*)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#offline-docs">Offline docs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#matgenie-examples">Matgenie &amp; Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#why-use-pymatgen">Why use pymatgen?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#change-log">Change log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#getting-pymatgen">Getting pymatgen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#usage">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#contributing">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#how-to-cite-pymatgen">How to cite pymatgen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#license">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#about-the-team">About the Team</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#copyright-policy">Copyright Policy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Compatibility</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#depending-on-pymatgen">Depending on Pymatgen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimum-python-version">Minimum Python Version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#guidance-if-an-api-changes">Guidance If An API Changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#recent-breaking-changes">Recent Breaking Changes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#v2022-0-0">v2022.0.0</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#v2021-3-3">v2021.3.3</a></li>
@@ -171,8 +156,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -184,7 +167,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/compatibility.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -208,10 +191,45 @@ and capabilities are constantly being added.</p>
 <p>However, pymatgen is also used as a library by other tools, and as such breaking
 changes such as the removal or renaming of existing functionality, or substantive
 changes in the output of existing code, are tried to be kept to a minimum. This is
-especially true of all classes contained in the pymatgen.core module.</p>
-<p>Despite this, it is sometimes necessary to make breaking changes to enable future
-development, or because other libraries we depend upon might change
-their own requirements. When this happens this page will be updated with guidance.</p>
+especially true of all classes contained in the <cite>pymatgen.core</cite> module.</p>
+<p>Despite this, it is sometimes necessary to make breaking changes to enable
+future development, or because other libraries we depend upon might change
+their own requirements. If a breaking change is causing significant issues,
+please post on the GitHub Issues page to see if it can be resolved.</p>
+<div class="section" id="depending-on-pymatgen">
+<h2>Depending on Pymatgen<a class="headerlink" href="#depending-on-pymatgen" title="Permalink to this headline">¶</a></h2>
+<p>Pymatgen uses <a class="reference external" href="http://calver.org/">calendar versioning</a> based on a YYYY-MM-DD format.
+This has generally worked well since changes to core pymatgen functionality that most
+other codes depend on are rare. There have been only two instances in recent memory that
+breaking changes have been made.</p>
+<ul class="simple">
+<li><p>v2021.3.4 - Reorganization of pymatgen into namespace packages, which required the removal
+of root-level imports.</p></li>
+<li><p>v2019.3.13 - Renaming of <cite>Site.species_and_occu</cite> to <cite>Site.species</cite>.</p></li>
+</ul>
+<p>Where at all possible, the pymatgen maintainers try to allow for a reasonable deprecation
+schedule. For exampple, the <cite>Site.species</cite> change had a deprecation schedule of about 9 months.
+However, some changes such as the recent reorganization of pymatgen into namespace packages
+cannot be easily done via a deprecation schedule.</p>
+<p>As a compromise solution, pymatgen has adopted <strong>temporary</strong> semantic versioning. A v2021.3.5
+was released after v2021.3.4 to reverse the changes made, and new versions v2022.0.x were
+released that contains the breaking change (removal of root imports). We will continue to release
+critical updates to 2021.x.x versions. This allows end users to continue using 2021.x.x versions
+without having to deal with the breaking changes. However, it is recommended that users make the
+move to be compatible with 2022.0.x before Jan 1 2022, during which pymatgen will only support the
+new namespace architecture and the versioning scheme will go back to calendar versioning.</p>
+<p>As the developer of a tool that depends on Pymatgen, you can prevent upgrades of the major
+Pymatgen version by specifying a version range like <cite>pymatgen&gt;=2021.1,&lt;2022</cite> or, more
+succinctly, using the
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0440/#compatible-release">compatible release operator</a>
+<cite>pymatgen~=2021.1</cite>. This will prevent <cite>pip</cite> (and other package managers) from
+pulling in Pymatgen versions with breaking changes that may end up breaking
+your tool.</p>
+<p>An even more conservative approach is to pin the Pymatgen dependency to a fixed version, for
+example <cite>pymatgen==2021.3.3</cite>. While this will always install the the same version of pymatgen,
+it can lead to unnecessary dependency conflicts with other tools that depend on (a different
+version of) Pymatgen.</p>
+</div>
 <div class="section" id="minimum-python-version">
 <h2>Minimum Python Version<a class="headerlink" href="#minimum-python-version" title="Permalink to this headline">¶</a></h2>
 <p>As a rule of thumb, pymatgen will support whatever versions of Python the latest
@@ -219,13 +237,6 @@ version of numpy supports (at the time of writing, this is Python 3.7+). You can
 also check what versions of Python are being tested automatically as part of our
 continuous integration testing on GitHub. We currently test pymatgen on Mac,
 Windows and Linux.</p>
-</div>
-<div class="section" id="guidance-if-an-api-changes">
-<h2>Guidance If An API Changes<a class="headerlink" href="#guidance-if-an-api-changes" title="Permalink to this headline">¶</a></h2>
-<p>You can pin your own script or library to an older version of pymatgen, or
-install an older version of pymatgen, for example <cite>pip install pymatgen==2021.3.3</cite>.</p>
-<p>If a breaking change is causing significant issues, please post on the GitHub
-Issues page to see if it can be resolved.</p>
 </div>
 <div class="section" id="recent-breaking-changes">
 <h2>Recent Breaking Changes<a class="headerlink" href="#recent-breaking-changes" title="Permalink to this headline">¶</a></h2>
@@ -292,25 +303,28 @@ of BSPlotter’s plot data.</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 
