@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.alchemy.materials module &mdash; pymatgen 2022.0.3 documentation</title>
+  <title>pymatgen.alchemy.materials module &mdash; pymatgen 2022.0.4 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2022.0.3
+                2022.0.4
               </div>
             
           
@@ -210,7 +210,7 @@ TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.</p>
 <dl class="py class">
 <dt id="pymatgen.alchemy.materials.TransformedStructure">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">TransformedStructure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L27-L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">TransformedStructure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L27-L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Container object for new structures that include history of
 transformations.</p>
@@ -230,7 +230,7 @@ apply.</p></li>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.append_filter">
-<code class="sig-name descname"><span class="pre">append_filter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L150-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_filter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">append_filter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_filter</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L150-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a filter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -243,7 +243,7 @@ to retain.</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.append_transformation">
-<code class="sig-name descname"><span class="pre">append_transformation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_alternatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_redo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L94-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_transformation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">append_transformation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_alternatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_redo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L94-L148"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_transformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends a transformation to the TransformedStructure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,13 +265,13 @@ multiple redos.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.as_dict">
-<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L315-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L315-L325"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict representation of the TransformedStructure.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.extend_transformations">
-<code class="sig-name descname"><span class="pre">extend_transformations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_alternatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L163-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.extend_transformations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">extend_transformations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_alternatives</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L163-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.extend_transformations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extends a sequence of transformations to the TransformedStructure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -288,7 +288,7 @@ total number of structures to return.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.from_cif_string">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_cif_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L250-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_cif_string" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_cif_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupancy_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L250-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_cif_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates TransformedStructure from a cif string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -316,13 +316,13 @@ scaled down to 1.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.from_dict">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L327-L333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L327-L333"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a TransformedStructure from a dict.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.from_poscar_string">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_poscar_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poscar_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L291-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_poscar_string" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_poscar_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poscar_string</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L291-L313"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_poscar_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates TransformedStructure from a poscar string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,7 +337,7 @@ to be applied to the input structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.from_snl">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_snl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L359-L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_snl" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_snl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snl</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L359-L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_snl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create TransformedStructure from SNL.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -351,7 +351,7 @@ to be applied to the input structure.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.get_vasp_input">
-<code class="sig-name descname"><span class="pre">get_vasp_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vasp_input_set=&lt;class</span> <span class="pre">'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L177-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_vasp_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vasp_input_set=&lt;class</span> <span class="pre">'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L177-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns VASP input as a dict of vasp objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -363,7 +363,7 @@ to create vasp input files from structures</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.redo_next_change">
-<code class="sig-name descname"><span class="pre">redo_next_change</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L74-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.redo_next_change" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">redo_next_change</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L74-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.redo_next_change" title="Permalink to this definition">¶</a></dt>
 <dd><p>Redo the last undone change in the TransformedStructure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
@@ -374,7 +374,7 @@ to create vasp input files from structures</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.set_parameter">
-<code class="sig-name descname"><span class="pre">set_parameter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L222-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.set_parameter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_parameter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L222-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.set_parameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set a parameter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -388,14 +388,14 @@ to create vasp input files from structures</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.structures">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">structures</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/alchemy/materials.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.structures" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">structures</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/alchemy/materials.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy of all structures in the TransformedStructure. A
 structure is stored after every single transformation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.to_snl">
-<code class="sig-name descname"><span class="pre">to_snl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">authors</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L335-L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_snl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">to_snl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">authors</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L335-L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_snl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate SNL from TransformedStructure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -413,7 +413,7 @@ structure is stored after every single transformation.</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.undo_last_change">
-<code class="sig-name descname"><span class="pre">undo_last_change</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L56-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.undo_last_change" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">undo_last_change</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L56-L72"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.undo_last_change" title="Permalink to this definition">¶</a></dt>
 <dd><p>Undo the last change in the TransformedStructure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
@@ -424,7 +424,7 @@ structure is stored after every single transformation.</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.was_modified">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">was_modified</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/alchemy/materials.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.was_modified" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">was_modified</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/alchemy/materials.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.was_modified" title="Permalink to this definition">¶</a></dt>
 <dd><p>Boolean describing whether the last transformation on the structure
 made any alterations to it one example of when this would return false
 is in the case of performing a substitution transformation on the
@@ -433,7 +433,7 @@ structure when the specie to replace isn’t in the structure.</p>
 
 <dl class="py method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.write_vasp_input">
-<code class="sig-name descname"><span class="pre">write_vasp_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vasp_input_set=&lt;class</span> <span class="pre">'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</span></em>, <em class="sig-param"><span class="pre">output_dir='.'</span></em>, <em class="sig-param"><span class="pre">create_directory=True</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.3/pymatgen/../alchemy/materials.py#L189-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">write_vasp_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vasp_input_set=&lt;class</span> <span class="pre">'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</span></em>, <em class="sig-param"><span class="pre">output_dir='.'</span></em>, <em class="sig-param"><span class="pre">create_directory=True</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../alchemy/materials.py#L189-L204"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes VASP input to an output_dir.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

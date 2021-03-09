@@ -1,16 +1,26 @@
 Change log
 ==========
 
+v2022.0.4 / v2021.3.9
+---------------------
+* Element now has `ionization_energies`, `ionization_energy` and 
+  `electron_affinity` properties.
+* Extensive documentation has been added on pymatgen compatibility and the
+  new namespace architecture! We have also released a 
+  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
+  to help new developers write add-ons for pymatgen! Check out our 
+  :doc:`contributing page</contributing>` for details.
+
 v2022.0.3
 ---------
 * Another bug fix release! Now SETTINGS have been moved to pymatgen.core.
 
-v2022.0.2
----------
+v2022.0.2 (Yanked)
+------------------
 * Bug fix release for missing package data files in v2022.0.1
 
-v2022.0.1
----------
+v2022.0.1 (Yanked)
+------------------
 * `pymatgen`, `pymatgen.ext`, `pymatgen.io` and `pymatgen.analysis` are now
   namespace packages. Note that this does not affect normal usage of pymatgen
   from v2022.0.0. All imports remain the same. However, it does allow developers
@@ -18,8 +28,8 @@ v2022.0.1
   and templates is in the works to guide developers on how to write these
   packages.
 
-v2022.0.0
----------
+v2022.0.0 (Yanked)
+------------------
 * This is the new version of pymatgen going forward. Root-level imports have been removed. Please see
   https://pymatgen.org/compatibility.html on how to update your code for compatibility with v2022.
 
@@ -29,8 +39,8 @@ v2021.3.5
   released. Future critical bug fixes will be backported to v2021.x.x, but the main line of development will occur on
   v2022.0.0 onwards.
 
-v2021.3.4
----------
+v2021.3.4 (Yanked)
+------------------
 * **Backwards incompatible**: Pymatgen root imports have been removed from
   v2021.3.4 in preparation for a change to a more modular, extensible
   architecture that will allow more developers to contribute.
