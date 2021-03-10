@@ -135,7 +135,11 @@ class MPRester:
     )
 
     def __init__(
-        self, api_key=None, endpoint=None, notify_db_version=True, include_user_agent=True,
+        self,
+        api_key=None,
+        endpoint=None,
+        notify_db_version=True,
+        include_user_agent=True,
     ):
         """
         Args:
@@ -376,7 +380,10 @@ class MPRester:
                 "{} element not contained in corresponding structure with "
                 "mp_id: {}".format(absorbing_element, material_id)
             )
-        data = self._make_request("/materials/{}/xas/{}".format(material_id, absorbing_element), mp_decode=False,)
+        data = self._make_request(
+            "/materials/{}/xas/{}".format(material_id, absorbing_element),
+            mp_decode=False,
+        )
         return data[0]
 
     def get_task_data(self, chemsys_formula_id, prop=""):
@@ -547,7 +554,11 @@ class MPRester:
                     s = prim.copy()
                     energy = d["energy"]
                 e = ComputedStructureEntry(
-                    s, energy, parameters={k: d[k] for k in params}, data=data, entry_id=d["task_id"],
+                    s,
+                    energy,
+                    parameters={k: d[k] for k in params},
+                    data=data,
+                    entry_id=d["task_id"],
                 )
             entries.append(e)
         if compatible_only:
@@ -609,7 +620,8 @@ class MPRester:
         # entries we get from MPRester
         with warnings.catch_warnings():
             warnings.filterwarnings(
-                "ignore", message="You did not provide the required O2 and H2O energies.",
+                "ignore",
+                message="You did not provide the required O2 and H2O energies.",
             )
             compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
@@ -687,7 +699,12 @@ class MPRester:
         return data[0][prop]
 
     def get_entry_by_material_id(
-        self, material_id, compatible_only=True, inc_structure=None, property_data=None, conventional_unit_cell=False,
+        self,
+        material_id,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
     ):
         """
         Get a ComputedEntry corresponding to a material_id.
@@ -796,7 +813,12 @@ class MPRester:
         return self._make_request("/materials/{}/abinit_ddb".format(material_id))
 
     def get_entries_in_chemsys(
-        self, elements, compatible_only=True, inc_structure=None, property_data=None, conventional_unit_cell=False,
+        self,
+        elements,
+        compatible_only=True,
+        inc_structure=None,
+        property_data=None,
+        conventional_unit_cell=False,
     ):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
@@ -875,7 +897,12 @@ class MPRester:
         return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def query(
-        self, criteria, properties, chunk_size=500, max_tries_per_chunk=5, mp_decode=True,
+        self,
+        criteria,
+        properties,
+        chunk_size=500,
+        max_tries_per_chunk=5,
+        mp_decode=True,
     ):
         r"""
 
@@ -968,7 +995,14 @@ class MPRester:
             num_tries = 0
             while num_tries < max_tries_per_chunk:
                 try:
-                    data.extend(self.query(chunk_criteria, properties, chunk_size=0, mp_decode=mp_decode,))
+                    data.extend(
+                        self.query(
+                            chunk_criteria,
+                            properties,
+                            chunk_size=0,
+                            mp_decode=mp_decode,
+                        )
+                    )
                     break
                 except MPRestError as e:
                     # pylint: disable=E1101
@@ -1033,7 +1067,14 @@ class MPRester:
         from pymatgen.util.provenance import StructureNL
 
         snl_list = StructureNL.from_structures(
-            structures, authors, projects, references, remarks, data, histories, created_at,
+            structures,
+            authors,
+            projects,
+            references,
+            remarks,
+            data,
+            histories,
+            created_at,
         )
         self.submit_snl(snl_list)
 
@@ -1233,7 +1274,10 @@ class MPRester:
         """
         try:
             payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
-            response = self.session.post("{}/phase_diagram/calculate_stability".format(self.preamble), data=payload,)
+            response = self.session.post(
+                "{}/phase_diagram/calculate_stability".format(self.preamble),
+                data=payload,
+            )
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
@@ -1280,7 +1324,9 @@ class MPRester:
             rxn
         """
         return self._make_request(
-            "/reaction", payload={"reactants[]": reactants, "products[]": products}, mp_decode=False,
+            "/reaction",
+            payload={"reactants[]": reactants, "products[]": products},
+            mp_decode=False,
         )
 
     def get_substrates(self, material_id, number=50, orient=None):
@@ -1437,7 +1483,12 @@ class MPRester:
         return self._make_request("/grain_boundaries", payload=payload)
 
     def get_interface_reactions(
-        self, reactant1, reactant2, open_el=None, relative_mu=None, use_hull_energy=False,
+        self,
+        reactant1,
+        reactant2,
+        open_el=None,
+        relative_mu=None,
+        use_hull_energy=False,
     ):
         """
         Gets critical reactions between two reactants.
