@@ -78,7 +78,16 @@ class CorrectionCalculator:
         ),
         max_error: float = 0.1,
         allow_unstable: Union[float, bool] = 0.1,
-        exclude_polyanions: Sequence[str] = ("SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4",),
+        exclude_polyanions: Sequence[str] = (
+            "SO4",
+            "CO3",
+            "NO3",
+            "OCl3",
+            "SiO4",
+            "SeO3",
+            "TiO3",
+            "TiO4",
+        ),
     ) -> None:
         """
         Initializes a CorrectionCalculator.
@@ -284,7 +293,12 @@ class CorrectionCalculator:
             popt, self.pcov = curve_fit(_func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species)))
         else:
             popt, self.pcov = curve_fit(
-                _func, self.coeff_mat, self.diffs, p0=np.ones(len(self.species)), sigma=sigma, absolute_sigma=True,
+                _func,
+                self.coeff_mat,
+                self.diffs,
+                p0=np.ones(len(self.species)),
+                sigma=sigma,
+                absolute_sigma=True,
             )
         self.corrections = popt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(self.pcov)).tolist()
@@ -314,7 +328,12 @@ class CorrectionCalculator:
 
         num = len(abs_errors)
         fig = go.Figure(
-            data=go.Scatter(x=np.linspace(1, num, num), y=abs_errors, mode="markers", text=labels_graph,),
+            data=go.Scatter(
+                x=np.linspace(1, num, num),
+                y=abs_errors,
+                mode="markers",
+                text=labels_graph,
+            ),
             layout=go.Layout(
                 title=go.layout.Title(text="Residual Errors"),
                 yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")),
@@ -378,7 +397,12 @@ class CorrectionCalculator:
 
         num = len(abs_errors)
         fig = go.Figure(
-            data=go.Scatter(x=np.linspace(1, num, num), y=abs_errors, mode="markers", text=labels_species,),
+            data=go.Scatter(
+                x=np.linspace(1, num, num),
+                y=abs_errors,
+                mode="markers",
+                text=labels_species,
+            ),
             layout=go.Layout(
                 title=go.layout.Title(text="Residual Errors for " + specie),
                 yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Residual Error (eV/atom)")),
@@ -476,7 +500,8 @@ class CorrectionCalculator:
             indent=4,
         )
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to any compound containing\nthese species as anions", indent=4,
+            "Composition-based corrections applied to any compound containing\nthese species as anions",
+            indent=4,
         )
         contents["Uncertainties"].yaml_set_start_comment(
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
