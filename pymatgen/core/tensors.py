@@ -25,16 +25,8 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Joseph Montoya"
-__copyright__ = "Copyright 2017, The Materials Project"
-__credits__ = (
-    "Maarten de Jong, Shyam Dwaraknath, Wei Chen, "
-    "Mark Asta, Anubhav Jain, Terence Lew"
-)
-__version__ = "1.0"
-__maintainer__ = "Joseph Montoya"
-__email__ = "montoyjh@lbl.gov"
-__status__ = "Production"
-__date__ = "July 24, 2018"
+__credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, " "Mark Asta, Anubhav Jain, Terence Lew"
+
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
@@ -66,20 +58,15 @@ class Tensor(np.ndarray, MSONable):
         obj.rank = len(obj.shape)
 
         if check_rank and check_rank != obj.rank:
-            raise ValueError(
-                "{} input must be rank {}".format(obj.__class__.__name__, check_rank)
-            )
+            raise ValueError("{} input must be rank {}".format(obj.__class__.__name__, check_rank))
 
         vshape = tuple([3] * (obj.rank % 2) + [6] * (obj.rank // 2))
         obj._vscale = np.ones(vshape)
         if vscale is not None:
             obj._vscale = vscale
         if obj._vscale.shape != vshape:
-            raise ValueError(
-                "Voigt scaling matrix must be the shape of the "
-                "voigt notation matrix or vector."
-            )
-        if not all([i == 3 for i in obj.shape]):
+            raise ValueError("Voigt scaling matrix must be the shape of the " "voigt notation matrix or vector.")
+        if not all(i == 3 for i in obj.shape):
             raise ValueError(
                 "Pymatgen only supports 3-dimensional tensors, "
                 "and default tensor constructor uses standard "
@@ -376,10 +363,7 @@ class Tensor(np.ndarray, MSONable):
         for ind in this_voigt_map:
             v_matrix[this_voigt_map[ind]] = self[ind]
         if not self.is_voigt_symmetric():
-            warnings.warn(
-                "Tensor is not symmetric, information may "
-                "be lost in voigt conversion."
-            )
+            warnings.warn("Tensor is not symmetric, information may " "be lost in voigt conversion.")
         return v_matrix * self._vscale
 
     def is_voigt_symmetric(self, tol=1e-6):
@@ -389,9 +373,7 @@ class Tensor(np.ndarray, MSONable):
         possible permutations to be used in a tensor transpose
         """
         transpose_pieces = [[[0 for i in range(self.rank % 2)]]]
-        transpose_pieces += [
-            [range(j, j + 2)] for j in range(self.rank % 2, self.rank, 2)
-        ]
+        transpose_pieces += [[range(j, j + 2)] for j in range(self.rank % 2, self.rank, 2)]
         for n in range(self.rank % 2, len(transpose_pieces)):
             if len(transpose_pieces[n][0]) == 2:
                 transpose_pieces[n] += [transpose_pieces[n][0][::-1]]
@@ -455,11 +437,7 @@ class Tensor(np.ndarray, MSONable):
         sga = SpacegroupAnalyzer(structure)
         dataset = sga.get_symmetry_dataset()
         trans_mat = dataset["transformation_matrix"]
-        conv_latt = Lattice(
-            np.transpose(
-                np.dot(np.transpose(structure.lattice.matrix), np.linalg.inv(trans_mat))
-            )
-        )
+        conv_latt = Lattice(np.transpose(np.dot(np.transpose(structure.lattice.matrix), np.linalg.inv(trans_mat))))
         xtal_sys = sga.get_crystal_system()
 
         vecs = conv_latt.matrix
@@ -473,12 +451,7 @@ class Tensor(np.ndarray, MSONable):
 
         # IEEE rules: a=b in length; c,a || x3, x1
         elif xtal_sys == "tetragonal":
-            rotation = np.array(
-                [
-                    vec / mag
-                    for (mag, vec) in sorted(zip(lengths, vecs), key=lambda x: x[0])
-                ]
-            )
+            rotation = np.array([vec / mag for (mag, vec) in sorted(zip(lengths, vecs), key=lambda x: x[0])])
             if abs(lengths[2] - lengths[1]) < abs(lengths[1] - lengths[0]):
                 rotation[0], rotation[2] = rotation[2], rotation[0].copy()
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
@@ -505,9 +478,7 @@ class Tensor(np.ndarray, MSONable):
             n_umask = np.logical_not(angles == angles[u_index])
             rotation[1] = get_uvec(vecs[u_index])
             # Shorter of remaining lattice vectors for c axis
-            c = [
-                vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask]))
-            ][0]
+            c = [vec / mag for (mag, vec) in sorted(zip(lengths[n_umask], vecs[n_umask]))][0]
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
 
@@ -548,9 +519,7 @@ class Tensor(np.ndarray, MSONable):
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
 
-    def structure_transform(
-        self, original_structure, new_structure, refine_rotation=True
-    ):
+    def structure_transform(self, original_structure, new_structure, refine_rotation=True):
         """
         Transforms a tensor from one basis for an original structure
         into a new basis defined by a new structure.
@@ -629,9 +598,7 @@ class Tensor(np.ndarray, MSONable):
             obj = obj.fit_to_structure(structure)
         return obj
 
-    def populate(
-        self, structure, prec=1e-5, maxiter=200, verbose=False, precond=True, vsym=True
-    ):
+    def populate(self, structure, prec=1e-5, maxiter=200, verbose=False, precond=True, vsym=True):
         """
         Takes a partially populated tensor, and populates the non-zero
         entries according to the following procedure, iterated until
@@ -703,10 +670,7 @@ class Tensor(np.ndarray, MSONable):
                 print("Iteration {}: {}".format(i, np.max(diff)))
         if not converged:
             max_diff = np.max(np.abs(self - test_new))
-            warnings.warn(
-                "Warning, populated tensor is not converged "
-                "with max diff of {}".format(max_diff)
-            )
+            warnings.warn("Warning, populated tensor is not converged " "with max diff of {}".format(max_diff))
         return self.__class__(test_new)
 
     def as_dict(self, voigt: bool = False) -> dict:
@@ -752,9 +716,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tensor_list: List of tensors.
         :param base_class: Class to be used.
         """
-        self.tensors = [
-            base_class(t) if not isinstance(t, base_class) else t for t in tensor_list
-        ]
+        self.tensors = [base_class(t) if not isinstance(t, base_class) else t for t in tensor_list]
 
     def __len__(self):
         return len(self.tensors)
@@ -803,7 +765,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tol: tolerance
         :return: Whether all tensors are symmetric.
         """
-        return all([t.is_symmetric(tol) for t in self])
+        return all(t.is_symmetric(tol) for t in self)
 
     def fit_to_structure(self, structure, symprec=0.1):
         """
@@ -821,7 +783,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tol: tolerance
         :return: Whether all tensors are fitted to Structure.
         """
-        return all([t.is_fit_to_structure(structure, tol) for t in self])
+        return all(t.is_fit_to_structure(structure, tol) for t in self)
 
     @property
     def voigt(self):
@@ -842,7 +804,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param tol: tolerance
         :return: Whether all tensors are voigt symmetric.
         """
-        return all([t.is_voigt_symmetric(tol) for t in self])
+        return all(t.is_voigt_symmetric(tol) for t in self)
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
@@ -864,9 +826,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         :param refine_rotation: Whether to refine the rotation.
         :return: TensorCollection.
         """
-        return self.__class__(
-            [t.convert_to_ieee(structure, initial_fit, refine_rotation) for t in self]
-        )
+        return self.__class__([t.convert_to_ieee(structure, initial_fit, refine_rotation) for t in self])
 
     def round(self, *args, **kwargs):
         """
@@ -1092,10 +1052,7 @@ class TensorMapping(collections.abc.MutableMapping):
         self._tensor_list = tensors or []
         self._value_list = values or []
         if not len(self._tensor_list) == len(self._value_list):
-            raise ValueError(
-                "TensorMapping must be initialized with tensors"
-                "and values of equivalent length"
-            )
+            raise ValueError("TensorMapping must be initialized with tensors" "and values of equivalent length")
         self.tol = tol
 
     def __getitem__(self, item):

@@ -11,7 +11,7 @@ from monty.io import zopen
 from monty.serialization import loadfn
 from ruamel import yaml
 
-from pymatgen import SETTINGS
+from pymatgen.core import SETTINGS
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -87,10 +87,7 @@ def _preprocessor(s, d="."):
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError(
-            "This cp2k input processer does not currently "
-            "support conditional blocks."
-        )
+        raise NotImplementedError("This cp2k input processer does not currently " "support conditional blocks.")
     return s
 
 
@@ -124,9 +121,7 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
     """
 
-    potential_filename = SETTINGS.get(
-        "PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS"
-    )
+    potential_filename = SETTINGS.get("PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS")
     basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
 
     functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
@@ -151,7 +146,7 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
     for s in species:
         basis_and_potential[s] = {}
         b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
-        if d[s]["sr"] and any(["SR" in _ for _ in b]):
+        if d[s]["sr"] and any("SR" in _ for _ in b):
             b = [_ for _ in b if "SR" in _]
         else:
             b = [_ for _ in b if "SR" not in _]
@@ -200,12 +195,8 @@ def get_aux_basis(basis_type, default_basis_type="cFIT"):
         default_basis_type (str) default basis type if n
 
     """
-    default_basis_type = default_basis_type or SETTINGS.get(
-        "PMG_CP2K_DEFAULT_AUX_BASIS_TYPE"
-    )
-    basis_type = {
-        k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type
-    }
+    default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
+    basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
     basis = {k: {} for k in basis_type}
     aux_bases = loadfn(os.path.join(MODULE_DIR, "aux_basis.yaml"))
     for k in basis_type:
@@ -249,7 +240,8 @@ def get_unique_site_indices(structure):
             for i, u in enumerate(unique):
                 sites[s + "_" + str(i + 1)] = []
                 for j, site in zip(
-                    s_ids, [structure.site_properties[_property][ids] for ids in s_ids],
+                    s_ids,
+                    [structure.site_properties[_property][ids] for ids in s_ids],
                 ):
                     if site == u:
                         sites[s + "_" + str(i + 1)].append(j)

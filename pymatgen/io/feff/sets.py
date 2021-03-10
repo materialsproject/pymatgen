@@ -107,11 +107,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
         feff = self.all_input()
 
-        feff_input = "\n\n".join(
-            str(feff[k])
-            for k in ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"]
-            if k in feff
-        )
+        feff_input = "\n\n".join(str(feff[k]) for k in ["HEADER", "PARAMETERS", "POTENTIALS", "ATOMS"] if k in feff)
 
         for k, v in feff.items():
             with open(os.path.join(output_dir, k), "w") as f:
@@ -122,9 +118,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
 
         # write the structure to cif file
         if "ATOMS" not in feff:
-            self.atoms.struct.to(
-                fmt="cif", filename=os.path.join(output_dir, feff["PARAMETERS"]["CIF"])
-            )
+            self.atoms.struct.to(fmt="cif", filename=os.path.join(output_dir, feff["PARAMETERS"]["CIF"]))
 
 
 class FEFFDictSet(AbstractFeffInputSet):
@@ -205,9 +199,7 @@ class FEFFDictSet(AbstractFeffInputSet):
         """
         if "RECIPROCAL" in self.config_dict:
             if self.small_system:
-                self.config_dict["CIF"] = "{}.cif".format(
-                    self.structure.formula.replace(" ", "")
-                )
+                self.config_dict["CIF"] = "{}.cif".format(self.structure.formula.replace(" ", ""))
                 self.config_dict["TARGET"] = self.atoms.center_index + 1
                 self.config_dict["COREHOLE"] = "RPA"
                 logger.warning("Setting COREHOLE = RPA for K-space calculation")
@@ -296,22 +288,13 @@ class FEFFDictSet(AbstractFeffInputSet):
             for site_index, site in enumerate(sub_d["header"].struct):
 
                 if site.specie == input_atoms[0].specie:
-                    site_atoms = Atoms(
-                        sub_d["header"].struct, absorbing_atom=site_index, radius=radius
-                    )
-                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(
-                        np.float64
-                    )
+                    site_atoms = Atoms(sub_d["header"].struct, absorbing_atom=site_index, radius=radius)
+                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
                     site_shell_species = np.array(site_atoms.get_lines())[:, 4]
-                    shell_overlap = min(
-                        shell_species.shape[0], site_shell_species.shape[0]
-                    )
+                    shell_overlap = min(shell_species.shape[0], site_shell_species.shape[0])
 
-                    if np.allclose(
-                        distance_matrix[:shell_overlap], site_distance[:shell_overlap]
-                    ) and np.all(
-                        site_shell_species[:shell_overlap]
-                        == shell_species[:shell_overlap]
+                    if np.allclose(distance_matrix[:shell_overlap], site_distance[:shell_overlap]) and np.all(
+                        site_shell_species[:shell_overlap] == shell_species[:shell_overlap]
                     ):
                         absorber_index.append(site_index)
 

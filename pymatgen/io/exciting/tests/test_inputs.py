@@ -22,23 +22,19 @@ __maintainer__ = "Christian Vorwerk"
 __email__ = "vorwerk@physik.hu-berlin.de"
 __date__ = "Dec 01, 2016"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class ExcitingInputTest(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
-        filepath = os.path.join(test_dir, "input_exciting1.xml")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting1.xml")
         excin = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
         fraccoords = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
         self.assertArrayAlmostEqual(lattice, excin.structure.lattice.matrix.tolist())
         self.assertEqual(atoms, [site.specie.symbol for site in excin.structure])
-        self.assertEqual(
-            fraccoords, [site.frac_coords.tolist() for site in excin.structure]
-        )
+        self.assertEqual(fraccoords, [site.frac_coords.tolist() for site in excin.structure])
 
     def test_writestring(self):
         # Test for the string export of s atructure into the exciting input xml schema
@@ -78,14 +74,12 @@ class ExcitingInputTest(PymatgenTest):
             ],
         )
         excin = ExcitingInput(structure)
-        for l1, l2 in zip(
-            input_string.split("\n"), excin.write_string("unchanged").split("\n")
-        ):
+        for l1, l2 in zip(input_string.split("\n"), excin.write_string("unchanged").split("\n")):
             if not l1.strip().startswith("<crystal scale"):
                 self.assertEqual(l1.strip(), l2.strip())
 
     def test_writebandstr(self):
-        filepath = os.path.join(test_dir, "CsI3Pb.cif")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "CsI3Pb.cif")
         structure = Structure.from_file(filepath)
         excin = ExcitingInput(structure)
         string = excin.write_string("primitive", bandstr=True)
@@ -139,9 +133,7 @@ class ExcitingInputTest(PymatgenTest):
 
     def test_paramdict(self):
         coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(
-            a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60
-        )
+        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
         struct = Structure(lattice, ["Si", "Si"], coords)
         paradir = {
             "grst": {
@@ -168,7 +160,7 @@ class ExcitingInputTest(PymatgenTest):
         test_string = test_input.write_string("unchanged", **paradir)
 
         # read reference file
-        filepath = os.path.join(test_dir, "input_exciting2.xml")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "input_exciting2.xml")
         tree = ET.parse(filepath)
         root = tree.getroot()
         ref_string = ET.tostring(root, encoding="unicode")

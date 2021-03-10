@@ -31,9 +31,7 @@ try:
 except ImportError:
     Phonopy = None
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "piezo_sensitivity"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "piezo_sensitivity")
 
 
 class PiezoSensitivityTest(PymatgenTest):
@@ -42,21 +40,11 @@ class PiezoSensitivityTest(PymatgenTest):
         self.IST = np.load(os.path.join(test_dir, "pztist.npy"), allow_pickle=True)
         self.BEC = np.load(os.path.join(test_dir, "pztborn.npy"), allow_pickle=True)
         self.FCM = np.load(os.path.join(test_dir, "pztfcm.npy"), allow_pickle=True)
-        self.pointops = np.load(
-            os.path.join(test_dir, "pointops.npy"), allow_pickle=True
-        )
-        self.sharedops = np.load(
-            os.path.join(test_dir, "sharedops.npy"), allow_pickle=True
-        )
-        self.BEC_operations = np.load(
-            os.path.join(test_dir, "becops.npy"), allow_pickle=True
-        )
-        self.IST_operations = np.load(
-            os.path.join(test_dir, "istops.npy"), allow_pickle=True
-        )
-        self.FCM_operations = np.load(
-            os.path.join(test_dir, "fcmops.npy"), allow_pickle=True
-        )
+        self.pointops = np.load(os.path.join(test_dir, "pointops.npy"), allow_pickle=True)
+        self.sharedops = np.load(os.path.join(test_dir, "sharedops.npy"), allow_pickle=True)
+        self.BEC_operations = np.load(os.path.join(test_dir, "becops.npy"), allow_pickle=True)
+        self.IST_operations = np.load(os.path.join(test_dir, "istops.npy"), allow_pickle=True)
+        self.FCM_operations = np.load(os.path.join(test_dir, "fcmops.npy"), allow_pickle=True)
         self.piezo = np.array(
             [
                 [
@@ -86,9 +74,7 @@ class PiezoSensitivityTest(PymatgenTest):
         self.assertArrayAlmostEqual(ist.ist, self.IST)
 
     def test_ForceConstantMatrix(self):
-        fcmt = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcmt = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         self.assertArrayAlmostEqual(fcmt.fcm, self.FCM)
 
     def test_get_BEC_operations(self):
@@ -105,9 +91,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         rand_BEC[self.BEC_operations[i][0]],
-                        self.BEC_operations[i][2][j].transform_tensor(
-                            rand_BEC[self.BEC_operations[i][1]]
-                        ),
+                        self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]),
                         atol=1e-03,
                     )
                 )
@@ -121,24 +105,18 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         rand_IST[i],
-                        self.IST_operations[i][j][1].transform_tensor(
-                            rand_IST[self.IST_operations[i][j][0]]
-                        ),
+                        self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]),
                         atol=1e-03,
                     )
                 )
 
     def test_get_FCM_operations(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         self.assertTrue(np.all(fcm.FCM_operations == self.FCM_operations))
 
     def test_get_unstable_FCM(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM = np.reshape(rand_FCM, (10, 3, 10, 3)).swapaxes(1, 2)
@@ -147,9 +125,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         self.FCM_operations[i][4][j].transform_tensor(
-                            rand_FCM[self.FCM_operations[i][2]][
-                                self.FCM_operations[i][3]
-                            ]
+                            rand_FCM[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                         ),
                         rand_FCM[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                         atol=1e-04,
@@ -157,9 +133,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 )
 
     def test_get_FCM_symmetry(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
 
         fcm = fcm.get_symmetrized_FCM(np.random.rand(30, 30))
@@ -177,9 +151,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 )
 
     def test_get_asum_FCM(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM = fcm.get_asum_FCM(rand_FCM)
@@ -190,9 +162,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         self.FCM_operations[i][4][j].transform_tensor(
-                            rand_FCM[self.FCM_operations[i][2]][
-                                self.FCM_operations[i][3]
-                            ]
+                            rand_FCM[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                         ),
                         rand_FCM[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                         atol=1e-04,
@@ -209,9 +179,7 @@ class PiezoSensitivityTest(PymatgenTest):
             self.assertTrue(np.allclose(asum2, np.zeros([3, 3]), atol=1e-05))
 
     def test_get_stable_FCM(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_unstable_FCM()
         rand_FCM1 = fcm.get_stable_FCM(rand_FCM)
@@ -228,9 +196,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         self.FCM_operations[i][4][j].transform_tensor(
-                            rand_FCM1[self.FCM_operations[i][2]][
-                                self.FCM_operations[i][3]
-                            ]
+                            rand_FCM1[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                         ),
                         rand_FCM1[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                         atol=1e-04,
@@ -248,9 +214,7 @@ class PiezoSensitivityTest(PymatgenTest):
 
     @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_rand_FCM(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
+        fcm = ForceConstantMatrix(self.piezo_struc, self.FCM, self.pointops, self.sharedops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
         structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struc)
@@ -282,9 +246,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         self.FCM_operations[i][4][j].transform_tensor(
-                            dynmass[self.FCM_operations[i][2]][
-                                self.FCM_operations[i][3]
-                            ]
+                            dynmass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                         ),
                         dynmass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                         atol=1e-04,
@@ -320,9 +282,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         rand_BEC[self.BEC_operations[i][0]],
-                        self.BEC_operations[i][2][j].transform_tensor(
-                            rand_BEC[self.BEC_operations[i][1]]
-                        ),
+                        self.BEC_operations[i][2][j].transform_tensor(rand_BEC[self.BEC_operations[i][1]]),
                         atol=1e-03,
                     )
                 )
@@ -332,9 +292,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         rand_IST[i],
-                        self.IST_operations[i][j][1].transform_tensor(
-                            rand_IST[self.IST_operations[i][j][0]]
-                        ),
+                        self.IST_operations[i][j][1].transform_tensor(rand_IST[self.IST_operations[i][j][0]]),
                         atol=1e-03,
                     )
                 )
@@ -368,9 +326,7 @@ class PiezoSensitivityTest(PymatgenTest):
                 self.assertTrue(
                     np.allclose(
                         self.FCM_operations[i][4][j].transform_tensor(
-                            dynmass[self.FCM_operations[i][2]][
-                                self.FCM_operations[i][3]
-                            ]
+                            dynmass[self.FCM_operations[i][2]][self.FCM_operations[i][3]]
                         ),
                         dynmass[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
                         atol=1e-04,

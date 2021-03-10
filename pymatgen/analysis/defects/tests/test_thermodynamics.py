@@ -14,19 +14,13 @@ from pymatgen.core import Element
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-
 
 class DefectsThermodynamicsTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.vbm_val = 2.6682
         cls.gap = 1.5
-        cls.entries = list(
-            loadfn(
-                os.path.join(os.path.dirname(__file__), "GaAs_test_defentries.json")
-            ).values()
-        )
+        cls.entries = list(loadfn(os.path.join(os.path.dirname(__file__), "GaAs_test_defentries.json")).values())
         for entry in cls.entries:
             entry.parameters.update({"vbm": cls.vbm_val})
         cls.pd = DefectPhaseDiagram(cls.entries, cls.vbm_val, cls.gap)
@@ -35,9 +29,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         # make Vac_As (q= -2) only defect test single-stable-charge exceptions
         cls.extra_entry = DefectEntry(cls.entries[5].defect.copy(), 100.0)
         sep_entries = [
-            ent
-            for ent in cls.entries
-            if not (ent.name == "Vac_As_mult4" and ent.charge in [-2, -1, 0, 1, 2])
+            ent for ent in cls.entries if not (ent.name == "Vac_As_mult4" and ent.charge in [-2, -1, 0, 1, 2])
         ]
         sep_entries.append(cls.extra_entry.copy())
         cls.sep_pd = DefectPhaseDiagram(sep_entries, cls.vbm_val, cls.gap)
@@ -47,15 +39,11 @@ class DefectsThermodynamicsTest(PymatgenTest):
         for entry in ls_entries:
             if entry.name == "Vac_As_mult4" and entry.charge == -2.0:
                 entry.parameters["is_compatible"] = False
-        cls.pd_ls_fcTrue = DefectPhaseDiagram(
-            ls_entries, cls.vbm_val, cls.gap, filter_compatible=True
-        )
-        cls.pd_ls_fcFalse = DefectPhaseDiagram(
-            ls_entries, cls.vbm_val, cls.gap, filter_compatible=False
-        )
+        cls.pd_ls_fcTrue = DefectPhaseDiagram(ls_entries, cls.vbm_val, cls.gap, filter_compatible=True)
+        cls.pd_ls_fcFalse = DefectPhaseDiagram(ls_entries, cls.vbm_val, cls.gap, filter_compatible=False)
 
         # load complete dos for fermi energy solving
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "complete_dos.json"), "r") as f:
             dos_dict = json.load(f)
         cls.dos = CompleteDos.from_dict(dos_dict)
 
@@ -76,9 +64,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         ]:
             self.assertTrue(
                 len(suggested_charges[k]) > 0,
-                "Could not find any suggested charges for {} with band_gap of {}".format(
-                    k, self.pd.band_gap
-                ),
+                "Could not find any suggested charges for {} with band_gap of {}".format(k, self.pd.band_gap),
             )
 
         pd = DefectPhaseDiagram(self.entries, 2.6682, 1.0)
@@ -86,9 +72,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         for k in ["Vac_As_mult4@0-1-2-3-4-5", "Vac_Ga_mult4@12-13-14-15"]:
             self.assertTrue(
                 len(suggested_charges[k]) > 0,
-                "Could not find any suggested charges for {} with band_gap of {}".format(
-                    k, pd.band_gap
-                ),
+                "Could not find any suggested charges for {} with band_gap of {}".format(k, pd.band_gap),
             )
 
         # test again but with only one charge state stable for Vac_As
@@ -123,13 +107,9 @@ class DefectsThermodynamicsTest(PymatgenTest):
         self.assertAlmostEqual(fermi_energy, 0.74139553, 3)
 
     def test_solve_for_non_equilibrium_fermi_energy(self):
-        fermi_energy = self.pd.solve_for_non_equilibrium_fermi_energy(
-            300.0, 1000.0, self.mu_elts, self.dos
-        )
+        fermi_energy = self.pd.solve_for_non_equilibrium_fermi_energy(300.0, 1000.0, self.mu_elts, self.dos)
         self.assertAlmostEqual(fermi_energy, 0.29500637, 3)
-        fermi_energy = self.pd.solve_for_non_equilibrium_fermi_energy(
-            1000.0, 1000.0, self.mu_elts, self.dos
-        )
+        fermi_energy = self.pd.solve_for_non_equilibrium_fermi_energy(1000.0, 1000.0, self.mu_elts, self.dos)
         self.assertAlmostEqual(fermi_energy, 0.7413955908839398, 3)
 
     def test_get_dopability_limits(self):

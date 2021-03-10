@@ -10,11 +10,7 @@ intercalation batteries.
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Anubhav Jain"
-__email__ = "ajain@lbl.gov"
-__date__ = "Jan 13, 2012"
-__status__ = "Beta"
+
 
 import itertools
 from dataclasses import dataclass
@@ -83,9 +79,7 @@ class InsertionElectrode(AbstractElectrode):
 
         pdentries = []
         pdentries.extend(entries)
-        pdentries.extend(
-            [PDEntry(Composition({el: 1}), element_energy) for el in elements]
-        )
+        pdentries.extend([PDEntry(Composition({el: 1}), element_energy) for el in elements])
 
         # Make phase diagram to determine which entries are stable vs. unstable
         pd = PhaseDiagram(pdentries)
@@ -94,25 +88,19 @@ class InsertionElectrode(AbstractElectrode):
             return e.composition.get_atomic_fraction(_working_ion)
 
         # stable entries ordered by amount of Li asc
-        _stable_entries = tuple(
-            sorted([e for e in pd.stable_entries if e in entries], key=lifrac)
-        )
+        _stable_entries = tuple(sorted([e for e in pd.stable_entries if e in entries], key=lifrac))
 
         # unstable entries ordered by amount of Li asc
-        _unstable_entries = tuple(
-            sorted([e for e in pd.unstable_entries if e in entries], key=lifrac)
-        )
+        _unstable_entries = tuple(sorted([e for e in pd.unstable_entries if e in entries], key=lifrac))
 
         # create voltage pairs
         _vpairs = tuple(
-            [
-                InsertionVoltagePair.from_entries(
-                    _stable_entries[i],
-                    _stable_entries[i + 1],
-                    working_ion_entry,
-                )
-                for i in range(len(_stable_entries) - 1)
-            ]
+            InsertionVoltagePair.from_entries(
+                _stable_entries[i],
+                _stable_entries[i + 1],
+                working_ion_entry,
+            )
+            for i in range(len(_stable_entries) - 1)
         )
         framework = _vpairs[0].framework
         return cls(
@@ -293,18 +281,14 @@ class InsertionElectrode(AbstractElectrode):
         """
         battery_list = []
         pair_it = (
-            self.voltage_pairs
-            if adjacent_only
-            else itertools.combinations_with_replacement(self.voltage_pairs, 2)
+            self.voltage_pairs if adjacent_only else itertools.combinations_with_replacement(self.voltage_pairs, 2)
         )
 
         ion = self.working_ion
 
         for pair in pair_it:
             entry_charge = pair.entry_charge if adjacent_only else pair[0].entry_charge
-            entry_discharge = (
-                pair.entry_discharge if adjacent_only else pair[1].entry_discharge
-            )
+            entry_discharge = pair.entry_discharge if adjacent_only else pair[1].entry_discharge
 
             chg_frac = entry_charge.composition.get_atomic_fraction(ion)
             dischg_frac = entry_discharge.composition.get_atomic_fraction(ion)
@@ -322,9 +306,7 @@ class InsertionElectrode(AbstractElectrode):
                 stable_entries = filter(in_range, self.get_stable_entries())
                 all_entries = list(stable_entries)
                 all_entries.extend(unstable_entries)
-                battery_list.append(
-                    self.__class__.from_entries(all_entries, self.working_ion_entry)
-                )
+                battery_list.append(self.__class__.from_entries(all_entries, self.working_ion_entry))
         return battery_list
 
     def get_summary_dict(self, print_subelectrodes=True) -> Dict:
@@ -355,47 +337,24 @@ class InsertionElectrode(AbstractElectrode):
                 "formula_discharge": dischg_comp.reduced_formula,
                 "max_instability": self.get_max_instability(),
                 "min_instability": self.get_min_instability(),
-                "material_ids": [
-                    itr_ent.entry_id for itr_ent in self.get_all_entries()
-                ],
-                "stable_material_ids": [
-                    itr_ent.entry_id for itr_ent in self.get_stable_entries()
-                ],
-                "unstable_material_ids": [
-                    itr_ent.entry_id for itr_ent in self.get_unstable_entries()
-                ],
+                "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
+                "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
+                "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
             }
         )
-        if all(
-            [
-                "decomposition_energy" in itr_ent.data
-                for itr_ent in self.get_all_entries()
-            ]
-        ):
+        if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update(
                 {
-                    "stability_charge": self.fully_charged_entry.data[
-                        "decomposition_energy"
-                    ],
-                    "stability_discharge": self.fully_discharged_entry.data[
-                        "decomposition_energy"
-                    ],
+                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
+                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
                     "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"]
-                        for itr_ent in self.get_all_entries()
+                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
                     },
                 }
             )
 
-        if all(["muO2" in itr_ent.data for itr_ent in self.get_all_entries()]):
-            d.update(
-                {
-                    "muO2_data": {
-                        itr_ent.entry_id: itr_ent.data["muO2"]
-                        for itr_ent in self.get_all_entries()
-                    }
-                }
-            )
+        if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
+            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
         return d
 
@@ -440,56 +399,31 @@ class InsertionElectrode(AbstractElectrode):
             "max_instability": self.get_max_instability(),
             "min_instability": self.get_min_instability(),
             "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
-            "stable_material_ids": [
-                itr_ent.entry_id for itr_ent in self.get_stable_entries()
-            ],
-            "unstable_material_ids": [
-                itr_ent.entry_id for itr_ent in self.get_unstable_entries()
-            ],
+            "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
+            "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
         }
 
-        if all(
-            [
-                "decomposition_energy" in itr_ent.data
-                for itr_ent in self.get_all_entries()
-            ]
-        ):
+        if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update(
                 {
-                    "stability_charge": self.fully_charged_entry.data[
-                        "decomposition_energy"
-                    ],
-                    "stability_discharge": self.fully_discharged_entry.data[
-                        "decomposition_energy"
-                    ],
+                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
+                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
                     "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"]
-                        for itr_ent in self.get_all_entries()
+                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
                     },
                 }
             )
 
-        if all(["muO2" in itr_ent.data for itr_ent in self.get_all_entries()]):
-            d.update(
-                {
-                    "muO2_data": {
-                        itr_ent.entry_id: itr_ent.data["muO2"]
-                        for itr_ent in self.get_all_entries()
-                    }
-                }
-            )
+        if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
+            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
         if print_subelectrodes:
 
             def f_dict(c):
-                return c.as_dict_summary(print_subelectrodes=False)
+                return c.get_summary_dict(print_subelectrodes=False)
 
-            d["adj_pairs"] = list(
-                map(f_dict, self.get_sub_electrodes(adjacent_only=True))
-            )
-            d["all_pairs"] = list(
-                map(f_dict, self.get_sub_electrodes(adjacent_only=False))
-            )
+            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
+            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
         return d
 
     def __str__(self):
@@ -499,11 +433,7 @@ class InsertionElectrode(AbstractElectrode):
         output = []
         chg_form = self.fully_charged_entry.composition.reduced_formula
         dischg_form = self.fully_discharged_entry.composition.reduced_formula
-        output.append(
-            "InsertionElectrode with endpoints at {} and {}".format(
-                chg_form, dischg_form
-            )
-        )
+        output.append("InsertionElectrode with endpoints at {} and {}".format(chg_form, dischg_form))
         output.append("Avg. volt. = {} V".format(self.get_average_voltage()))
         output.append("Grav. cap. = {} mAh/g".format(self.get_capacity_grav()))
         output.append("Vol. cap. = {}".format(self.get_capacity_vol()))
@@ -561,9 +491,9 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         entry_charge = entry1
         entry_discharge = entry2
-        if entry_charge.composition.get_atomic_fraction(
+        if entry_charge.composition.get_atomic_fraction(working_element) > entry2.composition.get_atomic_fraction(
             working_element
-        ) > entry2.composition.get_atomic_fraction(working_element):
+        ):
             (entry_charge, entry_discharge) = (entry_discharge, entry_charge)
 
         comp_charge = entry_charge.composition
@@ -571,49 +501,30 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         ion_sym = working_element.symbol
 
-        frame_charge_comp = Composition(
-            {el: comp_charge[el] for el in comp_charge if el.symbol != ion_sym}
-        )
-        frame_discharge_comp = Composition(
-            {el: comp_discharge[el] for el in comp_discharge if el.symbol != ion_sym}
-        )
+        frame_charge_comp = Composition({el: comp_charge[el] for el in comp_charge if el.symbol != ion_sym})
+        frame_discharge_comp = Composition({el: comp_discharge[el] for el in comp_discharge if el.symbol != ion_sym})
 
         # Data validation
 
         # check that the ion is just a single element
         if not working_ion_entry.composition.is_element:
-            raise ValueError(
-                "VoltagePair: The working ion specified must be " "an element"
-            )
+            raise ValueError("VoltagePair: The working ion specified must be " "an element")
 
         # check that at least one of the entries contains the working element
         if (
             not comp_charge.get_atomic_fraction(working_element) > 0
             and not comp_discharge.get_atomic_fraction(working_element) > 0
         ):
-            raise ValueError(
-                "VoltagePair: The working ion must be present in " "one of the entries"
-            )
+            raise ValueError("VoltagePair: The working ion must be present in " "one of the entries")
 
         # check that the entries do not contain the same amount of the workin
         # element
-        if comp_charge.get_atomic_fraction(
-            working_element
-        ) == comp_discharge.get_atomic_fraction(working_element):
-            raise ValueError(
-                "VoltagePair: The working ion atomic percentage "
-                "cannot be the same in both the entries"
-            )
+        if comp_charge.get_atomic_fraction(working_element) == comp_discharge.get_atomic_fraction(working_element):
+            raise ValueError("VoltagePair: The working ion atomic percentage " "cannot be the same in both the entries")
 
         # check that the frameworks of the entries are equivalent
-        if (
-            not frame_charge_comp.reduced_formula
-            == frame_discharge_comp.reduced_formula
-        ):
-            raise ValueError(
-                "VoltagePair: the specified entries must have the"
-                " same compositional framework"
-            )
+        if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
+            raise ValueError("VoltagePair: the specified entries must have the" " same compositional framework")
 
         # Initialize normalization factors, charged and discharged entries
 
@@ -648,21 +559,10 @@ class InsertionVoltagePair(AbstractVoltagePair):
         )
 
         _voltage = (
-            (
-                (entry_charge.energy / norm_charge)
-                - (entry_discharge.energy / norm_discharge)
-            )
-            / _num_ions_transferred
+            ((entry_charge.energy / norm_charge) - (entry_discharge.energy / norm_discharge)) / _num_ions_transferred
             + working_ion_entry.energy_per_atom
         ) / working_ion_valence
-        _mAh = (
-            _num_ions_transferred
-            * Charge(1, "e").to("C")
-            * Time(1, "s").to("h")
-            * N_A
-            * 1000
-            * working_ion_valence
-        )
+        _mAh = _num_ions_transferred * Charge(1, "e").to("C") * Time(1, "s").to("h") * N_A * 1000 * working_ion_valence
 
         _frac_charge = comp_charge.get_atomic_fraction(working_element)
         _frac_discharge = comp_discharge.get_atomic_fraction(working_element)
@@ -684,9 +584,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         # Step 4: add (optional) hull and muO2 data
         vpair.decomp_e_charge = entry_charge.data.get("decomposition_energy", None)
-        vpair.decomp_e_discharge = entry_discharge.data.get(
-            "decomposition_energy", None
-        )
+        vpair.decomp_e_discharge = entry_discharge.data.get("decomposition_energy", None)
 
         vpair.muO2_charge = entry_charge.data.get("muO2", None)
         vpair.muO2_discharge = entry_discharge.data.get("muO2", None)
@@ -695,19 +593,11 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            "Insertion voltage pair with working ion {}".format(
-                self.working_ion_entry.composition.reduced_formula
-            ),
+            "Insertion voltage pair with working ion {}".format(self.working_ion_entry.composition.reduced_formula),
             "V = {}, mAh = {}".format(self.voltage, self.mAh),
-            "mass_charge = {}, mass_discharge = {}".format(
-                self.mass_charge, self.mass_discharge
-            ),
-            "vol_charge = {}, vol_discharge = {}".format(
-                self.vol_charge, self.vol_discharge
-            ),
-            "frac_charge = {}, frac_discharge = {}".format(
-                self.frac_charge, self.frac_discharge
-            ),
+            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
+            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge),
+            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge),
         ]
         return "\n".join(output)
 

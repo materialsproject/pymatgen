@@ -11,8 +11,7 @@ import pandas as pd
 from pymatgen.core.structure import Molecule
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xyz import XYZ
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class XYZTest(unittest.TestCase):
@@ -26,9 +25,7 @@ class XYZTest(unittest.TestCase):
         ]
         coords2 = [[x + 10.0 for x in atom] for atom in coords]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.multi_mols = [
-            Molecule(["C", "H", "H", "H", "H"], coords) for coords in [coords, coords2]
-        ]
+        self.multi_mols = [Molecule(["C", "H", "H", "H", "H"], coords) for coords in [coords, coords2]]
         self.xyz = XYZ(self.mol)
         self.multi_xyz = XYZ(self.multi_mols)
 
@@ -127,7 +124,7 @@ C32-C2-1
         self.assertAlmostEqual(mol[3].z, -0.13790)
 
     def test_from_file(self):
-        filepath = os.path.join(test_dir, "multiple_frame_xyz.xyz")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz")
         mxyz = XYZ.from_file(filepath)
         self.assertEqual(len(mxyz.all_molecules), 302)
         self.assertEqual(
@@ -144,7 +141,7 @@ C32-C2-1
         )
 
     def test_init_from_structure(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         poscar = Poscar.from_file(filepath)
         struct = poscar.structure
         xyz = XYZ(struct)

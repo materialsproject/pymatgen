@@ -93,9 +93,7 @@ class SpaceGroupTest(unittest.TestCase):
             self.assertEqual(len(sg.symmetry_ops), sg.order)
 
     def test_get_settings(self):
-        self.assertEqual(
-            {"Fm-3m(a-1/4,b-1/4,c-1/4)", "Fm-3m"}, SpaceGroup.get_settings("Fm-3m")
-        )
+        self.assertEqual({"Fm-3m(a-1/4,b-1/4,c-1/4)", "Fm-3m"}, SpaceGroup.get_settings("Fm-3m"))
         self.assertEqual(
             {
                 "Pmmn",
@@ -176,9 +174,7 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_symmops(self):
         sg = SpaceGroup("Pnma")
-        op = SymmOp.from_rotation_and_translation(
-            [[1, 0, 0], [0, -1, 0], [0, 0, -1]], [0.5, 0.5, 0.5]
-        )
+        op = SymmOp.from_rotation_and_translation([[1, 0, 0], [0, -1, 0], [0, 0, -1]], [0.5, 0.5, 0.5])
         self.assertIn(op, sg.symmetry_ops)
 
     def test_other_settings(self):
@@ -191,17 +187,21 @@ class SpaceGroupTest(unittest.TestCase):
         with warnings.catch_warnings() as w:
             warnings.simplefilter("ignore")
             self.assertTrue(SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm")))
-            self.assertFalse(
-                SpaceGroup.from_int_number(229).is_subgroup(
-                    SpaceGroup.from_int_number(230)
-                )
-            )
+            self.assertFalse(SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230)))
 
     def test_hexagonal(self):
         sgs = [146, 148, 155, 160, 161, 166, 167]
         for sg in sgs:
             s = SpaceGroup.from_int_number(sg, hexagonal=False)
             self.assertTrue(not s.symbol.endswith("H"))
+
+    def test_string(self):
+        sg = SpaceGroup("R-3c")
+        self.assertEqual(sg.to_latex_string(), "R$\overline{3}$cH")
+        sg = SpaceGroup("P6/mmm")
+        self.assertEqual(sg.to_latex_string(), "P6/mmm")
+        sg = SpaceGroup("P4_1")
+        self.assertEqual(sg.to_unicode_string(), "P4₁")
 
 
 if __name__ == "__main__":

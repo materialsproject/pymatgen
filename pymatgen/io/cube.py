@@ -40,7 +40,8 @@ each voxel is 0.283459 units wide and the volume is aligned with the coordinate 
 import numpy as np
 from monty.io import zopen
 
-from pymatgen import Site, Structure
+from pymatgen.core.sites import Site
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_angstrom
 
 
@@ -80,20 +81,14 @@ class Cube:
         self.Z = np.array([bohr_to_angstrom * float(l) for l in line[1:]])
 
         self.voxelVolume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
-        self.volume = abs(
-            np.dot(
-                np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)
-            )
-        )
+        self.volume = abs(np.dot(np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)))
 
         # The last section in the header is one line for each atom consisting of 5 numbers,
         # the first is the atom number, second is charge, the last three are the x,y,z coordinates of the atom center.
         self.sites = []
         for i in range(self.natoms):
             line = f.readline().split()
-            self.sites.append(
-                Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:]))))
-            )
+            self.sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 
         self.structure = Structure(
             lattice=[self.X * self.NX, self.Y * self.NY, self.Z * self.NZ],

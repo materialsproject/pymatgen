@@ -28,7 +28,7 @@ def alternate(*iterables):
     """
     items = []
     for tup in zip(*iterables):
-        items.extend([item for item in tup])
+        items.extend(tup)
     return items
 
 
@@ -147,9 +147,7 @@ class AbinitTimerParser(collections.abc.Iterable):
                 # v8.3 Added two columns at the end [Speedup, Efficacity]
                 ctime, cfract, wtime, wfract, ncalls, gflops, speedup, eff = vals
 
-            return AbinitTimerSection(
-                name, ctime, cfract, wtime, wfract, ncalls, gflops
-            )
+            return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
         sections, info, cpu_time, wall_time = None, None, None, None
         data = {}
@@ -209,8 +207,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         if filename is not None:
             return [self._timers[filename][mpi_rank]]
-        else:
-            return [self._timers[filename][mpi_rank] for filename in self._filenames]
+        return [self._timers[filename][mpi_rank] for filename in self._filenames]
 
     def section_names(self, ordkey="wall_time"):
         """
@@ -271,14 +268,8 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # Compute the parallel efficiency (total and section efficiency)
         peff = {}
-        ctime_peff = [
-            (min_ncpus * ref_t.wall_time) / (t.wall_time * ncp)
-            for (t, ncp) in zip(timers, ncpus)
-        ]
-        wtime_peff = [
-            (min_ncpus * ref_t.cpu_time) / (t.cpu_time * ncp)
-            for (t, ncp) in zip(timers, ncpus)
-        ]
+        ctime_peff = [(min_ncpus * ref_t.wall_time) / (t.wall_time * ncp) for (t, ncp) in zip(timers, ncpus)]
+        wtime_peff = [(min_ncpus * ref_t.cpu_time) / (t.cpu_time * ncp) for (t, ncp) in zip(timers, ncpus)]
         n = len(timers)
 
         peff["total"] = {}
@@ -292,14 +283,8 @@ class AbinitTimerParser(collections.abc.Iterable):
             ref_sect = ref_t.get_section(sect_name)
             sects = [t.get_section(sect_name) for t in timers]
             try:
-                ctime_peff = [
-                    (min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp)
-                    for (s, ncp) in zip(sects, ncpus)
-                ]
-                wtime_peff = [
-                    (min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp)
-                    for (s, ncp) in zip(sects, ncpus)
-                ]
+                ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
+                wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
             except ZeroDivisionError:
                 ctime_peff = n * [-1]
                 wtime_peff = n * [-1]
@@ -331,25 +316,19 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         frame = pd.DataFrame(columns=colnames)
         for i, timer in enumerate(self.timers()):
-            frame = frame.append(
-                {k: getattr(timer, k) for k in colnames}, ignore_index=True
-            )
+            frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
         i = frame["tot_ncpus"].values.argmin()
         ref_wtime = frame.iloc[i]["wall_time"]
         ref_ncpus = frame.iloc[i]["tot_ncpus"]
-        frame["peff"] = (ref_ncpus * ref_wtime) / (
-            frame["wall_time"] * frame["tot_ncpus"]
-        )
+        frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
 
     @add_fig_kwargs
-    def plot_efficiency(
-        self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs
-    ):
+    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs):
         """
         Plot the parallel efficiency
 
@@ -498,8 +477,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         bottom = np.zeros(n)
         for idx, vals in enumerate(values):
             color = colors[idx]
-            bar = ax.bar(ind, vals, width, color=color, bottom=bottom)
-            bars.append(bar)
+            bar_ = ax.bar(ind, vals, width, color=color, bottom=bottom)
+            bars.append(bar_)
             bottom += vals
 
         ax.set_ylabel(key)
@@ -511,7 +490,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ax.set_xticklabels(labels, rotation=15)
 
         # Add legend.
-        ax.legend([bar[0] for bar in bars], names, loc="best")
+        ax.legend([bar_[0] for bar_ in bars], names, loc="best")
 
         return fig
 
@@ -553,7 +532,7 @@ class ParallelEfficiency(dict):
         data = []
         for (sect_name, peff) in self.items():
             # Ignore values where we had a division by zero.
-            if all([v != -1 for v in peff[key]]):
+            if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
                 # print(sect_name, values)
                 if len(values) > 1:
@@ -563,7 +542,7 @@ class ParallelEfficiency(dict):
                 data.append((sect_name, self.estimator(values)))
 
         data.sort(key=lambda t: t[1], reverse=reverse)
-        return tuple([sect_name for (sect_name, e) in data])
+        return tuple(sect_name for (sect_name, e) in data)
 
     def totable(self, stop=None, reverse=True):
         """
@@ -624,9 +603,7 @@ class AbinitTimerSection:
         """Return a fake section. Mainly used to fill missing entries if needed."""
         return AbinitTimerSection("fake", 0.0, 0.0, 0.0, 0.0, -1, 0.0)
 
-    def __init__(
-        self, name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops
-    ):
+    def __init__(self, name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops):
         """
         Args:
             name: Name of the sections.
@@ -647,7 +624,7 @@ class AbinitTimerSection:
 
     def to_tuple(self):
         """Convert object to tuple."""
-        return tuple([self.__dict__[at] for at in AbinitTimerSection.FIELDS])
+        return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
     def to_dict(self):
         """Convert object to dictionary."""
@@ -684,7 +661,7 @@ class AbinitTimer:
         """
         # Store sections and names
         self.sections = tuple(sections)
-        self.section_names = tuple([s.name for s in self.sections])
+        self.section_names = tuple(s.name for s in self.sections)
 
         self.info = info
         self.cpu_time = float(cpu_time)
@@ -780,11 +757,10 @@ class AbinitTimer:
         """
         if is_string(keys):
             return [s.__dict__[keys] for s in self.sections]
-        else:
-            values = []
-            for k in keys:
-                values.append([s.__dict__[k] for s in self.sections])
-            return values
+        values = []
+        for k in keys:
+            values.append([s.__dict__[k] for s in self.sections])
+        return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):
         """
@@ -831,7 +807,7 @@ class AbinitTimer:
 
         if sorted:
             # Sort new_values and rearrange new_names.
-            nandv = [nv for nv in zip(new_names, new_values)]
+            nandv = list(zip(new_names, new_values))
             nandv.sort(key=lambda t: t[1])
             new_names, new_values = [n[0] for n in nandv], [n[1] for n in nandv]
 

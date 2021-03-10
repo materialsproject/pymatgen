@@ -57,18 +57,12 @@ def quick_view(
             sym_i = s[i].specie.symbol
             for j in range(i + 1, s.num_sites):
                 sym_j = s[j].specie.symbol
-                max_d = (
-                    CovalentRadius.radius[sym_i]
-                    + CovalentRadius.radius[sym_j]
-                    + bond_tol
-                )
+                max_d = CovalentRadius.radius[sym_i] + CovalentRadius.radius[sym_j] + bond_tol
                 if s.get_distance(i, j, np.array([0, 0, 0])) < max_d:
                     bonds.append((i, j))
     bonds = bonds if bonds else None
 
-    mv = MolecularViewer(
-        s.cart_coords, topology={"atom_types": atom_types, "bonds": bonds}
-    )
+    mv = MolecularViewer(s.cart_coords, topology={"atom_types": atom_types, "bonds": bonds})
 
     if bonds:
         mv.ball_and_sticks(stick_radius=stick_radius)

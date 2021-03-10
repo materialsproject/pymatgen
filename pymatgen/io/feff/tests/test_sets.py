@@ -9,12 +9,11 @@ import unittest
 
 import numpy as np
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class FeffInputSetTest(unittest.TestCase):
@@ -34,7 +33,7 @@ TITLE sites: 4
 * 2 Co     0.666667     0.333333     0.003676
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
-        cif_file = os.path.join(test_dir, "CoO19128.cif")
+        cif_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "CoO19128.cif")
         cls.structure = CifParser(cif_file).get_structures()[0]
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
@@ -55,9 +54,7 @@ TITLE sites: 4
 
     def test_getfefftags(self):
         tags = self.mp_xanes.tags.as_dict()
-        self.assertEqual(
-            tags["COREHOLE"], "FSR", "Failed to generate PARAMETERS string"
-        )
+        self.assertEqual(tags["COREHOLE"], "FSR", "Failed to generate PARAMETERS string")
 
     def test_get_feffPot(self):
         POT = str(self.mp_xanes.potential)
@@ -82,9 +79,7 @@ TITLE sites: 4
         tags_dict_ans["COREHOLE"] = "RPA"
         tags_dict_ans["EDGE"] = "L1"
         user_tag_settings = {"COREHOLE": "RPA", "EDGE": "L1"}
-        mp_xanes_2 = MPXANESSet(
-            self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings
-        )
+        mp_xanes_2 = MPXANESSet(self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings)
         self.assertEqual(mp_xanes_2.tags.as_dict(), tags_dict_ans)
 
     def test_eels_to_from_dict(self):
@@ -124,9 +119,7 @@ TITLE sites: 4
             convergence_angle=6,
         )
         self.assertEqual(elnes.tags["ELNES"]["ENERGY"], user_eels_settings["ENERGY"])
-        self.assertEqual(
-            elnes.tags["ELNES"]["BEAM_ENERGY"], user_eels_settings["BEAM_ENERGY"]
-        )
+        self.assertEqual(elnes.tags["ELNES"]["BEAM_ENERGY"], user_eels_settings["BEAM_ENERGY"])
         self.assertEqual(elnes.tags["ELNES"]["ANGLES"], user_eels_settings["ANGLES"])
         self.assertEqual(elnes_2.tags["ELNES"]["BEAM_ENERGY"], [100, 0, 1, 1])
         self.assertEqual(elnes_2.tags["ELNES"]["BEAM_DIRECTION"], [1, 0, 0])
@@ -134,9 +127,7 @@ TITLE sites: 4
 
     def test_reciprocal_tags_and_input(self):
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
-        elnes = MPELNESSet(
-            self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings
-        )
+        elnes = MPELNESSet(self.absorbing_atom, self.structure, user_tag_settings=user_tag_settings)
         self.assertTrue("RECIPROCAL" in elnes.tags)
         self.assertEqual(elnes.tags["TARGET"], 3)
         self.assertEqual(elnes.tags["KMESH"], "1000")
@@ -179,7 +170,7 @@ TITLE sites: 4
         self.assertEqual(elnes.tags["KMESH"], [12, 12, 7])
 
     def test_large_systems(self):
-        struct = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "La4Fe4O12.cif"))
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
         self.assertNotIn("RECIPROCAL", elnes.tags)
@@ -190,27 +181,15 @@ TITLE sites: 4
     def test_postfeffset(self):
         self.mp_xanes.write_input(os.path.join(".", "xanes_3"))
         feff_dict_input = FEFFDictSet.from_directory(os.path.join(".", "xanes_3"))
-        self.assertTrue(
-            feff_dict_input.tags
-            == Tags.from_file(os.path.join(".", "xanes_3/feff.inp"))
-        )
-        self.assertTrue(
-            str(feff_dict_input.header())
-            == str(Header.from_file(os.path.join(".", "xanes_3/HEADER")))
-        )
+        self.assertTrue(feff_dict_input.tags == Tags.from_file(os.path.join(".", "xanes_3/feff.inp")))
+        self.assertTrue(str(feff_dict_input.header()) == str(Header.from_file(os.path.join(".", "xanes_3/HEADER"))))
         feff_dict_input.write_input("xanes_3_regen")
         origin_tags = Tags.from_file(os.path.join(".", "xanes_3/PARAMETERS"))
         output_tags = Tags.from_file(os.path.join(".", "xanes_3_regen/PARAMETERS"))
         origin_mole = Atoms.cluster_from_file(os.path.join(".", "xanes_3/feff.inp"))
-        output_mole = Atoms.cluster_from_file(
-            os.path.join(".", "xanes_3_regen/feff.inp")
-        )
-        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(
-            np.float64
-        )
-        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(
-            np.float64
-        )
+        output_mole = Atoms.cluster_from_file(os.path.join(".", "xanes_3_regen/feff.inp"))
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 
@@ -221,9 +200,7 @@ TITLE sites: 4
         shutil.rmtree(os.path.join(".", "xanes_3"))
         shutil.rmtree(os.path.join(".", "xanes_3_regen"))
 
-        reci_mp_xanes = MPXANESSet(
-            self.absorbing_atom, self.structure, user_tag_settings={"RECIPROCAL": ""}
-        )
+        reci_mp_xanes = MPXANESSet(self.absorbing_atom, self.structure, user_tag_settings={"RECIPROCAL": ""})
         reci_mp_xanes.write_input("xanes_reci")
         feff_reci_input = FEFFDictSet.from_directory(os.path.join(".", "xanes_reci"))
         self.assertTrue("RECIPROCAL" in feff_reci_input.tags)
@@ -247,34 +224,21 @@ TITLE sites: 4
         shutil.rmtree(os.path.join(".", "xanes_reci"))
 
     def test_post_distdiff(self):
-        feff_dict_input = FEFFDictSet.from_directory(
-            os.path.join(test_dir, "feff_dist_test")
-        )
+        feff_dict_input = FEFFDictSet.from_directory(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test"))
         self.assertTrue(
-            feff_dict_input.tags
-            == Tags.from_file(os.path.join(test_dir, "feff_dist_test/feff.inp"))
+            feff_dict_input.tags == Tags.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/feff.inp"))
         )
         self.assertTrue(
             str(feff_dict_input.header())
-            == str(Header.from_file(os.path.join(test_dir, "feff_dist_test/HEADER")))
+            == str(Header.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/HEADER")))
         )
         feff_dict_input.write_input("feff_dist_regen")
-        origin_tags = Tags.from_file(
-            os.path.join(test_dir, "feff_dist_test/PARAMETERS")
-        )
+        origin_tags = Tags.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/PARAMETERS"))
         output_tags = Tags.from_file(os.path.join(".", "feff_dist_regen/PARAMETERS"))
-        origin_mole = Atoms.cluster_from_file(
-            os.path.join(test_dir, "feff_dist_test/feff.inp")
-        )
-        output_mole = Atoms.cluster_from_file(
-            os.path.join(".", "feff_dist_regen/feff.inp")
-        )
-        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(
-            np.float64
-        )
-        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(
-            np.float64
-        )
+        origin_mole = Atoms.cluster_from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "feff_dist_test/feff.inp"))
+        output_mole = Atoms.cluster_from_file(os.path.join(".", "feff_dist_regen/feff.inp"))
+        original_mole_dist = np.array(origin_mole.distance_matrix[0, :]).astype(np.float64)
+        output_mole_dist = np.array(output_mole.distance_matrix[0, :]).astype(np.float64)
         original_mole_shell = [x.species_string for x in origin_mole]
         output_mole_shell = [x.species_string for x in output_mole]
 

@@ -7,7 +7,7 @@ import json
 import os
 import unittest
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,
@@ -63,12 +63,8 @@ class SubstitutionProbabilityTest(unittest.TestCase):
         s2 = Species("S", -2)
         li1 = Species("Li", 1)
         na1 = Species("Na", 1)
-        self.assertAlmostEqual(
-            sp.prob(s2, o2), 0.124342317272, 5, "probability isn't correct"
-        )
-        self.assertAlmostEqual(
-            sp.pair_corr(li1, na1), 1.65425296864, 5, "correlation isn't correct"
-        )
+        self.assertAlmostEqual(sp.prob(s2, o2), 0.124342317272, 5, "probability isn't correct")
+        self.assertAlmostEqual(sp.pair_corr(li1, na1), 1.65425296864, 5, "correlation isn't correct")
         prob = sp.cond_prob_list([o2, li1], [na1, li1])
         self.assertAlmostEqual(prob, 0.00102673915742, 5, "probability isn't correct")
 
@@ -77,16 +73,12 @@ class SubstitutionPredictorTest(unittest.TestCase):
     def test_prediction(self):
         sp = SubstitutionPredictor(threshold=8e-3)
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=True)[5]
-        cprob = sp.p.cond_prob_list(
-            result["substitutions"].keys(), result["substitutions"].values()
-        )
+        cprob = sp.p.cond_prob_list(result["substitutions"].keys(), result["substitutions"].values())
         self.assertAlmostEqual(result["probability"], cprob)
         self.assertEqual(set(result["substitutions"].values()), set(["Na+", "Cl-"]))
 
         result = sp.list_prediction(["Na+", "Cl-"], to_this_composition=False)[5]
-        cprob = sp.p.cond_prob_list(
-            result["substitutions"].keys(), result["substitutions"].values()
-        )
+        cprob = sp.p.cond_prob_list(result["substitutions"].keys(), result["substitutions"].values())
         self.assertAlmostEqual(result["probability"], cprob)
         self.assertNotEqual(set(result["substitutions"].values()), set(["Na+", "Cl-"]))
 

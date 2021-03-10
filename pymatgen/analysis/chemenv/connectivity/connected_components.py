@@ -19,16 +19,16 @@ from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
-    """
+    """Draw network of environments in a matplotlib figure axes.
 
     Args:
-        env_graph ():
-        pos ():
-        ax ():
-        sg ():
-        periodicity_vectors ():
+        env_graph: Graph of environments.
+        pos: Positions of the nodes of the environments in the 2D figure.
+        ax: Axes object in which the network should be drawn.
+        sg: Not used currently (drawing of supergraphs).
+        periodicity_vectors: List of periodicity vectors that should be drawn.
 
-    Returns:
+    Returns: None
 
     """
     for n in env_graph:
@@ -56,18 +56,15 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         n1center = np.array(n1.center)
         n2center = np.array(n2.center)
         midpoint = (n1center + n2center) / 2
-        dist = np.sqrt(
-            np.power(n2.center[0] - n1.center[0], 2)
-            + np.power(n2.center[1] - n1.center[1], 2)
-        )
+        dist = np.sqrt(np.power(n2.center[0] - n1.center[0], 2) + np.power(n2.center[1] - n1.center[1], 2))
         n1c_to_n2c = n2center - n1center
         vv = np.cross(
-            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], np.float),
-            np.array([0, 0, 1], np.float),
+            np.array([n1c_to_n2c[0], n1c_to_n2c[1], 0], np.float_),
+            np.array([0, 0, 1], np.float_),
         )
         vv /= np.linalg.norm(vv)
-        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], np.float)
-        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], np.float)
+        midarc = midpoint + rad * dist * np.array([vv[0], vv[1]], np.float_)
+        xytext_offset = 0.1 * dist * np.array([vv[0], vv[1]], np.float_)
 
         if periodicity_vectors is not None and len(periodicity_vectors) == 1:
             if np.all(np.array(delta) == np.array(periodicity_vectors[0])) or np.all(
@@ -100,9 +97,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
                     color=color,
                 )
         else:
-            ecolor = (
-                color if np.allclose(np.array(delta), np.zeros(3)) else periodic_color
-            )
+            ecolor = color if np.allclose(np.array(delta), np.zeros(3)) else periodic_color
             e = FancyArrowPatch(
                 n1center,
                 n2center,
@@ -127,18 +122,16 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
         seen[(u, v)] = rad
         ax.add_patch(e)
 
-    return e
-
 
 def make_supergraph(graph, multiplicity, periodicity_vectors):
-    """
+    """Make supergraph from a graph of environments.
 
     Args:
-        graph ():
-        multiplicity ():
-        periodicity_vectors ():
+        graph: Graph of environments.
+        multiplicity: Multiplicity of the supergraph.
+        periodicity_vectors: Periodicity vectors needed to make the supergraph.
 
-    Returns:
+    Returns: Super graph of the environments.
 
     """
     supergraph = nx.MultiGraph()
@@ -180,39 +173,27 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
                 new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-                supergraph.add_edge(
-                    new_data["start"], new_data["end"], key=key, attr_dict=new_data
-                )
+                supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
             for n1, n2, key, data in connecting_edges:
                 new_data = dict(data)
                 new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
-                new_data["end"] = np.mod(
-                    ((imult + 1) * len(nodes)) + indices_nodes[n2], len(nodes) * mult
-                )
+                new_data["end"] = np.mod(((imult + 1) * len(nodes)) + indices_nodes[n2], len(nodes) * mult)
                 new_data["delta"] = (0, 0, 0)
-                supergraph.add_edge(
-                    new_data["start"], new_data["end"], key=key, attr_dict=new_data
-                )
+                supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         imult = mult - 1
         for n1, n2, key, data in other_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = (imult * len(nodes)) + indices_nodes[n2]
-            supergraph.add_edge(
-                new_data["start"], new_data["end"], key=key, attr_dict=new_data
-            )
+            supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         for n1, n2, key, data in connecting_edges:
             new_data = dict(data)
             new_data["start"] = (imult * len(nodes)) + indices_nodes[n1]
             new_data["end"] = indices_nodes[n2]
-            supergraph.add_edge(
-                new_data["start"], new_data["end"], key=key, attr_dict=new_data
-            )
+            supergraph.add_edge(new_data["start"], new_data["end"], key=key, attr_dict=new_data)
         return supergraph
-    else:
-        raise NotImplementedError(
-            "make_supergraph not yet implemented for 2- and 3-periodic graphs"
-        )
+
+    raise NotImplementedError("make_supergraph not yet implemented for 2- and 3-periodic graphs")
 
 
 class ConnectedComponent(MSONable):
@@ -283,18 +264,14 @@ class ConnectedComponent(MSONable):
                 else:
                     edge_data = None
                 if edge_data:
-                    self._connected_subgraph.add_edge(
-                        env_node1, env_node2, key, **edge_data
-                    )
+                    self._connected_subgraph.add_edge(env_node1, env_node2, key, **edge_data)
                 else:
                     self._connected_subgraph.add_edge(env_node1, env_node2, key)
         else:
             # TODO: should check a few requirements here ?
             self._connected_subgraph = graph
 
-    def coordination_sequence(
-        self, source_node, path_size=5, coordination="number", include_source=False
-    ):
+    def coordination_sequence(self, source_node, path_size=5, coordination="number", include_source=False):
         """Get the coordination sequence for a given node.
 
         Args:
@@ -330,9 +307,7 @@ class ConnectedComponent(MSONable):
              4: {'O:6': 248, 'C:12': 306}, 5: {'O:6': 408, 'C:12': 482}, 6: {'O:6': 608, 'C:12': 698}}
         """
         if source_node not in self._connected_subgraph:
-            raise ValueError(
-                "Node not in Connected Component. Cannot find coordination sequence."
-            )
+            raise ValueError("Node not in Connected Component. Cannot find coordination sequence.")
         # Example of an infinite periodic net in two dimensions consisting of a stacking of
         # A and B lines :
         #
@@ -377,28 +352,18 @@ class ConnectedComponent(MSONable):
             elif coordination == "env:number":
                 cseq[0] = {source_node.coordination_environment: 1}
             else:
-                raise ValueError(
-                    'Coordination type "{}" is not valid for coordination_sequence.'.format(
-                        coordination
-                    )
-                )
+                raise ValueError('Coordination type "{}" is not valid for coordination_sequence.'.format(coordination))
         while path_len < path_size:
             new_ends = []
             for current_node_end, current_delta_end in current_ends:
                 for nb in self._connected_subgraph.neighbors(current_node_end):
-                    for iedge, edata in self._connected_subgraph[current_node_end][
-                        nb
-                    ].items():
-                        new_delta = current_delta_end + get_delta(
-                            current_node_end, nb, edata
-                        )
+                    for iedge, edata in self._connected_subgraph[current_node_end][nb].items():
+                        new_delta = current_delta_end + get_delta(current_node_end, nb, edata)
                         if (nb.isite, *new_delta) not in visited:
                             new_ends.append((nb, new_delta))
                             visited.add((nb.isite, *new_delta))
                         if nb.isite == current_node_end.isite:  # Handle self loops
-                            new_delta = current_delta_end - get_delta(
-                                current_node_end, nb, edata
-                            )
+                            new_delta = current_delta_end - get_delta(current_node_end, nb, edata)
                             if (nb.isite, *new_delta) not in visited:
                                 new_ends.append((nb, new_delta))
                                 visited.add((nb.isite, *new_delta))
@@ -410,11 +375,7 @@ class ConnectedComponent(MSONable):
                 myenvs = [myend.coordination_environment for myend, _ in current_ends]
                 cseq[path_len] = {myenv: myenvs.count(myenv) for myenv in set(myenvs)}
             else:
-                raise ValueError(
-                    'Coordination type "{}" is not valid for coordination_sequence.'.format(
-                        coordination
-                    )
-                )
+                raise ValueError('Coordination type "{}" is not valid for coordination_sequence.'.format(coordination))
         return cseq
 
     def __len__(self):
@@ -434,9 +395,7 @@ class ConnectedComponent(MSONable):
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError(
-                'Algorithm "{}" is not allowed to compute periodicity'.format(algorithm)
-            )
+            raise ValueError('Algorithm "{}" is not allowed to compute periodicity'.format(algorithm))
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
@@ -452,22 +411,14 @@ class ConnectedComponent(MSONable):
             # TODO: do we need to go through all test nodes ?
             this_node_cell_img_vectors = []
             if test_node in self_loop_nodes:
-                for key, edge_data in self._connected_subgraph[test_node][
-                    test_node
-                ].items():
+                for key, edge_data in self._connected_subgraph[test_node][test_node].items():
                     if edge_data["delta"] == (0, 0, 0):
-                        raise ValueError(
-                            "There should not be self loops with delta image = (0, 0, 0)."
-                        )
+                        raise ValueError("There should not be self loops with delta image = (0, 0, 0).")
                     this_node_cell_img_vectors.append(edge_data["delta"])
             for d1, d2 in itertools.combinations(this_node_cell_img_vectors, 2):
                 if d1 == d2 or d1 == tuple(-ii for ii in d2):
-                    raise ValueError(
-                        "There should not be self loops with the same (or opposite) delta image."
-                    )
-            this_node_cell_img_vectors = get_linearly_independent_vectors(
-                this_node_cell_img_vectors
-            )
+                    raise ValueError("There should not be self loops with the same (or opposite) delta image.")
+            this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
             # Here, we adopt a cutoff equal to the size of the graph, contrary to the default of networkX (size - 1),
             # because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.
             paths = []
@@ -481,16 +432,12 @@ class ConnectedComponent(MSONable):
                     node_node_neighbor_edges_data = list(
                         self._connected_subgraph[test_node][test_node_neighbor].values()
                     )
-                    for edge1_data, edge2_data in itertools.combinations(
-                        node_node_neighbor_edges_data, 2
-                    ):
+                    for edge1_data, edge2_data in itertools.combinations(node_node_neighbor_edges_data, 2):
                         delta1 = get_delta(test_node, test_node_neighbor, edge1_data)
                         delta2 = get_delta(test_node_neighbor, test_node, edge2_data)
                         this_path_deltas.append(delta1 + delta2)
                     this_node_cell_img_vectors.extend(this_path_deltas)
-                    this_node_cell_img_vectors = get_linearly_independent_vectors(
-                        this_node_cell_img_vectors
-                    )
+                    this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
                         break
                 for path in nx.all_simple_paths(
@@ -511,43 +458,30 @@ class ConnectedComponent(MSONable):
                     path.append(test_node)
                     # TODO: there are some paths that appears twice for cycles, and there are some paths that should
                     # probably not be considered
-                    this_path_deltas = [np.zeros(3, np.int)]
-                    for (node1, node2) in [
-                        (node1, path[inode1 + 1])
-                        for inode1, node1 in enumerate(path[:-1])
-                    ]:
+                    this_path_deltas = [np.zeros(3, np.int_)]
+                    for (node1, node2) in [(node1, path[inode1 + 1]) for inode1, node1 in enumerate(path[:-1])]:
                         this_path_deltas_new = []
-                        for key, edge_data in self._connected_subgraph[node1][
-                            node2
-                        ].items():
+                        for key, edge_data in self._connected_subgraph[node1][node2].items():
                             delta = get_delta(node1, node2, edge_data)
                             for current_delta in this_path_deltas:
                                 this_path_deltas_new.append(current_delta + delta)
                         this_path_deltas = this_path_deltas_new
                     this_node_cell_img_vectors.extend(this_path_deltas)
-                    this_node_cell_img_vectors = get_linearly_independent_vectors(
-                        this_node_cell_img_vectors
-                    )
+                    this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
                         breaknodeloop = True
                         break
                 if breaknodeloop:
                     break
-            this_node_cell_img_vectors = get_linearly_independent_vectors(
-                this_node_cell_img_vectors
-            )
+            this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
             independent_cell_img_vectors = this_node_cell_img_vectors
-            all_nodes_independent_cell_image_vectors.append(
-                independent_cell_img_vectors
-            )
+            all_nodes_independent_cell_image_vectors.append(independent_cell_img_vectors)
             # If we have found that the sub structure network is 3D-connected, we can stop ...
             if len(independent_cell_img_vectors) == 3:
                 break
         self._periodicity_vectors = []
         if len(all_nodes_independent_cell_image_vectors) != 0:
-            for (
-                independent_cell_img_vectors
-            ) in all_nodes_independent_cell_image_vectors:
+            for independent_cell_img_vectors in all_nodes_independent_cell_image_vectors:
                 if len(independent_cell_img_vectors) > len(self._periodicity_vectors):
                     self._periodicity_vectors = independent_cell_img_vectors
                 if len(self._periodicity_vectors) == 3:
@@ -565,10 +499,8 @@ class ConnectedComponent(MSONable):
         for cyc in cycles:
             mycyc = list(cyc)
             mycyc.append(cyc[0])
-            this_cycle_deltas = [np.zeros(3, np.int)]
-            for (node1, node2) in [
-                (node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])
-            ]:
+            this_cycle_deltas = [np.zeros(3, np.int_)]
+            for (node1, node2) in [(node1, mycyc[inode1 + 1]) for inode1, node1 in enumerate(mycyc[:-1])]:
                 this_cycle_deltas_new = []
                 for key, edge_data in self._connected_subgraph[node1][node2].items():
                     delta = get_delta(node1, node2, edge_data)
@@ -587,10 +519,8 @@ class ConnectedComponent(MSONable):
                 continue
             if len(self._connected_subgraph[n1][n2]) == 1:
                 continue
-            elif len(self._connected_subgraph[n1][n2]) > 1:
-                for iedge1, iedge2 in itertools.combinations(
-                    self._connected_subgraph[n1][n2], 2
-                ):
+            if len(self._connected_subgraph[n1][n2]) > 1:
+                for iedge1, iedge2 in itertools.combinations(self._connected_subgraph[n1][n2], 2):
                     e1data = self._connected_subgraph[n1][n2][iedge1]
                     e2data = self._connected_subgraph[n1][n2][iedge2]
                     current_delta = get_delta(n1, n2, e1data)
@@ -614,14 +544,10 @@ class ConnectedComponent(MSONable):
         Returns:
 
         """
-        supergraph = make_supergraph(
-            self._connected_subgraph, multiplicity, self._periodicity_vectors
-        )
+        supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
-    def show_graph(
-        self, graph=None, save_file=None, drawing_type="internal", pltshow=True
-    ):
+    def show_graph(self, graph=None, save_file=None, drawing_type="internal", pltshow=True):
         """
 
         Args:
@@ -645,9 +571,7 @@ class ConnectedComponent(MSONable):
         if drawing_type == "internal":
             pos = nx.shell_layout(shown_graph)
             ax = plt.gca()
-            draw_network(
-                shown_graph, pos, ax, periodicity_vectors=self._periodicity_vectors
-            )
+            draw_network(shown_graph, pos, ax, periodicity_vectors=self._periodicity_vectors)
             ax.autoscale()
             plt.axis("equal")
             plt.axis("off")
@@ -741,13 +665,12 @@ class ConnectedComponent(MSONable):
         """
         for ipv, pv in enumerate(vectors):
             nonzeros = np.nonzero(pv)[0]
-            if (len(nonzeros) > 0) and (pv[nonzeros[0]] < 0):
+            if pv[nonzeros[0]] < 0 < len(nonzeros):
                 vectors[ipv] = -pv
         return sorted(vectors, key=lambda x: x.tolist())
 
     def _order_periodicity_vectors(self):
-        """Orders the periodicity vectors.
-        """
+        """Orders the periodicity vectors."""
         if len(self._periodicity_vectors) > 3:
             raise ValueError("Number of periodicity vectors is larger than 3.")
         self._periodicity_vectors = self._order_vectors(self._periodicity_vectors)
@@ -808,22 +731,16 @@ class ConnectedComponent(MSONable):
         tree_level = 0
         while True:
             tree_level += 1
-            logging.debug(
-                "In tree level {:d} ({:d} nodes)".format(tree_level, len(current_nodes))
-            )
+            logging.debug("In tree level {:d} ({:d} nodes)".format(tree_level, len(current_nodes)))
             new_current_nodes = []
             # Loop on nodes in this level of the tree
             for node in current_nodes:
                 inode += 1
                 logging.debug(
-                    "  In node #{:d}/{:d} in level {:d} ({})".format(
-                        inode, len(current_nodes), tree_level, str(node)
-                    )
+                    "  In node #{:d}/{:d} in level {:d} ({})".format(inode, len(current_nodes), tree_level, str(node))
                 )
                 node_neighbors = list(tree.neighbors(n=node))
-                node_edges = centered_connected_subgraph.edges(
-                    nbunch=[node], data=True, keys=True
-                )
+                node_edges = centered_connected_subgraph.edges(nbunch=[node], data=True, keys=True)
                 # Loop on neighbors of a node (from the tree used)
                 for inode_neighbor, node_neighbor in enumerate(node_neighbors):
                     logging.debug(
@@ -838,46 +755,32 @@ class ConnectedComponent(MSONable):
                     already_inside = False
                     ddeltas = []
                     for n1, n2, key, edata in node_edges:
-                        if (n1 == node and n2 == node_neighbor) or (
-                            n2 == node and n1 == node_neighbor
-                        ):
+                        if (n1 == node and n2 == node_neighbor) or (n2 == node and n1 == node_neighbor):
                             if edata["delta"] == (0, 0, 0):
                                 already_inside = True
                                 thisdelta = edata["delta"]
                             else:
-                                if (
-                                    edata["start"] == node.isite
-                                    and edata["end"] != node.isite
-                                ):
+                                if edata["start"] == node.isite and edata["end"] != node.isite:
                                     thisdelta = edata["delta"]
                                 elif edata["end"] == node.isite:
-                                    thisdelta = tuple([-dd for dd in edata["delta"]])
+                                    thisdelta = tuple(-dd for dd in edata["delta"])
                                 else:
                                     raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)
                     logging.debug(
                         "        ddeltas : {}".format(
-                            ", ".join(
-                                [
-                                    "({})".format(", ".join(str(ddd) for ddd in dd))
-                                    for dd in ddeltas
-                                ]
-                            )
+                            ", ".join(["({})".format(", ".join(str(ddd) for ddd in dd)) for dd in ddeltas])
                         )
                     )
                     if ddeltas.count((0, 0, 0)) > 1:
                         raise ValueError("Should not have more than one 000 delta ...")
                     if already_inside:
-                        logging.debug(
-                            "          Edge inside the cell ... continuing to next neighbor"
-                        )
+                        logging.debug("          Edge inside the cell ... continuing to next neighbor")
                         continue
-                    logging.debug(
-                        "          Edge outside the cell ... getting neighbor back inside"
-                    )
+                    logging.debug("          Edge outside the cell ... getting neighbor back inside")
                     if (0, 0, 0) in ddeltas:
                         ddeltas.remove((0, 0, 0))
-                    myddelta = np.array(ddeltas[0], np.int)
+                    myddelta = np.array(ddeltas[0], np.int_)
                     node_neighbor_edges = centered_connected_subgraph.edges(
                         nbunch=[node_neighbor], data=True, keys=True
                     )
@@ -894,28 +797,13 @@ class ConnectedComponent(MSONable):
                         if (n1 == node_neighbor and n2 != node_neighbor) or (
                             n2 == node_neighbor and n1 != node_neighbor
                         ):
-                            if (
-                                edata["start"] == node_neighbor.isite
-                                and edata["end"] != node_neighbor.isite
-                            ):
-                                centered_connected_subgraph[n1][n2][key][
-                                    "delta"
-                                ] = tuple(
-                                    [
-                                        ii
-                                        for ii in np.array(edata["delta"], np.int)
-                                        + myddelta
-                                    ]
+                            if edata["start"] == node_neighbor.isite and edata["end"] != node_neighbor.isite:
+                                centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
+                                    np.array(edata["delta"], np.int_) + myddelta
                                 )
                             elif edata["end"] == node_neighbor.isite:
-                                centered_connected_subgraph[n1][n2][key][
-                                    "delta"
-                                ] = tuple(
-                                    [
-                                        ii
-                                        for ii in np.array(edata["delta"], np.int)
-                                        - myddelta
-                                    ]
+                                centered_connected_subgraph[n1][n2][key]["delta"] = tuple(
+                                    np.array(edata["delta"], np.int_) - myddelta
                                 )
                             else:
                                 raise ValueError("DUHH")
@@ -924,11 +812,7 @@ class ConnectedComponent(MSONable):
                                 "{}".format(
                                     str(n1),
                                     str(n2),
-                                    str(
-                                        centered_connected_subgraph[n1][n2][key][
-                                            "delta"
-                                        ]
-                                    ),
+                                    str(centered_connected_subgraph[n1][n2][key]["delta"]),
                                 )
                             )
                 new_current_nodes.extend(node_neighbors)
@@ -939,15 +823,9 @@ class ConnectedComponent(MSONable):
 
         # Check if the graph is indeed connected if "periodic" edges (i.e. whose "delta" is not 0, 0, 0) are removed
         check_centered_connected_subgraph = nx.MultiGraph()
-        check_centered_connected_subgraph.add_nodes_from(
-            centered_connected_subgraph.nodes()
-        )
+        check_centered_connected_subgraph.add_nodes_from(centered_connected_subgraph.nodes())
         check_centered_connected_subgraph.add_edges_from(
-            [
-                e
-                for e in centered_connected_subgraph.edges(data=True)
-                if np.allclose(e[2]["delta"], np.zeros(3))
-            ]
+            [e for e in centered_connected_subgraph.edges(data=True) if np.allclose(e[2]["delta"], np.zeros(3))]
         )
         if not is_connected(check_centered_connected_subgraph):
             raise RuntimeError("Could not find a centered graph.")
@@ -957,31 +835,26 @@ class ConnectedComponent(MSONable):
     def _edgekey_to_edgedictkey(key):
         if isinstance(key, int):
             return str(key)
-        elif isinstance(key, str):
+        if isinstance(key, str):
             try:
                 int(key)
-                raise RuntimeError(
-                    "Cannot pass an edge key which is a str "
-                    "representation of an int."
-                )
+                raise RuntimeError("Cannot pass an edge key which is a str " "representation of an int.")
             except ValueError:
                 return key
-        else:
-            raise ValueError("Edge key should be either a str or an int.")
+        raise ValueError("Edge key should be either a str or an int.")
 
     @staticmethod
     def _edgedictkey_to_edgekey(key):
         if isinstance(key, int):
             return key
-        elif isinstance(key, str):
+        if isinstance(key, str):
             try:
-                int(key)
+                return int(key)
             except ValueError:
                 return key
         else:
             raise ValueError(
-                "Edge key in a dict of dicts representation of a graph"
-                "should be either a str or an int."
+                "Edge key in a dict of dicts representation of a graph" "should be either a str or an int."
             )
 
     @staticmethod
@@ -1005,9 +878,7 @@ class ConnectedComponent(MSONable):
             dict: Edge data dictionary with the lists tranformed back into tuples when applicable.
         """
         edata["delta"] = tuple(edata["delta"])
-        edata["ligands"] = [
-            tuple([lig[0], tuple(lig[1]), tuple(lig[2])]) for lig in edata["ligands"]
-        ]
+        edata["ligands"] = [tuple([lig[0], tuple(lig[1]), tuple(lig[2])]) for lig in edata["ligands"]]
         return edata
 
     def as_dict(self):
@@ -1017,10 +888,7 @@ class ConnectedComponent(MSONable):
         Returns:
             dict: Bson-serializable dict representation of the ConnectedComponent object.
         """
-        nodes = {
-            "{:d}".format(node.isite): (node, data)
-            for node, data in self._connected_subgraph.nodes(data=True)
-        }
+        nodes = {"{:d}".format(node.isite): (node, data) for node, data in self._connected_subgraph.nodes(data=True)}
         node2stringindex = {node: strindex for strindex, (node, data) in nodes.items()}
         dict_of_dicts = nx.to_dict_of_dicts(self._connected_subgraph)
         new_dict_of_dicts = {}
@@ -1036,10 +904,7 @@ class ConnectedComponent(MSONable):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "nodes": {
-                strindex: (node.as_dict(), data)
-                for strindex, (node, data) in nodes.items()
-            },
+            "nodes": {strindex: (node.as_dict(), data) for strindex, (node, data) in nodes.items()},
             "graph": new_dict_of_dicts,
         }
 
@@ -1055,24 +920,17 @@ class ConnectedComponent(MSONable):
             ConnectedComponent: The connected component representing the links of a given set of environments.
         """
         nodes_map = {
-            inode_str: EnvironmentNode.from_dict(nodedict)
-            for inode_str, (nodedict, nodedata) in d["nodes"].items()
+            inode_str: EnvironmentNode.from_dict(nodedict) for inode_str, (nodedict, nodedata) in d["nodes"].items()
         }
-        nodes_data = {
-            inode_str: nodedata
-            for inode_str, (nodedict, nodedata) in d["nodes"].items()
-        }
+        nodes_data = {inode_str: nodedata for inode_str, (nodedict, nodedata) in d["nodes"].items()}
         dod = {}
         for e1, e1dict in d["graph"].items():
             dod[e1] = {}
             for e2, e2dict in e1dict.items():
                 dod[e1][e2] = {
-                    cls._edgedictkey_to_edgekey(ied): cls._retuplify_edgedata(edata)
-                    for ied, edata in e2dict.items()
+                    cls._edgedictkey_to_edgekey(ied): cls._retuplify_edgedata(edata) for ied, edata in e2dict.items()
                 }
-        graph = nx.from_dict_of_dicts(
-            dod, create_using=nx.MultiGraph, multigraph_input=True
-        )
+        graph = nx.from_dict_of_dicts(dod, create_using=nx.MultiGraph, multigraph_input=True)
         nx.set_node_attributes(graph, nodes_data)
         nx.relabel_nodes(graph, nodes_map, copy=False)
         return cls(graph=graph)
@@ -1109,16 +967,9 @@ class ConnectedComponent(MSONable):
                 out.append("  - {} with delta image cells".format(en_neighb))
                 all_deltas = sorted(
                     [
-                        get_delta(
-                            node1=en, node2=en_neighb, edge_data=edge_data
-                        ).tolist()
+                        get_delta(node1=en, node2=en_neighb, edge_data=edge_data).tolist()
                         for iedge, edge_data in self.graph[en][en_neighb].items()
                     ]
                 )
-                out.extend(
-                    [
-                        "     ({:d} {:d} {:d})".format(delta[0], delta[1], delta[2])
-                        for delta in all_deltas
-                    ]
-                )
+                out.extend(["     ({:d} {:d} {:d})".format(delta[0], delta[1], delta[2]) for delta in all_deltas])
         return "\n".join(out)

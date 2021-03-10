@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chemenv.utils.chemenv_errors module &mdash; pymatgen 2020.12.18 documentation</title>
+  <title>pymatgen.analysis.chemenv.utils.chemenv_errors module &mdash; pymatgen 2022.0.4 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,19 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.utils.coordination_geometry_utils module" href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html" />
@@ -61,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +70,7 @@
             
             
               <div class="version">
-                2020.12.18
+                2022.0.4
               </div>
             
           
@@ -88,6 +87,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,25 +99,26 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -125,7 +126,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -135,6 +135,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,13 +174,13 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
-          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
         
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
         
           <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
         
@@ -211,74 +212,70 @@
 <p>This module contains the error classes for the chemenv package.</p>
 <dl class="py exception">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError">
-<em class="property">exception </em><code class="sig-name descname">AbstractChemenvError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em>, <em class="sig-param"><span class="n">method</span></em>, <em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L19-L26"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">AbstractChemenvError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../analysis/chemenv/utils/chemenv_errors.py#L19-L35"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.BVAValencesNotFoundChemenvError">
-<em class="property">exception </em><code class="sig-name descname">BVAValencesNotFoundChemenvError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L50-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.BVAValencesNotFoundChemenvError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
+<p>Abstract class for Chemenv errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> – </p></li>
+<li><p><strong>method</strong> – </p></li>
+<li><p><strong>msg</strong> – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvError">
-<em class="property">exception </em><code class="sig-name descname">ChemenvError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em>, <em class="sig-param"><span class="n">method</span></em>, <em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L135-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">ChemenvError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../analysis/chemenv/utils/chemenv_errors.py#L85-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvStrategyError">
-<em class="property">exception </em><code class="sig-name descname">ChemenvStrategyError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em>, <em class="sig-param"><span class="n">method</span></em>, <em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L61-L68"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.ChemenvStrategyError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.ClassTypeChemenvError">
-<em class="property">exception </em><code class="sig-name descname">ClassTypeChemenvError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">object</span></em>, <em class="sig-param"><span class="n">classtype</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L29-L37"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.ClassTypeChemenvError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
+<p>Chemenv error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> – </p></li>
+<li><p><strong>method</strong> – </p></li>
+<li><p><strong>msg</strong> – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.EquivalentSiteSearchError">
-<em class="property">exception </em><code class="sig-name descname">EquivalentSiteSearchError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">site</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L81-L88"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.EquivalentSiteSearchError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">EquivalentSiteSearchError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../analysis/chemenv/utils/chemenv_errors.py#L53-L65"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.EquivalentSiteSearchError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.InitializationChemenvError">
-<em class="property">exception </em><code class="sig-name descname">InitializationChemenvError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L71-L78"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.InitializationChemenvError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
+<p>Equivalent site search error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.NeighborsNotComputedChemenvError">
-<em class="property">exception </em><code class="sig-name descname">NeighborsNotComputedChemenvError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">site</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L40-L47"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.NeighborsNotComputedChemenvError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">NeighborsNotComputedChemenvError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../analysis/chemenv/utils/chemenv_errors.py#L38-L50"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.NeighborsNotComputedChemenvError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.PenaltyFunctionError">
-<em class="property">exception </em><code class="sig-name descname">PenaltyFunctionError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L127-L132"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.PenaltyFunctionError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.RatioFunctionError">
-<em class="property">exception </em><code class="sig-name descname">RatioFunctionError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L119-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.RatioFunctionError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
+<p>Neighbors not computed error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.SolidAngleError">
-<em class="property">exception </em><code class="sig-name descname">SolidAngleError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cosinus</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L108-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.SolidAngleError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">SolidAngleError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cosinus</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/../analysis/chemenv/utils/chemenv_errors.py#L68-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.SolidAngleError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
-</dd></dl>
-
-<dl class="py exception">
-<dt id="pymatgen.analysis.chemenv.utils.chemenv_errors.VoronoiParametersError">
-<em class="property">exception </em><code class="sig-name descname">VoronoiParametersError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vp</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.18/pymatgen/analysis/chemenv/utils/chemenv_errors.py#L91-L105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.VoronoiParametersError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError" title="pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.chemenv.utils.chemenv_errors.AbstractChemenvError</span></code></a></p>
+<p>Solid angle error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cosinus</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -294,11 +291,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -309,7 +314,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

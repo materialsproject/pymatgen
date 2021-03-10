@@ -2,8 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import os
 import unittest
+
+import requests
 
 from pymatgen.ext.jhu import get_kpoints
 from pymatgen.io.vasp.inputs import Incar
@@ -16,9 +17,11 @@ __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
 __date__ = "June 22, 2017"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+
+website_is_up = requests.get("http://muellergroup.jhu.edu:8080").status_code == 200
 
 
+@unittest.skipIf(not website_is_up, "http://muellergroup.jhu.edu:8080 is down.")
 class JhuTest(PymatgenTest):
     _multiprocess_shared_ = True
 

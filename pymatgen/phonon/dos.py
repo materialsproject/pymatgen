@@ -14,9 +14,7 @@ from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 
-BOLTZ_THZ_PER_K = (
-    const.value("Boltzmann constant in Hz/K") / const.tera
-)  # Boltzmann constant in THz/K
+BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
@@ -62,10 +60,7 @@ class PhononDos(MSONable):
 
         from scipy.ndimage.filters import gaussian_filter1d
 
-        diff = [
-            self.frequencies[i + 1] - self.frequencies[i]
-            for i in range(len(self.frequencies) - 1)
-        ]
+        diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
         avgdiff = sum(diff) / len(diff)
 
         smeared_dens = gaussian_filter1d(self.densities, sigma / avgdiff)
@@ -107,9 +102,7 @@ class PhononDos(MSONable):
         Args:
             frequency: frequency to return the density for.
         """
-        return get_linear_interpolated_value(
-            self.frequencies, self.densities, frequency
-        )
+        return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
     def __str__(self):
         """
@@ -193,10 +186,7 @@ class PhononDos(MSONable):
         cv *= const.Boltzmann * const.Avogadro
 
         if structure:
-            formula_units = (
-                structure.composition.num_atoms
-                / structure.composition.reduced_composition.num_atoms
-            )
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
             cv /= formula_units
 
         return cv
@@ -230,10 +220,7 @@ class PhononDos(MSONable):
         s *= const.Boltzmann * const.Avogadro
 
         if structure:
-            formula_units = (
-                structure.composition.num_atoms
-                / structure.composition.reduced_composition.num_atoms
-            )
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
             s /= formula_units
 
         return s
@@ -267,10 +254,7 @@ class PhononDos(MSONable):
         e *= THZ_TO_J * const.Avogadro
 
         if structure:
-            formula_units = (
-                structure.composition.num_atoms
-                / structure.composition.reduced_composition.num_atoms
-            )
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
             e /= formula_units
 
         return e
@@ -304,10 +288,7 @@ class PhononDos(MSONable):
         f *= const.Boltzmann * const.Avogadro * t
 
         if structure:
-            formula_units = (
-                structure.composition.num_atoms
-                / structure.composition.reduced_composition.num_atoms
-            )
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
             f /= formula_units
 
         return f
@@ -335,10 +316,7 @@ class PhononDos(MSONable):
         zpe *= THZ_TO_J * const.Avogadro
 
         if structure:
-            formula_units = (
-                structure.composition.num_atoms
-                / structure.composition.reduced_composition.num_atoms
-            )
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
             zpe /= formula_units
 
         return zpe
@@ -360,9 +338,7 @@ class CompletePhononDos(PhononDos):
             total_dos: total Dos for structure
             pdoss: The pdoss are supplied as an {Site: Densities}
         """
-        super().__init__(
-            frequencies=total_dos.frequencies, densities=total_dos.densities
-        )
+        super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = {s: np.array(d) for s, d in pdoss.items()}
         self.structure = structure
 
@@ -393,10 +369,7 @@ class CompletePhononDos(PhononDos):
                 el_dos[el] = np.array(atom_dos)
             else:
                 el_dos[el] += np.array(atom_dos)
-        return {
-            el: PhononDos(self.frequencies, densities)
-            for el, densities in el_dos.items()
-        }
+        return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
     def from_dict(cls, d):

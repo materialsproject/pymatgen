@@ -65,9 +65,9 @@ class CoordUtilsTest(PymatgenTest):
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertFalse(find_in_coord_list(coords, test_coord))
+        self.assertEqual(find_in_coord_list(coords, test_coord).size, 0)
         self.assertEqual(find_in_coord_list(coords, test_coord, atol=0.15)[0], 0)
-        self.assertFalse(find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15))
+        self.assertEqual(find_in_coord_list([0.99, 0.99, 0.99], test_coord, atol=0.15).size, 0)
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.1, 0.1, 0.1]]
         self.assertArrayEqual(find_in_coord_list(coords, test_coord, atol=0.15), [0, 2])
 
@@ -78,18 +78,10 @@ class CoordUtilsTest(PymatgenTest):
         self.assertArrayAlmostEqual(all_distances(coords1, coords2), result, 4)
 
     def test_pbc_diff(self):
-        self.assertArrayAlmostEqual(
-            pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2]
-        )
-        self.assertArrayAlmostEqual(
-            pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11]
-        )
-        self.assertArrayAlmostEqual(
-            pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11]
-        )
-        self.assertArrayAlmostEqual(
-            pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3]
-        )
+        self.assertArrayAlmostEqual(pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]), [-0.2, -0.4, 0.2])
+        self.assertArrayAlmostEqual(pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]), [-0.4, -0.4, 0.11])
+        self.assertArrayAlmostEqual(pbc_diff([0.1, 0.6, 1.01], [0.6, 0.1, 0.9]), [-0.5, 0.5, 0.11])
+        self.assertArrayAlmostEqual(pbc_diff([100.1, 0.2, 0.3], [0123123.4, 0.5, 502312.6]), [-0.3, -0.3, -0.3])
 
     def test_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -102,7 +94,7 @@ class CoordUtilsTest(PymatgenTest):
     def test_find_in_coord_list_pbc(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         test_coord = [0.1, 0.1, 0.1]
-        self.assertFalse(find_in_coord_list_pbc(coords, test_coord))
+        self.assertEqual(find_in_coord_list_pbc(coords, test_coord).size, 0)
         self.assertEqual(find_in_coord_list_pbc(coords, test_coord, atol=0.15)[0], 0)
         test_coord = [0.99, 0.99, 0.99]
         self.assertEqual(find_in_coord_list_pbc(coords, test_coord, atol=0.02)[0], 0)

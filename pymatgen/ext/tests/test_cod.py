@@ -6,11 +6,16 @@
 import unittest
 import warnings
 
+import requests
+
 from monty.os.path import which
 
 from pymatgen.ext.cod import COD
 
+website_is_up = requests.get("https://www.crystallography.net").status_code == 200
 
+
+@unittest.skipIf(not website_is_up, "www.crystallography.net is down.")
 class CODTest(unittest.TestCase):
     _multiprocess_shared_ = True
 

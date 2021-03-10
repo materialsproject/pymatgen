@@ -12,6 +12,7 @@ following work::
 import logging
 import math
 from abc import ABCMeta
+import warnings
 
 import numpy as np
 import numpy.linalg as la
@@ -32,6 +33,13 @@ __date__ = "March 17, 2015"
 
 logger = logging.getLogger(__name__)
 
+warnings.warn(
+    "This code has been superseded by pymatgen.analysis.neb in the separate add-on package"
+    "pymatgen-diffusion. This module here is retained for backwards compatibility. It will be removed from"
+    "2022.1.1.",
+    FutureWarning,
+)
+
 
 class NEBPathfinder:
     """
@@ -41,9 +49,7 @@ class NEBPathfinder:
     in relax_sites, and is linear otherwise.
     """
 
-    def __init__(
-        self, start_struct, end_struct, relax_sites, v, n_images=20, mid_struct=None
-    ):
+    def __init__(self, start_struct, end_struct, relax_sites, v, n_images=20, mid_struct=None):
         """
         Args:
             start_struct, end_struct: Endpoint structures to interpolate
@@ -76,18 +82,12 @@ class NEBPathfinder:
         if self.__mid is not None:
             # to make arithmatic easier we will do the interpolation in two parts with n images each
             # then just take every other image at the end, this results in exactly n images
-            images_0 = self.__s1.interpolate(
-                self.__mid, nimages=self.__n_images, interpolate_lattices=False
-            )[:-1]
-            images_1 = self.__mid.interpolate(
-                self.__s2, nimages=self.__n_images, interpolate_lattices=False
-            )
+            images_0 = self.__s1.interpolate(self.__mid, nimages=self.__n_images, interpolate_lattices=False)[:-1]
+            images_1 = self.__mid.interpolate(self.__s2, nimages=self.__n_images, interpolate_lattices=False)
             images = images_0 + images_1
             images = images[::2]
         else:
-            images = self.__s1.interpolate(
-                self.__s2, nimages=self.__n_images, interpolate_lattices=False
-            )
+            images = self.__s1.interpolate(self.__s2, nimages=self.__n_images, interpolate_lattices=False)
         for site_i in self.__relax_sites:
             start_f = images[0].sites[site_i].frac_coords
             end_f = images[-1].sites[site_i].frac_coords
@@ -106,8 +106,7 @@ class NEBPathfinder:
             for image_i, image in enumerate(images):
                 image.translate_sites(
                     site_i,
-                    NEBPathfinder.__d2f(path[image_i], self.__v)
-                    - image.sites[site_i].frac_coords,
+                    NEBPathfinder.__d2f(path[image_i], self.__v) - image.sites[site_i].frac_coords,
                     frac_coords=True,
                     to_unit_cell=True,
                 )
@@ -235,12 +234,9 @@ class NEBPathfinder:
             edV = np.array(
                 [
                     [
-                        dV[0][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]]
-                        / dr[0],
-                        dV[1][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]]
-                        / dr[0],
-                        dV[2][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]]
-                        / dr[0],
+                        dV[0][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]] / dr[0],
+                        dV[1][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]] / dr[0],
+                        dV[2][int(pt[0]) % d[0]][int(pt[1]) % d[1]][int(pt[2]) % d[2]] / dr[0],
                     ]
                     for pt in s
                 ]
@@ -254,16 +250,8 @@ class NEBPathfinder:
             ds_plus[0] = ds_plus[0] - ds_plus[0]
             ds_minus[-1] = ds_minus[-1] - ds_minus[-1]
             Fpot = edV
-            Fel = (
-                keff
-                * (la.norm(ds_plus) - la.norm(ds0_plus))
-                * (ds_plus / la.norm(ds_plus))
-            )
-            Fel += (
-                keff
-                * (la.norm(ds_minus) - la.norm(ds0_minus))
-                * (ds_minus / la.norm(ds_minus))
-            )
+            Fel = keff * (la.norm(ds_plus) - la.norm(ds0_plus)) * (ds_plus / la.norm(ds_plus))
+            Fel += keff * (la.norm(ds_minus) - la.norm(ds0_minus)) * (ds_minus / la.norm(ds_minus))
             s -= h * (Fpot + Fel)
 
             # Fix endpoints
@@ -281,10 +269,7 @@ class NEBPathfinder:
             tol = la.norm((s - s0) * dr) / n_images / h
 
             if tol > 1e10:
-                raise ValueError(
-                    "Pathfinding failed, path diverged! Consider reducing h to "
-                    "avoid divergence."
-                )
+                raise ValueError("Pathfinding failed, path diverged! Consider reducing h to " "avoid divergence.")
 
             if step > min_iter and tol < max_tol:
                 logger.debug("Converged at step {}".format(step))
@@ -365,24 +350,17 @@ class StaticPotential(metaclass=ABCMeta):
         """
         v_dim = self.__v.shape
         padded_v = np.lib.pad(self.__v, ((0, 1), (0, 1), (0, 1)), mode="wrap")
-        ogrid_list = np.array(
-            [
-                list(c)
-                for c in list(np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))
-            ]
-        )
-        v_ogrid = padded_v.reshape(
-            ((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1)
-        )
+        ogrid_list = np.array([list(c) for c in list(np.ndindex(v_dim[0] + 1, v_dim[1] + 1, v_dim[2] + 1))])
+        v_ogrid = padded_v.reshape(((v_dim[0] + 1) * (v_dim[1] + 1) * (v_dim[2] + 1), -1))
         ngrid_a, ngrid_b, ngrid_c = np.mgrid[
             0 : v_dim[0] : v_dim[0] / new_dim[0],
             0 : v_dim[1] : v_dim[1] / new_dim[1],
             0 : v_dim[2] : v_dim[2] / new_dim[2],
         ]
 
-        v_ngrid = scipy.interpolate.griddata(
-            ogrid_list, v_ogrid, (ngrid_a, ngrid_b, ngrid_c), method="linear"
-        ).reshape((new_dim[0], new_dim[1], new_dim[2]))
+        v_ngrid = scipy.interpolate.griddata(ogrid_list, v_ogrid, (ngrid_a, ngrid_b, ngrid_c), method="linear").reshape(
+            (new_dim[0], new_dim[1], new_dim[2])
+        )
         self.__v = v_ngrid
 
     def gaussian_smear(self, r):
@@ -419,9 +397,9 @@ class StaticPotential(metaclass=ABCMeta):
             for g_b in np.arange(-2.0 * r_disc[1], 2.0 * r_disc[1] + 1, 1.0):
                 for g_c in np.arange(-2.0 * r_disc[2], 2.0 * r_disc[2] + 1, 1.0):
                     g = np.array([g_a / v_dim[0], g_b / v_dim[1], g_c / v_dim[2]]).T
-                    gauss_dist[int(g_a + r_disc[0])][int(g_b + r_disc[1])][
-                        int(g_c + r_disc[2])
-                    ] = (la.norm(np.dot(self.__s.lattice.matrix, g)) / r)
+                    gauss_dist[int(g_a + r_disc[0])][int(g_b + r_disc[1])][int(g_c + r_disc[2])] = (
+                        la.norm(np.dot(self.__s.lattice.matrix, g)) / r
+                    )
         gauss = scipy.stats.norm.pdf(gauss_dist)
         gauss = gauss / np.sum(gauss, dtype=float)
         padded_v = np.pad(
@@ -487,9 +465,7 @@ class FreeVolumePotential(StaticPotential):
             for b_d in np.arange(0.0, dim[1], 1.0):
                 for c_d in np.arange(0.0, dim[2], 1.0):
                     coords_f = np.array([a_d / dim[0], b_d / dim[1], c_d / dim[2]])
-                    d_f = sorted(
-                        s.get_sites_in_sphere(coords_f, s.lattice.a), key=lambda x: x[1]
-                    )[0][1]
+                    d_f = sorted(s.get_sites_in_sphere(coords_f, s.lattice.a), key=lambda x: x[1])[0][1]
                     # logger.debug(d_f)
                     gauss_dist[int(a_d)][int(b_d)][int(c_d)] = d_f / r
         v = scipy.stats.norm.pdf(gauss_dist)

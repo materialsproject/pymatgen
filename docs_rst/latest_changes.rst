@@ -1,10 +1,12 @@
 Change log
 ==========
 
-v2020.12.18
------------
-* New IsayevNN nearest-neighbor algorithm (@utf, #2011)
-* Improvements to electrode objects (@jmmshn, #2016)
-* Improvements to Element and PhaseDiagram (@jmmshn, #2005) 
-* Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (@shyuep, see issue #2010)
-* Bug fix to VASP run type detection (@rkingsbury, #2007)
+v2022.0.4 / v2021.3.9
+---------
+* Element now has `ionization_energies`, `ionization_energy` and 
+  `electron_affinity` properties.
+* Extensive documentation has been added on pymatgen compatibility and the
+  new namespace architecture! We have also released a 
+  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
+  to help new developers write add-ons for pymatgen! Check out our 
+  :doc:`contributing page</contributing>` for details.
