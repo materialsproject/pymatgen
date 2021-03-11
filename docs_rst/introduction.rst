@@ -87,16 +87,6 @@ Last but not least, one option is to pin to pymatgen==2021.*.*, which is the las
 convenience imports, if you are not planning to use future new pymatgen functionality. The new breaking change will
 become default from year 2022. Backports to 2021.*.* will still occur for critical bug fixes.
 
-Offline docs
-============
-
-If you would like to have an offline version of the docs for reference, there
-are two options:
-
-1. Clone the Github repo and the latest html docs are in the "docs" folder.
-2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to
-   "User Contributed Docsets", search for pymatgen and install.
-
 Matgenie & Examples
 ===================
 
