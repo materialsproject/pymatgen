@@ -92,8 +92,9 @@ class QChemDictSet(QCInput):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}

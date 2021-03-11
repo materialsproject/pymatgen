@@ -13,7 +13,7 @@ import sys
 
 from tabulate import tabulate, tabulate_formats
 
-from pymatgen import SETTINGS, __version__
+from pymatgen.core import SETTINGS
 from pymatgen.core.structure import Structure
 from pymatgen.cli.pmg_analyze import analyze
 from pymatgen.cli.pmg_config import configure_pmg
@@ -92,7 +92,7 @@ def main():
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
     sub-commands, type "pmg sub-command -h".""",
-        epilog="""Version: {}""".format(__version__),
+        epilog="""Author: Pymatgen Development Team""",
     )
 
     subparsers = parser.add_subparsers()

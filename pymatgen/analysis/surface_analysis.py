@@ -56,12 +56,7 @@ from pymatgen.util.plotting import pretty_plot
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
 __author__ = "Richard Tran"
-__copyright__ = "Copyright 2017, The Materials Virtual Lab"
-__version__ = "0.2"
-__maintainer__ = "Richard Tran"
 __credits__ = "Joseph Montoya, Xianguo Li"
-__email__ = "rit001@eng.ucsd.edu"
-__date__ = "8/24/17"
 
 
 class SlabEntry(ComputedStructureEntry):
@@ -207,7 +202,7 @@ class SlabEntry(ComputedStructureEntry):
         slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
             list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
-            if not any([el in list_els for el in ucell_entry.composition.as_dict().keys()]):
+            if not any(el in list_els for el in ucell_entry.composition.as_dict().keys()):
                 warnings.warn("Elemental references missing for the non-dopant species.")
 
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
@@ -289,20 +284,16 @@ class SlabEntry(ComputedStructureEntry):
         Nsurfs = 0
         # Are there adsorbates on top surface?
         if any(
-            [
-                site.species_string in self.ads_entries_dict.keys()
-                for site in struct
-                if site.frac_coords[2] > center_of_mass[2]
-            ]
+            site.species_string in self.ads_entries_dict.keys()
+            for site in struct
+            if site.frac_coords[2] > center_of_mass[2]
         ):
             Nsurfs += 1
         # Are there adsorbates on bottom surface?
         if any(
-            [
-                site.species_string in self.ads_entries_dict.keys()
-                for site in struct
-                if site.frac_coords[2] < center_of_mass[2]
-            ]
+            site.species_string in self.ads_entries_dict.keys()
+            for site in struct
+            if site.frac_coords[2] < center_of_mass[2]
         ):
             Nsurfs += 1
 
@@ -654,7 +645,7 @@ class SurfaceEnergyPlotter:
             clean_entry = list(self.all_slab_entries[hkl].keys())[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
-            if all([a == 0 for a in hkl_area_dict[hkl]]):
+            if all(a == 0 for a in hkl_area_dict[hkl]):
                 continue
             plt.plot(
                 all_chempots,

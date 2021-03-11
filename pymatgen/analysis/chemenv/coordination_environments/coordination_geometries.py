@@ -860,7 +860,7 @@ class CoordinationGeometry:
         """
         perms = []
         for eqv_indices in self.equivalent_indices:
-            perms.append(tuple([permutation[ii] for ii in eqv_indices]))
+            perms.append(tuple(permutation[ii] for ii in eqv_indices))
         perms.sort()
         return perms[0]
 

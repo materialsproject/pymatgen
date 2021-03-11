@@ -8,9 +8,14 @@ jobs:
     strategy:
       max-parallel: 20
       matrix:
-        os: [ macos-latest ]
+        os: [ macos-latest, windows-latest ]
         python-version: [ 3.8 ]
-        pkg: [ 1, 2, 3, 4 ]
+        # This distribution of tests is designed to ensure an approximately even time to finish for parallel jobs.
+        pkg:
+          - pymatgen/analysis/defects pymatgen/analysis/chemenv pymatgen/analysis/elasticity pymatgen/analysis/magnetism
+          - pymatgen/analysis --ignore=pymatgen/analysis/defects --ignore=pymatgen/analysis/chemenv --ignore=pymatgen/analysis/elasticity --ignore=pymatgen/analysis/magnetism
+          - pymatgen/electronic_structure pymatgen/symmetry pymatgen/ext pymatgen/command_line
+          - pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/electronic_structure --ignore=pymatgen/symmetry --ignore=pymatgen/ext --ignore=pymatgen/command_line
 
     runs-on: ${{ matrix.os }}
 
@@ -46,7 +51,6 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-optional.txt -r requirements-dev.txt
           pip install -e .
-      - name: pytest group ${{ matrix.pkg }}
+      - name: pytest ${{ matrix.pkg }}
         run: |
-          echo "Testing `sed -n '${{ matrix.pkg }}p' pytest-groups`"
-          pytest `sed -n '${{ matrix.pkg }}p' pytest-groups` --cov=pymatgen
+          pytest ${{ matrix.pkg }}

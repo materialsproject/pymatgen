@@ -17,7 +17,7 @@ from urllib.request import urlretrieve
 
 from monty.serialization import dumpfn, loadfn
 
-from pymatgen import SETTINGS_FILE
+from pymatgen.core import SETTINGS_FILE
 
 
 def setup_potcars(args):

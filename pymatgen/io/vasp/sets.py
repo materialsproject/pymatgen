@@ -550,10 +550,10 @@ class DictSet(VaspInputSet):
             # override this logic.
             if "LMAXMIX" not in settings.keys():
                 # contains f-electrons
-                if any([el.Z > 56 for el in structure.composition]):
+                if any(el.Z > 56 for el in structure.composition):
                     incar["LMAXMIX"] = 6
                 # contains d-electrons
-                elif any([el.Z > 20 for el in structure.composition]):
+                elif any(el.Z > 20 for el in structure.composition):
                     incar["LMAXMIX"] = 4
         else:
             for key in list(incar.keys()):
@@ -587,7 +587,7 @@ class DictSet(VaspInputSet):
                 BadInputSetWarning,
             )
 
-        if all([k.is_metal for k in structure.composition.keys()]):
+        if all(k.is_metal for k in structure.composition.keys()):
             if incar.get("NSW", 0) > 0 and incar.get("ISMEAR", 1) < 1:
                 warnings.warn(
                     "Relaxation of likely metal with ISMEAR < 1 "

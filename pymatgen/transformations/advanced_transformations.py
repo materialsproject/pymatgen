@@ -50,11 +50,6 @@ except ImportError:
     hiphive = None
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " "Alex Ganose"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 24, 2012"
 
 logger = logging.getLogger(__name__)
 
@@ -392,7 +387,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
             structure = finder.get_refined_structure()
 
         contains_oxidation_state = all(
-            [hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.composition.elements]
+            hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in structure.composition.elements
         )
 
         structures = None
@@ -444,7 +439,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         for s in structures:
             new_latt = s.lattice
             transformation = np.dot(new_latt.matrix, inv_latt)
-            transformation = tuple([tuple([int(round(cell)) for cell in row]) for row in transformation])
+            transformation = tuple(tuple(int(round(cell)) for cell in row) for row in transformation)
             if contains_oxidation_state and self.sort_criteria == "ewald":
                 if transformation not in ewald_matrices:
                     s_supercell = structure * transformation

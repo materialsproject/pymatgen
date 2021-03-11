@@ -199,7 +199,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
         """
         pass
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure):  # pylint: disable=R0201
         """
         Apply the transformation.
 

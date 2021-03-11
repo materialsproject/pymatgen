@@ -10,11 +10,7 @@ intercalation batteries.
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Anubhav Jain"
-__email__ = "ajain@lbl.gov"
-__date__ = "Jan 13, 2012"
-__status__ = "Beta"
+
 
 import itertools
 from dataclasses import dataclass
@@ -99,14 +95,12 @@ class InsertionElectrode(AbstractElectrode):
 
         # create voltage pairs
         _vpairs = tuple(
-            [
-                InsertionVoltagePair.from_entries(
-                    _stable_entries[i],
-                    _stable_entries[i + 1],
-                    working_ion_entry,
-                )
-                for i in range(len(_stable_entries) - 1)
-            ]
+            InsertionVoltagePair.from_entries(
+                _stable_entries[i],
+                _stable_entries[i + 1],
+                working_ion_entry,
+            )
+            for i in range(len(_stable_entries) - 1)
         )
         framework = _vpairs[0].framework
         return cls(
@@ -348,7 +342,7 @@ class InsertionElectrode(AbstractElectrode):
                 "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
             }
         )
-        if all(["decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()]):
+        if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update(
                 {
                     "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
@@ -359,7 +353,7 @@ class InsertionElectrode(AbstractElectrode):
                 }
             )
 
-        if all(["muO2" in itr_ent.data for itr_ent in self.get_all_entries()]):
+        if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
         return d
@@ -409,7 +403,7 @@ class InsertionElectrode(AbstractElectrode):
             "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
         }
 
-        if all(["decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()]):
+        if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update(
                 {
                     "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
@@ -420,7 +414,7 @@ class InsertionElectrode(AbstractElectrode):
                 }
             )
 
-        if all(["muO2" in itr_ent.data for itr_ent in self.get_all_entries()]):
+        if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
             d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
         if print_subelectrodes:

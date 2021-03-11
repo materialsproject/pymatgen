@@ -12,6 +12,7 @@ following work::
 import logging
 import math
 from abc import ABCMeta
+import warnings
 
 import numpy as np
 import numpy.linalg as la
@@ -31,6 +32,13 @@ __status__ = "Development"
 __date__ = "March 17, 2015"
 
 logger = logging.getLogger(__name__)
+
+warnings.warn(
+    "This code has been superseded by pymatgen.analysis.neb in the separate add-on package"
+    "pymatgen-diffusion. This module here is retained for backwards compatibility. It will be removed from"
+    "2022.1.1.",
+    FutureWarning,
+)
 
 
 class NEBPathfinder:

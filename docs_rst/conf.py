@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(".."))
 sys.path.insert(0, os.path.dirname("../pymatgen"))
 sys.path.insert(0, os.path.dirname("../.."))
 
-from pymatgen import __version__, __author__, __file__
+from pymatgen.core import __version__, __author__, __file__
 
 # -- General configuration -----------------------------------------------------
 

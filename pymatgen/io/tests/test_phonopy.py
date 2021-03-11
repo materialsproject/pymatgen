@@ -9,15 +9,14 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.io.phonopy import *
 from pymatgen.util.testing import PymatgenTest
 
-if sys.version_info >= (3, 0):
-    try:
-        from phonopy import Phonopy
-        from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
-        from phonopy.structure.atoms import PhonopyAtoms
-    except ImportError:
-        Phonopy = None
-else:
+try:
+    from phonopy import Phonopy
+    from phonopy.file_IO import parse_FORCE_CONSTANTS, write_disp_yaml
+    from phonopy.structure.atoms import PhonopyAtoms
+except ImportError as ex:
+    print(ex)
     Phonopy = None
+
 
 test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "phonopy")
 
@@ -131,6 +130,7 @@ class GetDisplacedStructuresTest(PymatgenTest):
             self.assertTrue(os.path.exists("test.yaml"))
 
 
+@unittest.skipIf(Phonopy is None, "Phonopy not present")
 class TestPhonopyFromForceConstants(unittest.TestCase):
     def setUp(self) -> None:
         test_path = Path(test_dir)

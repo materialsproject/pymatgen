@@ -166,6 +166,16 @@ class ElementBase(Enum):
         .. attribute:: coefficient_of_linear_thermal_expansion
 
             Coefficient of linear thermal expansion
+
+        .. attribute:: ground_level
+
+            Ground level for element
+
+        .. attribute:: ionization_energies
+
+            List of ionization energies. First value is the first ionization energy, second is the second ionization
+            energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
+            ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
@@ -239,12 +249,14 @@ class ElementBase(Enum):
             "coefficient_of_linear_thermal_expansion",
             "ground_state_term_symbol",
             "valence",
+            "ground_level",
+            "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
-            elif isinstance(val, dict):
+            elif isinstance(val, (list, dict)):
                 pass
             else:
                 try:
@@ -284,6 +296,20 @@ class ElementBase(Enum):
         Returns dict of data for element.
         """
         return self._data.copy()
+
+    @property
+    def ionization_energy(self) -> float:
+        """
+        First ionization energy of element.
+        """
+        return self._data["Ionization energies"][0]
+
+    @property
+    def electron_affinity(self) -> float:
+        """
+        First ionization energy of element.
+        """
+        return self._data["Electron affinity"]
 
     @property
     def electronic_structure(self) -> str:

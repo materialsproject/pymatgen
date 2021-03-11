@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.0.4 documentation</title>
   
 
   
@@ -68,7 +68,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2022.0.4
               </div>
             
           
@@ -97,6 +97,8 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -170,13 +172,16 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2021-2-16">
-<h2>v2021.2.16<a class="headerlink" href="#v2021-2-16" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2022-0-4-v2021-3-9">
+<h2>v2022.0.4 / v2021.3.9<a class="headerlink" href="#v2022-0-4-v2021-3-9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (&#64;mkhorton, #2066)</p></li>
-<li><p>Addresses missing text file, all_cg.txt, in package</p></li>
-<li><p>Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version</p></li>
-<li><p>Previous release also dropped support for aconvasp since this the interface has not been maintained</p></li>
+<li><p>Element now has <cite>ionization_energies</cite>, <cite>ionization_energy</cite> and
+<cite>electron_affinity</cite> properties.</p></li>
+<li><p>Extensive documentation has been added on pymatgen compatibility and the
+new namespace architecture! We have also released a
+<a class="reference external" href="https://github.com/materialsproject/pymatgen-addon-template">template repo</a>
+to help new developers write add-ons for pymatgen! Check out our
+<a class="reference internal" href="contributing.html"><span class="doc">contributing page</span></a> for details.</p></li>
 </ul>
 </div>
 </div>

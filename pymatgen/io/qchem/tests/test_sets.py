@@ -466,15 +466,9 @@ class OptSetTest(PymatgenTest):
 
     def test_overwrite_opt_input(self):
         test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        overwrite_inputs = {
-            "opt": {
-                "FIXED": ["1 XYZ", "2 XY"]
-                    }
-        }
+        overwrite_inputs = {"opt": {"FIXED": ["1 XYZ", "2 XY"]}}
         test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
-        act_opt = {
-                "fixed": ["1 XYZ", "2 XY"]
-        }
+        act_opt = {"fixed": ["1 XYZ", "2 XY"]}
         self.assertDictEqual(act_opt, test_OptSet.opt)
 
 

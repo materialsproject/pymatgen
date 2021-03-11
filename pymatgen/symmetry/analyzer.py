@@ -798,7 +798,7 @@ class SpacegroupAnalyzer:
                     mapped[tuple(g)] += 1
                     weights.append(mapping.count(mapping[i]))
                     break
-        if (len(mapped) != len(set(mapping))) or (not all([v == 1 for v in mapped.values()])):
+        if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
             raise ValueError("Unable to find 1:1 corresponding between input " "kpoints and irreducible grid!")
         return [w / sum(weights) for w in weights]
 
@@ -1047,7 +1047,7 @@ class PointGroupAnalyzer:
                             if len(self.rot_sym) > 1:
                                 mirror_type = "d"
                                 for v, r in self.rot_sym:
-                                    if not np.linalg.norm(v - axis) < self.tol:
+                                    if np.linalg.norm(v - axis) >= self.tol:
                                         if np.dot(v, normal) < self.tol:
                                             mirror_type = "v"
                                             break
