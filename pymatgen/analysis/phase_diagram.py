@@ -1510,6 +1510,7 @@ class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
     """
+
     pass
 
 
