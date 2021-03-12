@@ -532,11 +532,7 @@ class Lattice(MSONable):
                 np.dot(c, d),
             ]
         )
-        selling_vector = np.array(
-            [
-                s if abs(s) > tol else 0 for s in selling_vector
-            ]
-        )
+        selling_vector = np.array([s if abs(s) > tol else 0 for s in selling_vector])
 
         reduction_matrices = np.array(
             [
@@ -931,9 +927,7 @@ class Lattice(MSONable):
         for reflection_matrix in reflection_matrices:
             all_reflections.append(np.dot(selling1, reflection_matrix))
 
-        return min(
-            [np.linalg.norm(reflection - selling2) for reflection in all_reflections]
-        )
+        return min([np.linalg.norm(reflection - selling2) for reflection in all_reflections])
 
     def __repr__(self):
         outs = [
