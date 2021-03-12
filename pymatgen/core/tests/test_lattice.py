@@ -605,25 +605,17 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(len(nns[0]), 4)
 
     def test_selling_dist(self):
-        np.testing.assert_(
-            Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0
-        )
+        np.testing.assert_(Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0)
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
+        np.testing.assert_allclose(Lattice.selling_dist(hex_lattice, triclinic_lattice), 76, rtol=0.1)
         np.testing.assert_allclose(
-            Lattice.selling_dist(hex_lattice, triclinic_lattice), 76, rtol=0.1
-        )
-        np.testing.assert_allclose(
-            Lattice.selling_dist(
-                Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)
-            ),
+            Lattice.selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)),
             3.7,
             rtol=0.1,
         )
         np.testing.assert_allclose(
-            Lattice.selling_dist(
-                Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)
-            ),
+            Lattice.selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)),
             115.6,
             rtol=0.1,
         )
