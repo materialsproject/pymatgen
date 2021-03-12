@@ -1506,6 +1506,14 @@ class ReactionDiagram:
         return cpd
 
 
+class PhaseDiagramError(Exception):
+    """
+    An exception class for Phase Diagram generation.
+    """
+
+    pass
+
+
 def get_facets(qhull_data, joggle=False):
     """
     Get the simplex facets for the Convex hull.
