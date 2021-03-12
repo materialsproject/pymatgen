@@ -642,7 +642,7 @@ class LatticeTestCase(PymatgenTest):
         a3, b3, c3 = 4, 6, 7
         np.testing.assert_array_almost_equal(
             Lattice.orthorhombic(a3, b3, c3).selling_vector.round(4),
-            np.array([0, 0, 0, -(b3 ** 2), -(a3 ** 2), -(c3 ** 2)]),
+            np.array([0, 0, 0, -(a3 ** 2), -(b3 ** 2), -(c3 ** 2)]),
         )
 
 
