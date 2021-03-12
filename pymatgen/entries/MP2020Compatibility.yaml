@@ -6,23 +6,23 @@ Corrections:
     # and fluorides to make GGA and GGA+U energies compatible
     # when compat_type = "Advanced" (default)
     O:
-      V: -1.602
-      Cr: -1.894
-      Mn: -1.588
-      Fe: -2.182
-      Co: -1.535
-      Ni: -2.504
-      W: -4.57
-      Mo: -3.059
+      V: -1.605
+      Cr: -1.895
+      Mn: -1.59
+      Fe: -2.197
+      Co: -1.517
+      Ni: -2.508
+      W: -4.556
+      Mo: -3.054
     F:
-      V: -1.602
-      Cr: -1.894
-      Mn: -1.588
-      Fe: -2.182
-      Co: -1.535
-      Ni: -2.504
-      W: -4.57
-      Mo: -3.059
+      V: -1.605
+      Cr: -1.895
+      Mn: -1.59
+      Fe: -2.197
+      Co: -1.517
+      Ni: -2.508
+      W: -4.556
+      Mo: -3.054
   CompositionCorrections:
     # Composition-based corrections applied to any compound containing
     # these species as anions
@@ -38,8 +38,8 @@ Corrections:
     Se: -0.472
     Si: -0.225
     Sb: -0.192
-    Te: -0.406
-    H: -0.144
+    Te: -0.418
+    H: -0.178
     ozonide: 0
 Uncertainties:
   # Uncertainties corresponding to each energy correction (eV/atom)
@@ -52,7 +52,7 @@ Uncertainties:
       Co: 0.0059
       Ni: 0.0105
       W: 0.0181
-      Mo: 0.0085
+      Mo: 0.0086
     F:
       V: 0.006
       Cr: 0.0106
@@ -61,7 +61,7 @@ Uncertainties:
       Co: 0.0059
       Ni: 0.0105
       W: 0.0181
-      Mo: 0.0085
+      Mo: 0.0086
   CompositionCorrections:
     oxide: 0.0017
     peroxide: 0.0187

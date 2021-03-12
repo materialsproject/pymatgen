@@ -683,7 +683,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
     def test_correction_values(self):
         # test_corrections
-        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.224 * 2 - 0.706 * 3)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.197 * 2 - 0.739 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -708,7 +708,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.404 * 3 + -2.224)
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.485 * 3 + -2.197)
 
         self.assertAlmostEqual(self.compat.process_entry(self.entry_sulfide).correction, -0.592)
 
@@ -1039,11 +1039,11 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
         for ea in c.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                self.assertAlmostEqual(ea.value, -2.224 * 4)
-                self.assertAlmostEqual(ea.uncertainty, 0.0106 * 4)
+                self.assertAlmostEqual(ea.value, -2.197 * 4)
+                self.assertAlmostEqual(ea.uncertainty, 0.009 * 4)
             elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
-                self.assertAlmostEqual(ea.value, -1.556 * 2)
-                self.assertAlmostEqual(ea.uncertainty, 0.0163 * 2)
+                self.assertAlmostEqual(ea.value, -1.517 * 2)
+                self.assertAlmostEqual(ea.uncertainty, 0.0059 * 2)
             elif ea.name == "MP2020 anion correction (oxide)":
                 self.assertAlmostEqual(ea.value, -0.706 * 8)
                 self.assertAlmostEqual(ea.uncertainty, 0.0025 * 8)
