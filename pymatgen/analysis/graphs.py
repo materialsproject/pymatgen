@@ -407,8 +407,7 @@ class StructureGraph(MSONable):
         # this is a convention to avoid duplicate hops
         if to_index == from_index:
             if to_jimage == (0, 0, 0):
-                warnings.warn("Tried to create a bond to itself, "
-                              "this doesn't make sense so was ignored.")
+                warnings.warn("Tried to create a bond to itself, " "this doesn't make sense so was ignored.")
                 return
 
             # ensure that the first non-zero jimage index is positive
