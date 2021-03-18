@@ -103,7 +103,7 @@ def natural_keys(text):
     return [atoi(c) for c in re.split(r'_(\d+)', text)]
 
 
-def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
+def get_basis_and_potential(species, basis_and_potential_map, cardinality='DZVP', functional='PBE'):
     """
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
     Generally, the GTH potentials are used with the GTH basis sets.
@@ -135,16 +135,22 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
     }
-    for s in species:
-        if s not in d:
-            d[s] = {}
-        if 'sr' not in d[s]:
-            d[s]['sr'] = True
-        if 'cardinality' not in d[s]:
-            if s == 'Mg':
-                d[s]['cardinality'] = 'DZVPd'
-            else:
-                d[s]['cardinality'] = cardinality
+
+    if basis_and_potential_map == 'best':
+        with open(os.path.join(MODULE_DIR, 'best_basis.yaml'), 'rt') as f:
+            d = yaml.load(f, Loader=yaml.Loader)
+    else:
+        d = basis_and_potential_map
+        for s in species:
+            if s not in d:
+                d[s] = {}
+            if 'sr' not in d[s]:
+                d[s]['sr'] = True
+            if 'cardinality' not in d[s]:
+                if s == 'Mg':
+                    d[s]['cardinality'] = 'DZVPd'
+                else:
+                    d[s]['cardinality'] = cardinality
 
     with open(os.path.join(MODULE_DIR, 'basis_molopt.yaml'), 'rt') as f:
         data_b = yaml.load(f, Loader=yaml.Loader)

@@ -1,0 +1,175 @@
+# This yaml contains a dictionary of the best available MOLOPT basis
+# for each element. If an element is not here, then no MOLOPT basis exists
+# for it.
+Ag:
+  basis: TZV2P-MOLOPT-SR-GTH-Q11
+Al:
+  basis: TZV2P-MOLOPT-SR-GTH-q3
+Ar:
+  basis: DZVP-MOLOPT-SR-GTH-q8
+As:
+  basis: TZV2P-MOLOPT-SR-GTH-q5
+At:
+  basis: TZV2P-MOLOPT-SR-GTH-q7
+Au:
+  basis: TZV2P-MOLOPT-SR-GTH-q11
+B:
+  basis: TZV2P-MOLOPT-SR-GTH-q3
+Ba:
+  basis: TZV2P-MOLOPT-SR-GTH-q10
+Be:
+  basis: TZV2P-MOLOPT-SR-GTH-q4
+Bi:
+  basis: TZV2P-MOLOPT-SR-GTH-q5
+Br:
+  basis: TZV2PX-MOLOPT-GTH-q7
+C:
+  basis: TZV2PX-MOLOPT-GTH-q4
+Ca:
+  basis: TZV2P-MOLOPT-SR-GTH-q10
+Cd:
+  basis: TZV2P-MOLOPT-SR-GTH-q12
+Ce:
+  basis: TZV2P-MOLOPT-SR-GTH-q30
+Cl:
+  basis: DZVP-MOLOPT-SR-GTH-q7
+Co:
+  basis: TZV2P-MOLOPT-SR-GTH-q17
+Cr:
+  basis: TZV2P-MOLOPT-SR-GTH-q14
+Cs:
+  basis: TZV2P-MOLOPT-SR-GTH-q9
+Cu:
+  basis: TZV2P-MOLOPT-SR-GTH-q11
+Dy:
+  basis: TZV2P-MOLOPT-SR-GTH-q20
+Er:
+  basis: TZV2P-MOLOPT-SR-GTH-q22
+Eu:
+  basis: TZV2P-MOLOPT-SR-GTH-q17
+F:
+  basis: TZV2PX-MOLOPT-GTH-q7
+Fe:
+  basis: TZV2P-MOLOPT-SR-GTH-q16
+Ga:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+Gd:
+  basis: TZV2P-MOLOPT-SR-GTH-q18
+Ge:
+  basis: TZV2P-MOLOPT-SR-GTH-q4
+H:
+  basis: TZV2P-MOLOPT-GTH-q1
+He:
+  basis: DZVP-MOLOPT-SR-GTH-q2
+Hf:
+  basis: TZV2P-MOLOPT-SR-GTH-q12
+Hg:
+  basis: TZV2P-MOLOPT-SR-GTH-q12
+Ho:
+  basis: TZV2P-MOLOPT-SR-GTH-q21
+I:
+  basis: TZV2P-MOLOPT-SR-GTH-q7
+In:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+Ir:
+  basis: TZV2P-MOLOPT-SR-GTH-q17
+K:
+  basis: TZV2P-MOLOPT-SR-GTH-q9
+Kr:
+  basis: DZVP-MOLOPT-SR-GTH-q8
+La:
+  basis: TZV2P-MOLOPT-SR-GTH-q11
+Li:
+  basis: TZV2P-MOLOPT-SR-GTH-q3
+Lu:
+  basis: TZV2P-MOLOPT-SR-GTH-q25
+Mg:
+  basis: TZV2Pd-MOLOPT-SR-GTH-q10
+Mn:
+  basis: TZV2P-MOLOPT-SR-GTH-q15
+Mo:
+  basis: TZV2P-MOLOPT-SR-GTH-q14
+N:
+  basis: TZV2PX-MOLOPT-GTH-q5
+Na:
+  basis: TZV2Pd-MOLOPT-SR-GTH-q9
+Nb:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+Nd:
+  basis: TZV2P-MOLOPT-SR-GTH-q14
+Ne:
+  basis: DZVP-MOLOPT-SR-GTH-q8
+Ni:
+  basis: TZV2P-MOLOPT-SR-GTH-q18
+O:
+  basis: TZV2PX-MOLOPT-GTH-q6
+Os:
+  basis: TZV2P-MOLOPT-SR-GTH-q16
+P:
+  basis: TZV2PX-MOLOPT-GTH-q5
+Pb:
+  basis: TZV2P-MOLOPT-SR-GTH-q4
+Pd:
+  basis: TZV2P-MOLOPT-SR-GTH-q18
+Pm:
+  basis: TZV2P-MOLOPT-SR-GTH-q15
+Po:
+  basis: TZV2P-MOLOPT-SR-GTH-q6
+Pr:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+Pt:
+  basis: TZV2P-MOLOPT-SR-GTH-q18
+Rb:
+  basis: TZV2P-MOLOPT-SR-GTH-q9
+Re:
+  basis: TZV2P-MOLOPT-SR-GTH-q15
+Rh:
+  basis: TZV2P-MOLOPT-SR-GTH-q17
+Rn:
+  basis: DZVP-MOLOPT-SR-GTH-q8
+Ru:
+  basis: TZV2P-MOLOPT-SR-GTH-q16
+S:
+  basis: TZV2PX-MOLOPT-GTH-q6
+Sb:
+  basis: TZV2P-MOLOPT-SR-GTH-q5
+Sc:
+  basis: TZV2P-MOLOPT-SR-GTH-q11
+Se:
+  basis: TZV2P-MOLOPT-SR-GTH-q6
+Si:
+  basis: TZV2PX-MOLOPT-GTH-q4
+Sm:
+  basis: TZV2P-MOLOPT-SR-GTH-q16
+Sn:
+  basis: TZV2P-MOLOPT-SR-GTH-q4
+Sr:
+  basis: TZV2P-MOLOPT-SR-GTH-q10
+Ta:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+Tb:
+  basis: TZV2P-MOLOPT-SR-GTH-q19
+Tc:
+  basis: TZV2P-MOLOPT-SR-GTH-q15
+Te:
+  basis: TZV2P-MOLOPT-SR-GTH-q6
+Ti:
+  basis: TZV2P-MOLOPT-SR-GTH-q12
+Tl:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+Tm:
+  basis: TZV2P-MOLOPT-SR-GTH-q23
+V:
+  basis: TZV2P-MOLOPT-SR-GTH-q13
+W:
+  basis: TZV2P-MOLOPT-SR-GTH-q14
+Xe:
+  basis: DZVP-MOLOPT-SR-GTH-q8
+Y:
+  basis: TZV2P-MOLOPT-SR-GTH-q11
+Yb:
+  basis: TZV2P-MOLOPT-SR-GTH-q24
+Zn:
+  basis: TZV2P-MOLOPT-SR-GTH-q12
+Zr:
+  basis: TZV2P-MOLOPT-SR-GTH-q12
