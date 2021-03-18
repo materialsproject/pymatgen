@@ -251,7 +251,7 @@ class NearNeighbors:
         this NearNeighbors class? Note: this property is not defined for classes
         for which molecules_allowed == False.
         """
-        raise NotImplementedError("extend_structures_molecule" " is not defined!")
+        raise NotImplementedError("extend_structures_molecule is not defined!")
 
     def get_cn(self, structure, n, use_weights=False):
         """
