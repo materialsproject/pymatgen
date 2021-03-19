@@ -67,7 +67,7 @@ class Cube:
         # number of atoms included in the file followed by the position of the origin of the volumetric data
         line = f.readline().split()
         self.natoms = int(line[0])
-        self.origin = np.array(np.array(list(map(float, line[1:]))))
+        self.origin = np.array(list(map(float, line[1:])))
 
         # The next three lines give the number of voxels along each axis (x, y, z) followed by the axis vector.
         line = f.readline().split()
@@ -100,16 +100,9 @@ class Cube:
                                    coords=[s.coords for s in self.sites], coords_are_cartesian=True)
 
         # Volumetric data
-        self.data = np.zeros((self.NX, self.NY, self.NZ))
-        i = 0
-        for s in f:
-            for v in s.split():
-                self.data[
-                    int(i / (self.NY * self.NZ)),
-                    int((i / self.NZ) % self.NY),
-                    int(i % self.NZ),
-                ] = float(v)
-                i += 1
+        self.data = np.reshape(
+            np.array(f.read().split()).astype(float),
+            (self.NX, self.NY, self.NZ))
 
     def mask_sphere(self, radius, cx, cy, cz):
         """
@@ -139,7 +132,7 @@ class Cube:
                         a[x % a.shape[0], y % a.shape[1], z % a.shape[2]] = 1
         return a
 
-    def get_atomic_site_averages(self, atomic_site_radii=None, nproc=4):
+    def get_atomic_site_averages(self, atomic_site_radii):
         """
         Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
 
@@ -148,15 +141,14 @@ class Cube:
             atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
                 for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
                 not provided, then the
-            nproc (int or None): number of processes to use in calculating atomic site averages. If
-                nproc=None, then Pool will use os.cpu_count() to set nproc as the number of available
-                cpus.
-
         returns:
             Array of site averages, [Average around site 1, Average around site 2, ...]
         """
-        pool = Pool(nproc)
-        results = pool.map(self, [(s, atomic_site_radii[s.species_string]) for s in self.structure.sites])
+        pool = Pool()
+        results = pool.map(
+            self._get_atomic_site_averages,
+            [(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
+        )
         pool.close()
         pool.join()
         return results
@@ -175,11 +167,44 @@ class Cube:
         mask = self.mask_sphere(_r, *_s.frac_coords)
         return np.sum(self.data * mask) / np.count_nonzero(mask)
 
-    def __call__(self, args):
+    def get_atomic_site_totals(self, atomic_site_radii=None):
         """
-        Call function used by site averaging Pool
+            Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
+
+            Args:
+                cube (Cube): pymatgen cube object
+                atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
+                    for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
+                    not provided, then the
+                nproc (int or None): number of processes to use in calculating atomic site averages. If
+                    nproc=None, then Pool will use os.cpu_count() to set nproc as the number of available
+                    cpus.
+
+            returns:
+                Array of site averages, [Average around site 1, Average around site 2, ...]
+            """
+        pool = Pool()
+        results = pool.map(
+            self._get_atomic_site_totals,
+            [(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
+        )
+        pool.close()
+        pool.join()
+        return results
+
+    def _get_atomic_site_totals(self, args):
         """
-        return self._get_atomic_site_averages(args)
+        Helper function for get_atomic_site_averages.
+
+        Args:
+            args: (tuple) Contains the site and the atomic_site_radius for given atomic species
+
+        returns:
+            Average around the atomic site
+        """
+        _s, _r = args[0], args[1]
+        mask = self.mask_sphere(_r, *_s.frac_coords)
+        return np.sum(self.data * mask)
 
     def get_axis_grid(self, ind):
         """
