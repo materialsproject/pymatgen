@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2022.0.5
+---------
+* Bug fix to remove possibility of duplicate edges in `StructureGraph` (@mkhorton, #2095)
+
 v2022.0.4 / v2021.3.9
 ---------------------
 * Element now has `ionization_energies`, `ionization_energy` and 
