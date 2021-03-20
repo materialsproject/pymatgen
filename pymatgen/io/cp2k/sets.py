@@ -366,6 +366,7 @@ class DftSet(Cp2kInputSet):
                 )
             )
         else:
+            scf.add(Keyword('ALGORITHM', 'DAVIDSON'))
             scf.insert(Section("DIAGONALIZATION", subsections={}))
             mixing_kwds = {
                 "METHOD": Keyword('METHOD', 'BROYDEN_MIXING'),
