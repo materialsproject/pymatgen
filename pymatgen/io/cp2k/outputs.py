@@ -27,14 +27,14 @@ from pymatgen.io.xyz import XYZ
 
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
+from pymatgen.core.units import Ha_to_eV as _hartree_to_ev_
 
 __author__ = "Nicholas Winner"
-__version__ = "0.3"
+__version__ = "0.8"
 __status__ = "Development"
 
 logger = logging.getLogger(__name__)
 
-_hartree_to_ev_ = 2.72113838565563e01
 _static_run_names_ = [
     "ENERGY",
     "ENERGY_FORCE",
@@ -144,6 +144,46 @@ class Cp2kOutput:
         return self.data.get("global").get("Run_type")
 
     @property
+    def calculation_type(self):
+        """
+        Returns the calculation type (what io.vasp.outputs calls run_type)
+        """
+        LDA_TYPES = {'LDA', 'PADE', 'BECKE88', 'BECKE88_LR', 'BECKE88_LR_ADIABATIC', 'BECKE97'}
+
+        GGA_TYPES = {"PBE", 'PW92'}
+
+        HYBRID_TYPES = {'BLYP', 'B3LYP'}
+
+        METAGGA_TYPES = {"TPSS": "TPSS", "RTPSS": "revTPSS", "M06L": "M06-L", "MBJ": "modified Becke-Johnson",
+                         "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
+
+        functional = self.data.get('dft', {}).get('functional', [None])
+        ip = self.data.get('hfx', {}).get('Interaction_Potential', None)
+        frac = self.data.get('hfx', {}).get('Fraction', None)
+
+        if len(functional) > 1:
+            rt = 'Mixed: ' + ', '.join(functional)
+        else:
+            functional = functional[0]
+        if functional is None:
+            rt = ''
+        else:
+            if functional.__contains__('MGGA') or functional in METAGGA_TYPES:
+                rt = 'METAGGA'
+            elif functional.__contains__('GGA') or functional in GGA_TYPES:
+                rt = 'GGA'
+            elif functional.__contains__('LDA') or functional in LDA_TYPES:
+                rt = 'LDA'
+            elif functional.__contains__('HYB') or (ip and frac) or (functional in HYBRID_TYPES):
+                rt = 'Hybrid'
+            if self.is_hubbard:
+                rt += '+U'
+            if self.data.get('dft').get('vdw'):
+                rt += '+VDW'
+
+        return rt
+
+    @property
     def project_name(self):
         """
         What project name was used for this calculation
@@ -182,6 +222,16 @@ class Cp2kOutput:
             return True
         return False
 
+    @property
+    def is_hubbard(self):
+        """
+        returns True if hubbard +U correction was used
+        """
+        for v in self.data.get('atomic_kind_info', {}).values():
+            if 'DFT_PLUS_U' in v:
+                return True
+        return False
+
     def parse_files(self):
         """
         Identify files present in the directory with the cp2k output file. Looks for trajectories, dos, and cubes
@@ -218,11 +268,13 @@ class Cp2kOutput:
         )
         restart = glob.glob(os.path.join(self.dir, "*restart*"))
         self.filenames['restart.bak'] = []
+        self.filenames["restart"] = []
         for r in restart:
             if r.split("/")[-1].__contains__("bak"):
                 self.filenames["restart.bak"].append(r)
             else:
-                self.filenames["restart"] = r
+                self.filenames["restart"].append(r)
+
         wfn = glob.glob(os.path.join(self.dir, "*wfn*"))
         self.filenames['wfn.bak'] = []
         for w in wfn:
@@ -340,6 +392,10 @@ class Cp2kOutput:
                 gs[k['kind_number']] = True
             else:
                 gs[k['kind_number']] = False
+            for c in coord_table:
+                if int(k['kind_number']) == int(c[1]):
+                    k['element'] = c[2]
+                    break
 
         if self.is_molecule:
             self.initial_structure = Molecule(
@@ -557,6 +613,18 @@ class Cp2kOutput:
             postprocess=_postprocessor
         )
 
+    def parse_plus_u_params(self):
+        """
+        Parse the DFT+U params
+        """
+        method = re.compile(r"\s+DFT\+U\|\s+Method\s+()$")
+        self.read_pattern(
+            {"dft_plus_u_method": method},
+            terminate_on_match=True,
+            reverse=False,
+            postprocess=_postprocessor
+        )
+
     def parse_input(self):
         """
         Load in the input set from the input file (if it can be found)
@@ -627,18 +695,17 @@ class Cp2kOutput:
             postprocess=_postprocessor,
             reverse=False,
         )
-        if len(self.data["hfx"]) > 0:
-            self.data["dft"]["hfx"] = dict(self.data.pop("hfx"))
+        self.data["dft"]["hfx"] = dict(self.data.pop("hfx"))
 
         # Van der waals correction
-        vdw = re.compile(r"\s+vdW POTENTIAL\|\s+(DFT-D.)\s")
+        vdw = re.compile(r"\s+vdW POTENTIAL\|(.+)$")
         self.read_pattern(
             {"vdw": vdw},
             terminate_on_match=False,
-            postprocess=_postprocessor,
+            postprocess=lambda x: str(x).strip(),
             reverse=False,
         )
-        if len(self.data["vdw"]) > 0:
+        if self.data.get("vdw"):
             self.data["dft"]["vdw"] = self.data.pop("vdw")[0][0]
 
         poisson_periodic = {'poisson_periodicity': re.compile(r"POISSON\| Periodicity\s+(\w+)")}
@@ -738,7 +805,7 @@ class Cp2kOutput:
                 "pseudo_energy": pseudo_energy
             },
             terminate_on_match=True,
-            postprocess=str,
+            postprocess=_postprocessor,
             reverse=False,
         )
         atomic_kind_info = {}
@@ -755,7 +822,7 @@ class Cp2kOutput:
             try:
                 atomic_kind_info[kind]["valence_electrons"] = self.data.get(
                     "valence_electrons"
-                )[i][0]
+                )[i][0] or self.data.get("potential_info")[i][0].split('q')[-1]
             except (TypeError, IndexError):
                 atomic_kind_info[kind]["valence_electrons"] = None
             try:
@@ -777,6 +844,22 @@ class Cp2kOutput:
                     "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
             except (TypeError, IndexError):
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = None
+
+        with zopen(self.filename) as f:
+            j = -1
+            lines = f.readlines()
+            for k in range(len(lines)):
+                if lines[k].__contains__("MOLECULE KIND INFORMATION"):
+                    break
+                if lines[k].__contains__("Atomic kind"):
+                    j += 1
+                if lines[k].__contains__('DFT+U correction'):
+                    atomic_kind_info[_kinds[j]]['DFT_PLUS_U'] = {
+                        "L": int(lines[k + 1].split()[-1]),
+                        "U_MINUS_J": float(lines[k + 2].split()[-1])
+                    }
+                k += 1
+
         self.data["atomic_kind_info"] = atomic_kind_info
 
     def parse_total_numbers(self):
@@ -829,6 +912,7 @@ class Cp2kOutput:
             row_pattern=row,
             footer_pattern=footer,
             last_one_only=False,
+            strip_warnings=True
         )
 
         self.data["electronic_steps"] = []
@@ -1235,6 +1319,7 @@ class Cp2kOutput:
         # If number of site-projected dos == number of sites, assume they are bijective
         # and create the CompleteDos object
         _ldoss = {}
+
         if len(ldoss) == len(self.initial_structure):
             for k in self.data['ldos']:
                 _ldoss[self.initial_structure[int(k)-1]] = self.data['ldos'][k]
@@ -1301,6 +1386,7 @@ class Cp2kOutput:
         postprocess=str,
         attribute_name=None,
         last_one_only=True,
+        strip_warnings=True
     ):
         r"""
         This function originally comes from pymatgen.io.vasp.outputs Outcar class
@@ -1330,6 +1416,10 @@ class Cp2kOutput:
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
                 be returned. Default to be True.
+            strip_warnings (bool): Whether or not to strip warnings out of the file
+                in advance, which may interfere with the table pattern. Case and
+                point is the negative +U correction warning that gets printed every
+                SCF step that U<0 is detected.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
@@ -1338,7 +1428,19 @@ class Cp2kOutput:
             row_pattern.
         """
         with zopen(self.filename, "rt") as f:
-            text = f.read()
+            if strip_warnings:
+                lines = f.readlines()
+                text = ''.join(
+                    [
+                        lines[i] for i in range(1, len(lines)-1)
+                        if not lines[i].strip().startswith('*')
+                        and not lines[i-1].strip().startswith('*')
+                        and not lines[i+1].strip().startswith('*')
+                    ]
+                )
+            else:
+                text = f.read()
+
         table_pattern_text = (
             header_pattern
             + r"\s*^(?P<table_body>(?:\s+"
@@ -1380,9 +1482,11 @@ class Cp2kOutput:
         d["input"]["dft"] = self.data.get("dft", None)
         d["input"]["scf"] = self.data.get("scf", None)
         d['input']['qs'] = self.data.get('QS', None)
+        d['input']['run_type'] = self.run_type
+        d['input']['calculation_type'] = self.calculation_type
         d["input"]["structure"] = self.initial_structure.as_dict()
         d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info", None)
-        d["input"]["cp2k_input"] = self.input
+        d["input"]["cp2k_input"] = self.input.as_dict()
         d["ran_successfully"] = self.completed
         d["cp2k_version"] = self.cp2k_version
         d["output"]["structure"] = self.final_structure.as_dict()
@@ -1497,7 +1601,8 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
 
         header = [cp2k_to_pmg_labels(h) for h in header]
 
-        data = dat[:, 1:]
+        data = np.delete(dat, 0, 1)
+        data = np.delete(data, 1, 1)
         data[:, 0] *= _hartree_to_ev_
         energies = data[:, 0]
         data = gauss_smear(data, sigma)
@@ -1508,7 +1613,7 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
                     Dos(
                         efermi=efermi,
                         energies=energies,
-                        densities={spin: data[:, i+2]}
+                        densities={spin: data[:, i]}
                     ) for i, h in enumerate(header)
             }
         }
@@ -1524,7 +1629,9 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
 
 
 def gauss_smear(data, width):
-    """Return a gaussian smeared DOS"""
+    """
+    Return a gaussian smeared DOS
+    """
 
     if not width:
         return data
