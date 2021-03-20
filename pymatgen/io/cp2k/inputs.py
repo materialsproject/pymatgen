@@ -22,7 +22,8 @@ from typing import Dict, List, Tuple, Union, Sequence
 from monty.json import MSONable
 from monty.io import zopen
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
-from pymatgen import Lattice, Structure, Molecule
+from pymatgen import Lattice, Structure, Molecule, Element
+
 
 __author__ = "Nicholas Winner"
 __version__ = "0.3"
@@ -465,7 +466,7 @@ class Section(MSONable):
         Mongo style dict modification. Include.
         """
         for k, v in d.items():
-            if isinstance(v, (str, float, bool, int)):
+            if isinstance(v, (str, float, bool, int, list)):
                 v = Keyword(k, v)
             if isinstance(v, (Keyword, Section, KeywordList)):
                 self.add(v)
@@ -1260,6 +1261,13 @@ class Kind(Section):
 
         self.description = "The description of the kind of the atoms (mostly for QM)"
 
+        # Special case for closed-shell elements. Cannot impose magnetization in cp2k.
+        if Element(self.specie).Z in {
+            2, 4, 10, 12, 18, 20, 30, 36, 38,
+            48, 54, 56, 70, 80, 86, 88, 102, 112, 118
+        }:
+            self.magnetization = 0
+
         keywords = {
             "ELEMENT": Keyword("ELEMENT", specie.__str__()),
             "MAGNETIZATION": Keyword("MAGNETIZATION", magnetization),
@@ -1550,7 +1558,7 @@ class E_Density_Cube(Section):
             "E_DENSITY_CUBE",
             subsections={},
             description=description,
-            keywords={},
+            keywords={'STRIDE': Keyword('STRIDE', kwargs.get('stride', [1, 1, 1]))},
             **kwargs
         )
 
@@ -1595,17 +1603,17 @@ class BrokenSymmetry(Section):
     """
     Define the required atomic orbital occupation assigned in initialization
     of the density matrix, by adding or subtracting electrons from specific
-    angular momentum channels. It works only with GUESS ATOMIC
+    angular momentum channels. It works only with GUESS ATOMIC.
     """
 
     def __init__(
         self,
-        l_alpha: int = -1,
-        n_alpha: int = 0,
-        nel_alpha: int = -1,
-        l_beta: int = -1,
-        n_beta: int = 0,
-        nel_beta: int = -1,
+        l_alpha: Sequence = (-1,),
+        n_alpha: Sequence = (0,),
+        nel_alpha: Sequence = (-1,),
+        l_beta: Sequence = (-1,),
+        n_beta: Sequence = (0,),
+        nel_beta: Sequence = (-1,),
     ):
         """
         Initialize the broken symmetry section
@@ -1635,18 +1643,18 @@ class BrokenSymmetry(Section):
         )
 
         keywords_alpha = {
-            "L": Keyword("L", l_alpha),
-            "N": Keyword("N", n_alpha),
-            "NEL": Keyword("NEL", nel_alpha),
+            "L": Keyword("L", *map(int, l_alpha)),
+            "N": Keyword("N", *map(int, n_alpha)),
+            "NEL": Keyword("NEL", *map(int, nel_alpha)),
         }
         alpha = Section(
             "ALPHA", keywords=keywords_alpha, subsections={}, repeats=False
         )
 
         keywords_beta = {
-            "L": Keyword("L", l_beta),
-            "N": Keyword("N", n_beta),
-            "NEL": Keyword("NEL", nel_beta),
+            "L": Keyword("L", *map(int, l_beta)),
+            "N": Keyword("N", *map(int, n_beta)),
+            "NEL": Keyword("NEL", *map(int, nel_beta)),
         }
         beta = Section(
             "BETA", keywords=keywords_beta, subsections={}, repeats=False
@@ -1659,6 +1667,75 @@ class BrokenSymmetry(Section):
             keywords={},
             repeats=False,
         )
+
+    @classmethod
+    def from_el(cls, el, oxi_state=0, spin=0):
+        """
+        Create section from element, oxidation state, and spin.
+        """
+        el = el if isinstance(el, Element) else Element(el)
+
+        def f(x):
+            return {'s': 0, 'p': 1, 'd': 2, 'f': 4}.get(x)
+
+        def f2(x):
+            return {0: 2, 1: 6, 2: 10, 3: 14}.get(x)
+
+        def f3(x):
+            return {0: 2, 1: 6, 2: 10, 3: 14}.get(x)
+
+        es = el.electronic_structure
+        esv = [(int(_[0]), f(_[1]), int(_[2:])) for _ in es.split('.') if '[' not in _]
+        esv.sort(key=lambda x: (x[0], x[1]), reverse=True)
+
+        tmp = oxi_state
+        l_alpha = []
+        l_beta = []
+        nel_alpha = []
+        nel_beta = []
+        n_alpha = []
+        n_beta = []
+        unpaired_orbital = None
+        while tmp:
+            if tmp > 0:
+                tmp2 = -min(
+                        (esv[0][2], tmp)
+                    )
+            else:
+                tmp2 = min(
+                    (f2(esv[0][1])-esv[0][2], -tmp)
+                )
+            l_alpha.append(esv[0][1])
+            l_beta.append(esv[0][1])
+            nel_alpha.append(tmp2)
+            nel_beta.append(tmp2)
+            n_alpha.append(esv[0][0])
+            n_beta.append(esv[0][0])
+            tmp += tmp2
+            unpaired_orbital = esv[0][0], esv[0][1], esv[0][2] + tmp2
+            esv.pop(0)
+
+        if spin == 'low-up':
+            spin = unpaired_orbital[2] % 2
+        elif spin == 'low-down':
+            spin = -(unpaired_orbital[2] % 2)
+        elif spin == 'high-up':
+            spin = unpaired_orbital[2] % (f2(unpaired_orbital[1])//2)
+        elif spin == 'high-down':
+            spin = -(unpaired_orbital[2] % (f2(unpaired_orbital[1])//2))
+
+        if spin:
+            for i in reversed(range(len(nel_alpha))):
+                nel_alpha[i] += min((spin, f3(l_alpha[i])-oxi_state))
+                nel_beta[i] -= min((spin, f3(l_beta[i])-oxi_state))
+                if spin > 0:
+                    spin -= min((spin, f3(l_alpha[i])-oxi_state))
+                else:
+                    spin += min((spin, f3(l_beta[i])-oxi_state))
+
+        return BrokenSymmetry(l_alpha=l_alpha, l_beta=l_beta,
+                              nel_alpha=nel_alpha, nel_beta=nel_beta,
+                              n_beta=n_beta, n_alpha=n_alpha)
 
 
 class XC_FUNCTIONAL(Section):
@@ -1860,7 +1937,11 @@ class Kpoints(Section):
         kpoints = k['kpoints']
         weights = k['kpts_weights']
         scheme = k['generation_style']
-        if scheme.lower() == 'Monkhorst':
+        if scheme.lower() == 'monkhorst':
+            scheme = 'MONKHORST-PACK'
+        else:
+            warnings.warn('No automatic constructor for this scheme'
+                          'defaulting to monkhorst-pack grid.')
             scheme = 'MONKHORST-PACK'
         units = k['coord_type']
         if k['coord_type']:
