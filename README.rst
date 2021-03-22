@@ -1,20 +1,21 @@
-**Official docs:** http://www.pymatgen.org
+.. image:: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg
+      :alt: CI Status
+      :target: https://github.com/materialsproject/pymatgen/actions/workflows/test.yml
 
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
-
-.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
-
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
+.. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
+      :alt: Conda Downloads
 
 .. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
+      :alt: Coveralls Coverage Report
+      :target: https://coveralls.io/github/materialsproject/pymatgen?branch=master
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive input/output support, including support for VASP
-   (http://cms.mpi.univie.ac.at/vasp/), ABINIT (http://www.abinit.org/), CIF,
+2. Extensive input/output support, including support for `VASP
+   <http://cms.mpi.univie.ac.at/vasp>`_, `ABINIT <http://www.abinit.org>`_, CIF,
    Gaussian, XYZ, and many other file formats.
 3. Powerful analysis tools, including generation of phase diagrams, Pourbaix
    diagrams, diffusion analyses, reactions, etc.
@@ -24,72 +25,89 @@ for materials analysis. These are some of the main features:
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's `Github page
-<https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups page
-<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
+reports. The following are resources for pymatgen:
+
+* `Official documentation <http://pymatgen.org>`_
+* Offline docs: HTML are in the pymatgen Github repo's `docs` folder. `Dash <http://kapeli.com/dash>`_ or
+  `Zeal <http://zealdocs.org/>`_ docs can be searched and downloaded from "User Contributed Docsets".
+* Bug reports or feature requests: Please submit a `GitHub Issue <http://github.com/materialsproject/pymatgen/issues>`_.
+* Code contributions via `pull requests <https://github.com/materialsproject/pymatgen/pulls>`_ welcome.
+* For help with usage that are unrelated to bugs or feature requests, please use the pymatgen `Discourse page
+  <https://discuss.matsci.org/c/pymatgen>`_.
+* `matgenb <http://matgenb.materialsvirtuallab.org>`_ provides some Jupyter notebooks demonstrating functionality.
+* Follow us on `Twitter <http://twitter.com/pymatgen>`_ to get news and tips.
+
+Major Announcement (v2022.0.*)
+==============================
+
+A **backwards incompatible** change has been introduced in v2022.0.*. Pymatgen root-level convenience imports have been
+removed from in preparation for a change to a more modular, extensible namespace package architecture that will allow
+more developers to contribute. If your existing code uses `from pymatgen import <something>`, you will need to make
+modifications. MPRester should now be imported from `pymatgen.ext.matproj`. All other convenience objects such as
+`Element`, `Species`, `Lattice`, `Structure`, etc. should be imported from `pymatgen.core`. There are a few simple ways
+you can respond to this change:
+
+* To migrate your code to be compatible with v2022.0.* (it will still be compatible with pymatgen<=2022.0.0 since all
+  the imports were already available in previous versions), you need to replace all instances of
+  `from pymatgen import MPRester` with `from pymatgen.ext.matproj import MPRester`, followed by replacing all instances
+  of `from pymatgen import` with `from pymatgen.core import`. These two steps have to be done in that sequence, since
+  MPRester and the other core imports exist in different subpackages. The easiest way is to use an IDE such
+  as Pycharm to run a `Replace in Files` on the root directory of your code.
+* The pymatgen maintainers have also come up with the following terminal commands you can use to perform the migration.
+  On a Mac::
+
+    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
+
+  On Linux::
+
+    find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+    find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
+
+  This should resolve most import errors, though you may have to fix a few issues manually, e.g., if your code contains
+  something like `from pymatgen import Element, MPRester`, which will now need to be split into two lines.
+
+Last but not least, one option is to pin to pymatgen==2021.*.*, which is the last version to contain the root-level
+convenience imports, if you are not planning to use future new pymatgen functionality. The new breaking change will
+become default from year 2022. Backports to 2021.*.* will still occur for critical bug fixes.
 
 Why use pymatgen?
 =================
 
-There are many materials analysis codes out there, both commerical and free,
-but pymatgen offer several advantages:
-
-1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers,
-   and is the analysis code powering the `Materials Project`_. The analysis it
-   produces survives rigorous scrutiny every single day. Bugs tend to be
-   found and corrected quickly. Pymatgen also uses
-   `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
-   for continuous integration on the Linux and Windows platforms,
-   respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen on
-   `coveralls.io <https://coveralls.io/github/materialsproject/pymatgen>`_.
-2. **It is well documented.** A fairly comprehensive documentation has been
-   written to help you get to grips with it quickly.
-3. **It is open.** You are free to use and contribute to pymatgen. It also means
-   that pymatgen is continuously being improved. We will attribute any code you
-   contribute to any publication you specify. Contributing to pymatgen means
+1. **It is (fairly) robust.** Pymatgen is used by thousands of researchers, and is the analysis code powering the
+   `Materials Project`_. The analysis it produces survives rigorous scrutiny every single day. Bugs tend to be
+   found and corrected quickly. Pymatgen also uses Github Actions for continuous integration, which ensures that every
+   new code passes a comprehensive suite of unittests.
+2. **It is well documented.** A fairly comprehensive documentation has been written to help you get to grips with it
+   quickly.
+3. **It is open.** You are free to use and contribute to pymatgen. It also means that pymatgen is continuously being
+   improved. We will attribute any code you contribute to any publication you specify. Contributing to pymatgen means
    your research becomes more visible, which translates to greater impact.
-4. **It is fast.** Many of the core numerical methods in pymatgen have been
-   optimized by vectorizing in numpy/scipy. This means that coordinate
-   manipulations are extremely fast and are in fact comparable to codes
-   written in other languages. Pymatgen also comes with a complete system for
-   handling periodic boundary conditions.
-5. **It will be around.** Pymatgen is not a pet research project. It is used in
-   the well-established Materials Project. It is also actively being developed
-   and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
+4. **It is fast.** Many of the core numerical methods in pymatgen have been optimized by vectorizing in numpy/scipy.
+   This means that coordinate manipulations are extremely fast and are in fact comparable to codes written in other
+   languages. Pymatgen also comes with a complete system for handling periodic boundary conditions.
+5. **It will be around.** Pymatgen is not a pet research project. It is used in the well-established Materials Project.
+   It is also actively being developed and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
-
-Pymatgen is compatible with both Python 2.7+ as well as latest Python 3.x.
-The pymatgen development team will phase out Py2.7 support over the course of
-2018. From v2018.1.1, new features implemented in pymatgen no longer need to
-support Py2.7 (i.e., unittests do not need to pass Py2k testing), though
-existing features will still be Py2.7 compatible. From v2019.1.1, pymatgen will
-be Py3k only.
 
 Getting pymatgen
 ================
 
-Before installing pymatgen, you may need to first install a few critical
-dependencies manually. Please refer to the official `pymatgen page`_ for
-installation details and requirements, including instructions for the
-bleeding edge developmental version. For people who are absolutely new to
-Python packages, it is highly recommended you do the installation using
-conda, which will make things a lot easier, especially on Windows. Visit
-`materials.sh <http://materials.sh>`_ for instructions on how to use the
-matsci channel to install pymatgen and other packages.
+Before installing pymatgen, you may need to first install a few critical dependencies manually. Please refer to the
+official `pymatgen page`_ for installation details and requirements, including instructions for the bleeding edge
+developmental version. For people who are absolutely new to Python packages, it is highly recommended you do the
+installation using conda, which will make things a lot easier, especially on Windows::
 
-The version at the Python Package Index (PyPI) is always the latest stable
-release that is relatively bug-free. The easiest way to install pymatgen on
-any system is to use pip::
+    conda install --channel conda-forge pymatgen
+
+In line with the Scientific Python stack, pymatgen will now support a minimum python version off 3.7 from v2021.1.1.
+
+The version at the `Python Package Index (PyPI) <https://pypi.org/project/pymatgen>`_ is always the latest stable
+release that is relatively bug-free and can be installed via pip::
 
     pip install pymatgen
 
-Wheels for Mac (Python 2.7 and 3.6) and Windows (Python 3.6) have been built
-for convenience.
-
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup (please see the `pymatgen page`_).
+Some extra functionality (e.g., generation of POTCARs) do require additional setup (see the `pymatgen page`_).
 
 Change Log
 ==========

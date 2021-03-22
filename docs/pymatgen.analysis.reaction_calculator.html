@@ -1,22 +1,45 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.reaction_calculator module &#8212; pymatgen 2018.4.6 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.reaction_calculator module &mdash; pymatgen 2022.0.4 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.reaction_calculator.html"/>
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.structure_analyzer module" href="pymatgen.analysis.structure_analyzer.html" />
+    <link rel="prev" title="pymatgen.analysis.quasiharmonic module" href="pymatgen.analysis.quasiharmonic.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -24,353 +47,517 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2022.0.4
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.reaction_calculator module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.reaction_calculator.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-pymatgen.analysis.reaction_calculator">
 <span id="pymatgen-analysis-reaction-calculator-module"></span><h1>pymatgen.analysis.reaction_calculator module<a class="headerlink" href="#module-pymatgen.analysis.reaction_calculator" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>This module provides classes that define a chemical reaction.</p>
+<dl class="py class">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction">
-<em class="property">class </em><code class="descname">BalancedReaction</code><span class="sig-paren">(</span><em>reactants_coeffs</em>, <em>products_coeffs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">BalancedReaction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants_coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">products_coeffs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L33-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a complete chemical reaction.</p>
 <p>Reactants and products to be specified as dict of {Composition: coeff}.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>{Composition</strong> (<em>products_coeffs</em>) – float}): Reactants as dict of
-{Composition: amt}.</li>
-<li><strong>(</strong><strong>{Composition</strong> – float}): Products as dict of
-{Composition: amt}.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>{Composition</strong> (<em>products_coeffs</em>) – float}): Reactants as dict of
+{Composition: amt}.</p></li>
+<li><p><strong>(</strong><strong>{Composition</strong> – float}): Products as dict of
+{Composition: amt}.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
+</dd>
+</dl>
+<dl class="py attribute">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.TOLERANCE">
-<code class="descname">TOLERANCE</code><em class="property"> = 1e-06</em><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.TOLERANCE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">TOLERANCE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1e-06</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.TOLERANCE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.all_comp">
-<code class="descname">all_comp</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.all_comp" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_comp</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.all_comp" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all compositions in the reaction.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L243-L253"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary representation of BalancedReaction.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.as_entry">
-<code class="descname">as_entry</code><span class="sig-paren">(</span><em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.as_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.as_entry" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_entry</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L232-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.as_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a ComputedEntry representation of the reaction.
 :return:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.calculate_energy">
-<code class="descname">calculate_energy</code><span class="sig-paren">(</span><em>energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.calculate_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.calculate_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_energy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L74-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.calculate_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the energy of the reaction.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>{Composition</strong> (<em>energies</em>) – float}): Energy for each composition.
-E.g ., {comp1: energy1, comp2: energy2}.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">reaction energy as a float.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>{Composition</strong> (<em>energies</em>) – float}): Energy for each composition.
+E.g ., {comp1: energy1, comp2: energy2}.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>reaction energy as a float.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.coeffs">
-<code class="descname">coeffs</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.coeffs" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">coeffs</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.coeffs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Final coefficients of the calculated reaction</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.elements">
-<code class="descname">elements</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.elements" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">elements</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of elements in the reaction</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.from_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a balanced reaction from a string. The reaction must
-already be balanced.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rxn_string</strong> – The reaction string. For example, “4 Li + O2-&gt; 2Li2O”</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BalancedReaction</td>
-</tr>
-</tbody>
-</table>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L255-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – from as_dict()</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A BalancedReaction object.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.from_string">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rxn_string</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L268-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a balanced reaction from a string. The reaction must
+already be balanced.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rxn_string</strong> – The reaction string. For example, “4 Li + O2-&gt; 2Li2O”</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>BalancedReaction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.get_coeff">
-<code class="descname">get_coeff</code><span class="sig-paren">(</span><em>comp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.get_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.get_coeff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_coeff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L163-L167"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.get_coeff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns coefficient for a particular composition</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.get_el_amount">
-<code class="descname">get_el_amount</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.get_el_amount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.get_el_amount" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_el_amount</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L116-L126"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.get_el_amount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the amount of the element in the reaction.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element</strong> (<em>Element/Specie</em>) – Element in the reaction</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Amount of that element in the reaction.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> (<em>Element/Species</em>) – Element in the reaction</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Amount of that element in the reaction.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to">
-<code class="descname">normalize_to</code><span class="sig-paren">(</span><em>comp</em>, <em>factor=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalize_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">normalize_to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L87-L98"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes the reaction to one of the compositions.
 By default, normalizes such that the composition given has a
 coefficient of 1. Another factor can be specified.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition to normalize to</li>
-<li><strong>factor</strong> (<em>float</em>) – Factor to normalize to. Defaults to 1.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition to normalize to</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – Factor to normalize to. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to_element">
-<code class="descname">normalize_to_element</code><span class="sig-paren">(</span><em>element</em>, <em>factor=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalize_to_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to_element" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">normalize_to_element</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L100-L114"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes the reaction to one of the elements.
 By default, normalizes such that the amount of the element is 1.
 Another factor can be specified.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>element</strong> (<em>Element/Specie</em>) – Element to normalize to.</li>
-<li><strong>factor</strong> (<em>float</em>) – Factor to normalize to. Defaults to 1.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<em>Element/Species</em>) – Element to normalize to.</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – Factor to normalize to. Defaults to 1.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr">
-<code class="descname">normalized_repr</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">normalized_repr</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr" title="Permalink to this definition">¶</a></dt>
 <dd><p>A normalized representation of the reaction. All factors are converted
 to lowest common factors.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr_and_factor">
-<code class="descname">normalized_repr_and_factor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalized_repr_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr_and_factor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">normalized_repr_and_factor</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L169-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr_and_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalized representation for a reaction
 For example, <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">Li</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">O</span> <span class="pre">-&gt;</span> <span class="pre">2Li2O</span></code> becomes <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">Li</span> <span class="pre">+</span> <span class="pre">O</span> <span class="pre">-&gt;</span> <span class="pre">Li2O</span></code></p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.products">
-<code class="descname">products</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.products" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">products</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.products" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of products</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.reactants">
-<code class="descname">reactants</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.reactants" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reactants</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.reactants" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of reactants</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.reaction_calculator.ComputedReaction">
-<em class="property">class </em><code class="descname">ComputedReaction</code><span class="sig-paren">(</span><em>reactant_entries</em>, <em>product_entries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ComputedReaction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactant_entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_entries</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L426-L516"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.reaction_calculator.Reaction" title="pymatgen.analysis.reaction_calculator.Reaction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.reaction_calculator.Reaction</span></code></a></p>
 <p>Convenience class to generate a reaction from ComputedEntry objects, with
 some additional attributes, such as a reaction energy based on computed
 energies.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>reactant_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – List of reactant_entries.</li>
-<li><strong>product_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – List of product_entries.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reactant_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – List of reactant_entries.</p></li>
+<li><p><strong>product_entries</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><em>ComputedEntry</em></a><em>]</em>) – List of product_entries.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.all_entries">
-<code class="descname">all_entries</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.all_entries" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_entries</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.all_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent of all_comp but returns entries, in the same order as the
 coefficients.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L492-L502"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary representation of ComputedReaction.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy">
-<code class="descname">calculated_reaction_energy</code><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">calculated_reaction_energy</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns (float):
+The calculated reaction energy.</p>
+</dd></dl>
 
-<dl class="classmethod">
+<dl class="py method">
+<dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy_uncertainty">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">calculated_reaction_energy_uncertainty</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/reaction_calculator.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the uncertainty in the reaction energy based on the uncertainty in the
+energies of the products and reactants</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L504-L516"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – from as_dict()</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A ComputedReaction object.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.reaction_calculator.Reaction">
-<em class="property">class </em><code class="descname">Reaction</code><span class="sig-paren">(</span><em>reactants</em>, <em>products</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Reaction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reactants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">products</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L292-L404"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.reaction_calculator.BalancedReaction</span></code></a></p>
 <p>A more flexible class representing a Reaction. The reaction amounts will
 be automatically balanced. Reactants and products can swap sides so that
-all coefficients are positive. Normalizes so that the <em>FIRST</em> product
-(or products, if underdetermined) has a coefficient of one.</p>
+all coefficients are positive, however this class will find the solution
+with the minimum number of swaps and coefficients of 0. Normalizes so that
+the <em>FIRST</em> product (or products, if underdetermined) has a coefficient of one.</p>
 <p>Reactants and products to be specified as list of
 pymatgen.core.structure.Composition.  e.g., [comp1, comp2]</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>reactants</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – List of reactants.</li>
-<li><strong>products</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – List of products.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reactants</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – List of reactants.</p></li>
+<li><p><strong>products</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a><em>]</em>) – List of products.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.Reaction.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L381-L391"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary representation of Reaction.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.Reaction.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">copy</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L375-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the Reaction object.</p>
 </dd></dl>
 
-<dl class="classmethod">
+<dl class="py method">
 <dt id="pymatgen.analysis.reaction_calculator.Reaction.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L393-L404"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – from as_dict()</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Reaction object.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="exception">
+<dl class="py exception">
 <dt id="pymatgen.analysis.reaction_calculator.ReactionError">
-<em class="property">exception </em><code class="descname">ReactionError</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ReactionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ReactionError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">ReactionError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/reaction_calculator.py#L407-L423"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ReactionError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for Reactions. Allows more information in exception
 messages to cover situations not covered by standard exception classes.</p>
+<p>Create a ReactionError.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – More information about the ReactionError.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 
 
+           </div>
+           
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/pymatgen.analysis.reaction_calculator.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
+          <footer>
+  
 
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
-    </div>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -385,5 +572,6 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-  </body>
+
+</body>
 </html>

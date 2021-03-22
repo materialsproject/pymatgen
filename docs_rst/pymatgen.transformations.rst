@@ -5,12 +5,14 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.transformations.advanced_transformations
    pymatgen.transformations.defect_transformations
@@ -22,6 +24,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.transformations
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

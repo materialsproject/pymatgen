@@ -1,28 +1,36 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member, chained-comparison, unnecessary-comprehension, not-callable
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
-from __future__ import unicode_literals, division, print_function
 
 import os
-import collections
-import numpy as np
-import ruamel.yaml as yaml
-import six
+from collections import OrderedDict
+from collections.abc import Iterable, Iterator, Mapping
 
-#from six.moves import map, zip
-from tabulate import tabulate
-from monty.functools import lazy_property
+import numpy as np
 from monty.collections import AttrDict
+from monty.functools import lazy_property
+from tabulate import tabulate
+
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 
 def straceback():
     """Returns a string with the traceback."""
     import traceback
+
     return traceback.format_exc()
 
 
@@ -38,7 +46,7 @@ def _magic_parser(stream, magic):
 
         The parser is very fragile and should be replaced by YAML.
     """
-    #Example (SCF cycle, similar format is used for phonons):
+    # Example (SCF cycle, similar format is used for phonons):
     #
     #  iter   Etot(hartree)      deltaE(h)  residm     vres2
     #  ETOT  1  -8.8604027880849    -8.860E+00 2.458E-02 3.748E+00
@@ -50,18 +58,21 @@ def _magic_parser(stream, magic):
         line = line.strip()
 
         if line.startswith(magic):
+            # print("Found magic token in line:", line)
             keys = line.split()
-            fields = collections.OrderedDict((k, []) for k in keys)
+            fields = OrderedDict((k, []) for k in keys)
 
         if fields is not None:
-            #print(line)
+            # print(line)
             in_doc += 1
             if in_doc == 1:
                 continue
 
-            # End of the section.
-            if not line: break
+            # End of the section or empty SCF cycle
+            if not line or line.startswith("prteigrs"):
+                break
 
+            # print("Try to parse line:", line)
             tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):
@@ -69,9 +80,8 @@ def _magic_parser(stream, magic):
 
     # Convert values to numpy arrays.
     if fields:
-        return collections.OrderedDict([(k, np.array(v)) for k, v in fields.items()])
-    else:
-        return None
+        return OrderedDict([(k, np.array(v)) for k, v in fields.items()])
+    return None
 
 
 def plottable_from_outfile(filepath):
@@ -82,23 +92,23 @@ def plottable_from_outfile(filepath):
     # TODO
     # Figure out how to detect the type of calculations
     # without having to parse the input. Possible approach: YAML doc
-    #with YamlTokenizer(filepath) as r:
+    # with YamlTokenizer(filepath) as r:
     #    doc = r.next_doc_with_tag("!CalculationType")
     #    d = yaml.safe_load(doc.text_notag)
     #    calc_type = d["calculation_type"]
 
-    #ctype2class = {
+    # ctype2class = {
     #    "Ground State": GroundStateScfCycle,
     #    "Phonon": PhononScfCycle,
     #    "Relaxation": Relaxation,
-    #}
-    #obj = ctype2class.get(calc_type, None)
+    # }
+    # obj = ctype2class.get(calc_type, None)
 
     obj = GroundStateScfCycle
     if obj is not None:
         return obj.from_file(filepath)
-    else:
-        return None
+    return None
+
 
 # Use log scale for these variables.
 _VARS_SUPPORTING_LOGSCALE = set(["residm", "vres2", "nres2"])
@@ -109,7 +119,8 @@ _VARS_WITH_YRANGE = {
     "deltaE(Ha)": (-1e-3, +1e-3),
 }
 
-class ScfCycle(collections.Mapping):
+
+class ScfCycle(Mapping):
     """
     It essentially consists of a dictionary mapping string
     to list of floats containing the data at the different iterations.
@@ -118,7 +129,14 @@ class ScfCycle(collections.Mapping):
 
         num_iterations: Number of iterations performed.
     """
+
+    MAGIC = "Must be defined by the subclass." ""
+
     def __init__(self, fields):
+        """
+        Args:
+            fields: Dictionary with label --> list of numerical values.
+        """
         self.fields = fields
         all_lens = [len(lst) for lst in self.values()]
         self.num_iterations = all_lens[0]
@@ -138,8 +156,7 @@ class ScfCycle(collections.Mapping):
 
     def to_string(self, verbose=0):
         """String representation."""
-        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys())))
-                for it in range(self.num_iterations)]
+        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys()))) for it in range(self.num_iterations)]
 
         return tabulate(rows, headers=["Iter"] + list(self.keys()))
 
@@ -167,8 +184,7 @@ class ScfCycle(collections.Mapping):
         if fields:
             fields.pop("iter")
             return cls(fields)
-        else:
-            return None
+        return None
 
     @add_fig_kwargs
     def plot(self, ax_list=None, fontsize=12, **kwargs):
@@ -188,8 +204,9 @@ class ScfCycle(collections.Mapping):
             ncols = 2
             nrows = num_plots // ncols + num_plots % ncols
 
-        ax_list, fig, plot = get_axarray_fig_plt(ax_list, nrows=nrows, ncols=ncols,
-                                                 sharex=True, sharey=False, squeeze=False)
+        ax_list, fig, plot = get_axarray_fig_plt(
+            ax_list, nrows=nrows, ncols=ncols, sharex=True, sharey=False, squeeze=False
+        )
         ax_list = np.array(ax_list).ravel()
 
         iter_num = np.array(list(range(self.num_iterations))) + 1
@@ -197,7 +214,7 @@ class ScfCycle(collections.Mapping):
 
         for i, ((key, values), ax) in enumerate(zip(self.items(), ax_list)):
             ax.grid(True)
-            ax.set_xlabel('Iteration Step')
+            ax.set_xlabel("Iteration Step")
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
@@ -226,13 +243,14 @@ class ScfCycle(collections.Mapping):
         # Get around a bug in matplotlib.
         if num_plots % ncols != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
-            ax_list[-1].axis('off')
+            ax_list[-1].axis("off")
 
         return fig
 
 
 class GroundStateScfCycle(ScfCycle):
     """Result of the Ground State self-consistent cycle."""
+
     MAGIC = "iter   Etot(hartree)"
 
     @property
@@ -243,6 +261,7 @@ class GroundStateScfCycle(ScfCycle):
 
 class D2DEScfCycle(ScfCycle):
     """Result of the Phonon self-consistent cycle."""
+
     MAGIC = "iter   2DEtotal(Ha)"
 
     @property
@@ -255,10 +274,11 @@ class PhononScfCycle(D2DEScfCycle):
     """Iterations of the DFPT SCF cycle for phonons."""
 
 
-class CyclesPlotter(object):
+class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
+        """Initialize object."""
         self.labels = []
         self.cycles = []
 
@@ -282,8 +302,15 @@ class CyclesPlotter(object):
         """
         ax_list = None
         for i, (label, cycle) in enumerate(self.items()):
-            fig = cycle.plot(ax_list=ax_list, label=label, fontsize=fontsize,
-                             lw=2.0, marker="o", linestyle="-", show=False)
+            fig = cycle.plot(
+                ax_list=ax_list,
+                label=label,
+                fontsize=fontsize,
+                lw=2.0,
+                marker="o",
+                linestyle="-",
+                show=False,
+            )
             ax_list = fig.axes
 
         return fig
@@ -296,7 +323,7 @@ class CyclesPlotter(object):
             cycle.plot(title=label, tight_layout=True)
 
 
-class Relaxation(collections.Iterable):
+class Relaxation(Iterable):
     """
     A list of :class:`GroundStateScfCycle` objects.
 
@@ -311,7 +338,13 @@ class Relaxation(collections.Iterable):
         during the structural relaxation. A more powerful and detailed analysis
         can be obtained by using the HIST.nc file.
     """
+
     def __init__(self, cycles):
+        """
+        Args
+            cycles: list of `GroundStateScfCycle` objects.
+        """
+
         self.cycles = cycles
         self.num_iterations = len(self.cycles)
 
@@ -352,7 +385,8 @@ class Relaxation(collections.Iterable):
         cycles = []
         while True:
             scf_cycle = GroundStateScfCycle.from_stream(stream)
-            if scf_cycle is None: break
+            if scf_cycle is None:
+                break
             cycles.append(scf_cycle)
 
         return cls(cycles) if cycles else None
@@ -363,7 +397,7 @@ class Relaxation(collections.Iterable):
         Ordered Dictionary of lists with the evolution of
         the data as function of the relaxation step.
         """
-        history = collections.OrderedDict()
+        history = OrderedDict()
         for cycle in self:
             d = cycle.last_iteration
             for k, v in d.items():
@@ -389,9 +423,11 @@ class Relaxation(collections.Iterable):
             `matplotlib` figure
         """
         for i, cycle in enumerate(self.cycles):
-            cycle.plot(title="Relaxation step %s" % (i + 1),
-                       tight_layout=kwargs.pop("tight_layout", True),
-                       show=kwargs.pop("show", True))
+            cycle.plot(
+                title="Relaxation step %s" % (i + 1),
+                tight_layout=kwargs.pop("tight_layout", True),
+                show=kwargs.pop("show", True),
+            )
 
     @add_fig_kwargs
     def plot(self, ax_list=None, fontsize=12, **kwargs):
@@ -413,8 +449,9 @@ class Relaxation(collections.Iterable):
             ncols = 2
             nrows = num_plots // ncols + num_plots % ncols
 
-        ax_list, fig, plot = get_axarray_fig_plt(ax_list, nrows=nrows, ncols=ncols,
-                                                 sharex=True, sharey=False, squeeze=False)
+        ax_list, fig, plot = get_axarray_fig_plt(
+            ax_list, nrows=nrows, ncols=ncols, sharex=True, sharey=False, squeeze=False
+        )
         ax_list = np.array(ax_list).ravel()
 
         iter_num = np.array(list(range(self.num_iterations))) + 1
@@ -422,7 +459,7 @@ class Relaxation(collections.Iterable):
 
         for i, ((key, values), ax) in enumerate(zip(history.items(), ax_list)):
             ax.grid(True)
-            ax.set_xlabel('Relaxation Step')
+            ax.set_xlabel("Relaxation Step")
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
@@ -447,12 +484,13 @@ class Relaxation(collections.Iterable):
         # Get around a bug in matplotlib.
         if num_plots % ncols != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
-            ax_list[-1].axis('off')
+            ax_list[-1].axis("off")
 
         return fig
 
+
 # TODO
-#class HaydockIterations(collections.Iterable):
+# class HaydockIterations(Iterable):
 #    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
 #    @classmethod
 #    def from_file(cls, filepath):
@@ -496,22 +534,27 @@ class Relaxation(collections.Iterable):
 #        return fig
 
 
+##################
+# Yaml parsers.
+##################
 
-##################
-## Yaml parsers.
-##################
 
 class YamlTokenizerError(Exception):
     """Exceptions raised by :class:`YamlTokenizer`."""
 
 
-class YamlTokenizer(collections.Iterator):
+class YamlTokenizer(Iterator):
     """
     Provides context-manager support so you can use it in a with statement.
     """
+
     Error = YamlTokenizerError
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename
+        """
         # The position inside the file.
         self.linepos = 0
         self.filename = filename
@@ -541,9 +584,10 @@ class YamlTokenizer(collections.Iterator):
         self.close()
 
     def close(self):
+        """Close the stream."""
         try:
             self.stream.close()
-        except:
+        except Exception:
             print("Exception in YAMLTokenizer.close()")
             print("Python traceback:")
             print(straceback())
@@ -581,7 +625,7 @@ class YamlTokenizer(collections.Iterator):
 
         for i, line in enumerate(self.stream):
             self.linepos += 1
-            #print(i, line)
+            # print(i, line)
 
             if line.startswith("---"):
                 # Include only lines in the form:
@@ -631,7 +675,7 @@ class YamlTokenizer(collections.Iterator):
         """
         while True:
             try:
-                doc = six.advance_iterator(self)
+                doc = next(self)
                 if doc.tag == doc_tag:
                     return doc
 
@@ -672,14 +716,15 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
         d = yaml.safe_load(doc.text_notag)
 
         return [AttrDict(**pert) for pert in d["irred_perts"]]
-        #return d["irred_perts"]
+        # return d["irred_perts"]
 
 
-class YamlDoc(object):
+class YamlDoc:
     """
     Handy object that stores that YAML document, its main tag and the
     position inside the file.
     """
+
     __slots__ = [
         "text",
         "lineno",
@@ -707,10 +752,9 @@ class YamlDoc(object):
         return self.text
 
     def __eq__(self, other):
-        if other is None: return False
-        return (self.text == other.text and
-                self.lineno == other.lineno and
-                self.tag == other.tag)
+        if other is None:
+            return False
+        return self.text == other.text and self.lineno == other.lineno and self.tag == other.tag
 
     def __ne__(self, other):
         return not self == other
@@ -724,8 +768,7 @@ class YamlDoc(object):
         """
         if self.tag is not None:
             return self.text.replace(self.tag, "")
-        else:
-            return self.text
+        return self.text
 
     def as_dict(self):
         """Use Yaml to parse the text (without the tag) and returns a dictionary."""

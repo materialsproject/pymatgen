@@ -2,23 +2,20 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from monty.json import MSONable
-import numpy as np
-from scipy.ndimage.filters import gaussian_filter1d
-
-from pymatgen.util.coord import get_linear_interpolated_value
-
 """
 This module defines classes to represent any type of spectrum, essentially any
-x y value pairs. 
+x y value pairs.
 """
 
-__author__ = "Chen Zheng"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Chen Zheng"
-__email__ = "chz022@ucsd.edu"
-__date__ = "Aug 9, 2017"
+from typing import List
+
+import numpy as np
+from monty.json import MSONable
+from scipy.ndimage.filters import gaussian_filter1d
+
+
+from pymatgen.util.coord import get_linear_interpolated_value
+from pymatgen.util.typing import ArrayLike
 
 
 class Spectrum(MSONable):
@@ -33,20 +30,21 @@ class Spectrum(MSONable):
     ALL args and kwargs. That ensures subsequent things like add and mult work
     properly.
     """
+
     XLABEL = "x"
     YLABEL = "y"
 
-    def __init__(self, x, y, *args, **kwargs):
-        """
+    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs):
+        r"""
         Args:
             x (ndarray): A ndarray of N values.
             y (ndarray): A ndarray of N x k values. The first dimension must be
-                the same as that of x. Each of the k values are interpreted as
-            \\*args: All subclasses should provide args other than x and y
-                when calling super, e.g., super(Subclass, self).__init__(
+                the same as that of x. Each of the k values are interpreted as separate.
+            *args: All subclasses should provide args other than x and y
+                when calling super, e.g., super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
-            \\*\\*kwargs: Same as that for \\*args.
+            **kwargs: Same as that for *args.
         """
         self.x = np.array(x)
         self.y = np.array(y)
@@ -59,15 +57,14 @@ class Spectrum(MSONable):
     def __getattr__(self, item):
         if item == self.XLABEL.lower():
             return self.x
-        elif item == self.YLABEL.lower():
+        if item == self.YLABEL.lower():
             return self.y
-        else:
-            raise AttributeError
+        raise AttributeError("Invalid attribute name %s" % str(item))
 
     def __len__(self):
         return self.ydim[0]
 
-    def normalize(self, mode="max", value=1):
+    def normalize(self, mode: str = "max", value: float = 1.0):
         """
         Normalize the spectrum with respect to the sum of intensity
 
@@ -86,7 +83,7 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma):
+    def smear(self, sigma: float):
         """
         Apply Gaussian smearing to spectrum y value.
 
@@ -98,11 +95,9 @@ class Spectrum(MSONable):
         if len(self.ydim) == 1:
             self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
         else:
-            self.y = np.array([
-                gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step)
-                for k in range(self.ydim[1])]).T
+            self.y = np.array([gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step) for k in range(self.ydim[1])]).T
 
-    def get_interpolated_value(self, x):
+    def get_interpolated_value(self, x: float) -> List[float]:
         """
         Returns an interpolated y value for a particular x value.
 
@@ -114,9 +109,7 @@ class Spectrum(MSONable):
         """
         if len(self.ydim) == 1:
             return get_linear_interpolated_value(self.x, self.y, x)
-        else:
-            return [get_linear_interpolated_value(self.x, self.y[:, k], x)
-                    for k in range(self.ydim[1])]
+        return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
     def copy(self):
         """
@@ -138,8 +131,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y + other.y, *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, self.y + other.y, *self._args, **self._kwargs)
 
     def __sub__(self, other):
         """
@@ -155,8 +147,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y - other.y, *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, self.y - other.y, *self._args, **self._kwargs)
 
     def __mul__(self, other):
         """
@@ -167,8 +158,8 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values scaled
         """
-        return self.__class__(self.x, other * self.y, *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, other * self.y, *self._args, **self._kwargs)
+
     __rmul__ = __mul__
 
     def __truediv__(self, other):
@@ -180,8 +171,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__truediv__(other), *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
         """
@@ -192,8 +182,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__floordiv__(other), *self._args,
-                              **self._kwargs)
+        return self.__class__(self.x, self.y.__floordiv__(other), *self._args, **self._kwargs)
 
     __div__ = __truediv__
 
@@ -202,9 +191,13 @@ class Spectrum(MSONable):
         Returns a string containing values and labels of spectrum object for
         plotting.
         """
-        return "\n".join([self.__class__.__name__,
-                          "%s: %s" % (self.XLABEL, self.x),
-                          "%s: %s" % (self.YLABEL, self.y)])
+        return "\n".join(
+            [
+                self.__class__.__name__,
+                "%s: %s" % (self.XLABEL, self.x),
+                "%s: %s" % (self.YLABEL, self.y),
+            ]
+        )
 
     def __repr__(self):
         """

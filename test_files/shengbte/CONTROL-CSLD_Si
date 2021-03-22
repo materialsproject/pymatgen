@@ -1,0 +1,27 @@
+&allocations
+    natoms = 2
+    nelements = 1
+    ngrid = 25, 25, 25
+    norientations = 0
+/
+&crystal
+    elements = 'Si'
+    lattvec(:,1) = 0.0, 2.734363999, 2.734363999
+    lattvec(:,2) = 2.734363999, 0.0, 2.734363999
+    lattvec(:,3) = 2.734363999, 2.734363999, 0.0
+    lfactor = 0.1
+    positions(:,1) = 0.0, 0.0, 0.0
+    positions(:,2) = 0.25, 0.25, 0.25
+    scell = 5, 5, 5
+    types = 1, 1
+/
+&parameters
+    scalebroad = 0.5
+    t = 500
+/
+&flags
+    isotopes = .false.
+    nanowires = .false.
+    nonanalytic = .false.
+    onlyharmonic = .false.
+/

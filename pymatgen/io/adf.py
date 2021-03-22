@@ -1,14 +1,17 @@
-from __future__ import print_function, absolute_import
+"""
+IO for ADF files.
+"""
 
-from pymatgen.core.structure import Molecule
+import os
+import re
+
+from monty.io import reverse_readline
+from monty.itertools import chunks
 from monty.json import MSONable
 
-import re
-import os
-from monty.itertools import chunks
-from monty.io import reverse_readline
+from pymatgen.core.structure import Molecule
 
-__author__ = 'Xin Chen, chenxin13@mails.tsinghua.edu.cn'
+__author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
 def is_numeric(s):
@@ -36,7 +39,7 @@ def is_numeric(s):
 
 
 def iterlines(s):
-    """
+    r"""
     A generator form of s.split('\n') for reducing memory overhead.
 
     Parameters
@@ -52,19 +55,19 @@ def iterlines(s):
     """
     prevnl = -1
     while True:
-        nextnl = s.find('\n', prevnl + 1)
+        nextnl = s.find("\n", prevnl + 1)
         if nextnl < 0:
-            yield s[(prevnl+1):]
+            yield s[(prevnl + 1) :]
             break
-        else:
-            yield s[(prevnl+1):nextnl]
-            prevnl = nextnl
+        yield s[(prevnl + 1) : nextnl]
+        prevnl = nextnl
 
 
 class AdfInputError(Exception):
     """
     The default error class for ADF.
     """
+
     pass
 
 
@@ -72,6 +75,7 @@ class AdfOutputError(Exception):
     """
     The default error class for errors raised by ``AdfOutput``.
     """
+
     pass
 
 
@@ -82,10 +86,27 @@ class AdfKey(MSONable):
     subkeys and a set of options.
     """
 
-    block_keys = {"SCF", "GEOMETRY", "XC", "UNITS", "ATOMS", "CHARGE", "BASIS",
-                  "SYMMETRY", "RELATIVISTIC", "OCCUPATIONS", "SAVE", "A1FIT",
-                  "INTEGRATION", "UNRESTRICTED", "ZLMFIT", "TITLE",
-                  "EXACTDENSITY", "TOTALENERGY", "ANALYTICALFREQ"}
+    block_keys = {
+        "SCF",
+        "GEOMETRY",
+        "XC",
+        "UNITS",
+        "ATOMS",
+        "CHARGE",
+        "BASIS",
+        "SYMMETRY",
+        "RELATIVISTIC",
+        "OCCUPATIONS",
+        "SAVE",
+        "A1FIT",
+        "INTEGRATION",
+        "UNRESTRICTED",
+        "ZLMFIT",
+        "TITLE",
+        "EXACTDENSITY",
+        "TOTALENERGY",
+        "ANALYTICALFREQ",
+    }
     sub_keys = {"AtomDepQuality"}
 
     # Full blocks are blocks that must have an 'END'.
@@ -135,8 +156,7 @@ class AdfKey(MSONable):
                 else:
                     s += "{:s} ".format(str(op))
             return s.strip()
-        else:
-            return ""
+        return ""
 
     def is_block_key(self):
         """
@@ -152,8 +172,7 @@ class AdfKey(MSONable):
         """
         if self.is_block_key():
             return self.name.upper()
-        else:
-            return self.name
+        return self.name
 
     def __str__(self):
         """
@@ -170,10 +189,9 @@ class AdfKey(MSONable):
             s += " {:s}".format(self._options_string())
         s += "\n"
         if len(self.subkeys) > 0:
-            if self.key.lower() == 'atoms':
+            if self.key.lower() == "atoms":
                 for subkey in self.subkeys:
-                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(
-                        subkey.name, *subkey.options)
+                    s += "{:2s}  {: 14.8f}    {: 14.8f}    {: 14.8f}\n".format(subkey.name, *subkey.options)
             else:
                 for subkey in self.subkeys:
                     s += str(subkey)
@@ -188,8 +206,7 @@ class AdfKey(MSONable):
     def __eq__(self, other):
         if not isinstance(other, AdfKey):
             return False
-        else:
-            return str(self) == str(other)
+        return str(self) == str(other)
 
     def has_subkey(self, subkey):
         """
@@ -231,7 +248,7 @@ class AdfKey(MSONable):
         Duplicate check will not be performed if this is an 'Atoms' block.
 
         """
-        if self.key.lower() == 'atoms' or not self.has_subkey(subkey):
+        if self.key.lower() == "atoms" or not self.has_subkey(subkey):
             self.subkeys.append(subkey)
 
     def remove_subkey(self, subkey):
@@ -329,9 +346,12 @@ class AdfKey(MSONable):
         """
         A JSON serializable dict representation of self.
         """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "name": self.name, "options": self.options}
+        d = {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "name": self.name,
+            "options": self.options,
+        }
         if len(self.subkeys) > 0:
             subkeys = []
             for subkey in self.subkeys:
@@ -343,7 +363,7 @@ class AdfKey(MSONable):
         """
         Return a json string representation of the MSONable AdfKey object.
         """
-        return super(AdfKey, self).to_json()
+        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -396,11 +416,9 @@ class AdfKey(MSONable):
         Only the first block key will be returned.
 
         """
+
         def is_float(s):
-            if '.' in s or 'E' in s or 'e' in s:
-                return True
-            else:
-                return False
+            return "." in s or "E" in s or "e" in s
 
         if string.find("\n") == -1:
             el = string.split()
@@ -418,7 +436,7 @@ class AdfKey(MSONable):
                 options = None
             return AdfKey(el[0], options)
 
-        if string.find('subend') != -1:
+        if string.find("subend") != -1:
             raise ValueError("Nested subkeys are not supported!")
 
         key = None
@@ -433,7 +451,7 @@ class AdfKey(MSONable):
                     key = AdfKey.from_string(line)
                 else:
                     return key
-            elif el[0].upper() == 'END':
+            elif el[0].upper() == "END":
                 return key
             elif key is not None:
                 key.add_subkey(AdfKey.from_string(line))
@@ -452,18 +470,25 @@ class AdfTask(MSONable):
 
     """
 
-    operations = {"energy": "Evaluate the single point energy.",
-                  "optimize": "Minimize the energy by varying the molecular "
-                              "structure.",
-                  "frequencies": "Compute second derivatives and print out an "
-                                 "analysis of molecular vibrations.",
-                  "freq": "Same as frequencies.",
-                  "numerical_frequencies": "Compute molecular frequencies using"
-                                           " numerical method."}
+    operations = {
+        "energy": "Evaluate the single point energy.",
+        "optimize": "Minimize the energy by varying the molecular " "structure.",
+        "frequencies": "Compute second derivatives and print out an " "analysis of molecular vibrations.",
+        "freq": "Same as frequencies.",
+        "numerical_frequencies": "Compute molecular frequencies using" " numerical method.",
+    }
 
-    def __init__(self, operation="energy", basis_set=None, xc=None,
-                 title="ADF_RUN", units=None, geo_subkeys=None, scf=None,
-                 other_directives=None):
+    def __init__(
+        self,
+        operation="energy",
+        basis_set=None,
+        xc=None,
+        title="ADF_RUN",
+        units=None,
+        geo_subkeys=None,
+        scf=None,
+        other_directives=None,
+    ):
         """
         Initialization method.
 
@@ -491,33 +516,46 @@ class AdfTask(MSONable):
             raise AdfInputError("Invalid ADF task {:s}".format(operation))
         self.operation = operation
         self.title = title
-        self.basis_set = basis_set if basis_set is not None else \
-            self.get_default_basis_set()
+        self.basis_set = basis_set if basis_set is not None else self.get_default_basis_set()
         self.xc = xc if xc is not None else self.get_default_xc()
         self.units = units if units is not None else self.get_default_units()
         self.scf = scf if scf is not None else self.get_default_scf()
-        self.other_directives = other_directives \
-            if other_directives is not None else []
+        self.other_directives = other_directives if other_directives is not None else []
         self._setup_task(geo_subkeys)
 
     @staticmethod
     def get_default_basis_set():
+        """
+        Returns: Default basis set
+        """
         return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
+        """
+        Returns: ADF using default SCF.
+        """
         return AdfKey.from_string("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
+        """
+        Returns: ADFKey using default geometry.
+        """
         return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
+        """
+        Returns: ADFKey using default XC.
+        """
         return AdfKey.from_string("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
+        """
+        Returns: Default units.
+        """
         return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
@@ -558,8 +596,12 @@ class AdfTask(MSONable):
 {basis_set}
 {scf}
 {geo}""".format(
-            title=self.title, units=str(self.units), xc=str(self.xc),
-            basis_set=str(self.basis_set), scf=str(self.scf), geo=str(self.geo)
+            title=self.title,
+            units=str(self.units),
+            xc=str(self.xc),
+            basis_set=str(self.basis_set),
+            scf=str(self.scf),
+            geo=str(self.geo),
         )
         s += "\n"
         for block_key in self.other_directives:
@@ -572,19 +614,24 @@ class AdfTask(MSONable):
         """
         A JSON serializable dict representation of self.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "operation": self.operation, "title": self.title,
-                "xc": self.xc.as_dict(), "basis_set": self.basis_set.as_dict(),
-                "units": self.units.as_dict(), "scf": self.scf.as_dict(),
-                "geo": self.geo.as_dict(),
-                "others": [k.as_dict() for k in self.other_directives]}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "operation": self.operation,
+            "title": self.title,
+            "xc": self.xc.as_dict(),
+            "basis_set": self.basis_set.as_dict(),
+            "units": self.units.as_dict(),
+            "scf": self.scf.as_dict(),
+            "geo": self.geo.as_dict(),
+            "others": [k.as_dict() for k in self.other_directives],
+        }
 
     def to_json(self):
         """
         Return a json string representation of the MSONable AdfTask object.
         """
-        return super(AdfTask, self).to_json()
+        return super().to_json()
 
     @classmethod
     def from_dict(cls, d):
@@ -602,6 +649,7 @@ class AdfTask(MSONable):
             An AdfTask object recovered from the JSON dict ``d``.
 
         """
+
         def _from_dict(_d):
             return AdfKey.from_dict(_d) if _d is not None else None
 
@@ -614,11 +662,10 @@ class AdfTask(MSONable):
         others = [AdfKey.from_dict(o) for o in d.get("others", [])]
         geo = _from_dict(d.get("geo"))
 
-        return cls(operation, basis_set, xc, title, units, geo.subkeys, scf,
-                   others)
+        return cls(operation, basis_set, xc, title, units, geo.subkeys, scf, others)
 
 
-class AdfInput(object):
+class AdfInput:
     """
     A basic ADF input file writer.
     """
@@ -670,7 +717,7 @@ class AdfInput(object):
             f.write("END INPUT")
 
 
-class AdfOutput(object):
+class AdfOutput:
     """
     A basic ADF output file parser.
 
@@ -760,8 +807,7 @@ class AdfOutput(object):
             A ``Molecule`` object.
 
         """
-        return Molecule([site[0] for site in sites],
-                        [site[1] for site in sites])
+        return Molecule([site[0] for site in sites], [site[1] for site in sites])
 
     def _parse_logfile(self, logfile):
         """
@@ -769,11 +815,9 @@ class AdfOutput(object):
         """
 
         cycle_patt = re.compile(r"Coordinates\sin\sGeometry\sCycle\s(\d+)")
-        coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)"+3*r"\s+([-\.0-9]+)")
-        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s"
-                                 "Hartree")
-        final_energy_patt = re.compile(
-            r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
+        coord_patt = re.compile(r"\s+([0-9]+)\.([A-Za-z]+)" + 3 * r"\s+([-\.0-9]+)")
+        energy_patt = re.compile(r"<.*>\s<.*>\s+current\senergy\s+([-\.0-9]+)\s" "Hartree")
+        final_energy_patt = re.compile(r"<.*>\s<.*>\s+Bond\sEnergy\s+([-\.0-9]+)\sa\.u\.")
         error_patt = re.compile(r"<.*>\s<.*>\s+ERROR\sDETECTED:\s(.*)")
         runtype_patt = re.compile(r"<.*>\s<.*>\s+RunType\s+:\s(.*)")
         end_patt = re.compile(r"<.*>\s<.*>\s+END")
@@ -795,8 +839,7 @@ class AdfOutput(object):
                     self.error = "Internal crash. TAPE13 is generated!"
                     self.is_failed = True
                     return
-                else:
-                    break
+                break
 
         with open(logfile, "r") as f:
             for line in f:
@@ -809,30 +852,29 @@ class AdfOutput(object):
                 if self.run_type is None:
                     m = runtype_patt.search(line)
                     if m:
-                        if m.group(1) == 'FREQUENCIES':
+                        if m.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"
                             self.run_type = "NumericalFreq"
-                        elif m.group(1) == 'GEOMETRY OPTIMIZATION':
+                        elif m.group(1) == "GEOMETRY OPTIMIZATION":
                             self.run_type = "GeometryOptimization"
-                        elif m.group(1) == 'CREATE':
+                        elif m.group(1) == "CREATE":
                             self.run_type = None
-                        elif m.group(1) == 'SINGLE POINT':
-                            self.run_type = 'SinglePoint'
+                        elif m.group(1) == "SINGLE POINT":
+                            self.run_type = "SinglePoint"
                         else:
                             raise AdfOutputError("Undefined Runtype!")
 
-                elif self.run_type == 'SinglePoint':
+                elif self.run_type == "SinglePoint":
                     m = coord_patt.search(line)
                     if m:
-                        sites.append([m.groups()[0],
-                                      list(map(float, m.groups()[2:]))])
+                        sites.append([m.groups()[0], list(map(float, m.groups()[2:]))])
                     else:
                         m = final_energy_patt.search(line)
                         if m:
                             self.final_energy = float(m.group(1))
                             self.final_structure = self._sites_to_mol(sites)
 
-                elif self.run_type == 'GeometryOptimization':
+                elif self.run_type == "GeometryOptimization":
                     m = cycle_patt.search(line)
                     if m:
                         cycle = int(m.group(1))
@@ -846,8 +888,7 @@ class AdfOutput(object):
                     elif parse_cycle:
                         m = coord_patt.search(line)
                         if m:
-                            sites.append([m.groups()[1],
-                                          list(map(float, m.groups()[2:]))])
+                            sites.append([m.groups()[1], list(map(float, m.groups()[2:]))])
                         else:
                             m = energy_patt.search(line)
                             if m:
@@ -880,10 +921,8 @@ class AdfOutput(object):
         """
         Parse the standard ADF output file.
         """
-        numerical_freq_patt = re.compile(
-            r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*")
-        analytic_freq_patt = re.compile(
-            r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*")
+        numerical_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sI\sE\sS\s+\*")
+        analytic_freq_patt = re.compile(r"\s+\*\s+F\sR\sE\sQ\sU\sE\sN\sC\sY\s+A\sN\sA\sL\sY\sS\sI\sS\s+\*")
         freq_on_patt = re.compile(r"Vibrations\sand\sNormal\sModes\s+\*+.*\*+")
         freq_off_patt = re.compile(r"List\sof\sAll\sFrequencies:")
         mode_patt = re.compile(r"\s+(\d+)\.([A-Za-z]+)\s+(.*)")
@@ -917,8 +956,7 @@ class AdfOutput(object):
                     else:
                         m = coord_patt.search(line)
                         if m:
-                            sites.append(
-                                [m.group(2), list(map(float, m.groups()[2:5]))])
+                            sites.append([m.group(2), list(map(float, m.groups()[2:5]))])
                             nstrike += 1
                         elif nstrike > 0:
                             find_structure = False

@@ -5,8 +5,8 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
-   pymatgen.cli.feff_input_generation
    pymatgen.cli.feff_plot_cross_section
    pymatgen.cli.feff_plot_dos
    pymatgen.cli.gaussian_analyzer
@@ -18,12 +18,11 @@ Submodules
    pymatgen.cli.pmg_potcar
    pymatgen.cli.pmg_query
    pymatgen.cli.pmg_structure
-   pymatgen.cli.pydii
 
 Module contents
 ---------------
 
 .. automodule:: pymatgen.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -2,19 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-from six.moves import filter, zip
-import numpy as np
-import six
-
-import collections
-from numbers import Number
-import numbers
-from functools import partial
-
-import scipy.constants as const
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -24,6 +11,13 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
+import collections
+import numbers
+from functools import partial
+
+import numpy as np
+import scipy.constants as const
+
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -31,11 +25,10 @@ __maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
 __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
-
 """
 Some conversion factors
 """
-Ha_to_eV = 1/const.physical_constants["electron volt-hartree relationship"][0]
+Ha_to_eV = 1 / const.physical_constants["electron volt-hartree relationship"][0]
 eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
 amu_to_kg = const.physical_constants["atomic mass unit-kilogram relationship"][0]
@@ -43,6 +36,8 @@ mile_to_meters = const.mile
 bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
 ang_to_bohr = 1 / bohr_to_ang
+kCal_to_kJ = const.calorie
+kb = const.physical_constants["Boltzmann constant in eV/K"][0]
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -68,33 +63,25 @@ BASE_UNITS = {
         "s": 1,
         "min": 60,
         "h": 3600,
+        "d": 3600 * 24,
     },
-    "current": {
-        "A": 1
-    },
+    "current": {"A": 1},
     "temperature": {
         "K": 1,
     },
-    "amount": {
-        "mol": 1,
-        "atom": 1 / const.N_A
-    },
-    "intensity": {
-        "cd": 1
-    },
+    "amount": {"mol": 1, "atom": 1 / const.N_A},
+    "intensity": {"cd": 1},
     "memory": {
         "byte": 1,
         "Kb": 1024,
-        "Mb": 1024**2,
-        "Gb": 1024**3,
-        "Tb": 1024**4,
+        "Mb": 1024 ** 2,
+        "Gb": 1024 ** 3,
+        "Tb": 1024 ** 4,
     },
 }
 
 # Accept kb, mb, gb ... as well.
-BASE_UNITS["memory"].update({k.lower(): v
-                             for k, v in BASE_UNITS["memory"].items()})
-
+BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items()})
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
@@ -105,7 +92,8 @@ DERIVED_UNITS = {
         "Ha": {"kg": 1, "m": 2, "s": -2, const.e * Ha_to_eV: 1},
         "Ry": {"kg": 1, "m": 2, "s": -2, const.e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
-        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
+        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1},
+        "kCal": {"kg": 1, "m": 2, "s": -2, 1000: 1, kCal_to_kJ: 1},
     },
     "charge": {
         "C": {"A": 1, "s": 1},
@@ -117,7 +105,7 @@ DERIVED_UNITS = {
         "MN": {"kg": 1, "m": 1, "s": -2, 1e6: 1},
         "GN": {"kg": 1, "m": 1, "s": -2, 1e9: 1},
     },
-    "frequency":{
+    "frequency": {
         "Hz": {"s": -1},
         "KHz": {"s": -1, 1000: 1},
         "MHz": {"s": -1, 1e6: 1},
@@ -128,41 +116,27 @@ DERIVED_UNITS = {
         "Pa": {"kg": 1, "m": -1, "s": -2},
         "KPa": {"kg": 1, "m": -1, "s": -2, 1000: 1},
         "MPa": {"kg": 1, "m": -1, "s": -2, 1e6: 1},
-        "GPa": {"kg": 1, "m": -1, "s": -2, 1e9: 1}
+        "GPa": {"kg": 1, "m": -1, "s": -2, 1e9: 1},
     },
     "power": {
         "W": {"m": 2, "kg": 1, "s": -3},
         "KW": {"m": 2, "kg": 1, "s": -3, 1000: 1},
         "MW": {"m": 2, "kg": 1, "s": -3, 1e6: 1},
-        "GW": {"m": 2, "kg": 1, "s": -3, 1e9: 1}
+        "GW": {"m": 2, "kg": 1, "s": -3, 1e9: 1},
     },
-    "emf": {
-        "V": {"m": 2, "kg": 1, "s": -3, "A": -1}
-    },
-    "capacitance": {
-        "F": {"m": -2, "kg": -1, "s": 4, "A": 2}
-    },
-    "resistance": {
-        "ohm": {"m": 2, "kg": 1, "s": -3, "A": -2}
-    },
-    "conductance": {
-        "S": {"m": -2, "kg": -1, "s": 3, "A": 2}
-    },
-    "magnetic_flux": {
-        "Wb": {"m": 2, "kg": 1, "s": -2, "A": -1}
-    },
-    "cross_section": {
-        "barn": {"m": 2, 1E-28: 1},
-        "mbarn": {"m": 2, 1E-31: 1}
-    }
+    "emf": {"V": {"m": 2, "kg": 1, "s": -3, "A": -1}},
+    "capacitance": {"F": {"m": -2, "kg": -1, "s": 4, "A": 2}},
+    "resistance": {"ohm": {"m": 2, "kg": 1, "s": -3, "A": -2}},
+    "conductance": {"S": {"m": -2, "kg": -1, "s": 3, "A": 2}},
+    "magnetic_flux": {"Wb": {"m": 2, "kg": 1, "s": -2, "A": -1}},
+    "cross_section": {"barn": {"m": 2, 1e-28: 1}, "mbarn": {"m": 2, 1e-31: 1}},
 }
 
-
-ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))
-SUPPORTED_UNIT_NAMES = tuple([i for d in ALL_UNITS.values() for i in d.keys()])
+ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
+SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d.keys())
 
 # Mapping unit name --> unit type (unit names must be unique).
-_UNAME2UTYPE = {}
+_UNAME2UTYPE = {}  # type: ignore
 for utype, d in ALL_UNITS.items():
     assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
     _UNAME2UTYPE.update({uname: utype for uname in d})
@@ -171,8 +145,7 @@ del utype, d
 
 def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
-    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1,
-                     BASE_UNITS[unit_type].keys())
+    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type].keys())
     return list(si_unit)[0], BASE_UNITS[unit_type][unit]
 
 
@@ -182,20 +155,22 @@ class UnitError(BaseException):
     """
 
 
-def check_mappings(u):
+def _check_mappings(u):
     for v in DERIVED_UNITS.values():
         for k2, v2 in v.items():
-            if all([v2.get(ku, 0) == vu for ku, vu in u.items()]) and \
-                    all([u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()]):
+            if all(v2.get(ku, 0) == vu for ku, vu in u.items()) and all(
+                u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()
+            ):
                 return {k2: 1}
     return u
 
 
-class Unit(collections.Mapping):
+class Unit(collections.abc.Mapping):
     """
     Represents a unit, e.g., "m" for meters, etc. Supports compound units.
     Only integer powers are supported for units.
     """
+
     Error = UnitError
 
     def __init__(self, unit_def):
@@ -210,9 +185,10 @@ class Unit(collections.Mapping):
                 space-separated.
         """
 
-        if isinstance(unit_def, six.string_types):
+        if isinstance(unit_def, str):
             unit = collections.defaultdict(int)
             import re
+
             for m in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
@@ -220,7 +196,7 @@ class Unit(collections.Mapping):
                 unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
-        self._unit = check_mappings(unit)
+        self._unit = _check_mappings(unit)
 
     def __mul__(self, other):
         new_units = collections.defaultdict(int)
@@ -257,11 +233,10 @@ class Unit(collections.Mapping):
         return len(self._unit)
 
     def __repr__(self):
-        sorted_keys = sorted(self._unit.keys(),
-                             key=lambda k: (-self._unit[k], k))
-        return " ".join(["{}^{}".format(k, self._unit[k])
-                         if self._unit[k] != 1 else k
-                         for k in sorted_keys if self._unit[k] != 0])
+        sorted_keys = sorted(self._unit.keys(), key=lambda k: (-self._unit[k], k))
+        return " ".join(
+            ["{}^{}".format(k, self._unit[k]) if self._unit[k] != 1 else k for k in sorted_keys if self._unit[k] != 0]
+        )
 
     def __str__(self):
         return self.__repr__()
@@ -282,7 +257,7 @@ class Unit(collections.Mapping):
             for d in DERIVED_UNITS.values():
                 if k in d:
                     for k2, v2 in d[k].items():
-                        if isinstance(k2, Number):
+                        if isinstance(k2, numbers.Number):
                             factor *= k2 ** (v2 * v)
                         else:
                             b[k2] += v2 * v
@@ -305,10 +280,8 @@ class Unit(collections.Mapping):
         """
         uo_base, ofactor = self.as_base_units
         un_base, nfactor = Unit(new_unit).as_base_units
-        units_new = sorted(un_base.items(),
-                           key=lambda d: _UNAME2UTYPE[d[0]])
-        units_old = sorted(uo_base.items(),
-                           key=lambda d: _UNAME2UTYPE[d[0]])
+        units_new = sorted(un_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
+        units_old = sorted(uo_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
         factor = ofactor / nfactor
         for uo, un in zip(units_old, units_new):
             if uo[1] != un[1]:
@@ -340,6 +313,7 @@ class FloatWithUnit(float):
     >>> c.to("eV")
     32.932522246000005 eV
     """
+
     Error = UnitError
 
     @classmethod
@@ -366,6 +340,7 @@ class FloatWithUnit(float):
         return cls(num, unit, unit_type=unit_type)
 
     def __new__(cls, val, unit, unit_type=None):
+        """Overrides __new__ since we are subclassing a Python primitive/"""
         new = float.__new__(cls, val)
         new._unit = Unit(unit)
         new._unit_type = unit_type
@@ -381,84 +356,62 @@ class FloatWithUnit(float):
             unit_type (str): A type of unit. E.g., "charge"
         """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
-            raise UnitError(
-                "{} is not a supported unit for {}".format(unit, unit_type))
+            raise UnitError("{} is not a supported unit for {}".format(unit, unit_type))
         self._unit = Unit(unit)
         self._unit_type = unit_type
 
     def __repr__(self):
-        return super(FloatWithUnit, self).__repr__()
+        return super().__repr__()
 
     def __str__(self):
-        s = super(FloatWithUnit, self).__str__()
+        s = super().__str__()
         return "{} {}".format(s, self._unit)
 
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
-            return super(FloatWithUnit, self).__add__(other)
+            return super().__add__(other)
         if other.unit_type != self._unit_type:
             raise UnitError("Adding different types of units is not allowed")
         val = other
         if other.unit != self._unit:
             val = other.to(self._unit)
-        return FloatWithUnit(float(self) + val, unit_type=self._unit_type,
-                             unit=self._unit)
+        return FloatWithUnit(float(self) + val, unit_type=self._unit_type, unit=self._unit)
 
     def __sub__(self, other):
         if not hasattr(other, "unit_type"):
-            return super(FloatWithUnit, self).__sub__(other)
+            return super().__sub__(other)
         if other.unit_type != self._unit_type:
             raise UnitError("Subtracting different units is not allowed")
         val = other
         if other.unit != self._unit:
             val = other.to(self._unit)
-        return FloatWithUnit(float(self) - val, unit_type=self._unit_type,
-                             unit=self._unit)
+        return FloatWithUnit(float(self) - val, unit_type=self._unit_type, unit=self._unit)
 
     def __mul__(self, other):
         if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(float(self) * other,
-                                 unit_type=self._unit_type,
-                                 unit=self._unit)
-        return FloatWithUnit(float(self) * other, unit_type=None,
-                             unit=self._unit * other._unit)
+            return FloatWithUnit(float(self) * other, unit_type=self._unit_type, unit=self._unit)
+        return FloatWithUnit(float(self) * other, unit_type=None, unit=self._unit * other._unit)
 
     def __rmul__(self, other):
         if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(float(self) * other,
-                                 unit_type=self._unit_type,
-                                 unit=self._unit)
-        return FloatWithUnit(float(self) * other, unit_type=None,
-                             unit=self._unit * other._unit)
+            return FloatWithUnit(float(self) * other, unit_type=self._unit_type, unit=self._unit)
+        return FloatWithUnit(float(self) * other, unit_type=None, unit=self._unit * other._unit)
 
     def __pow__(self, i):
-        return FloatWithUnit(float(self) ** i, unit_type=None,
-                             unit=self._unit ** i)
-
-    def __div__(self, other):
-        val = super(FloatWithUnit, self).__div__(other)
-        if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(val, unit_type=self._unit_type,
-                                 unit=self._unit)
-        return FloatWithUnit(val, unit_type=None,
-                             unit=self._unit / other._unit)
+        return FloatWithUnit(float(self) ** i, unit_type=None, unit=self._unit ** i)
 
     def __truediv__(self, other):
-        val = super(FloatWithUnit, self).__truediv__(other)
+        val = super().__truediv__(other)
         if not isinstance(other, FloatWithUnit):
-            return FloatWithUnit(val, unit_type=self._unit_type,
-                                 unit=self._unit)
-        return FloatWithUnit(val, unit_type=None,
-                             unit=self._unit / other._unit)
+            return FloatWithUnit(val, unit_type=self._unit_type, unit=self._unit)
+        return FloatWithUnit(val, unit_type=None, unit=self._unit / other._unit)
 
     def __neg__(self):
-        return FloatWithUnit(super(FloatWithUnit, self).__neg__(),
-                             unit_type=self._unit_type,
-                             unit=self._unit)
+        return FloatWithUnit(super().__neg__(), unit_type=self._unit_type, unit=self._unit)
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        #print(self.__dict__)
+        # print(self.__dict__)
         # FIXME
         # There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
@@ -474,19 +427,25 @@ class FloatWithUnit(float):
     def __getstate__(self):
         state = self.__dict__.copy()
         state["val"] = float(self)
-        #print("in getstate %s" % state)
+        # print("in getstate %s" % state)
         return state
 
     def __setstate__(self, state):
-        #print("in setstate %s" % state)
+        # print("in setstate %s" % state)
         self._unit = state["_unit"]
 
     @property
-    def unit_type(self):
+    def unit_type(self) -> str:
+        """
+        :return: The type of unit. Energy, Charge, etc.
+        """
         return self._unit_type
 
     @property
-    def unit(self):
+    def unit(self) -> str:
+        """
+        :return: The unit, e.g., "eV".
+        """
         return self._unit
 
     def to(self, new_unit):
@@ -509,7 +468,8 @@ class FloatWithUnit(float):
         return FloatWithUnit(
             self * self.unit.get_conversion_factor(new_unit),
             unit_type=self._unit_type,
-            unit=new_unit)
+            unit=new_unit,
+        )
 
     @property
     def as_base_units(self):
@@ -520,7 +480,6 @@ class FloatWithUnit(float):
             A FloatWithUnit object in base SI units
         """
         return self.to(self.unit.as_base_units[0])
-
 
     @property
     def supported_units(self):
@@ -548,9 +507,13 @@ class ArrayWithUnit(np.ndarray):
     >>> c.to("eV")
     array([ 28.21138386,  56.42276772]) eV
     """
+
     Error = UnitError
 
     def __new__(cls, input_array, unit, unit_type=None):
+        """
+        Override __new__.
+        """
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
@@ -569,27 +532,31 @@ class ArrayWithUnit(np.ndarray):
         self._unit = getattr(obj, "_unit", None)
         self._unit_type = getattr(obj, "_unit_type", None)
 
-    #TODO abstract base class property?
     @property
-    def unit_type(self):
+    def unit_type(self) -> str:
+        """
+        :return: The type of unit. Energy, Charge, etc.
+        """
         return self._unit_type
 
-    #TODO abstract base class property?
     @property
-    def unit(self):
+    def unit(self) -> str:
+        """
+        :return: The unit, e.g., "eV".
+        """
         return self._unit
 
     def __reduce__(self):
-        #print("in reduce")
-        reduce = list(super(ArrayWithUnit, self).__reduce__())
-        #print("unit",self._unit)
-        #print(reduce[2])
+        # print("in reduce")
+        reduce = list(super().__reduce__())
+        # print("unit",self._unit)
+        # print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
         return tuple(reduce)
 
     def __setstate__(self, state):
-        #print("in setstate %s" % str(state))
-        super(ArrayWithUnit, self).__setstate__(state["np_state"])
+        # pylint: disable=E1101
+        super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
     def __repr__(self):
@@ -601,14 +568,12 @@ class ArrayWithUnit(np.ndarray):
     def __add__(self, other):
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
-                raise UnitError("Adding different types of units is"
-                                " not allowed")
+                raise UnitError("Adding different types of units is" " not allowed")
 
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) + np.array(other),
-                              unit_type=self.unit_type, unit=self.unit)
+        return self.__class__(np.array(self) + np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __sub__(self, other):
         if hasattr(other, "unit_type"):
@@ -618,8 +583,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) - np.array(other),
-                              unit_type=self.unit_type, unit=self.unit)
+        return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
         # FIXME
@@ -634,45 +598,47 @@ class ArrayWithUnit(np.ndarray):
         # bit misleading.
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__mul__(np.array(other)),
-                                  unit_type=self._unit_type, unit=self._unit)
-        else:
-            # Cannot use super since it returns an instance of self.__class__
-            # while here we want a bare numpy array.
             return self.__class__(
                 np.array(self).__mul__(np.array(other)),
-                unit=self.unit * other.unit)
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        # Cannot use super since it returns an instance of self.__class__
+        # while here we want a bare numpy array.
+        return self.__class__(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
 
     def __rmul__(self, other):
+        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__rmul__(np.array(other)),
-                                  unit_type=self._unit_type, unit=self._unit)
-        else:
             return self.__class__(
                 np.array(self).__rmul__(np.array(other)),
-                unit=self.unit * other.unit)
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        return self.__class__(np.array(self).__rmul__(np.array(other)), unit=self.unit * other.unit)
 
     def __div__(self, other):
+        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__div__(np.array(other)),
-                                  unit_type=self._unit_type, unit=self._unit)
-        else:
             return self.__class__(
                 np.array(self).__div__(np.array(other)),
-                unit=self.unit/other.unit)
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        return self.__class__(np.array(self).__div__(np.array(other)), unit=self.unit / other.unit)
 
     def __truediv__(self, other):
+        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__truediv__(np.array(other)),
-                                  unit_type=self._unit_type, unit=self._unit)
-        else:
             return self.__class__(
                 np.array(self).__truediv__(np.array(other)),
-                unit=self.unit / other.unit)
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        return self.__class__(np.array(self).__truediv__(np.array(other)), unit=self.unit / other.unit)
 
     def __neg__(self):
-        return self.__class__(np.array(self).__neg__(),
-                              unit_type=self.unit_type, unit=self.unit)
+        return self.__class__(np.array(self).__neg__(), unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
         """
@@ -692,7 +658,9 @@ class ArrayWithUnit(np.ndarray):
         """
         return self.__class__(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
-            unit_type=self.unit_type, unit=new_unit)
+            unit_type=self.unit_type,
+            unit=new_unit,
+        )
 
     @property
     def as_base_units(self):
@@ -704,7 +672,7 @@ class ArrayWithUnit(np.ndarray):
         """
         return self.to(self.unit.as_base_units[0])
 
-    #TODO abstract base class property?
+    # TODO abstract base class property?
     @property
     def supported_units(self):
         """
@@ -712,7 +680,7 @@ class ArrayWithUnit(np.ndarray):
         """
         return ALL_UNITS[self.unit_type]
 
-    #TODO abstract base class method?
+    # TODO abstract base class method?
     def conversions(self):
         """
         Returns a string showing the available conversions.
@@ -797,7 +765,6 @@ Args:
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
 
-
 Memory = _my_partial(FloatWithUnit, unit_type="memory")
 """
 A float with a memory unit.
@@ -822,10 +789,9 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
-    elif isinstance(obj, collections.Mapping):
-        return {k: obj_with_unit(v, unit) for k,v in obj.items()}
-    else:
-        return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
+    if isinstance(obj, collections.Mapping):
+        return {k: obj_with_unit(v, unit) for k, v in obj.items()}
+    return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
 def unitized(unit):
@@ -847,21 +813,21 @@ def unitized(unit):
             return 123.45
 
     """
+
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
 
-            if isinstance(val, FloatWithUnit) or isinstance(val, ArrayWithUnit):
+            if isinstance(val, (FloatWithUnit, ArrayWithUnit)):
                 return val.to(unit)
 
-            elif isinstance(val, collections.Sequence):
+            if isinstance(val, collections.abc.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
-                return val.__class__([FloatWithUnit(i, unit_type=unit_type,
-                                                    unit=unit) for i in val])
-            elif isinstance(val, collections.Mapping):
+                return val.__class__([FloatWithUnit(i, unit_type=unit_type, unit=unit) for i in val])
+            if isinstance(val, collections.abc.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
@@ -871,10 +837,13 @@ def unitized(unit):
             else:
                 raise TypeError("Don't know how to assign units to %s" % str(val))
             return val
+
         return wrapped_f
+
     return wrap
 
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

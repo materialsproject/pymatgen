@@ -1,22 +1,45 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.substrate_analyzer module &#8212; pymatgen 2018.4.6 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.substrate_analyzer module &mdash; pymatgen 2022.0.4 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.substrate_analyzer.html"/>
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.surface_analysis module" href="pymatgen.analysis.surface_analysis.html" />
+    <link rel="prev" title="pymatgen.analysis.structure_matcher module" href="pymatgen.analysis.structure_matcher.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -24,30 +47,168 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2022.0.4
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.substrate_analyzer module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.substrate_analyzer.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-pymatgen.analysis.substrate_analyzer">
 <span id="pymatgen-analysis-substrate-analyzer-module"></span><h1>pymatgen.analysis.substrate_analyzer module<a class="headerlink" href="#module-pymatgen.analysis.substrate_analyzer" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>This module provides classes to identify optimal substrates for film growth</p>
+<dl class="py class">
 <dt id="pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer">
-<em class="property">class </em><code class="descname">SubstrateAnalyzer</code><span class="sig-paren">(</span><em>zslgen=&lt;pymatgen.analysis.substrate_analyzer.ZSLGenerator object&gt;</em>, <em>film_max_miller=1</em>, <em>substrate_max_miller=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">SubstrateAnalyzer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">zslgen=&lt;pymatgen.analysis.substrate_analyzer.ZSLGenerator</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">film_max_miller=1</span></em>, <em class="sig-param"><span class="pre">substrate_max_miller=1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L203-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class applies a set of search criteria to identify suitable
 substrates for film growth. It first uses a topoplogical search by Zur
@@ -58,371 +219,320 @@ elastic strain energy of the super-lattices</p>
 <p>Initializes the substrate analyzer
 :param zslgen: Defaults to a ZSLGenerator with standard</p>
 <blockquote>
-<div>tolerances, but can be fed one with custom tolerances</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film_max_miller</strong> (<em>int</em>) – maximum miller index to generate for film
-surfaces</li>
-<li><strong>substrate_max_miller</strong> (<em>int</em>) – maximum miller index to generate for
-substrate surfaces</li>
+<div><p>tolerances, but can be fed one with custom tolerances</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_max_miller</strong> (<em>int</em>) – maximum miller index to generate for film
+surfaces</p></li>
+<li><p><strong>substrate_max_miller</strong> (<em>int</em>) – maximum miller index to generate for
+substrate surfaces</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate">
-<code class="descname">calculate</code><span class="sig-paren">(</span><em>film</em>, <em>substrate</em>, <em>elasticity_tensor=None</em>, <em>film_millers=None</em>, <em>substrate_millers=None</em>, <em>ground_state_energy=0</em>, <em>lowest=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">film</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elasticity_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">film_millers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_millers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_state_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L253-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds all topological matches for the substrate and calculates elastic
 strain energy and total energy for the film if elasticity tensor and
 ground state energy are provided:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</li>
-<li><strong>substrate</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the
-substrate</li>
-<li><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film
-in the IEEE orientation</li>
-<li><strong>film_millers</strong> (<em>array</em>) – film facets to consider in search as defined by
-miller indicies</li>
-<li><strong>substrate_millers</strong> (<em>array</em>) – substrate facets to consider in search as
-defined by miller indicies</li>
-<li><strong>ground_state_energy</strong> (<em>float</em>) – ground state energy for the film</li>
-<li><strong>lowest</strong> (<em>bool</em>) – only consider lowest matching area for each surface</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</p></li>
+<li><p><strong>substrate</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the
+substrate</p></li>
+<li><p><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film
+in the IEEE orientation</p></li>
+<li><p><strong>film_millers</strong> (<em>array</em>) – film facets to consider in search as defined by
+miller indicies</p></li>
+<li><p><strong>substrate_millers</strong> (<em>array</em>) – substrate facets to consider in search as
+defined by miller indicies</p></li>
+<li><p><strong>ground_state_energy</strong> (<em>float</em>) – ground state energy for the film</p></li>
+<li><p><strong>lowest</strong> (<em>bool</em>) – only consider lowest matching area for each surface</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate_3D_elastic_energy">
-<code class="descname">calculate_3D_elastic_energy</code><span class="sig-paren">(</span><em>film</em>, <em>match</em>, <em>elasticity_tensor=None</em>, <em>include_strain=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer.calculate_3D_elastic_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate_3D_elastic_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_3D_elastic_energy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">film</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elasticity_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_strain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L316-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.calculate_3D_elastic_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the multi-plane elastic energy. Returns 999 if no elastic
 tensor was given on init</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</li>
-<li><strong>match</strong> (<em>dictionary</em>) – match dictionary from substrate analyzer</li>
-<li><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film</li>
-<li><strong>include_strain</strong> (<em>bool</em>) – include strain in the output or not; changes
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – conventional standard structure for the film</p></li>
+<li><p><strong>match</strong> (<em>dictionary</em>) – match dictionary from substrate analyzer</p></li>
+<li><p><strong>elasticity_tensor</strong> (<a class="reference internal" href="pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="pymatgen.analysis.elasticity.elastic.ElasticTensor"><em>ElasticTensor</em></a>) – elasticity tensor for the film</p></li>
+<li><p><strong>include_strain</strong> (<em>bool</em>) – include strain in the output or not; changes
 return from just the energy to a tuple with the energy and strain
-in voigt notation</li>
+in voigt notation</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.generate_surface_vectors">
-<code class="descname">generate_surface_vectors</code><span class="sig-paren">(</span><em>film_millers</em>, <em>substrate_millers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#SubstrateAnalyzer.generate_surface_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.generate_surface_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">generate_surface_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">film_millers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_millers</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L228-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.SubstrateAnalyzer.generate_surface_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates the film/substrate slab combinations for a set of given
 miller indicies</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film_millers</strong> (<em>array</em>) – all miller indices to generate slabs for
-film</li>
-<li><strong>substrate_millers</strong> (<em>array</em>) – all miller indicies to generate slabs
-for substrate</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_millers</strong> (<em>array</em>) – all miller indices to generate slabs for
+film</p></li>
+<li><p><strong>substrate_millers</strong> (<em>array</em>) – all miller indicies to generate slabs
+for substrate</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator">
-<em class="property">class </em><code class="descname">ZSLGenerator</code><span class="sig-paren">(</span><em>max_area_ratio_tol=0.09</em>, <em>max_area=400</em>, <em>max_length_tol=0.03</em>, <em>max_angle_tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ZSLGenerator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_area_ratio_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.09</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angle_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L28-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class generate matching interface super lattices based on the methodology
 of lattice vector matching for heterostructural interfaces proposed by
 Zur and McGill:
-Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084</p>
-<p>The process of generating all possible matching super lattices is:</p>
-<p>1.) Reduce the surface lattice vectors and calculate area for the surfaces
+Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084
+The process of generating all possible matching super lattices is:
+1.) Reduce the surface lattice vectors and calculate area for the surfaces
 2.) Generate all super lattice transformations within a maximum allowed area</p>
 <blockquote>
-<div>limit that give nearly equal area super-lattices for the two
-surfaces - generate_sl_transformation_sets</div></blockquote>
-<dl class="docutils">
-<dt>3.) For each superlattice set:</dt>
-<dd><p class="first">1.) Reduce super lattice vectors
+<div><p>limit that give nearly equal area super-lattices for the two
+surfaces - generate_sl_transformation_sets</p>
+</div></blockquote>
+<dl>
+<dt>3.) For each superlattice set:</dt><dd><p>1.) Reduce super lattice vectors
 2.) Check length and angle between film and substrate super lattice</p>
-<blockquote class="last">
-<div>vectors to determine if the super lattices are the nearly same
-and therefore coincident - get_equiv_transformations</div></blockquote>
+<blockquote>
+<div><p>vectors to determine if the super lattices are the nearly same
+and therefore coincident - get_equiv_transformations</p>
+</div></blockquote>
 </dd>
-<dt>Intialize a Zur Super Lattice Generator for a specific film and</dt>
-<dd>substrate</dd>
+<dt>Intialize a Zur Super Lattice Generator for a specific film and</dt><dd><p>substrate</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_area_ratio_tol</strong> (<em>float</em>) – Max tolerance on ratio of
-super-lattices to consider equal</li>
-<li><strong>max_area</strong> (<em>float</em>) – max super lattice area to generate in search</li>
-<li><strong>max_length_tol</strong> – maximum length tolerance in checking if two
-vectors are of nearly the same length</li>
-<li><strong>max_angle_tol</strong> – maximum angle tolerance in checking of two sets
-of vectors have nearly the same angle between them</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_area_ratio_tol</strong> (<em>float</em>) – Max tolerance on ratio of
+super-lattices to consider equal</p></li>
+<li><p><strong>max_area</strong> (<em>float</em>) – max super lattice area to generate in search</p></li>
+<li><p><strong>max_length_tol</strong> – maximum length tolerance in checking if two
+vectors are of nearly the same length</p></li>
+<li><p><strong>max_angle_tol</strong> – maximum angle tolerance in checking of two sets
+of vectors have nearly the same angle between them</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.generate_sl_transformation_sets">
-<code class="descname">generate_sl_transformation_sets</code><span class="sig-paren">(</span><em>film_area</em>, <em>substrate_area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.generate_sl_transformation_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.generate_sl_transformation_sets" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">generate_sl_transformation_sets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">film_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_area</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L86-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.generate_sl_transformation_sets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates transformation sets for film/substrate pair given the
 area of the unit cell area for the film and substrate. The
 transformation sets map the film and substrate unit cells to super
-lattices with a maximum area</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>film_area</strong> (<em>int</em>) – the unit cell area for the film</li>
-<li><strong>substrate_area</strong> (<em>int</em>) – the unit cell area for the substrate</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>a set of transformation_sets defined as:</dt>
-<dd><p class="first last">1.) the transformation matricies for the film to create a
+lattices with a maximum area
+:param film_area: the unit cell area for the film
+:type film_area: int
+:param substrate_area: the unit cell area for the substrate
+:type substrate_area: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>a set of transformation_sets defined as:</dt><dd><p>1.) the transformation matricies for the film to create a
 super lattice of area i*film area
 2.) the tranformation matricies for the substrate to create
 a super lattice of area j*film area</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">transformation_sets</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>transformation_sets</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations">
-<code class="descname">get_equiv_transformations</code><span class="sig-paren">(</span><em>transformation_sets</em>, <em>film_vectors</em>, <em>substrate_vectors</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.get_equiv_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_equiv_transformations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformation_sets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">film_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_vectors</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L114-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.get_equiv_transformations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the transformation_sets to the film and substrate vectors
 to generate super-lattices and checks if they matches.
-Returns all matching vectors sets.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>transformation_sets</strong> (<em>array</em>) – an array of transformation sets:
-each transformation set is an array with the (i,j)
+Returns all matching vectors sets.
+:param transformation_sets: an array of transformation sets:</p>
+<blockquote>
+<div><p>each transformation set is an array with the (i,j)
 indicating the area multipes of the film and subtrate it
 corresponds to, an array with all possible transformations
 for the film area multiple i and another array for the
-substrate area multiple j.</li>
-<li><strong>film_vectors</strong> (<em>array</em>) – film vectors to generate super lattices</li>
-<li><strong>substrate_vectors</strong> (<em>array</em>) – substrate vectors to generate super
-lattices</li>
+substrate area multiple j.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_vectors</strong> (<em>array</em>) – film vectors to generate super lattices</p></li>
+<li><p><strong>substrate_vectors</strong> (<em>array</em>) – substrate vectors to generate super
+lattices</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors">
-<code class="descname">is_same_vectors</code><span class="sig-paren">(</span><em>vec_set1</em>, <em>vec_set2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.is_same_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">is_same_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec_set1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_set2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L70-L84"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.is_same_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if two sets of vectors are the same within length and angle
-tolerances</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</li>
-<li><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+tolerances
+:param vec_set1: an array of two vectors
+:type vec_set1: array[array]
+:param vec_set2: second array of two vectors
+:type vec_set2: array[array]</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict">
-<code class="descname">match_as_dict</code><span class="sig-paren">(</span><em>film_sl_vectors</em>, <em>substrate_sl_vectors</em>, <em>film_vectors</em>, <em>substrate_vectors</em>, <em>match_area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#ZSLGenerator.match_as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns dict which contains ZSL match</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>film_miller</strong> (<em>array</em>) – </li>
-<li><strong>substrate_miller</strong> (<em>array</em>) – </li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">match_as_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">film_sl_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_sl_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">film_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">film_transformation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substrate_transformation</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L175-L200"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.ZSLGenerator.match_as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dict which contains ZSL match
+:param film_miller:
+:type film_miller: array
+:param substrate_miller:
+:type substrate_miller: array</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.fast_norm">
-<code class="descname">fast_norm</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#fast_norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.fast_norm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">fast_norm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L406-L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.fast_norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Much faster variant of numpy linalg norm</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.gen_sl_transform_matricies">
-<code class="descname">gen_sl_transform_matricies</code><span class="sig-paren">(</span><em>area_multiple</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#gen_sl_transform_matricies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.gen_sl_transform_matricies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_sl_transform_matricies</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area_multiple</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L364-L385"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.gen_sl_transform_matricies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates the transformation matricies that convert a set of 2D
 vectors into a super lattice of integer area multiple as proven
 in Cassels:</p>
 <p>Cassels, John William Scott. An introduction to the geometry of
 numbers. Springer Science &amp; Business Media, 2012.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>area_multiple</strong> (<em>int</em>) – integer multiple of unit cell area for super</li>
-<li><strong>area</strong> (<em>lattice</em>) – </li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>area_multiple</strong> (<em>int</em>) – integer multiple of unit cell area for super</p></li>
+<li><p><strong>area</strong> (<em>lattice</em>) – </p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">transformation matricies to covert unit vectors to
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformation matricies to covert unit vectors to
 super lattice vectors</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">matrix_list</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matrix_list</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.get_factors">
-<code class="descname">get_factors</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#get_factors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.get_factors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_factors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L449-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.get_factors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate all factors of n</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.reduce_vectors">
-<code class="descname">reduce_vectors</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#reduce_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.reduce_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reduce_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L429-L446"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.reduce_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate independent and unique basis vectors based on the
 methodology of Zur and McGill</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.rel_angle">
-<code class="descname">rel_angle</code><span class="sig-paren">(</span><em>vec_set1</em>, <em>vec_set2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#rel_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.rel_angle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">rel_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec_set1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_set2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L395-L403"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.rel_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the relative angle between two vector sets</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</li>
-<li><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</p></li>
+<li><p><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.rel_strain">
-<code class="descname">rel_strain</code><span class="sig-paren">(</span><em>vec1</em>, <em>vec2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#rel_strain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.rel_strain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">rel_strain</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L388-L392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.rel_strain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate relative strain between two vectors</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.vec_angle">
-<code class="descname">vec_angle</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#vec_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.vec_angle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">vec_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L413-L419"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.vec_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate angle between two vectors</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.substrate_analyzer.vec_area">
-<code class="descname">vec_area</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/substrate_analyzer.html#vec_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.vec_area" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">vec_area</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/substrate_analyzer.py#L422-L426"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.substrate_analyzer.vec_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Area of lattice plane defined by two vectors</p>
 </dd></dl>
 
 </div>
 
 
+           </div>
+           
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/pymatgen.analysis.substrate_analyzer.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
-      </ul>
-    </div>
+          <footer>
+  
 
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
-    </div>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -437,5 +547,6 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-  </body>
+
+</body>
 </html>

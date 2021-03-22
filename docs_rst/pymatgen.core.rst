@@ -5,12 +5,14 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.core.bonds
    pymatgen.core.composition
@@ -24,6 +26,8 @@ Submodules
    pymatgen.core.spectrum
    pymatgen.core.structure
    pymatgen.core.surface
+   pymatgen.core.tensors
+   pymatgen.core.trajectory
    pymatgen.core.units
    pymatgen.core.xcfunc
 
@@ -31,6 +35,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.core
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

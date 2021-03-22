@@ -2,26 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
-import re
-import warnings
-from operator import itemgetter
-from six import string_types
-from tabulate import tabulate
-
-import numpy as np
-
-from monty.io import zopen
-from monty.json import MSONable
-
-from pymatgen import Structure, Lattice, Element, Molecule
-from pymatgen.io.cif import CifParser
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.io_utils import clean_lines
-from pymatgen.util.string import str_delimited
-
-
 """
 This module defines classes for reading/manipulating/writing the main sections
 of FEFF input file(feff.inp), namely HEADER, ATOMS, POTENTIAL and the program
@@ -29,6 +9,23 @@ control tags.
 
 XANES and EXAFS input files, are available, for non-spin case at this time.
 """
+
+import re
+import warnings
+from operator import itemgetter
+
+import numpy as np
+from monty.io import zopen
+from monty.json import MSONable
+from tabulate import tabulate
+
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.cif import CifParser
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.io_utils import clean_lines
+from pymatgen.util.string import str_delimited
 
 __author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -40,25 +37,109 @@ __status__ = "Beta"
 __date__ = "April 7, 2013"
 
 # **Non-exhaustive** list of valid Feff.inp tags
-VALID_FEFF_TAGS = ("CONTROL", "PRINT", "ATOMS", "POTENTIALS", "RECIPROCAL",
-                   "REAL", "MARKER", "LATTICE", "TITLE", "RMULTIPLIER",
-                   "SGROUP", "COORDINATES", "EQUIVALENCE", "CIF", "CGRID",
-                   "CFAVERAGE", "OVERLAP", "EXAFS", "XANES", "ELNES", "EXELFS",
-                   "LDOS", "ELLIPTICITY", "MULTIPOLE", "POLARIZATION",
-                   "RHOZZP", "DANES", "FPRIME", "NRIXS", "XES", "XNCD",
-                   "XMCD", "XNCDCONTROL", "END", "KMESH", "PRINT", "EGRID",
-                   "DIMS", "AFOLP", "EDGE", "COMPTON", "DANES",
-                   "FPRIME" "MDFF", "HOLE", "COREHOLE", "S02", "CHBROAD",
-                   "EXCHANGE", "FOLP", "NOHOLE", "RGRID", "SCF",
-                   "UNFREEZEF", "CHSHIFT", "DEBYE",
-                   "INTERSTITIAL", "CHWIDTH", "EGAP", "EPS0", "EXTPOT",
-                   "ION", "JUMPRM", "EXPOT", "SPIN", "LJMAX", "LDEC", "MPSE",
-                   "PLASMON", "RPHASES", "RSIGMA", "PMBSE", "TDLDA", "FMS",
-                   "DEBYA", "OPCONS", "PREP", "RESTART", "SCREEN", "SETE",
-                   "STRFACTORS", "BANDSTRUCTURE", "RPATH", "NLEG", "PCRITERIA",
-                   "SYMMETRY", "SS", "CRITERIA", "IORDER", "NSTAR", "ABSOLUTE",
-                   "CORRECTIONS", "SIG2", "SIG3", "MBCONV", "SFCONV", "RCONV",
-                   "SELF", "SFSE", "MAGIC", "TARGET", "STRFAC")
+VALID_FEFF_TAGS = (
+    "CONTROL",
+    "PRINT",
+    "ATOMS",
+    "POTENTIALS",
+    "RECIPROCAL",
+    "REAL",
+    "MARKER",
+    "LATTICE",
+    "TITLE",
+    "RMULTIPLIER",
+    "SGROUP",
+    "COORDINATES",
+    "EQUIVALENCE",
+    "CIF",
+    "CGRID",
+    "CFAVERAGE",
+    "OVERLAP",
+    "EXAFS",
+    "XANES",
+    "ELNES",
+    "EXELFS",
+    "LDOS",
+    "ELLIPTICITY",
+    "MULTIPOLE",
+    "POLARIZATION",
+    "RHOZZP",
+    "DANES",
+    "FPRIME",
+    "NRIXS",
+    "XES",
+    "XNCD",
+    "XMCD",
+    "XNCDCONTROL",
+    "END",
+    "KMESH",
+    "PRINT",
+    "EGRID",
+    "DIMS",
+    "AFOLP",
+    "EDGE",
+    "COMPTON",
+    "DANES",
+    "FPRIME" "MDFF",
+    "HOLE",
+    "COREHOLE",
+    "S02",
+    "CHBROAD",
+    "EXCHANGE",
+    "FOLP",
+    "NOHOLE",
+    "RGRID",
+    "SCF",
+    "UNFREEZEF",
+    "CHSHIFT",
+    "DEBYE",
+    "INTERSTITIAL",
+    "CHWIDTH",
+    "EGAP",
+    "EPS0",
+    "EXTPOT",
+    "ION",
+    "JUMPRM",
+    "EXPOT",
+    "SPIN",
+    "LJMAX",
+    "LDEC",
+    "MPSE",
+    "PLASMON",
+    "RPHASES",
+    "RSIGMA",
+    "PMBSE",
+    "TDLDA",
+    "FMS",
+    "DEBYA",
+    "OPCONS",
+    "PREP",
+    "RESTART",
+    "SCREEN",
+    "SETE",
+    "STRFACTORS",
+    "BANDSTRUCTURE",
+    "RPATH",
+    "NLEG",
+    "PCRITERIA",
+    "SYMMETRY",
+    "SS",
+    "CRITERIA",
+    "IORDER",
+    "NSTAR",
+    "ABSOLUTE",
+    "CORRECTIONS",
+    "SIG2",
+    "SIG3",
+    "MBCONV",
+    "SFCONV",
+    "RCONV",
+    "SELF",
+    "SFSE",
+    "MAGIC",
+    "TARGET",
+    "STRFAC",
+)
 
 
 class Header(MSONable):
@@ -80,15 +161,16 @@ class Header(MSONable):
         * 2 Co     0.333333     0.666667     0.996324
         * 3 O     0.666666     0.333332     0.878676
         * 4 O     0.333333     0.666667     0.378675
-
-    Args:
-        struct: Structure object, See pymatgen.core.structure.Structure.
-        source: User supplied identifier, i.e. for Materials Project this
-            would be the material ID number
-        comment: Comment for first header line
     """
 
-    def __init__(self, struct, source='', comment=''):
+    def __init__(self, struct, source="", comment=""):
+        """
+        Args:
+            struct: Structure object, See pymatgen.core.structure.Structure.
+            source: User supplied identifier, i.e. for Materials Project this
+                would be the material ID number
+            comment: Comment for first header line
+        """
         if struct.is_ordered:
             self.struct = struct
             self.source = source
@@ -98,11 +180,10 @@ class Header(MSONable):
             self.space_group = data["international"]
             self.comment = comment or "None given"
         else:
-            raise ValueError("Structure with partial occupancies cannot be "
-                             "converted into atomic coordinates!")
+            raise ValueError("Structure with partial occupancies cannot be " "converted into atomic coordinates!")
 
     @staticmethod
-    def from_cif_file(cif_file, source='', comment=''):
+    def from_cif_file(cif_file, source="", comment=""):
         """
         Static method to create Header object from cif_file
 
@@ -145,7 +226,7 @@ class Header(MSONable):
         return Header.from_string(hs)
 
     @staticmethod
-    def header_string_from_file(filename='feff.inp'):
+    def header_string_from_file(filename="feff.inp"):
         """
         Reads Header string from either a HEADER file or feff.inp file
         Will also read a header from a non-pymatgen generated feff.inp file
@@ -164,6 +245,8 @@ class Header(MSONable):
             # Checks to see if generated by pymatgen
             try:
                 feffpmg = f[0].find("pymatgen")
+                if feffpmg == -1:
+                    feffpmg = False
             except IndexError:
                 feffpmg = False
 
@@ -184,7 +267,7 @@ class Header(MSONable):
                     else:
                         end = 1
 
-        return ''.join(feff_header_str)
+        return "".join(feff_header_str)
 
     @staticmethod
     def from_string(header_str):
@@ -204,11 +287,12 @@ class Header(MSONable):
         lines = tuple(clean_lines(header_str.split("\n"), False))
         comment1 = lines[0]
         feffpmg = comment1.find("pymatgen")
-
+        if feffpmg == -1:
+            feffpmg = False
         if feffpmg:
-            comment2 = ' '.join(lines[1].split()[2:])
+            comment2 = " ".join(lines[1].split()[2:])
 
-            source = ' '.join(lines[2].split()[2:])
+            source = " ".join(lines[2].split()[2:])
             basis_vec = lines[6].split(":")[-1].split()
             # a, b, c
             a = float(basis_vec[0])
@@ -222,7 +306,7 @@ class Header(MSONable):
             gamma = float(basis_ang[2])
             angles = [alpha, beta, gamma]
 
-            lattice = Lattice.from_lengths_and_angles(lengths, angles)
+            lattice = Lattice.from_parameters(*lengths, *angles)
 
             natoms = int(lines[8].split(":")[-1].split()[0])
 
@@ -236,41 +320,47 @@ class Header(MSONable):
                 toks = lines[i + 9].split()
                 coords.append([float(s) for s in toks[3:]])
 
-            struct = Structure(lattice, atomic_symbols, coords, False,
-                               False, False)
+            struct = Structure(lattice, atomic_symbols, coords, False, False, False)
 
             h = Header(struct, source, comment2)
 
             return h
-        else:
-            return "Header not generated by pymatgen, cannot return header object"
+
+        raise ValueError("Header not generated by pymatgen, cannot return header object")
 
     def __str__(self):
         """
         String representation of Header.
         """
-        to_s = lambda x: "%0.6f" % x
-        output = ["* This FEFF.inp file generated by pymatgen",
-                  ''.join(["TITLE comment: ", self.comment]),
-                  ''.join(["TITLE Source:  ", self.source]),
-                  "TITLE Structure Summary:  {}"
-                      .format(self.struct.composition.formula),
-                  "TITLE Reduced formula:  {}"
-                      .format(self.struct.composition.reduced_formula),
-                  "TITLE space group: ({}), space number:  ({})"
-                      .format(self.space_group, self.space_number),
-                  "TITLE abc:{}".format(" ".join(
-                      [to_s(i).rjust(10) for i in self.struct.lattice.abc])),
-                  "TITLE angles:{}".format(" ".join(
-                      [to_s(i).rjust(10) for i in self.struct.lattice.angles])),
-                  "TITLE sites: {}".format(self.struct.num_sites)]
+
+        def to_s(x):
+            return "%0.6f" % x
+
+        output = [
+            "* This FEFF.inp file generated by pymatgen",
+            "".join(["TITLE comment: ", self.comment]),
+            "".join(["TITLE Source:  ", self.source]),
+            "TITLE Structure Summary:  {}".format(self.struct.composition.formula),
+            "TITLE Reduced formula:  {}".format(self.struct.composition.reduced_formula),
+            "TITLE space group: ({}), space number:  ({})".format(self.space_group, self.space_number),
+            "TITLE abc:{}".format(" ".join([to_s(i).rjust(10) for i in self.struct.lattice.abc])),
+            "TITLE angles:{}".format(" ".join([to_s(i).rjust(10) for i in self.struct.lattice.angles])),
+            "TITLE sites: {}".format(self.struct.num_sites),
+        ]
         for i, site in enumerate(self.struct):
-            output.append(" ".join(["*", str(i + 1), site.species_string,
-                                    " ".join([to_s(j).rjust(12)
-                                              for j in site.frac_coords])]))
+            output.append(
+                " ".join(
+                    [
+                        "*",
+                        str(i + 1),
+                        site.species_string,
+                        " ".join([to_s(j).rjust(12) for j in site.frac_coords]),
+                    ]
+                )
+            )
         return "\n".join(output)
 
-    def write_file(self, filename='HEADER'):
+    def write_file(self, filename="HEADER"):
         """
         Writes Header into filename on disk.
 
@@ -297,11 +387,9 @@ class Atoms(MSONable):
             self.struct = struct
             self.pot_dict = get_atom_map(struct)
         else:
-            raise ValueError("Structure with partial occupancies cannot be "
-                             "converted into atomic coordinates!")
+            raise ValueError("Structure with partial occupancies cannot be " "converted into atomic coordinates!")
 
-        self.absorbing_atom, self.center_index = \
-            get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        self.absorbing_atom, self.center_index = get_absorbing_atom_symbol_index(absorbing_atom, struct)
         self.radius = radius
         self._cluster = self._set_cluster()
 
@@ -359,10 +447,10 @@ class Atoms(MSONable):
                     find_atoms = line.find("ATOMS")
                     if find_atoms >= 0:
                         coords = 1
-                if coords == 1 and not ("END" in line):
+                if coords == 1 and "END" not in line:
                     atoms_str.append(line.replace("\r", ""))
 
-        return ''.join(atoms_str)
+        return "".join(atoms_str)
 
     @staticmethod
     def cluster_from_file(filename):
@@ -396,16 +484,31 @@ class Atoms(MSONable):
             list: list of strings, sorted by the distance from the absorbing
                 atom.
         """
-        lines = [["{:f}".format(self._cluster[0].x),
-                  "{:f}".format(self._cluster[0].y),
-                  "{:f}".format(self._cluster[0].z),
-                  0, self.absorbing_atom, "0.0", 0]]
+        lines = [
+            [
+                "{:f}".format(self._cluster[0].x),
+                "{:f}".format(self._cluster[0].y),
+                "{:f}".format(self._cluster[0].z),
+                0,
+                self.absorbing_atom,
+                "0.0",
+                0,
+            ]
+        ]
         for i, site in enumerate(self._cluster[1:]):
             site_symbol = re.sub(r"[^aA-zZ]+", "", site.species_string)
             ipot = self.pot_dict[site_symbol]
-            lines.append(["{:f}".format(site.x), "{:f}".format(site.y),
-                          "{:f}".format(site.z), ipot, site_symbol,
-                          "{:f}".format(self._cluster.get_distance(0, i + 1)), i + 1])
+            lines.append(
+                [
+                    "{:f}".format(site.x),
+                    "{:f}".format(site.y),
+                    "{:f}".format(site.z),
+                    ipot,
+                    site_symbol,
+                    "{:f}".format(self._cluster.get_distance(0, i + 1)),
+                    i + 1,
+                ]
+            )
 
         return sorted(lines, key=itemgetter(5))
 
@@ -415,13 +518,16 @@ class Atoms(MSONable):
         """
         lines_sorted = self.get_lines()
         # TODO: remove the formatting and update the unittests
-        lines_formatted = str(tabulate(lines_sorted,
-                                       headers=["*       x", "y", "z", "ipot",
-                                                "Atom", "Distance", "Number"]))
+        lines_formatted = str(
+            tabulate(
+                lines_sorted,
+                headers=["*       x", "y", "z", "ipot", "Atom", "Distance", "Number"],
+            )
+        )
         atom_list = lines_formatted.replace("--", "**")
-        return ''.join(["ATOMS\n", atom_list, "\nEND\n"])
+        return "".join(["ATOMS\n", atom_list, "\nEND\n"])
 
-    def write_file(self, filename='ATOMS'):
+    def write_file(self, filename="ATOMS"):
         """
         Write Atoms list to file.
 
@@ -442,7 +548,7 @@ class Tags(dict):
         Args:
             params: A set of input parameters as a dictionary.
         """
-        super(Tags, self).__init__()
+        super().__init__()
         if params:
             self.update(params)
 
@@ -458,9 +564,10 @@ class Tags(dict):
         """
         if key.strip().upper() not in VALID_FEFF_TAGS:
             warnings.warn(key.strip() + " not in VALID_FEFF_TAGS list")
-        super(Tags, self).__setitem__(key.strip(),
-                                      Tags.proc_val(key.strip(), val.strip())
-                                      if isinstance(val, string_types) else val)
+        super().__setitem__(
+            key.strip(),
+            Tags.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
+        )
 
     def as_dict(self):
         """
@@ -470,8 +577,8 @@ class Tags(dict):
             Dictionary of parameters from fefftags object
         """
         tags_dict = dict(self)
-        tags_dict['@module'] = self.__class__.__module__
-        tags_dict['@class'] = self.__class__.__name__
+        tags_dict["@module"] = self.__class__.__module__
+        tags_dict["@class"] = self.__class__.__name__
         return tags_dict
 
     @staticmethod
@@ -529,8 +636,8 @@ class Tags(dict):
                 lines.append([k, self._stringify_val(self[k])])
         if pretty:
             return tabulate(lines)
-        else:
-            return str_delimited(lines, None, " ")
+
+        return str_delimited(lines, None, " ")
 
     @staticmethod
     def _stringify_val(val):
@@ -539,13 +646,13 @@ class Tags(dict):
         """
         if isinstance(val, list):
             return " ".join([str(i) for i in val])
-        else:
-            return str(val)
+
+        return str(val)
 
     def __str__(self):
         return self.get_string()
 
-    def write_file(self, filename='PARAMETERS'):
+    def write_file(self, filename="PARAMETERS"):
         """
         Write Tags to a Feff parameter tag file.
 
@@ -585,7 +692,7 @@ class Tags(dict):
                     else:
                         params[key] = val
             if ieels >= 0:
-                if i >= ieels and i <= ieels_max:
+                if ieels <= i <= ieels_max:
                     if i == ieels + 1:
                         if int(line.split()[1]) == 1:
                             ieels_max -= 1
@@ -593,9 +700,15 @@ class Tags(dict):
 
         if eels_params:
             if len(eels_params) == 6:
-                eels_keys = ['BEAM_ENERGY', 'BEAM_DIRECTION', 'ANGLES', 'MESH', 'POSITION']
+                eels_keys = [
+                    "BEAM_ENERGY",
+                    "BEAM_DIRECTION",
+                    "ANGLES",
+                    "MESH",
+                    "POSITION",
+                ]
             else:
-                eels_keys = ['BEAM_ENERGY', 'ANGLES', 'MESH', 'POSITION']
+                eels_keys = ["BEAM_ENERGY", "ANGLES", "MESH", "POSITION"]
             eels_dict = {"ENERGY": Tags._stringify_val(eels_params[0].split()[1:])}
             for k, v in zip(eels_keys, eels_params[1:]):
                 eels_dict[k] = str(v)
@@ -623,11 +736,10 @@ class Tags(dict):
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
-            else:
-                return int(numstr)
+            return int(numstr)
 
         try:
-            if key.lower() == 'cif':
+            if key.lower() == "cif":
                 m = re.search(r"\w+.cif", val)
                 return m.group(0)
 
@@ -638,18 +750,14 @@ class Tags(dict):
                 for tok in toks:
                     m = re.match(r"(\d+)\*([\d\.\-\+]+)", tok)
                     if m:
-                        output.extend([smart_int_or_float(m.group(2))] *
-                                      int(m.group(1)))
+                        output.extend([smart_int_or_float(m.group(2))] * int(m.group(1)))
                     else:
                         output.append(smart_int_or_float(tok))
                 return output
             if key in boolean_type_keys:
                 m = re.search(r"^\W+([TtFf])", val)
                 if m:
-                    if m.group(1) == "T" or m.group(1) == "t":
-                        return True
-                    else:
-                        return False
+                    return m.group(1) in ["T", "t"]
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_type_keys:
@@ -678,18 +786,15 @@ class Tags(dict):
         different_param = {}
         for k1, v1 in self.items():
             if k1 not in other:
-                different_param[k1] = {"FEFF_TAGS1": v1,
-                                       "FEFF_TAGS2": "Default"}
+                different_param[k1] = {"FEFF_TAGS1": v1, "FEFF_TAGS2": "Default"}
             elif v1 != other[k1]:
-                different_param[k1] = {"FEFF_TAGS1": v1,
-                                       "FEFF_TAGS2": other[k1]}
+                different_param[k1] = {"FEFF_TAGS1": v1, "FEFF_TAGS2": other[k1]}
             else:
                 similar_param[k1] = v1
         for k2, v2 in other.items():
             if k2 not in similar_param and k2 not in different_param:
                 if k2 not in self:
-                    different_param[k2] = {"FEFF_TAGS1": "Default",
-                                           "FEFF_TAGS2": v2}
+                    different_param[k2] = {"FEFF_TAGS1": "Default", "FEFF_TAGS2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -701,8 +806,7 @@ class Tags(dict):
         for k, v in other.items():
             if k in self and v != self[k]:
                 raise ValueError("Tags have conflicting values!")
-            else:
-                params[k] = v
+            params[k] = v
         return Tags(params)
 
 
@@ -721,14 +825,12 @@ class Potential(MSONable):
             self.struct = struct
             self.pot_dict = get_atom_map(struct)
         else:
-            raise ValueError("Structure with partial occupancies cannot be "
-                             "converted into atomic coordinates!")
+            raise ValueError("Structure with partial occupancies cannot be " "converted into atomic coordinates!")
 
-        self.absorbing_atom, _ = \
-            get_absorbing_atom_symbol_index(absorbing_atom, struct)
+        self.absorbing_atom, _ = get_absorbing_atom_symbol_index(absorbing_atom, struct)
 
     @staticmethod
-    def pot_string_from_file(filename='feff.inp'):
+    def pot_string_from_file(filename="feff.inp"):
         """
         Reads Potential parameters from a feff.inp or FEFFPOT file.
         The lines are arranged as follows:
@@ -749,8 +851,10 @@ class Potential(MSONable):
             pot_data = 0
             pot_data_over = 1
 
-            sep_line_pattern = [re.compile('ipot.*Z.*tag.*lmax1.*lmax2.*spinph'),
-                                re.compile('^[*]+.*[*]+$')]
+            sep_line_pattern = [
+                re.compile("ipot.*Z.*tag.*lmax1.*lmax2.*spinph"),
+                re.compile("^[*]+.*[*]+$"),
+            ]
 
             for line in f:
                 if pot_data_over == 1:
@@ -760,8 +864,7 @@ class Potential(MSONable):
                         ln = 0
                     if pot_tag >= 0 and ln > 0 and pot_data_over > 0:
                         try:
-                            if len(sep_line_pattern[0].findall(line)) > 0 or \
-                                            len(sep_line_pattern[1].findall(line)) > 0:
+                            if len(sep_line_pattern[0].findall(line)) > 0 or len(sep_line_pattern[1].findall(line)) > 0:
                                 pot_str.append(line)
                             elif int(line.split()[0]) == pot_data:
                                 pot_data += 1
@@ -770,7 +873,7 @@ class Potential(MSONable):
                             if pot_data > 0:
                                 pot_data_over = 0
 
-        return ''.join(pot_str).rstrip('\n')
+        return "".join(pot_str).rstrip("\n")
 
     @staticmethod
     def pot_dict_from_string(pot_data):
@@ -820,21 +923,31 @@ class Potential(MSONable):
             String representation of Atomic Coordinate Shells.
         """
         central_element = Element(self.absorbing_atom)
-        ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, .0001, 0]]
+        ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, 0.0001, 0]]
         for el, amt in self.struct.composition.items():
             ipot = self.pot_dict[el.symbol]
             ipotrow.append([ipot, el.Z, el.symbol, -1, -1, amt, 0])
         ipot_sorted = sorted(ipotrow, key=itemgetter(0))
-        ipotrow = str(tabulate(ipot_sorted,
-                               headers=["*ipot", "Z", "tag", "lmax1",
-                                        "lmax2", "xnatph(stoichometry)",
-                                        "spinph"]))
+        ipotrow = str(
+            tabulate(
+                ipot_sorted,
+                headers=[
+                    "*ipot",
+                    "Z",
+                    "tag",
+                    "lmax1",
+                    "lmax2",
+                    "xnatph(stoichometry)",
+                    "spinph",
+                ],
+            )
+        )
         ipotlist = ipotrow.replace("--", "**")
-        ipotlist = ''.join(["POTENTIALS\n", ipotlist])
+        ipotlist = "".join(["POTENTIALS\n", ipotlist])
 
         return ipotlist
 
-    def write_file(self, filename='POTENTIALS'):
+    def write_file(self, filename="POTENTIALS"):
         """
         Write to file.
 
@@ -896,12 +1009,6 @@ class FeffParserError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
 
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "FeffParserError : " + self.msg
-
 
 def get_atom_map(structure):
     """
@@ -934,9 +1041,8 @@ def get_absorbing_atom_symbol_index(absorbing_atom, structure):
     Returns:
         str, int: symbol and site index
     """
-    if isinstance(absorbing_atom, string_types):
+    if isinstance(absorbing_atom, str):
         return absorbing_atom, structure.indices_from_symbol(absorbing_atom)[0]
-    elif isinstance(absorbing_atom, int):
+    if isinstance(absorbing_atom, int):
         return str(structure[absorbing_atom].specie), absorbing_atom
-    else:
-        raise ValueError("absorbing_atom must be either specie symbol or site index")
+    raise ValueError("absorbing_atom must be either specie symbol or site index")

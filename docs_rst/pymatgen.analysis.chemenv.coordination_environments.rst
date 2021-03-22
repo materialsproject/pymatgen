@@ -5,14 +5,15 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
-    pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files
-    pymatgen.analysis.chemenv.coordination_environments.strategy_files
+   pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies
    pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
@@ -24,6 +25,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.analysis.chemenv.coordination_environments
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
