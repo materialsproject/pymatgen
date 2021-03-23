@@ -370,7 +370,7 @@ class StructureGraph(MSONable):
         # edges if appropriate
         if to_jimage is None:
             # assume we want the closest site
-            warnings.warn("Please specify to_jimage to be unambiguous, " "trying to automatically detect.")
+            warnings.warn("Please specify to_jimage to be unambiguous, trying to automatically detect.")
             dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
             if dist == 0:
                 # this will happen when from_index == to_index,
@@ -402,6 +402,22 @@ class StructureGraph(MSONable):
             tuple(map(int, to_jimage)),
         )
         from_index, to_index = int(from_index), int(to_index)
+
+        # if edge is from site i to site i, constrain direction of edge
+        # this is a convention to avoid duplicate hops
+        if to_index == from_index:
+            if to_jimage == (0, 0, 0):
+                warnings.warn("Tried to create a bond to itself, " "this doesn't make sense so was ignored.")
+                return
+
+            # ensure that the first non-zero jimage index is positive
+            # assumes that at least one non-zero index is present
+            is_positive = [idx for idx in to_jimage if idx != 0][0] > 0
+
+            if not is_positive:
+                # let's flip the jimage,
+                # e.g. (0, 1, 0) is equivalent to (0, -1, 0) in this case
+                to_jimage = tuple(-idx for idx in to_jimage)
 
         # check we're not trying to add a duplicate edge
         # there should only ever be at most one edge
