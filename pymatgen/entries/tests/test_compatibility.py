@@ -681,7 +681,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
     def test_correction_values(self):
         # test_corrections
-        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.196 * 2 - 0.739 * 3)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.224 * 2 - 0.706 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -706,9 +706,9 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.485 * 3 + -2.196)
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.404 * 3 + -2.224)
 
-        self.assertAlmostEqual(self.compat.process_entry(self.entry_sulfide).correction, -0.639)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_sulfide).correction, -0.592)
 
     def test_oxdiation_by_electronegativity(self):
         # make sure anion corrections are only applied when the element has
@@ -766,10 +766,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.408 * 2)
+        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.225 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.739 * 4)
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.706 * 4)
 
     def test_oxdiation(self):
         # make sure anion corrections are only applied when the element has
@@ -833,10 +833,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.408 * 2)
+        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.225 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.739 * 4)
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.706 * 4)
 
     def test_U_values(self):
         # Wrong U value
@@ -1037,14 +1037,14 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
         for ea in c.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                self.assertAlmostEqual(ea.value, -2.196 * 4)
-                self.assertAlmostEqual(ea.uncertainty, 0.009 * 4)
+                self.assertAlmostEqual(ea.value, -2.224 * 4)
+                self.assertAlmostEqual(ea.uncertainty, 0.0106 * 4)
             elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
-                self.assertAlmostEqual(ea.value, -1.516 * 2)
-                self.assertAlmostEqual(ea.uncertainty, 0.0059 * 2)
+                self.assertAlmostEqual(ea.value, -1.556 * 2)
+                self.assertAlmostEqual(ea.uncertainty, 0.0163 * 2)
             elif ea.name == "MP2020 anion correction (oxide)":
-                self.assertAlmostEqual(ea.value, -0.739 * 8)
-                self.assertAlmostEqual(ea.uncertainty, 0.0017 * 8)
+                self.assertAlmostEqual(ea.value, -0.706 * 8)
+                self.assertAlmostEqual(ea.uncertainty, 0.0025 * 8)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
@@ -2217,26 +2217,26 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         entry1_corrected = self.compat.process_entry(self.entry1)
         self.assertAlmostEqual(
             entry1_corrected.correction_uncertainty,
-            sqrt((2 * 0.009) ** 2 + (3 * 0.0017) ** 2),
+            sqrt((2 * 0.0106) ** 2 + (3 * 0.0025) ** 2),
         )
 
         entry2_corrected = self.compat.process_entry(self.entry2)
         self.assertAlmostEqual(
             entry2_corrected.correction_uncertainty,
-            sqrt((3 * 0.009) ** 2 + (4 * 0.0017) ** 2),
+            sqrt((3 * 0.0106) ** 2 + (4 * 0.0025) ** 2),
         )
 
         entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
-        self.assertAlmostEqual(entry_sulfide_corrected.correction_uncertainty, 0.0121)
+        self.assertAlmostEqual(entry_sulfide_corrected.correction_uncertainty, 0.0113)
 
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
         self.assertAlmostEqual(
             entry_fluoride_corrected.correction_uncertainty,
-            sqrt((3 * 0.0025) ** 2 + 0.009 ** 2),
+            sqrt((3 * 0.0049) ** 2 + 0.0106 ** 2),
         )
 
         entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)
-        self.assertAlmostEqual(entry_hydride_corrected.correction_uncertainty, 0.0013)
+        self.assertAlmostEqual(entry_hydride_corrected.correction_uncertainty, 0.002)
 
 
 if __name__ == "__main__":
