@@ -6,37 +6,37 @@ Corrections:
     # and fluorides to make GGA and GGA+U energies compatible
     # when compat_type = "Advanced" (default)
     O:
-      V: -1.602
-      Cr: -1.894
-      Mn: -1.588
-      Fe: -2.182
-      Co: -1.535
-      Ni: -2.504
-      W: -4.57
-      Mo: -3.059
+      V: -1.605
+      Cr: -1.895
+      Mn: -1.589
+      Fe: -2.196
+      Co: -1.516
+      Ni: -2.508
+      W: -4.555
+      Mo: -3.058
     F:
-      V: -1.602
-      Cr: -1.894
-      Mn: -1.588
-      Fe: -2.182
-      Co: -1.535
-      Ni: -2.504
-      W: -4.57
-      Mo: -3.059
+      V: -1.605
+      Cr: -1.895
+      Mn: -1.589
+      Fe: -2.196
+      Co: -1.516
+      Ni: -2.508
+      W: -4.555
+      Mo: -3.058
   CompositionCorrections:
     # Composition-based corrections applied to any compound containing
     # these species as anions
-    oxide: -0.74
+    oxide: -0.739
     peroxide: -0.466
     superoxide: -0.16
     S: -0.639
     F: -0.485
     Cl: -0.593
     Br: -0.538
-    I: -0.377
+    I: -0.375
     N: -0.344
-    Se: -0.473
-    Si: -0.406
+    Se: -0.472
+    Si: -0.408
     Sb: -0.192
     Te: -0.419
     H: -0.178

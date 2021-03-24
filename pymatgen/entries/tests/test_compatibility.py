@@ -681,7 +681,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
     def test_correction_values(self):
         # test_corrections
-        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.182 * 2 - 0.74 * 3)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.196 * 2 - 0.739 * 3)
 
         entry = ComputedEntry(
             "FeF3",
@@ -706,7 +706,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.485 * 3 + -2.182)
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -0.485 * 3 + -2.196)
 
         self.assertAlmostEqual(self.compat.process_entry(self.entry_sulfide).correction, -0.639)
 
@@ -766,10 +766,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.406 * 2)
+        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.408 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.74 * 4)
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.739 * 4)
 
     def test_oxdiation(self):
         # make sure anion corrections are only applied when the element has
@@ -833,10 +833,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         )
 
         # CaSi; only correction should be Si
-        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.406 * 2)
+        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.408 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.74 * 4)
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.739 * 4)
 
     def test_U_values(self):
         # Wrong U value
@@ -1037,13 +1037,13 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
         for ea in c.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
-                self.assertAlmostEqual(ea.value, -2.182 * 4)
+                self.assertAlmostEqual(ea.value, -2.196 * 4)
                 self.assertAlmostEqual(ea.uncertainty, 0.009 * 4)
             elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
-                self.assertAlmostEqual(ea.value, -1.535 * 2)
+                self.assertAlmostEqual(ea.value, -1.516 * 2)
                 self.assertAlmostEqual(ea.uncertainty, 0.0059 * 2)
             elif ea.name == "MP2020 anion correction (oxide)":
-                self.assertAlmostEqual(ea.value, -0.74 * 8)
+                self.assertAlmostEqual(ea.value, -0.739 * 8)
                 self.assertAlmostEqual(ea.uncertainty, 0.0017 * 8)
 
         entry.parameters["is_hubbard"] = False
