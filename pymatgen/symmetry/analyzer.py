@@ -149,26 +149,22 @@ class SpacegroupAnalyzer:
         """
         n = self._space_group_data["number"]
 
-        def f(i, j):
-            return i <= n <= j
+        if 0 < n < 3:
+            return "triclinic"
+        if n < 16:
+            return "monoclinic"
+        if n < 75:
+            return "orthorhombic"
+        if n < 143:
+            return "tetragonal"
+        if n < 168:
+            return "trigonal"
+        if n < 195:
+            return "hexagonal"
+        if n < 231:
+            return "cubic"
 
-        cs = {
-            "triclinic": (1, 2),
-            "monoclinic": (3, 15),
-            "orthorhombic": (16, 74),
-            "tetragonal": (75, 142),
-            "trigonal": (143, 167),
-            "hexagonal": (168, 194),
-            "cubic": (195, 230),
-        }
-
-        crystal_sytem = None
-
-        for k, v in cs.items():
-            if f(*v):
-                crystal_sytem = k
-                break
-        return crystal_sytem
+        raise ValueError("Invalid space group")
 
     def get_lattice_type(self):
         """
