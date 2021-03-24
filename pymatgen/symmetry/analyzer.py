@@ -460,7 +460,9 @@ class SpacegroupAnalyzer:
         Challenges and tools. Computational Materials Science,
         49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
         They basically enforce as much as possible
-        norm(a1)<norm(a2)<norm(a3)
+        norm(a1)<norm(a2)<norm(a3). NB This is not necessarily the same as the
+        standard settings within the International Tables of Crystallography,
+        for which get_refined_structure should be used instead.
 
         Returns:
             The structure in a conventional standardized cell
