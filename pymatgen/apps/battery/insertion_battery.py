@@ -191,9 +191,9 @@ class InsertionElectrode(AbstractElectrode):
         """
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
-            if pair.decomp_e_charge is not None:
+            if getattr(pair, "decomp_e_charge", None) is not None:
                 data.append(pair.decomp_e_charge)
-            if pair.decomp_e_discharge is not None:
+            if getattr(pair, "decomp_e_discharge", None) is not None:
                 data.append(pair.decomp_e_discharge)
         return max(data) if len(data) > 0 else None
 
@@ -211,9 +211,9 @@ class InsertionElectrode(AbstractElectrode):
         """
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
-            if pair.decomp_e_charge is not None:
+            if getattr(pair, "decomp_e_charge", None) is not None:
                 data.append(pair.decomp_e_charge)
-            if pair.decomp_e_discharge is not None:
+            if getattr(pair, "decomp_e_discharge", None) is not None:
                 data.append(pair.decomp_e_discharge)
         return min(data) if len(data) > 0 else None
 
