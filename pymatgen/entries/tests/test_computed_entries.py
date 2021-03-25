@@ -389,27 +389,28 @@ class ComputedStructureEntryTest(unittest.TestCase):
 
 class GibbsComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
-        self.temps = [300, 600, 900, 1200, 1500, 1800]
-        self.struct = vasprun.final_structure
-        self.num_atoms = self.struct.composition.num_atoms
-        self.entries_with_temps = {
-            temp: GibbsComputedStructureEntry(
-                self.struct,
-                -2.436,
-                temp=temp,
-                gibbs_model="SISSO",
-                parameters=vasprun.incar,
-                entry_id="test",
-            )
-            for temp in self.temps
-        }
+        with pytest.warns(FutureWarning, match="MaterialsProjectCompatibility will be updated"):
+            self.temps = [300, 600, 900, 1200, 1500, 1800]
+            self.struct = vasprun.final_structure
+            self.num_atoms = self.struct.composition.num_atoms
+            self.entries_with_temps = {
+                temp: GibbsComputedStructureEntry(
+                    self.struct,
+                    -2.436,
+                    temp=temp,
+                    gibbs_model="SISSO",
+                    parameters=vasprun.incar,
+                    entry_id="test",
+                )
+                for temp in self.temps
+            }
 
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
-            data = json.load(f)
-        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"), "r") as f:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(f))
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
+                data = json.load(f)
+            with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"), "r") as f:
+                self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
-        self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
+            self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
     def test_gf_sisso(self):
         energies = {

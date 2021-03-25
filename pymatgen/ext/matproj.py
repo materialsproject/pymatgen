@@ -478,7 +478,7 @@ class MPRester:
                 (e.g., mp-1234) or full Mongo-style dict criteria.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProject2020Compatibility class,
+                processed using the MaterialsProjectCompatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -562,14 +562,14 @@ class MPRester:
                 )
             entries.append(e)
         if compatible_only:
-            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+            from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
-            entries = MaterialsProject2020Compatibility().process_entries(entries)
+            entries = MaterialsProjectCompatibility().process_entries(entries)
         if sort_by_e_above_hull:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
+    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProjectCompatibility"):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -579,9 +579,9 @@ class MPRester:
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
-                (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
-                Default: MaterialsProject2020Compatibility
+                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
+                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProjectCompatibility
         """
         # imports are not top-level due to expense
 
@@ -590,14 +590,11 @@ class MPRester:
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
             MaterialsProjectAqueousCompatibility,
-            MaterialsProject2020Compatibility,
             MaterialsProjectCompatibility,
         )
 
         if solid_compat == "MaterialsProjectCompatibility":
             solid_compat = MaterialsProjectCompatibility
-        elif solid_compat == "MaterialsProject2020Compatibility":
-            solid_compat = MaterialsProject2020Compatibility
 
         pbx_entries = []
 
@@ -714,7 +711,7 @@ class MPRester:
                 e.g., mp-1234).
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProject2020Compatibility class,
+                processed using the MaterialsProjectCompatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -833,7 +830,7 @@ class MPRester:
                 symbols, e.g., ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProject2020Compatibility class,
+                processed using the MaterialsProjectCompatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
