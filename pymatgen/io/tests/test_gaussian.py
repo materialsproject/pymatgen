@@ -209,17 +209,17 @@ H 0
         gau_str = "#P chkbasis geom=allcheck guess=(only,read) pop=naturalorbital\n"
         gau_str += "\n"
         gau_str += "Restart"
-        
+
         input_file = GaussianInput(
             None,
             charge=None,
             spin_multiplicity=None,
             functional=None,
             basis_set=None,
-            route_parameters = {
+            route_parameters={
                 "chkbasis": None,
                 "geom": "allcheck",
-                "guess": {"only": None,"read": None},
+                "guess": {"only": None, "read": None},
                 "pop": "naturalorbital",
             },
         )

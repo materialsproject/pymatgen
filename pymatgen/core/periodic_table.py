@@ -50,110 +50,9 @@ class ElementBase(Enum):
 
             Element symbol
 
-        .. attribute:: X
-
-            Pauling electronegativity. Elements without an electronegativity
-            number are assigned a value of zero by default.
-
-        .. attribute:: number
-
-            Alternative attribute for atomic number
-
-        .. attribute:: max_oxidation_state
-
-            Maximum oxidation state for element
-
-        .. attribute:: min_oxidation_state
-
-            Minimum oxidation state for element
-
-        .. attribute:: oxidation_states
-
-            Tuple of all known oxidation states
-
-        .. attribute:: common_oxidation_states
-
-            Tuple of all common oxidation states
-
-        .. attribute:: full_electronic_structure
-
-            Full electronic structure as tuple.
-            E.g., The electronic structure for Fe is represented as:
-            [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-            (3, "d", 6), (4, "s", 2)]
-
-        .. attribute:: row
-
-            Returns the periodic table row of the element.
-
-        .. attribute:: group
-
-            Returns the periodic table group of the element.
-
-        .. attribute:: block
-
-            Return the block character "s,p,d,f"
-
-        .. attribute:: is_noble_gas
-
-            True if element is noble gas.
-
-        .. attribute:: is_transition_metal
-
-            True if element is a transition metal.
-
-        .. attribute:: is_post_transition_metal
-
-            True if element is a post transition metal.
-
-        .. attribute:: is_rare_earth_metal
-
-            True if element is a rare earth metal.
-
-        .. attribute:: is_metalloid
-
-            True if element is a metalloid.
-
-        .. attribute:: is_alkali
-
-            True if element is an alkali metal.
-
-        .. attribute:: is_alkaline
-
-            True if element is an alkaline earth metal (group II).
-
-        .. attribute:: is_halogen
-
-            True if element is a halogen.
-
-        .. attribute:: is_lanthanoid
-
-            True if element is a lanthanoid.
-
-        .. attribute:: is_actinoid
-
-            True if element is a actinoid.
-
-        .. attribute:: iupac_ordering
-
-            Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
-            (IUPAC Recommendations 2005)". This ordering effectively follows the
-            groups and rows of the periodic table, except the Lanthanides, Actanides
-            and hydrogen.
-
         .. attribute:: long_name
 
            Long name for element. E.g., "Hydrogen".
-
-        .. attribute:: atomic_mass
-
-            Atomic mass for the element.
-
-        .. attribute:: atomic_radius
-
-            Atomic radius for the element. This is the empirical value. Data is
-            obtained from
-            http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
 
         .. attribute:: atomic_radius_calculated
 
@@ -268,25 +167,15 @@ class ElementBase(Enum):
 
             Coefficient of linear thermal expansion
 
-        .. attribute:: average_ionic_radius
+        .. attribute:: ground_level
 
-            Average ionic radius for element in ang. The average is taken over all
-            oxidation states of the element for which data is present.
+            Ground level for element
 
-        .. attribute:: average_cationic_radius
+        .. attribute:: ionization_energies
 
-            Average cationic radius for element in ang. The average is taken over all
-            positive oxidation states of the element for which data is present.
-
-        .. attribute:: average_anionic_radius
-
-            Average ionic radius for element in ang. The average is taken over all
-            negative oxidation states of the element for which data is present.
-
-        .. attribute:: ionic_radii
-
-            All ionic radii of the element as a dict of
-            {oxidation state: ionic radii}. Radii are given in ang.
+            List of ionization energies. First value is the first ionization energy, second is the second ionization
+            energy, etc. Note that this is zero-based indexing! So Element.ionization_energies[0] refer to the 1st
+            ionization energy. Values are from the NIST Atomic Spectra Database. Missing values are None.
         """
         self.symbol = "%s" % symbol
         d = _pt_data[symbol]
@@ -360,12 +249,14 @@ class ElementBase(Enum):
             "coefficient_of_linear_thermal_expansion",
             "ground_state_term_symbol",
             "valence",
+            "ground_level",
+            "ionization_energies",
         ]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
-            elif isinstance(val, dict):
+            elif isinstance(val, (list, dict)):
                 pass
             else:
                 try:
@@ -405,6 +296,20 @@ class ElementBase(Enum):
         Returns dict of data for element.
         """
         return self._data.copy()
+
+    @property
+    def ionization_energy(self) -> float:
+        """
+        First ionization energy of element.
+        """
+        return self._data["Ionization energies"][0]
+
+    @property
+    def electron_affinity(self) -> float:
+        """
+        First ionization energy of element.
+        """
+        return self._data["Electron affinity"]
 
     @property
     def electronic_structure(self) -> str:

@@ -16,10 +16,7 @@ you can find at https://github.com/charnley/rmsd.
 
 __author__ = "Xiaohui Qu, Adam Fekete"
 __version__ = "1.0"
-__maintainer__ = "Xiaohui Qu"
 __email__ = "xhqu1981@gmail.com"
-__status__ = "Development"
-__date__ = "Aug 21, 2020"
 
 
 import abc
@@ -157,7 +154,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         isomapper.MapAll(obmol2, isomorph)
 
         sorted_isomorph = [sorted(x, key=lambda morp: morp[0]) for x in isomorph]
-        label2_list = tuple([tuple([p[1] + 1 for p in x]) for x in sorted_isomorph])
+        label2_list = tuple(tuple(p[1] + 1 for p in x) for x in sorted_isomorph)
 
         vmol1 = obmol1
         aligner = ob.OBAlign(True, False)
@@ -278,11 +275,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         inchi = match.group("inchi")
         label_text = match.group("labels")
         eq_atom_text = match.group("eq_atoms")
-        heavy_atom_labels = tuple([int(i) for i in label_text.replace(";", ",").split(",")])
+        heavy_atom_labels = tuple(int(i) for i in label_text.replace(";", ",").split(","))
         eq_atoms = []
         if eq_atom_text is not None:
             eq_tokens = re.findall(r"\(((?:[0-9]+,)+[0-9]+)\)", eq_atom_text.replace(";", ","))
-            eq_atoms = tuple([tuple([int(i) for i in t.split(",")]) for t in eq_tokens])
+            eq_atoms = tuple(tuple(int(i) for i in t.split(",")) for t in eq_tokens)
         return heavy_atom_labels, eq_atoms, inchi
 
     @staticmethod
@@ -433,7 +430,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, nheavy + 1)), ilabel2))
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
-        heavy_atom_indices2 = tuple([x[2] for x in canon_inchi_orig_map2])
+        heavy_atom_indices2 = tuple(x[2] for x in canon_inchi_orig_map2)
         return heavy_atom_indices2
 
     @staticmethod
@@ -696,7 +693,7 @@ class MoleculeMatcher(MSONable):
         mol_hash.sort(key=lambda x: x[1])
 
         # Use molecular hash to pre-group molecules.
-        raw_groups = tuple([tuple([m[0] for m in g]) for k, g in itertools.groupby(mol_hash, key=lambda x: x[1])])
+        raw_groups = tuple(tuple(m[0] for m in g) for k, g in itertools.groupby(mol_hash, key=lambda x: x[1]))
 
         group_indices = []
         for rg in raw_groups:

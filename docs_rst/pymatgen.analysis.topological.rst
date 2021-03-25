@@ -1,6 +1,13 @@
 pymatgen.analysis.topological package
 =====================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 7
+
+
 Submodules
 ----------
 

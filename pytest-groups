@@ -1,4 +1,0 @@
-pymatgen/analysis
-pymatgen/ext pymatgen/command_line pymatgen/symmetry
-pymatgen/electronic_structure pymatgen/io pymatgen/transformations 
-pymatgen/apps pymatgen/core pymatgen/entries pymatgen/optimization pymatgen/util pymatgen/alchemy pymatgen/cli pymatgen/phonon pymatgen/tests pymatgen/vis

@@ -29,9 +29,6 @@ from pymatgen.entries import Entry
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
 __date__ = "April 2020"
 
 with open(os.path.join(os.path.dirname(__file__), "data/g_els.json")) as f:
@@ -90,6 +87,13 @@ class EnergyAdjustment(MSONable):
 
         This method is utilized in ComputedEntry.normalize() to scale the energies to a formula unit basis
         (e.g. E_Fe6O9 = 3 x E_Fe2O3).
+        """
+
+    @property
+    @abc.abstractmethod
+    def explain(self):
+        """
+        Return an explanaion of how the energy adjustment is calculated.
         """
 
     def __repr__(self):

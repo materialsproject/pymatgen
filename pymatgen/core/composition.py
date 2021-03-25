@@ -28,15 +28,6 @@ from pymatgen.util.string import formula_double_format, Stringify
 SpeciesLike = Union[str, Element, Species, DummySpecies]
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 10, 2012"
-
-
 @total_ordering
 class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, Stringify):
     """
@@ -244,14 +235,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def __hash__(self):
         """
-        Minimally effective hash function that just distinguishes between
-        Compositions with different elements.
+        hash based on the chemical system
         """
-        hashcode = 0
-        for el, amt in self.items():
-            if abs(amt) > Composition.amount_tolerance:
-                hashcode += el.Z
-        return hashcode
+        return hash(frozenset(self._data.keys()))
 
     @property
     def average_electroneg(self) -> float:
@@ -563,8 +549,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise ValueError("Please pick a category from: {}".format(", ".join(allowed_categories)))
 
         if "block" in category:
-            return any([category[0] in el.block for el in self.elements])
-        return any([getattr(el, "is_{}".format(category)) for el in self.elements])
+            return any(category[0] in el.block for el in self.elements)
+        return any(getattr(el, "is_{}".format(category)) for el in self.elements)
 
     def _parse_formula(self, formula):
         """
@@ -644,7 +630,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns True if Composition contains valid elements or species and
         False if the Composition contains any dummy species.
         """
-        return not any([isinstance(el, DummySpecies) for el in self.elements])
+        return not any(isinstance(el, DummySpecies) for el in self.elements)
 
     def __repr__(self):
         return "Comp: " + self.formula

@@ -133,7 +133,7 @@ DERIVED_UNITS = {
 }
 
 ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))  # type: ignore
-SUPPORTED_UNIT_NAMES = tuple([i for d in ALL_UNITS.values() for i in d.keys()])
+SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d.keys())
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}  # type: ignore
@@ -158,8 +158,8 @@ class UnitError(BaseException):
 def _check_mappings(u):
     for v in DERIVED_UNITS.values():
         for k2, v2 in v.items():
-            if all([v2.get(ku, 0) == vu for ku, vu in u.items()]) and all(
-                [u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()]
+            if all(v2.get(ku, 0) == vu for ku, vu in u.items()) and all(
+                u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()
             ):
                 return {k2: 1}
     return u
