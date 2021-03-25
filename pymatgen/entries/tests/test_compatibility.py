@@ -20,6 +20,7 @@ import os
 import unittest
 from collections import defaultdict
 from math import sqrt
+from pathlib import Path
 
 import pytest
 from monty.json import MontyDecoder
@@ -44,6 +45,7 @@ from pymatgen.entries.computed_entries import (
     ComputedStructureEntry,
     ConstantEnergyAdjustment,
 )
+from pymatgen.util.testing import PymatgenTest
 
 
 # abstract Compatibility tests
@@ -1058,6 +1060,14 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
         self.assertEqual(len(entries), 2)
 
+    def test_config_file(self):
+        config_file = Path(PymatgenTest.TEST_FILES_DIR / "MP2020Compatibility_alternate.yaml")
+        compat = MaterialsProject2020Compatibility(config_file=config_file)
+        entry = compat.process_entry(self.entry1)
+        for ea in entry.energy_adjustments:
+            if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
+                self.assertAlmostEqual(ea.value, -0.224 * 2)
+    
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
