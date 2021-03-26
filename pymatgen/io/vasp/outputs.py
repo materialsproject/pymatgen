@@ -1354,7 +1354,7 @@ class Vasprun(MSONable):
         if partial is not None:
             orbs = [ss.text for ss in partial.find("array").findall("field")]
             orbs.pop(0)
-            lm = any(["x" in s for s in orbs])
+            lm = any("x" in s for s in orbs)
             for s in partial.find("array").find("set").findall("set"):
                 pdos = defaultdict(dict)
 

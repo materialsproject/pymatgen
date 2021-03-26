@@ -242,7 +242,7 @@ class StructureConnectivity(MSONable):
                         alldeltas.remove((0, 0, 0))
                         alldeltas2.remove((0, 0, 0))
                     for current_delta in alldeltas:
-                        opp_current_delta = tuple([-dd for dd in current_delta])
+                        opp_current_delta = tuple(-dd for dd in current_delta)
                         if opp_current_delta in alldeltas2:
                             remove_deltas.append(current_delta)
                             alldeltas2.remove(current_delta)

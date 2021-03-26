@@ -641,7 +641,7 @@ class LocalGeometryFinder:
             sites_indices = [
                 isite
                 for isite in sites_indices
-                if any([at in [sp.symbol for sp in self.structure[isite].species] for at in only_atoms])
+                if any(at in [sp.symbol for sp in self.structure[isite].species] for at in only_atoms)
             ]
 
         # Exclude atoms that are in the list of excluded atoms
@@ -649,7 +649,7 @@ class LocalGeometryFinder:
             sites_indices = [
                 isite
                 for isite in sites_indices
-                if not any([at in [sp.symbol for sp in self.structure[isite].species] for at in excluded_atoms])
+                if not any(at in [sp.symbol for sp in self.structure[isite].species] for at in excluded_atoms)
             ]
 
         if only_indices is not None:
@@ -1278,13 +1278,11 @@ class LocalGeometryFinder:
         """
         cn = len(self.local_geometry.coords)
         test_geometries = self.allcg.get_implemented_geometries(cn)
-        if all([cg.algorithms[0].algorithm_type == EXPLICIT_PERMUTATIONS for cg in test_geometries]):
+        if all(cg.algorithms[0].algorithm_type == EXPLICIT_PERMUTATIONS for cg in test_geometries):
             return self.get_coordination_symmetry_measures(
                 only_minimum=only_minimum, all_csms=all_csms, optimization=optimization
             )
-        if not all(
-            [all([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]) for cg in test_geometries]
-        ):
+        if not all(all(algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms) for cg in test_geometries):
             raise ValueError("All algorithms should be EXPLICIT_PERMUTATIONS or SEPARATION_PLANE")
 
         result_dict = {}
@@ -1703,7 +1701,7 @@ class LocalGeometryFinder:
                     s1 = [ii_sign[0] for ii_sign in outplane if ii_sign[1] < 0]
                     s2 = [ii_sign[0] for ii_sign in outplane if ii_sign[1] > 0]
                     separation = sort_separation_tuple([s1, inplane, s2])
-                    sep = tuple([len(gg) for gg in separation])
+                    sep = tuple(len(gg) for gg in separation)
                     if sep not in self.allcg.separations_cg[cn]:
                         continue
                     if sep not in nb_set.separations:

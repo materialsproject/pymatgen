@@ -532,7 +532,7 @@ class ParallelEfficiency(dict):
         data = []
         for (sect_name, peff) in self.items():
             # Ignore values where we had a division by zero.
-            if all([v != -1 for v in peff[key]]):
+            if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
                 # print(sect_name, values)
                 if len(values) > 1:
@@ -542,7 +542,7 @@ class ParallelEfficiency(dict):
                 data.append((sect_name, self.estimator(values)))
 
         data.sort(key=lambda t: t[1], reverse=reverse)
-        return tuple([sect_name for (sect_name, e) in data])
+        return tuple(sect_name for (sect_name, e) in data)
 
     def totable(self, stop=None, reverse=True):
         """
@@ -624,7 +624,7 @@ class AbinitTimerSection:
 
     def to_tuple(self):
         """Convert object to tuple."""
-        return tuple([self.__dict__[at] for at in AbinitTimerSection.FIELDS])
+        return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
     def to_dict(self):
         """Convert object to dictionary."""
@@ -661,7 +661,7 @@ class AbinitTimer:
         """
         # Store sections and names
         self.sections = tuple(sections)
-        self.section_names = tuple([s.name for s in self.sections])
+        self.section_names = tuple(s.name for s in self.sections)
 
         self.info = info
         self.cpu_time = float(cpu_time)

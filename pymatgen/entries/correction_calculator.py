@@ -3,10 +3,18 @@ This module calculates corrections for the species listed below, fitted to the e
 entries given to the CorrectionCalculator constructor.
 """
 
+import os
 import warnings
 from collections import OrderedDict
-from typing import Dict, List, Tuple, Union, Sequence
+from typing import Dict, List, Tuple, Union, Sequence, Optional
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import numpy as np
 import plotly.graph_objects as go
 from monty.serialization import loadfn
@@ -14,8 +22,6 @@ from scipy.optimize import curve_fit
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-
-from pymatgen import yaml
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 
@@ -301,6 +307,11 @@ class CorrectionCalculator:
                 round(self.corrections[i], 3),
                 round(self.corrections_std_error[i], 4),
             )
+
+        # set ozonide correction to 0 so that this species does not recieve a correction
+        # while other oxide types do
+        self.corrections_dict["ozonide"] = (0, 0)
+
         return self.corrections_dict
 
     def graph_residual_error(self) -> go.Figure:
@@ -409,14 +420,16 @@ class CorrectionCalculator:
 
         return fig
 
-    def make_yaml(self, name: str = "MP2020") -> None:
+    def make_yaml(self, name: str = "MP2020", dir: Optional[str] = None) -> None:
         """
         Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:
             name: str, alternate name for the created .yaml file.
-            Default: "MP2020"
+                Default: "MP2020"
+            dir: str, directory in which to save the file. Pass None (default) to
+                save the file in the current working directory.
         """
 
         if len(self.corrections) == 0:
@@ -433,7 +446,7 @@ class CorrectionCalculator:
         o_error: "OrderedDict[str, float]" = OrderedDict()
         f_error: "OrderedDict[str, float]" = OrderedDict()
 
-        for specie in self.species:
+        for specie in list(self.species) + ["ozonide"]:
             if specie in ggaucorrection_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
@@ -444,9 +457,6 @@ class CorrectionCalculator:
             else:
                 comp_corr[specie] = self.corrections_dict[specie][0]
                 comp_corr_error[specie] = self.corrections_dict[specie][1]
-
-        comp_corr["ozonide"] = 0  # do i need this??
-        comp_corr_error["ozonide"] = 0
 
         outline = """\
         Name:
@@ -461,9 +471,13 @@ class CorrectionCalculator:
                 F:
             CompositionCorrections:
         """
-
         fn = name + "Compatibility.yaml"
-        file = open(fn, "w")
+        if dir:
+            path = os.path.join(dir, fn)
+        else:
+            path = fn
+
+        file = open(path, "w")
         yml = yaml.YAML()
         yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
         yml.default_flow_style = False
@@ -493,5 +507,5 @@ class CorrectionCalculator:
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
         )
 
-        yaml.dump(contents, file)
+        yml.dump(contents, file)
         file.close()

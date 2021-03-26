@@ -1054,6 +1054,7 @@ def _get_orb_type_lobster(orb):
         return orbital.orbital_type
     except AttributeError:
         print("Orb not in list")
+    return None
 
 
 def _get_orb_lobster(orb):
@@ -1087,3 +1088,4 @@ def _get_orb_lobster(orb):
         return orbital
     except AttributeError:
         print("Orb not in list")
+    return None

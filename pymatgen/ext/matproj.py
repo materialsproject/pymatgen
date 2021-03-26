@@ -23,12 +23,18 @@ from collections import defaultdict
 from enum import Enum, unique
 from time import sleep
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, SETTINGS_FILE, yaml
-from pymatgen import __version__ as pmg_version
+from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -37,6 +43,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
+from pymatgen.core import __version__ as PMG_VERSION
+
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +182,7 @@ class MPRester:
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_info = "pymatgen/" + pmg_version
+            pymatgen_info = "pymatgen/" + PMG_VERSION
             python_info = "Python/{}.{}.{}".format(
                 sys.version_info.major, sys.version_info.minor, sys.version_info.micro
             )
@@ -183,7 +191,7 @@ class MPRester:
 
         if notify_db_version:
             db_version = self.get_database_version()
-            logger.info(f"Connection established to Materials Project database, version {db_version}.")
+            logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
                 with open(SETTINGS_FILE, "rt") as f:

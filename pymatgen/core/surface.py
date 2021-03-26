@@ -41,11 +41,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
-__copyright__ = "Copyright 2014, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "6/10/14"
+
 
 logger = logging.getLogger(__name__)
 
@@ -256,7 +252,7 @@ class Slab(Structure):
 
             grouped = [list(sites) for k, sites in itertools.groupby(tomove, key=lambda s: equi_index(s))]
 
-            if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
+            if len(tomove) == 0 or any(len(g) % 2 != 0 for g in grouped):
                 warnings.warn(
                     "Odd number of sites to divide! Try changing "
                     "the tolerance to ensure even division of "
@@ -1661,12 +1657,12 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     for miller in itertools.product(r, r, r):
         if miller == miller_index:
             continue
-        if any([i != 0 for i in miller]):
+        if any(i != 0 for i in miller):
             if is_already_analyzed(miller, equivalent_millers, symm_ops):
                 equivalent_millers.append(miller)
 
             # include larger Miller indices in the family of planes
-            if all([mmi > i for i in np.abs(miller)]) and not in_coord_list(equivalent_millers, miller):
+            if all(mmi > i for i in np.abs(miller)) and not in_coord_list(equivalent_millers, miller):
                 if is_already_analyzed(mmi * np.array(miller), equivalent_millers, symm_ops):
                     equivalent_millers.append(miller)
 
@@ -1693,7 +1689,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
     r.reverse()
 
     # First we get a list of all hkls for conventional (including equivalent)
-    conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any([i != 0 for i in miller])]
+    conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any(i != 0 for i in miller)]
 
     sg = SpacegroupAnalyzer(structure)
     # Get distinct hkl planes from the rhombohedral setting if trigonal
@@ -1710,7 +1706,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
 
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
-        miller = tuple([int(i / d) for i in miller])
+        miller = tuple(int(i / d) for i in miller)
         if not is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
@@ -1718,7 +1714,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
                 # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
                 d = abs(reduce(gcd, conv_hkl_list[i]))
-                cmiller = tuple([int(i / d) for i in conv_hkl_list[i]])
+                cmiller = tuple(int(i / d) for i in conv_hkl_list[i])
                 unique_millers_conv.append(cmiller)
             else:
                 unique_millers.append(miller)
@@ -1919,7 +1915,7 @@ def get_slab_regions(slab, blength=3.5):
         # Now locate the highest site within the lower region of the slab
         upper_fcoords = []
         for site in slab:
-            if all([nn.index not in all_indices for nn in slab.get_neighbors(site, blength)]):
+            if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
                 upper_fcoords.append(site.frac_coords[2])
         coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
@@ -2005,7 +2001,7 @@ def center_slab(slab):
     # check if structure is case 2 or 3, shift all the
     # sites up to the other side until it is case 1
     for site in slab:
-        if any([nn[1] > slab.lattice.c for nn in slab.get_neighbors(site, r)]):
+        if any(nn[1] > slab.lattice.c for nn in slab.get_neighbors(site, r)):
             shift = 1 - site.frac_coords[2] + 0.05
             slab.translate_sites(all_indices, [0, 0, shift])
 
@@ -2022,6 +2018,6 @@ def _reduce_vector(vector):
     # small function to reduce vectors
 
     d = abs(reduce(gcd, vector))
-    vector = tuple([int(i / d) for i in vector])
+    vector = tuple(int(i / d) for i in vector)
 
     return vector

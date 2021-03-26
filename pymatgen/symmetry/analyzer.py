@@ -149,26 +149,22 @@ class SpacegroupAnalyzer:
         """
         n = self._space_group_data["number"]
 
-        def f(i, j):
-            return i <= n <= j
+        if 0 < n < 3:
+            return "triclinic"
+        if n < 16:
+            return "monoclinic"
+        if n < 75:
+            return "orthorhombic"
+        if n < 143:
+            return "tetragonal"
+        if n < 168:
+            return "trigonal"
+        if n < 195:
+            return "hexagonal"
+        if n < 231:
+            return "cubic"
 
-        cs = {
-            "triclinic": (1, 2),
-            "monoclinic": (3, 15),
-            "orthorhombic": (16, 74),
-            "tetragonal": (75, 142),
-            "trigonal": (143, 167),
-            "hexagonal": (168, 194),
-            "cubic": (195, 230),
-        }
-
-        crystal_sytem = None
-
-        for k, v in cs.items():
-            if f(*v):
-                crystal_sytem = k
-                break
-        return crystal_sytem
+        raise ValueError("Invalid space group")
 
     def get_lattice_type(self):
         """
@@ -464,7 +460,9 @@ class SpacegroupAnalyzer:
         Challenges and tools. Computational Materials Science,
         49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
         They basically enforce as much as possible
-        norm(a1)<norm(a2)<norm(a3)
+        norm(a1)<norm(a2)<norm(a3). NB This is not necessarily the same as the
+        standard settings within the International Tables of Crystallography,
+        for which get_refined_structure should be used instead.
 
         Returns:
             The structure in a conventional standardized cell
@@ -798,7 +796,7 @@ class SpacegroupAnalyzer:
                     mapped[tuple(g)] += 1
                     weights.append(mapping.count(mapping[i]))
                     break
-        if (len(mapped) != len(set(mapping))) or (not all([v == 1 for v in mapped.values()])):
+        if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
             raise ValueError("Unable to find 1:1 corresponding between input " "kpoints and irreducible grid!")
         return [w / sum(weights) for w in weights]
 
@@ -1047,7 +1045,7 @@ class PointGroupAnalyzer:
                             if len(self.rot_sym) > 1:
                                 mirror_type = "d"
                                 for v, r in self.rot_sym:
-                                    if not np.linalg.norm(v - axis) < self.tol:
+                                    if np.linalg.norm(v - axis) >= self.tol:
                                         if np.dot(v, normal) < self.tol:
                                             mirror_type = "v"
                                             break

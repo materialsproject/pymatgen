@@ -70,7 +70,7 @@ class Critic2CallerTest(unittest.TestCase):
             )
         )
 
-        c2c = Critic2Caller(structure)
+        c2c = Critic2Caller.from_chgcar(structure)
 
         # check we have some results!
         self.assertGreaterEqual(len(c2c._stdout), 500)

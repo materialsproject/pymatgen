@@ -173,7 +173,7 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
         self.assertTrue(
-            all([vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))])
+            all(vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps)))
         )
 
         self.assertEqual(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")

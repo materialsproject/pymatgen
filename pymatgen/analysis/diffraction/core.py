@@ -193,7 +193,7 @@ def get_unique_families(hkls):
     def is_perm(hkl1, hkl2):
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
-        return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
+        return all(i == j for i, j in zip(sorted(h1), sorted(h2)))
 
     unique = collections.defaultdict(list)
     for hkl1 in hkls:

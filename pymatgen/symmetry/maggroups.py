@@ -22,12 +22,7 @@ from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.util.string import transformation_to_string
 
 __author__ = "Matthew Horton, Shyue Ping Ong"
-__copyright__ = "Copyright 2017, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Matthew Horton"
-__email__ = "mkhorton@lbl.gov"
-__status__ = "Beta"
-__date__ = "Feb 2017"
+
 
 MAGSYMM_DATA = os.path.join(os.path.dirname(__file__), "symm_data_magnetic.sqlite")
 
@@ -419,7 +414,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
-            return all([abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None])
+            return all(abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None)
 
         if crys_system == "cubic":
             a = abc[0]

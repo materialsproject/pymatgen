@@ -1,5 +1,5 @@
-pymatgen.ext package
-====================
+pymatgen.ext namespace
+======================
 
 Subpackages
 -----------
@@ -19,11 +19,3 @@ Submodules
    pymatgen.ext.jhu
    pymatgen.ext.matproj
    pymatgen.ext.optimade
-
-Module contents
----------------
-
-.. automodule:: pymatgen.ext
-   :members:
-   :undoc-members:
-   :show-inheritance:
