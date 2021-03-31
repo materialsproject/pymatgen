@@ -158,28 +158,30 @@ class Cp2kOutput:
                          "SCAN": "SCAN", "MS0": "MadeSimple0", "MS1": "MadeSimple1", "MS2": "MadeSimple2"}
 
         functional = self.data.get('dft', {}).get('functional', [None])
-        ip = self.data.get('hfx', {}).get('Interaction_Potential', None)
-        frac = self.data.get('hfx', {}).get('Fraction', None)
+        ip = self.data.get('dft', {}).get('hfx', {}).get('Interaction_Potential', None)
+        frac = self.data.get('dft', {}).get('hfx', {}).get('FRACTION', None)
 
         if len(functional) > 1:
             rt = 'Mixed: ' + ', '.join(functional)
+            functional = ' '.join(functional)
+            if functional.__contains__('HYB') or (ip and frac) or (functional in HYBRID_TYPES):
+                rt = 'Hybrid'
         else:
             functional = functional[0]
-        if functional is None:
-            rt = ''
-        else:
-            if functional.__contains__('MGGA') or functional in METAGGA_TYPES:
+
+            if functional is None:
+                rt = ''
+            elif functional.__contains__('MGGA') or functional in METAGGA_TYPES:
                 rt = 'METAGGA'
             elif functional.__contains__('GGA') or functional in GGA_TYPES:
                 rt = 'GGA'
             elif functional.__contains__('LDA') or functional in LDA_TYPES:
                 rt = 'LDA'
-            elif functional.__contains__('HYB') or (ip and frac) or (functional in HYBRID_TYPES):
-                rt = 'Hybrid'
-            if self.is_hubbard:
-                rt += '+U'
-            if self.data.get('dft').get('vdw'):
-                rt += '+VDW'
+
+        if self.is_hubbard:
+            rt += '+U'
+        if self.data.get('dft').get('vdw'):
+            rt += '+VDW'
 
         return rt
 
@@ -805,7 +807,7 @@ class Cp2kOutput:
                 "pseudo_energy": pseudo_energy
             },
             terminate_on_match=True,
-            postprocess=_postprocessor,
+            postprocess=str,
             reverse=False,
         )
         atomic_kind_info = {}
@@ -820,16 +822,13 @@ class Cp2kOutput:
                 "kind_number": i+1
             }
             try:
-                atomic_kind_info[kind]["valence_electrons"] = self.data.get(
-                    "valence_electrons"
-                )[i][0] or self.data.get("potential_info")[i][0].split('q')[-1]
-            except (TypeError, IndexError):
+                tmp = self.data.get("valence_electrons")[i][0] or self.data.get("potential_info")[i][0].split('q')[-1]
+                atomic_kind_info[kind]["valence_electrons"] = int(tmp)
+            except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["valence_electrons"] = None
             try:
-                atomic_kind_info[kind]["core_electrons"] = self.data.get(
-                    "core_electrons"
-                )[i][0]
-            except (TypeError, IndexError):
+                atomic_kind_info[kind]["core_electrons"] = int(self.data.get("core_electrons")[i][0])
+            except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["core_electrons"] = None
             try:
                 atomic_kind_info[kind][
@@ -840,12 +839,14 @@ class Cp2kOutput:
             try:
                 atomic_kind_info[kind][
                     "total_pseudopotential_energy"
-                ] = self.data.get(
-                    "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
-            except (TypeError, IndexError):
+                ] = float(
+                    self.data.get(
+                        "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
+                )
+            except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["total_pseudopotential_energy"] = None
 
-        with zopen(self.filename) as f:
+        with zopen(self.filename, 'rt') as f:
             j = -1
             lines = f.readlines()
             for k in range(len(lines)):
