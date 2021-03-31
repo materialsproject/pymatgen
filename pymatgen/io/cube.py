@@ -38,18 +38,17 @@ each voxel is 0.283459 units wide and the volume is aligned with the coordinate 
 """
 
 import numpy as np
-from multiprocessing import Pool
 from monty.io import zopen
 from pymatgen import Site, Structure
 from pymatgen.core.units import bohr_to_angstrom
 
 
+# TODO: can multiprocessing be incorporated without causing issues during drone assimilation?
 class Cube:
     """
     Class to read Gaussian cube file formats for volumetric data.
 
-    Cube files are, by default, written in units of 1/Bohr^3, and this file will convert
-    the data into the pymatgen default of 1/Angstroms^3
+    Cube files are, by default, written in atomic units.
     """
 
     def __init__(self, fname):
@@ -112,24 +111,26 @@ class Cube:
             radius: (flaot) of the mask (in Angstroms)
             Cx, Cy, Cz: (float) the fractional coordinates of the center of the sphere
         """
-
-        r = np.floor(radius / np.linalg.norm(self.X)).astype(int), \
+        dx, dy, dz = np.floor(radius / np.linalg.norm(self.X)).astype(int), \
             np.floor(radius / np.linalg.norm(self.Y)).astype(int), \
-            np.floor(radius / np.linalg.norm(self.Z)).astype(int)
-
-        a = np.zeros((self.NX, self.NY, self.NZ))
+            np.floor(radius / np.linalg.norm(self.Z)).astype(int),
+        gcd = max(np.gcd(dx, dy), np.gcd(dy, dz), np.gcd(dx, dz))
+        sx, sy, sz = dx // gcd, dy // gcd, dz // gcd
+        r = min(dx, dy, dz)
 
         x0, y0, z0 = int(np.round(self.NX * cx)), \
             int(np.round(self.NY * cy)), \
             int(np.round(self.NZ * cz))
 
-        for x in range(x0 - r[0], x0 + r[0] + 1):
-            for y in range(y0 - r[1], y0 + r[1] + 1):
-                for z in range(z0 - r[2], z0 + r[2] + 1):
-                    dist = np.subtract(r, [abs(x0 - x), abs(y0 - y), abs(z0 - z)])
+        centerx, centery, centerz = self.NX // 2, self.NY // 2, self.NZ // 2
+        a = np.roll(self.data, (centerx - x0, centery - y0, centerz - z0))
 
-                    if all([_ > 0 for _ in dist]):
-                        a[x % a.shape[0], y % a.shape[1], z % a.shape[2]] = 1
+        i, j, k = np.indices(a.shape, sparse=True)
+        a = np.sqrt((sx*i - sx*centerx) ** 2 + (sy*j - sy*centery) ** 2 + (sz*k - sz*centerz) ** 2)
+
+        indices = a > r
+        a[indices] = 0
+
         return a
 
     def get_atomic_site_averages(self, atomic_site_radii):
@@ -144,16 +145,9 @@ class Cube:
         returns:
             Array of site averages, [Average around site 1, Average around site 2, ...]
         """
-        pool = Pool()
-        results = pool.map(
-            self._get_atomic_site_averages,
-            [(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
-        )
-        pool.close()
-        pool.join()
-        return results
+        return [self._get_atomic_site_average(s, atomic_site_radii[s.species_string])for s in self.structure.sites]
 
-    def _get_atomic_site_averages(self, args):
+    def _get_atomic_site_average(self, site, radius):
         """
         Helper function for get_atomic_site_averages.
 
@@ -163,8 +157,7 @@ class Cube:
         returns:
             Average around the atomic site
         """
-        _s, _r = args[0], args[1]
-        mask = self.mask_sphere(_r, *_s.frac_coords)
+        mask = self.mask_sphere(radius, *site.frac_coords)
         return np.sum(self.data * mask) / np.count_nonzero(mask)
 
     def get_atomic_site_totals(self, atomic_site_radii=None):
@@ -183,16 +176,9 @@ class Cube:
             returns:
                 Array of site averages, [Average around site 1, Average around site 2, ...]
             """
-        pool = Pool()
-        results = pool.map(
-            self._get_atomic_site_totals,
-            [(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
-        )
-        pool.close()
-        pool.join()
-        return results
+        return [self._get_atomic_site_total(s, atomic_site_radii[s.species_string])for s in self.structure.sites]
 
-    def _get_atomic_site_totals(self, args):
+    def _get_atomic_site_total(self, site, radius):
         """
         Helper function for get_atomic_site_averages.
 
@@ -202,8 +188,7 @@ class Cube:
         returns:
             Average around the atomic site
         """
-        _s, _r = args[0], args[1]
-        mask = self.mask_sphere(_r, *_s.frac_coords)
+        mask = self.mask_sphere(radius, *site.frac_coords)
         return np.sum(self.data * mask)
 
     def get_axis_grid(self, ind):
