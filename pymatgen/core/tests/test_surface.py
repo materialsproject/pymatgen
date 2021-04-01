@@ -631,14 +631,15 @@ class SlabGeneratorTest(PymatgenTest):
         # so that all terminations are generated. These slabs
         # are ordered by ascending number of bonds broken
         # which is assigned to Slab.energy
-        slabs = slabgen.get_slabs(bonds={('Si', 'Si'): 2.40}, max_broken_bonds = 30)
+        slabs = slabgen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
         # Looking at the two slabs generated in VESTA, we
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive
         # flag check and subsequent transformation of slabs.
         self.assertTrue(slabs[0].energy, 2.0)
         self.assertTrue(slabs[1].energy, 6.0)
-        
+
+
 class ReconstructionGeneratorTests(PymatgenTest):
     def setUp(self):
 
