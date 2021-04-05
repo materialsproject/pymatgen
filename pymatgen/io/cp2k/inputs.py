@@ -18,11 +18,13 @@ import os
 import copy
 import textwrap
 import warnings
+import itertools
 from typing import Dict, List, Tuple, Union, Sequence
 from monty.json import MSONable
 from monty.io import zopen
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen import Lattice, Structure, Molecule, Element
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 __author__ = "Nicholas Winner"
@@ -1558,7 +1560,7 @@ class E_Density_Cube(Section):
             "E_DENSITY_CUBE",
             subsections={},
             description=description,
-            keywords={'STRIDE': Keyword('STRIDE', kwargs.get('stride', [1, 1, 1]))},
+            keywords={'STRIDE': Keyword('STRIDE', *kwargs.get('stride', [1, 1, 1]))},
             **kwargs
         )
 
@@ -1926,17 +1928,31 @@ class Kpoints(Section):
                                       description=description, keywords=keywords)
 
     @classmethod
-    def from_kpoints(cls, kpoints):
+    def from_kpoints(cls, kpoints, structure=None, reduce=True):
         """
-        Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs).
+        Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs). CP2K
+        does not have an automatic gamma-point constructor, so this is generally used
+        to get the number of divisions from a kpoint static constructor and then
+        build a Monkhorst-Pack grid, which is sufficient for gamma-recommended systems
+        so long as the grid is fine enough.
 
         Args:
             kpoints: A pymatgen kpoints object.
+            structure: Pymatgen structure object. Required for automatically performing
+                symmetry analysis and reducing the kpoint grid.
+            reduce: whether or not to reduce the grid using symmetry. CP2K itself cannot
+                do this automatically without spglib present at execution time.
         """
         k = kpoints.as_dict()
         kpoints = k['kpoints']
         weights = k['kpts_weights']
         scheme = k['generation_style']
+
+        if reduce and structure:
+            sga = SpacegroupAnalyzer(structure)
+            kpoints, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpoints))
+            kpoints = list(itertools.chain.from_iterable(kpoints))
+
         if scheme.lower() == 'monkhorst':
             scheme = 'MONKHORST-PACK'
         else:

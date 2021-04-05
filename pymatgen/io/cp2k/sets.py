@@ -366,8 +366,10 @@ class DftSet(Cp2kInputSet):
                 )
             )
         else:
-            scf.add(Keyword('ALGORITHM', 'DAVIDSON'))
-            scf.insert(Section("DIAGONALIZATION", subsections={}))
+            algo = 'STANDARD' if kpoints else 'DAVIDSON'  # As of CP2K/7.1, Davidson doesn't work with kpoints
+            scf.insert(
+                Section("DIAGONALIZATION", subsections={}, keywords={'DAVIDSON': Keyword('ALGORITHM', algo)})
+            )
             mixing_kwds = {
                 "METHOD": Keyword('METHOD', 'BROYDEN_MIXING'),
                 "ALPHA": Keyword('ALPHA', 0.2),
@@ -409,7 +411,7 @@ class DftSet(Cp2kInputSet):
         )
 
         if kpoints:
-            dft.insert(Kpoints.from_kpoints(kpoints))
+            dft.insert(Kpoints.from_kpoints(kpoints, structure=self.structure, reduce=True))
         if smearing or (band_gap <= 0.0):
             scf.kwargs['ADDED_MOS'] = 100
             scf['ADDED_MOS'] = 100  # TODO: how to grab the appropriate number?

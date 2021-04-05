@@ -913,7 +913,7 @@ class Cp2kOutput:
             row_pattern=row,
             footer_pattern=footer,
             last_one_only=False,
-            strip_warnings=True
+            strip=['HFX_MEM_INFO', '*']
         )
 
         self.data["electronic_steps"] = []
@@ -1387,7 +1387,7 @@ class Cp2kOutput:
         postprocess=str,
         attribute_name=None,
         last_one_only=True,
-        strip_warnings=True
+        strip=None
     ):
         r"""
         This function originally comes from pymatgen.io.vasp.outputs Outcar class
@@ -1417,10 +1417,10 @@ class Cp2kOutput:
                 is set to True, only the last table will be returned. The
                 enclosing list will be removed. i.e. Only a single table will
                 be returned. Default to be True.
-            strip_warnings (bool): Whether or not to strip warnings out of the file
-                in advance, which may interfere with the table pattern. Case and
-                point is the negative +U correction warning that gets printed every
-                SCF step that U<0 is detected.
+            strip (list): Whether or not to strip contents out of the file before
+                reading for a table pattern. This is mainly used by parse_scf_opt(),
+                to strip HFX info out of the SCF loop start or DFT+U warnings out
+                of the SCF loop iterations.
 
         Returns:
             List of tables. 1) A table is a list of rows. 2) A row if either a list of
@@ -1429,16 +1429,22 @@ class Cp2kOutput:
             row_pattern.
         """
         with zopen(self.filename, "rt") as f:
-            if strip_warnings:
+            if strip:
                 lines = f.readlines()
                 text = ''.join(
                     [
                         lines[i] for i in range(1, len(lines)-1)
-                        if not lines[i].strip().startswith('*')
-                        and not lines[i-1].strip().startswith('*')
-                        and not lines[i+1].strip().startswith('*')
+                        if all(
+                            [
+                                not lines[i].strip().startswith(c) and
+                                not lines[i-1].strip().startswith(c) and
+                                not lines[i+1].strip().startswith(c)
+                                for c in strip
+                            ]
+                        )
                     ]
                 )
+                print(text)
             else:
                 text = f.read()
 
