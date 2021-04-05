@@ -1952,8 +1952,8 @@ class Kpoints(Section):
             sga = SpacegroupAnalyzer(structure)
             kpoints, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpoints))
             kpoints = list(itertools.chain.from_iterable(kpoints))
-
-        if scheme.lower() == 'monkhorst':
+            scheme = 'GENERAL'
+        elif scheme.lower() == 'monkhorst':
             scheme = 'MONKHORST-PACK'
         else:
             warnings.warn('No automatic constructor for this scheme'
