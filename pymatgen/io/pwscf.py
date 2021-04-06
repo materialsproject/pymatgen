@@ -243,13 +243,12 @@ class PWInput:
             if "ATOMIC_SPECIES" in line:
                 return ("pseudo",)
             if "K_POINTS" in line:
-                return "kpoints", line.split("{")[1][:-1]
+                return "kpoints", line.split()[1]
             if "CELL_PARAMETERS" in line or "ATOMIC_POSITIONS" in line:
-                return "structure", line.split("{")[1][:-1]
+                return "structure", line.split()[1]
             if line == "/":
                 return None
             return mode
-
         sections = {"control": {}, "system": {}, "electrons": {},
                     "ions": {}, "cell": {}}
         pseudo = {}
@@ -310,11 +309,10 @@ class PWInput:
                     for k, v in site_properties.items():
                         if k != "pseudo":
                             site_properties[k].append(sections['system'][k][pseudo[m_p.group(1)]["index"]])
-                if mode[1] == "angstrom":
-                    coords_are_cartesian = True
-                elif mode[1] == "crystal":
-                    coords_are_cartesian = False
-
+                    if mode[1] == "angstrom":
+                        coords_are_cartesian = True
+                    elif mode[1] == "crystal":
+                        coords_are_cartesian = False
         structure = Structure(Lattice(lattice), species, coords,
                               coords_are_cartesian=coords_are_cartesian,
                               site_properties=site_properties)
