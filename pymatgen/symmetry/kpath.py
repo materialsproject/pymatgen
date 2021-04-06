@@ -9,18 +9,17 @@ Provides classes for generating high-symmetry k-paths using different convention
 import abc
 import itertools
 import operator
-from math import cos, sin, tan, e, pi, ceil
+from math import ceil, cos, e, pi, sin, tan
 from warnings import warn
 
-import numpy as np
-from scipy.linalg import sqrtm
 import networkx as nx
+import numpy as np
 import spglib
-
 from monty.dev import requires
+from scipy.linalg import sqrtm
 
-from pymatgen.core.operations import SymmOp, MagSymmOp
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
@@ -152,13 +151,13 @@ class KPathSetyawanCurtarolo(KPathBase):
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
         """
-            Args:
-            structure (Structure): Structure object
-            symprec (float): Tolerance for symmetry finding
-            angle_tolerance (float): Angle tolerance for symmetry finding.
-            atol (float): Absolute tolerance used to compare the input
-                structure with the one expected as primitive standard.
-                A warning will be issued if the lattices don't match.
+        Args:
+        structure (Structure): Structure object
+        symprec (float): Tolerance for symmetry finding
+        angle_tolerance (float): Angle tolerance for symmetry finding.
+        atol (float): Absolute tolerance used to compare the input
+            structure with the one expected as primitive standard.
+            A warning will be issued if the lattices don't match.
         """
         if "magmom" in structure.site_properties.keys():
             warn(
@@ -409,7 +408,22 @@ class KPathSetyawanCurtarolo(KPathBase):
             "Y_1": np.array([0.5, 0.5, -zeta]),
             "Z": np.array([0.5, 0.5, -0.5]),
         }
-        path = [["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z", "\\Sigma_1", "N", "P", "Y_1", "Z"], ["X", "P"]]
+        path = [
+            [
+                "\\Gamma",
+                "X",
+                "Y",
+                "\\Sigma",
+                "\\Gamma",
+                "Z",
+                "\\Sigma_1",
+                "N",
+                "P",
+                "Y_1",
+                "Z",
+            ],
+            ["X", "P"],
+        ]
         return {"kpoints": kpoints, "path": path}
 
     def orc(self):
@@ -566,7 +580,23 @@ class KPathSetyawanCurtarolo(KPathBase):
             "Y": np.array([-0.5, 0.5, 0]),
             "Z": np.array([0.0, 0.0, 0.5]),
         }
-        path = [["\\Gamma", "X", "S", "R", "A", "Z", "\\Gamma", "Y", "X_1", "A_1", "T", "Y"], ["Z", "T"]]
+        path = [
+            [
+                "\\Gamma",
+                "X",
+                "S",
+                "R",
+                "A",
+                "Z",
+                "\\Gamma",
+                "Y",
+                "X_1",
+                "A_1",
+                "T",
+                "Y",
+            ],
+            ["Z", "T"],
+        ]
         return {"kpoints": kpoints, "path": path}
 
     def hex(self):
@@ -918,7 +948,10 @@ class KPathSeek(KPathBase):
     are returned in the reciprocal cell basis defined in the paper.
     """
 
-    @requires(get_path is not None, "SeeK-path is required to use the convention by Hinuma et al.")
+    @requires(
+        get_path is not None,
+        "SeeK-path is required to use the convention by Hinuma et al.",
+    )
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
         """
         Args:
@@ -988,28 +1021,29 @@ class KPathSeek(KPathBase):
     def _trans_sc_to_Hin(sub_class):
 
         if sub_class in [
-                "cP1",
-                "cP2",
-                "cF1",
-                "cF2",
-                "cI1",
-                "tP1",
-                "oP1",
-                "hP1",
-                "hP2",
-                "tI1",
-                "tI2",
-                "oF1",
-                "oF3",
-                "oI1",
-                "oI3",
-                "oC1",
-                "hR1",
-                "hR2",
-                "aP1",
-                "aP2",
-                "aP3",
-                "oA1"]:
+            "cP1",
+            "cP2",
+            "cF1",
+            "cF2",
+            "cI1",
+            "tP1",
+            "oP1",
+            "hP1",
+            "hP2",
+            "tI1",
+            "tI2",
+            "oF1",
+            "oF3",
+            "oI1",
+            "oI3",
+            "oC1",
+            "hR1",
+            "hR2",
+            "aP1",
+            "aP2",
+            "aP3",
+            "oA1",
+        ]:
             return np.eye(3)
         if sub_class == "oF2":
             return np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
@@ -1029,13 +1063,10 @@ class KPathSeek(KPathBase):
 class KPathLatimerMunro(KPathBase):
     """
     This class looks for a path along high symmetry lines in the
-    Brillouin zone.
-    It is based on the derived symmetry of the energy spectrum
-    for a crystalline solid given by A P Cracknell in J. Phys. C:
-    Solid State Phys. Vol. 6 (1973), pp. 826-840 ('Van Hove
-    singularities and zero-slope points in crystals') and pp. 841-
-    854 ('Van Hove singularities and zero-slope points in magnetic
-    crystals').
+    Brillouin zone. It is based on the method outlined in:
+
+    npj Comput Mater 6, 112 (2020). 10.1038/s41524-020-00383-7
+
     The user should ensure that the lattice of the input structure
     is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
@@ -1052,7 +1083,15 @@ class KPathLatimerMunro(KPathBase):
     any warning being issued.
     """
 
-    def __init__(self, structure, has_magmoms=False, magmom_axis=None, symprec=0.01, angle_tolerance=5, atol=1e-5):
+    def __init__(
+        self,
+        structure,
+        has_magmoms=False,
+        magmom_axis=None,
+        symprec=0.01,
+        angle_tolerance=5,
+        atol=1e-5,
+    ):
         """
         Args:
             structure (Structure): Structure object
@@ -1083,13 +1122,13 @@ class KPathLatimerMunro(KPathBase):
             for j in range(3):
                 if i != j:
                     if (
-                            np.absolute(np.dot(self._latt.matrix[i], self._latt.matrix[j]))
-                            > np.dot(self._latt.matrix[i], self._latt.matrix[i])
-                            and np.absolute(
-                                np.dot(self._latt.matrix[i], self._latt.matrix[j])
-                                - np.dot(self._latt.matrix[i], self._latt.matrix[i])
-                            )
-                            > atol
+                        np.absolute(np.dot(self._latt.matrix[i], self._latt.matrix[j]))
+                        > np.dot(self._latt.matrix[i], self._latt.matrix[i])
+                        and np.absolute(
+                            np.dot(self._latt.matrix[i], self._latt.matrix[j])
+                            - np.dot(self._latt.matrix[i], self._latt.matrix[i])
+                        )
+                        > atol
                     ):
                         reducible.append(True)
                     else:
@@ -1145,7 +1184,8 @@ class KPathLatimerMunro(KPathBase):
 
             D = [
                 SymmOp.from_rotation_and_translation(
-                    rotation_matrix=op.rotation_matrix, translation_vec=op.translation_vector,
+                    rotation_matrix=op.rotation_matrix,
+                    translation_vec=op.translation_vector,
                 )
                 for op in mag_ops
                 if op.time_reversal == 1
@@ -1153,7 +1193,8 @@ class KPathLatimerMunro(KPathBase):
 
             fD = [
                 SymmOp.from_rotation_and_translation(
-                    rotation_matrix=op.rotation_matrix, translation_vec=op.translation_vector,
+                    rotation_matrix=op.rotation_matrix,
+                    translation_vec=op.translation_vector,
                 )
                 for op in mag_ops
                 if op.time_reversal == -1
@@ -1214,7 +1255,9 @@ class KPathLatimerMunro(KPathBase):
         # random point.
 
         key_lines_inds_orbits = self._get_key_line_orbits(
-            key_points=key_points, key_lines=key_lines, key_points_inds_orbits=key_points_inds_orbits
+            key_points=key_points,
+            key_lines=key_lines,
+            key_points_inds_orbits=key_points_inds_orbits,
         )
 
         # 6 & 7: Get little groups for key points (group of symmetry elements present at that point).
@@ -1331,7 +1374,12 @@ class KPathLatimerMunro(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def _choose_path(
-            self, key_points, key_points_inds_orbits, key_lines_inds_orbits, little_groups_points, little_groups_lines
+        self,
+        key_points,
+        key_points_inds_orbits,
+        key_lines_inds_orbits,
+        little_groups_points,
+        little_groups_lines,
     ):
         #
         # This function can be edited to alter high-symmetry criteria for choosing points and lines
@@ -1484,7 +1532,7 @@ class KPathLatimerMunro(KPathBase):
         return key_points, bz_as_key_point_inds, face_center_inds
 
     def _get_key_point_orbits(self, key_points):
-        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0:len(key_points) - 1]))
+        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1]))
         # gamma not equivalent to any on BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
@@ -1526,19 +1574,25 @@ class KPathLatimerMunro(KPathBase):
             face_center_ind = facet_as_key_point_inds[-1]
             for (j, ind) in enumerate(facet_as_key_point_inds_bndy):
                 if (
-                        min(ind, facet_as_key_point_inds_bndy[j - 1]),
-                        max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                    min(ind, facet_as_key_point_inds_bndy[j - 1]),
+                    max(ind, facet_as_key_point_inds_bndy[j - 1]),
                 ) not in key_lines:
                     key_lines.append(
-                        (min(ind, facet_as_key_point_inds_bndy[j - 1]), max(ind, facet_as_key_point_inds_bndy[j - 1]),)
+                        (
+                            min(ind, facet_as_key_point_inds_bndy[j - 1]),
+                            max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                        )
                     )
                 k = j + 1 if j != len(facet_as_key_point_inds_bndy) - 1 else 0
                 if (
-                        min(ind, facet_as_key_point_inds_bndy[k]),
-                        max(ind, facet_as_key_point_inds_bndy[k]),
+                    min(ind, facet_as_key_point_inds_bndy[k]),
+                    max(ind, facet_as_key_point_inds_bndy[k]),
                 ) not in key_lines:
                     key_lines.append(
-                        (min(ind, facet_as_key_point_inds_bndy[k]), max(ind, facet_as_key_point_inds_bndy[k]),)
+                        (
+                            min(ind, facet_as_key_point_inds_bndy[k]),
+                            max(ind, facet_as_key_point_inds_bndy[k]),
+                        )
                     )
                 if (ind, gamma_ind) not in key_lines:
                     key_lines.append((ind, gamma_ind))
@@ -1572,13 +1626,13 @@ class KPathLatimerMunro(KPathBase):
                 equivline = False
 
                 if (
-                        np.array([l0[0] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
-                        and np.array([l0[1] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
+                    np.array([l0[0] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
+                    and np.array([l0[1] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
                 ):
                     equivptspar = True
                 elif (
-                        np.array([l0[1] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
-                        and np.array([l0[0] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
+                    np.array([l0[1] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
+                    and np.array([l0[0] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
                 ):
                     equivptsperp = True
 
@@ -1592,7 +1646,7 @@ class KPathLatimerMunro(KPathBase):
                                 pmid0pr = np.dot(op, pmid0) + diff0
                                 p01pr = np.dot(op, p01) + diff0
                                 if np.allclose(p11, p01pr, atol=self._atol) and np.allclose(
-                                        pmid1, pmid0pr, atol=self._atol
+                                    pmid1, pmid0pr, atol=self._atol
                                 ):
                                     equivline = True
 
@@ -1606,7 +1660,7 @@ class KPathLatimerMunro(KPathBase):
                                 pmid0pr = np.dot(op, pmid0) + diff0
                                 p01pr = np.dot(op, p01) + diff0
                                 if np.allclose(p10, p01pr, atol=self._atol) and np.allclose(
-                                        pmid1, pmid0pr, atol=self._atol
+                                    pmid1, pmid0pr, atol=self._atol
                                 ):
                                     equivline = True
 
@@ -1723,13 +1777,17 @@ class KPathLatimerMunro(KPathBase):
             if same.all():  # add symm op without tr
                 mag_ops.append(
                     MagSymmOp.from_rotation_and_translation_and_time_reversal(
-                        rotation_matrix=op.rotation_matrix, translation_vec=op.translation_vector, time_reversal=1,
+                        rotation_matrix=op.rotation_matrix,
+                        translation_vec=op.translation_vector,
+                        time_reversal=1,
                     )
                 )
             if flipped.all():  # add symm op with tr
                 mag_ops.append(
                     MagSymmOp.from_rotation_and_translation_and_time_reversal(
-                        rotation_matrix=op.rotation_matrix, translation_vec=op.translation_vector, time_reversal=-1,
+                        rotation_matrix=op.rotation_matrix,
+                        translation_vec=op.translation_vector,
+                        time_reversal=-1,
                     )
                 )
 
@@ -1778,7 +1836,9 @@ class KPathLatimerMunro(KPathBase):
             in_H = False
             for op2 in H:
                 if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
-                        op1.translation_vector, op2.translation_vector, np.ones(3) * self._atol,
+                    op1.translation_vector,
+                    op2.translation_vector,
+                    np.ones(3) * self._atol,
                 ):
                     in_H = True
                     break
@@ -1791,7 +1851,9 @@ class KPathLatimerMunro(KPathBase):
             for op1 in opH:
                 for op2 in H:
                     if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
-                            op1.translation_vector, op2.translation_vector, np.ones(3) * self._atol,
+                        op1.translation_vector,
+                        op2.translation_vector,
+                        np.ones(3) * self._atol,
                     ):
 
                         is_coset_factor = False
@@ -2147,7 +2209,9 @@ class KPathLatimerMunro(KPathBase):
                 j for j in range(len(orbit_cosines_copy)) if orbit_cosines_copy[j][0][1] == max_cosine_value
             ]
             max_cosine_label_inds = self._get_max_cosine_labels(
-                [orbit_cosines_copy[j] for j in max_cosine_value_inds], key_points_inds_orbits, atol
+                [orbit_cosines_copy[j] for j in max_cosine_value_inds],
+                key_points_inds_orbits,
+                atol,
             )
 
             for j, label_ind in enumerate(max_cosine_label_inds):

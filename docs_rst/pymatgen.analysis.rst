@@ -1,5 +1,5 @@
-pymatgen.analysis package
-=========================
+pymatgen.analysis namespace
+===========================
 
 Subpackages
 -----------
@@ -14,6 +14,7 @@ Subpackages
    pymatgen.analysis.ferroelectricity
    pymatgen.analysis.gb
    pymatgen.analysis.magnetism
+   pymatgen.analysis.solar
    pymatgen.analysis.structure_prediction
    pymatgen.analysis.topological
    pymatgen.analysis.xas
@@ -60,11 +61,3 @@ Submodules
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state
    pymatgen.analysis.wulff
-
-Module contents
----------------
-
-.. automodule:: pymatgen.analysis
-   :members:
-   :undoc-members:
-   :show-inheritance:

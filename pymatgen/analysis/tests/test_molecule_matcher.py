@@ -4,28 +4,34 @@
 
 import os
 import unittest
+
 import numpy as np
 
 try:
     import openbabel as ob
-    from pymatgen.analysis.molecule_matcher import MoleculeMatcher
-    from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
-    from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
+
+    from pymatgen.analysis.molecule_matcher import (
+        InchiMolAtomMapper,
+        IsomorphismMolAtomMapper,
+        MoleculeMatcher,
+    )
 except (ImportError, RuntimeError):
     ob = None
 
+from pymatgen.analysis.molecule_matcher import (
+    BruteForceOrderMatcher,
+    GeneticOrderMatcher,
+    HungarianOrderMatcher,
+    KabschMatcher,
+)
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.structure import Lattice, Structure, Molecule
+from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.util.testing import PymatgenTest
 
-from pymatgen.analysis.molecule_matcher import KabschMatcher
-from pymatgen.analysis.molecule_matcher import BruteForceOrderMatcher
-from pymatgen.analysis.molecule_matcher import HungarianOrderMatcher
-from pymatgen.analysis.molecule_matcher import GeneticOrderMatcher
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "molecule_matcher")
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', "molecules", "molecule_matcher")
 
-obalign_missing = (ob is None) or ('OBAlign' not in dir(ob))
+obalign_missing = (ob is None) or ("OBAlign" not in dir(ob))
 
 
 def rotate(mol, seed):
@@ -74,7 +80,7 @@ def generate_Si_cluster():
     coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
 
-    struct = Structure(lattice, ['Si', 'Si'], coords)
+    struct = Structure(lattice, ["Si", "Si"], coords)
     struct.make_supercell([2, 2, 2])
 
     # Creating molecule for testing
@@ -113,11 +119,11 @@ def generate_Si2O_cluster():
         [0.625, 0.125, 0.625],
         [0.125, 0.625, 0.625],
         [0.500, 0.500, 0.500],
-        [0.750, 0.750, 0.750]
+        [0.750, 0.750, 0.750],
     ]
 
     lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
-    struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
+    struct = Structure(lattice, ["Si", "Si", "Si", "Si", "O", "O"], coords)
     # struct.make_supercell([2, 2, 2])
 
     # Creating molecule for testing
@@ -149,7 +155,6 @@ def generate_Si2O_cluster():
 
 @unittest.skipIf(obalign_missing, "OBAlign is missing, Skipping")
 class MoleculeMatcherTest(unittest.TestCase):
-
     def test_fit(self):
         self.fit_with_mapper(IsomorphismMolAtomMapper())
         self.fit_with_mapper(InchiMolAtomMapper())
@@ -158,24 +163,21 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm = MoleculeMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
-        self.assertEqual('{0:7.3}'.format(mm.get_rmsd(mol1, mol2)), "0.00488")
+        self.assertEqual("{0:7.3}".format(mm.get_rmsd(mol1, mol2)), "0.00488")
 
     def test_group_molecules(self):
         mm = MoleculeMatcher(tolerance=0.001)
         with open(os.path.join(test_dir, "mol_list.txt")) as f:
             filename_list = [line.strip() for line in f.readlines()]
-        mol_list = [Molecule.from_file(os.path.join(test_dir, f))
-                    for f in filename_list]
+        mol_list = [Molecule.from_file(os.path.join(test_dir, f)) for f in filename_list]
         mol_groups = mm.group_molecules(mol_list)
-        filename_groups = [[filename_list[mol_list.index(m)] for m in g]
-                           for g in mol_groups]
+        filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
         with open(os.path.join(test_dir, "grouped_mol_list.txt")) as f:
             grouped_text = f.read().strip()
         self.assertEqual(str(filename_groups), grouped_text)
 
     def test_to_and_from_dict(self):
-        mm = MoleculeMatcher(tolerance=0.5,
-                             mapper=InchiMolAtomMapper(angle_tolerance=50.0))
+        mm = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
         d = mm.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
         self.assertEqual(d, mm2.as_dict())
@@ -186,11 +188,13 @@ class MoleculeMatcherTest(unittest.TestCase):
         self.assertEqual(d, mm2.as_dict())
 
     def fit_with_mapper(self, mapper):
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
         rotcoords = [op.operate(c) for c in coords]
@@ -265,7 +269,6 @@ class MoleculeMatcherTest(unittest.TestCase):
 
 
 class KabschMatcherTest(unittest.TestCase):
-
     def test_get_rmsd(self):
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -286,11 +289,13 @@ class KabschMatcherTest(unittest.TestCase):
 
     def test_rotated_molecule(self):
 
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
         rotcoords = [op.operate(c) for c in coords]
@@ -300,7 +305,7 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_mismatched_atom_composition(self):
 
@@ -349,7 +354,6 @@ class KabschMatcherTest(unittest.TestCase):
 
 
 class HungarianOrderMatcherTest(unittest.TestCase):
-
     def test_get_rmsd(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
@@ -370,11 +374,13 @@ class HungarianOrderMatcherTest(unittest.TestCase):
 
     def test_rotated_molecule(self):
 
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
         rotcoords = [op.operate(c) for c in coords]
@@ -384,7 +390,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
 
         mm = HungarianOrderMatcher(mol1)
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_mismatched_atom_composition(self):
 
@@ -452,11 +458,10 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
 
 class GeneticOrderMatcherTest(unittest.TestCase):
-
     def test_get_rmsd(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
@@ -477,11 +482,13 @@ class GeneticOrderMatcherTest(unittest.TestCase):
 
     def test_rotated_molecule(self):
 
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
 
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
         rotcoords = [op.operate(c) for c in coords]
@@ -491,7 +498,7 @@ class GeneticOrderMatcherTest(unittest.TestCase):
 
         mm = GeneticOrderMatcher(mol1, threshold=0.3)
         _, rmsd = mm.fit(mol2)[0]
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_mismatched_atom_composition(self):
 
@@ -559,11 +566,10 @@ class GeneticOrderMatcherTest(unittest.TestCase):
         mm = GeneticOrderMatcher(mol1, threshold=0.01)
 
         _, rmsd = mm.fit(mol2)[0]
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
 
 class KabschMatcherSiTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
@@ -582,7 +588,7 @@ class KabschMatcherSiTest(unittest.TestCase):
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
@@ -598,7 +604,6 @@ class KabschMatcherSiTest(unittest.TestCase):
 
 
 class BruteForceOrderMatcherSiTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
@@ -618,7 +623,6 @@ class BruteForceOrderMatcherSiTest(unittest.TestCase):
 
 
 class HungarianOrderMatcherSiTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
@@ -658,7 +662,6 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
 
 
 class GeneticOrderMatcherSiTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
@@ -677,7 +680,7 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         res = self.mm.fit(mol2)
-        self.assertAlmostEqual(res[0][-1], 0., places=6)
+        self.assertAlmostEqual(res[0][-1], 0.0, places=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
@@ -696,7 +699,6 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
 
 
 class KabschMatcherSi2OTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
 
@@ -711,7 +713,7 @@ class KabschMatcherSi2OTest(unittest.TestCase):
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
@@ -727,7 +729,6 @@ class KabschMatcherSi2OTest(unittest.TestCase):
 
 
 class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
@@ -741,7 +742,7 @@ class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
@@ -774,7 +775,7 @@ class HungarianOrderMatcherSi2OTest(unittest.TestCase):
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=6)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
@@ -793,7 +794,6 @@ class HungarianOrderMatcherSi2OTest(unittest.TestCase):
 
 
 class GeneticOrderMatcherSi2OTest(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
@@ -807,7 +807,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
     def test_rotated_molecule(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
         res = self.mm.fit(mol2)
-        self.assertAlmostEqual(res[0][1], 0., places=6)
+        self.assertAlmostEqual(res[0][1], 0.0, places=6)
 
     def test_perturbed_atom_position(self):
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
@@ -829,7 +829,7 @@ class GeneticOrderMatcherSi2OTest(unittest.TestCase):
         self.assertAlmostEqual(res[0][-1], 0.2305159973457393, places=6)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run the following code to generate test cases:
     # generate_Si_cluster()
     # generate_Si2O_cluster()

@@ -5,15 +5,17 @@
 
 import unittest
 import warnings
-import numpy as np
 from collections import defaultdict
 from math import isnan
-from pymatgen import Composition
+
+import numpy as np
+
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.reaction_calculator import (
-    Reaction,
     BalancedReaction,
-    ReactionError,
     ComputedReaction,
+    Reaction,
+    ReactionError,
 )
 from pymatgen.entries.computed_entries import ComputedEntry
 
@@ -165,9 +167,7 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(str(rxn), "Li + 2 S -> LiS2")
 
     def test_overdetermined(self):
-        self.assertRaises(
-            ReactionError, Reaction, [Composition("Li")], [Composition("LiO2")]
-        )
+        self.assertRaises(ReactionError, Reaction, [Composition("Li")], [Composition("LiO2")])
 
     def test_scientific_notation(self):
         products = [Composition("FePO3.9999"), Composition("O2")]
@@ -177,7 +177,7 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(rxn, Reaction.from_string(str(rxn)))
 
         rxn2 = Reaction.from_string("FePO4 + 20 CO -> 1e1 O2 + Fe1P1O4 + 20 C")
-        self.assertEqual(str(rxn2), "20 CO -> 10 O2 + 20 C")
+        self.assertEqual(str(rxn2), "20 CO -> 20 C + 10 O2")
 
     def test_equals(self):
         reactants = [Composition("Fe"), Composition("O2")]
@@ -249,15 +249,9 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction(reactants, products)
 
         self.assertIn(Composition("O2"), rxn.products, "O not in products!")
-        self.assertIn(
-            Composition("Li3Fe2(PO4)3"), rxn.reactants, "Li3Fe2(PO4)4 not in reactants!"
-        )
-        self.assertEqual(
-            str(rxn), "0.3333 Li3Fe2(PO4)3 + 0.1667 Fe2O3 -> 0.25 O2 + LiFePO4"
-        )
-        self.assertEqual(
-            rxn.normalized_repr, "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4"
-        )
+        self.assertIn(Composition("Li3Fe2(PO4)3"), rxn.reactants, "Li3Fe2(PO4)4 not in reactants!")
+        self.assertEqual(str(rxn), "0.3333 Li3Fe2(PO4)3 + 0.1667 Fe2O3 -> 0.25 O2 + LiFePO4")
+        self.assertEqual(rxn.normalized_repr, "4 Li3Fe2(PO4)3 + 2 Fe2O3 -> 3 O2 + 12 LiFePO4")
         self.assertAlmostEqual(rxn.calculate_energy(energies), -0.48333333, 5)
 
     def test_to_from_dict(self):
@@ -283,9 +277,7 @@ class ReactionTest(unittest.TestCase):
         ]
         products = [Composition("FeO2"), Composition("NaCl"), Composition("Li2Cl2")]
         rxn = Reaction(reactants, products)
-        self.assertEqual(
-            str(rxn), "Fe + O2 + Na + 2 Li + 1.5 Cl2 -> FeO2 + NaCl + 2 LiCl"
-        )
+        self.assertEqual(str(rxn), "Fe + O2 + Na + 2 Li + 1.5 Cl2 -> FeO2 + NaCl + 2 LiCl")
 
         reactants = [
             Composition("Fe"),
@@ -344,9 +336,7 @@ class BalancedReactionTest(unittest.TestCase):
             self.assertEqual(new_rxn.get_coeff(comp), rxn.get_coeff(comp))
 
     def test_from_string(self):
-        rxn = BalancedReaction(
-            {Composition("Li"): 4, Composition("O2"): 1}, {Composition("Li2O"): 2}
-        )
+        rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1}, {Composition("Li2O"): 2})
         self.assertEqual(rxn, BalancedReaction.from_string("4 Li + O2 -> 2Li2O"))
 
         rxn = BalancedReaction(
@@ -360,9 +350,7 @@ class BalancedReactionTest(unittest.TestCase):
 
         self.assertEqual(
             rxn,
-            BalancedReaction.from_string(
-                "1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"
-            ),
+            BalancedReaction.from_string("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"),
         )
 
     def test_remove_spectator_species(self):
@@ -409,12 +397,8 @@ class ComputedReactionTest(unittest.TestCase):
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = list(
-            filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries)
-        )
-        prods = list(
-            filter(lambda e: e.composition.reduced_formula == "Li2O2", entries)
-        )
+        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
         self.rxn = ComputedReaction(rcts, prods)
 
@@ -437,49 +421,55 @@ class ComputedReactionTest(unittest.TestCase):
                 "parameters": {},
                 "composition": {"O": 2},
             },
-            {'@module': 'pymatgen.entries.computed_entries',
-             '@class': 'ComputedEntry',
-             'energy': -38.76889738,
-             'composition': defaultdict(float, {'Li': 4.0, 'O': 4.0}),
-             'energy_adjustments': [{'@module': 'pymatgen.entries.computed_entries',
-                                     '@class': 'ConstantEnergyAdjustment',
-                                     '@version': '2020.6.8',
-                                     'value': -1.864,
-                                     'uncertainty': 0.0744,
-                                     'name': 'MP2020 Composition Correction',
-                                     'cls': {'@module': 'pymatgen.entries.compatibility',
-                                             '@class': 'MaterialsProject2020Compatibility',
-                                             '@version': '2020.6.8',
-                                             'compat_type': 'Advanced',
-                                             'correct_peroxide': True,
-                                             'check_potcar_hash': False},
-                                     'description': 'Constant energy adjustment (-1.864 eV)'}],
-             'parameters': {'run_type': 'GGA',
-                            'is_hubbard': False,
-                            'pseudo_potential': {'functional': 'PBE',
-                                                 'labels': ['Li_sv', 'O'],
-                                                 'pot_type': 'paw'},
-                            'hubbards': {},
-                            'potcar_symbols': ['PBE Li_sv', 'PBE O'],
-                            'oxide_type': 'peroxide'},
-             'data': {'oxide_type': 'peroxide'},
-             'entry_id': 'mp-841',
-             'correction': -1.864},
+            {
+                "@module": "pymatgen.entries.computed_entries",
+                "@class": "ComputedEntry",
+                "energy": -38.76889738,
+                "composition": defaultdict(float, {"Li": 4.0, "O": 4.0}),
+                "energy_adjustments": [
+                    {
+                        "@module": "pymatgen.entries.computed_entries",
+                        "@class": "ConstantEnergyAdjustment",
+                        "@version": "2020.6.8",
+                        "value": -1.864,
+                        "uncertainty": 0.0744,
+                        "name": "MP2020 Composition Correction",
+                        "cls": {
+                            "@module": "pymatgen.entries.compatibility",
+                            "@class": "MaterialsProject2020Compatibility",
+                            "@version": "2020.6.8",
+                            "compat_type": "Advanced",
+                            "correct_peroxide": True,
+                            "check_potcar_hash": False,
+                        },
+                        "description": "Constant energy adjustment (-1.864 eV)",
+                    }
+                ],
+                "parameters": {
+                    "run_type": "GGA",
+                    "is_hubbard": False,
+                    "pseudo_potential": {
+                        "functional": "PBE",
+                        "labels": ["Li_sv", "O"],
+                        "pot_type": "paw",
+                    },
+                    "hubbards": {},
+                    "potcar_symbols": ["PBE Li_sv", "PBE O"],
+                    "oxide_type": "peroxide",
+                },
+                "data": {"oxide_type": "peroxide"},
+                "entry_id": "mp-841",
+                "correction": -1.864,
+            },
         ]
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = list(
-            filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries)
-        )
-        prods = list(
-            filter(lambda e: e.composition.reduced_formula == "Li2O2", entries)
-        )
+        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(rcts, prods)
-        self.assertAlmostEqual(
-            rxn_with_uncertainty.calculated_reaction_energy_uncertainty, 0.5 * 0.0744
-        )
+        self.assertAlmostEqual(rxn_with_uncertainty.calculated_reaction_energy_uncertainty, 0.5 * 0.0744)
 
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
         # test that reaction_energy_uncertainty property doesn't cause errors
@@ -504,49 +494,55 @@ class ComputedReactionTest(unittest.TestCase):
                 "parameters": {},
                 "composition": {"O": 2},
             },
-            {'@module': 'pymatgen.entries.computed_entries',
-             '@class': 'ComputedEntry',
-             'energy': -38.76889738,
-             'composition': defaultdict(float, {'Li': 4.0, 'O': 4.0}),
-             'energy_adjustments': [{'@module': 'pymatgen.entries.computed_entries',
-                                     '@class': 'ConstantEnergyAdjustment',
-                                     '@version': '2020.6.8',
-                                     'value': -1.864,
-                                     'uncertainty': np.nan,
-                                     'name': 'MP2020 Composition Correction',
-                                     'cls': {'@module': 'pymatgen.entries.compatibility',
-                                             '@class': 'MaterialsProject2020Compatibility',
-                                             '@version': '2020.6.8',
-                                             'compat_type': 'Advanced',
-                                             'correct_peroxide': True,
-                                             'check_potcar_hash': False},
-                                     'description': 'Constant energy adjustment (-1.864 eV)'}],
-             'parameters': {'run_type': 'GGA',
-                            'is_hubbard': False,
-                            'pseudo_potential': {'functional': 'PBE',
-                                                 'labels': ['Li_sv', 'O'],
-                                                 'pot_type': 'paw'},
-                            'hubbards': {},
-                            'potcar_symbols': ['PBE Li_sv', 'PBE O'],
-                            'oxide_type': 'peroxide'},
-             'data': {'oxide_type': 'peroxide'},
-             'entry_id': 'mp-841',
-             'correction': -1.864},
+            {
+                "@module": "pymatgen.entries.computed_entries",
+                "@class": "ComputedEntry",
+                "energy": -38.76889738,
+                "composition": defaultdict(float, {"Li": 4.0, "O": 4.0}),
+                "energy_adjustments": [
+                    {
+                        "@module": "pymatgen.entries.computed_entries",
+                        "@class": "ConstantEnergyAdjustment",
+                        "@version": "2020.6.8",
+                        "value": -1.864,
+                        "uncertainty": np.nan,
+                        "name": "MP2020 Composition Correction",
+                        "cls": {
+                            "@module": "pymatgen.entries.compatibility",
+                            "@class": "MaterialsProject2020Compatibility",
+                            "@version": "2020.6.8",
+                            "compat_type": "Advanced",
+                            "correct_peroxide": True,
+                            "check_potcar_hash": False,
+                        },
+                        "description": "Constant energy adjustment (-1.864 eV)",
+                    }
+                ],
+                "parameters": {
+                    "run_type": "GGA",
+                    "is_hubbard": False,
+                    "pseudo_potential": {
+                        "functional": "PBE",
+                        "labels": ["Li_sv", "O"],
+                        "pot_type": "paw",
+                    },
+                    "hubbards": {},
+                    "potcar_symbols": ["PBE Li_sv", "PBE O"],
+                    "oxide_type": "peroxide",
+                },
+                "data": {"oxide_type": "peroxide"},
+                "entry_id": "mp-841",
+                "correction": -1.864,
+            },
         ]
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = list(
-            filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries)
-        )
-        prods = list(
-            filter(lambda e: e.composition.reduced_formula == "Li2O2", entries)
-        )
+        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(rcts, prods)
-        self.assertTrue(
-            isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
-        )
+        self.assertTrue(isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty))
 
     def test_init(self):
         self.assertEqual(str(self.rxn), "2 Li + O2 -> Li2O2")

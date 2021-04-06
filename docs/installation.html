@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>Installation &mdash; pymatgen 2022.0.4 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,19 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Change log" href="change_log.html" />
@@ -61,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +70,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2022.0.4
               </div>
             
           
@@ -88,6 +87,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -131,6 +131,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -140,6 +142,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -178,7 +181,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Installation</li>
     
@@ -253,7 +256,7 @@ Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader"
 <li><p>gulp: For use with <a class="reference internal" href="pymatgen.command_line.gulp_caller.html#module-pymatgen.command_line.gulp_caller" title="pymatgen.command_line.gulp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.gulp_caller</span></code></a>,
 which is in turn used extensively by <a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects" title="pymatgen.analysis.defects"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.defects</span></code></a> to
 compute empirical defect energies.</p></li>
-<li><p>aconvasp: For use with the <a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html#module-pymatgen.command_line.aconvasp_caller" title="pymatgen.command_line.aconvasp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code></a>.</p></li>
+<li><p>aconvasp: For use with the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code>.</p></li>
 <li><p>Zeo++ (<a class="reference external" href="http://zeoplusplus.org">http://zeoplusplus.org</a>): For defect structure
 generation. This is required in addition to installing the zeo Python
 package.</p></li>
@@ -644,7 +647,7 @@ Here are the steps you need to follow (thanks to Bharat)</p>
 </div>
 <p>To test that the installation worked, here is an example series of things you
 can do using pymatgen:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="kn">import</span> <span class="n">Interstitial</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">Interstitial</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 
@@ -679,11 +682,19 @@ can do using pymatgen:</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -694,7 +705,6 @@ can do using pymatgen:</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

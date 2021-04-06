@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Collaborative Github Workflow &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>Contributing &mdash; pymatgen 2022.0.4 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,26 +23,23 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Compatibility" href="compatibility.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -59,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -69,7 +70,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2022.0.4
               </div>
             
           
@@ -86,6 +87,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -93,10 +95,17 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#direct-contributions-to-pymatgen-main-distribution">Direct contributions to pymatgen main distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-add-ons-for-pymatgen">Writing add-ons for pymatgen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-guidelines">Coding Guidelines</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -106,6 +115,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -144,9 +154,9 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Collaborative Github Workflow</li>
+      <li>Contributing</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -167,84 +177,128 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="collaborative-github-workflow">
-<h1>Collaborative Github Workflow<a class="headerlink" href="#collaborative-github-workflow" title="Permalink to this headline">¶</a></h1>
-<p>For developers interested in expanding pymatgen for their own purposes, we
-recommend forking pymatgen directly from the
-<a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a>. Here’s a typical workflow (adapted from
-<a class="reference external" href="http://www.eqqon.com/index.php/Collaborative_Github_Workflow">http://www.eqqon.com/index.php/Collaborative_Github_Workflow</a>):</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Ignore the Github fork queue. Let the maintainer of pymatgen worry about
-the fork queue.</p>
-</div>
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>Pymatgen is a community project. We welcome any contributions to either improve or expand its functionality. There are
+two main ways of contributing to pymatgen:</p>
+<ol class="arabic simple">
+<li><p><strong>Direct contributions to pymatgen main distribution.</strong> For improvements to existing pymatgen code or new
+functionality that is expected to be of broad interest and usage to the materials science community, you may make
+direct contributions to the pymatgen main distribution.</p></li>
+<li><p><strong>Add-ons to pymatgen</strong>. With effect from v2022.0.3, pymatgen now supports the development of add-on packages under
+the pymatgen, pymatgen.analysis, pymatgen.ext and and pymatgen.io
+<a class="reference external" href="http://packaging.python.org/guides/packaging-namespace-packages/">namespaces</a>. If you are developing new
+functionality that is likely to be used by a sub-community of materials scientists, this is probably the best route
+going forward. Examples include functionality related to a specific technological application or io for a new
+quantum chemistry software, etc.</p></li>
+</ol>
+<p>We understand that it is not always clear-cut what contributions should be in the main pymatgen distribution and what
+should be as an add-on. It is helpful to always submit a <a class="reference external" href="http://github.com/materialsproject/pymatgen/issues">GitHub Issue</a> with your proposed feature to get feedback from the pymatgen
+maintainers as well as the broader community. It is also possible that a package that initially was developed as an
+add-on subsequently gain enough broad interest and traction such that it is incorporated into the main pymatgen
+distribution.</p>
+<div class="section" id="direct-contributions-to-pymatgen-main-distribution">
+<h2>Direct contributions to pymatgen main distribution<a class="headerlink" href="#direct-contributions-to-pymatgen-main-distribution" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
-<li><p>Create a free GitHub account (if you don’t already have one) and perform the
-necessary setup (e.g., install SSH keys etc.).</p></li>
-<li><p>Fork the pymatgen GitHub repo, i.e., go to the main
-<a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a> and click fork to create a copy of the pymatgen code
-base on your own Github account.</p></li>
+<li><p>Create a free GitHub account (if you don’t already have one) and perform the necessary setup (e.g., install SSH
+keys etc.).</p></li>
+<li><p>Fork the pymatgen GitHub repo, i.e., go to the main <a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a> and click fork to create a copy of the
+pymatgen code base on your own Github account.</p></li>
 <li><p>Install git on your local machine (if you don’t already have it).</p></li>
-<li><p>Clone <em>your forked repo</em> to your local machine. You will work mostly with
-your local repo and only publish changes when they are ready to be merged:</p>
+<li><p>Clone <em>your forked repo</em> to your local machine. You will work mostly with your local repo and only publish changes
+when they are ready to be merged:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">YOURNAME</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
-<p>Note that the entire Github repo is fairly large because of the presence of
-test files, but these are absolutely necessary for rigorous testing of the
-code.</p>
+<p>Note that the entire Github repo is fairly large because of the presence of test files, but these are absolutely
+necessary for rigorous testing of the code.</p>
 </li>
 <li><p>It is highly recommended you install all the optional dependencies as well.</p></li>
-<li><p>Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your
-code up to date. You need to add the main repository to the list of your
-remotes. Let’s name the upstream repo as mpmaster (materialsproject master).</p>
+<li><p>Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your code up to date. You need to add the main
+repository to the list of your remotes. Let’s name the upstream repo as mpmaster (materialsproject master):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">mpmaster</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
-<p>Make sure your repository is clean (no uncommitted changes) and is currently
-on the master branch. If not, commit or stash any changes and switch to the
-master.</p>
+<p>Make sure your repository is clean (no uncommitted changes) and is currently on the master branch. If not, commit or
+stash any changes and switch to the master:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
 </pre></div>
 </div>
-<p>Then you can pull all the new commits from the main line</p>
+<p>Then you can pull all the new commits from the main line:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span> <span class="n">mpmaster</span> <span class="n">master</span>
 </pre></div>
 </div>
-<p>Remember, pull is a combination of the commands fetch and merge, so there may
-be merge conflicts to be manually resolved.</p>
+<p>Remember, pull is a combination of the commands fetch and merge, so there may be merge conflicts that may need to be
+manually resolved.</p>
 </li>
-<li><p>Publish your contributions. Assuming that you now have a couple of commits
-that you would like to contribute to the main repository. Please follow the
-following steps:</p>
+<li><p>Publish your contributions. Assuming that you now have a couple of commits that you would like to contribute to the
+main repository. Please follow the following steps:</p>
 <ol class="loweralpha">
-<li><p>If your change is based on a relatively old state of the main repository,
-then you should probably bring your repository up-to-date first to see if
-the change is not creating any merge conflicts.</p></li>
+<li><p>If your change is based on a relatively old state of the main repository, then you should probably bring your
+repository up-to-date first to see if the change is not creating any merge conflicts.</p></li>
 <li><p>Check that everything compiles cleanly and passes all tests.
 The pymatgen repo comes with a complete set of tests for all modules. If
 you have written new modules or methods, you must write tests for the new
 code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run pytest in your
 local repo directory and fix all errors before continuing further.</p></li>
-<li><p>If everything is ok, publish the commits to your github repository.</p>
+<li><p>If you have <a class="reference external" href="https://pre-commit.com/">pre-commit</a> installed you can use
+the provided <code class="code docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file to perform automatic style checks
+before publishing your code.  The pre-commit hooks can be installed using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pre</span><span class="o">-</span><span class="n">commit</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
+<li><p>If everything is ok, publish the commits to your github repository:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
 </pre></div>
 </div>
 </li>
 </ol>
 </li>
-<li><p>Now that your commit is published, it doesn’t mean that it has already been
-merged into the main repository. You should issue a merge request to
-pymatgen maintainers. They will pull your commits and run their own tests
-before releasing.</p></li>
+<li><p>Now that your commit is published, it does not mean that it has already been merged into the main repository. You
+should submit a <a class="reference external" href="https://github.com/materialsproject/pymatgen/pulls">pull request</a> to the pymatgen main repository.
+A set of linting and unittests will be automatically performed. Fix all lint and test errors identified. Your PR
+will only be merged if these checks passed.</p></li>
 </ol>
-<p>“Work-in-progress” pull requests are encouraged, especially if this is your
-first time contributing to pymatgen, and the maintainers will be happy to
-help or provide code review as necessary. Put “[WIP]” in the title of your
+<p>“Work-in-progress” pull requests are encouraged, especially if this is your first time contributing to pymatgen, and
+the maintainers will be happy to help or provide code review as necessary. Put “[WIP]” in the title of your
 pull request to indicate it’s not ready to be merged.</p>
 </div>
+<div class="section" id="writing-add-ons-for-pymatgen">
+<h2>Writing add-ons for pymatgen<a class="headerlink" href="#writing-add-ons-for-pymatgen" title="Permalink to this headline">¶</a></h2>
+<p>Add-on packages can be developed under the pymatgen, pymatgen.analysis, pymatgen.ext and and pymatgen.io
+<a class="reference external" href="http://packaging.python.org/guides/packaging-namespace-packages/">namespaces</a>. We ask that most add-ons be developed
+under the pymatgen.analysis, pymatgen.ext and and pymatgen.io namespaces and not the root pymatgen namespace. The
+pymatgen root namespace is meant for development of broad classes of functionality. If in doubt, please consult with
+the pymatgen maintainers. The benefits of writing an add-on for pymatgen are:</p>
+<ul class="simple">
+<li><p>You control the development and distribution of the add-on. You also get full recognition of your work.</p></li>
+<li><p>The add-on does not affect the main pymatgen distribution and end users have a choice of whether to install the
+add-on or not via <cite>pip install pymatgen-analysis-addon</cite>.</p></li>
+<li><p>Once installed, the add-on functions exactly like a part of pymatgen in that the imports are still via
+<cite>from pymatgen.analysis.addon import *</cite>.</p></li>
+<li><p>We will help your add-on gain recognition via our <a class="reference external" href="/addons">listing of pymatgen add-ons</a>. We have plans to develop
+this into a full-fledged searchable database of add-ons.</p></li>
+</ul>
+<p>The namespaces provide an important clue what kind of contributions are suitable for add-ons.</p>
+<ul class="simple">
+<li><p><cite>pymatgen.analysis.*</cite>: A new type of analysis, such as those for a specific application. E.g. superconductors, solar,
+etc. or an entire category of analysis, e.g., machine learning, diffusion, etc.</p></li>
+<li><p><cite>pymatgen.ext.*</cite>: A high-level API access to a new external resource, for example, a new database of crystal
+structure, molecules and/or properties.</p></li>
+<li><p><cite>pymatgen.io.*</cite>: Support for input/output from another code, e.g., some quantum chemistry software.</p></li>
+</ul>
+<p>To help developers write add-ons, we have written a <a class="reference external" href="http://github.com/materialsproject/pymatgen-addon-template">pymatgen add-on template</a> with detailed instructions. For a real-world
+example using this template, check out Materials Virtual Lab’s <a href="#id2"><span class="problematic" id="id3">`pymatgen-diffusion
+&lt;http://github.com/materialsvirtuallab/pymatgen-diffusion`_</span></a>.</p>
+<p>It should be noted that while the pymatgen maintainers will attempt to help developers as far as possible, <strong>we provide
+no guarantees whatsoever on the quality or reliability of any code that is not part of the main pymatgen distribution</strong>.
+The add-on architecture therefore provides flexibility for broad expansion of scope in pymatgen functionality by the
+community by loosening up the tight control in the main repository, which is bottlenecked by the small team maintaining
+it.</p>
+</div>
 <div class="section" id="coding-guidelines">
-<h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
+<h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h2>
 <p>Given that pymatgen is intended to be long-term code base, we adopt very strict
 quality control and coding guidelines for all contributions to pymatgen. The
 following must be satisfied for your contributions to be accepted into pymatgen.</p>
@@ -256,11 +310,11 @@ maintainer cannot test your code, the contribution will be rejected.</p></li>
 We allow a few exceptions when they are well-justified (e.g., Element’s
 atomic number is given a variable name of capital Z, in line with accepted
 scientific convention), but generally, PEP 8 must be observed. Code style
-will be automatically checked, but to aid you, you can copy the example
-pre-commit hook into your .git/hooks directly. This will automatically run
-pycodestyle prior to any commits. At the very least, copy pre-commit to
-.git/hooks/pre-push.</p></li>
-<li><p><strong>Python 3</strong>. We only support Python 3.6+.</p></li>
+will be automatically checked for all PRs and must pass before any PR is merged.
+To aid you, you can copy the example pre-commit hook into your .git/hooks
+directly. This will automatically run pycodestyle and other linting services
+prior to any commits. At the very least, copy pre-commit to .git/hooks/pre-push.</p></li>
+<li><p><strong>Python 3</strong>. We only support Python 3.7+.</p></li>
 <li><p><strong>Documentation</strong> required for all modules, classes and methods. In
 particular, the method docstrings should make clear the arguments expected
 and the return values. For complex algorithms (e.g., an Ewald summation), a
@@ -273,13 +327,6 @@ selecting the entire code and using the Code-&gt;Reformat Code within Pycharm.</
 </ol>
 <p>For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.</p>
-<div class="section" id="a-word-on-coding-for-python-2-compatibility">
-<h2>A word on coding for Python 2 compatibility<a class="headerlink" href="#a-word-on-coding-for-python-2-compatibility" title="Permalink to this headline">¶</a></h2>
-<p>As of 2019, pymatgen no longer requires code to be Python 2 compatible, and
-current versions of the code are not supported with Python 2. If you need a
-version of pymatgen that works with Python 2, please use a version before
-2018, but note this will be missing the latest bug fixes. This change follows
-the broader Python community no longer supporting Python 2, including numpy.</p>
 </div>
 </div>
 
@@ -294,11 +341,19 @@ the broader Python community no longer supporting Python 2, including numpy.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -309,7 +364,6 @@ the broader Python community no longer supporting Python 2, including numpy.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

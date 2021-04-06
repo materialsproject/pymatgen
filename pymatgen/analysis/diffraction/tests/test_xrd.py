@@ -3,12 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
+from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.util.testing import PymatgenTest
-import matplotlib as mpl
-
 
 """
 TODO: Modify unittest doc.
@@ -23,6 +21,11 @@ __date__ = "5/22/14"
 
 
 class XRDCalculatorTest(PymatgenTest):
+    def test_type_wavelength(self):
+        """Test TypeError is raised if wavelength is unaccepted type"""
+        wavelength = [1.78, 2.78]  # just a list
+        self.assertRaises(TypeError, XRDCalculator, wavelength)
+
     def test_get_pattern(self):
         s = self.get_structure("CsCl")
         c = XRDCalculator()
@@ -31,7 +34,7 @@ class XRDCalculatorTest(PymatgenTest):
         # Check the first two peaks
         self.assertAlmostEqual(xrd.x[0], 21.107738329639844)
         self.assertAlmostEqual(xrd.y[0], 36.483184003748946)
-        self.assertEqual(xrd.hkls[0], [{'hkl': (1, 0, 0), 'multiplicity': 6}])
+        self.assertEqual(xrd.hkls[0], [{"hkl": (1, 0, 0), "multiplicity": 6}])
         self.assertAlmostEqual(xrd.d_hkls[0], 4.2089999999999996)
         self.assertAlmostEqual(xrd.x[1], 30.024695921112777)
         self.assertAlmostEqual(xrd.y[1], 100)
@@ -58,8 +61,14 @@ class XRDCalculatorTest(PymatgenTest):
 
         # Add test case with different lengths of coefficients.
         # Also test d_hkl.
-        coords = [[0.25, 0.25, 0.173], [0.75, 0.75, 0.827], [0.75, 0.25, 0],
-                  [0.25, 0.75, 0], [0.25, 0.25, 0.676], [0.75, 0.75, 0.324]]
+        coords = [
+            [0.25, 0.25, 0.173],
+            [0.75, 0.75, 0.827],
+            [0.75, 0.25, 0],
+            [0.25, 0.75, 0],
+            [0.25, 0.25, 0.676],
+            [0.75, 0.75, 0.324],
+        ]
         sp = ["Si", "Si", "Ru", "Ru", "Pr", "Pr"]
         s = Structure(Lattice.tetragonal(4.192, 6.88), sp, coords)
         xrd = c.get_pattern(s)
@@ -71,8 +80,7 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertEqual(len(xrd), 18)
 
         # Test with and without Debye-Waller factor
-        tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2,
-                             [[0, 0, 0], [0.5, 0.5, 0.5]])
+        tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2, [[0, 0, 0], [0.5, 0.5, 0.5]])
         xrd = c.get_pattern(tungsten, scaled=False)
         self.assertAlmostEqual(xrd.x[0], 40.294828554672264)
         self.assertAlmostEqual(xrd.y[0], 2414237.5633093244)
@@ -84,5 +92,5 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(xrd.d_hkls[0], 2.2382050944897789)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

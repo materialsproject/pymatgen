@@ -11,9 +11,9 @@ Use the script ~pymatgen/dev_scripts/regen_libxcfunc.py to regenerate the enum v
 
 import json
 import os
-
-from io import open
 from enum import Enum
+from io import open
+
 from monty.json import MontyEncoder
 
 # The libxc version used to generate this file!
@@ -28,8 +28,7 @@ __status__ = "Production"
 __date__ = "May 16, 2016"
 
 # Loads libxc info from json file
-with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"),
-          "rt") as fh:
+with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), "rt") as fh:
     _all_xcfuncs = {int(k): v for k, v in json.load(fh).items()}
 
 
@@ -41,6 +40,7 @@ class LibxcFunc(Enum):
     This is a low level object, client code should not interact with LibxcFunc directly
     but use the API provided by Xcfunc.
     """
+
     # begin_include_dont_touch
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
@@ -418,8 +418,7 @@ class LibxcFunc(Enum):
         self.family = info["Family"]
 
     def __str__(self):
-        return "name=%s, kind=%s, family=%s" % (
-            self.name, self.kind, self.family)
+        return "name=%s, kind=%s, family=%s" % (self.name, self.kind, self.family)
 
     @staticmethod
     def all_families():
@@ -493,9 +492,11 @@ class LibxcFunc(Enum):
         Makes LibxcFunc obey the general json interface used in pymatgen for
         easier serialization.
         """
-        return {"name": self.name,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {
+            "name": self.name,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @staticmethod
     def from_dict(d):

@@ -39,7 +39,9 @@ each voxel is 0.283459 units wide and the volume is aligned with the coordinate 
 
 import numpy as np
 from monty.io import zopen
-from pymatgen import Site, Structure
+
+from pymatgen.core.sites import Site
+from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_angstrom
 
 
@@ -88,9 +90,12 @@ class Cube:
             line = f.readline().split()
             self.sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 
-        self.structure = Structure(lattice=[self.X*self.NX, self.Y*self.NY, self.Z*self.NZ],
-                                   species=[s.specie for s in self.sites],
-                                   coords=[s.coords for s in self.sites], coords_are_cartesian=True)
+        self.structure = Structure(
+            lattice=[self.X * self.NX, self.Y * self.NY, self.Z * self.NZ],
+            species=[s.specie for s in self.sites],
+            coords=[s.coords for s in self.sites],
+            coords_are_cartesian=True,
+        )
 
         # Volumetric data
         self.data = np.zeros((self.NX, self.NY, self.NZ))

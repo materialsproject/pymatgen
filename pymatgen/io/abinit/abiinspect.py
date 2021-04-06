@@ -1,26 +1,36 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member, chained-comparison, unnecessary-comprehension, not-callable
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
 
 import os
-import numpy as np
-import ruamel.yaml as yaml
-
-from collections.abc import Mapping, Iterable, Iterator
 from collections import OrderedDict
-from tabulate import tabulate
-from monty.functools import lazy_property
+from collections.abc import Iterable, Iterator, Mapping
+
+import numpy as np
 from monty.collections import AttrDict
+from monty.functools import lazy_property
+from tabulate import tabulate
+
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 
 def straceback():
     """Returns a string with the traceback."""
     import traceback
+
     return traceback.format_exc()
 
 
@@ -48,6 +58,7 @@ def _magic_parser(stream, magic):
         line = line.strip()
 
         if line.startswith(magic):
+            # print("Found magic token in line:", line)
             keys = line.split()
             fields = OrderedDict((k, []) for k in keys)
 
@@ -57,10 +68,11 @@ def _magic_parser(stream, magic):
             if in_doc == 1:
                 continue
 
-            # End of the section.
-            if not line:
+            # End of the section or empty SCF cycle
+            if not line or line.startswith("prteigrs"):
                 break
 
+            # print("Try to parse line:", line)
             tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):
@@ -69,8 +81,7 @@ def _magic_parser(stream, magic):
     # Convert values to numpy arrays.
     if fields:
         return OrderedDict([(k, np.array(v)) for k, v in fields.items()])
-    else:
-        return None
+    return None
 
 
 def plottable_from_outfile(filepath):
@@ -96,8 +107,7 @@ def plottable_from_outfile(filepath):
     obj = GroundStateScfCycle
     if obj is not None:
         return obj.from_file(filepath)
-    else:
-        return None
+    return None
 
 
 # Use log scale for these variables.
@@ -120,7 +130,13 @@ class ScfCycle(Mapping):
         num_iterations: Number of iterations performed.
     """
 
+    MAGIC = "Must be defined by the subclass." ""
+
     def __init__(self, fields):
+        """
+        Args:
+            fields: Dictionary with label --> list of numerical values.
+        """
         self.fields = fields
         all_lens = [len(lst) for lst in self.values()]
         self.num_iterations = all_lens[0]
@@ -140,8 +156,7 @@ class ScfCycle(Mapping):
 
     def to_string(self, verbose=0):
         """String representation."""
-        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys())))
-                for it in range(self.num_iterations)]
+        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys()))) for it in range(self.num_iterations)]
 
         return tabulate(rows, headers=["Iter"] + list(self.keys()))
 
@@ -169,8 +184,7 @@ class ScfCycle(Mapping):
         if fields:
             fields.pop("iter")
             return cls(fields)
-        else:
-            return None
+        return None
 
     @add_fig_kwargs
     def plot(self, ax_list=None, fontsize=12, **kwargs):
@@ -190,8 +204,9 @@ class ScfCycle(Mapping):
             ncols = 2
             nrows = num_plots // ncols + num_plots % ncols
 
-        ax_list, fig, plot = get_axarray_fig_plt(ax_list, nrows=nrows, ncols=ncols,
-                                                 sharex=True, sharey=False, squeeze=False)
+        ax_list, fig, plot = get_axarray_fig_plt(
+            ax_list, nrows=nrows, ncols=ncols, sharex=True, sharey=False, squeeze=False
+        )
         ax_list = np.array(ax_list).ravel()
 
         iter_num = np.array(list(range(self.num_iterations))) + 1
@@ -199,7 +214,7 @@ class ScfCycle(Mapping):
 
         for i, ((key, values), ax) in enumerate(zip(self.items(), ax_list)):
             ax.grid(True)
-            ax.set_xlabel('Iteration Step')
+            ax.set_xlabel("Iteration Step")
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
@@ -228,13 +243,14 @@ class ScfCycle(Mapping):
         # Get around a bug in matplotlib.
         if num_plots % ncols != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
-            ax_list[-1].axis('off')
+            ax_list[-1].axis("off")
 
         return fig
 
 
 class GroundStateScfCycle(ScfCycle):
     """Result of the Ground State self-consistent cycle."""
+
     MAGIC = "iter   Etot(hartree)"
 
     @property
@@ -245,6 +261,7 @@ class GroundStateScfCycle(ScfCycle):
 
 class D2DEScfCycle(ScfCycle):
     """Result of the Phonon self-consistent cycle."""
+
     MAGIC = "iter   2DEtotal(Ha)"
 
     @property
@@ -261,6 +278,7 @@ class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
+        """Initialize object."""
         self.labels = []
         self.cycles = []
 
@@ -284,8 +302,15 @@ class CyclesPlotter:
         """
         ax_list = None
         for i, (label, cycle) in enumerate(self.items()):
-            fig = cycle.plot(ax_list=ax_list, label=label, fontsize=fontsize,
-                             lw=2.0, marker="o", linestyle="-", show=False)
+            fig = cycle.plot(
+                ax_list=ax_list,
+                label=label,
+                fontsize=fontsize,
+                lw=2.0,
+                marker="o",
+                linestyle="-",
+                show=False,
+            )
             ax_list = fig.axes
 
         return fig
@@ -315,6 +340,11 @@ class Relaxation(Iterable):
     """
 
     def __init__(self, cycles):
+        """
+        Args
+            cycles: list of `GroundStateScfCycle` objects.
+        """
+
         self.cycles = cycles
         self.num_iterations = len(self.cycles)
 
@@ -393,9 +423,11 @@ class Relaxation(Iterable):
             `matplotlib` figure
         """
         for i, cycle in enumerate(self.cycles):
-            cycle.plot(title="Relaxation step %s" % (i + 1),
-                       tight_layout=kwargs.pop("tight_layout", True),
-                       show=kwargs.pop("show", True))
+            cycle.plot(
+                title="Relaxation step %s" % (i + 1),
+                tight_layout=kwargs.pop("tight_layout", True),
+                show=kwargs.pop("show", True),
+            )
 
     @add_fig_kwargs
     def plot(self, ax_list=None, fontsize=12, **kwargs):
@@ -417,8 +449,9 @@ class Relaxation(Iterable):
             ncols = 2
             nrows = num_plots // ncols + num_plots % ncols
 
-        ax_list, fig, plot = get_axarray_fig_plt(ax_list, nrows=nrows, ncols=ncols,
-                                                 sharex=True, sharey=False, squeeze=False)
+        ax_list, fig, plot = get_axarray_fig_plt(
+            ax_list, nrows=nrows, ncols=ncols, sharex=True, sharey=False, squeeze=False
+        )
         ax_list = np.array(ax_list).ravel()
 
         iter_num = np.array(list(range(self.num_iterations))) + 1
@@ -426,7 +459,7 @@ class Relaxation(Iterable):
 
         for i, ((key, values), ax) in enumerate(zip(history.items(), ax_list)):
             ax.grid(True)
-            ax.set_xlabel('Relaxation Step')
+            ax.set_xlabel("Relaxation Step")
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
@@ -451,7 +484,7 @@ class Relaxation(Iterable):
         # Get around a bug in matplotlib.
         if num_plots % ncols != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
-            ax_list[-1].axis('off')
+            ax_list[-1].axis("off")
 
         return fig
 
@@ -505,6 +538,7 @@ class Relaxation(Iterable):
 # Yaml parsers.
 ##################
 
+
 class YamlTokenizerError(Exception):
     """Exceptions raised by :class:`YamlTokenizer`."""
 
@@ -513,9 +547,14 @@ class YamlTokenizer(Iterator):
     """
     Provides context-manager support so you can use it in a with statement.
     """
+
     Error = YamlTokenizerError
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename
+        """
         # The position inside the file.
         self.linepos = 0
         self.filename = filename
@@ -545,6 +584,7 @@ class YamlTokenizer(Iterator):
         self.close()
 
     def close(self):
+        """Close the stream."""
         try:
             self.stream.close()
         except Exception:
@@ -684,6 +724,7 @@ class YamlDoc:
     Handy object that stores that YAML document, its main tag and the
     position inside the file.
     """
+
     __slots__ = [
         "text",
         "lineno",
@@ -713,9 +754,7 @@ class YamlDoc:
     def __eq__(self, other):
         if other is None:
             return False
-        return (self.text == other.text and
-                self.lineno == other.lineno and
-                self.tag == other.tag)
+        return self.text == other.text and self.lineno == other.lineno and self.tag == other.tag
 
     def __ne__(self, other):
         return not self == other
@@ -729,8 +768,7 @@ class YamlDoc:
         """
         if self.tag is not None:
             return self.text.replace(self.tag, "")
-        else:
-            return self.text
+        return self.text
 
     def as_dict(self):
         """Use Yaml to parse the text (without the tag) and returns a dictionary."""

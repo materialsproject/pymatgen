@@ -8,4 +8,4 @@ This package containes classes to parse input files from the exciting
 code package.
 """
 
-from .inputs import *
+from .inputs import *  # noqa

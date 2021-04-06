@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chemenv.utils.math_utils module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.analysis.chemenv.utils.math_utils module &mdash; pymatgen 2022.0.4 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +23,19 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.utils.scripts_utils module" href="pymatgen.analysis.chemenv.utils.scripts_utils.html" />
@@ -61,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +70,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2022.0.4
               </div>
             
           
@@ -88,6 +87,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,25 +99,26 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -125,7 +126,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -135,6 +135,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,13 +174,13 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
-          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
         
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
         
           <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
         
@@ -211,12 +212,24 @@
 <p>This module contains some math utils that are used in the chemenv package.</p>
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.cosinus_step">
-<code class="sig-name descname">cosinus_step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L167-L176"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.cosinus_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">cosinus_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L200-L213"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.cosinus_step" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>inverse</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.divisors">
-<code class="sig-name descname">divisors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L80-L93"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.divisors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">divisors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L80-L93"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.divisors" title="Permalink to this definition">¶</a></dt>
 <dd><p>From a given natural integer, returns the list of divisors in ascending order
 :param n: Natural integer
 :return: List of divisors of n in ascending order</p>
@@ -224,62 +237,192 @@
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.get_center_of_arc">
-<code class="sig-name descname">get_center_of_arc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p1</span></em>, <em class="sig-param"><span class="n">p2</span></em>, <em class="sig-param"><span class="n">radius</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L96-L106"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.get_center_of_arc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">get_center_of_arc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L96-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.get_center_of_arc" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p1</strong> – </p></li>
+<li><p><strong>p2</strong> – </p></li>
+<li><p><strong>radius</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors">
-<code class="sig-name descname">get_linearly_independent_vectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vectors_list</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L109-L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">get_linearly_independent_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vectors_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L115-L135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.get_linearly_independent_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vectors_list</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.normal_cdf_step">
-<code class="sig-name descname">normal_cdf_step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">mean</span></em>, <em class="sig-param"><span class="n">scale</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L133-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.normal_cdf_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">normal_cdf_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L151-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.normal_cdf_step" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>mean</strong> – </p></li>
+<li><p><strong>scale</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.power2_decreasing_exp">
-<code class="sig-name descname">power2_decreasing_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L220-L226"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_decreasing_exp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">power2_decreasing_exp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L283-L294"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_decreasing_exp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>alpha</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_decreasing">
-<code class="sig-name descname">power2_inverse_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prefactor</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L246-L256"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">power2_inverse_decreasing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L320-L335"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_decreasing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>prefactor</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_power2_decreasing">
-<code class="sig-name descname">power2_inverse_power2_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prefactor</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L259-L268"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_power2_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">power2_inverse_power2_decreasing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L338-L356"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_power2_decreasing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>prefactor</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_powern_decreasing">
-<code class="sig-name descname">power2_inverse_powern_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prefactor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">powern</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L271-L280"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_powern_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">power2_inverse_powern_decreasing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">powern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L359-L375"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_inverse_powern_decreasing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>prefactor</strong> – </p></li>
+<li><p><strong>powern</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.power2_tangent_decreasing">
-<code class="sig-name descname">power2_tangent_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prefactor</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L234-L243"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_tangent_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">power2_tangent_decreasing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L302-L317"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power2_tangent_decreasing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>prefactor</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.power3_step">
-<code class="sig-name descname">power3_step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L179-L180"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power3_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">power3_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L216-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.power3_step" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>inverse</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.powern_decreasing">
-<code class="sig-name descname">powern_decreasing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nn</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L211-L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.powern_decreasing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">powern_decreasing</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L269-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.powern_decreasing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>nn</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.powern_parts_step">
-<code class="sig-name descname">powern_parts_step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inverse</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nn</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L183-L203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.powern_parts_step" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">powern_parts_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L226-L261"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.powern_parts_step" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>inverse</strong> – </p></li>
+<li><p><strong>nn</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.prime_factors">
-<code class="sig-name descname">prime_factors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L49-L61"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.prime_factors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">prime_factors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L49-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.prime_factors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lists prime factors of a given natural integer, from greatest to smallest
 :param n: Natural integer
 :rtype : list of all prime factors of the given natural n</p>
@@ -287,18 +430,56 @@
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.scale_and_clamp">
-<code class="sig-name descname">scale_and_clamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edge0</span></em>, <em class="sig-param"><span class="n">edge1</span></em>, <em class="sig-param"><span class="n">clamp0</span></em>, <em class="sig-param"><span class="n">clamp1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L128-L129"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.scale_and_clamp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">scale_and_clamp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clamp0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clamp1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L138-L147"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.scale_and_clamp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edge0</strong> – </p></li>
+<li><p><strong>edge1</strong> – </p></li>
+<li><p><strong>clamp0</strong> – </p></li>
+<li><p><strong>clamp1</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.smootherstep">
-<code class="sig-name descname">smootherstep</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L155-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.smootherstep" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">smootherstep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L184-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.smootherstep" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>inverse</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.analysis.chemenv.utils.math_utils.smoothstep">
-<code class="sig-name descname">smoothstep</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/chemenv/utils/math_utils.py#L143-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.smoothstep" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">smoothstep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/utils/math_utils.py#L168-L181"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.utils.math_utils.smoothstep" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> – </p></li>
+<li><p><strong>edges</strong> – </p></li>
+<li><p><strong>inverse</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 
@@ -313,11 +494,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -328,7 +517,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
