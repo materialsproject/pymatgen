@@ -208,7 +208,7 @@
 <p>Module containing class to create an ion</p>
 <dl class="py class">
 <dt id="pymatgen.core.ion.Ion">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Ion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/ion.py#L19-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Ion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/ion.py#L19-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.composition.Composition</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code>, <a class="reference internal" href="pymatgen.util.string.html#pymatgen.util.string.Stringify" title="pymatgen.util.string.Stringify"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.util.string.Stringify</span></code></a></p>
 <p>Basic ion object. It is just a Composition object with an additional
 variable to store charge.
@@ -218,20 +218,20 @@ Note the order of the sign and magnitude in each representation.</p>
 For more information, please see pymatgen.core.Composition</p>
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.alphabetical_formula">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">alphabetical_formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.alphabetical_formula" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">alphabetical_formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.alphabetical_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a reduced formula string with appended charge</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.anonymized_formula">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">anonymized_formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.anonymized_formula" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">anonymized_formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.anonymized_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>An anonymized formula. Appends charge to the end
 of anonymized composition</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.as_dict">
-<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/ion.py#L138-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/ion.py#L138-L145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>dict with composition, as well as charge</p>
@@ -241,26 +241,26 @@ of anonymized composition</p>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.charge">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">charge</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.charge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">charge</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Charge of the ion</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.composition">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">composition</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.composition" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">composition</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Composition of ion.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.formula">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.formula" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a formula string, with elements sorted by electronegativity,
 e.g., Li4 Fe4 P4 O16.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.from_dict">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/ion.py#L147-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/ion.py#L147-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates an ion object from a dict created by as_dict().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -271,7 +271,7 @@ e.g., Li4 Fe4 P4 O16.</p>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.from_formula">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_formula</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.core.ion.Ion" title="pymatgen.core.ion.Ion"><span class="pre">pymatgen.core.ion.Ion</span></a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/ion.py#L35-L66"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.from_formula" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_formula</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.core.ion.Ion" title="pymatgen.core.ion.Ion"><span class="pre">pymatgen.core.ion.Ion</span></a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/ion.py#L35-L66"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.from_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates Ion from formula.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -285,13 +285,13 @@ e.g., Li4 Fe4 P4 O16.</p>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.reduced_formula">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reduced_formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.reduced_formula" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reduced_formula</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.reduced_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a reduced formula string with appended charge.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.to_pretty_string">
-<code class="sig-name descname"><span class="pre">to_pretty_string</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/ion.py#L217-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.to_pretty_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">to_pretty_string</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/ion.py#L217-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.to_pretty_string" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Pretty string with proper superscripts.</p>
@@ -301,7 +301,7 @@ e.g., Li4 Fe4 P4 O16.</p>
 
 <dl class="py method">
 <dt id="pymatgen.core.ion.Ion.to_reduced_dict">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">to_reduced_dict</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.to_reduced_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">to_reduced_dict</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/ion.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.ion.Ion.to_reduced_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
 dict with element symbol and reduced amount e.g.,
 {“Fe”: 2.0, “O”:3.0}.</p>

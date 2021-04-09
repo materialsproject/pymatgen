@@ -10,7 +10,7 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import List, Optional, Sequence, Union
+from typing import Optional, Sequence, Union, List, Type
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -176,7 +176,7 @@ class GasCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    For old MaterialsProjectCompatibility and MITCompatibility.
+    Used by legacy MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file):
@@ -215,7 +215,7 @@ class AnionCorrection(Correction):
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
-    For old MaterialsProjectCompatibility and MITCompatibility.
+    Used by legacy MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file, correct_peroxide=True):
@@ -306,6 +306,8 @@ class AqueousCorrection(Correction):
     """
     This class implements aqueous phase compound corrections for elements
     and H2O.
+
+    Used only by MITAqueousCompatibility.
     """
 
     def __init__(self, config_file, error_file=None):
@@ -820,6 +822,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         compat_type="Advanced",
         correct_peroxide=True,
         check_potcar_hash=False,
+        config_file=None,
     ):
         """
         Args:
@@ -848,6 +851,9 @@ class MaterialsProject2020Compatibility(Compatibility):
             check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are
                 consistent with MPRelaxSet. If False, only the POTCAR symbols will
                 be used. (Default: False)
+            config_file (Path): Path to the selected compatibility.yaml config file.
+                If None, defaults to `MP2020Compatibility.yaml` distributed with
+                pymatgen.
 
         References:
             Wang, A., et al. A framework for quantifying uncertainty in DFT energy corrections.
@@ -864,7 +870,10 @@ class MaterialsProject2020Compatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
 
         # load corrections and uncertainties
-        self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
+        if config_file:
+            self.config_file = config_file
+        else:
+            self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
         c = loadfn(self.config_file)
         self.name = c["Name"]
         self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
@@ -1158,7 +1167,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(
         self,
-        solid_compat: Optional[Compatibility] = MaterialsProjectCompatibility,
+        solid_compat: Optional[Type[Compatibility]] = MaterialsProjectCompatibility,
         o2_energy: Optional[float] = None,
         h2o_energy: Optional[float] = None,
         h2o_adjustments: Optional[float] = None,
@@ -1186,10 +1195,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 If not set, this value will be determined from any H2O entries passed to process_entries.
                 Default: None
         """
-        self.solid_compat = solid_compat
-        if self.solid_compat:
-            if not isinstance(self.solid_compat, Compatibility):  # check whether solid_compat has been instantiated
-                self.solid_compat = solid_compat()
+        self.solid_compat = None
+        # check whether solid_compat has been instantiated
+        if solid_compat and not isinstance(solid_compat, Compatibility):
+            self.solid_compat = solid_compat()
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
