@@ -605,6 +605,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(len(nns[0]), 4)
 
     def test_selling_dist(self):
+        #Verification process described here: https://github.com/materialsproject/pymatgen/pull/1888#issuecomment-818072164
         np.testing.assert_(Lattice.selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0)
         hex_lattice = Lattice.hexagonal(5, 8)
         triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
