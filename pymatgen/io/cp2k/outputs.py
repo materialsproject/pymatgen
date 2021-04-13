@@ -389,15 +389,16 @@ class Cp2kOutput:
 
         lattice = self.parse_cell_params()
         gs = {}
-        for k in self.data['atomic_kind_info'].values():
-            if k['pseudo_potential'].upper() == 'NONE':
-                gs[k['kind_number']] = True
+        self.data['atomic_kind_list'] = []
+        for k, v in self.data['atomic_kind_info'].items():
+            if v['pseudo_potential'].upper() == 'NONE':
+                gs[v['kind_number']] = True
             else:
-                gs[k['kind_number']] = False
+                gs[v['kind_number']] = False
             for c in coord_table:
-                if int(k['kind_number']) == int(c[1]):
-                    k['element'] = c[2]
-                    break
+                if int(v['kind_number']) == int(c[1]):
+                    v['element'] = c[2]
+                self.data['atomic_kind_list'].append(k)
 
         if self.is_molecule:
             self.initial_structure = Molecule(
