@@ -148,6 +148,7 @@ class BaderAnalysis:
             self.is_vasp = False
             self.cube = Cube(fpath)
             self.structure = self.cube.structure
+            self.nelects = None
 
         tmpfile = 'CHGCAR' if chgcar_filename else 'CUBE'
         with ScratchDir("."):
