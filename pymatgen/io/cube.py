@@ -160,7 +160,7 @@ class Cube:
         mask = self.mask_sphere(radius, *site.frac_coords)
         return np.sum(self.data * mask) / np.count_nonzero(mask)
 
-    def get_atomic_site_totals(self, atomic_site_radii=None):
+    def get_atomic_site_totals(self, atomic_site_radii):
         """
             Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
 
