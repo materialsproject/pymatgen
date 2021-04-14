@@ -1091,7 +1091,7 @@ class SlabGenerator:
         return shifts
 
     def _get_c_ranges(self, bonds):
-        c_ranges = set()
+        c_ranges = []
         bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
         for (sp1, sp2), bond_dist in bonds.items():
             for site in self.oriented_unit_cell:
@@ -1102,15 +1102,15 @@ class SlabGenerator:
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
-                                c_ranges.add((c_range[0], 1))
-                                c_ranges.add((0, c_range[1] - 1))
+                                c_ranges.append((c_range[0], 1))
+                                c_ranges.append((0, c_range[1] - 1))
                             elif c_range[0] < 0:
                                 # Takes care of PBC when c coordinate of site
                                 # is below the lower boundary of the unit cell
-                                c_ranges.add((0, c_range[1]))
-                                c_ranges.add((c_range[0] + 1, 1))
+                                c_ranges.append((0, c_range[1]))
+                                c_ranges.append((c_range[0] + 1, 1))
                             elif c_range[0] != c_range[1]:
-                                c_ranges.add(c_range)
+                                c_ranges.append((c_range[0], c_range[1]))
         return c_ranges
 
     def get_slabs(
@@ -1154,7 +1154,7 @@ class SlabGenerator:
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
-        c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
+        c_ranges = [] if bonds is None else self._get_c_ranges(bonds)
 
         slabs = []
         for shift in self._calculate_possible_shifts(tol=ftol):

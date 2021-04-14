@@ -1067,7 +1067,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         for ea in entry.energy_adjustments:
             if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
                 self.assertAlmostEqual(ea.value, -0.224 * 2)
-    
+
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
