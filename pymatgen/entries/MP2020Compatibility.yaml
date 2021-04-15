@@ -6,74 +6,74 @@ Corrections:
     # and fluorides to make GGA and GGA+U energies compatible
     # when compat_type = "Advanced" (default)
     O:
-      V: -1.651
-      Cr: -1.953
-      Mn: -1.633
-      Fe: -2.215
-      Co: -1.591
-      Ni: -2.507
-      W: -4.389
-      Mo: -3.13
+      V: -1.7
+      Cr: -1.999
+      Mn: -1.668
+      Fe: -2.256
+      Co: -1.638
+      Ni: -2.541
+      W: -4.437
+      Mo: -3.202
     F:
-      V: -1.651
-      Cr: -1.953
-      Mn: -1.633
-      Fe: -2.215
-      Co: -1.591
-      Ni: -2.507
-      W: -4.389
-      Mo: -3.13
+      V: -1.7
+      Cr: -1.999
+      Mn: -1.668
+      Fe: -2.256
+      Co: -1.638
+      Ni: -2.541
+      W: -4.437
+      Mo: -3.202
   CompositionCorrections:
     # Composition-based corrections applied to any compound containing
     # these species as anions
-    oxide: -0.712
+    oxide: -0.688
     peroxide: -0.466
     superoxide: -0.161
-    S: -0.573
-    F: -0.464
-    Cl: -0.566
+    S: -0.504
+    F: -0.462
+    Cl: -0.614
     Br: -0.535
     I: -0.379
-    N: -0.305
+    N: -0.359
     Se: -0.472
-    Si: -0.255
+    Si: 0.072
     Sb: -0.192
-    Te: -0.419
-    H: -0.176
+    Te: -0.42
+    H: -0.179
     ozonide: 0
 Uncertainties:
   # Uncertainties corresponding to each energy correction (eV/atom)
   GGAUMixingCorrections:
     O:
-      V: 0.0066
-      Cr: 0.0109
-      Mn: 0.0054
-      Fe: 0.0104
-      Co: 0.0061
-      Ni: 0.0108
-      W: 0.0654
-      Mo: 0.0094
+      V: 0.0064
+      Cr: 0.0108
+      Mn: 0.0053
+      Fe: 0.0101
+      Co: 0.006
+      Ni: 0.0107
+      W: 0.0254
+      Mo: 0.009
     F:
-      V: 0.0066
-      Cr: 0.0109
-      Mn: 0.0054
-      Fe: 0.0104
-      Co: 0.0061
-      Ni: 0.0108
-      W: 0.0654
-      Mo: 0.0094
+      V: 0.0064
+      Cr: 0.0108
+      Mn: 0.0053
+      Fe: 0.0101
+      Co: 0.006
+      Ni: 0.0107
+      W: 0.0254
+      Mo: 0.009
   CompositionCorrections:
-    oxide: 0.0022
+    oxide: 0.002
     peroxide: 0.0174
     superoxide: 0.0075
-    S: 0.0111
-    F: 0.0029
-    Cl: 0.0017
+    S: 0.0094
+    F: 0.0027
+    Cl: 0.0018
     Br: 0.0026
-    I: 0.0059
-    N: 0.0111
+    I: 0.0055
+    N: 0.0094
     Se: 0.0341
-    Si: 0.0395
+    Si: 0.0165
     Sb: 0.0089
     Te: 0.0264
     H: 0.0013
