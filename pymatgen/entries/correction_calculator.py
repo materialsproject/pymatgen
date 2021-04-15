@@ -6,7 +6,7 @@ entries given to the CorrectionCalculator constructor.
 import os
 import warnings
 from collections import OrderedDict
-from typing import Dict, List, Tuple, Union, Sequence, Optional
+from typing import Dict, List, Tuple, Union, Optional
 
 try:
     import ruamel.yaml as yaml
@@ -52,7 +52,7 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species: Sequence[str] = (
+        species: List[str] = [
             "oxide",
             "peroxide",
             "superoxide",
@@ -75,7 +75,7 @@ class CorrectionCalculator:
             "W",
             "Mo",
             "H",
-        ),
+        ],
         max_error: float = 0.1,
         allow_unstable: Union[float, bool] = 0.1,
         exclude_polyanions: List[str] = [
@@ -99,7 +99,7 @@ class CorrectionCalculator:
             "PO3",
             "PO4",
             "P2O7",
-        ]
+        ],
     ) -> None:
         """
         Initializes a CorrectionCalculator.

@@ -8,6 +8,17 @@ from pymatgen.util.testing import PymatgenTest
 class CorrectionCalculatorTest(unittest.TestCase):
     def setUp(self):
 
+        self.exclude_polyanions = [
+            "SO4",
+            "CO3",
+            "NO3",
+            "OCl3",
+            "SiO4",
+            "SeO3",
+            "TiO3",
+            "TiO4",
+        ]
+
         self.normal_corrections = {
             "oxide": (-0.74, 0.0017),
             "peroxide": (-0.466, 0.0186),
@@ -99,7 +110,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
-        calculator = CorrectionCalculator()
+        calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
         self.assertDictEqual(corrs, self.normal_corrections)
@@ -125,7 +136,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
-        calculator = CorrectionCalculator()
+        calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         corrs = calculator.compute_from_files(exp_path, calc_path)
 
         self.assertDictEqual(corrs, self.no_uncertainties_corrections)
@@ -138,7 +149,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.json.gz")
 
-        calculator = CorrectionCalculator()
+        calculator = CorrectionCalculator(exclude_polyanions=self.exclude_polyanions)
         with self.assertRaises(ValueError):
             calculator.compute_from_files(exp_path, calc_path)
 
