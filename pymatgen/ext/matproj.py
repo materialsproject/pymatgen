@@ -589,15 +589,20 @@ class MPRester:
         from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
+            Compatibility,
             MaterialsProjectAqueousCompatibility,
             MaterialsProject2020Compatibility,
             MaterialsProjectCompatibility,
         )
 
         if solid_compat == "MaterialsProjectCompatibility":
-            solid_compat = MaterialsProjectCompatibility
+            self.solid_compat = MaterialsProjectCompatibility()
         elif solid_compat == "MaterialsProject2020Compatibility":
-            solid_compat = MaterialsProject2020Compatibility
+            self.solid_compat = MaterialsProject2020Compatibility()
+        elif solid_compat and not isinstance(solid_compat, Compatibility):
+            self.solid_compat = solid_compat()
+        else:
+            self.solid_compat = solid_compat
 
         pbx_entries = []
 
@@ -623,7 +628,7 @@ class MPRester:
                 "ignore",
                 message="You did not provide the required O2 and H2O energies.",
             )
-            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=self.solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
