@@ -847,8 +847,9 @@ class MaterialsProject2020Compatibility(Compatibility):
                 pymatgen.
 
         References:
-            Wang, A., et al. A framework for quantifying uncertainty in DFT energy corrections.
-                Under review.
+            Wang, A., Kingsbury, R., McDermott, M., Horton, M., Jain. A., Ong, S.P.,
+                Dwaraknath, S., Persson, K. A framework for quantifying uncertainty
+                in DFT energy corrections. In preparation.
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
