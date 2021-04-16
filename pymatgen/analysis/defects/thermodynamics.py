@@ -7,30 +7,34 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 """
 
 import logging
+import warnings
+import copy
+import json
+import os
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
-from scipy.optimize import *
-import scipy.constants as const
+from scipy.optimize import bisect
+from scipy.constants.codata import value as _cd
+from scipy.interpolate import interp1d
 from itertools import chain
 
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.structure_matcher import PointDefectComparator
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.entries.computed_entries import GibbsComputedStructureEntry, CompositionEnergyAdjustment
+from pymatgen import Element
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen import Element
-import warnings
-from pymatgen.entries.computed_entries import *
-from monty.serialization import loadfn
-from pymatgen.analysis.defects.core import Vacancy, Interstitial
-import glob
-from pymatgen import Species
+boltzmann_eV = _cd("Boltzmann constant in eV/K")
 
-boltzmann_eV = 8.617333262145e-5
+with open(os.path.join(os.path.dirname(__file__), '../../entries/data/g_els.json')) as f:
+    G_ELEMS = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), '../../entries/data/nist_gas_gf.json')) as f:
+    G_GASES = json.load(f)
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -691,10 +695,29 @@ class DefectPhaseDiagram(MSONable):
             return plt
 
 
-class BrouwerDiagram(MSONable):
+class DefectPredominanceDiagram(MSONable):
+    """
+    Module for constructing defect predominance diagrams. DPDs show the concentration of each
+    defect type at a given chemical potential. Traditionally, this is for binary oxides, with the
+    independent variable being the oxygen partial pressure. Defect predominance diagrams are related
+    to Brouwer Diagrams, but where Brouwer diagrams are constructed by assuming a single dominant
+    point defect in each region of interest, DPDs make no such assumption.
+    """
 
-    def __init__(self, defect_phase_diagram, bulk_dos, entries, concentration_threshold=1):
+    def __init__(self, defect_phase_diagram, bulk_dos, entries):
         """
+        Initialize the DPD.
+
+        Args:
+            defect_phase_diagram (DefectPhaseDiagram): A defect phase diagram for the system of interest.
+            bulk_dos (Dos): a DOS object for the bulk structure. If bulk dos has a different band gap
+                than the band gap stored in defect_phase_diagram, then the bands will be scissored to
+                reproduce the band gap in defect_phase_diagram. This allows one to use, for example, a GGA
+                bulk dos with high kpoint density, but have the band gap come from hybrid calculations.
+            entries ([ComputedStructureEntry]): Computed structure entries for the bulk compounds. These are
+                used to construct the phase diagram at temperatures of interest and establish the bounds on
+                the chemical potentials. Example: for defects in MgO, one should have a computed structure entry
+                for MgO, O2, and Mg.
 
         """
         self.dpd = defect_phase_diagram
@@ -705,9 +728,12 @@ class BrouwerDiagram(MSONable):
         self.chempots = {el: ent.energy_per_atom for el, ent in self.pd.el_refs.items()}
         self.limits = {e: self.pd.get_transition_chempots(e) for e in self.pd.elements}
         self.els = {e.defect.defect_composition for e in self.dpd.entries}
-        self.concentration_threshold = concentration_threshold
 
     def _get_pd_and_cp(self, temperature):
+        """
+        Helper function to get the finite temperature phase diagram and chemical potentials at
+        a given temperature.
+        """
         chempots = {}
         # Manually adjust the chempots of the elemental references
         for el in self.chempots:
@@ -726,7 +752,20 @@ class BrouwerDiagram(MSONable):
 
         return PhaseDiagram(gentries), chempots
 
-    def solve_along_chempot_line(self, temperature, element, chempots=None):
+    def solve_along_chempot_line(self, temperature, element):
+        """
+        Solve for the defect concentration with respect to the chemical potential of one element, e.g. oxygen,
+        going from the minimum to maximum value of that element's chempot as determined from the phase
+        diagram.
+
+        Args:
+            temperature (int or float): temperature of interest
+            element (Element): the element who's chemical potential will be varied
+
+        Returns:
+            (mus, results) the chemical potential linspace used for the evaluation along with
+            the an array of results (see solve())
+        """
         element = element if isinstance(element, Element) else Element(element)
         if temperature >= 300:
             pd, chempots = self._get_pd_and_cp(temperature)
@@ -763,6 +802,15 @@ class BrouwerDiagram(MSONable):
         return mus, results
 
     def solve(self, temperature, chempots):
+        """
+        Get the concentration of defects at a single point by solving for the fermi
+        level self consistently.
+
+        Args:
+            temperature (int or float): temperature of interest
+            chempots (dict): dictionary of chemical potentials for the various elements in
+                the defect phase diagram.
+        """
         ef_scf = self.dpd.solve_for_fermi_energy(temperature, chempots, self.dos)
         fd = FermiDos(self.dos, bandgap=self.dpd.band_gap)
 
@@ -782,7 +830,21 @@ class BrouwerDiagram(MSONable):
         conc.extend([{'name': 'n', 'conc': n, 'charge': -1}, {'name': 'p', 'conc': p, 'charge': 1}])
         return conc
 
-    def plot(self, temperature, element, partial_pressure=False):
+    def plot(self, temperature, element, partial_pressure=False, concentration_threshold=0):
+        """
+        Plot the defect predomenance diagram along the chempot line of the specified element.
+
+        Args:
+            temperature (int or float): temperature of interest
+            element (Element): vary the chemical potential of this element
+            partial_pressure (bool): whether or not to plot the abscissa in units of log(partial pressure)
+                as opposed to chemical potential. Default=False.
+            concentration_threshold (int or float): do not plot defects that only have concentrations
+                below this value. Keeps the plot looking cleaner by ignoring very unstable defects.
+
+        Returns:
+            Matplotlib Axes
+        """
         element = element if isinstance(element, Element) else Element(element)
 
         fig, ax1 = plt.subplots(figsize=(12, 8))
@@ -800,11 +862,12 @@ class BrouwerDiagram(MSONable):
         px2 = ((mus[:-1]) / (boltzmann_eV * temperature))*np.log(2.71828)
 
         for r in results:
-            if all([_ < self.concentration_threshold for _ in results[r]]):
+            if all([_ < concentration_threshold for _ in results[r]]):
                 continue
             cs = np.log10(np.multiply(1e6, results[r]))
             mx, mn = max((mx, max(cs))), min((mn, min(cs)))
-            ax1.plot(px2, cs[:-1], '-', linewidth=5, alpha=.8, label=r) if partial_pressure else ax1.plot(mus, cs, 'o-', label=r)
+            ax1.plot(px2, cs[:-1], '-', linewidth=5, alpha=.8, label=r) \
+                if partial_pressure else ax1.plot(mus, cs, 'o-', label=r)
 
         left = max(px2) if partial_pressure else max(mus)
         ax1.axvspan(left, left + .1, alpha=0.2, color='red')

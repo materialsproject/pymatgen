@@ -28,7 +28,6 @@ __date__ = "Mar 15, 2018"
 logger = logging.getLogger(__name__)
 
 
-
 class PointChargeCorrection(DefectCorrection):
     """
     The simplest correction for defect image interactions.
@@ -39,6 +38,10 @@ class PointChargeCorrection(DefectCorrection):
     """
 
     def __init__(self, dielectric):
+        """
+        Args:
+            dielectric: dielectric constant for the bulk material
+        """
         self.dielectric = dielectric
 
     def get_correction(self, entry):
@@ -67,11 +70,19 @@ class PointChargeCorrection(DefectCorrection):
         return {'point_charge_correction': ecorr}
 
 
-# TODO
+# TODO Need to write the shape factor to make this usable.
 class LanyZungerCorrection(DefectCorrection):
     """
-
+    Correction of Lany and Zunger from https://doi.org/10.1103/PhysRevB.78.235104
     """
+
+    def __init__(self, dielectric_const):
+        """
+        Args:
+            dielectric_const: dielectric constant of bulk material
+        """
+        self.dielectric_const = dielectric_const
+        raise NotImplementedError
 
     def get_correction(self, entry):
         """
@@ -96,18 +107,31 @@ class LanyZungerCorrection(DefectCorrection):
         alpha = get_madelung_constant(structure=struc, site_index=0)
         ecorr = hart_to_ev * alpha * entry.defect.charge ** 2 / 2 / ang_to_bohr / (struc.volume ** (1/3))
 
-        shape_factor = None
+        # TODO apply shape factor here
 
         return {'point_charge_correction': ecorr}
 
 
 class MakovPayneCorrection(DefectCorrection):
+    """
+    Correction method of Makov and Payne
+    """
 
     def __init__(self, dielectric_const):
+        """
+        Args:
+            dielectric_const: bulk material's dielectric constant
+        """
         self.dielectric_const = dielectric_const
         raise NotImplementedError
 
     def get_correction(self, entry):
+        """
+        Get the MP electrostatic correction for a defect entry
+
+        Args:
+            entry (DefectEntry): defect entry of interest
+        """
         pcc = PointChargeCorrection()
         E_PC = pcc.get_correction(entry)['point_charge_correction']
         L = entry.parameters['defect_structure'].volume ** (1/3)
@@ -123,10 +147,16 @@ class MakovPayneCorrection(DefectCorrection):
         return {'makov_payne_correction': ecorr}
 
     def get_dipole_moment(self):
-        pass
+        """
+        Get the dipole moment
+        """
+        raise NotImplementedError
 
     def get_second_radial_moment(self, d):
-        pass
+        """
+        get the second radial moment
+        """
+        raise NotImplementedError
 
 
 class FreysoldtCorrection(DefectCorrection):
@@ -431,15 +461,17 @@ class FreysoldtCorrection(DefectCorrection):
             return plt
 
 
+# TODO Needs testing
 class FreysoldtVerticalCorrection(FreysoldtCorrection):
+    """
+    Modified version of the Freysoldt correction for vertical (optical) charge transitions
+    as described in https://doi.org/10.1103/PhysRevB.101.020102
+
+    Uses potential alignment contributions from both the (defect - bulk) and the (excited - relaxed)
+    """
 
     def __init__(self, dielectric_electronic, dielectric_static, q_model=None, energy_cutoff=520, madetol=0.0001):
         """
-        Modified version of the Freysoldt correction for vertical (optical) charge transitions
-        as described in https://doi.org/10.1103/PhysRevB.101.020102
-
-        Uses potential alignment contributions from both the (defect - bulk) and the (excited - relaxed)
-
         Args:
             dielectric_electronic (float): Electronic contribution to the dielectric constant. If anisotropic
                 dielectric tensor, provide the average of the trace.
@@ -523,13 +555,14 @@ class FreysoldtVerticalCorrection(FreysoldtCorrection):
                 x, pureavg, defavg, lattice, q+deltaQ, defect_frac_coords,
                 axis, widthsample=1.0)
             pot_corr_tracker.append(tmp_pot_corr)
+
         CdeltaQ = np.mean(pot_corr_tracker) / -(q+deltaQ) if q else 0.
 
-        es_corr = (alpha * Q * deltaQ / self.dielectric_static / L) + \
-                  (alpha * (deltaQ) ** 2 / 2 / self.dielectric_electronic / L) - \
+        es_corr = (alpha * q * deltaQ / self.dielectric_static / L) + \
+                  (alpha * deltaQ ** 2 / 2 / self.dielectric_electronic / L) - \
                   (deltaQ * CdeltaQ + deltaQ * CQ + (self.dielectric_electronic / self.dielectric_static) * q * CdeltaQ)
 
-        return {"freysoldt_vertical_electrostatic": es_corr, "freysoldt_potential_alignment": pot_corr}
+        return {"freysoldt_vertical_electrostatic": es_corr, "freysoldt_potential_alignment": np.mean(pot_corr_tracker)}
 
 
 class KumagaiCorrection(DefectCorrection):
@@ -1066,6 +1099,7 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         }
 
 
+# TODO ensure this works. This is based on what's largely reported in textbooks, but apparently isn't an exact formula
 def get_madelung_constant(structure, site_index):
     """
     Get the madelung constant for a site in a structure (e.g. a defect site)
