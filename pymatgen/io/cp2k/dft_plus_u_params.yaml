@@ -1,0 +1,27 @@
+# Calibrated values of Ueff for cp2k.
+# Values listed will be zero until they are calibrated.
+Cr:
+  L: 2
+  U_MINUS_J: 0
+Co:
+  L: 2
+  U_MINUS_J: 0
+
+Fe:
+  L: 2
+  U_MINUS_J: 0
+Mn:
+  L: 2
+  U_MINUS_J: 0
+Mo:
+  L: 2
+  U_MINUS_J: 0
+Ni:
+  L: 2
+  U_MINUS_J: 0
+V:
+  L: 2
+  U_MINUS_J: 0
+W:
+  L: 2
+  U_MINUS_J: 0

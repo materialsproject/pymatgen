@@ -19,6 +19,8 @@ In order to implement a new Set within the current code structure, follow this 3
 
 import numpy as np
 from pathlib import Path
+import os
+from ruamel import yaml
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
     Section,
@@ -57,11 +59,14 @@ from typing import Dict, Union
 import warnings
 
 __author__ = "Nicholas Winner"
-__version__ = "0.2"
+__version__ = "0.9"
 __email__ = "nwinner@berkeley.edu"
-__date__ = "January 2019"
+__date__ = "April 2021"
 
 MODULE_DIR = Path(__file__).resolve().parent
+
+with open(os.path.join(MODULE_DIR, 'dft_plus_u_params.yaml')) as f:
+    DFT_PLUS_U_PARAMS = yaml.load(f, Loader=yaml.Loader)
 
 
 class Cp2kInputSet(Cp2kInput):
@@ -203,6 +208,17 @@ class Cp2kInputSet(Cp2kInput):
                     subsections={'BS': bs} if bs else {},
                     **kwargs
                 )
+
+            if DFT_PLUS_U_PARAMS.get(kind):
+                dft_plus_u = Section(
+                    'DFT_PLUS_U',
+                    keywords={
+                        'U_MINUS_J': Keyword('U_MINUS_J', DFT_PLUS_U_PARAMS.get(kind).get('U_MINUS_J', 0), units='eV'),
+                        'L': Keyword('L', DFT_PLUS_U_PARAMS.get(kind).get('L', 0))
+                    }
+                )
+                _kind.insert(dft_plus_u)
+
             subsys.insert(_kind)
 
         coord = Coord(structure, aliases=unique_kinds)
