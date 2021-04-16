@@ -499,7 +499,7 @@ class FermiDos(Dos, MSONable):
         )
         vb_integral = np.sum(
             self.tdos[: self.idx_vbm + 1]
-            * (1 - f0(self.energies[: self.idx_vbm + 1], fermi_level, temperature))
+            * f0(-self.energies[: self.idx_vbm + 1], -fermi_level, temperature)
             * self.de[: self.idx_vbm + 1],
             axis=0,
         )
