@@ -242,10 +242,16 @@ def get_unique_site_indices(structure):
     properties.
 
     This creates unique sites, based on site properties, but does not have anything to do with turning
-    those site properties into CP2K input parameters.
+    those site properties into CP2K input parameters. This will only be done for properties which can be
+    turned into CP2K input parameters, which are stored in parsable_site_properties.
     """
     spins = []
     oxi_states = []
+    parsable_site_properties = {
+        'magmom', 'oxi_state', 'spin',
+        'u_minus_j', 'basis', 'potential',
+        'ghost'
+    }
 
     for site in structure:
         for sp, occu in site.species.items():
@@ -256,7 +262,11 @@ def get_unique_site_indices(structure):
     structure.add_site_property('spin', spins)
     structure.remove_oxidation_states()
     items = [
-        (site.species_string, *[structure.site_properties[k][i] for k in structure.site_properties])
+        (
+            site.species_string,
+            *[structure.site_properties[k][i]
+              for k in structure.site_properties if k.lower() in parsable_site_properties]
+        )
         for i, site in enumerate(structure)
     ]
     unique_itms = list(set(items))
