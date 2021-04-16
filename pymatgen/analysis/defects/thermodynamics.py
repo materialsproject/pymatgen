@@ -10,15 +10,27 @@ import logging
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
-from scipy.optimize import bisect
+from scipy.optimize import *
+import scipy.constants as const
 from itertools import chain
 
-from pymatgen.electronic_structure.dos import FermiDos
+from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.structure_matcher import PointDefectComparator
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen import Element
+import warnings
+from pymatgen.entries.computed_entries import *
+from monty.serialization import loadfn
+from pymatgen.analysis.defects.core import Vacancy, Interstitial
+import glob
+from pymatgen import Species
+
+boltzmann_eV = 8.617333262145e-5
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -302,10 +314,13 @@ class DefectPhaseDiagram(MSONable):
         """
         concentrations = []
         for dfct in self.all_stable_entries:
+            conc = dfct.defect_concentration(
+                        chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=fermi_level)
+            if not np.isfinite(conc):
+                continue
             concentrations.append({
                 'conc':
-                    dfct.defect_concentration(
-                        chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=fermi_level),
+                    conc,
                 'name':
                     dfct.name,
                 'charge':
@@ -462,8 +477,6 @@ class DefectPhaseDiagram(MSONable):
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
-
-        return
 
     def get_dopability_limits(self, chemical_potentials):
         """
@@ -676,3 +689,129 @@ class DefectPhaseDiagram(MSONable):
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")
         else:
             return plt
+
+
+class BrouwerDiagram(MSONable):
+
+    def __init__(self, defect_phase_diagram, bulk_dos, entries, concentration_threshold=1):
+        """
+
+        """
+        self.dpd = defect_phase_diagram
+        self.bulk = self.dpd.entries[0].bulk_structure
+        self.dos = bulk_dos
+        self.entries = entries
+        self.pd = PhaseDiagram(entries)
+        self.chempots = {el: ent.energy_per_atom for el, ent in self.pd.el_refs.items()}
+        self.limits = {e: self.pd.get_transition_chempots(e) for e in self.pd.elements}
+        self.els = {e.defect.defect_composition for e in self.dpd.entries}
+        self.concentration_threshold = concentration_threshold
+
+    def _get_pd_and_cp(self, temperature):
+        chempots = {}
+        # Manually adjust the chempots of the elemental references
+        for el in self.chempots:
+            g_interp = interp1d([int(t) for t in G_ELEMS.keys()], [G_ELEMS[t][str(el)] for t in G_ELEMS])
+            chempots[el] = self.chempots[el] + g_interp(temperature)
+
+        # Now update the compounds (not affected by gf_sisso())
+        cpt_entrs = copy.deepcopy(self.entries)
+        for e in cpt_entrs:
+            for el, amt in e.composition.items():
+                e.energy_adjustments.append(
+                    CompositionEnergyAdjustment(-chempots[el], n_atoms=amt, name="{} to 0eV adjustment".format(el))
+                )
+
+        gentries = GibbsComputedStructureEntry.from_entries(cpt_entrs, temp=temperature)
+
+        return PhaseDiagram(gentries), chempots
+
+    def solve_along_chempot_line(self, temperature, element, chempots=None):
+        element = element if isinstance(element, Element) else Element(element)
+        if temperature >= 300:
+            pd, chempots = self._get_pd_and_cp(temperature)
+        elif temperature > 0:
+            warnings.warn("Requested temperature is < 300K. Interpolation data does"
+                          "not exist for low temps, and so 0K energies will be used")
+            pd, chempots = self.pd, self.chempots
+        else:
+            raise ValueError("Illegal temperature. Only T > 0K are permitted.")
+
+        bulk_energy = pd.get_hull_energy(self.bulk.composition.reduced_composition)
+
+        def foo(x):
+            mycopy = chempots.copy()
+            mycopy.update({element: x})
+            mycopy.update(
+                {
+                    c: bulk_energy - sum([v for k, v in mycopy.items() if k != c])
+                    for c in mycopy if c != element
+                }
+            )
+            return mycopy
+
+        _min, _max = sorted(pd.get_transition_chempots(element))
+        mus = np.linspace(_min, _max, 50)
+
+        _results = [self.solve(temperature, foo(cp)) for cp in mus]
+
+        results = {d['name']: [] for d in _results[0]}
+        for r in _results:
+            for d in r:
+                results[d['name']].append(d['conc'])
+
+        return mus, results
+
+    def solve(self, temperature, chempots):
+        ef_scf = self.dpd.solve_for_fermi_energy(temperature, chempots, self.dos)
+        fd = FermiDos(self.dos, bandgap=self.dpd.band_gap)
+
+        cb_integral = np.sum(
+            fd.tdos[fd.idx_cbm:]
+            * f0(fd.energies[fd.idx_cbm:], ef_scf+fd.get_cbm_vbm()[1], temperature)
+            * fd.de[fd.idx_cbm:], axis=0)
+        vb_integral = np.sum(
+            fd.tdos[:fd.idx_vbm + 1]
+            * f0(-fd.energies[:fd.idx_vbm + 1], -ef_scf-fd.get_cbm_vbm()[1], temperature)
+            * fd.de[:fd.idx_vbm + 1], axis=0)
+
+        p = vb_integral / (fd.volume * fd.A_to_cm ** 3)
+        n = cb_integral / (fd.volume * fd.A_to_cm ** 3)
+
+        conc = self.dpd.defect_concentrations(chempots, temperature, fermi_level=ef_scf)
+        conc.extend([{'name': 'n', 'conc': n, 'charge': -1}, {'name': 'p', 'conc': p, 'charge': 1}])
+        return conc
+
+    def plot(self, temperature, element, partial_pressure=False):
+        element = element if isinstance(element, Element) else Element(element)
+
+        fig, ax1 = plt.subplots(figsize=(12, 8))
+
+        ax1.minorticks_on()
+        ax1.set_ylabel("log(C) $\\frac{1}{m^3}$", size=30)
+        ax1.set_xlabel("$log \\left( p_{} \\right)$".format(element.symbol), size=30) if \
+            partial_pressure else ax1.set_xlabel("$\\mu_{}$".format(element.symbol), size=30)
+        ax1.tick_params(which='major', length=8, width=2, direction='in', top=True, right=True, labelsize=20)
+        ax1.tick_params(which='minor', length=2, width=2, direction='in', top=True, right=True, labelsize=20)
+
+        mx = 0
+        mn = 0
+        mus, results = self.solve_along_chempot_line(temperature=temperature, element=element)
+        px2 = ((mus[:-1]) / (boltzmann_eV * temperature))*np.log(2.71828)
+
+        for r in results:
+            if all([_ < self.concentration_threshold for _ in results[r]]):
+                continue
+            cs = np.log10(np.multiply(1e6, results[r]))
+            mx, mn = max((mx, max(cs))), min((mn, min(cs)))
+            ax1.plot(px2, cs[:-1], '-', linewidth=5, alpha=.8, label=r) if partial_pressure else ax1.plot(mus, cs, 'o-', label=r)
+
+        left = max(px2) if partial_pressure else max(mus)
+        ax1.axvspan(left, left + .1, alpha=0.2, color='red')
+        ax1.axvspan(min(px2), min(px2) - .1, alpha=0.2, color='red') if \
+            partial_pressure else ax1.axvspan(min(mus), min(mus) - .1, alpha=0.2, color='red')
+
+        ax1.set_ylim(bottom=0, top=mx + 5)
+
+        plt.legend(loc='best', fontsize=12)
+        return ax1

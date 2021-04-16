@@ -28,6 +28,107 @@ __date__ = "Mar 15, 2018"
 logger = logging.getLogger(__name__)
 
 
+
+class PointChargeCorrection(DefectCorrection):
+    """
+    The simplest correction for defect image interactions.
+
+    Correction is based on assuming point charges for all ions in the cell
+    and does not take into account potential corrections beyond the defect
+    site itself.
+    """
+
+    def __init__(self, dielectric):
+        self.dielectric = dielectric
+
+    def get_correction(self, entry):
+        """
+        Get the PC correction, also called the Madelung correction in some papers.
+
+        Args:
+            entry (DefectEntry): defect entry for which calculate the correction.
+
+                Requires following keys to exist in DefectEntry.parameters dict:
+
+                    defect_frac_sc_coords: the fractional coordinates of the
+                        defect in the supercell.
+
+                    defect_structure: the defect structure, for which the
+                        Madelung constant will be determined.
+        """
+        frac_coord = entry.parameters['defect_frac_sc_coords']
+        struc = entry.parameters['defect_structure'].copy()
+        struc.sites.sort(
+            key=lambda x: x.distance_and_image_from_frac_coords(fcoords=frac_coord)
+        )
+        alpha = get_madelung_constant(structure=struc, site_index=0)
+        ecorr = hart_to_ev * alpha * entry.defect.charge ** 2 \
+            / 2 / ang_to_bohr / (struc.volume ** (1/3)) / self.dielectric
+        return {'point_charge_correction': ecorr}
+
+
+# TODO
+class LanyZungerCorrection(DefectCorrection):
+    """
+
+    """
+
+    def get_correction(self, entry):
+        """
+        Get the PC correction, also called the Madelung correction in some papers.
+
+        Args:
+            entry (DefectEntry): defect entry for which calculate the correction.
+
+                Requires following keys to exist in DefectEntry.parameters dict:
+
+                    defect_frac_sc_coords: the fractional coordinates of the
+                        defect in the supercell.
+
+                    defect_structure: the defect structure, for which the
+                        Madelung constant will be determined.
+        """
+        frac_coord = entry.parameters['defect_frac_sc_coords']
+        struc = entry.parameters['defect_structure'].copy()
+        struc.sites.sort(
+            key=lambda x: x.distance_and_image_from_frac_coords(fcoords=frac_coord)
+        )
+        alpha = get_madelung_constant(structure=struc, site_index=0)
+        ecorr = hart_to_ev * alpha * entry.defect.charge ** 2 / 2 / ang_to_bohr / (struc.volume ** (1/3))
+
+        shape_factor = None
+
+        return {'point_charge_correction': ecorr}
+
+
+class MakovPayneCorrection(DefectCorrection):
+
+    def __init__(self, dielectric_const):
+        self.dielectric_const = dielectric_const
+        raise NotImplementedError
+
+    def get_correction(self, entry):
+        pcc = PointChargeCorrection()
+        E_PC = pcc.get_correction(entry)['point_charge_correction']
+        L = entry.parameters['defect_structure'].volume ** (1/3)
+        q = entry.defect.charge
+        Q = self.get_second_radial_moment()
+        p = self.get_dipole_moment()
+
+        E_1 = -2*np.pi*q*Q / 3 / self.dielectric_const / L**3
+        E_2 = 2*np.pi*np.dot(p, p) / 3 / self.dielectric_const / L**3
+
+        ecorr = E_PC + E_1 + E_2
+
+        return {'makov_payne_correction': ecorr}
+
+    def get_dipole_moment(self):
+        pass
+
+    def get_second_radial_moment(self, d):
+        pass
+
+
 class FreysoldtCorrection(DefectCorrection):
     """
     A class for FreysoldtCorrection class. Largely adapated from PyCDT code
@@ -238,7 +339,7 @@ class FreysoldtCorrection(DefectCorrection):
         # Build background charge potential with defect at origin
         v_G = np.empty(len(axis_grid), np.dtype("c16"))
         v_G[0] = 4 * np.pi * -q / self.dielectric * self.q_model.rho_rec_limit0
-        g = np.roll(np.arange(-nx / 2, nx / 2, 1, dtype=int), int(nx / 2)) * dg
+        g = np.roll(np.arange(-nx // 2, nx // 2, 1, dtype=int), int(nx // 2)) * dg
         g2 = np.multiply(g, g)[1:]
         v_G[1:] = 4 * np.pi / (self.dielectric * g2) * -q * self.q_model.rho_rec(g2)
         v_G[nx // 2] = 0 if not (nx % 2) else v_G[nx // 2]
@@ -328,6 +429,107 @@ class FreysoldtCorrection(DefectCorrection):
             return
         else:
             return plt
+
+
+class FreysoldtVerticalCorrection(FreysoldtCorrection):
+
+    def __init__(self, dielectric_electronic, dielectric_static, q_model=None, energy_cutoff=520, madetol=0.0001):
+        """
+        Modified version of the Freysoldt correction for vertical (optical) charge transitions
+        as described in https://doi.org/10.1103/PhysRevB.101.020102
+
+        Uses potential alignment contributions from both the (defect - bulk) and the (excited - relaxed)
+
+        Args:
+            dielectric_electronic (float): Electronic contribution to the dielectric constant. If anisotropic
+                dielectric tensor, provide the average of the trace.
+            dielectric_static (float): Static dielectric constant (ionic+electronic contributions). If anisotropic
+                dielectric tensor, provide the average of the trace.
+            q_model (QModel): instantiated QModel object or None.
+                Uses default parameters to instantiate QModel if None supplied
+            energy_cutoff (int): Maximum energy in eV in reciprocal space to perform
+                integration for potential correction.
+            madeltol(float): Convergence criteria for the Madelung energy for potential correction
+        """
+        super().__init__(dielectric_const=dielectric_electronic,
+                         q_model=q_model, energy_cutoff=energy_cutoff,
+                         madetol=madetol, axis=None)
+        self.dielectric_electronic = dielectric_electronic
+        self.dielectric_static = dielectric_static
+        self.q_model = QModel() if not q_model else q_model
+        self.energy_cutoff = energy_cutoff
+        self.madetol = madetol
+
+    def get_correction(self, entry):
+        """
+        Args:
+            entry (DefectEntry): defect entry to compute Freysoldt correction on.
+
+                Requires following keys to exist in DefectEntry.parameters dict:
+
+                    axis_grid (3 x NGX where NGX is the length of the NGX grid
+                    in the x,y and z axis directions. Same length as planar
+                    average lists):
+                        A list of 3 numpy arrays which contain the cartesian axis
+                        values (in angstroms) that correspond to each planar avg
+                        potential supplied.
+
+                    bulk_planar_averages (3 x NGX where NGX is the length of
+                    the NGX grid in the x,y and z axis directions.):
+                        A list of 3 numpy arrays which contain the planar averaged
+                        electrostatic potential for the bulk supercell.
+
+                    defect_planar_averages (3 x NGX where NGX is the length of
+                    the NGX grid in the x,y and z axis directions.):
+                        A list of 3 numpy arrays which contain the planar averaged
+                        electrostatic potential for the defective supercell.
+
+                    initial_defect_structure (Structure) structure corresponding to
+                        initial defect supercell structure (uses Lattice for charge correction)
+
+                    defect_frac_sc_coords (3 x 1 array) Fractional co-ordinates of
+                        defect location in supercell structure
+
+                    vertical_charge_difference (float): Change in the charge from the relaxed, initial
+                        defect state to the final state. e.g. 0 to +1 optical transition would be +1
+        """
+
+        list_axis_grid = np.array(entry.parameters["axis_grid"])
+        list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
+        list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
+        list_defect_opt_plnr_avg_esp = np.array(entry.parameters["defect_optical_planar_averages"])
+        list_axes = range(len(list_axis_grid))
+
+        deltaQ = entry.parameters['vertical_charge_difference']
+        alpha = get_madelung_constant(entry.parameters['initial_defect_structure'])
+        L = entry.parameters['initial_defect_structure'].volume ** (1 / 3)
+
+        lattice = entry.parameters["initial_defect_structure"].lattice.copy()
+        defect_frac_coords = entry.parameters["defect_frac_sc_coords"]
+        q = entry.defect.charge
+        pot_corr_tracker = []
+        for x, pureavg, defavg, axis in zip(list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp,
+                                            list_axes):
+            tmp_pot_corr = self.perform_pot_corr(
+                x, pureavg, defavg, lattice, q, defect_frac_coords,
+                axis, widthsample=1.0)
+            pot_corr_tracker.append(tmp_pot_corr)
+        CQ = np.mean(pot_corr_tracker) / -q if q else 0.
+
+        pot_corr_tracker = []
+        for x, pureavg, defavg, axis in zip(list_axis_grid, list_defect_plnr_avg_esp, list_defect_opt_plnr_avg_esp,
+                                            list_axes):
+            tmp_pot_corr = self.perform_pot_corr(
+                x, pureavg, defavg, lattice, q+deltaQ, defect_frac_coords,
+                axis, widthsample=1.0)
+            pot_corr_tracker.append(tmp_pot_corr)
+        CdeltaQ = np.mean(pot_corr_tracker) / -(q+deltaQ) if q else 0.
+
+        es_corr = (alpha * Q * deltaQ / self.dielectric_static / L) + \
+                  (alpha * (deltaQ) ** 2 / 2 / self.dielectric_electronic / L) - \
+                  (deltaQ * CdeltaQ + deltaQ * CQ + (self.dielectric_electronic / self.dielectric_static) * q * CdeltaQ)
+
+        return {"freysoldt_vertical_electrostatic": es_corr, "freysoldt_potential_alignment": pot_corr}
 
 
 class KumagaiCorrection(DefectCorrection):
@@ -862,3 +1064,18 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         return {
             "bandedgeshifting_correction": bandedgeshifting_correction
         }
+
+
+def get_madelung_constant(structure, site_index):
+    """
+    Get the madelung constant for a site in a structure (e.g. a defect site)
+
+    Note this definition of the Madelung constant does not converge very quickly.
+    """
+    r0 = sorted(structure.get_neighbors(structure.sites[site_index], 5), key=lambda x: x[1])[0][1]
+    return sum(
+        [
+            site.specie.oxi_state / (site.distance(structure.sites[site_index]) / r0) if i != site_index else 0
+            for i, site in enumerate(structure.sites)
+        ]
+    )
