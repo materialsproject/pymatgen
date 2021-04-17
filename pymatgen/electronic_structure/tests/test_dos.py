@@ -84,7 +84,7 @@ class FermiDosTest(unittest.TestCase):
 
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(-1e26, 300), 7.5108, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(1e26, 300), -1.4182, 4)
-        self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300), 2.5226, 4)
+        self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300), 2.9071, 4)
 
 
 class CompleteDosTest(unittest.TestCase):
