@@ -20,14 +20,13 @@ import textwrap
 import warnings
 import itertools
 from typing import Dict, List, Tuple, Union, Sequence
-from monty.json import MSONable
 from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.periodic_table import Element
 from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
-from pymatgen import Lattice, Structure, Molecule, Element
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
