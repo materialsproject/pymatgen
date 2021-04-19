@@ -10,7 +10,8 @@ from monty.serialization import loadfn
 from monty.io import zopen
 from pathlib import Path
 
-from pymatgen import SETTINGS, Element
+from pymatgen.core import SETTINGS
+from pymatgen.core.periodic_table import Element
 
 MODULE_DIR = Path(__file__).resolve().parent
 
