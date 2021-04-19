@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+
 for parent, subdir, files in os.walk("../pymatgen"):
     for fn in files:
         if fn.endswith(".py") and fn != "__init__.py":
@@ -18,7 +19,12 @@ for parent, subdir, files in os.walk("../pymatgen"):
                 elif not l.strip().startswith("# coding"):
                     clean.append(l)
 
-            clean = "# coding: utf-8\n\nfrom __future__ import " + ", ".join(future) + "\n\n" + \
-                    "\n".join(clean).strip() + "\n"
+            clean = (
+                "# coding: utf-8\n\nfrom __future__ import "
+                + ", ".join(future)
+                + "\n\n"
+                + "\n".join(clean).strip()
+                + "\n"
+            )
             with open(fp, "w") as f:
                 f.write(clean)

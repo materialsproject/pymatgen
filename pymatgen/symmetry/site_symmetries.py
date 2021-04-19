@@ -3,8 +3,9 @@ Provides analysis of site symmetries.
 """
 
 import numpy as np
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
+
 from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer as sga
 
 
 def get_site_symmetries(struc, precision=0.1):

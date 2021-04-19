@@ -8,23 +8,21 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+import copy
 import logging
 import sys
 from ast import literal_eval
-import copy
 
 import numpy as np
 import pandas as pd
-
-from monty.serialization import dumpfn
 from monty.json import MSONable, jsanitize
+from monty.serialization import dumpfn
 
-from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
+from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen import Structure
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -38,6 +36,7 @@ class HeisenbergMapper:
     """
     Class to compute exchange parameters from low energy magnetic orderings.
     """
+
     def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
         """
         Exchange parameters are computed by mapping to a classical Heisenberg
@@ -95,9 +94,7 @@ class HeisenbergMapper:
         self.sgraphs = self._get_graphs(cutoff, ordered_structures)
 
         # Get unique site ids and wyckoff symbols
-        self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(
-            ordered_structures[0]
-        )
+        self.unique_site_ids, self.wyckoff_ids = self._get_unique_sites(ordered_structures[0])
 
         # These attributes are set by internal methods
         self.nn_interactions = None
@@ -135,10 +132,7 @@ class HeisenbergMapper:
             strategy = MinimumDistanceNN()  # only NN
 
         # Generate structure graphs
-        sgraphs = [
-            StructureGraph.with_local_env_strategy(s, strategy=strategy)
-            for s in ordered_structures
-        ]
+        sgraphs = [StructureGraph.with_local_env_strategy(s, strategy=strategy) for s in ordered_structures]
 
         return sgraphs
 
@@ -230,7 +224,7 @@ class HeisenbergMapper:
 
         all_dists = all_dists[:3]
         labels = ["nn", "nnn", "nnnn"]
-        dists = {l: d for (l, d) in zip(labels, all_dists)}
+        dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
         for k in unique_site_ids:
@@ -313,9 +307,7 @@ class HeisenbergMapper:
             # for n+1 unique graphs to compute n exchange params
             for graph in sgraphs:
                 sgraph = sgraphs_copy.pop(0)
-                ex_row = pd.DataFrame(
-                    np.zeros((1, num_nn_j + 1)), index=[sgraph_index], columns=columns
-                )
+                ex_row = pd.DataFrame(np.zeros((1, num_nn_j + 1)), index=[sgraph_index], columns=columns)
 
                 for i, node in enumerate(sgraph.graph.nodes):
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
@@ -358,7 +350,7 @@ class HeisenbergMapper:
 
                 # Ignore the row if it is a duplicate to avoid singular matrix
                 if ex_mat.append(ex_row)[j_columns].equals(
-                        ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
+                    ex_mat.append(ex_row)[j_columns].drop_duplicates(keep="first")
                 ):
                     e_index = self.ordered_structures.index(sgraph.structure)
                     ex_row.at[sgraph_index, "E"] = self.energies[e_index]
@@ -369,13 +361,11 @@ class HeisenbergMapper:
                     #     if True in zeros:
                     #         sgraph_index -= 1  # keep looking
 
-            ex_mat[j_columns] = ex_mat[j_columns].div(
-                2.0
-            )  # 1/2 factor in Heisenberg Hamiltonian
+            ex_mat[j_columns] = ex_mat[j_columns].div(2.0)  # 1/2 factor in Heisenberg Hamiltonian
             ex_mat[["E0"]] = 1  # Nonmagnetic contribution
 
             # Check for singularities and delete columns with all zeros
-            zeros = [b for b in (ex_mat == 0).all(axis=0)]
+            zeros = list((ex_mat == 0).all(axis=0))
             if True in zeros:
                 c = ex_mat.columns[zeros.index(True)]
                 ex_mat = ex_mat.drop(columns=[c], axis=1)
@@ -446,9 +436,7 @@ class HeisenbergMapper:
 
         for s, e in zip(self.ordered_structures, self.energies):
 
-            ordering = CollinearMagneticStructureAnalyzer(
-                s, threshold=0.0, make_primitive=False
-            ).ordering
+            ordering = CollinearMagneticStructureAnalyzer(s, threshold=0.0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 
             # Try to find matching orderings first
@@ -558,7 +546,6 @@ class HeisenbergMapper:
 
         # Only 1 magnetic sublattice
         if num_sublattices == 1:
-
             mft_t = 2 * abs(j_avg) / 3 / k_boltzmann
 
         else:  # multiple magnetic sublattices
@@ -567,7 +554,7 @@ class HeisenbergMapper:
             ex_params = {k: v for (k, v) in ex_params.items() if k != "E0"}  # ignore E0
             for k in ex_params:
                 # split into i, j unique site identifiers
-                sites = [elem for elem in k.split("-")]
+                sites = k.split("-")
                 sites = [int(num) for num in sites[:2]]  # cut 'nn' identifier
                 i, j = sites[0], sites[1]
                 omega[i, j] += ex_params[k]
@@ -621,9 +608,7 @@ class HeisenbergMapper:
 
                 j_exc = self._get_j_exc(i, j, dist)
 
-                igraph.add_edge(
-                    i, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False
-                )
+                igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False)
 
         # Save to a json file if desired
         if filename:
@@ -733,6 +718,7 @@ class HeisenbergScreener:
     """
     Class to clean and screen magnetic orderings.
     """
+
     def __init__(self, structures, energies, screen=False):
         """
         This class pre-processes magnetic orderings and energies for
@@ -817,15 +803,11 @@ class HeisenbergScreener:
 
         # Remove duplicates
         if len(remove_list):
-            ordered_structures = [
-                s for i, s in enumerate(ordered_structures) if i not in remove_list
-            ]
+            ordered_structures = [s for i, s in enumerate(ordered_structures) if i not in remove_list]
             energies = [e for i, e in enumerate(energies) if i not in remove_list]
 
         # Sort by energy if not already sorted
-        ordered_structures = [
-            s for _, s in sorted(zip(energies, ordered_structures), reverse=False)
-        ]
+        ordered_structures = [s for _, s in sorted(zip(energies, ordered_structures), reverse=False)]
         ordered_energies = sorted(energies, reverse=False)
 
         return ordered_structures, ordered_energies
@@ -984,9 +966,9 @@ class HeisenbergModel(MSONable):
 
         for k, v in d["unique_site_ids"].items():
             key = literal_eval(k)
-            if type(key) == int:
+            if isinstance(key, int):
                 usids[tuple([key])] = v
-            elif type(key) == tuple:
+            elif isinstance(key, tuple):
                 usids[key] = v
 
         for k, v in d["wyckoff_ids"].items():

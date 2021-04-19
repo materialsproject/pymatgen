@@ -1,5 +1,5 @@
-pymatgen.io package
-===================
+pymatgen.io namespace
+=====================
 
 Subpackages
 -----------
@@ -44,11 +44,3 @@ Submodules
    pymatgen.io.xr
    pymatgen.io.xyz
    pymatgen.io.zeopp
-
-Module contents
----------------
-
-.. automodule:: pymatgen.io
-   :members:
-   :undoc-members:
-   :show-inheritance:

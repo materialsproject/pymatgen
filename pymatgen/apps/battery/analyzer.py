@@ -6,8 +6,8 @@
 Analysis classes for batteries
 """
 
-from collections import defaultdict
 import math
+from collections import defaultdict
 
 import scipy.constants as const
 
@@ -31,7 +31,7 @@ class BatteryAnalyzer:
     A suite of methods for starting with an oxidized structure and determining its potential as a battery
     """
 
-    def __init__(self, struc_oxid, cation='Li'):
+    def __init__(self, struc_oxid, cation="Li"):
         """
         Pass in a structure for analysis
 
@@ -41,8 +41,8 @@ class BatteryAnalyzer:
             cation: a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
         """
         for site in struc_oxid:
-            if not hasattr(site.specie, 'oxi_state'):
-                raise ValueError('BatteryAnalyzer requires oxidation states assigned to structure!')
+            if not hasattr(site.specie, "oxi_state"):
+                raise ValueError("BatteryAnalyzer requires oxidation states assigned to structure!")
 
         self.struc_oxid = struc_oxid
         self.comp = self.struc_oxid.composition  # shortcut for later
@@ -63,8 +63,12 @@ class BatteryAnalyzer:
 
         # how much 'spare charge' is left in the redox metals for oxidation?
         oxid_pot = sum(
-            [(Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec] for spec
-             in self.comp if is_redox_active_intercalation(Element(spec.symbol))])
+            [
+                (Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec]
+                for spec in self.comp
+                if is_redox_active_intercalation(Element(spec.symbol))
+            ]
+        )
 
         oxid_limit = oxid_pot / self.cation_charge
 
@@ -85,11 +89,18 @@ class BatteryAnalyzer:
         """
 
         # how much 'spare charge' is left in the redox metals for reduction?
-        lowest_oxid = defaultdict(lambda: 2, {'Cu': 1})  # only Cu can go down to 1+
-        oxid_pot = sum([(spec.oxi_state - min(
-            e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])) *
-                        self.comp[spec] for spec in self.comp if
-                        is_redox_active_intercalation(Element(spec.symbol))])
+        lowest_oxid = defaultdict(lambda: 2, {"Cu": 1})  # only Cu can go down to 1+
+        oxid_pot = sum(
+            [
+                (
+                    spec.oxi_state
+                    - min(e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])
+                )
+                * self.comp[spec]
+                for spec in self.comp
+                if is_redox_active_intercalation(Element(spec.symbol))
+            ]
+        )
 
         return oxid_pot / self.cation_charge
 
@@ -138,7 +149,7 @@ class BatteryAnalyzer:
         """
 
         vol = volume if volume else self.struc_oxid.volume
-        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * const.N_A)
+        return self._get_max_cap_ah(remove, insert) * 1000 * 1e24 / (vol * const.N_A)
 
     def get_removals_int_oxid(self):
         """
@@ -157,8 +168,7 @@ class BatteryAnalyzer:
         """
 
         # the elements that can possibly be oxidized
-        oxid_els = [Element(spec.symbol) for spec in self.comp if
-                    is_redox_active_intercalation(spec)]
+        oxid_els = [Element(spec.symbol) for spec in self.comp if is_redox_active_intercalation(spec)]
 
         numa = set()
         for oxid_el in oxid_els:
@@ -198,8 +208,9 @@ class BatteryAnalyzer:
         spec_amts_oxi = Composition(spec_amts_oxi)
 
         # determine the amount of cation A in the structure needed for charge balance and add it to the list
-        oxi_noA = sum([spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if
-                       spec.symbol not in self.cation.symbol])
+        oxi_noA = sum(
+            [spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol]
+        )
         a = max(0, -oxi_noA / self.cation_charge)
         numa = numa.union({a})
 
@@ -207,8 +218,7 @@ class BatteryAnalyzer:
         if a == 0:
             return numa
         for ox in oxid_els:
-            numa = numa.union(
-                self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa))
+            numa = numa.union(self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa))
         return numa
 
 
@@ -220,5 +230,20 @@ def is_redox_active_intercalation(element):
         element: Element object
     """
 
-    ns = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Nb', 'Mo', 'W', 'Sb', 'Sn', 'Bi']
+    ns = [
+        "Ti",
+        "V",
+        "Cr",
+        "Mn",
+        "Fe",
+        "Co",
+        "Ni",
+        "Cu",
+        "Nb",
+        "Mo",
+        "W",
+        "Sb",
+        "Sn",
+        "Bi",
+    ]
     return element.symbol in ns

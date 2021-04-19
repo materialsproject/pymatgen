@@ -1,6 +1,159 @@
 Change log
 ==========
 
+v2022.0.5
+---------
+* Bug fix to remove possibility of duplicate edges in `StructureGraph` (@mkhorton, #2095)
+
+v2022.0.4 / v2021.3.9
+---------------------
+* Element now has `ionization_energies`, `ionization_energy` and 
+  `electron_affinity` properties.
+* Extensive documentation has been added on pymatgen compatibility and the
+  new namespace architecture! We have also released a 
+  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
+  to help new developers write add-ons for pymatgen! Check out our 
+  :doc:`contributing page</contributing>` for details.
+
+v2022.0.3
+---------
+* Another bug fix release! Now SETTINGS have been moved to pymatgen.core.
+
+v2022.0.2 (Yanked)
+------------------
+* Bug fix release for missing package data files in v2022.0.1
+
+v2022.0.1 (Yanked)
+------------------
+* `pymatgen`, `pymatgen.ext`, `pymatgen.io` and `pymatgen.analysis` are now
+  namespace packages. Note that this does not affect normal usage of pymatgen
+  from v2022.0.0. All imports remain the same. However, it does allow developers
+  to write "add-ons" to these subpackages. A full documentation with examples
+  and templates is in the works to guide developers on how to write these
+  packages.
+
+v2022.0.0 (Yanked)
+------------------
+* This is the new version of pymatgen going forward. Root-level imports have been removed. Please see
+  https://pymatgen.org/compatibility.html on how to update your code for compatibility with v2022.
+
+v2021.3.5
+---------
+* Backwards incompatible changes in v2021.3.4 have been removed. Instead another semantic version v2022.0.0 has been
+  released. Future critical bug fixes will be backported to v2021.x.x, but the main line of development will occur on
+  v2022.0.0 onwards.
+
+v2021.3.4 (Yanked)
+------------------
+* **Backwards incompatible**: Pymatgen root imports have been removed from
+  v2021.3.4 in preparation for a change to a more modular, extensible
+  architecture that will allow more developers to contribute.
+
+  If your existing code uses `from pymatgen import <something>`, you will need to make
+  modifications. The easiest way is to use an IDE to run a Search and Replace.
+  First, replace any `from pymatgen import MPRester` with
+  `from pymatgen.ext.matproj import MPRester`. Then, replace
+  `from pymatgen import` with `from pymatgen.core import`. Alternatively, if you
+  are using a Mac command line, you can do::
+
+    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+    find . -name '*.py' | xargs sed -i "" 's/from pymatgen import/from pymatgen.core import/g'
+
+  From a Linux command line, you can do::
+
+    find . -name '*.py' | xargs sed -i 's/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g'
+    find . -name '*.py' | xargs sed -i 's/from pymatgen import/from pymatgen.core import/g'
+
+  This should resolve most import errors and only a few more modifications may
+  need to be done by hand.
+
+  Specifically, the following "convenience imports" have been removed in favor of
+  their canonical import::
+
+    from pymatgen import Composition  # now "from pymatgen.core.composition import Composition"
+    from pymatgen import Lattice  # now "from pymatgen.core.lattice import Lattice"
+    from pymatgen import SymmOp  # now "from pymatgen.core.operations import SymmOp"
+    from pymatgen import DummySpecie, DummySpecies, Element, Specie, Species  # now "from pymatgen.core.periodic_table ..."
+    from pymatgen import PeriodicSite, Site  # now "from pymatgen.core.sites ..."
+    from pymatgen import IMolecule, IStructure, Molecule, Structure  # now "from pymatgen.core.structure ..."
+    from pymatgen import ArrayWithUnit, FloatWithUnit, Unit  # now "from pymatgen.core.units ..."
+    from pymatgen import Orbital, Spin  # now "from pymatgen.electronic_structure.core ..."
+    from pymatgen import MPRester  # now "from pymatgen.ext.matproj ..."
+
+
+v2021.3.3
+---------
+* **Backwards incompatible**: pymatgen.SETTINGS have been moved to 
+  pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
+  since most of these settings are used within pymatgen itself.
+* **Backwards incompatible**: pymatgen.loadfn and get_structure_from_mp have been
+  removed since no one was using them. 
+* critic2_caller has been refactored. (@samblau)
+* Improved hash for Compositon (@CompRhys)
+* Fixes Outcar parsing for VASP 6.2.0. (@MichaelWolloch)
+* Allow None for Gaussian functional, bset, charge and multiplicity (@eimrek)
+
+v2021.2.16
+----------
+* Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (@mkhorton, #2066)
+* Addresses missing text file, all_cg.txt, in package
+* Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version
+* Previous release also dropped support for aconvasp since this the interface has not been maintained
+
+v2021.2.14
+----------
+* Misc bug fixes.
+
+v2021.2.12
+----------
+* Misc bug fixes.
+
+v2021.2.8.1
+-----------
+* Patch release to restore `CompositionError` to preserve backwards compatibility.
+
+v2021.2.8
+---------
+* Addition of new job types to Q-Chem IO (@espottesmith, #2055), 
+  note `metal_edge_extender` has been moved into `local_env` for this change
+* Improvements to string utils, new Stringify mixin with 
+  to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (@shyuep)
+* Improvements to build system (@shyuep, @ltalirz, see #2046)
+* Entry is now immutable, removing "in_place" option for normalize (@mkhorton, @mattmcdermott, #2060)
+* Bug fix for co-ordination geometry finder (@davidwaroquiers, #2035)
+* Bug fix for GibbsComputedStructureEntry (@mattmcdermott)
+
+v2021.1.28
+----------
+* Ability to read Lobster wavefunctions (@JaGeo, #2034) 
+* Method to estimate number of bands for VASP calculation (@rwoodsrobinson, #2044)
+* Q-Chem cube file plotting and improvements to output parsring (@samblau, #2032)
+* Improvements to PhaseDiagram hashing and equality checking (@CompRhys, #2014)
+* Improvements to pymatgen import speed (@mkhorton, #2031)
+* Bug fix for k-path generation (@munrojm, #2037)
+* Bug fix for parsing of core potentials from VASP (@utf, #2033)
+
+v2020.12.31
+-----------
+* End of 2020 release with minor bug fixes for cli scripts.
+
+v2020.12.18
+-----------
+* New IsayevNN nearest-neighbor algorithm (@utf, #2011)
+* Improvements to electrode objects (@jmmshn, #2016)
+* Improvements to Element and PhaseDiagram (@jmmshn, #2005) 
+* Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (@shyuep, see issue #2010)
+* Bug fix to VASP run type detection (@rkingsbury, #2007)
+
+v2020.12.3
+----------
+* Site insertion algorithm based on charge density (@jmmshn, #1997)
+* Allow calculation of Fermi level from occupancies in VASP calculation (@rkingsbury, #2000)
+* Improvement to legibility of 3D phase diagram plots (@bayesfactor, #1999)
+* Improvement to allow general input for exciting (@vorwerkc, #1975)
+* Improvements to code formatting (@mkhorton, #2008)
+* Bug fix for VASP run type detection (@rkingsbury, #1996)
+
 v2020.11.11
 -----------
 * Bug fix for PhononBandStructureSymmLine. (@gpetretto)

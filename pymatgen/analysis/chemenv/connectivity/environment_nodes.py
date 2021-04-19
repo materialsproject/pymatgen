@@ -1,6 +1,9 @@
-__author__ = 'waroquiers'
+"""
+Environment nodes module.
+"""
 
 import abc
+
 from monty.json import MSONable
 
 
@@ -64,82 +67,22 @@ class AbstractEnvironmentNode(MSONable):
     @property
     @abc.abstractmethod
     def coordination_environment(self):
+        """Coordination environment of this node."""
         return
-
-    # def number_of_neighboring_coordination_environments(self, environments_subgraph):
-    #     # One cannot use the MultiGraph.neighbors(self) method because for self-loops,
-    #     # it yields the neighbor only once
-    #     incident_edges = environments_subgraph.edges(self)
-    #     count = 0
-    #     for edge in incident_edges:
-    #         count += 1
-    #         if edge[0] == edge[1]:
-    #             count += 1
-    #     return str(count)
-    #
-    # def neighboring_coordination_environments(self, environments_subgraph):
-    #     pass
-    #     # neighboring_environments_nodes = environments_subgraph.neighbors(self)
-    #     # return str(len(neighboring_environments_nodes))
-    #
-    # def descriptor(self, extensions=DEFAULT_EXTENSIONS, **kwargs):
-    #     return self.ce_extended(extensions, **kwargs)
-    #
-    # def ce_extended(self, extensions=DEFAULT_EXTENSIONS, **kwargs):
-    #     npoints = max(extensions)
-    #     res = ['']*(npoints + 1)
-    #     for extension in extensions:
-    #         res[extension] = self.get_descriptor(extension, **kwargs)
-    #     return '.'.join(res)
-    #
-    # def get_descriptor(self, extension, **kwargs):
-    #     if extension == AbstractEnvironmentNode.COORDINATION_ENVIRONMENT:
-    #         return self.coordination_environment
-    #     elif extension == AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES:
-    #         env_subgraph = kwargs['environments_subgraph']
-    #         return self.number_of_neighboring_coordination_environments(environments_subgraph=env_subgraph)
-    #     elif extension == AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS:
-    #         descr = str(self.coordination_environment)
-    #         descr += '.'
-    #         env_subgraph = kwargs['environments_subgraph']
-    #         neighboring_ces_nodes = env_subgraph.neighbors(self)
-    #         if len(list(neighboring_ces_nodes)) == 0:
-    #             descr += '0-..'
-    #         else:
-    #             my_neighboring_nodes = []
-    #             for ces_node in neighboring_ces_nodes:
-    #                 for iedge in env_subgraph[self][ces_node]:
-    #                     my_neighboring_nodes.append({'neighbor': ces_node,
-    #                                                  'edge_data': env_subgraph[self][ces_node][iedge]})
-    #                     # Special case for self-loops :
-    #                     if ces_node == self:
-    #                         opposed_data = dict(env_subgraph[self][ces_node][iedge])
-    #                         opposed_data['delta'] = tuple([-ii for ii in opposed_data['delta']])
-    #                         my_neighboring_nodes.append({'neighbor': ces_node,
-    #                                                      'edge_data': opposed_data})
-    #             my_neighboring_nodes.sort(key=lambda x: len(x['edge_data']['ligands']))
-    #             descr += str(len(my_neighboring_nodes))
-    #             descr += '-'
-    #             descr += ','.join([str(len(nn['edge_data']['ligands'])) for nn in my_neighboring_nodes])
-    #             descr += '.'
-    #             descr += ','.join([str(nn['neighbor'].coordination_environment) for nn in my_neighboring_nodes])
-    #             #TODO: check sorting according to the nomenclature !
-    #         return descr
-    #     elif extension == AbstractEnvironmentNode.ATOM:
-    #         return self.atom_symbol
-    #     else:
-    #         return 'NULL'
 
     @property
     def ce(self):
+        """Coordination environment of this node."""
         return self.coordination_environment
 
     @property
     def mp_symbol(self):
+        """Coordination environment of this node."""
         return self.coordination_environment
 
     @property
     def ce_symbol(self):
+        """Coordination environment of this node."""
         return self.coordination_environment
 
     @property
@@ -149,7 +92,7 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return 'Node #{:d} {} ({})'.format(self.isite, self.atom_symbol, self.coordination_environment)
+        return "Node #{:d} {} ({})".format(self.isite, self.atom_symbol, self.coordination_environment)
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
@@ -172,11 +115,16 @@ class EnvironmentNode(AbstractEnvironmentNode):
 
     @property
     def coordination_environment(self):
+        """Coordination environment of this node."""
         return self._ce_symbol
 
     def everything_equal(self, other):
-        return (super().everything_equal(other) and
-                self.coordination_environment == other.coordination_environment)
+        """Compare with another environment node.
+
+        Returns:
+            True if it is equal to the other node, False otherwise.
+        """
+        return super().everything_equal(other) and self.coordination_environment == other.coordination_environment
 
 
 # Keep these as they might come in handy later on if we decide to implement specific descriptors

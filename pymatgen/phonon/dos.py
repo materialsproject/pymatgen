@@ -8,12 +8,11 @@ This module defines classes to represent the phonon density of states, etc.
 
 import numpy as np
 import scipy.constants as const
+from monty.functools import lazy_property
+from monty.json import MSONable
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
-from monty.json import MSONable
-from monty.functools import lazy_property
-
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
@@ -60,8 +59,8 @@ class PhononDos(MSONable):
         """
 
         from scipy.ndimage.filters import gaussian_filter1d
-        diff = [self.frequencies[i + 1] - self.frequencies[i]
-                for i in range(len(self.frequencies) - 1)]
+
+        diff = [self.frequencies[i + 1] - self.frequencies[i] for i in range(len(self.frequencies) - 1)]
         avgdiff = sum(diff) / len(diff)
 
         smeared_dens = gaussian_filter1d(self.densities, sigma / avgdiff)
@@ -103,8 +102,7 @@ class PhononDos(MSONable):
         Args:
             frequency: frequency to return the density for.
         """
-        return get_linear_interpolated_value(self.frequencies,
-                                             self.densities, frequency)
+        return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
     def __str__(self):
         """
@@ -112,8 +110,7 @@ class PhononDos(MSONable):
         """
         stringarray = ["#{:30s} {:30s}".format("Frequency", "Density")]
         for i, frequency in enumerate(self.frequencies):
-            stringarray.append("{:.5f} {:.5f}"
-                               .format(frequency, self.densities[i]))
+            stringarray.append("{:.5f} {:.5f}".format(frequency, self.densities[i]))
         return "\n".join(stringarray)
 
     @classmethod
@@ -127,10 +124,12 @@ class PhononDos(MSONable):
         """
         Json-serializable dict representation of PhononDos.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "frequencies": list(self.frequencies),
-                "densities": list(self.densities)}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "frequencies": list(self.frequencies),
+            "densities": list(self.densities),
+        }
 
     @lazy_property
     def ind_zero_freq(self):
@@ -147,14 +146,14 @@ class PhononDos(MSONable):
         """
         Numpy array containing the list of positive frequencies
         """
-        return self.frequencies[self.ind_zero_freq:]
+        return self.frequencies[self.ind_zero_freq :]
 
     @lazy_property
     def _positive_densities(self):
         """
         Numpy array containing the list of densities corresponding to positive frequencies
         """
-        return self.densities[self.ind_zero_freq:]
+        return self.densities[self.ind_zero_freq :]
 
     def cv(self, t, structure=None):
         """
@@ -339,8 +338,7 @@ class CompletePhononDos(PhononDos):
             total_dos: total Dos for structure
             pdoss: The pdoss are supplied as an {Site: Densities}
         """
-        super().__init__(
-            frequencies=total_dos.frequencies, densities=total_dos.densities)
+        super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = {s: np.array(d) for s, d in pdoss.items()}
         self.structure = structure
 
@@ -371,8 +369,7 @@ class CompletePhononDos(PhononDos):
                 el_dos[el] = np.array(atom_dos)
             else:
                 el_dos[el] += np.array(atom_dos)
-        return {el: PhononDos(self.frequencies, densities)
-                for el, densities in el_dos.items()}
+        return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
     def from_dict(cls, d):
@@ -391,12 +388,14 @@ class CompletePhononDos(PhononDos):
         """
         Json-serializable dict representation of CompletePhononDos.
         """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "structure": self.structure.as_dict(),
-             "frequencies": list(self.frequencies),
-             "densities": list(self.densities),
-             "pdos": []}
+        d = {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "structure": self.structure.as_dict(),
+            "frequencies": list(self.frequencies),
+            "densities": list(self.densities),
+            "pdos": [],
+        }
         if len(self.pdos) > 0:
             for at in self.structure:
                 d["pdos"].append(list(self.pdos[at]))

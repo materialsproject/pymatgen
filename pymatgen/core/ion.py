@@ -10,20 +10,20 @@ import re
 from copy import deepcopy
 
 import numpy as np
-
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition
-from pymatgen.util.string import formula_double_format
+from pymatgen.util.string import formula_double_format, Stringify
 
 
-class Ion(Composition, MSONable):
+class Ion(Composition, MSONable, Stringify):
     """
     Basic ion object. It is just a Composition object with an additional
     variable to store charge.
     The net charge can either be represented as Mn++, or Mn+2, or Mn[2+].
     Note the order of the sign and magnitude in each representation.
     """
+
     def __init__(self, composition, charge=0.0, properties=None):
         """
         Flexible Ion construction, similar to Composition.
@@ -33,7 +33,7 @@ class Ion(Composition, MSONable):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula: str) -> 'Ion':
+    def from_formula(cls, formula: str) -> "Ion":
         """
         Creates Ion from formula.
 
@@ -47,8 +47,7 @@ class Ion(Composition, MSONable):
             m_chg = re.search(r"([\.\d]*)([+-])", m.group(1))
             if m_chg:
                 if m_chg.group(1) != "":
-                    charge += float(m_chg.group(1)) * \
-                        (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
                 else:
                     charge += float(m_chg.group(2) + "1")
             f = f.replace(m.group(), "", 1)
@@ -90,9 +89,9 @@ class Ion(Composition, MSONable):
         chg = self._charge
         chg_str = ""
         if chg > 0:
-            chg_str += ("{}{}".format('+', str(int(chg))))
+            chg_str += "{}{}".format("+", str(int(chg)))
         elif chg < 0:
-            chg_str += ("{}{}".format('-', str(int(np.abs(chg)))))
+            chg_str += "{}{}".format("-", str(int(np.abs(chg))))
         return anon_formula + chg_str
 
     @property
@@ -111,8 +110,7 @@ class Ion(Composition, MSONable):
             if abs(charge) == 1:
                 chg_str = "[-]"
             else:
-                chg_str = "[{}-]".format(formula_double_format(abs(charge),
-                                                               False))
+                chg_str = "[{}-]".format(formula_double_format(abs(charge), False))
         else:
             chg_str = "(aq)"
         return reduced_formula + chg_str
@@ -143,7 +141,7 @@ class Ion(Composition, MSONable):
             dict with composition, as well as charge
         """
         d = super().as_dict()
-        d['charge'] = self.charge
+        d["charge"] = self.charge
         return d
 
     @classmethod
@@ -156,7 +154,7 @@ class Ion(Composition, MSONable):
                 {symbol: amount} dict.
         """
         input = deepcopy(d)
-        charge = input.pop('charge')
+        charge = input.pop("charge")
         composition = Composition(input)
         return Ion(composition, charge)
 
@@ -168,7 +166,7 @@ class Ion(Composition, MSONable):
             {"Fe": 2.0, "O":3.0}.
         """
         d = self.composition.to_reduced_dict
-        d['charge'] = self.charge
+        d["charge"] = self.charge
         return d
 
     @property
@@ -215,3 +213,14 @@ class Ion(Composition, MSONable):
 
     def __repr__(self):
         return "Ion: " + self.formula
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: Pretty string with proper superscripts.
+        """
+        str_ = super().formula
+        if self.charge > 0:
+            str_ += "^+" + formula_double_format(self.charge, False)
+        elif self._charge < 0:
+            str_ += "^" + formula_double_format(self.charge, False)
+        return str_

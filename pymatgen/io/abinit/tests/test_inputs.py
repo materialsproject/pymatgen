@@ -3,18 +3,25 @@
 # Distributed under the terms of the MIT License.
 
 import os
-import unittest
 import tempfile
+import unittest
+
 import numpy as np
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
+from pymatgen.io.abinit.inputs import (
+    BasicAbinitInput,
+    BasicMultiDataset,
+    ShiftMode,
+    calc_shiftk,
+    ebands_input,
+    gs_input,
+    ion_ioncell_relax_input,
+    num_valence_electrons,
+)
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinit.inputs import (BasicAbinitInput, BasicMultiDataset, calc_shiftk,
-                                       num_valence_electrons, ShiftMode, gs_input, ebands_input,
-                                       ion_ioncell_relax_input)
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                         'test_files', "abinit")
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit")
 
 
 def abiref_file(filename):
@@ -35,20 +42,17 @@ class AbinitInputTestCase(PymatgenTest):
         # Build simple input with structure and pseudos
         unit_cell = {
             "acell": 3 * [10.217],
-            'rprim': [[.0, .5, .5],
-                      [.5, .0, .5],
-                      [.5, .5, .0]],
-            'ntypat': 1,
-            'znucl': [14],
-            'natom': 2,
-            'typat': [1, 1],
-            'xred': [[.0, .0, .0],
-                     [.25, .25, .25]]
+            "rprim": [[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]],
+            "ntypat": 1,
+            "znucl": [14],
+            "natom": 2,
+            "typat": [1, 1],
+            "xred": [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]],
         }
 
         inp = BasicAbinitInput(structure=unit_cell, pseudos=abiref_file("14si.pspnc"))
 
-        shiftk = [[0.5, 0.5, 0.5], [0.5,  0., 0.], [0., 0.5, 0.], [0., 0., 0.5]]
+        shiftk = [[0.5, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0], [0.0, 0.0, 0.5]]
         self.assertArrayEqual(calc_shiftk(inp.structure), shiftk)
         assert num_valence_electrons(inp.structure, inp.pseudos) == 8
 
@@ -127,10 +131,8 @@ class AbinitInputTestCase(PymatgenTest):
             natom=1,
             typat=[1],
             znucl=14,
-            acell=3*[7.60],
-            rprim=[[0.0, 0.5, 0.5],
-                   [-0.5, -0.0, -0.5],
-                   [0.5, 0.5, 0.0]],
+            acell=3 * [7.60],
+            rprim=[[0.0, 0.5, 0.5], [-0.5, -0.0, -0.5], [0.5, 0.5, 0.0]],
             xred=[[0.0, 0.0, 0.0]],
         )
 
@@ -234,7 +236,6 @@ class TestMultiDataset(PymatgenTest):
 
 
 class ShiftModeTest(PymatgenTest):
-
     def test_shiftmode(self):
         """Testing shiftmode"""
         gamma = ShiftMode.GammaCentered
@@ -245,7 +246,6 @@ class ShiftModeTest(PymatgenTest):
 
 
 class FactoryTest(PymatgenTest):
-
     def setUp(self):
         # Si ebands
         self.si_structure = Structure.from_file(abiref_file("si.cif"))
@@ -267,15 +267,33 @@ class FactoryTest(PymatgenTest):
         scf_inp, nscf_inp = multi.split_datasets()
 
         # Test dos_kppa and other options.
-        multi_dos = ebands_input(self.si_structure, self.si_pseudo, nscf_nband=10, kppa=10, ecut=2,
-                                 spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=50)
+        multi_dos = ebands_input(
+            self.si_structure,
+            self.si_pseudo,
+            nscf_nband=10,
+            kppa=10,
+            ecut=2,
+            spin_mode="unpolarized",
+            smearing=None,
+            charge=2.0,
+            dos_kppa=50,
+        )
         assert len(multi_dos) == 3
         assert all(i["charge"] == 2 for i in multi_dos)
         self.assertEqual(multi_dos.get("nsppol"), [1, 1, 1])
         self.assertEqual(multi_dos.get("iscf"), [None, -2, -2])
 
-        multi_dos = ebands_input(self.si_structure, self.si_pseudo, nscf_nband=10, kppa=10, ecut=2,
-                                 spin_mode="unpolarized", smearing=None, charge=2.0, dos_kppa=[50, 100])
+        multi_dos = ebands_input(
+            self.si_structure,
+            self.si_pseudo,
+            nscf_nband=10,
+            kppa=10,
+            ecut=2,
+            spin_mode="unpolarized",
+            smearing=None,
+            charge=2.0,
+            dos_kppa=[50, 100],
+        )
         assert len(multi_dos) == 4
         self.assertEqual(multi_dos.get("iscf"), [None, -2, -2, -2])
         str(multi_dos)

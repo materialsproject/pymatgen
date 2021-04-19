@@ -1,0 +1,80 @@
+Name: MP2020
+Corrections:
+  # Energy corrections in eV/atom
+  GGAUMixingCorrections:
+    # Composition-based corrections applied to transition metal oxides
+    # and fluorides to make GGA and GGA+U energies compatible
+    # when compat_type = "Advanced" (default)
+    O:
+      V: -1.666
+      Cr: -1.967
+      Mn: -1.635
+      Fe: -0.224
+      Co: -1.556
+      Ni: -2.545
+      W: -4.647
+      Mo: -3.098
+    F:
+      V: -1.666
+      Cr: -1.967
+      Mn: -1.635
+      Fe: -0.224
+      Co: -1.556
+      Ni: -2.545
+      W: -4.647
+      Mo: -3.098
+  CompositionCorrections:
+    # Composition-based corrections applied to any compound containing
+    # these species as anions
+    oxide: -0.706
+    peroxide: -0.464
+    superoxide: -0.168
+    S: -0.592
+    F: -0.404
+    Cl: -0.55
+    Br: -0.473
+    I: -0.275
+    N: -0.408
+    Se: -0.472
+    Si: -0.225
+    Sb: -0.192
+    Te: -0.406
+    H: -0.144
+    ozonide: 0
+Uncertainties:
+  # Uncertainties corresponding to each energy correction (eV/atom)
+  GGAUMixingCorrections:
+    O:
+      V: 0.0141
+      Cr: 0.0113
+      Mn: 0.0057
+      Fe: 0.0106
+      Co: 0.0163
+      Ni: 0.0106
+      W: 0.0188
+      Mo: 0.0202
+    F:
+      V: 0.0141
+      Cr: 0.0113
+      Mn: 0.0057
+      Fe: 0.0106
+      Co: 0.0163
+      Ni: 0.0106
+      W: 0.0188
+      Mo: 0.0202
+  CompositionCorrections:
+    oxide: 0.0025
+    peroxide: 0.0198
+    superoxide: 0.0096
+    S: 0.0113
+    F: 0.0049
+    Cl: 0.0055
+    Br: 0.0044
+    I: 0.0108
+    N: 0.0217
+    Se: 0.0341
+    Si: 0.0435
+    Sb: 0.0089
+    Te: 0.0276
+    H: 0.002
+    ozonide: 0

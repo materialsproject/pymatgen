@@ -8,9 +8,25 @@ Type hinting is new to pymatgen, so this module is subject to
 change until best practices are established.
 """
 
-from typing import Union, List
 from pathlib import Path
+from typing import Union, Sequence
+
 import numpy as np
 
-Vector3Like = Union[List[float], np.ndarray]
+try:
+    from numpy.typing import ArrayLike
+except ImportError:
+    ArrayLike = Union[Sequence[float], Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]  # type: ignore
+from pymatgen.core.periodic_table import Element, Species, DummySpecies
+from pymatgen.core.composition import Composition
+
+VectorLike = Union[Sequence[float], np.ndarray]
+MatrixLike = Union[Sequence[Sequence[float]], Sequence[np.ndarray], np.ndarray]
+
 PathLike = Union[str, Path]
+
+# Things that can be cast into a Species-like object using get_el_sp
+SpeciesLike = Union[str, Element, Species, DummySpecies]
+
+# Things that can be cast into a Composition
+CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]

@@ -2,15 +2,22 @@
 Structure connectivity class.
 """
 
+import collections
+import logging
+
 import networkx as nx
 import numpy as np
-import collections
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
-from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
-from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
-from monty.json import MSONable
-from monty.json import jsanitize
-import logging
+from monty.json import MSONable, jsanitize
+
+from pymatgen.analysis.chemenv.connectivity.connected_components import (
+    ConnectedComponent,
+)
+from pymatgen.analysis.chemenv.connectivity.environment_nodes import (
+    get_environment_node,
+)
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
+    LightStructureEnvironments,
+)
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -26,16 +33,13 @@ def get_delta_image(isite1, isite2, data1, data2):
     Helper method to get the delta image between one environment and another
     from the ligand's delta images.
     """
-    if data1['start'] == isite1:
-        if data2['start'] == isite2:
-            return np.array(data1['delta']) - np.array(data2['delta'])
-        else:
-            return np.array(data1['delta']) + np.array(data2['delta'])
-    else:
-        if data2['start'] == isite2:
-            return -np.array(data1['delta']) - np.array(data2['delta'])
-        else:
-            return -np.array(data1['delta']) + np.array(data2['delta'])
+    if data1["start"] == isite1:
+        if data2["start"] == isite2:
+            return np.array(data1["delta"]) - np.array(data2["delta"])
+        return np.array(data1["delta"]) + np.array(data2["delta"])
+    if data2["start"] == isite2:
+        return -np.array(data1["delta"]) - np.array(data2["delta"])
+    return -np.array(data1["delta"]) + np.array(data2["delta"])
 
 
 class StructureConnectivity(MSONable):
@@ -43,7 +47,12 @@ class StructureConnectivity(MSONable):
     Main class containing the connectivity of a structure.
     """
 
-    def __init__(self, light_structure_environment, connectivity_graph=None, environment_subgraphs=None):
+    def __init__(
+        self,
+        light_structure_environment,
+        connectivity_graph=None,
+        environment_subgraphs=None,
+    ):
         """
         Constructor for the StructureConnectivity object.
 
@@ -103,38 +112,44 @@ class StructureConnectivity(MSONable):
         """
         existing_edges = self._graph.edges(nbunch=[isite], data=True)
         for nb_index_and_image in site_neighbors_set.neighb_indices_and_images:
-            nb_index_unitcell = nb_index_and_image['index']
-            nb_image_cell = nb_index_and_image['image_cell']
+            nb_index_unitcell = nb_index_and_image["index"]
+            nb_image_cell = nb_index_and_image["image_cell"]
             exists = False
             if np.allclose(nb_image_cell, np.zeros(3)):
                 for (isite1, ineighb1, data1) in existing_edges:
-                    if np.allclose(data1['delta'], np.zeros(3)) and nb_index_unitcell == ineighb1:
+                    if np.allclose(data1["delta"], np.zeros(3)) and nb_index_unitcell == ineighb1:
                         exists = True
                         break
             else:
                 if isite == nb_index_unitcell:
                     for (isite1, ineighb1, data1) in existing_edges:
                         if isite1 == ineighb1:
-                            if np.allclose(data1['delta'],
-                                           nb_image_cell) or np.allclose(data1['delta'],
-                                                                         -nb_image_cell):
+                            if np.allclose(data1["delta"], nb_image_cell) or np.allclose(
+                                data1["delta"], -nb_image_cell
+                            ):
                                 exists = True
                                 break
                 else:
                     for (isite1, ineighb1, data1) in existing_edges:
                         if nb_index_unitcell == ineighb1:
-                            if data1['start'] == isite:
-                                if np.allclose(data1['delta'], nb_image_cell):
+                            if data1["start"] == isite:
+                                if np.allclose(data1["delta"], nb_image_cell):
                                     exists = True
                                     break
-                            elif data1['end'] == isite:
-                                if np.allclose(data1['delta'], -nb_image_cell):
+                            elif data1["end"] == isite:
+                                if np.allclose(data1["delta"], -nb_image_cell):
                                     exists = True
                                     break
                             else:
-                                raise ValueError('SHOULD NOT HAPPEN ???')
+                                raise ValueError("SHOULD NOT HAPPEN ???")
             if not exists:
-                self._graph.add_edge(isite, nb_index_unitcell, start=isite, end=nb_index_unitcell, delta=nb_image_cell)
+                self._graph.add_edge(
+                    isite,
+                    nb_index_unitcell,
+                    start=isite,
+                    end=nb_index_unitcell,
+                    delta=nb_image_cell,
+                )
 
     def setup_environment_subgraph(self, environments_symbols, only_atoms=None):
         """
@@ -144,13 +159,13 @@ class StructureConnectivity(MSONable):
             environments_symbols: Symbols of the environments for the environment subgraph.
             only_atoms: Atoms to be considered.
         """
-        logging.info('Setup of environment subgraph for environments {}'.format(', '.join(environments_symbols)))
+        logging.info("Setup of environment subgraph for environments {}".format(", ".join(environments_symbols)))
         if not isinstance(environments_symbols, collections.abc.Iterable):
             environments_symbols = [environments_symbols]
         environments_symbols = sorted(environments_symbols)
-        envs_string = '-'.join(environments_symbols)
+        envs_string = "-".join(environments_symbols)
         if only_atoms is not None:
-            envs_string += '#' + '-'.join(sorted(only_atoms))
+            envs_string += "#" + "-".join(sorted(only_atoms))
         # Get it directly if it was already computed
         if envs_string in self.environment_subgraphs:
             self._environment_subgraph = self.environment_subgraphs[envs_string]
@@ -164,27 +179,37 @@ class StructureConnectivity(MSONable):
                 continue
             if len(ce_this_site_all) == 0:
                 continue
-            ce_this_site = ce_this_site_all[0]['ce_symbol']
+            ce_this_site = ce_this_site_all[0]["ce_symbol"]
             if ce_this_site in environments_symbols:
                 if only_atoms is None:
-                    env_node = get_environment_node(self.light_structure_environments.structure[isite], isite,
-                                                    ce_this_site)
+                    env_node = get_environment_node(
+                        self.light_structure_environments.structure[isite],
+                        isite,
+                        ce_this_site,
+                    )
                     self._environment_subgraph.add_node(env_node)
                 else:
                     if self.light_structure_environments.structure.is_ordered:
                         if self.light_structure_environments.structure[isite].specie.symbol in only_atoms:
-                            env_node = get_environment_node(self.light_structure_environments.structure[isite], isite,
-                                                            ce_this_site)
+                            env_node = get_environment_node(
+                                self.light_structure_environments.structure[isite],
+                                isite,
+                                ce_this_site,
+                            )
                             self._environment_subgraph.add_node(env_node)
                     else:
                         #  TODO: add the possibility of a "constraint" on the minimum percentage
                         #        of the atoms on the site
-                        this_site_elements = [sp.symbol for sp in
-                                              self.light_structure_environments.structure[isite].species_and_occu]
+                        this_site_elements = [
+                            sp.symbol for sp in self.light_structure_environments.structure[isite].species_and_occu
+                        ]
                         for elem_symbol in this_site_elements:
                             if elem_symbol in only_atoms:
-                                env_node = get_environment_node(self.light_structure_environments.structure[isite],
-                                                                isite, ce_this_site)
+                                env_node = get_environment_node(
+                                    self.light_structure_environments.structure[isite],
+                                    isite,
+                                    ce_this_site,
+                                )
                                 self._environment_subgraph.add_node(env_node)
                                 break
         # Find the connections between the environments
@@ -217,7 +242,7 @@ class StructureConnectivity(MSONable):
                         alldeltas.remove((0, 0, 0))
                         alldeltas2.remove((0, 0, 0))
                     for current_delta in alldeltas:
-                        opp_current_delta = tuple([-dd for dd in current_delta])
+                        opp_current_delta = tuple(-dd for dd in current_delta)
                         if opp_current_delta in alldeltas2:
                             remove_deltas.append(current_delta)
                             alldeltas2.remove(current_delta)
@@ -226,8 +251,14 @@ class StructureConnectivity(MSONable):
                         connections_site1_site2.pop(remove_delta)
                 # Add all the edges
                 for conn, ligands in list(connections_site1_site2.items()):
-                    self._environment_subgraph.add_edge(node1, node2, start=node1.isite, end=node2.isite,
-                                                        delta=conn, ligands=ligands)
+                    self._environment_subgraph.add_edge(
+                        node1,
+                        node2,
+                        start=node1.isite,
+                        end=node2.isite,
+                        delta=conn,
+                        ligands=ligands,
+                    )
         self.environment_subgraphs[envs_string] = self._environment_subgraph
 
     def setup_connectivity_description(self):
@@ -294,18 +325,30 @@ class StructureConnectivity(MSONable):
 
         """
         nodes = self.environment_subgraph().nodes()
-        print('Links in graph :')
+        print("Links in graph :")
         for node in nodes:
-            print(node.isite, ' is connected with : ')
+            print(node.isite, " is connected with : ")
             for (n1, n2, data) in self.environment_subgraph().edges(node, data=True):
-                if n1.isite == data['start']:
-                    print('  - {:d} by {:d} ligands ({:d} {:d} {:d})'.format(n2.isite, len(data['ligands']),
-                                                                             data['delta'][0], data['delta'][1],
-                                                                             data['delta'][2]))
+                if n1.isite == data["start"]:
+                    print(
+                        "  - {:d} by {:d} ligands ({:d} {:d} {:d})".format(
+                            n2.isite,
+                            len(data["ligands"]),
+                            data["delta"][0],
+                            data["delta"][1],
+                            data["delta"][2],
+                        )
+                    )
                 else:
-                    print('  - {:d} by {:d} ligands ({:d} {:d} {:d})'.format(n2.isite, len(data['ligands']),
-                                                                             -data['delta'][0], -data['delta'][1],
-                                                                             -data['delta'][2]))
+                    print(
+                        "  - {:d} by {:d} ligands ({:d} {:d} {:d})".format(
+                            n2.isite,
+                            len(data["ligands"]),
+                            -data["delta"][0],
+                            -data["delta"][1],
+                            -data["delta"][2],
+                        )
+                    )
 
     def as_dict(self):
         """
@@ -313,12 +356,16 @@ class StructureConnectivity(MSONable):
         Returns:
 
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "light_structure_environments": self.light_structure_environments.as_dict(),
-                "connectivity_graph": jsanitize(nx.to_dict_of_dicts(self._graph)),
-                "environment_subgraphs": {env_key: jsanitize(nx.to_dict_of_dicts(subgraph))
-                                          for env_key, subgraph in self.environment_subgraphs.items()}}
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "light_structure_environments": self.light_structure_environments.as_dict(),
+            "connectivity_graph": jsanitize(nx.to_dict_of_dicts(self._graph)),
+            "environment_subgraphs": {
+                env_key: jsanitize(nx.to_dict_of_dicts(subgraph))
+                for env_key, subgraph in self.environment_subgraphs.items()
+            },
+        }
 
     @classmethod
     def from_dict(cls, d):
@@ -331,7 +378,7 @@ class StructureConnectivity(MSONable):
 
         """
         # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
-        cgraph = nx.from_dict_of_dicts(d['connectivity_graph'], create_using=nx.MultiGraph, multigraph_input=True)
+        cgraph = nx.from_dict_of_dicts(d["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True)
         cgraph = nx.relabel_nodes(cgraph, int)  # Just relabel the nodes using integer casting (maps str->int)
         # Relabel multiedges (removes multiedges with str keys and adds them back with int keys)
         edges = set(cgraph.edges())
@@ -339,9 +386,11 @@ class StructureConnectivity(MSONable):
             new_edges = {int(iedge): edata for iedge, edata in cgraph[n1][n2].items()}
             cgraph.remove_edges_from([(n1, n2, iedge) for iedge, edata in cgraph[n1][n2].items()])
             cgraph.add_edges_from([(n1, n2, iedge, edata) for iedge, edata in new_edges.items()])
-        return cls(LightStructureEnvironments.from_dict(d['light_structure_environments']),
-                   connectivity_graph=cgraph,
-                   environment_subgraphs=None)
+        return cls(
+            LightStructureEnvironments.from_dict(d["light_structure_environments"]),
+            connectivity_graph=cgraph,
+            environment_subgraphs=None,
+        )
         # TODO: also deserialize the environment_subgraphs
         #            environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
         #                                   for env_key, subgraph in d['environment_subgraphs'].items()})

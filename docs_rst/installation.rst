@@ -456,7 +456,7 @@ Create python bindings with Cython::
 To test that the installation worked, here is an example series of things you
 can do using pymatgen::
 
-    In [1]: from pymatgen.analysis.defects.point_defects import Interstitial
+    In [1]: from pymatgen.analysis.defects.core import Interstitial
 
     In [2]: from pymatgen.core.structure import Structure
 

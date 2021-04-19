@@ -3,19 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.prismatic import Prismatic
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class PrismaticTest(unittest.TestCase):
     def test_to_string(self):
 
-        structure = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CuCl.cif"))
         prismatic = Prismatic(structure)
         prismatic_str = prismatic.to_string()
         self.assertTrue(

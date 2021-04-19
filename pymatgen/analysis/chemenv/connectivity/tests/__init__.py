@@ -1,1 +1,1 @@
-__author__ = 'waroquiers'
+"""Tests"""

@@ -3,18 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 
-from pymatgen.util.testing import PymatgenTest
+from monty.serialization import loadfn
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-
-from monty.serialization import loadfn
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from seekpath import get_path  # type: ignore
@@ -23,7 +21,6 @@ except ImportError:
 
 
 class HighSymmKpathTest(PymatgenTest):
-
     @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
@@ -40,7 +37,11 @@ class HighSymmKpathTest(PymatgenTest):
             sg_num = i + 1
             if sg_num in triclinic:
                 lattice = Lattice(
-                    [[3.0233057319441246, 1, 0], [0, 7.9850357844548681, 1], [0, 1.2, 8.1136762279561818]]
+                    [
+                        [3.0233057319441246, 1, 0],
+                        [0, 7.9850357844548681, 1],
+                        [0, 1.2, 8.1136762279561818],
+                    ]
                 )
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
@@ -62,22 +63,11 @@ class HighSymmKpathTest(PymatgenTest):
             kpoints = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
-        bs = loadfn(os.path.join(test_dir, "Cu2O_361_bandstructure.json"))
-        hskp = HighSymmKpath(bs.structure).get_continuous_path(bs)
+        bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure.json"))
+        cont_bs = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu2O_361_bandstructure_continuous.json"))
+        alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
-        distance_map = [(3, False), (5, True), (1, True), (4, True), (3, True), (2, True), (1, True), (0, True)]
-        labels = [
-            ("\\Gamma", "R"),
-            ("R", "M"),
-            ("M", "X"),
-            ("X", "R"),
-            ("R", "\\Gamma"),
-            ("\\Gamma", "M"),
-            ("M", "X"),
-            ("X", "\\Gamma"),
-        ]
-
-        self.assertEqual(hskp, (distance_map, labels))
+        self.assertEqual(cont_bs.as_dict(), alt_bs.as_dict())
 
 
 if __name__ == "__main__":
