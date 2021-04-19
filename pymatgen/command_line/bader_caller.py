@@ -276,10 +276,10 @@ class BaderAnalysis:
             Given by final charge on atom - nelectrons in POTCAR for
             associated atom.
         """
-        if not self.nelects and not nelect:
+        if not self.nelects and nelect is None:
             raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument"
                              "for cube file")
-        return self.data[atom_index]["charge"] - (nelect if nelect else self.nelects[atom_index])
+        return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
 
     def get_charge_decorated_structure(self):
         """
