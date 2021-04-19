@@ -54,7 +54,8 @@ from pymatgen.io.cp2k.utils import (
     get_unique_site_indices,
     get_cutoff_from_basis
 )
-from pymatgen import Structure, Molecule, Lattice
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.lattice import Lattice
 from typing import Dict, Union
 import warnings
 
