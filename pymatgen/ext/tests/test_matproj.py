@@ -20,7 +20,7 @@ from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
 )
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.io.cif import CifParser
@@ -329,15 +329,15 @@ class MPResterTest(PymatgenTest):
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
 
         fe_two_plus = [e for e in pbx_entries if e.entry_id == "ion-0"][0]
-        self.assertAlmostEqual(fe_two_plus.energy, -1.6228450214319294, places=2)
+        self.assertAlmostEqual(fe_two_plus.energy, -1.12369, places=3)
 
         feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
-        self.assertAlmostEqual(feo2.energy, 2.5523680849999995, places=2)
+        self.assertAlmostEqual(feo2.energy, 3.56356, places=3)
 
         # Test S, which has Na in reference solids
         pbx_entries = self.rester.get_pourbaix_entries(["S"])
         so4_two_minus = pbx_entries[9]
-        self.assertAlmostEqual(so4_two_minus.energy, 0.08489112377155017, places=2)
+        self.assertAlmostEqual(so4_two_minus.energy, 0.301511, places=3)
 
         # Ensure entries are pourbaix compatible
         PourbaixDiagram(pbx_entries)
@@ -376,7 +376,7 @@ class MPResterTest(PymatgenTest):
                 )
         rest_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
-        compat = MaterialsProjectCompatibility()
+        compat = MaterialsProject2020Compatibility()
         all_entries = compat.process_entries(all_entries)
         pd = PhaseDiagram(all_entries)
         for e in all_entries:
