@@ -823,8 +823,12 @@ class Cp2kOutput:
                 "kind_number": i+1
             }
             try:
-                tmp = self.data.get("valence_electrons")[i][0] if self.data.get("valence_electrons") \
-                        else self.data.get("potential_info")[i][0].split('q')[-1]
+                if self.data.get("valence_electrons"):
+                    tmp = self.data.get("valence_electrons")[i][0]
+                elif self.data.get("potential_info")[i][0].upper() == 'NONE':
+                    tmp = 0
+                else:
+                    tmp = self.data.get("potential_info")[i][0].split('q')[-1]
                 atomic_kind_info[kind]["valence_electrons"] = int(tmp)
             except (TypeError, IndexError, ValueError):
                 atomic_kind_info[kind]["valence_electrons"] = None
