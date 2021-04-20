@@ -40,7 +40,6 @@ class XPS(Spectrum):
         total = np.zeros(dos.energies.shape)
         for el in dos.structure.composition.keys():
             spd_dos = dos.get_element_spd_dos(el)
-            print(el)
             for orb, pdos in spd_dos.items():
                 weight = CROSS_SECTIONS[el.symbol].get(str(orb), None)
                 if weight is not None:
