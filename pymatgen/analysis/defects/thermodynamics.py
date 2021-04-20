@@ -866,8 +866,13 @@ class DefectPredominanceDiagram(MSONable):
                 continue
             cs = np.log10(np.multiply(1e6, results[r]))
             mx, mn = max((mx, max(cs))), min((mn, min(cs)))
-            ax1.plot(px2, cs[:-1], '-', linewidth=5, alpha=.8, label=r) \
-                if partial_pressure else ax1.plot(mus, cs, 'o-', label=r)
+            free_carrier = (r == 'n' or r == 'p')
+            ax1.plot(
+                px2 if partial_pressure else mus,
+                cs[:-1], '--' if free_carrier else '-',
+                linewidth=3 if free_carrier else 5,
+                alpha=.8, label=r
+            )
 
         left = max(px2) if partial_pressure else max(mus)
         ax1.axvspan(left, left + .1, alpha=0.2, color='red')
