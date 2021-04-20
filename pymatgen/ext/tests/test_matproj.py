@@ -337,7 +337,7 @@ class MPResterTest(PymatgenTest):
         # Test S, which has Na in reference solids
         pbx_entries = self.rester.get_pourbaix_entries(["S"])
         so4_two_minus = pbx_entries[9]
-        self.assertAlmostEqual(so4_two_minus.energy, 0.0644980568750011, places=2)
+        self.assertAlmostEqual(so4_two_minus.energy, 0.08489112377155017, places=2)
 
         # Ensure entries are pourbaix compatible
         PourbaixDiagram(pbx_entries)
