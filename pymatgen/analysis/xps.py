@@ -8,6 +8,7 @@ this::
     doi: 10.21105/joss.007733
 """
 
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -44,23 +45,10 @@ class XPS(Spectrum):
                 weight = CROSS_SECTIONS[el.symbol].get(str(orb), None)
                 if weight is not None:
                     total += pdos.get_densities() * weight
-
-        if sigma != 0:
+                else:
+                    warnings.warn(f"No cross-section for {el}{orb}")
+        if sigma:
             diff = [dos.energies[i + 1] - dos.energies[i] for i in range(len(dos.energies) - 1)]
             avgdiff = sum(diff) / len(diff)
             total = gaussian_filter1d(total, sigma / avgdiff)
         return XPS(-dos.energies, total / np.max(total))
-
-
-if __name__ == "__main__":
-    from pymatgen.ext.matproj import MPRester
-
-    mpr = MPRester()
-    dos_SnO2 = mpr.get_dos_by_material_id("mp-856")
-    xps = XPS.from_dos(dos_SnO2, 0.3)
-    import matplotlib.pyplot as plt
-
-    plt.plot(xps.x, xps.y, "k-")
-    plt.xlim((-5, 10))
-    plt.ylim((0, 0.04))
-    plt.show()
