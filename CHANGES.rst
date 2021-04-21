@@ -1,6 +1,14 @@
 Change log
 ==========
 
+v2022.0.6
+---------
+* Feature to calculate Selling vectors and distances between Lattices (@bwjustus, #1888)
+* Updated `MaterialsProject2020Compatibility` for formation energy correction (@rkingsbury, #2106)
+* Bug fix for detecting broken bonds in slab generation (@fyalcin, #2015)
+* Bug fix for electrodes (@jmmshn, #2101)
+* Documentation improvement for get_conventional_standard_structure (@tom-wood, #2100)
+
 v2022.0.5
 ---------
 * Bug fix to remove possibility of duplicate edges in `StructureGraph` (@mkhorton, #2095)
