@@ -54,10 +54,18 @@ class SpectrumTest(PymatgenTest):
         )
 
     def test_smear(self):
-        y = np.array(self.spec1.y)
-        self.spec1.smear(0.2)
-        self.assertFalse(np.allclose(y, self.spec1.y))
-        self.assertAlmostEqual(sum(y), sum(self.spec1.y))
+        y = np.zeros(100)
+        y[25] = 1
+        y[50] = 1
+        y[75] = 1
+        spec = Spectrum(np.linspace(-10, 10, 100), y)
+        spec.smear(0.3)
+        self.assertFalse(np.allclose(y, spec.y))
+        self.assertAlmostEqual(sum(y), sum(spec.y))
+        spec = Spectrum(np.linspace(-10, 10, 100), y)
+        spec.smear(0.3, func="lorentzian")
+        self.assertFalse(np.allclose(y, spec.y))
+        self.assertAlmostEqual(sum(y), sum(spec.y))
 
         y = np.array(self.multi_spec1.y)
         self.multi_spec1.smear(0.2)

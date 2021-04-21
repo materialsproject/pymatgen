@@ -12,7 +12,6 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-from scipy.ndimage.filters import gaussian_filter1d
 
 from monty.serialization import loadfn
 
@@ -31,11 +30,11 @@ class XPS(Spectrum):
     YLABEL = "Intensity"
 
     @classmethod
-    def from_dos(cls, dos: CompleteDos, sigma: float = 0):
+    def from_dos(cls, dos: CompleteDos):
         """
         :param dos: CompleteDos object with project element-orbital DOS. Can be obtained from Vasprun.get_complete_dos.
         :param sigma: Smearing for Gaussian.
-        :return:
+        :return: XPS
         """
         total = np.zeros(dos.energies.shape)
         for el in dos.structure.composition.keys():
@@ -46,8 +45,4 @@ class XPS(Spectrum):
                     total += pdos.get_densities() * weight
                 else:
                     warnings.warn(f"No cross-section for {el}{orb}")
-        if sigma:
-            diff = [dos.energies[i + 1] - dos.energies[i] for i in range(len(dos.energies) - 1)]
-            avgdiff = sum(diff) / len(diff)
-            total = gaussian_filter1d(total, sigma / avgdiff)
         return XPS(-dos.energies, total / np.max(total))
