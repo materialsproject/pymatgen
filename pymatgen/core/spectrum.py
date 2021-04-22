@@ -93,7 +93,7 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float, func: Union[str, Callable] = "gaussian"):
+    def smear(self, sigma: float = 0.0, func: Union[str, Callable] = "gaussian"):
         """
         Apply Gaussian/Lorentzian smearing to spectrum y value.
 

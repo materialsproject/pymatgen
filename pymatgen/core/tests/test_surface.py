@@ -622,7 +622,7 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_bonds_broken(self):
         # Querying the Materials Project database for Si
-        s = self.get_mp_structure("mp-149")
+        s = self.get_structure("Si")
         # Conventional unit cell is supplied to ensure miller indices
         # correspond to usual crystallographic definitions
         conv_bulk = SpacegroupAnalyzer(s).get_conventional_standard_structure()
