@@ -130,8 +130,8 @@ class Kpoint(MSONable):
         """
         return {
             "lattice": self.lattice.as_dict(),
-            "fcoords": list(self.frac_coords),
-            "ccoords": list(self.cart_coords),
+            "fcoords": self.frac_coords.tolist(),
+            "ccoords": self.cart_coords.tolist(),
             "label": self.label,
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
