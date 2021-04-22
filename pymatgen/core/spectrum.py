@@ -7,7 +7,7 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import List
+from typing import List, Union, Callable
 
 import numpy as np
 import scipy.stats as stats
@@ -93,13 +93,14 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float, func: str = "gaussian"):
+    def smear(self, sigma: float, func: Union[str, Callable] = "gaussian"):
         """
         Apply Gaussian/Lorentzian smearing to spectrum y value.
 
         Args:
             sigma: Std dev for Gaussian smear function
-            func: "gaussian" or "lorentzian"
+            func: "gaussian" or "lorentzian" or a callable. If this is a callable, the sigma value is ignored. The
+                callable should only take a single argument (a numpy array) and return a set of weights.
         """
         points = np.linspace(np.min(self.x) - np.mean(self.x), np.max(self.x) - np.mean(self.x), len(self.x))
         if callable(func):
@@ -114,11 +115,11 @@ class Spectrum(MSONable):
         if len(self.ydim) == 1:
             total = np.sum(self.y)
             self.y = convolve1d(self.y, weights)
-            self.y *= total / np.sum(self.y)
+            self.y *= total / np.sum(self.y)  # renormalize to maintain the same integrated sum as before.
         else:
             total = np.sum(self.y, axis=0)
             self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
-            self.y *= total / np.sum(self.y, axis=0)
+            self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
     def get_interpolated_value(self, x: float) -> List[float]:
         """

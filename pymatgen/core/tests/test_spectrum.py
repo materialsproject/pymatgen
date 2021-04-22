@@ -5,6 +5,7 @@
 import unittest
 
 import numpy as np
+import scipy.stats as stats
 
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.testing import PymatgenTest
@@ -62,6 +63,12 @@ class SpectrumTest(PymatgenTest):
         spec.smear(0.3)
         self.assertFalse(np.allclose(y, spec.y))
         self.assertAlmostEqual(sum(y), sum(spec.y))
+
+        # Test direct callable use of smearing.
+        spec2 = Spectrum(np.linspace(-10, 10, 100), y)
+        spec2.smear(0, func=lambda x: stats.norm.pdf(x, scale=0.3))
+        self.assertTrue(np.allclose(spec.y, spec2.y))
+
         spec = Spectrum(np.linspace(-10, 10, 100), y)
         spec.smear(0.3, func="lorentzian")
         self.assertFalse(np.allclose(y, spec.y))
