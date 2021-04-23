@@ -1659,6 +1659,12 @@ class XdatcarTest(PymatgenTest):
         self.assertEqual(len(x.structures), 8)
         self.assertIsNotNone(x.get_string())
 
+        filepath = self.TEST_FILES_DIR / "XDATCAR_6"
+        x = Xdatcar(filepath)
+        structures = x.Structures
+        self.assertNotEqual(structures[0].lattice,structures[-1].lattice)
+
+
 
 class DynmatTest(PymatgenTest):
     def test_init(self):
