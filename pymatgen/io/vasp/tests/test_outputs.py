@@ -1661,9 +1661,9 @@ class XdatcarTest(PymatgenTest):
 
         filepath = self.TEST_FILES_DIR / "XDATCAR_6"
         x = Xdatcar(filepath)
-        structures = x.Structures
-        self.assertNotEqual(structures[0].lattice,structures[-1].lattice)
+        structures = x.structures
 
+        self.assertNotEqual(structures[0].lattice, structures[-1].lattice)
 
 
 class DynmatTest(PymatgenTest):
