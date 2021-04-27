@@ -154,7 +154,7 @@ class BaderAnalysis:
             self.is_vasp = False
             self.cube = Cube(fpath)
             self.structure = self.cube.structure
-            self.nelects = self.structure.site_properties.get("nelect", [])  # For cube, see if struc has nelects
+            self.nelects = None
 
         tmpfile = "CHGCAR" if chgcar_filename else "CUBE"
         with ScratchDir("."):
@@ -275,7 +275,7 @@ class BaderAnalysis:
         """
         return self.data[atom_index]["charge"]
 
-    def get_charge_transfer(self, atom_index):
+    def get_charge_transfer(self, atom_index, nelect=None):
         """
         Returns the charge transferred for a particular atom. Requires POTCAR
         to be supplied.
@@ -283,17 +283,20 @@ class BaderAnalysis:
         Args:
             atom_index:
                 Index of atom.
+            nelect:
+                number of electrons associated with an isolated atom at this index.
+                For most DFT codes this corresponds to the number of valence electrons
+                associated with the pseudopotential
 
         Returns:
             Charge transfer associated with atom from the Bader analysis.
             Given by final charge on atom - nelectrons in POTCAR for
             associated atom.
         """
-        if not self.nelects:
-            raise ValueError(
-                "No NELECT info! Need POTCAR for VASP, or a structure object" "with nelect as a site property."
-            )
-        return self.data[atom_index]["charge"] - self.nelects[atom_index]
+        if not self.nelects and nelect is None:
+            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument"
+                             "for cube file")
+        return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
 
     def get_charge_decorated_structure(self):
         """
@@ -308,28 +311,18 @@ class BaderAnalysis:
         struc.add_site_property("charge", charges)
         return struc
 
-    def get_oxidation_state_decorated_structure(self):
+    def get_oxidation_state_decorated_structure(self, nelects=None):
         """
         Returns an oxidation state decorated structure based on bader analysis results.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
         """
-        charges = [-self.get_charge_transfer(i) for i in range(len(self.structure))]
+        charges = [
+            -self.get_charge_transfer(i, None if not nelects else nelects[i]) for i in range(len(self.structure))
+        ]
         struc = self.structure.copy()
         struc.add_oxidation_state_by_site(charges)
-        return struc
-
-    def get_spin_state_decorated_structure(self):
-        """
-        Returns a structure decorated with spins.
-
-        Note, this assumes that the Bader analysis was correctly performed on a file
-        with spin densities
-        """
-        spins = [self.get_charge(i) for i in range(len(self.structure))]
-        struc = self.structure.copy()
-        struc.add_spin_by_site(spins)
         return struc
 
     @property
