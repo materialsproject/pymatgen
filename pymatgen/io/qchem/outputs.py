@@ -679,13 +679,6 @@ class QCOutput(MSONable):
         ):
             self.data["warnings"]["diagonalizing_BBt"] = True
 
-        # Check for bad Roothaan step
-        for scf in self.data["SCF"]:
-            if abs(scf[0][0] - scf[1][0]) > 10.0:
-                self.data["warnings"]["bad_roothaan"] = True
-                if abs(scf[0][0] - scf[1][0]) > 100.0:
-                    self.data["warnings"]["very_bad_roothaan"] = True
-
     def _read_geometries(self):
         """
         Parses all geometries from an optimization trajectory.
