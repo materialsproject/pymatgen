@@ -769,7 +769,8 @@ class BasePhaseDiagram(MSONable):
                 warnings.warn(
                     (
                         f"After reduction {len(competing_entries)} competing entries "
-                        "remain - Using SLSQP to find decomposition likely to be slow"
+                        f"remain for {entry.composition} - Using SLSQP to find "
+                        "decomposition likely to be slow"
                     )
                 )
 
