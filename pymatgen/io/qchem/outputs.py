@@ -277,7 +277,7 @@ class QCOutput(MSONable):
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*force"},
             terminate_on_match=True,
         ).get("key")
-        if self.data.get("force", []):
+        if self.data.get("force_job", []):
             self._read_force_data()
 
         self.data["scan_job"] = read_pattern(
