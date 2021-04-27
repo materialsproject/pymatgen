@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.analysis.pourbaix_diagram import (
     IonEntry,
     MultiEntry,
@@ -282,7 +282,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
         data = mpr.get_pourbaix_entries(["Ag", "Te"])
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Ag": 1e-8, "Te": 1e-8})
-        self.assertEqual(len(pbx.stable_entries), 30)
+        self.assertEqual(len(pbx.stable_entries), 29)
         test_entry = pbx.find_stable_entry(8, 2)
         self.assertAlmostEqual(test_entry.energy, 2.3894017960000009, 1)
 

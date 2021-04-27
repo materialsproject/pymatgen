@@ -11,7 +11,7 @@ from monty.io import zopen
 from monty.serialization import loadfn
 from ruamel import yaml
 
-from pymatgen import SETTINGS
+from pymatgen.core import SETTINGS
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -146,7 +146,7 @@ def get_basis_and_potential(species, d, cardinality="DZVP", functional="PBE"):
     for s in species:
         basis_and_potential[s] = {}
         b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
-        if d[s]["sr"] and any(["SR" in _ for _ in b]):
+        if d[s]["sr"] and any("SR" in _ for _ in b):
             b = [_ for _ in b if "SR" in _]
         else:
             b = [_ for _ in b if "SR" not in _]

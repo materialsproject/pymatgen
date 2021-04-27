@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.elasticity.stress module &mdash; pymatgen 2021.2.16 documentation</title>
+  <title>pymatgen.analysis.elasticity.stress module &mdash; pymatgen 2022.0.4 documentation</title>
   
 
   
@@ -17,12 +17,9 @@
 
   
   
-
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.elasticity.stress.html"/>
-  
-
   
 
   
@@ -35,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -64,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -74,7 +70,7 @@
             
             
               <div class="version">
-                2021.2.16
+                2022.0.4
               </div>
             
           
@@ -103,25 +99,26 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -129,7 +126,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -174,8 +170,6 @@
 
 
 
-
-
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -184,9 +178,9 @@
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
-          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
         
-          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
         
           <li><a href="pymatgen.analysis.elasticity.html">pymatgen.analysis.elasticity package</a> &raquo;</li>
         
@@ -195,7 +189,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-          
+            
             
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.elasticity.stress.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -217,7 +211,7 @@
 calculate relevant properties of the stress tensor.</p>
 <dl class="py class">
 <dt id="pymatgen.analysis.elasticity.stress.Stress">
-<em class="property">class </em><code class="sig-name descname">Stress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stress_matrix</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py#L28-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Stress</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stress_matrix</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/elasticity/stress.py#L28-L115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>This class extends SquareTensor as a representation of the
 stress</p>
@@ -232,7 +226,7 @@ representing the stress</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants">
-<em class="property">property </em><code class="sig-name descname">dev_principal_invariants</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dev_principal_invariants</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.dev_principal_invariants" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the principal invariants of the deviatoric stress tensor,
 which is calculated by finding the coefficients of the characteristic
 polynomial of the stress tensor minus the identity times the mean
@@ -241,19 +235,19 @@ stress</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.deviator_stress">
-<em class="property">property </em><code class="sig-name descname">deviator_stress</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.deviator_stress" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">deviator_stress</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.deviator_stress" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the deviatoric component of the stress</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.mean_stress">
-<em class="property">property </em><code class="sig-name descname">mean_stress</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.mean_stress" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mean_stress</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.mean_stress" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the mean stress</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1">
-<code class="sig-name descname">piola_kirchoff_1</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">def_grad</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py#L86-L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">piola_kirchoff_1</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_grad</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/elasticity/stress.py#L86-L99"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_1" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates the first Piola-Kirchoff stress</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,7 +258,7 @@ stress</p>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2">
-<code class="sig-name descname">piola_kirchoff_2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">def_grad</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py#L101-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">piola_kirchoff_2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_grad</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/elasticity/stress.py#L101-L115"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.piola_kirchoff_2" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates the second Piola-Kirchoff stress</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,12 +269,12 @@ stress</p>
 
 <dl class="py attribute">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.symbol">
-<code class="sig-name descname">symbol</code><em class="property"> = 's'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">symbol</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'s'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.elasticity.stress.Stress.von_mises">
-<em class="property">property </em><code class="sig-name descname">von_mises</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2021.2.16/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.von_mises" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">von_mises</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/analysis/elasticity/stress.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.stress.Stress.von_mises" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns the von mises stress</p>
 </dd></dl>
 
@@ -293,25 +287,28 @@ stress</p>
            
           </div>
           <footer>
+  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2011, Pymatgen Development Team.
+        
+        &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
     
     
     
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
+
         </div>
       </div>
 

@@ -24,7 +24,6 @@ from multiprocessing import Pool
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
-from monty.dev import deprecated
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 try:
@@ -41,7 +40,7 @@ from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.coord import Simplex
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.util.string import latexify
+from pymatgen.util.string import Stringify
 from pymatgen.util.sequence import PBar
 
 
@@ -63,7 +62,7 @@ PREFAC = 0.0591
 # TODO: PourbaixEntries depend implicitly on having entry energies be
 #       formation energies, should be a better way to get from raw energies
 # TODO: uncorrected_energy is a bit of a misnomer, but not sure what to rename
-class PourbaixEntry(MSONable):
+class PourbaixEntry(MSONable, Stringify):
     """
     An object encompassing all data relevant to a solid or ion
     in a pourbaix diagram.  Each bulk solid/ion has an energy
@@ -261,6 +260,15 @@ class PourbaixEntry(MSONable):
         Return number of atoms in current formula. Useful for normalization
         """
         return self.composition.num_atoms
+
+    def to_pretty_string(self) -> str:
+        """
+        :return: A pretty string representation.
+        """
+        if self.phase_type == "Solid":
+            return self.entry.composition.reduced_formula + "(s)"
+
+        return self.entry.name
 
     def __repr__(self):
         return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {}, nH2O = {}, entry_id = {} ".format(
@@ -749,7 +757,7 @@ class PourbaixDiagram(MSONable):
 
             # Check if reaction coeff threshold met for pourbaix compounds
             # All reactant/product coefficients must be positive nonzero
-            if all([coeff > coeff_threshold for coeff in all_coeffs]):
+            if all(coeff > coeff_threshold for coeff in all_coeffs):
                 return MultiEntry(entry_list, weights=react_coeffs)
 
             return None
@@ -1134,23 +1142,12 @@ def generate_entry_label(entry):
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
     if isinstance(entry, MultiEntry):
-        return " + ".join([latexify_ion(latexify(e.name)) for e in entry.entry_list])
+        return " + ".join([e.name for e in entry.entry_list])
 
-    return latexify_ion(latexify(entry.name))
-
-
-@deprecated(
-    message="These methods have been deprecated in favor of using the Stringify mix-in class, which provides"
-    "to_latex_string, to_unicode_string, etc. They will be removed in v2022."
-)
-def latexify_ion(formula):
-    """
-    Convert a formula to latex format.
-
-    Args:
-        formula (str): Formula
-
-    Returns:
-        Latex string.
-    """
-    return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", formula)
+    # TODO - a more elegant solution could be added later to Stringify
+    # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )
+    # will convert B(OH)4- to B(OH)$_4^-$.
+    # for this to work, the ion's charge always must be written AFTER
+    # the sign (e.g., Fe+2 not Fe2+)
+    string = entry.to_latex_string()
+    return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", string)

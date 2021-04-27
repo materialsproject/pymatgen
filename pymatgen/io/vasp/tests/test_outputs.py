@@ -173,7 +173,7 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
         self.assertTrue(
-            all([vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))])
+            all(vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps)))
         )
 
         self.assertEqual(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
@@ -1658,6 +1658,12 @@ class XdatcarTest(PymatgenTest):
         x.concatenate(self.TEST_FILES_DIR / "XDATCAR_4")
         self.assertEqual(len(x.structures), 8)
         self.assertIsNotNone(x.get_string())
+
+        filepath = self.TEST_FILES_DIR / "XDATCAR_6"
+        x = Xdatcar(filepath)
+        structures = x.structures
+
+        self.assertNotEqual(structures[0].lattice, structures[-1].lattice)
 
 
 class DynmatTest(PymatgenTest):

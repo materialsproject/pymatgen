@@ -1,5 +1,5 @@
 pybtex==0.24.0
-tqdm==4.56.2
+tqdm==4.60.0
 ase==3.19.0
 chemview==0.6
 netCDF4==1.5.3
@@ -11,3 +11,4 @@ f90nml==1.1.2
 hiphive==0.6
 seekpath==1.9.4
 jarvis-tools==2020.7.14
+galore==0.6.1

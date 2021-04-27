@@ -763,7 +763,7 @@ class ConnectedComponent(MSONable):
                                 if edata["start"] == node.isite and edata["end"] != node.isite:
                                     thisdelta = edata["delta"]
                                 elif edata["end"] == node.isite:
-                                    thisdelta = tuple([-dd for dd in edata["delta"]])
+                                    thisdelta = tuple(-dd for dd in edata["delta"])
                                 else:
                                     raise ValueError("Should not be here ...")
                             ddeltas.append(thisdelta)

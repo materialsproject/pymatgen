@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(".."))
 sys.path.insert(0, os.path.dirname("../pymatgen"))
 sys.path.insert(0, os.path.dirname("../.."))
 
-from pymatgen import __version__, __author__, __file__
+from pymatgen.core import __version__, __author__, __file__
 
 # -- General configuration -----------------------------------------------------
 
@@ -282,7 +282,7 @@ texinfo_documents = [
 # Bibliographic Dublin Core info.
 epub_title = "pymatgen"
 epub_author = __author__
-epub_publisher = "Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier, Dan Gunter, William Davidson Richards"
+epub_publisher = "Pymatgen Development Team"
 epub_copyright = copyright
 
 # The language of the text. It defaults to the language option
@@ -345,4 +345,4 @@ def linkcode_resolve(domain, info):
         filename = info["module"].replace(".", "/") + ".py"
 
     tag = "v" + __version__
-    return "https://github.com/materialsproject/pymatgen/blob/%s/%s" % (tag, filename)
+    return "https://github.com/materialsproject/pymatgen/blob/%s/pymatgen/%s" % (tag, filename)

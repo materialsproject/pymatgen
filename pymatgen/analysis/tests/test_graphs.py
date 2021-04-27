@@ -159,7 +159,7 @@ class StructureGraphTest(PymatgenTest):
         nacl_graph = StructureGraph.with_local_env_strategy(nacl, CutOffDictNN({("Cl", "Cl"): 5.0}))
 
         self.assertEqual(len(nacl_graph.get_connected_sites(1)), 12)
-        self.assertEqual(len(nacl_graph.graph.get_edge_data(1, 1)), 12)
+        self.assertEqual(len(nacl_graph.graph.get_edge_data(1, 1)), 6)
 
     def test_set_node_attributes(self):
         self.square_sg.set_node_attributes()
@@ -190,9 +190,11 @@ class StructureGraphTest(PymatgenTest):
         self.assertEqual(new_edge["foo"], "bar")
 
         square.break_edge(0, 0, to_jimage=(1, 0, 0))
-        self.assertEqual(len(square.graph.get_edge_data(0, 0)), 3)
+
+        self.assertEqual(len(square.graph.get_edge_data(0, 0)), 1)
 
     def test_insert_remove(self):
+
         struct_copy = copy.deepcopy(self.square_sg.structure)
         square_copy = copy.deepcopy(self.square_sg)
 
@@ -222,8 +224,9 @@ class StructureGraphTest(PymatgenTest):
             edges=[{"from_index": 1, "to_index": 2, "to_jimage": (0, 0, 0)}],
         )
         square_copy.remove_nodes([1])
+
         self.assertEqual(square_copy.graph.number_of_nodes(), 2)
-        self.assertEqual(square_copy.graph.number_of_edges(), 5)
+        self.assertEqual(square_copy.graph.number_of_edges(), 3)
 
     def test_substitute(self):
         structure = Structure.from_file(
@@ -264,13 +267,12 @@ class StructureGraphTest(PymatgenTest):
         sg.add_edge(0, 0)
 
         ref_edges = [
-            (0, 0, {"to_jimage": (-1, -1, 0)}),
-            (0, 0, {"to_jimage": (-1, 0, 0)}),
-            (0, 0, {"to_jimage": (0, -1, 0)}),
+            (0, 0, {"to_jimage": (1, 1, 0)}),
             (0, 0, {"to_jimage": (0, 1, 0)}),
             (0, 0, {"to_jimage": (1, 0, 0)}),
         ]
-        self.assertEqual(len(list(sg.graph.edges(data=True))), 6)
+
+        self.assertEqual(len(list(sg.graph.edges(data=True))), 3)
 
     def test_str(self):
 
@@ -450,7 +452,7 @@ from    to  to_image
         diff = sg.diff(sg2)
         self.assertEqual(diff["dist"], 0)
 
-        self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
+        self.assertEqual(self.square_sg.get_coordination_of_site(0), 2)
 
     def test_from_edges(self):
         edges = {
@@ -510,6 +512,26 @@ from    to  to_image
 
         types_anonymous = self.mos2_sg.types_of_coordination_environments(anonymous=True)
         self.assertListEqual(types_anonymous, ["A-B(3)", "A-B(6)"])
+
+    def test_no_duplicate_hops(self):
+
+        test_structure_dict = {
+            "@module": "pymatgen.core.structure",
+            "@class": "Structure",
+            "charge": None,
+            "lattice": {"matrix": [[2.990355, -5.149042, 0.0], [2.990355, 5.149042, 0.0], [0.0, 0.0, 24.51998]]},
+            "sites": [
+                {"species": [{"element": "Ba", "occu": 1}], "abc": [0.005572, 0.994428, 0.151095], "properties": {}},
+            ],
+        }
+
+        test_structure = Structure.from_dict(test_structure_dict)
+
+        nn = MinimumDistanceNN(cutoff=6, get_all_sites=True)
+
+        sg = StructureGraph.with_local_env_strategy(test_structure, nn)
+
+        self.assertEqual(sg.graph.number_of_edges(), 3)
 
 
 class MoleculeGraphTest(unittest.TestCase):

@@ -1354,7 +1354,7 @@ class Vasprun(MSONable):
         if partial is not None:
             orbs = [ss.text for ss in partial.find("array").findall("field")]
             orbs.pop(0)
-            lm = any(["x" in s for s in orbs])
+            lm = any("x" in s for s in orbs)
             for s in partial.find("array").find("set").findall("set"):
                 pdos = defaultdict(dict)
 
@@ -4302,6 +4302,21 @@ class Xdatcar:
             for l in f:
                 l = l.strip()
                 if preamble is None:
+                    preamble = [l]
+                    title = l
+                elif title == l:
+                    preamble_done = False
+                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    if ionicstep_end is None:
+                        if ionicstep_cnt >= ionicstep_start:
+                            structures.append(p.structure)
+                    else:
+                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
+                            structures.append(p.structure)
+                        if ionicstep_cnt >= ionicstep_end:
+                            break
+                    ionicstep_cnt += 1
+                    coords_str = []
                     preamble = [l]
                 elif not preamble_done:
                     if l == "" or "Direct configuration=" in l:
