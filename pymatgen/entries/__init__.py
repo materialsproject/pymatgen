@@ -10,7 +10,6 @@ store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
-from numbers import Number
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
@@ -37,11 +36,7 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     """
 
-    def __init__(
-        self,
-        composition: Composition,
-        energy: float,
-    ):
+    def __init__(self, composition: Composition, energy: float):
         """
         Initializes an Entry.
 

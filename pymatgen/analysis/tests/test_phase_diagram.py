@@ -706,9 +706,9 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
             for e in pd_decomp:
                 self.assertAlmostEqual(pd_decomp[e], ppd_decomp[e], 7)
 
-    def test_get_quasi_e_to_hull(self):
+    def test_get_phase_separation_energy(self):
         for e in self.novel_entries:
-            self.assertAlmostEqual(self.pd.get_quasi_e_to_hull(e), self.ppd.get_quasi_e_to_hull(e), 7)
+            self.assertAlmostEqual(self.pd.get_phase_separation_energy(e), self.ppd.get_phase_separation_energy(e), 7)
 
     def test_get_equilibrium_reaction_energy(self):
         for e in self.pd.stable_entries:

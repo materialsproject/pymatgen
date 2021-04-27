@@ -53,13 +53,7 @@ class PDEntry(Entry):
             the entry, etc. An attribute can be anything but must be MSONable.
     """
 
-    def __init__(
-        self,
-        composition: Composition,
-        energy: float,
-        name: str = None,
-        attribute: object = None,
-    ):
+    def __init__(self, composition: Composition, energy: float, name: str = None, attribute: object = None):
         """
         Args:
             composition (Composition): Composition
@@ -259,11 +253,7 @@ class TransformedPDEntry(PDEntry):
         Returns:
             MSONable dictionary representation of TransformedPDEntry
         """
-        d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-            "sp_mapping": self.sp_mapping,
-        }
+        d = {"@module": self.__class__.__module__, "@class": self.__class__.__name__, "sp_mapping": self.sp_mapping}
         d.update(self.original_entry.as_dict())
         return d
 
@@ -304,17 +294,7 @@ class BasePhaseDiagram(MSONable):
     formation_energy_tol = 1e-11
     numerical_tol = 1e-8
 
-    def __init__(
-        self,
-        facets,
-        simplexes,
-        all_entries,
-        qhull_data,
-        dim,
-        el_refs,
-        elements,
-        qhull_entries,
-    ):
+    def __init__(self, facets, simplexes, all_entries, qhull_data, dim, el_refs, elements, qhull_entries):
         """
         This class uses casting to bypass the init, so this constructor should only be
         called by as_dict and from_dict functions. Prefer the PhaseDiagram class for
@@ -986,13 +966,7 @@ class BasePhaseDiagram(MSONable):
             c = self.get_composition_chempots(cc + elcomp * 1e-5)[element]
             amt = -rxn.coeffs[rxn.all_comp.index(elcomp)]
             evolution.append(
-                {
-                    "chempot": c,
-                    "evolution": amt,
-                    "element_reference": elref,
-                    "reaction": rxn,
-                    "entries": decomp_entries,
-                }
+                {"chempot": c, "evolution": amt, "element_reference": elref, "reaction": rxn, "entries": decomp_entries}
             )
         return evolution
 
@@ -1449,14 +1423,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     """
 
-    def __init__(
-        self,
-        entries,
-        elements=None,
-        keep_all_spaces=False,
-        workers=0,
-        verbose=False,
-    ):
+    def __init__(self, entries, elements=None, keep_all_spaces=False, workers=0, verbose=False):
         """
         Args:
             entries ([PDEntry, ]): A list of PDEntry-like objects having an
@@ -1586,8 +1553,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
     #     get_hull_energy(),
     #     get_e_above_hull(),
     #     get_decomp_and_e_above_hull(),
-    #     get_decomp_and_quasi_e_to_hull(),
-    #     get_quasi_e_to_hull()
+    #     get_decomp_and_phase_separation_energy(),
+    #     get_phase_separation_energy()
 
     def _get_pd_for_space(self, space):
         """
@@ -1681,7 +1648,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        return self.get_quasi_e_to_hull(entry, stable_only=True)
+        return self.get_phase_separation_energy(entry, stable_only=True)
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
@@ -1733,9 +1700,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         raise NotImplementedError("`get_critical_compositions` not implemented for `PatchedPhaseDiagram`")
 
-    def get_element_profile(
-        self,
-    ):
+    def get_element_profile(self):
         """
         Not Implemented - See PhaseDiagram
         """
@@ -1800,10 +1765,7 @@ class ReactionDiagram:
         logger.debug("%d total entries." % len(all_entries))
 
         pd = PhaseDiagram(all_entries + [entry1, entry2])
-        terminal_formulas = [
-            entry1.composition.reduced_formula,
-            entry2.composition.reduced_formula,
-        ]
+        terminal_formulas = [entry1.composition.reduced_formula, entry2.composition.reduced_formula]
 
         logger.debug("%d stable entries" % len(pd.stable_entries))
         logger.debug("%d facets" % len(pd.facets))
@@ -1848,12 +1810,7 @@ class ReactionDiagram:
 
                         done.append((c1, c2))
 
-                        rxn_str = "%s %s + %s %s -> " % (
-                            fmt(c1),
-                            r1.reduced_formula,
-                            fmt(c2),
-                            r2.reduced_formula,
-                        )
+                        rxn_str = "%s %s + %s %s -> " % (fmt(c1), r1.reduced_formula, fmt(c2), r2.reduced_formula)
                         products = []
                         product_entries = []
 
@@ -1868,24 +1825,13 @@ class ReactionDiagram:
 
                         rxn_str += " + ".join(products)
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
-                        entry = PDEntry(
-                            Composition(dict(zip(elements, comp))),
-                            energy=energy,
-                            attribute=rxn_str,
-                        )
+                        entry = PDEntry(Composition(dict(zip(elements, comp))), energy=energy, attribute=rxn_str)
                         entry.decomposition = product_entries
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError:
                     logger.debug(
                         "Reactants = %s"
-                        % (
-                            ", ".join(
-                                [
-                                    entry1.composition.reduced_formula,
-                                    entry2.composition.reduced_formula,
-                                ]
-                            )
-                        )
+                        % (", ".join([entry1.composition.reduced_formula, entry2.composition.reduced_formula]))
                     )
                     logger.debug("Products = %s" % (", ".join([e.composition.reduced_formula for e in face_entries])))
 
@@ -1917,10 +1863,7 @@ class ReactionDiagram:
 
         cpd = CompoundPhaseDiagram(
             self.rxn_entries + [entry1, entry2],
-            [
-                Composition(entry1.composition.reduced_formula),
-                Composition(entry2.composition.reduced_formula),
-            ],
+            [Composition(entry1.composition.reduced_formula), Composition(entry2.composition.reduced_formula)],
             normalize_terminal_compositions=False,
         )
         return cpd
@@ -1991,11 +1934,7 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
     # Energies of competing entries
     Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
 
-    molar_constraint = {
-        "type": "eq",
-        "fun": lambda x: np.dot(A_transpose, x) - b,
-        "jac": lambda x: A_transpose,
-    }
+    molar_constraint = {"type": "eq", "fun": lambda x: np.dot(A_transpose, x) - b, "jac": lambda x: A_transpose}
 
     options = {"maxiter": maxiter, "disp": False}
 
@@ -2060,13 +1999,7 @@ class PDPlotter:
     A plotter class for compositional phase diagrams.
     """
 
-    def __init__(
-        self,
-        phasediagram: PhaseDiagram,
-        show_unstable: float = 0.2,
-        backend: str = "plotly",
-        **plotkwargs,
-    ):
+    def __init__(self, phasediagram: PhaseDiagram, show_unstable: float = 0.2, backend: str = "plotly", **plotkwargs):
         """
         Args:
             phasediagram (PhaseDiagram): PhaseDiagram object.
@@ -2095,11 +2028,7 @@ class PDPlotter:
         self.backend = backend
         self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries])
         colors = Set1_3.mpl_colors
-        self.plotkwargs = plotkwargs or {
-            "markerfacecolor": colors[2],
-            "markersize": 10,
-            "linewidth": 3,
-        }
+        self.plotkwargs = plotkwargs or {"markerfacecolor": colors[2], "markersize": 10, "linewidth": 3}
 
     @property  # type: ignore
     @lru_cache(1)
@@ -2128,10 +2057,7 @@ class PDPlotter:
             entry2 = entries[line[1]]
             if self._dim < 3:
                 x = [data[line[0]][0], data[line[1]][0]]
-                y = [
-                    pd.get_form_energy_per_atom(entry1),
-                    pd.get_form_energy_per_atom(entry2),
-                ]
+                y = [pd.get_form_energy_per_atom(entry1), pd.get_form_energy_per_atom(entry2)]
                 coord = [x, y]
             elif self._dim == 3:
                 coord = triangular_coord(data[line, 0:2])
@@ -2150,10 +2076,7 @@ class PDPlotter:
             if entry not in stable:
                 if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
-                    y = [
-                        pd.get_form_energy_per_atom(entry),
-                        pd.get_form_energy_per_atom(entry),
-                    ]
+                    y = [pd.get_form_energy_per_atom(entry), pd.get_form_energy_per_atom(entry)]
                     coord = [x, y]
                 elif self._dim == 3:
                     coord = triangular_coord([all_data[i, 0:2], all_data[i, 0:2]])
@@ -2279,12 +2202,7 @@ class PDPlotter:
                     for p in d["reaction"].products
                     if p.reduced_formula != element.symbol
                 ]
-                plt.annotate(
-                    ", ".join(products),
-                    xy=(v + 0.05, y1 + 0.05),
-                    fontsize=24,
-                    color="r",
-                )
+                plt.annotate(", ".join(products), xy=(v + 0.05, y1 + 0.05), fontsize=24, color="r")
                 plt.plot([x1, x2], [y1, y1], "r", linewidth=3)
             else:
                 plt.plot([x1, x2], [y1, y1], "k", linewidth=2.5)
@@ -2358,13 +2276,7 @@ class PDPlotter:
             if energy_colormap == "default":
                 mid = -vmin / (vmax - vmin)
                 cmap = LinearSegmentedColormap.from_list(
-                    "my_colormap",
-                    [
-                        (0.0, "#005500"),
-                        (mid, "#55FF55"),
-                        (mid, "#FFAAAA"),
-                        (1.0, "#FF0000"),
-                    ],
+                    "my_colormap", [(0.0, "#005500"), (mid, "#55FF55"), (mid, "#FFAAAA"), (1.0, "#FF0000")]
                 )
             else:
                 cmap = energy_colormap
@@ -2525,16 +2437,7 @@ class PDPlotter:
         count = 1
         newlabels = list()
         for x, y, z in lines:
-            ax.plot(
-                x,
-                y,
-                z,
-                "bo-",
-                linewidth=3,
-                markeredgecolor="b",
-                markerfacecolor="r",
-                markersize=10,
-            )
+            ax.plot(x, y, z, "bo-", linewidth=3, markeredgecolor="b", markerfacecolor="r", markersize=10)
         for coords in sorted(labels.keys()):
             entry = labels[coords]
             label = entry.name
@@ -2677,11 +2580,7 @@ class PDPlotter:
                 xy = (center_x / (n + 1), center_y / (n + 1))
 
             plt.annotate(
-                latexify(entry.name),
-                xy,
-                horizontalalignment="center",
-                verticalalignment="center",
-                fontsize=22,
+                latexify(entry.name), xy, horizontalalignment="center", verticalalignment="center", fontsize=22
             )
 
         plt.xlabel("$\\mu_{{{0}}} - \\mu_{{{0}}}^0$ (eV)".format(el0.symbol))
@@ -2757,10 +2656,7 @@ class PDPlotter:
                 z.extend(list(line[2]) + [None])
 
         plot_args = dict(
-            mode="lines",
-            hoverinfo="none",
-            line={"color": "rgba(0,0,0,1.0)", "width": 7.0},
-            showlegend=False,
+            mode="lines", hoverinfo="none", line={"color": "rgba(0,0,0,1.0)", "width": 7.0}, showlegend=False
         )
 
         if self._dim == 2:
@@ -2891,15 +2787,7 @@ class PDPlotter:
                 opacity = 1.0
 
             annotation = plotly_layouts["default_annotation_layout"].copy()
-            annotation.update(
-                {
-                    "x": x,
-                    "y": y,
-                    "font": font_dict,
-                    "text": clean_formula,
-                    "opacity": opacity,
-                }
-            )
+            annotation.update({"x": x, "y": y, "font": font_dict, "text": clean_formula, "opacity": opacity})
 
             if self._dim == 3 or self._dim == 4:
                 for d in ["xref", "yref"]:
@@ -2997,23 +2885,10 @@ class PDPlotter:
                 elif self._dim == 4:
                     z.append(coord[2])
 
-            return {
-                "x": x,
-                "y": y,
-                "z": z,
-                "texts": texts,
-                "energies": energies,
-                "uncertainties": uncertainties,
-            }
+            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
-        stable_coords, stable_entries = (
-            self.pd_plot_data[1].keys(),
-            self.pd_plot_data[1].values(),
-        )
-        unstable_entries, unstable_coords = (
-            self.pd_plot_data[2].keys(),
-            self.pd_plot_data[2].values(),
-        )
+        stable_coords, stable_entries = (self.pd_plot_data[1].keys(), self.pd_plot_data[1].values())
+        unstable_entries, unstable_coords = (self.pd_plot_data[2].keys(), self.pd_plot_data[2].values())
 
         stable_props = get_marker_props(stable_coords, stable_entries)
 
@@ -3032,11 +2907,7 @@ class PDPlotter:
                     opacity=0.9,
                     hovertext=stable_props["texts"],
                     error_y=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="gray",
-                        thickness=2.5,
-                        width=5,
+                        array=list(stable_props["uncertainties"]), type="data", color="gray", thickness=2.5, width=5
                     ),
                 )
             )
@@ -3065,19 +2936,10 @@ class PDPlotter:
                     y=list(stable_props["x"]),
                     z=list(stable_props["z"]),
                     name="Stable",
-                    marker=dict(
-                        color="black",
-                        size=12,
-                        opacity=0.8,
-                        line=dict(color="black", width=3),
-                    ),
+                    marker=dict(color="black", size=12, opacity=0.8, line=dict(color="black", width=3)),
                     hovertext=stable_props["texts"],
                     error_z=dict(
-                        array=list(stable_props["uncertainties"]),
-                        type="data",
-                        color="darkgray",
-                        width=10,
-                        thickness=5,
+                        array=list(stable_props["uncertainties"]), type="data", color="darkgray", width=10, thickness=5
                     ),
                 )
             )
@@ -3329,13 +3191,7 @@ def tet_coord(coord):
     Returns:
         coordinates in a tetrahedron-based coordinate system.
     """
-    unitvec = np.array(
-        [
-            [1, 0, 0],
-            [0.5, math.sqrt(3) / 2, 0],
-            [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3],
-        ]
-    )
+    unitvec = np.array([[1, 0, 0], [0.5, math.sqrt(3) / 2, 0], [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
 
@@ -3437,17 +3293,11 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
             newlines.append([newx, newy])
         newstable_entries = {
-            (
-                -c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
-                -s120 * (c[0] - 1.0) + c120 * c[1],
-            ): entry
+            (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0, -s120 * (c[0] - 1.0) + c120 * c[1]): entry
             for c, entry in stable_entries.items()
         }
         newunstable_entries = {
-            entry: (
-                -c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
-                -s120 * (c[0] - 1.0) + c120 * c[1],
-            )
+            entry: (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0, -s120 * (c[0] - 1.0) + c120 * c[1])
             for entry, c in unstable_entries.items()
         }
         return newlines, newstable_entries, newunstable_entries
