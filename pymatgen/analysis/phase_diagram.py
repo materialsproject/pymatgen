@@ -763,7 +763,12 @@ class BasePhaseDiagram(MSONable):
             inner_hull = PhaseDiagram(reduced_space)
 
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
-            competing_entries = [c for c in competing_entries if c != entry]
+            competing_entries = [
+                c
+                for c in competing_entries
+                if (c.composition.fractional_composition != entry.composition.fractional_composition)
+                if set(c.composition.elements).issubset(entry.composition.elements)
+            ]
 
             if len(competing_entries) > space_limit:
                 warnings.warn(
