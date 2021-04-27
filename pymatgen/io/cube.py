@@ -118,7 +118,7 @@ class Cube:
         """
         dx, dy, dz = np.floor(radius / np.linalg.norm(self.X)).astype(int), \
             np.floor(radius / np.linalg.norm(self.Y)).astype(int), \
-            np.floor(radius / np.linalg.norm(self.Z)).astype(int),
+            np.floor(radius / np.linalg.norm(self.Z)).astype(int)
         gcd = max(np.gcd(dx, dy), np.gcd(dy, dz), np.gcd(dx, dz))
         sx, sy, sz = dx // gcd, dy // gcd, dz // gcd
         r = min(dx, dy, dz)
