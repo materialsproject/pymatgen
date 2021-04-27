@@ -6,20 +6,53 @@ this::
     Adam J. Jackson, Alex M. Ganose, Anna Regoutz, Russell G. Egdell, David O. Scanlon (2018). Galore: Broadening and
     weighting for simulation of photoelectron spectroscopy. Journal of Open Source Software, 3(26), 773,
     doi: 10.21105/joss.007733
+
+You may wish to look at the optional dependency galore for more functionality such as plotting and other cross-sections.
+Note that the atomic_subshell_photoionization_cross_sections.csv has been reparsed from the original compilation::
+
+    Yeh, J. J.; Lindau, I. Atomic Subshell Photoionization Cross Sections and Asymmetry Parameters: 1 ⩽ Z ⩽ 103.
+    Atomic Data and Nuclear Data Tables 1985, 32 (1), 1–155. https://doi.org/10.1016/0092-640X(85)90016-6.
+
+This version contains all detailed information for all orbitals.
 """
 
 import warnings
 from pathlib import Path
+import collections
 
 import numpy as np
-from scipy.ndimage.filters import gaussian_filter1d
+import pandas as pd
 
-from monty.serialization import loadfn
 
+from pymatgen.core.periodic_table import Element
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.electronic_structure.dos import CompleteDos
 
-CROSS_SECTIONS = loadfn(Path(__file__).parent / "cross_sections_AlKalpha.json")
+
+def _load_cross_sections(fname):
+    data = pd.read_csv(fname)
+    data.to_csv(fname)
+
+    d = collections.defaultdict(dict)
+    for index, row in data.iterrows():
+        sym = row["element"]
+        el = Element(sym)
+        if el.Z > 92:
+            continue
+        orb = row["orbital"]
+        shell = int(orb[0])
+        orbtype = orb[1]
+        nelect = None
+        for l in el.full_electronic_structure:
+            if l[0] == shell and l[1] == orbtype:
+                nelect = l[2]
+                break
+        if nelect is not None:
+            d[sym][orbtype] = row["weight"] / nelect
+    return d
+
+
+CROSS_SECTIONS = _load_cross_sections(Path(__file__).parent / "atomic_subshell_photoionization_cross_sections.csv")
 
 
 class XPS(Spectrum):
@@ -31,11 +64,11 @@ class XPS(Spectrum):
     YLABEL = "Intensity"
 
     @classmethod
-    def from_dos(cls, dos: CompleteDos, sigma: float = 0):
+    def from_dos(cls, dos: CompleteDos):
         """
         :param dos: CompleteDos object with project element-orbital DOS. Can be obtained from Vasprun.get_complete_dos.
         :param sigma: Smearing for Gaussian.
-        :return:
+        :return: XPS
         """
         total = np.zeros(dos.energies.shape)
         for el in dos.structure.composition.keys():
@@ -46,8 +79,4 @@ class XPS(Spectrum):
                     total += pdos.get_densities() * weight
                 else:
                     warnings.warn(f"No cross-section for {el}{orb}")
-        if sigma:
-            diff = [dos.energies[i + 1] - dos.energies[i] for i in range(len(dos.energies) - 1)]
-            avgdiff = sum(diff) / len(diff)
-            total = gaussian_filter1d(total, sigma / avgdiff)
         return XPS(-dos.energies, total / np.max(total))

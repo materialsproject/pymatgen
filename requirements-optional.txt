@@ -11,3 +11,4 @@ f90nml==1.1.2
 hiphive==0.6
 seekpath==1.9.4
 jarvis-tools==2020.7.14
+galore==0.6.1

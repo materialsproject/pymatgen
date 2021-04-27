@@ -7,11 +7,11 @@ from pymatgen.analysis.xps import XPS
 
 class XPSTestCase(PymatgenTest):
     def test_from_dos(self):
-        # mpr = MPRester()
-        # dos_SnO2 = mpr.get_dos_by_material_id("mp-856")
         v = Vasprun(PymatgenTest.TEST_FILES_DIR / "vasprun.xml.LiF")
         dos = v.complete_dos
-        xps = XPS.from_dos(dos, 0.5)
+        xps = XPS.from_dos(dos)
+        self.assertEqual(len(xps), 301)
+        xps.smear(0.3)
         self.assertEqual(len(xps), 301)
 
 
