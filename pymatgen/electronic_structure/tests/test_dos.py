@@ -49,6 +49,16 @@ class DosTest(unittest.TestCase):
         for spin in Spin:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
+    def test_as_dict(self):
+        dos_dict = self.dos.as_dict()
+        self.assertIsInstance(dos_dict["energies"], list)
+        self.assertIsInstance(dos_dict["energies"][0], float)
+        self.assertNotIsInstance(dos_dict["energies"][0], np.float64)
+
+        self.assertIsInstance(dos_dict["densities"]["1"], list)
+        self.assertIsInstance(dos_dict["densities"]["1"][0], float)
+        self.assertNotIsInstance(dos_dict["densities"]["1"][0], np.float64)
+
 
 class FermiDosTest(unittest.TestCase):
     def setUp(self):
@@ -85,6 +95,16 @@ class FermiDosTest(unittest.TestCase):
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(-1e26, 300), 7.5108, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(1e26, 300), -1.4182, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300), 2.5226, 4)
+
+    def test_as_dict(self):
+        dos_dict = self.dos.as_dict()
+        self.assertIsInstance(dos_dict["energies"], list)
+        self.assertIsInstance(dos_dict["energies"][0], float)
+        self.assertNotIsInstance(dos_dict["energies"][0], np.float64)
+
+        self.assertIsInstance(dos_dict["densities"]["1"], list)
+        self.assertIsInstance(dos_dict["densities"]["1"][0], float)
+        self.assertNotIsInstance(dos_dict["densities"]["1"][0], np.float64)
 
 
 class CompleteDosTest(unittest.TestCase):
@@ -154,6 +174,16 @@ class CompleteDosTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.dos))
+
+    def test_as_dict(self):
+        dos_dict = self.dos.as_dict()
+        self.assertIsInstance(dos_dict["energies"], list)
+        self.assertIsInstance(dos_dict["energies"][0], float)
+        self.assertNotIsInstance(dos_dict["energies"][0], np.float64)
+
+        self.assertIsInstance(dos_dict["densities"]["1"], list)
+        self.assertIsInstance(dos_dict["densities"]["1"][0], float)
+        self.assertNotIsInstance(dos_dict["densities"]["1"][0], np.float64)
 
 
 class DOSTest(PymatgenTest):

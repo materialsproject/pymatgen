@@ -398,8 +398,8 @@ class Dos(MSONable):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
-            "energies": list(self.energies),
-            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
+            "energies": self.energies.tolist(),
+            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
         }
 
 
@@ -620,8 +620,8 @@ class FermiDos(Dos, MSONable):
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
-            "energies": list(self.energies),
-            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
+            "energies": self.energies.tolist(),
+            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
             "structure": self.structure,
             "nelecs": self.nelecs,
         }
@@ -840,8 +840,8 @@ class CompleteDos(Dos):
             "@class": self.__class__.__name__,
             "efermi": self.efermi,
             "structure": self.structure.as_dict(),
-            "energies": list(self.energies),
-            "densities": {str(spin): list(dens) for spin, dens in self.densities.items()},
+            "energies": self.energies.tolist(),
+            "densities": {str(spin): dens.tolist() for spin, dens in self.densities.items()},
             "pdos": [],
         }
         if len(self.pdos) > 0:
