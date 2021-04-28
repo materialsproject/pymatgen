@@ -53,12 +53,14 @@ class Cube:
     """
     Class to read Gaussian cube file formats for volumetric data.
 
-    Cube files are, by default, written in atomic units.
+    Cube files are, by default, written in atomic units, and this
+    class assumes that convention.
     """
 
     def __init__(self, fname):
         """
         Initialize the cube object and store the data as self.data
+
         Args:
             fname (str): filename of the cube to read
         """
@@ -142,10 +144,9 @@ class Cube:
 
     def get_atomic_site_averages(self, atomic_site_radii):
         """
-        Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
+        Get the average value around each atomic site.
 
         Args:
-            cube (Cube): pymatgen cube object
             atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
                 for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
                 not provided, then the
@@ -159,7 +160,8 @@ class Cube:
         Helper function for get_atomic_site_averages.
 
         Args:
-            args: (tuple) Contains the site and the atomic_site_radius for given atomic species
+            site: Site in the structure around which to get the average
+            radius: (float) the atomic_site_radius (in Angstroms) for given atomic species
 
         returns:
             Average around the atomic site
@@ -169,10 +171,9 @@ class Cube:
 
     def get_atomic_site_totals(self, atomic_site_radii):
         """
-        Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
+        Get the integrated total in a sphere around each atomic site.
 
         Args:
-            cube (Cube): pymatgen cube object
             atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
                 for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
                 not provided, then the
@@ -186,7 +187,8 @@ class Cube:
         Helper function for get_atomic_site_averages.
 
         Args:
-            args: (tuple) Contains the site and the atomic_site_radius for given atomic species
+            site: Site in the structure around which to get the total
+            radius: (float) the atomic_site_radius (in Angstroms) for given atomic species
 
         returns:
             Average around the atomic site
@@ -213,8 +215,7 @@ class Cube:
         Modified from pymatgen.io.vasp.outputs
 
         Get the averaged total of the volumetric data a certain axis direction.
-        For example, useful for visualizing Hartree Potentials from a LOCPOT
-        file.
+        For example, useful for visualizing Hartree Potentials.
 
         Args:
             ind (int): Index of axis.
