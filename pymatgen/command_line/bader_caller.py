@@ -216,11 +216,7 @@ class BaderAnalysis:
 
                 atomic_densities = []
                 # For each atom in the structure
-                for atom, loc, chg in zip(
-                    self.chgcar.structure,
-                    self.chgcar.structure.frac_coords,
-                    atom_chgcars,
-                ):
+                for atom, loc, chg in zip(self.chgcar.structure, self.chgcar.structure.frac_coords, atom_chgcars,):
                     # Find the index of the atom in the charge density atom
                     index = np.round(np.multiply(loc, chg.dim))
 
@@ -238,9 +234,7 @@ class BaderAnalysis:
                         starty = y // 2 - (ywidth // 2)
                         startz = z // 2 - (zwidth // 2)
                         return data[
-                            startx : startx + xwidth,
-                            starty : starty + ywidth,
-                            startz : startz + zwidth,
+                            startx : startx + xwidth, starty : starty + ywidth, startz : startz + zwidth,
                         ]
 
                     # Finds the central encompassing volume which holds all the data within a precision
@@ -277,8 +271,8 @@ class BaderAnalysis:
 
     def get_charge_transfer(self, atom_index, nelect=None):
         """
-        Returns the charge transferred for a particular atom. Requires POTCAR
-        to be supplied.
+        Returns the charge transferred for a particular atom. If the arg nelect
+        is not supplied, then POTCAR must be supplied to determine nelectrons.
 
         Args:
             atom_index:
@@ -290,12 +284,11 @@ class BaderAnalysis:
 
         Returns:
             Charge transfer associated with atom from the Bader analysis.
-            Given by final charge on atom - nelectrons in POTCAR for
+            Given by final charge on atom - nelectrons for
             associated atom.
         """
         if not self.nelects and nelect is None:
-            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument"
-                             "for cube file")
+            raise ValueError("No NELECT info! Need POTCAR for VASP or nelect argument" "for cube file")
         return self.data[atom_index]["charge"] - (nelect if nelect is not None else self.nelects[atom_index])
 
     def get_charge_decorated_structure(self):
@@ -323,6 +316,40 @@ class BaderAnalysis:
         ]
         struc = self.structure.copy()
         struc.add_oxidation_state_by_site(charges)
+        return struc
+
+    def get_decorated_structure(self, property_name, average=False):
+        """
+        Get the property decorated structure from the Bader analysis.
+
+        This is distinct from getting charge decorated structure, which assumes
+        the "standard" Bader analysis of electron densities followed by converting
+        electron count to charge. The expected way to use this is to call Bader on
+        a non-charge density file such as a spin denisty file, electrostatic potential
+        file, etc., while using the charge density file as the reference (chgref_filename)
+        so that the partitioning is determined via the charge, but averaging or integrating
+        is done for another property.
+
+        User warning: Bader analysis cannot automatically determine what property is
+        inside of the file. So if you want to use this for a non-conventional property
+        like spin, you must ensure that you have the file is for the appropriate
+        property and you have an appropriate reference file.
+
+        Args:
+            property_name: name of the property to assign to the structure
+            average: whether or not to return the average of this property, rather
+                than the total, by dividing by the atomic volume.
+
+        Returns:
+            structure with site properties assigned via Bader Analysis
+        """
+        vals = [self.get_charge(i) for i in range(len(self.structure))]
+        struc = self.structure.copy()
+        if average:
+            vals = np.divide(vals, [d["atomic_vol"] for d in self.data])
+        struc.add_site_property(property_name, vals)
+        if property_name == "spin":
+            struc.add_spin_by_site(vals)
         return struc
 
     @property
@@ -401,11 +428,7 @@ class BaderAnalysis:
             chgref.write_file(chgref_filename)
         else:
             chgref_filename = None
-        return cls(
-            chgcar_filename=chgcar_filename,
-            potcar_filename=potcar_filename,
-            chgref_filename=chgref_filename,
-        )
+        return cls(chgcar_filename=chgcar_filename, potcar_filename=potcar_filename, chgref_filename=chgref_filename,)
 
 
 def get_filepath(filename, warning, path, suffix):
@@ -518,11 +541,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
         else:
             potcar_path = None
 
-        ba = BaderAnalysis(
-            chgcar_filename=chgcar_path,
-            potcar_filename=potcar_path,
-            chgref_filename=chgref_path,
-        )
+        ba = BaderAnalysis(chgcar_filename=chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path,)
 
         summary = {
             "min_dist": [d["min_dist"] for d in ba.data],
@@ -546,9 +565,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
 
             chgcar_mag_path = os.path.join(temp_dir, "CHGCAR_mag")
             ba = BaderAnalysis(
-                chgcar_filename=chgcar_mag_path,
-                potcar_filename=potcar_path,
-                chgref_filename=chgref_path,
+                chgcar_filename=chgcar_mag_path, potcar_filename=potcar_path, chgref_filename=chgref_path,
             )
             summary["magmom"] = [d["charge"] for d in ba.data]
 
