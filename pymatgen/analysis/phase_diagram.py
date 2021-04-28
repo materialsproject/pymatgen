@@ -1486,7 +1486,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 spaces.extend(["-".join(t) for t in test if not any(set(t).issubset(r) for r in refer)])
 
         # Calculate pds for higher dimension spaces first
-        spaces.sort(key=len, reverse=True)
+        spaces.sort(key=len, reverse=False)
 
         # TODO is there a smart way to set up chunk sizes?
         # TODO PBarSafe is not safe as it cannot take an iteratble as input.
@@ -1527,6 +1527,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self._stable_entries = _stable_entries.union(self.el_refs.values())
 
     def __repr__(self):
+        # NOTE this will be ~47k spaces long for the whole of MP - perhaps change
         output = ["{}\nSub-Spaces: ".format(self.__class__.__name__), ", ".join(list(self.spaces))]
         return "".join(output)
 
@@ -1593,9 +1594,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         entry_pds = {}
 
+        # TODO this could be a bottleneck - find any pd
         for space in self.pds.keys():
             if set(space.split("-")).issuperset(entry_space.split("-")):
-                entry_pds[space] = self.pds[space]
+                entry_pds = self.pds[space]
+                break
 
         if not entry_pds:
             raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
@@ -1612,12 +1615,13 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             smallest PhaseDiagram that contains the entry
         """
-        entry_pds = self.get_pds_for_entry(entry)
+        # entry_pds = self.get_pds_for_entry(entry)
 
-        # find the (first) shortest key
-        skey = min(list(entry_pds), key=len)
+        # # find the (first) shortest key
+        # skey = min(list(entry_pds), key=len)
 
-        return entry_pds[skey]
+        # return entry_pds[skey]
+        return self.get_pds_for_entry(entry)
 
     def get_decomposition(self, comp):
         """
