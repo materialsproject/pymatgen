@@ -255,7 +255,7 @@ class ElementTestCase(PymatgenTest):
         el = Element.Pd
         self.assertEqual(el.atomic_radius, 1.40)
         self.assertEqual(el.atomic_radius_calculated, 1.69)
-        self.assertEqual(el.van_der_waals_radius, 1.63)
+        self.assertEqual(el.van_der_waals_radius, 2.10)
 
     def test_data(self):
         self.assertEqual(Element.Pd.data["Atomic radius"], 1.4)
