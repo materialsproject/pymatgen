@@ -121,7 +121,7 @@ class Cube:
         dx, dy, dz = (
             np.floor(radius / np.linalg.norm(self.X)).astype(int),
             np.floor(radius / np.linalg.norm(self.Y)).astype(int),
-            np.floor(radius / np.linalg.norm(self.Z)).astype(int)
+            np.floor(radius / np.linalg.norm(self.Z)).astype(int),
         )
         gcd = max(np.gcd(dx, dy), np.gcd(dy, dz), np.gcd(dx, dz))
         sx, sy, sz = dx // gcd, dy // gcd, dz // gcd
@@ -169,16 +169,16 @@ class Cube:
 
     def get_atomic_site_totals(self, atomic_site_radii):
         """
-            Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
+        Given a cube (pymatgen.io.cube.Cube), get the average value around each atomic site.
 
-            Args:
-                cube (Cube): pymatgen cube object
-                atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
-                    for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
-                    not provided, then the
-            returns:
-                Array of site averages, [Average around site 1, Average around site 2, ...]
-            """
+        Args:
+            cube (Cube): pymatgen cube object
+            atomic_site_radii (dict): dictionary determining the cutoff radius (in Angstroms)
+                for averaging around atomic sites (e.g. {'Li': 0.97, 'B': 0.77, ...}. If
+                not provided, then the
+        returns:
+            Array of site averages, [Average around site 1, Average around site 2, ...]
+        """
         return [self._get_atomic_site_total(s, atomic_site_radii[s.species_string]) for s in self.structure.sites]
 
     def _get_atomic_site_total(self, site, radius):
