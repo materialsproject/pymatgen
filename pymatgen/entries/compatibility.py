@@ -862,10 +862,10 @@ class MaterialsProject2020Compatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
 
         # load corrections and uncertainties
-        if config_file:
-            self.config_file = config_file
-        else:
-            self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
+        # if config_file:
+        #     self.config_file = config_file
+        # else:
+        self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
         c = loadfn(self.config_file)
         self.name = c["Name"]
         self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))

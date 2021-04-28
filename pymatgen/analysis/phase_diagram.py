@@ -1594,6 +1594,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         entry_pds = {}
 
+        try:
+            return self.pds[entry_space]
+        except KeyError:
+            pass
+
         # TODO this could be a bottleneck - find any pd
         for space in self.pds.keys():
             if set(space.split("-")).issuperset(entry_space.split("-")):

@@ -505,9 +505,9 @@ class ComputedEntry(Entry):
         if not np.allclose(self.energy, other.energy):
             return False
 
-        # if entry_ids are equivalent, skip the more expensive composition check
-        if self.entry_id and other.entry_id and self.entry_id == other.entry_id:
-            return True
+        # # if entry_ids are equivalent, skip the more expensive composition check
+        # if self.entry_id and other.entry_id and self.entry_id == other.entry_id:
+        #     return True
 
         if self.composition != other.composition:
             return False
