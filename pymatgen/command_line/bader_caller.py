@@ -216,7 +216,11 @@ class BaderAnalysis:
 
                 atomic_densities = []
                 # For each atom in the structure
-                for atom, loc, chg in zip(self.chgcar.structure, self.chgcar.structure.frac_coords, atom_chgcars,):
+                for atom, loc, chg in zip(
+                    self.chgcar.structure,
+                    self.chgcar.structure.frac_coords,
+                    atom_chgcars,
+                ):
                     # Find the index of the atom in the charge density atom
                     index = np.round(np.multiply(loc, chg.dim))
 
@@ -234,7 +238,9 @@ class BaderAnalysis:
                         starty = y // 2 - (ywidth // 2)
                         startz = z // 2 - (zwidth // 2)
                         return data[
-                            startx : startx + xwidth, starty : starty + ywidth, startz : startz + zwidth,
+                            startx : startx + xwidth,
+                            starty : starty + ywidth,
+                            startz : startz + zwidth,
                         ]
 
                     # Finds the central encompassing volume which holds all the data within a precision
@@ -428,7 +434,11 @@ class BaderAnalysis:
             chgref.write_file(chgref_filename)
         else:
             chgref_filename = None
-        return cls(chgcar_filename=chgcar_filename, potcar_filename=potcar_filename, chgref_filename=chgref_filename,)
+        return cls(
+            chgcar_filename=chgcar_filename,
+            potcar_filename=potcar_filename,
+            chgref_filename=chgref_filename,
+        )
 
 
 def get_filepath(filename, warning, path, suffix):
@@ -541,7 +551,11 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
         else:
             potcar_path = None
 
-        ba = BaderAnalysis(chgcar_filename=chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path,)
+        ba = BaderAnalysis(
+            chgcar_filename=chgcar_path,
+            potcar_filename=potcar_path,
+            chgref_filename=chgref_path,
+        )
 
         summary = {
             "min_dist": [d["min_dist"] for d in ba.data],
@@ -565,7 +579,9 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
 
             chgcar_mag_path = os.path.join(temp_dir, "CHGCAR_mag")
             ba = BaderAnalysis(
-                chgcar_filename=chgcar_mag_path, potcar_filename=potcar_path, chgref_filename=chgref_path,
+                chgcar_filename=chgcar_mag_path,
+                potcar_filename=potcar_path,
+                chgref_filename=chgref_path,
             )
             summary["magmom"] = [d["charge"] for d in ba.data]
 
