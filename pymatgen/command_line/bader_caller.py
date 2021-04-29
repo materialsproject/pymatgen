@@ -169,8 +169,8 @@ class BaderAnalysis:
                 args += ["-ref", "CHGCAR_ref"]
             if parse_atomic_densities:
                 args += ["-p", "all_atom"]
-            rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
-            stdout, stderr = rs.communicate()
+            with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+                stdout, stderr = rs.communicate()
             if rs.returncode != 0:
                 raise RuntimeError(
                     "bader exited with return code %d. " "Please check your bader installation." % rs.returncode

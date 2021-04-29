@@ -489,7 +489,6 @@ class CorrectionCalculator:
         else:
             path = fn
 
-        file = open(path, "w")
         yml = yaml.YAML()
         yml.Representer.add_representer(OrderedDict, yml.Representer.represent_dict)
         yml.default_flow_style = False
@@ -518,6 +517,5 @@ class CorrectionCalculator:
         contents["Uncertainties"].yaml_set_start_comment(
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
         )
-
-        yml.dump(contents, file)
-        file.close()
+        with open(path, "w") as file:
+            yml.dump(contents, file)

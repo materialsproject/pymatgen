@@ -457,23 +457,22 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        f = open(doscar)
-        natoms = int(f.readline().split()[0])
-        efermi = float([f.readline() for nn in range(4)][3].split()[17])
-        dos = []
-        orbitals = []
-        for atom in range(natoms + 1):
-            line = f.readline()
-            ndos = int(line.split()[2])
-            orbitals.append(line.split(";")[-1].split())
-            line = f.readline().split()
-            cdos = np.zeros((ndos, len(line)))
-            cdos[0] = np.array(line)
-            for nd in range(1, ndos):
+        with open(doscar) as f:
+            natoms = int(f.readline().split()[0])
+            efermi = float([f.readline() for nn in range(4)][3].split()[17])
+            dos = []
+            orbitals = []
+            for atom in range(natoms + 1):
+                line = f.readline()
+                ndos = int(line.split()[2])
+                orbitals.append(line.split(";")[-1].split())
                 line = f.readline().split()
-                cdos[nd] = np.array(line)
-            dos.append(cdos)
-        f.close()
+                cdos = np.zeros((ndos, len(line)))
+                cdos[0] = np.array(line)
+                for nd in range(1, ndos):
+                    line = f.readline().split()
+                    cdos[nd] = np.array(line)
+                dos.append(cdos)
         doshere = np.array(dos[0])
         if len(doshere[0, :]) == 5:
             self._is_spin_polarized = True

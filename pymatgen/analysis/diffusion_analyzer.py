@@ -724,7 +724,7 @@ class DiffusionAnalyzer(MSONable):
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
-            p = multiprocessing.Pool(ncores)
+            p = multiprocessing.Pool(ncores)  # pylint: disable=R1732
             vaspruns = p.imap(_get_vasprun, [(fp, step_skip) for fp in filepaths])
             analyzer = cls.from_vaspruns(
                 vaspruns, specie=specie, initial_disp=initial_disp, initial_structure=initial_structure, **kwargs
