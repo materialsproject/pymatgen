@@ -489,10 +489,9 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=""):
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
     idp = id_generator()
-    f = open("convdat." + str(idp), mode="w")
-    for n in range(0, len(ys), 1):
-        f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
-    f.close()
+    with open("convdat." + str(idp), mode="w") as f:
+        for n in range(0, len(ys), 1):
+            f.write(str(xs[n]) + " " + str(ys[n]) + "\n")
     tol = abs(tol)
     line = "plot 'convdat.%s' pointsize 4 lt 0, " % idp
     line += "%s lt 3, %s lt 4, %s lt 4, " % (popt[0], popt[0] - tol, popt[0] + tol)

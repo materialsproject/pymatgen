@@ -684,14 +684,14 @@ class GulpCaller:
             gout: GULP output string
         """
         with ScratchDir("."):
-            p = subprocess.Popen(
+            with subprocess.Popen(
                 self._gulp_cmd,
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-            )
+            ) as p:
 
-            out, err = p.communicate(bytearray(gin, "utf-8"))
+                out, err = p.communicate(bytearray(gin, "utf-8"))
             out = out.decode("utf-8")
             err = err.decode("utf-8")
 

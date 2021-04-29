@@ -578,6 +578,5 @@ def _write_all_magnetic_space_groups_to_file(filename):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
         s += "\n{}\n\n--------\n".format(msg.data_str())
-    f = open(filename, "w")
-    f.write(s)
-    f.close()
+    with open(filename, "w") as f:
+        f.write(s)
