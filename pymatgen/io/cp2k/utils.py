@@ -28,7 +28,7 @@ def _postprocessor(s):
         return False
     elif s.lower() == "none":
         return None
-    elif s.lower() == "yes" or s.lower() == 'true':
+    elif s.lower() == "yes" or s.lower() == "true":
         return True
     elif re.match(r"^-?\d+$", s):
         try:
@@ -49,7 +49,7 @@ def _postprocessor(s):
         return s
 
 
-def _preprocessor(s, d='.'):
+def _preprocessor(s, d="."):
     """
     Cp2k contains internal preprocessor flags that are evaluated before
     execution. This helper function recognizes those preprocessor flags
@@ -73,8 +73,8 @@ def _preprocessor(s, d='.'):
     for incl in includes:
         inc = incl.split()
         assert len(inc) == 2  # @include filename
-        inc = inc[1].strip('\'')
-        inc = inc.strip('\"')
+        inc = inc[1].strip("'")
+        inc = inc.strip('"')
         with zopen(os.path.join(d, inc)) as f:
             s = re.sub(r"{}".format(incl), f.read(), s)
     variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
@@ -83,13 +83,12 @@ def _preprocessor(s, d='.'):
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
         s = re.sub(r"{}".format(match), "", s)
-        s = re.sub(r"\${?"+var+"}?", value, s)
+        s = re.sub(r"\${?" + var + "}?", value, s)
 
     c1 = re.findall(r"@IF", s, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
     if len(c1) > 0 or len(c2) > 0:
-        raise NotImplementedError("This cp2k input processer does not currently "
-                                  "support conditional blocks.")
+        raise NotImplementedError("This cp2k input processer does not currently " "support conditional blocks.")
     return s
 
 
@@ -99,12 +98,14 @@ def natural_keys(text):
     convention,
     Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12]
     """
+
     def atoi(t):
         return int(t) if t.isdigit() else t
-    return [atoi(c) for c in re.split(r'_(\d+)', text)]
+
+    return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_basis_and_potential(species, basis_and_potential_map, cardinality='DZVP', functional='PBE'):
+def get_basis_and_potential(species, basis_and_potential_map, cardinality="DZVP", functional="PBE"):
     """
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
     Generally, the GTH potentials are used with the GTH basis sets.
@@ -121,77 +122,73 @@ def get_basis_and_potential(species, basis_and_potential_map, cardinality='DZVP'
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
     """
 
-    potential_filename = SETTINGS.get(
-        "PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS"
-    )
-    basis_filenames = ['BASIS_MOLOPT', 'BASIS_MOLOPT_UCL']
+    potential_filename = SETTINGS.get("PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS")
+    basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
 
-    functional = functional or SETTINGS.get(
-        "PMG_DEFAULT_FUNCTIONAL", "PBE"
-    )
-    cardinality = cardinality or SETTINGS.get(
-        "PMG_DEFAULT_BASIS_CARDINALITY", "DZVP"
-    )
+    functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+    cardinality = cardinality or SETTINGS.get("PMG_DEFAULT_BASIS_CARDINALITY", "DZVP")
     basis_and_potential = {
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
     }
 
-    if basis_and_potential_map == 'best':
-        with open(os.path.join(MODULE_DIR, 'best_basis.yaml'), 'rt') as f:
+    if basis_and_potential_map == "best":
+        with open(os.path.join(MODULE_DIR, "best_basis.yaml"), "rt") as f:
             d = yaml.load(f, Loader=yaml.Loader)
     else:
         d = basis_and_potential_map
         for s in species:
             if s not in d:
                 d[s] = {}
-            if 'sr' not in d[s]:
-                d[s]['sr'] = True
-            if 'cardinality' not in d[s]:
-                if s == 'Mg':
-                    d[s]['cardinality'] = 'DZVPd'
+            if "sr" not in d[s]:
+                d[s]["sr"] = True
+            if "cardinality" not in d[s]:
+                if s == "Mg":
+                    d[s]["cardinality"] = "DZVPd"
                 else:
-                    d[s]['cardinality'] = cardinality
+                    d[s]["cardinality"] = cardinality
 
-    with open(os.path.join(MODULE_DIR, 'basis_molopt.yaml'), 'rt') as f:
+    with open(os.path.join(MODULE_DIR, "basis_molopt.yaml"), "rt") as f:
         data_b = yaml.load(f, Loader=yaml.Loader)
-    with open(os.path.join(MODULE_DIR, 'gth_potentials.yaml'), 'rt') as f:
+    with open(os.path.join(MODULE_DIR, "gth_potentials.yaml"), "rt") as f:
         data_p = yaml.load(f, Loader=yaml.Loader)
 
     for s in species:
         basis_and_potential[s] = {}
-        if 'basis' in d[s]:
-            b = [d[s]['basis']] if d[s]['basis'].upper() in [_.upper() for _ in data_b[s]] else []
+        if "basis" in d[s]:
+            b = [d[s]["basis"]] if d[s]["basis"].upper() in [_.upper() for _ in data_b[s]] else []
         else:
-            b = [_ for _ in data_b[s] if d[s]['cardinality'] in _.split('-')]
-            if d[s]['sr'] and any(['SR' in _ for _ in b]):
-                b = [_ for _ in b if 'SR' in _]
+            b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
+            if d[s]["sr"] and any(["SR" in _ for _ in b]):
+                b = [_ for _ in b if "SR" in _]
             else:
-                b = [_ for _ in b if 'SR' not in _]
-            if 'q' in d[s]:
-                b = [_ for _ in b if d[s]['q'] in _]
+                b = [_ for _ in b if "SR" not in _]
+            if "q" in d[s]:
+                b = [_ for _ in b if d[s]["q"] in _]
             else:
+
                 def srt(x):
-                    return int(x.split('q')[-1])
+                    return int(x.split("q")[-1])
+
                 b = sorted(b, key=srt)[-1:]
         if len(b) == 0:
-            raise LookupError('NO BASIS OF THAT TYPE AVAILABLE')
+            raise LookupError("NO BASIS OF THAT TYPE AVAILABLE")
         elif len(b) > 1:
-            raise LookupError('AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER')
+            raise LookupError("AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER")
 
-        basis_and_potential[s]['basis'] = b[0]
-        p = [_ for _ in data_p[s] if functional in _.split('-')]
+        basis_and_potential[s]["basis"] = b[0]
+        p = [_ for _ in data_p[s] if functional in _.split("-")]
         if len(p) == 0:
-            raise LookupError('NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE')
+            raise LookupError("NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE")
         if len(p) > 1:
-            raise LookupError('AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER')
+            raise LookupError("AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER")
 
-        basis_and_potential[s]['potential'] = p[0]
+        basis_and_potential[s]["potential"] = p[0]
 
     return basis_and_potential
 
 
-def get_aux_basis(basis_type, default_basis_type='cpFIT'):
+def get_aux_basis(basis_type, default_basis_type="cpFIT"):
     """
     Get auxiliary basis info for a list of species.
 
@@ -214,7 +211,7 @@ def get_aux_basis(basis_type, default_basis_type='cpFIT'):
     default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
     basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
     basis = {k: {} for k in basis_type}
-    aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
+    aux_bases = loadfn(os.path.join(MODULE_DIR, "aux_basis.yaml"))
     for k in basis_type:
         if aux_bases.get(k) is None:
             basis[k] = None
@@ -248,25 +245,24 @@ def get_unique_site_indices(structure):
     """
     spins = []
     oxi_states = []
-    parsable_site_properties = {
-        'magmom', 'oxi_state', 'spin',
-        'u_minus_j', 'basis', 'potential',
-        'ghost'
-    }
+    parsable_site_properties = {"magmom", "oxi_state", "spin", "u_minus_j", "basis", "potential", "ghost"}
 
     for site in structure:
         for sp, occu in site.species.items():
             oxi_states.append(getattr(sp, "oxi_state", 0))
-            spins.append(getattr(sp, "_properties", {}).get('spin', 0))
+            spins.append(getattr(sp, "_properties", {}).get("spin", 0))
 
-    structure.add_site_property('oxi_state', oxi_states)
-    structure.add_site_property('spin', spins)
+    structure.add_site_property("oxi_state", oxi_states)
+    structure.add_site_property("spin", spins)
     structure.remove_oxidation_states()
     items = [
         (
             site.species_string,
-            *[structure.site_properties[k][i]
-              for k in structure.site_properties if k.lower() in parsable_site_properties]
+            *[
+                structure.site_properties[k][i]
+                for k in structure.site_properties
+                if k.lower() in parsable_site_properties
+            ],
         )
         for i, site in enumerate(structure)
     ]
@@ -277,7 +273,7 @@ def get_unique_site_indices(structure):
     sites = {}
     nums = {s: 1 for s in structure.symbol_set}
     for s in _sites:
-        sites['{}_{}'.format(s[0], nums[s[0]])] = _sites[s]
+        sites["{}_{}".format(s[0], nums[s[0]])] = _sites[s]
         nums[s[0]] += 1
 
     return sites
@@ -295,14 +291,10 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
     Returns:
         Ideal cutoff for calculation.
     """
-    with open(os.path.join(MODULE_DIR, 'basis_largest_exponents.yaml'), 'rt') as f:
+    with open(os.path.join(MODULE_DIR, "basis_largest_exponents.yaml"), "rt") as f:
         _exponents = yaml.load(f, Loader=yaml.Loader)
         exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
-        return max(
-            [
-                np.ceil(exponents[el.upper()][basis.upper()])*rel_cutoff for el, basis in zip(els, bases)
-            ]
-        )
+        return max([np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases)])
 
 
 def generate_max_exponents(files):
@@ -325,5 +317,5 @@ def generate_max_exponents(files):
                             exponents[el] = {}
                         exponents[el][basis] = float(lines[i].split()[0])
                 i += 1
-    with open(os.path.join(MODULE_DIR, 'basis_largest_exponents.yaml'), 'w') as f:
+    with open(os.path.join(MODULE_DIR, "basis_largest_exponents.yaml"), "w") as f:
         yaml.dump(exponents, f, Dumper=yaml.Dumper, allow_unicode=True, default_flow_style=False)

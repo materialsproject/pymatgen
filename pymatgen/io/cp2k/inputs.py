@@ -22,6 +22,7 @@ import itertools
 from typing import Dict, List, Tuple, Union, Sequence
 from monty.io import zopen
 from monty.json import MSONable
+from collections import OrderedDict
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -279,7 +280,7 @@ class Section(MSONable):
         self.subsections = subsections if subsections is not None else {}
         self.repeats = repeats
         self.description = description
-        self.keywords = keywords
+        self.keywords = OrderedDict(keywords)
         self.section_parameters = section_parameters
         self.location = location
         self.verbose = verbose
@@ -583,12 +584,7 @@ class Cp2kInput(Section):
 
         description = "CP2K Input"
         super().__init__(
-            name,
-            repeats=False,
-            description=description,
-            section_parameters=[],
-            subsections=subsections,
-            **kwargs,
+            name, repeats=False, description=description, section_parameters=[], subsections=subsections, **kwargs,
         )
 
     def get_string(self):
@@ -608,10 +604,7 @@ class Cp2kInput(Section):
 
         return Cp2kInput(
             "CP2K_INPUT",
-            subsections=getattr(
-                __import__(d["@module"], globals(), locals(), d["@class"], 0),
-                d["@class"],
-            )
+            subsections=getattr(__import__(d["@module"], globals(), locals(), d["@class"], 0), d["@class"],)
             .from_dict(d)
             .subsections,
         )
@@ -660,11 +653,7 @@ class Cp2kInput(Section):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
                 alias = name + " " + " ".join(subsection_params) if subsection_params else None
                 s = Section(
-                    name,
-                    section_parameters=subsection_params,
-                    alias=alias,
-                    subsections={},
-                    description=description,
+                    name, section_parameters=subsection_params, alias=alias, subsections={}, description=description,
                 )
                 description = ""
                 self.by_path(current).insert(s)
@@ -681,10 +670,7 @@ class Cp2kInput(Section):
                     self.by_path(current).keywords[kwd.name] = kwd
 
     def write_file(
-        self,
-        input_filename: str = "cp2k.inp",
-        output_dir: str = ".",
-        make_dir_if_not_present: bool = True,
+        self, input_filename: str = "cp2k.inp", output_dir: str = ".", make_dir_if_not_present: bool = True,
     ):
         """
         Write input to a file.
@@ -723,11 +709,7 @@ class Global(Section):
         }
 
         super().__init__(
-            "GLOBAL",
-            description=description,
-            keywords=keywords,
-            subsections={},
-            **kwargs,
+            "GLOBAL", description=description, keywords=keywords, subsections={}, **kwargs,
         )
 
 
@@ -753,12 +735,7 @@ class ForceEval(Section):
         }
 
         super().__init__(
-            "FORCE_EVAL",
-            repeats=True,
-            description=description,
-            keywords=keywords,
-            subsections=subsections,
-            **kwargs,
+            "FORCE_EVAL", repeats=True, description=description, keywords=keywords, subsections=subsections, **kwargs,
         )
 
 
@@ -806,11 +783,7 @@ class Dft(Section):
             keywords["WFN_RESTART_FILE_NAME"] = Keyword("WFN_RESTART_FILE_NAME", wfn_restart_file_name)
 
         super().__init__(
-            "DFT",
-            description=description,
-            keywords=keywords,
-            subsections=self.subsections,
-            **kwargs,
+            "DFT", description=description, keywords=keywords, subsections=self.subsections, **kwargs,
         )
 
 
@@ -873,11 +846,7 @@ class QS(Section):
         }
 
         super().__init__(
-            "QS",
-            description=description,
-            keywords=keywords,
-            subsections=subsections,
-            **kwargs,
+            "QS", description=description, keywords=keywords, subsections=subsections, **kwargs,
         )
 
 
@@ -888,12 +857,7 @@ class Scf(Section):
     """
 
     def __init__(
-        self,
-        max_scf: int = 50,
-        eps_scf: float = 1e-6,
-        scf_guess: str = "RESTART",
-        subsections: dict = None,
-        **kwargs,
+        self, max_scf: int = 50, eps_scf: float = 1e-6, scf_guess: str = "RESTART", subsections: dict = None, **kwargs,
     ):
         """
         Initialize the Scf section
@@ -921,11 +885,7 @@ class Scf(Section):
         }
 
         super().__init__(
-            "SCF",
-            description=description,
-            keywords=keywords,
-            subsections=subsections,
-            **kwargs,
+            "SCF", description=description, keywords=keywords, subsections=subsections, **kwargs,
         )
 
 
@@ -971,26 +931,16 @@ class Mgrid(Section):
         )
 
         keywords = {
-            "CUTOFF": Keyword(
-                "CUTOFF",
-                cutoff,
-                description="Cutoff in [Ry] for finest level of the MG.",
-            ),
+            "CUTOFF": Keyword("CUTOFF", cutoff, description="Cutoff in [Ry] for finest level of the MG.",),
             "REL_CUTOFF": Keyword(
-                "REL_CUTOFF",
-                rel_cutoff,
-                description="Controls which gaussians are mapped to which level of the MG",
+                "REL_CUTOFF", rel_cutoff, description="Controls which gaussians are mapped to which level of the MG",
             ),
             "NGRIDS": Keyword("NGRIDS", ngrids),
             "PROGRESSION_FACTOR": Keyword("PROGRESSION_FACTOR", progression_factor),
         }
 
         super().__init__(
-            "MGRID",
-            description=description,
-            keywords=keywords,
-            subsections=subsections,
-            **kwargs,
+            "MGRID", description=description, keywords=keywords, subsections=subsections, **kwargs,
         )
 
 
@@ -1046,10 +996,7 @@ class Davidson(Section):
     """
 
     def __init__(
-        self,
-        new_prec_each: int = 20,
-        preconditioner: str = "FULL_SINGLE_INVERSE",
-        **kwargs,
+        self, new_prec_each: int = 20, preconditioner: str = "FULL_SINGLE_INVERSE", **kwargs,
     ):
         """
         Args:
@@ -1065,12 +1012,7 @@ class Davidson(Section):
         }
 
         super().__init__(
-            "DAVIDSON",
-            keywords=keywords,
-            repeats=False,
-            location=None,
-            subsections={},
-            **kwargs,
+            "DAVIDSON", keywords=keywords, repeats=False, location=None, subsections={}, **kwargs,
         )
 
 
@@ -1150,11 +1092,7 @@ class OrbitalTransformation(Section):
         }
 
         super().__init__(
-            "OT",
-            description=description,
-            keywords=keywords,
-            subsections=self.subsections,
-            **kwargs,
+            "OT", description=description, keywords=keywords, subsections=self.subsections, **kwargs,
         )
 
 
@@ -1234,10 +1172,7 @@ class Kind(Section):
         self.description = "The description of the kind of the atoms (mostly for QM)"
 
         # Special case for closed-shell elements. Cannot impose magnetization in cp2k.
-        if Element(self.specie).Z in {
-            2, 4, 10, 12, 18, 20, 30, 36, 38,
-            48, 54, 56, 70, 80, 86, 88, 102, 112, 118
-        }:
+        if Element(self.specie).Z in {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}:
             self.magnetization = 0
 
         keywords = {
@@ -1276,12 +1211,7 @@ class DftPlusU(Section):
     """
 
     def __init__(
-        self,
-        eps_u_ramping=1e-5,
-        init_u_ramping_each_scf=False,
-        l=-1,
-        u_minus_j=0,
-        u_ramping=0,
+        self, eps_u_ramping=1e-5, init_u_ramping_each_scf=False, l=-1, u_minus_j=0, u_ramping=0,
     ):
         """
         Initialize the DftPlusU section.
@@ -1351,7 +1281,10 @@ class Coord(Section):
             + "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
         )
         if aliases:
-            keywords = {k: KeywordList([Keyword(k, *structure[i].coords) for i in aliases[k]]) for k in aliases}
+            keywords = {
+                k: KeywordList([Keyword(k, *structure[i].coords) for i in aliases[k]])
+                for k in sorted(aliases, key=aliases.get)
+            }
         else:
             keywords = {
                 ss: KeywordList([Keyword(s.specie.symbol, *s.coords) for s in structure.sites if s.specie.symbol == ss])
@@ -1419,12 +1352,7 @@ class LDOS(Section):
         keywords = {"COMPONENTS": Keyword("COMPONENTS"), "LIST": Keyword("LIST", index)}
 
         super().__init__(
-            "LDOS",
-            subsections={},
-            alias=alias,
-            description=description,
-            keywords=keywords,
-            **kwargs,
+            "LDOS", subsections={}, alias=alias, description=description, keywords=keywords, **kwargs,
         )
 
 
@@ -1449,11 +1377,7 @@ class V_Hartree_Cube(Section):
         )
 
         super().__init__(
-            "V_HARTREE_CUBE",
-            subsections={},
-            description=description,
-            keywords=keywords,
-            **kwargs,
+            "V_HARTREE_CUBE", subsections={}, description=description, keywords=keywords, **kwargs,
         )
 
 
@@ -1486,11 +1410,7 @@ class MO_Cubes(Section):
         }
 
         super().__init__(
-            "MO_CUBES",
-            subsections={},
-            description=description,
-            keywords=keywords,
-            **kwargs,
+            "MO_CUBES", subsections={}, description=description, keywords=keywords, **kwargs,
         )
 
 
@@ -1516,8 +1436,8 @@ class E_Density_Cube(Section):
             "E_DENSITY_CUBE",
             subsections={},
             description=description,
-            keywords={'STRIDE': Keyword('STRIDE', *kwargs.get('stride', [1, 1, 1]))},
-            **kwargs
+            keywords={"STRIDE": Keyword("STRIDE", *kwargs.get("stride", [1, 1, 1]))},
+            **kwargs,
         )
 
 
@@ -1552,11 +1472,7 @@ class Smear(Section):
         }
 
         super().__init__(
-            "SMEAR",
-            description=description,
-            keywords=keywords,
-            subsections={},
-            **kwargs,
+            "SMEAR", description=description, keywords=keywords, subsections={}, **kwargs,
         )
 
 
@@ -1619,11 +1535,7 @@ class BrokenSymmetry(Section):
         beta = Section("BETA", keywords=keywords_beta, subsections={}, repeats=False)
 
         super().__init__(
-            "BS",
-            description=description,
-            subsections={"ALPHA": alpha, "BETA": beta},
-            keywords={},
-            repeats=False,
+            "BS", description=description, subsections={"ALPHA": alpha, "BETA": beta}, keywords={}, repeats=False,
         )
 
     @classmethod
@@ -1634,7 +1546,7 @@ class BrokenSymmetry(Section):
         el = el if isinstance(el, Element) else Element(el)
 
         def f(x):
-            return {'s': 0, 'p': 1, 'd': 2, 'f': 4}.get(x)
+            return {"s": 0, "p": 1, "d": 2, "f": 4}.get(x)
 
         def f2(x):
             return {0: 2, 1: 6, 2: 10, 3: 14}.get(x)
@@ -1643,7 +1555,7 @@ class BrokenSymmetry(Section):
             return {0: 2, 1: 6, 2: 10, 3: 14}.get(x)
 
         es = el.electronic_structure
-        esv = [(int(_[0]), f(_[1]), int(_[2:])) for _ in es.split('.') if '[' not in _]
+        esv = [(int(_[0]), f(_[1]), int(_[2:])) for _ in es.split(".") if "[" not in _]
         esv.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
         tmp = oxi_state
@@ -1656,13 +1568,9 @@ class BrokenSymmetry(Section):
         unpaired_orbital = None
         while tmp:
             if tmp > 0:
-                tmp2 = -min(
-                        (esv[0][2], tmp)
-                    )
+                tmp2 = -min((esv[0][2], tmp))
             else:
-                tmp2 = min(
-                    (f2(esv[0][1])-esv[0][2], -tmp)
-                )
+                tmp2 = min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
             l_beta.append(esv[0][1])
             nel_alpha.append(tmp2)
@@ -1673,27 +1581,27 @@ class BrokenSymmetry(Section):
             unpaired_orbital = esv[0][0], esv[0][1], esv[0][2] + tmp2
             esv.pop(0)
 
-        if spin == 'low-up':
+        if spin == "low-up":
             spin = unpaired_orbital[2] % 2
-        elif spin == 'low-down':
+        elif spin == "low-down":
             spin = -(unpaired_orbital[2] % 2)
-        elif spin == 'high-up':
-            spin = unpaired_orbital[2] % (f2(unpaired_orbital[1])//2)
-        elif spin == 'high-down':
-            spin = -(unpaired_orbital[2] % (f2(unpaired_orbital[1])//2))
+        elif spin == "high-up":
+            spin = unpaired_orbital[2] % (f2(unpaired_orbital[1]) // 2)
+        elif spin == "high-down":
+            spin = -(unpaired_orbital[2] % (f2(unpaired_orbital[1]) // 2))
 
         if spin:
             for i in reversed(range(len(nel_alpha))):
-                nel_alpha[i] += min((spin, f3(l_alpha[i])-oxi_state))
-                nel_beta[i] -= min((spin, f3(l_beta[i])-oxi_state))
+                nel_alpha[i] += min((spin, f3(l_alpha[i]) - oxi_state))
+                nel_beta[i] -= min((spin, f3(l_beta[i]) - oxi_state))
                 if spin > 0:
-                    spin -= min((spin, f3(l_alpha[i])-oxi_state))
+                    spin -= min((spin, f3(l_alpha[i]) - oxi_state))
                 else:
-                    spin += min((spin, f3(l_beta[i])-oxi_state))
+                    spin += min((spin, f3(l_beta[i]) - oxi_state))
 
-        return BrokenSymmetry(l_alpha=l_alpha, l_beta=l_beta,
-                              nel_alpha=nel_alpha, nel_beta=nel_beta,
-                              n_beta=n_beta, n_alpha=n_alpha)
+        return BrokenSymmetry(
+            l_alpha=l_alpha, l_beta=l_beta, nel_alpha=nel_alpha, nel_beta=nel_beta, n_beta=n_beta, n_alpha=n_alpha
+        )
 
 
 class XC_FUNCTIONAL(Section):
@@ -1734,8 +1642,7 @@ class XC_FUNCTIONAL(Section):
         elif functional.upper() in ["PBESOL", "REVPBE"]:
             section_params = ["PBE"]
             self.subsections["PBE"] = Section(
-                "PBE",
-                keywords={"PARAMETERIZATION": Keyword("PARAMETERIZATION", functional)},
+                "PBE", keywords={"PARAMETERIZATION": Keyword("PARAMETERIZATION", functional)},
             )
         else:
             section_params = []
@@ -1761,10 +1668,7 @@ class PBE(Section):
     """
 
     def __init__(
-        self,
-        parameterization: str = "ORIG",
-        scale_c: Union[float, int] = 1,
-        scale_x: Union[float, int] = 1,
+        self, parameterization: str = "ORIG", scale_c: Union[float, int] = 1, scale_x: Union[float, int] = 1,
     ):
         """
         Args:
@@ -1789,12 +1693,7 @@ class PBE(Section):
         }
 
         super().__init__(
-            "PBE",
-            subsections={},
-            repeats=False,
-            location=location,
-            section_parameters=[],
-            keywords=keywords,
+            "PBE", subsections={}, repeats=False, location=location, section_parameters=[], keywords=keywords,
         )
 
 
@@ -1878,11 +1777,7 @@ class Kpoints(Section):
         )
 
         super().__init__(
-            name="KPOINTS",
-            subsections=None,
-            repeats=False,
-            description=description,
-            keywords=keywords,
+            name="KPOINTS", subsections=None, repeats=False, description=description, keywords=keywords,
         )
 
     @classmethod
@@ -1902,27 +1797,26 @@ class Kpoints(Section):
                 do this automatically without spglib present at execution time.
         """
         k = kpoints.as_dict()
-        kpoints = k['kpoints']
-        weights = k['kpts_weights']
-        scheme = k['generation_style']
+        kpoints = k["kpoints"]
+        weights = k["kpts_weights"]
+        scheme = k["generation_style"]
 
         if reduce and structure:
             sga = SpacegroupAnalyzer(structure)
             kpoints, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpoints))
             kpoints = list(itertools.chain.from_iterable(kpoints))
-            scheme = 'GENERAL'
-        elif scheme.lower() == 'monkhorst':
-            scheme = 'MONKHORST-PACK'
+            scheme = "GENERAL"
+        elif scheme.lower() == "monkhorst":
+            scheme = "MONKHORST-PACK"
         else:
-            warnings.warn('No automatic constructor for this scheme'
-                          'defaulting to monkhorst-pack grid.')
-            scheme = 'MONKHORST-PACK'
-        units = k['coord_type']
-        if k['coord_type']:
-            if k['coord_type'].lower() == 'reciprocal':
-                units = 'B_VECTOR'
-            elif k['coord_type'].lower() == 'cartesian':
-                units = 'CART_ANGSTROM'
+            warnings.warn("No automatic constructor for this scheme" "defaulting to monkhorst-pack grid.")
+            scheme = "MONKHORST-PACK"
+        units = k["coord_type"]
+        if k["coord_type"]:
+            if k["coord_type"].lower() == "reciprocal":
+                units = "B_VECTOR"
+            elif k["coord_type"].lower() == "cartesian":
+                units = "CART_ANGSTROM"
         else:
             units = "B_VECTOR"
 
