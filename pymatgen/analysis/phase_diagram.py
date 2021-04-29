@@ -722,14 +722,26 @@ class BasePhaseDiagram(MSONable):
         """
 
         entry_frac = entry.composition.fractional_composition
-        entry_els = entry.composition.elements
+        entry_els = set(entry.composition.elements)
 
         # Handle elemental materials
         if entry.is_element:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
-        # For unstable or novel materials use simplex approach
-        if entry_frac not in [e.composition.fractional_composition for e in self.stable_entries]:
+        # # For unstable or novel materials use simplex approach
+        # if entry_frac not in [e.composition.fractional_composition for e in self.stable_entries]:
+        #     return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+
+        if not any(
+            (
+                len(entry_frac) == len(e.composition)
+                and all(
+                    abs(v - e.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
+                    for el, v in entry_frac.items()
+                )
+            )
+            for e in self.stable_entries
+        ):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         # Select space to compare against
@@ -742,8 +754,14 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if set(c.composition.elements).issubset(entry_els)
-            if c.composition.fractional_composition != entry_frac
+            if entry_els.issuperset(c.composition.elements)
+            if not (
+                len(entry_frac) == len(c.composition)
+                and all(
+                    abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
+                    for el, v in entry_frac.items()
+                )
+            )
         ]
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
@@ -766,8 +784,14 @@ class BasePhaseDiagram(MSONable):
             competing_entries = [
                 c
                 for c in competing_entries
-                if set(c.composition.elements).issubset(entry_els)
-                if c.composition.fractional_composition != entry_frac
+                if entry_els.issuperset(c.composition.elements)
+                if not (
+                    len(entry_frac) == len(c.composition)
+                    and all(
+                        abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
+                        for el, v in entry_frac.items()
+                    )
+                )
             ]
 
             if len(competing_entries) > space_limit:
