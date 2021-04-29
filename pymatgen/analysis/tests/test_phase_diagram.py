@@ -247,10 +247,16 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_get_e_above_hull(self):
         for entry in self.pd.stable_entries:
+            decomp, e_hull = self.pd.get_decomp_and_e_above_hull(entry)
             self.assertLess(
-                self.pd.get_e_above_hull(entry),
+                e_hull,
                 1e-11,
                 "Stable entries should have e above hull of zero!",
+            )
+            self.assertEqual(
+                decomp[entry],
+                1,
+                "Decomposition of stable entry should be itself."
             )
 
         for entry in self.pd.all_entries:
