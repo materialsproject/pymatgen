@@ -863,10 +863,17 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # load corrections and uncertainties
         if config_file:
-            self.config_file = config_file
+            if os.path.isfile(config_file):
+                self.config_file = config_file
+                c = loadfn(self.config_file)
+            else:
+                raise ValueError(
+                    f"Custom MaterialsProject2020Compatibility config_file ({config_file}) does not exist."
+                )
         else:
-            self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
-        c = loadfn(self.config_file)
+            self.config_file = None
+            c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
+
         self.name = c["Name"]
         self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
         self.comp_errors = c["Uncertainties"].get("CompositionCorrections", defaultdict(float))
