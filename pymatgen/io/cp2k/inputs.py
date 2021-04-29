@@ -1282,8 +1282,8 @@ class Coord(Section):
         )
         if aliases:
             keywords = {
-                k: KeywordList([Keyword(k, *structure[i].coords) for i in aliases[k]])
-                for k in sorted(aliases, key=aliases.get)
+                k[0]: KeywordList([Keyword(k[0], *structure[i].coords) for i in k[1]])
+                for k in sorted(aliases.items(), key=lambda x: x[1])
             }
         else:
             keywords = {
