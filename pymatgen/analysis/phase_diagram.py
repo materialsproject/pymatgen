@@ -741,8 +741,8 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if (c.composition.fractional_composition != entry.composition.fractional_composition)
             if set(c.composition.elements).issubset(entry.composition.elements)
+            if (c.composition.fractional_composition != entry.composition.fractional_composition)
         ]
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
@@ -766,8 +766,8 @@ class BasePhaseDiagram(MSONable):
             competing_entries = [
                 c
                 for c in competing_entries
-                if (c.composition.fractional_composition != entry.composition.fractional_composition)
                 if set(c.composition.elements).issubset(entry.composition.elements)
+                if (c.composition.fractional_composition != entry.composition.fractional_composition)
             ]
 
             if len(competing_entries) > space_limit:
@@ -1471,21 +1471,22 @@ class PatchedPhaseDiagram(PhaseDiagram):
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
         # Get all chemical spaces
-        spaces = {e.composition.chemical_system for e in min_entries if not e.is_element}
+        spaces = {frozenset(e.composition.elements) for e in min_entries if not e.is_element}
 
         # Remove redundant chemical spaces
         if not keep_all_spaces:
-            systems = [s.split("-") for s in spaces]
-            max_size = max([len(s) for s in systems])
+            max_size = max([len(s) for s in spaces])
 
-            spaces = []
+            systems = []
             # NOTE reduce the number of comparisons by only comparing to larger sets
             for i in range(2, max_size + 1):
-                test = (s for s in systems if len(s) == i)
-                refer = (set(s) for s in systems if len(s) > i)
-                spaces.extend(["-".join(t) for t in test if not any(set(t).issubset(r) for r in refer)])
+                test = (s for s in spaces if len(s) == i)
+                refer = (set(s) for s in spaces if len(s) > i)
+                systems.extend([t for t in test if not any(t.issubset(r) for r in refer)])
 
-        # Calculate pds for higher dimension spaces first
+            spaces = systems
+
+        # Calculate pds for smaller dimension spaces first
         spaces.sort(key=len, reverse=False)
 
         # TODO is there a smart way to set up chunk sizes?
@@ -1527,9 +1528,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self._stable_entries = _stable_entries.union(self.el_refs.values())
 
     def __repr__(self):
-        # NOTE this will be ~47k spaces long for the whole of MP - perhaps change
-        output = ["{}\nSub-Spaces: ".format(self.__class__.__name__), ", ".join(list(self.spaces))]
-        return "".join(output)
+        return f"{self.__class__.__name__}\n Covering {len(self.spaces)} Sub-Spaces"
 
     @classmethod
     def from_dict(cls, d, workers=0):
@@ -1571,9 +1570,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             PhaseDiagram for the given chemical space
         """
-        space_entries = [
-            e for e in self.min_entries if set(space.split("-")).issuperset(e.composition.chemical_system.split("-"))
-        ]
+        space_entries = [e for e in self.min_entries if space.issuperset(e.composition.elements)]
 
         return space, PhaseDiagram(space_entries)
 
@@ -1588,9 +1585,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Dictionary of {space: PhaseDiagram} that the entry is part of
         """
         if isinstance(entry, Composition):
-            entry_space = entry.chemical_system
+            entry_space = frozenset(entry.elements)
         else:
-            entry_space = entry.composition.chemical_system
+            entry_space = frozenset(entry.composition.elements)
 
         entry_pds = {}
 
@@ -1601,7 +1598,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         # TODO this could be a bottleneck - find any pd
         for space in self.pds.keys():
-            if set(space.split("-")).issuperset(entry_space.split("-")):
+            if space.issuperset(entry_space):
                 entry_pds = self.pds[space]
                 break
 
@@ -1935,16 +1932,20 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
     """
 
     # Elemental amount present in given entry
-    amts = comp.fractional_composition.get_el_amt_dict()
+    amts = comp.get_el_amt_dict()
     chemical_space = tuple(amts.keys())
     b = np.array([amts[el] for el in chemical_space])
 
     # Elemental amounts present in competing entries
     A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
     for j, comp_entry in enumerate(competing_entries):
-        amts = comp_entry.composition.fractional_composition.get_el_amt_dict()
+        amts = comp_entry.composition.get_el_amt_dict()
         for i, el in enumerate(chemical_space):
             A_transpose[i, j] = amts[el]
+
+    # NOTE normalize arrays to avoid calls to fractional_composition
+    b = b / np.sum(b)
+    A_transpose = A_transpose / np.sum(A_transpose, axis=0)
 
     # Energies of competing entries
     Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
@@ -1974,7 +1975,11 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
 
     if solution.success:
         decomp_amts = solution.x
-        return {c: amt for c, amt in zip(competing_entries, decomp_amts) if amt > PhaseDiagram.numerical_tol}
+        return {
+            c: amt  # NOTE this is the amount of the fractional composition.
+            for c, amt in zip(competing_entries, decomp_amts)
+            if amt > PhaseDiagram.numerical_tol
+        }
 
     raise ValueError("No valid decomp found for {}!".format(comp))
 
