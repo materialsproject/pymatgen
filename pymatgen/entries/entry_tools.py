@@ -130,25 +130,25 @@ def group_entries_by_structure(
         logging.info("Using {} cpus".format(ncpus))
         manager = mp.Manager()
         groups = manager.list()
-        p = mp.Pool(ncpus)
-        # Parallel processing only supports Python primitives and not objects.
-        p.map(
-            _perform_grouping,
-            [
-                (
-                    json.dumps([e[0] for e in eh], cls=MontyEncoder),
-                    json.dumps([e[1] for e in eh], cls=MontyEncoder),
-                    ltol,
-                    stol,
-                    angle_tol,
-                    primitive_cell,
-                    scale,
-                    comparator,
-                    groups,
-                )
-                for eh in symm_entries.values()
-            ],
-        )
+        with mp.Pool(ncpus) as p:
+            # Parallel processing only supports Python primitives and not objects.
+            p.map(
+                _perform_grouping,
+                [
+                    (
+                        json.dumps([e[0] for e in eh], cls=MontyEncoder),
+                        json.dumps([e[1] for e in eh], cls=MontyEncoder),
+                        ltol,
+                        stol,
+                        angle_tol,
+                        primitive_cell,
+                        scale,
+                        comparator,
+                        groups,
+                    )
+                    for eh in symm_entries.values()
+                ],
+            )
     else:
         groups = []
         hosts = [host for entry, host in entries_host]

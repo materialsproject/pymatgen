@@ -294,27 +294,26 @@ class EnumlibAdaptor:
 
     def _run_multienum(self):
 
-        p = subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
+        with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
+            if self.timeout:
 
-        if self.timeout:
+                timed_out = False
+                timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
-            timed_out = False
-            timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
+                try:
+                    timer.start()
+                    output = p.communicate()[0].decode("utf-8")
+                finally:
+                    if not timer.is_alive():
+                        timed_out = True
+                    timer.cancel()
 
-            try:
-                timer.start()
+                if timed_out:
+                    raise TimeoutError("Enumeration took too long.")
+
+            else:
+
                 output = p.communicate()[0].decode("utf-8")
-            finally:
-                if not timer.is_alive():
-                    timed_out = True
-                timer.cancel()
-
-            if timed_out:
-                raise TimeoutError("Enumeration took too long.")
-
-        else:
-
-            output = p.communicate()[0].decode("utf-8")
 
         count = 0
         start_count = False
@@ -334,13 +333,13 @@ class EnumlibAdaptor:
         else:
             options = ["struct_enum.out", str(0), str(num_structs - 1)]
 
-        rs = subprocess.Popen(
+        with subprocess.Popen(
             [makestr_cmd] + options,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             close_fds=True,
-        )
-        stdout, stderr = rs.communicate()
+        ) as rs:
+            stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
 
