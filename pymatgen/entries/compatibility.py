@@ -865,8 +865,9 @@ class MaterialsProject2020Compatibility(Compatibility):
         # if config_file:
         #     self.config_file = config_file
         # else:
-        self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
-        c = loadfn(self.config_file)
+        self.config_file = None
+        c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
+
         self.name = c["Name"]
         self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
         self.comp_errors = c["Uncertainties"].get("CompositionCorrections", defaultdict(float))
