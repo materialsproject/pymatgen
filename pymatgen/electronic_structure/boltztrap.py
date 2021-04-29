@@ -677,18 +677,18 @@ class BoltztrapRunner(MSONable):
                     if self._bs.is_spin_polarized or self.soc:
                         bt_exe.append("-so")
 
-                    p = subprocess.Popen(
+                    with subprocess.Popen(
                         bt_exe,
                         stdout=subprocess.PIPE,
                         stdin=subprocess.PIPE,
                         stderr=subprocess.PIPE,
-                    )
-                    p.wait()
+                    ) as p:
+                        p.wait()
 
-                    for c in p.communicate():
-                        logging.info(c.decode())
-                        if "error in factorization" in c.decode():
-                            raise BoltztrapError("error in factorization")
+                        for c in p.communicate():
+                            logging.info(c.decode())
+                            if "error in factorization" in c.decode():
+                                raise BoltztrapError("error in factorization")
 
                     warning = ""
 
@@ -2135,7 +2135,7 @@ class BoltztrapAnalyzer:
             return BoltztrapAnalyzer(bz_bands=bz_bands, bz_kpoints=bz_kpoints, warning=warning, vol=vol)
 
         if run_type == "FERMI":
-            """"""
+            """ """
 
             if os.path.exists(os.path.join(path_dir, "boltztrap_BZ.cube")):
                 fs_data = read_cube_file(os.path.join(path_dir, "boltztrap_BZ.cube"))

@@ -984,10 +984,10 @@ class StructureGraph(MSONable):
         with open(filename, "w") as f:
 
             args = [algo, "-T", extension, basename + ".dot"]
-            rs = subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True)
-            rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
+            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+                rs.communicate()
+                if rs.returncode != 0:
+                    raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
 
         if not keep_dot:
             os.remove(basename + ".dot")
@@ -2735,10 +2735,10 @@ class MoleculeGraph(MSONable):
         with open(filename, "w") as f:
 
             args = [algo, "-T", extension, basename + ".dot"]
-            rs = subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True)
-            rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
+            with subprocess.Popen(args, stdout=f, stdin=subprocess.PIPE, close_fds=True) as rs:
+                rs.communicate()
+                if rs.returncode != 0:
+                    raise RuntimeError("{} exited with return code {}.".format(algo, rs.returncode))
 
         if not keep_dot:
             os.remove(basename + ".dot")
