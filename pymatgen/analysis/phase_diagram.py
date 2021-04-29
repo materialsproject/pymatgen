@@ -721,14 +721,15 @@ class BasePhaseDiagram(MSONable):
             fractional composition. The phase separation energy is given per atom.
         """
 
-        # For unstable or novel materials use simplex approach
-        if entry.composition.fractional_composition not in [
-            e.composition.fractional_composition for e in self.stable_entries
-        ]:
-            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+        entry_frac = entry.composition.fractional_composition
+        entry_els = entry.composition.elements
 
         # Handle elemental materials
         if entry.is_element:
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+
+        # For unstable or novel materials use simplex approach
+        if entry_frac not in [e.composition.fractional_composition for e in self.stable_entries]:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         # Select space to compare against
@@ -741,8 +742,8 @@ class BasePhaseDiagram(MSONable):
         competing_entries = [
             c
             for c in compare_entries
-            if set(c.composition.elements).issubset(entry.composition.elements)
-            if (c.composition.fractional_composition != entry.composition.fractional_composition)
+            if set(c.composition.elements).issubset(entry_els)
+            if c.composition.fractional_composition != entry_frac
         ]
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
@@ -755,7 +756,6 @@ class BasePhaseDiagram(MSONable):
                 set.intersection(
                     set(competing_entries),  # same chemical space
                     set(self.qhull_entries),  # negative E_f
-                    set(self.unstable_entries),  # not already on hull
                 )
             ) + list(
                 self.el_refs.values()
@@ -766,8 +766,8 @@ class BasePhaseDiagram(MSONable):
             competing_entries = [
                 c
                 for c in competing_entries
-                if set(c.composition.elements).issubset(entry.composition.elements)
-                if (c.composition.fractional_composition != entry.composition.fractional_composition)
+                if set(c.composition.elements).issubset(entry_els)
+                if c.composition.fractional_composition != entry_frac
             ]
 
             if len(competing_entries) > space_limit:
