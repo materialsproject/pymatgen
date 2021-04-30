@@ -681,6 +681,44 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         )
         self.assertIsNotNone(self.compat.process_entry(entry))
 
+    def test_oxi_state_guess(self):
+        # An entry where Composition.oxi_state_guesses will return an empty list
+        entry_blank = ComputedEntry(
+            "Ga3Te",
+            -12.1900,
+            correction=0.0,
+            parameters={
+                "run_type": "GGA",
+                "is_hubbard": False,
+                "pseudo_potential": {"functional": "PBE", "labels": ["Ga_d", "Te"], "pot_type": "paw"},
+                "hubbards": {},
+                "potcar_symbols": ["PBE Ga_d", "PBE Te"],
+                "oxide_type": "None",
+            },
+        )
+
+        # An entry where one anion will only be corrected if oxidation_states is populated
+        entry_oxi = ComputedEntry(
+            "Mo2Cl8O",
+            -173.0655,
+            correction=0.0,
+            parameters={
+                "run_type": "GGA+U",
+                "is_hubbard": True,
+                "pseudo_potential": {"functional": "PBE", "labels": ["Mo_pv", "Cl", "O"], "pot_type": "paw"},
+                "hubbards": {"Mo": 4.38, "Cl": 0.0, "O": 0.0},
+                "potcar_symbols": ["PBE Mo_pv", "PBE Cl", "PBE O"],
+                "oxide_type": "oxide",
+            },
+        )
+
+        with pytest.warns(UserWarning, match="Failed to guess oxidation state"):
+            e1 = self.compat.process_entry(entry_blank)
+            self.assertAlmostEqual(e1.correction, -0.422)
+
+        e2 = self.compat.process_entry(entry_oxi)
+        self.assertAlmostEqual(e2.correction, -0.687 + -3.202 * 2 + -0.614 * 8)
+
     def test_correction_values(self):
         # test_corrections
         self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction, -2.256 * 2 - 0.687 * 3)
