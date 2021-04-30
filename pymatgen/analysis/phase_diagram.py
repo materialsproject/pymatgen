@@ -414,7 +414,7 @@ class BasePhaseDiagram(MSONable):
 
         """
         if set(comp.elements).difference(self.elements):
-            raise ValueError("{} has elements not in the phase diagram {}" "".format(comp, self.elements))
+            raise ValueError(f"{comp} has elements not in the phase diagram {self.elements}")
         return np.array([comp.get_atomic_fraction(el) for el in self.elements[1:]])
 
     @property
@@ -445,6 +445,17 @@ class BasePhaseDiagram(MSONable):
             the set of stable entries in the phase diagram.
         """
         return self._stable_entries
+
+    @lru_cache(1)
+    def _get_stable_entries_in_space(self, space):
+        """
+        Args:
+            space ({Elements, }): set of elements
+
+        Returns:
+            the set of stable entries in the space.
+        """
+        return [e for e in self._stable_entries if space.issuperset(e.composition.elements)]
 
     def get_form_energy(self, entry):
         """
@@ -657,8 +668,10 @@ class BasePhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
+        elem_space = frozenset(entry.composition.elements)
+
         # NOTE scaled duplicates of stable_entries will not be caught.
-        if entry not in self.stable_entries:
+        if entry not in self._get_stable_entries_in_space(elem_space):
             raise ValueError(
                 f"{entry} is unstable, the equilibrium reaction energy is available only for stable entries."
             )
@@ -666,9 +679,8 @@ class BasePhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        # TODO this should be restricted to only consider relevant chemical space
-        entries = [e for e in self.stable_entries if e != entry]
-        modpd = PhaseDiagram(entries, self.elements)
+        entries = [e for e in self._get_stable_entries_in_space(elem_space) if e != entry]
+        modpd = PhaseDiagram(entries, elements=elem_space)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_phase_separation_energy(
@@ -717,40 +729,36 @@ class BasePhaseDiagram(MSONable):
         """
 
         entry_frac = entry.composition.fractional_composition
-        entry_els = set(entry.composition.elements)
+        entry_elems = frozenset(entry_frac.elements)
 
         # Handle elemental materials
         if entry.is_element:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
-        # # For unstable or novel materials use simplex approach
-        # if entry_frac not in [e.composition.fractional_composition for e in self.stable_entries]:
+        # For materials where there's not a corresponding stable entry use simplex approach
+        # if not any(
+        #     (  # NOTE use this construction to avoid calls to fractional_composition
+        #         len(entry_frac) == len(e.composition)
+        #         and all(
+        #             abs(v - e.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
+        #             for el, v in entry_frac.items()
+        #         )
+        #     )
+        #     for e in self._get_stable_entries_in_space(entry_elems)
+        # ):
         #     return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
-
-        if not any(
-            (  # NOTE use this construction to avoid calls to fractional_composition
-                len(entry_frac) == len(e.composition)
-                and all(
-                    abs(v - e.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
-                    for el, v in entry_frac.items()
-                )
-            )
-            for e in self.stable_entries
-        ):
-            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         # Select space to compare against
         if stable_only:
-            compare_entries = self.stable_entries
+            compare_entries = self._get_stable_entries_in_space(entry_elems)
         else:
-            compare_entries = self.qhull_entries
+            compare_entries = [e for e in self.qhull_entries if entry_elems.issuperset(e.composition.elements)]
 
-        # take entries with negative formation enthalpies as competing entries
-        competing_entries = [
-            c
+        # get memory ids of entries with the same composition.
+        same_comp_mem_ids = [
+            id(c)
             for c in compare_entries
-            if entry_els.issuperset(c.composition.elements)
-            if not (  # NOTE use this construction to avoid calls to fractional_composition
+            if (  # NOTE use this construction to avoid calls to fractional_composition
                 len(entry_frac) == len(c.composition)
                 and all(
                     abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
@@ -759,35 +767,28 @@ class BasePhaseDiagram(MSONable):
             )
         ]
 
+        if not any(id(e) in same_comp_mem_ids for e in self._get_stable_entries_in_space(entry_elems)):
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+
+        # take entries with negative e_form and different compositons as competing entries
+        competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
+
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
         # result in phase diagrams where we have too many competing entries we can
         # reduce the number by looking at the first and second convex hulls. This
         # requires computing the convex hull of a second (hopefully smallish) space
         # and so is not done by default
+        # TODO check that this is actually an issue?
         if len(competing_entries) > space_limit and not stable_only:
-            reduced_space = list(
-                set.intersection(
-                    set(competing_entries),  # same chemical space
-                    set(self.qhull_entries),  # negative E_f
-                )
-            ) + list(
-                self.el_refs.values()
-            )  # terminal points
+            reduced_space = (
+                set(competing_entries)
+                .difference(self._get_stable_entries_in_space(entry_elems))
+                .union(self.el_refs.values())
+            )
             inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
-            competing_entries = [
-                c
-                for c in competing_entries
-                if entry_els.issuperset(c.composition.elements)
-                if not (  # NOTE use this construction to avoid calls to fractional_composition
-                    len(entry_frac) == len(c.composition)
-                    and all(
-                        abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
-                        for el, v in entry_frac.items()
-                    )
-                )
-            ]
+            competing_entries = inner_hull.stable_entries.union(self._get_stable_entries_in_space(entry_elems))
+            competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
 
             if len(competing_entries) > space_limit:
                 warnings.warn(
@@ -1661,7 +1662,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         except ValueError as e:
             # NOTE warn when stitching across pds is being used
             warnings.warn(str(e) + " Using SLSQP to find decomposition")
-            competing_entries = [c for c in self.stable_entries if set(c.composition.elements).issubset(comp.elements)]
+            competing_entries = self._get_stable_entries_in_space(frozenset(comp.elements))
             return _get_slsqp_decomp(comp, competing_entries)
 
     def get_equilibrium_reaction_energy(self, entry):
