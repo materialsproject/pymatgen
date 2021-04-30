@@ -17,10 +17,13 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
-import numpy as np
-from pathlib import Path
 import os
+import warnings
+from typing import Dict, Union
+from pathlib import Path
 from ruamel import yaml
+import numpy as np
+
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
     Section,
@@ -56,8 +59,6 @@ from pymatgen.io.cp2k.utils import (
 )
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
-from typing import Dict, Union
-import warnings
 
 __author__ = "Nicholas Winner"
 __version__ = "0.9"
@@ -151,7 +152,7 @@ class Cp2kInputSet(Cp2kInput):
             subsys.insert(Cell(structure.lattice))
 
         # Decide what basis sets/pseudopotentials to use
-        basis_and_potential = get_basis_and_potential([s for s in structure.symbol_set], self.basis_and_potential)
+        basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
@@ -380,7 +381,7 @@ class DftSet(Cp2kInputSet):
 
         # Create the multigrid for FFTs
         if not cutoff:
-            basis_and_potential = get_basis_and_potential([s for s in structure.symbol_set], self.basis_and_potential)
+            basis_and_potential = get_basis_and_potential(structure.symbol_set, self.basis_and_potential)
             cutoff = get_cutoff_from_basis(
                 els=self.structure.symbol_set,
                 bases=[basis_and_potential[s]["basis"] for s in self.structure.symbol_set],
@@ -579,7 +580,7 @@ class DftSet(Cp2kInputSet):
                 )
 
             for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
-                if "KIND" == v.name.upper():
+                if v.name.upper() == "KIND":
                     kind = v["ELEMENT"].values[0]
                     v.keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
 
@@ -637,9 +638,7 @@ class DftSet(Cp2kInputSet):
             """
             Activates range separated functional using mixing of the truncated
             coulomb operator and the long range operator using scale_longrange,
-            scale_coulomb, cutoff_radius, and omega.
-            
-            Note that
+            scale_coulomb, cutoff_radius, and omega.            
             """
             potential_type = potential_type if potential_type else "MIX_CL_TRUNC"
             hf_fraction = 1

@@ -11,10 +11,11 @@ import glob
 import logging
 import os
 import re
-import numpy as np
-import pandas as pd
 import warnings
 from itertools import chain
+
+import numpy as np
+import pandas as pd
 
 from monty.io import zopen
 from monty.re import regrep
@@ -1026,15 +1027,14 @@ class Cp2kOutput:
                                 next(lines)
                                 line = next(lines)
                                 break
-                            else:
-                                line = next(lines)
-                                if line.__contains__("Eigenvalues"):
-                                    break
-                                elif line.__contains__("HOMO"):
-                                    break
-                                eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                    [_hartree_to_ev_ * float(l) for l in line.split()]
-                                )
+
+                            line = next(lines)
+                            if line.__contains__("Eigenvalues") or line.__contains__("HOMO"):
+                                break
+                            eigenvalues[-1]["unoccupied"][Spin.up].extend(
+                                [_hartree_to_ev_ * float(l) for l in line.split()]
+                            )
+
                         if line.__contains__(" unoccupied subspace spin"):
                             next(lines)
                             line = next(lines)
@@ -1051,17 +1051,17 @@ class Cp2kOutput:
                                         [_hartree_to_ev_ * float(l) for l in line.split()]
                                     )
                                     break
-                                else:
-                                    line = next(lines)
-                                    if line.__contains__("HOMO"):
-                                        next(lines)
-                                        break
-                                    try:
-                                        eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                            [_hartree_to_ev_ * float(l) for l in line.split()]
-                                        )
-                                    except AttributeError:
-                                        break
+
+                                line = next(lines)
+                                if line.__contains__("HOMO"):
+                                    next(lines)
+                                    break
+                                try:
+                                    eigenvalues[-1]["unoccupied"][Spin.down].extend(
+                                        [_hartree_to_ev_ * float(l) for l in line.split()]
+                                    )
+                                except AttributeError:
+                                    break
 
                 except ValueError:
                     eigenvalues = [
@@ -1290,12 +1290,10 @@ class Cp2kOutput:
                         lines[i]
                         for i in range(1, len(lines) - 1)
                         if all(
-                            [
-                                not lines[i].strip().startswith(c)
-                                and not lines[i - 1].strip().startswith(c)
-                                and not lines[i + 1].strip().startswith(c)
-                                for c in strip
-                            ]
+                            not lines[i].strip().startswith(c)
+                            and not lines[i - 1].strip().startswith(c)
+                            and not lines[i + 1].strip().startswith(c)
+                            for c in strip
                         )
                     ]
                 )
@@ -1418,33 +1416,33 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
         def cp2k_to_pmg_labels(x):
             if x == "p":
                 return "px"
-            elif x == "d":
+            if x == "d":
                 return "dxy"
-            elif x == "f":
+            if x == "f":
                 return "f_3"
-            elif x == "d-2":
+            if x == "d-2":
                 return "dxy"
-            elif x == "d-1":
+            if x == "d-1":
                 return "dyz"
-            elif x == "d0":
+            if x == "d0":
                 return "dz2"
-            elif x == "d+1":
+            if x == "d+1":
                 return "dxz"
-            elif x == "d+2":
+            if x == "d+2":
                 return "dx2"
-            elif x == "f-3":
+            if x == "f-3":
                 return "f_3"
-            elif x == "f-2":
+            if x == "f-2":
                 return "f_2"
-            elif x == "f-1":
+            if x == "f-1":
                 return "f_1"
-            elif x == "f0":
+            if x == "f0":
                 return "f0"
-            elif x == "f+1":
+            if x == "f+1":
                 return "f1"
-            elif x == "f+2":
+            if x == "f+2":
                 return "f2"
-            elif x == "f+3":
+            if x == "f+3":
                 return "f3"
             return x
 
@@ -1482,9 +1480,9 @@ def gauss_smear(data, width):
     e_s = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), data.shape[0])
     grid = np.multiply(np.ones((npts, npts)), e_s).T
 
-    def foo(d):
+    def summation(d):
         return np.sum(
             np.multiply(np.exp(-((np.subtract(grid, data[:, 0]) / width) ** 2)) / (np.sqrt(np.pi) * width), d), axis=1
         )
 
-    return np.array([foo(data[:, i]) for i in range(1, nOrbitals)]).T
+    return np.array([summation(data[:, i]) for i in range(1, nOrbitals)]).T

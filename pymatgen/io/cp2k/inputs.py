@@ -19,10 +19,10 @@ import re
 import textwrap
 import warnings
 import itertools
+from collections import OrderedDict
 from typing import Dict, List, Tuple, Union, Sequence
 from monty.io import zopen
 from monty.json import MSONable
-from collections import OrderedDict
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure

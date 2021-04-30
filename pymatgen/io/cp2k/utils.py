@@ -4,11 +4,11 @@ Utility functions for assisting with cp2k IO
 
 import os
 import re
+from pathlib import Path
 import numpy as np
 from ruamel import yaml
 from monty.serialization import loadfn
 from monty.io import zopen
-from pathlib import Path
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.periodic_table import Element
@@ -159,7 +159,7 @@ def get_basis_and_potential(species, basis_and_potential_map, cardinality="DZVP"
             b = [d[s]["basis"]] if d[s]["basis"].upper() in [_.upper() for _ in data_b[s]] else []
         else:
             b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
-            if d[s]["sr"] and any(["SR" in _ for _ in b]):
+            if d[s]["sr"] and any("SR" in _ for _ in b):
                 b = [_ for _ in b if "SR" in _]
             else:
                 b = [_ for _ in b if "SR" not in _]
