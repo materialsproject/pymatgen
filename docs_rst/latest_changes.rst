@@ -1,12 +1,11 @@
 Change log
 ==========
 
-v2022.0.4 / v2021.3.9
+v2022.0.6
 ---------
-* Element now has `ionization_energies`, `ionization_energy` and 
-  `electron_affinity` properties.
-* Extensive documentation has been added on pymatgen compatibility and the
-  new namespace architecture! We have also released a 
-  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
-  to help new developers write add-ons for pymatgen! Check out our 
-  :doc:`contributing page</contributing>` for details.
+* Feature to calculate Selling vectors and distances between Lattices (@bwjustus, #1888)
+* XPS Spectrum class added (@shyuep, #2110, see `galore <https://github.com/SMTG-UCL/galore>`_)
+* Updated `MaterialsProject2020Compatibility` for formation energy correction (@rkingsbury, #2106)
+* Bug fix for detecting broken bonds in slab generation (@fyalcin, #2015)
+* Bug fix for electrodes (@jmmshn, #2101)
+* Documentation improvement for get_conventional_standard_structure (@tom-wood, #2100)

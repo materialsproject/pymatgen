@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.topological.spillage module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.analysis.topological.spillage module &mdash; pymatgen 2022.0.6 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.6
               </div>
             
           
@@ -213,7 +213,7 @@ Modified from JARVIS-Tools
 <a class="reference external" href="https://www.nature.com/articles/s41524-020-0319-4">https://www.nature.com/articles/s41524-020-0319-4</a></p>
 <dl class="py class">
 <dt id="pymatgen.analysis.topological.spillage.SOCSpillage">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">SOCSpillage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wf_noso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wf_so</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/topological/spillage.py#L15-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">SOCSpillage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wf_noso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wf_so</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../analysis/topological/spillage.py#L15-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
 The spillage criteria physically signifies number of band-inverted electrons.
@@ -223,19 +223,19 @@ A non-zero, high value (generally &gt;0.5) suggests non-trivial behavior</p>
 :param wf_so: WAVECAR with spin-orbit coupling</p>
 <dl class="py method">
 <dt id="pymatgen.analysis.topological.spillage.SOCSpillage.isclose">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">isclose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rel_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/topological/spillage.py#L33-L38"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage.isclose" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">isclose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rel_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../analysis/topological/spillage.py#L33-L38"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage.isclose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checking if the numbers are close enoung</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.topological.spillage.SOCSpillage.orth">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">orth</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/topological/spillage.py#L40-L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage.orth" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">orth</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../analysis/topological/spillage.py#L40-L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage.orth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to create orthonormal basis</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.analysis.topological.spillage.SOCSpillage.overlap_so_spinpol">
-<code class="sig-name descname"><span class="pre">overlap_so_spinpol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/topological/spillage.py#L53-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage.overlap_so_spinpol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">overlap_so_spinpol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../analysis/topological/spillage.py#L53-L231"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.topological.spillage.SOCSpillage.overlap_so_spinpol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function to calculate SOC spillage</p>
 </dd></dl>
 

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.cube module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.io.cube module &mdash; pymatgen 2022.0.6 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.6
               </div>
             
           
@@ -205,19 +205,22 @@
             
   <div class="section" id="module-pymatgen.io.cube">
 <span id="pymatgen-io-cube-module"></span><h1>pymatgen.io.cube module<a class="headerlink" href="#module-pymatgen.io.cube" title="Permalink to this headline">¶</a></h1>
-<p>Module for reading Gaussian cube files, which have become one of the standard file formats for volumetric data
-in quantum chemistry and solid state physics software packages (VASP being an exception).</p>
-<p>Some basic info about cube files (abridged info from <a class="reference external" href="http://paulbourke.net/dataformats/cube/">http://paulbourke.net/dataformats/cube/</a> by Paul Bourke)</p>
-<p>The file consists of a header which includes the atom information and the size as well as orientation of the
-volumetric data. The first two lines of the header are comments. The third line has the number of atoms
-included in the file followed by the position of the origin of the volumetric data. The next three lines
-give the number of voxels along each axis (x, y, z) followed by the axis vector. The last section in the
-header is one line for each atom consisting of 5 numbers, the first is the atom number, the second is the
-charge, and the last three are the x,y,z coordinates of the atom center. The volumetric data is straightforward,
+<p>Module for reading Gaussian cube files, which have become one of the standard file formats
+for volumetric data in quantum chemistry and solid state physics software packages
+(VASP being an exception).</p>
+<p>Some basic info about cube files
+(abridged info from <a class="reference external" href="http://paulbourke.net/dataformats/cube/">http://paulbourke.net/dataformats/cube/</a> by Paul Bourke)</p>
+<p>The file consists of a header which includes the atom information and the size as well
+as orientation of the volumetric data. The first two lines of the header are comments. The
+third line has the number of atoms included in the file followed by the position of the
+origin of the volumetric data. The next three lines give the number of voxels along each axis
+(x, y, z) followed by the axis vector. The last section in the header is one line for each
+atom consisting of 5 numbers, the first is the atom number, the second is the charge, and
+the last three are the x,y,z coordinates of the atom center. The volumetric data is straightforward,
 one floating point number for each volumetric element.</p>
 <p>Example
-In the following example the volumetric data is a 40 by 40 by 40 grid,
-each voxel is 0.283459 units wide and the volume is aligned with the coordinate axis. There are three atoms.</p>
+In the following example the volumetric data is a 40 by 40 by 40 grid, each voxel is 0.283459 units
+wide and the volume is aligned with the coordinate axis. There are three atoms.</p>
 <blockquote>
 <div><p>CPMD CUBE FILE.
 OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z</p>
@@ -249,12 +252,93 @@ OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z</p>
 </div></blockquote>
 <dl class="py class">
 <dt id="pymatgen.io.cube.Cube">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Cube</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/cube.py#L48-L110"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Cube</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../io/cube.py#L52-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read Gaussian cube file formats for volumetric data.</p>
-<p>Initialize the cube object and store the data as self.data
-:param fname: filename of the cube to read
-:type fname: str</p>
+<p>Cube files are, by default, written in atomic units, and this
+class assumes that convention.</p>
+<p>Initialize the cube object and store the data as self.data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>str</em>) – filename of the cube to read</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.io.cube.Cube.get_atomic_site_averages">
+<code class="sig-name descname"><span class="pre">get_atomic_site_averages</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_site_radii</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../io/cube.py#L145-L156"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_averages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the average value around each atomic site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atomic_site_radii</strong> (<em>dict</em>) – dictionary determining the cutoff radius (in Angstroms)
+for averaging around atomic sites (e.g. {‘Li’: 0.97, ‘B’: 0.77, …}. If
+not provided, then the</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of site averages, [Average around site 1, Average around site 2, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cube.Cube.get_atomic_site_totals">
+<code class="sig-name descname"><span class="pre">get_atomic_site_totals</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_site_radii</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../io/cube.py#L172-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_totals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the integrated total in a sphere around each atomic site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atomic_site_radii</strong> (<em>dict</em>) – dictionary determining the cutoff radius (in Angstroms)
+for averaging around atomic sites (e.g. {‘Li’: 0.97, ‘B’: 0.77, …}. If
+not provided, then the</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of site averages, [Average around site 1, Average around site 2, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cube.Cube.get_average_along_axis">
+<code class="sig-name descname"><span class="pre">get_average_along_axis</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../io/cube.py#L213-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified from pymatgen.io.vasp.outputs</p>
+<p>Get the averaged total of the volumetric data a certain axis direction.
+For example, useful for visualizing Hartree Potentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ind</strong> (<em>int</em>) – Index of axis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Average total along axis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cube.Cube.get_axis_grid">
+<code class="sig-name descname"><span class="pre">get_axis_grid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../io/cube.py#L199-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_axis_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified from pymatgen.io.vasp.outputs</p>
+<p>Returns the grid for a particular axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ind</strong> (<em>int</em>) – Axis index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.cube.Cube.mask_sphere">
+<code class="sig-name descname"><span class="pre">mask_sphere</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cz</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.6/pymatgen/core/../io/cube.py#L115-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.mask_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a mask for a sphere with radius=radius, centered at cx, cy, cz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> – (flaot) of the mask (in Angstroms)</p></li>
+<li><p><strong>cx</strong> – (float) the fractional coordinates of the center of the sphere</p></li>
+<li><p><strong>cy</strong> – (float) the fractional coordinates of the center of the sphere</p></li>
+<li><p><strong>cz</strong> – (float) the fractional coordinates of the center of the sphere</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
