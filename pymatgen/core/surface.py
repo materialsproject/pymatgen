@@ -300,8 +300,8 @@ class Slab(Structure):
 
     def is_symmetric(self, symprec=0.1):
         """
-        Checks if surfaces are symmetric, i.e., contains inversion, mirror on x-y plane,
-            glide on x/y (translation and reflection) or screw axis (rotation and translation).
+        Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
+            or screw axis (rotation and translation) about [hkl].
 
         Args:
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
@@ -317,12 +317,12 @@ class Slab(Structure):
             # check for inversion symmetry
             return True
         elif any([np.alltrue(op.rotation_matrix[2] == np.array([0,0,-1])) for op in symmops]):
-            # Because the two surfaces of our slabs are always parallel to the xy plane,
-            # any operation where theres an x-y mirror plane has surface symmetry
+            # Because the two surfaces of our slabs are always parallel to the (hkl) plane,
+            # any operation where theres an (hkl) mirror plane has surface symmetry
             return True
         elif any([op.translation_vector[2] != 0 for op in symmops]):
-            # if sites from surface a can be translated to
-            # surface b along the z-axis, surfaces are symmetric
+            # if sites from surface (a) can be translated to
+            # surface (b) along the [hkl]-axis, surfaces are symmetric
             return True
         else:
             return False
