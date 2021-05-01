@@ -174,7 +174,6 @@ class SlabTest(PymatgenTest):
             total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
             self.assertTrue(slab.is_symmetric())
             self.assertEqual(total_surf_sites / 2, 4)
-            self.assertTrue(slab.have_equivalent_surfaces())
 
             # Test if the ratio of surface sites per area is
             # constant, ie are the surface energies the same
