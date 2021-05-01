@@ -324,8 +324,8 @@ class Slab(Structure):
             # if sites from surface (a) can be translated to
             # surface (b) along the [hkl]-axis, surfaces are symmetric
             return True
-        else:
-            return False
+
+        return False
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
