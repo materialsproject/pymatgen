@@ -15,7 +15,7 @@ import os
 import re
 import warnings
 from multiprocessing import Pool, cpu_count
-from functools import lru_cache
+from functools import lru_cache, partial
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
@@ -1479,7 +1479,16 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs, min_entries, all_entries = _get_useful_entries(entries)
+        el_refs = {}
+        min_entries = []
+        all_entries = []
+        for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
+            g = list(g)
+            min_entry = min(g, key=lambda e: e.energy_per_atom)
+            if c.is_element:
+                el_refs[c.elements[0]] = min_entry
+            min_entries.append(min_entry)
+            all_entries.extend(g)
 
         self.min_entries = min_entries
 
@@ -1512,8 +1521,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # TODO is there a smart way to set up chunk sizes?
         # TODO PBarSafe is not safe as it cannot take an iteratble as input.
 
-        if workers == 0 or len(spaces) < 200:  # serial if not a large number of PDs
-            results = [self._get_pd_for_space(space) for space in PBar(spaces, disable=(not verbose))]
+        if workers == 0 or len(spaces) < 1000:  # serial if not a large number of PDs
+            results = [_get_pd_patch_for_space(space, self) for space in PBar(spaces, disable=(not verbose))]
         else:
             if workers < 0:
                 workers = cpu_count()
@@ -1522,9 +1531,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 results = [
                     *PBar(
                         p.imap_unordered(
-                            func=self._get_pd_for_space,
+                            func=partial(_get_pd_patch_for_space, ppd=self),
                             iterable=spaces,
-                            chunksize=100,  # using large chunksize reduces overhead
+                            chunksize=500,  # using large chunksize reduces overhead
                         ),
                         disable=(not verbose),
                         total=len(spaces),
@@ -1581,18 +1590,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
     #     get_decomp_and_e_above_hull(),
     #     get_decomp_and_phase_separation_energy(),
     #     get_phase_separation_energy()
-
-    def _get_pd_for_space(self, space):
-        """
-        Args:
-            space (str): chemical space of the form A-B-X
-
-        Returns:
-            PhaseDiagram for the given chemical space
-        """
-        space_entries = [e for e in self.min_entries if space.issuperset(e.composition.elements)]
-
-        return space, PhaseDiagram(space_entries)
 
     def get_pds_for_entry(self, entry):
         """
@@ -1755,6 +1752,20 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Not Implemented - See PhaseDiagram
         """
         raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for `PatchedPhaseDiagram`")
+
+
+def _get_pd_patch_for_space(space, ppd):
+    """
+    Args:
+        space (str): chemical space of the form A-B-X
+        ppd (PatchedPhaseDiagram):
+
+    Returns:
+        space, PhaseDiagram for the given chemical space
+    """
+    space_entries = [e for e in ppd.min_entries if space.issuperset(e.composition.elements)]
+
+    return space, PhaseDiagram(space_entries)
 
 
 class ReactionDiagram:
@@ -2002,36 +2013,6 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
         }
 
     raise ValueError("No valid decomp found for {}!".format(comp))
-
-
-def _get_useful_entries(entries):
-    """
-    Given a list of entries return the elemental references, minimum energy entries
-    and a list of all entries.
-
-    Args:
-        entries ([PDEntry, ]): a list of entries
-
-    Returns:
-        el_refs ({PDEntry, }): a set of the lowest lying elemental entries
-        min_entries ([PDEntry, ]): a list of the lowest lying entries for
-            each reduced composition.
-        all_entries ([PDEntry, ]): a list of all entries after the compositions
-            have been reduced.
-    """
-    el_refs = {}
-    min_entries = []
-    all_entries = []
-    for c, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_composition):
-        g = list(g)
-        min_entry = min(g, key=lambda e: e.energy_per_atom)
-        if c.is_element:
-            el_refs[c.elements[0]] = min_entry
-        min_entries.append(min_entry)
-        all_entries.extend(g)
-
-    # NOTE all_entries is just entries reordered? can we remove it?
-    return el_refs, min_entries, all_entries
 
 
 class PDPlotter:
