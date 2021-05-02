@@ -320,8 +320,7 @@ class Slab(Structure):
             # two surfaces of our slabs are always parallel to the (hkl) plane,
             # any operation where theres an (hkl) mirror plane has surface symmetry
                 return True
-        else:
-            return False
+        return False
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
