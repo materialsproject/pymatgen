@@ -62,7 +62,7 @@ class SlabTest(PymatgenTest):
         m = [[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]]
         latt = Lattice(m)
         fcoords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
-        non_laue = Structure(latt, ['Nb', 'Nb', 'N', 'N', 'N'], fcoords)
+        non_laue = Structure(latt, ["Nb", "Nb", "N", "N", "N"], fcoords)
 
         self.ti = Ti
         self.agfcc = Ag_fcc
