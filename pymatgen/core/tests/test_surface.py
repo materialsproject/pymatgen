@@ -252,7 +252,6 @@ class SlabTest(PymatgenTest):
         all_non_laue_slabs = generate_all_slabs(self.nonlaue, 1, 15, 15, symmetrize=True)
         self.assertTrue(len(all_non_laue_slabs) > 0)
 
-
     def test_get_symmetric_sites(self):
 
         # Check to see if we get an equivalent site on one
