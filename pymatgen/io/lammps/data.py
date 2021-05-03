@@ -446,12 +446,16 @@ class LammpsData(MSONable):
         parts = []
         for k, v in body_dict.items():
             index = k != "PairIJ Coeffs"
-            if k in [
-                "Bond Coeffs",
-                "Angle Coeffs",
-                "Dihedral Coeffs",
-                "Improper Coeffs",
-            ] and hybrid:
+            if (
+                k
+                in [
+                    "Bond Coeffs",
+                    "Angle Coeffs",
+                    "Dihedral Coeffs",
+                    "Improper Coeffs",
+                ]
+                and hybrid
+            ):
                 listofdf = np.array_split(v, len(v.index))
                 df_string = ""
                 for i, df in enumerate(listofdf):
