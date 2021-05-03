@@ -1008,14 +1008,30 @@ class MaterialsProject2020Compatibility(Compatibility):
                 # first check for a pre-populated oxidation states key
                 # the key is expected to comprise a dict corresponding to the first element output by
                 # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-                if entry.data.get("oxidation_states"):
-                    if entry.data["oxidation_states"].get(anion, 0) < 0:
-                        apply_correction = True
-                else:
-                    # if the oxidation_states key is not populated, only apply the correction if the anion
-                    # is the most electronegative element
-                    most_electroneg = elements[-1].symbol
+                if not entry.data.get("oxidation_states"):
+                    # try to guess the oxidation states from composition
+                    # for performance reasons, fail if the composition is too large
+                    try:
+                        oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
+                    except ValueError:
+                        oxi_states = []
 
+                    if oxi_states == []:
+                        warnings.warn(
+                            f"Failed to guess oxidation states for Entry {entry.entry_id} "
+                            f"({entry.composition.reduced_formula}. Assigning anion correction to "
+                            "only the most electronegative atom."
+                        )
+                        entry.data["oxidation_states"] = {}
+                    else:
+                        entry.data["oxidation_states"] = oxi_states[0]
+
+                # if the oxidation_states key is not populated, only apply the correction if the anion
+                # is the most electronegative element
+                if entry.data["oxidation_states"].get(anion, 0) < 0:
+                    apply_correction = True
+                else:
+                    most_electroneg = elements[-1].symbol
                     if anion == most_electroneg:
                         apply_correction = True
 
