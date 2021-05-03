@@ -342,8 +342,8 @@ class BaderAnalysis:
         property and you have an appropriate reference file.
 
         Args:
-            property_name: name of the property to assign to the structure, note that 
-                if name is "spin" this is handled as a special case, and the appropriate 
+            property_name: name of the property to assign to the structure, note that
+                if name is "spin" this is handled as a special case, and the appropriate
                 spin properties are set on the species in the structure
             average: whether or not to return the average of this property, rather
                 than the total, by dividing by the atomic volume.
