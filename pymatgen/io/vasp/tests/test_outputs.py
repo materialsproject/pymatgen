@@ -173,7 +173,7 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
         self.assertTrue(
-            all([vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps))])
+            all(vasprun.structures[i] == vasprun.ionic_steps[i]["structure"] for i in range(len(vasprun.ionic_steps)))
         )
 
         self.assertEqual(308, totalscsteps, "Incorrect number of energies read from vasprun.xml")
@@ -496,6 +496,13 @@ class VasprunTest(PymatgenTest):
             self.assertEqual(dict_to_test["transition"], "\\Gamma-\\Gamma")
             self.assertEqual(bs.get_branch(0)[0]["start_index"], 0)
             self.assertEqual(bs.get_branch(0)[0]["end_index"], 0)
+
+    def test_projected_magnetisation(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.lvel.Si2H.xml"
+        vasprun = Vasprun(filepath, parse_projected_eigen=True)
+        self.assertTrue(vasprun.projected_magnetisation is not None)
+        self.assertEqual(vasprun.projected_magnetisation.shape, (76, 240, 4, 9, 3))
+        self.assertAlmostEqual(vasprun.projected_magnetisation[0, 0, 0, 0, 0], -0.0712)
 
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
@@ -1395,6 +1402,11 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(outcar.data["nplwv"], [[None]])
         self.assertEqual(outcar.data["nplwvs_at_kpoints"], [85687])
 
+    def test_vasp620_format(self):
+        filepath = self.TEST_FILES_DIR / "OUTCAR.vasp.6.2.0"
+        outcar = Outcar(filepath)
+        self.assertEqual(outcar.run_stats["Average memory used (kb)"], None)
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1514,7 +1526,6 @@ class ChgcarTest(PymatgenTest):
         os.remove("CHGCAR_pmg_soc")
 
     def test_hdf5(self):
-        print(self.TEST_FILES_DIR)
         chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
         chgcar.to_hdf5("chgcar_test.hdf5")
         import h5py
@@ -1647,6 +1658,12 @@ class XdatcarTest(PymatgenTest):
         x.concatenate(self.TEST_FILES_DIR / "XDATCAR_4")
         self.assertEqual(len(x.structures), 8)
         self.assertIsNotNone(x.get_string())
+
+        filepath = self.TEST_FILES_DIR / "XDATCAR_6"
+        x = Xdatcar(filepath)
+        structures = x.structures
+
+        self.assertNotEqual(structures[0].lattice, structures[-1].lattice)
 
 
 class DynmatTest(PymatgenTest):

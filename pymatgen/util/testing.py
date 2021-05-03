@@ -21,7 +21,7 @@ from monty.dev import requires
 from monty.json import MontyDecoder, MSONable
 from monty.serialization import loadfn
 
-from pymatgen import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.ext.matproj import MPRester
 
 
@@ -103,9 +103,7 @@ class PymatgenTest(unittest.TestCase):
                 if not pass_test:
                     return False
             elif isinstance(v, (int, float)):
-                pass_test = PymatgenTest.assertAlmostEqual(v, v2)
-                if not pass_test:
-                    return False
+                PymatgenTest.assertAlmostEqual(v, v2)  # pylint: disable=E1120
             else:
                 assert v == v2
         return True

@@ -20,6 +20,13 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
@@ -220,7 +227,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, v in site.species.items():
                 if v != 0:
                     types.append(sp)
-        return tuple(set(types))  # type: ignore
+        return tuple(sorted(set(types)))  # type: ignore
 
     @property
     def types_of_specie(self) -> Tuple[Union[Element, Species, DummySpecies]]:
@@ -1118,7 +1125,7 @@ class IStructure(SiteCollection, MSONable):
         """
         return self._lattice.volume
 
-    def get_distance(self, i, j, jimage=None):
+    def get_distance(self, i: int, j: int, jimage=None) -> float:
         """
         Get distance between site i and j assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
@@ -1171,8 +1178,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []  # type: List[PeriodicNeighbor]
@@ -1209,8 +1215,7 @@ class IStructure(SiteCollection, MSONable):
                 is always included in the returned data.
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         return self.get_all_neighbors(r, include_index=include_index, include_image=include_image, sites=[site])[0]
 
@@ -1229,8 +1234,7 @@ class IStructure(SiteCollection, MSONable):
                 is included in the returned data
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         nn = self.get_sites_in_sphere(site.coords, r, include_index=include_index, include_image=include_image)
         return [d for d in nn if site != d[0]]
@@ -1298,8 +1302,9 @@ class IStructure(SiteCollection, MSONable):
     ) -> Tuple[np.ndarray, ...]:
         """
         Get neighbor lists using numpy array representations without constructing
-        Neighbor objects. If the cython extension is installed,  this method will
-        be orders of magnitude faster than `get_all_neighbors`.
+        Neighbor objects. If the cython extension is installed, this method will
+        be orders of magnitude faster than `get_all_neighbors_old` and 2-3x faster
+        than `get_all_neighbors`.
         The returned values are a tuple of numpy arrays
         (center_indices, points_indices, offset_vectors, distances).
         Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
@@ -1399,8 +1404,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [[:class:`pymatgen.core.structure.PeriodicNeighbor`], ..]
         """
         if sites is None:
             sites = self.sites
@@ -1488,8 +1492,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
-            (site, distance, index, image).
+            [[:class:`pymatgen.core.structure.PeriodicNeighbor`],...]
         """
 
         if sites is None:
@@ -1555,8 +1558,7 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            [Neighbor] where Neighbor is a namedtuple containing
-            (site, distance, index, image).
+            [:class:`pymatgen.core.structure.PeriodicNeighbor`]
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -2065,12 +2067,10 @@ class IStructure(SiteCollection, MSONable):
                     # satisfy the restriction condition
                     p_latt, s_latt = p.lattice, self.lattice
                     if type(constrain_latt).__name__ == "list":
-                        if all([getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt]):
+                        if all(getattr(p_latt, p) == getattr(s_latt, p) for p in constrain_latt):
                             return p
                     elif type(constrain_latt).__name__ == "dict":
-                        if all(
-                            [getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()]  # type: ignore
-                        ):
+                        if all(getattr(p_latt, p) == constrain_latt[p] for p in constrain_latt.keys()):  # type: ignore
                             return p
 
         return self.copy()
@@ -2324,8 +2324,6 @@ class IStructure(SiteCollection, MSONable):
             s = Prismatic(self).to_string()
             return s
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*") or fnmatch(fname, "*.yml*"):
-            from pymatgen import yaml
-
             if filename:
                 with zopen(filename, "wt") as f:
                     yaml.safe_dump(self.as_dict(), f)
@@ -2377,8 +2375,6 @@ class IStructure(SiteCollection, MSONable):
             d = json.loads(input_string)
             s = Structure.from_dict(d)
         elif fmt == "yaml":
-            from pymatgen import yaml
-
             d = yaml.safe_load(input_string)
             s = Structure.from_dict(d)
         elif fmt == "xsf":
@@ -2807,8 +2803,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [Neighbor] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.Neighbor`]
         """
         neighbors = []
         for i, site in enumerate(self._sites):
@@ -2827,8 +2822,7 @@ class IMolecule(SiteCollection, MSONable):
             r (float): Radius of sphere.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.Neighbor`]
         """
         nns = self.get_sites_in_sphere(site.coords, r)
         return [nn for nn in nns if nn != site]
@@ -2844,8 +2838,7 @@ class IMolecule(SiteCollection, MSONable):
             dr (float): Width of shell.
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [:class:`pymatgen.core.structure.Neighbor`]
         """
         outer = self.get_sites_in_sphere(origin, r + dr)
         inner = r - dr
@@ -3010,7 +3003,7 @@ class IMolecule(SiteCollection, MSONable):
         fname = os.path.basename(filename or "")
         if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
             writer = XYZ(self)
-        elif any([fmt == r or fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["gjf", "g03", "g09", "com", "inp"]]):
+        elif any(fmt == r or fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["gjf", "g03", "g09", "com", "inp"]):
             writer = GaussianInput(self)
         elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             if filename:
@@ -3019,8 +3012,6 @@ class IMolecule(SiteCollection, MSONable):
             else:
                 return json.dumps(self.as_dict())
         elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
-            from pymatgen import yaml
-
             if filename:
                 with zopen(fname, "wt", encoding="utf8") as f:
                     return yaml.safe_dump(self.as_dict(), f)
@@ -3065,8 +3056,6 @@ class IMolecule(SiteCollection, MSONable):
             d = json.loads(input_string)
             return cls.from_dict(d)
         elif fmt == "yaml":
-            from pymatgen import yaml
-
             d = yaml.safe_load(input_string)
             return cls.from_dict(d)
         else:
@@ -3098,9 +3087,9 @@ class IMolecule(SiteCollection, MSONable):
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
             return cls.from_str(contents, fmt="xyz")
-        if any([fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["gjf", "g03", "g09", "com", "inp"]]):
+        if any(fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["gjf", "g03", "g09", "com", "inp"]):
             return cls.from_str(contents, fmt="g09")
-        if any([fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["out", "lis", "log"]]):
+        if any(fnmatch(fname.lower(), "*.{}*".format(r)) for r in ["out", "lis", "log"]):
             return GaussianOutput(filename).final_structure
         if fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
             return cls.from_str(contents, fmt="json")

@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
 import os
 import unittest
 import warnings
@@ -19,7 +18,6 @@ from pymatgen.analysis.phase_diagram import (
     PDEntry,
     PDPlotter,
     PhaseDiagram,
-    PhaseDiagramError,
     ReactionDiagram,
     TransformedPDEntry,
     tet_coord,
@@ -137,7 +135,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         self.assertIsNotNone(str(self.transformed_entry))
 
     def test_normalize(self):
-        norm_entry = self.transformed_entry.normalize(mode="atom", inplace=False)
+        norm_entry = self.transformed_entry.normalize(mode="atom")
         expected_comp = Composition(
             {DummySpecies("Xf"): 7 / 23, DummySpecies("Xg"): 15 / 23, DummySpecies("Xh"): 1 / 23}
         )
@@ -160,7 +158,7 @@ class PhaseDiagramTest(unittest.TestCase):
             lambda e: (not e.composition.is_element) or e.composition.elements[0] != Element("Li"),
             self.entries,
         )
-        self.assertRaises(PhaseDiagramError, PhaseDiagram, entries)
+        self.assertRaises(ValueError, PhaseDiagram, entries)
 
     def test_dim1(self):
         # Ensure that dim 1 PDs can eb generated.
@@ -268,35 +266,40 @@ class PhaseDiagramTest(unittest.TestCase):
                 "Stable entries should have negative equilibrium reaction energy!",
             )
 
-    def test_get_quasi_e_to_hull(self):
+    def test_get_phase_separation_energy(self):
         for entry in self.pd.unstable_entries:
-            # catch duplicated stable entries
-            if entry.normalize(inplace=False) in self.pd.get_stable_entries_normed():
-                self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
-                    0,
-                    "Duplicated stable entries should have negative decomposition energy!",
-                )
-            else:
+            if entry.composition.fractional_composition not in [
+                e.composition.fractional_composition for e in self.pd.stable_entries
+            ]:
                 self.assertGreaterEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
+                    self.pd.get_phase_separation_energy(entry),
                     0,
                     "Unstable entries should have positive decomposition energy!",
                 )
+            else:
+                if entry.is_element:
+                    el_ref = self.pd.el_refs[entry.composition.elements[0]]
+                    e_d = entry.energy_per_atom - el_ref.energy_per_atom
+                    self.assertAlmostEqual(self.pd.get_phase_separation_energy(entry), e_d, 7)
+                # NOTE the remaining materials would require explicit tests as they
+                # could be either positive or negative
+                pass
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
                 self.assertEqual(
-                    self.pd.get_quasi_e_to_hull(entry),
+                    self.pd.get_phase_separation_energy(entry),
                     0,
                     "Stable elemental entries should have decomposition energy of zero!",
                 )
             else:
                 self.assertLessEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0, "Stable entries should have negative decomposition energy!"
+                    self.pd.get_phase_separation_energy(entry),
+                    0,
+                    "Stable entries should have negative decomposition energy!",
                 )
                 self.assertAlmostEqual(
-                    self.pd.get_quasi_e_to_hull(entry, stable_only=True),
+                    self.pd.get_phase_separation_energy(entry, stable_only=True),
                     self.pd.get_equilibrium_reaction_energy(entry),
                     7,
                     (
@@ -305,16 +308,40 @@ class PhaseDiagramTest(unittest.TestCase):
                     ),
                 )
 
+        # Test that we get correct behaviour with a polymorph
+        toy_entries = {
+            "Li": 0.0,
+            "Li2O": -5,
+            "LiO2": -4,
+            "O2": 0.0,
+        }
+
+        toy_pd = PhaseDiagram([PDEntry(c, e) for c, e in toy_entries.items()])
+
+        # stable entry
+        self.assertAlmostEqual(
+            toy_pd.get_phase_separation_energy(PDEntry("Li2O", -5)),
+            -1.0,
+            7,
+        )
+        # polymorph
+        self.assertAlmostEqual(
+            toy_pd.get_phase_separation_energy(PDEntry("Li2O", -4)),
+            -2.0 / 3.0,
+            7,
+        )
+
+        # Test that the method works for novel entries
         novel_stable_entry = PDEntry("Li5FeO4", -999)
         self.assertLess(
-            self.pd.get_quasi_e_to_hull(novel_stable_entry),
+            self.pd.get_phase_separation_energy(novel_stable_entry),
             0,
             "Novel stable entries should have negative decomposition energy!",
         )
 
         novel_unstable_entry = PDEntry("Li5FeO4", 999)
         self.assertGreater(
-            self.pd.get_quasi_e_to_hull(novel_unstable_entry),
+            self.pd.get_phase_separation_energy(novel_unstable_entry),
             0,
             "Novel unstable entries should have positive decomposition energy!",
         )
@@ -324,14 +351,14 @@ class PhaseDiagramTest(unittest.TestCase):
         stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
 
         self.assertEqual(
-            self.pd.get_quasi_e_to_hull(duplicate_entry),
-            self.pd.get_quasi_e_to_hull(stable_entry),
+            self.pd.get_phase_separation_energy(duplicate_entry),
+            self.pd.get_phase_separation_energy(stable_entry),
             "Novel duplicates of stable entries should have same decomposition energy!",
         )
 
         self.assertEqual(
-            self.pd.get_quasi_e_to_hull(scaled_dup_entry),
-            self.pd.get_quasi_e_to_hull(stable_entry),
+            self.pd.get_phase_separation_energy(scaled_dup_entry),
+            self.pd.get_phase_separation_energy(stable_entry),
             "Novel scaled duplicates of stable entries should have same decomposition energy!",
         )
 
@@ -360,7 +387,7 @@ class PhaseDiagramTest(unittest.TestCase):
             "Fe6 O8": 0.33333333333333393,
         }
         for k, v in expected_ans.items():
-            self.assertAlmostEqual(ansdict[k], v)
+            self.assertAlmostEqual(ansdict[k], v, 7)
 
     def test_get_transition_chempots(self):
         for el in self.pd.elements:

@@ -24,13 +24,19 @@ from collections import OrderedDict
 from io import StringIO
 from pathlib import Path
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import numpy as np
 import pandas as pd
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 
-from pymatgen import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
@@ -790,7 +796,7 @@ class LammpsData(MSONable):
                 shift = len(labels)
                 for k, v in topo.topologies.items():
                     topo_collector[k].append(np.array(v) + shift + 1)
-                    topo_labels[k].extend([tuple([topo.type_by_sites[j] for j in t]) for t in v])
+                    topo_labels[k].extend([tuple(topo.type_by_sites[j] for j in t) for t in v])
             if isinstance(v_collector, list):
                 v_collector.append(topo.velocities)
             mol_ids.extend([i + 1] * len(topo.sites))

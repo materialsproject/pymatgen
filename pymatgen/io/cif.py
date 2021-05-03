@@ -34,12 +34,6 @@ from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "4.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
@@ -657,6 +651,7 @@ class CifParser:
 
                 else:
                     return None
+        return None
 
     def get_symops(self, data):
         """
@@ -1013,7 +1008,7 @@ class CifParser:
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if not set(c.elements) == {Element("O"), Element("H")}
         ]
-        if any([o > 1 for o in sum_occu]):
+        if any(o > 1 for o in sum_occu):
             msg = (
                 "Some occupancies ({}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
@@ -1346,7 +1341,7 @@ class CifWriter:
             # The following just presents a deterministic ordering.
             unique_sites = [
                 (
-                    sorted(sites, key=lambda s: tuple([abs(x) for x in s.frac_coords]))[0],
+                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
                     len(sites),
                 )
                 for sites in sf.get_symmetrized_structure().equivalent_sites
@@ -1443,3 +1438,4 @@ def str2float(text):
         if text.strip() == ".":
             return 0
         raise ex
+    raise ValueError(f"{text} cannot be converted to float")

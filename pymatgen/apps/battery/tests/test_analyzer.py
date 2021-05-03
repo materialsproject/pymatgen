@@ -6,12 +6,10 @@ from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-module_dir = os.path.join(os.path.dirname(pymatgen.__file__), "..", "test_files")
-
 
 class BatteryAnalyzerTest(PymatgenTest):
     def load_from_cif(self, filename, oxidations, cation="Li"):
-        s = Structure.from_file(os.path.join(module_dir, filename))
+        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, filename))
         s.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(s, cation)
 

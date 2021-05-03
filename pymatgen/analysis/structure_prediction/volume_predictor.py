@@ -87,8 +87,8 @@ class RLSVolumePredictor:
                 ref_comp = ref_structure.composition
 
                 # Check if all the associated ionic radii are available.
-                if any([k.ionic_radius is None for k in list(comp.keys())]) or any(
-                    [k.ionic_radius is None for k in list(ref_comp.keys())]
+                if any(k.ionic_radius is None for k in list(comp.keys())) or any(
+                    k.ionic_radius is None for k in list(ref_comp.keys())
                 ):
                     raise ValueError("Not all the ionic radii are available!")
 

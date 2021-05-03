@@ -30,7 +30,7 @@ from monty.os.path import zpath
 from monty.serialization import loadfn
 from tabulate import tabulate
 
-from pymatgen import SETTINGS, __version__
+from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.structure import Structure
@@ -377,7 +377,7 @@ class Poscar(MSONable):
                 # Check if names are appended at the end of the coordinates.
                 atomic_symbols = [l.split()[ind] for l in lines[ipos + 1 : ipos + 1 + nsites]]
                 # Ensure symbols are valid elements
-                if not all([Element.is_valid_symbol(sym) for sym in atomic_symbols]):
+                if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
             except (ValueError, IndexError):
@@ -1220,10 +1220,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (
-            __version__,
-            kppa,
-        )
+        comment = "pymatgen with grid density = %.0f / number of atoms" % (kppa,)
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1235,7 +1232,7 @@ class Kpoints(MSONable):
 
         is_hexagonal = latt.is_hexagonal()
 
-        has_odd = any([i % 2 == 1 for i in num_div])
+        has_odd = any(i % 2 == 1 for i in num_div)
         if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
@@ -1276,10 +1273,7 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (
-            __version__,
-            kppa,
-        )
+        comment = "pymatgen with grid density = %.0f / number of atoms" % (kppa,)
 
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])

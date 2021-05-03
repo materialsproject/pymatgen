@@ -620,6 +620,25 @@ class SlabGeneratorTest(PymatgenTest):
         all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2] for i in bottom_index]
         self.assertTrue(all(all_top))
 
+    def test_bonds_broken(self):
+        # Querying the Materials Project database for Si
+        s = self.get_structure("Si")
+        # Conventional unit cell is supplied to ensure miller indices
+        # correspond to usual crystallographic definitions
+        conv_bulk = SpacegroupAnalyzer(s).get_conventional_standard_structure()
+        slabgen = SlabGenerator(conv_bulk, [1, 1, 1], 10, 10, center_slab=True)
+        # Setting a generous estimate for max_broken_bonds
+        # so that all terminations are generated. These slabs
+        # are ordered by ascending number of bonds broken
+        # which is assigned to Slab.energy
+        slabs = slabgen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
+        # Looking at the two slabs generated in VESTA, we
+        # expect 2 and 6 bonds broken so we check for this.
+        # Number of broken bonds are floats due to primitive
+        # flag check and subsequent transformation of slabs.
+        self.assertTrue(slabs[0].energy, 2.0)
+        self.assertTrue(slabs[1].energy, 6.0)
+
 
 class ReconstructionGeneratorTests(PymatgenTest):
     def setUp(self):

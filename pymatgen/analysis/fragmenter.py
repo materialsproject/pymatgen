@@ -12,7 +12,7 @@ import logging
 from monty.json import MSONable
 
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
-from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
 from pymatgen.io.babel import BabelMolAdaptor
 
 __author__ = "Samuel Blau"
@@ -323,45 +323,3 @@ def open_ring(mol_graph, bond, opt_steps):
     obmol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
     obmol.localopt(steps=opt_steps, forcefield="uff")
     return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN())
-
-
-def metal_edge_extender(mol_graph):
-    """
-    Function to identify and add missed edges in ionic bonding of Li and Mg ions.
-    """
-    metal_sites = {"Li": {}, "Mg": {}}
-    coordinators = ["O", "N", "F", "Cl"]
-    num_new_edges = 0
-    for idx in mol_graph.graph.nodes():
-        if mol_graph.graph.nodes()[idx]["specie"] in metal_sites:
-            metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [
-                site[2] for site in mol_graph.get_connected_sites(idx)
-            ]
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in metal_sites[metal][idx]:
-                    if str(site.specie) in coordinators:
-                        if site.distance(mol_graph.molecule[idx]) < 2.5:
-                            mol_graph.add_edge(idx, ii)
-                            num_new_edges += 1
-                            metal_sites[metal][idx].append(ii)
-    total_metal_edges = 0
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            total_metal_edges += len(metal_sites[metal][idx])
-    if total_metal_edges == 0:
-        for metal in metal_sites:
-            for idx in metal_sites[metal]:
-                for ii, site in enumerate(mol_graph.molecule):
-                    if ii != idx and ii not in metal_sites[metal][idx]:
-                        if str(site.specie) in coordinators:
-                            if site.distance(mol_graph.molecule[idx]) < 3.5:
-                                mol_graph.add_edge(idx, ii)
-                                num_new_edges += 1
-                                metal_sites[metal][idx].append(ii)
-    total_metal_edges = 0
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            total_metal_edges += len(metal_sites[metal][idx])
-    return mol_graph

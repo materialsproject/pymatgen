@@ -22,11 +22,7 @@ from pymatgen.core.structure import Molecule, Structure
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"
-__copyright__ = "Copyright 2013, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Anubhav Jain"
-__email__ = "ajain@lbl.gov"
-__date__ = "Feb 11, 2013"
+
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
 MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
@@ -282,7 +278,7 @@ class StructureNL:
                 "A maximum of {} History nodes are supported, " "you have {}!".format(MAX_HNODES, len(history))
             )
         self.history = [HistoryNode.parse_history_node(h) for h in history]
-        if not all([sys.getsizeof(h) < MAX_HNODE_SIZE for h in history]):
+        if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(
                 "One or more history nodes exceeds the maximum " "size limit of {} bytes".format(MAX_HNODE_SIZE)
             )

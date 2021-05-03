@@ -17,7 +17,13 @@ from monty.collections import AttrDict
 from monty.functools import lazy_property
 from tabulate import tabulate
 
-from pymatgen import yaml
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 
@@ -554,7 +560,7 @@ class YamlTokenizer(Iterator):
         self.filename = filename
 
         try:
-            self.stream = open(filename, "rt")
+            self.stream = open(filename, "rt")  # pylint: disable=R1732
         except IOError as exc:
             # Look for associated error file.
             root, ext = os.path.splitext(self.filename)

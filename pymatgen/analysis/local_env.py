@@ -19,12 +19,18 @@ from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
-from pymatgen import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
@@ -37,9 +43,8 @@ try:
 except Exception:
     ob = None
 
-__author__ = (
-    "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman," + " Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
-)
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
+__author__ += "Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Nils E. R. Zimmermann"
@@ -246,7 +251,7 @@ class NearNeighbors:
         this NearNeighbors class? Note: this property is not defined for classes
         for which molecules_allowed == False.
         """
-        raise NotImplementedError("extend_structures_molecule" " is not defined!")
+        raise NotImplementedError("extend_structures_molecule is not defined!")
 
     def get_cn(self, structure, n, use_weights=False):
         """
@@ -4348,3 +4353,53 @@ class Critic2NN(NearNeighbors):
             }
             for connected_site in sg.get_connected_sites(n)
         ]
+
+
+def metal_edge_extender(mol_graph):
+    """
+    Function to identify and add missed coordinate bond edges for metals
+
+    Args:
+        mol_graph: pymatgen.analysis.graphs.MoleculeGraph object
+
+    Returns:
+        mol_graph: pymatgen.analysis.graphs.MoleculeGraph object with additional
+            metal bonds (if any found) added
+
+    """
+    metal_sites = {"Li": {}, "Mg": {}, "Ca": {}, "Zn": {}, "B": {}, "Al": {}}
+    coordinators = ["O", "N", "F", "S", "Cl"]
+    num_new_edges = 0
+    for idx in mol_graph.graph.nodes():
+        if mol_graph.graph.nodes()[idx]["specie"] in metal_sites:
+            metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [
+                site[2] for site in mol_graph.get_connected_sites(idx)
+            ]
+    for metal in metal_sites:
+        for idx in metal_sites[metal]:
+            for ii, site in enumerate(mol_graph.molecule):
+                if ii != idx and ii not in metal_sites[metal][idx]:
+                    if str(site.specie) in coordinators:
+                        if site.distance(mol_graph.molecule[idx]) < 2.5:
+                            mol_graph.add_edge(idx, ii)
+                            num_new_edges += 1
+                            metal_sites[metal][idx].append(ii)
+    total_metal_edges = 0
+    for metal in metal_sites:
+        for idx in metal_sites[metal]:
+            total_metal_edges += len(metal_sites[metal][idx])
+    if total_metal_edges == 0:
+        for metal in metal_sites:
+            for idx in metal_sites[metal]:
+                for ii, site in enumerate(mol_graph.molecule):
+                    if ii != idx and ii not in metal_sites[metal][idx]:
+                        if str(site.specie) in coordinators:
+                            if site.distance(mol_graph.molecule[idx]) < 3.5:
+                                mol_graph.add_edge(idx, ii)
+                                num_new_edges += 1
+                                metal_sites[metal][idx].append(ii)
+    total_metal_edges = 0
+    for metal in metal_sites:
+        for idx in metal_sites[metal]:
+            total_metal_edges += len(metal_sites[metal][idx])
+    return mol_graph

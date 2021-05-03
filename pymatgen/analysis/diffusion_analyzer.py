@@ -42,6 +42,14 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
 
+warnings.warn(
+    "All code in pymatgen.analysis.diffusion_analyzer has been moved to the separate add-on package"
+    "pymatgen-diffusion, which also includes a lot more functionality for analyzing diffusion"
+    "calculations. This module here is retained for backwards compatibility. It will be removed from"
+    "2022.1.1.",
+    FutureWarning,
+)
+
 
 class DiffusionAnalyzer(MSONable):
     """
@@ -716,7 +724,7 @@ class DiffusionAnalyzer(MSONable):
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
-            p = multiprocessing.Pool(ncores)
+            p = multiprocessing.Pool(ncores)  # pylint: disable=R1732
             vaspruns = p.imap(_get_vasprun, [(fp, step_skip) for fp in filepaths])
             analyzer = cls.from_vaspruns(
                 vaspruns, specie=specie, initial_disp=initial_disp, initial_structure=initial_structure, **kwargs

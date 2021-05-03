@@ -1,5 +1,5 @@
-pymatgen.analysis package
-=========================
+pymatgen.analysis namespace
+===========================
 
 Subpackages
 -----------
@@ -61,11 +61,4 @@ Submodules
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state
    pymatgen.analysis.wulff
-
-Module contents
----------------
-
-.. automodule:: pymatgen.analysis
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   pymatgen.analysis.xps

@@ -1288,7 +1288,7 @@ class GrainBoundaryGenerator:
         scale[l, l] = sigma / least_mul
         for i in range(least_mul):
             check_int = i * new_rot[:, k] + (sigma / least_mul) * new_rot[:, l]
-            if all([np.round(x, 5).is_integer() for x in list(check_int)]):
+            if all(np.round(x, 5).is_integer() for x in list(check_int)):
                 n_final = i
                 break
         try:
@@ -2173,8 +2173,7 @@ class GrainBoundaryGenerator:
                 t_matrix[2] = csl[c_index]
                 return t_matrix
             max_j = abs(miller_nonzero[0])
-        if max_j > max_search:
-            max_j = max_search
+        max_j = min(max_j, max_search)
         # area of a, b vectors
         area = None
         # length of c vector
@@ -2234,8 +2233,7 @@ class GrainBoundaryGenerator:
                     warnings.warn("Cannot find the perpendicular c vector, please increase max_search")
                     break
                 max_j = 3 * max_j
-                if max_j > max_search:
-                    max_j = max_search
+                max_j = min(max_j, max_search)
                 j = np.arange(0, max_j + 1)
                 combination = []
                 for i in itertools.product(j, repeat=3):
@@ -2320,11 +2318,11 @@ class GrainBoundaryGenerator:
             j = np.arange(-max_j, max_j + 1)
             for j1, j2 in itertools.product(j, repeat=2):
                 temp = mat[h] + j1 * mat[k] + j2 * mat[l]
-                if all([np.round(x, 5).is_integer() for x in list(temp / mag)]):
+                if all(np.round(x, 5).is_integer() for x in list(temp / mag)):
                     mat_copy = mat.copy()
                     mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])
                     new_mat = np.dot(mat_copy, np.linalg.inv(r_matrix.T))
-                    if all([np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]):
+                    if all(np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))):
                         reduced = True
                         mat[h] = np.array([int(round(ele / mag)) for ele in temp])
                         break

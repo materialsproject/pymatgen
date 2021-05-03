@@ -197,6 +197,13 @@ class Vasprun(MSONable):
         kpoint, band and atom indices are 0-based (unlike the 1-based indexing
         in VASP).
 
+    .. attribute:: projected_magnetisation
+
+        Final projected magnetisation as a numpy array with the shape (nkpoints, nbands,
+        natoms, norbitals, 3). Where the last axis is the contribution in the 3
+        cartesian directions. This attribute is only set if spin-orbit coupling
+        (LSORBIT = True) or non-collinear magnetism (LNONCOLLINEAR = True) is turned
+        on in the INCAR.
 
     .. attribute:: other_dielectric
 
@@ -305,9 +312,9 @@ class Vasprun(MSONable):
                 True. Set to False to shave off significant time from the
                 parsing if you are not interested in getting those data.
             parse_projected_eigen (bool): Whether to parse the projected
-                eigenvalues. Defaults to False. Set to True to obtain projected
-                eigenvalues. **Note that this can take an extreme amount of time
-                and memory.** So use this wisely.
+                eigenvalues and magnetisation. Defaults to False. Set to True to obtain
+                projected eigenvalues and magnetisation. **Note that this can take an
+                extreme amount of time and memory.** So use this wisely.
             parse_potcar_file (bool/str): Whether to parse the potcar file to read
                 the potcar hashes for the potcar_spec attribute. Defaults to True,
                 where no hashes will be determined and the potcar_spec dictionaries
@@ -373,6 +380,7 @@ class Vasprun(MSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.projected_magnetisation = None
         self.dielectric_data = {}
         self.other_dielectric = {}
         ionic_steps = []
@@ -415,7 +423,10 @@ class Vasprun(MSONable):
                 elif parse_eigen and tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    self.projected_eigenvalues = self._parse_projected_eigen(elem)
+                    (
+                        self.projected_eigenvalues,
+                        self.projected_magnetisation,
+                    ) = self._parse_projected_eigen(elem)
                 elif tag == "dielectricfunction":
                     if (
                         "comment" not in elem.attrib
@@ -1149,6 +1160,9 @@ class Vasprun(MSONable):
                     str(spin): v.tolist() for spin, v in self.projected_eigenvalues.items()
                 }
 
+            if self.projected_magnetisation is not None:
+                vout["projected_magnetisation"] = self.projected_magnetisation.tolist()
+
         vout["epsilon_static"] = self.epsilon_static
         vout["epsilon_static_wolfe"] = self.epsilon_static_wolfe
         vout["epsilon_ionic"] = self.epsilon_ionic
@@ -1340,7 +1354,7 @@ class Vasprun(MSONable):
         if partial is not None:
             orbs = [ss.text for ss in partial.find("array").findall("field")]
             orbs.pop(0)
-            lm = any(["x" in s for s in orbs])
+            lm = any("x" in s for s in orbs)
             for s in partial.find("array").find("set").findall("set"):
                 pdos = defaultdict(dict)
 
@@ -1381,7 +1395,6 @@ class Vasprun(MSONable):
             spin = int(re.match(r"spin(\d+)", s.attrib["comment"]).group(1))
 
             # Force spin to be +1 or -1
-            spin = Spin.up if spin == 1 else Spin.down
             for kpt, ss in enumerate(s.findall("set")):
                 dk = []
                 for band, sss in enumerate(ss.findall("set")):
@@ -1389,8 +1402,19 @@ class Vasprun(MSONable):
                     dk.append(db)
                 proj_eigen[spin].append(dk)
         proj_eigen = {spin: np.array(v) for spin, v in proj_eigen.items()}
+
+        if len(proj_eigen) > 2:
+            # non-collinear magentism (also spin-orbit coupling) enabled, last three
+            # "spin channels" are the projected magnetisation of the orbitals in the
+            # x, y, and z cartesian coordinates
+            proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)
+            proj_eigen = {Spin.up: proj_eigen[1]}
+        else:
+            proj_eigen = {Spin.up if k == 1 else Spin.down: v for k, v in proj_eigen.items()}
+            proj_mag = None
+
         elem.clear()
-        return proj_eigen
+        return proj_eigen, proj_mag
 
     @staticmethod
     def _parse_dynmat(elem):
@@ -1473,7 +1497,10 @@ class BSVasprun(Vasprun):
                 elif tag == "eigenvalues":
                     self.eigenvalues = self._parse_eigen(elem)
                 elif parse_projected_eigen and tag == "projected":
-                    self.projected_eigenvalues = self._parse_projected_eigen(elem)
+                    (
+                        self.projected_eigenvalues,
+                        self.projected_magnetisation,
+                    ) = self._parse_projected_eigen(elem)
                 elif tag == "structure" and elem.attrib.get("name") == "finalpos":
                     self.final_structure = self._parse_structure(elem)
         self.vasp_version = self.generator["version"]
@@ -1685,7 +1712,13 @@ class Outcar:
             else:
                 if time_patt.search(line):
                     tok = line.strip().split(":")
-                    run_stats[tok[0].strip()] = float(tok[1].strip())
+                    try:
+                        # try-catch because VASP 6.2.0 may print
+                        # Average memory used (kb):          N/A
+                        # which cannot be parsed as float
+                        run_stats[tok[0].strip()] = float(tok[1].strip())
+                    except ValueError:
+                        run_stats[tok[0].strip()] = None
                     continue
                 m = efermi_patt.search(clean)
                 if m:
@@ -4269,6 +4302,21 @@ class Xdatcar:
             for l in f:
                 l = l.strip()
                 if preamble is None:
+                    preamble = [l]
+                    title = l
+                elif title == l:
+                    preamble_done = False
+                    p = Poscar.from_string("\n".join(preamble + ["Direct"] + coords_str))
+                    if ionicstep_end is None:
+                        if ionicstep_cnt >= ionicstep_start:
+                            structures.append(p.structure)
+                    else:
+                        if ionicstep_start <= ionicstep_cnt < ionicstep_end:
+                            structures.append(p.structure)
+                        if ionicstep_cnt >= ionicstep_end:
+                            break
+                    ionicstep_cnt += 1
+                    coords_str = []
                     preamble = [l]
                 elif not preamble_done:
                     if l == "" or "Direct configuration=" in l:

@@ -6,9 +6,8 @@
 
 import sys
 import platform
-import os
 
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, find_namespace_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
 
@@ -35,21 +34,6 @@ extra_link_args = []
 if sys.platform.startswith("win") and platform.machine().endswith("64"):
     extra_link_args.append("-Wl,--allow-multiple-definition")
 
-# thanks https://stackoverflow.com/a/36693250
-def package_files(directory, extensions):
-    """
-    Walk package directory to make sure we include all relevant files in
-    package.
-    """
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            if any([filename.endswith(ext) for ext in extensions]):
-                paths.append(os.path.join("..", path, filename))
-    return paths
-
-
-json_yaml_csv_files = package_files("pymatgen", ["yaml", "json", "csv", "yaml.gz", "json.gz", "csv.gz"])
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -104,18 +88,20 @@ but pymatgen offer several advantages:
    and maintained by the [Materials Virtual Lab](https://www.materialsvirtuallab.org),
    the ABINIT group and many other research groups.
 
-With effect from version 2019.1.1, pymatgen only supports Python 3.x. Users
-who require Python 2.7 should install pymatgen v2018.x.
+With effect from version 2021.1.1, pymatgen only supports Python >3.7.
 """
 
 setup(
     name="pymatgen",
-    packages=find_packages(),
-    version="2021.1.28",
+    packages=find_namespace_packages(
+        include=["pymatgen.*", "pymatgen.analysis.*", "pymatgen.io.*", "pymatgen.ext.*"],
+        exclude=["pymatgen.*.tests", "pymatgen.*.*.tests", "pymatgen.*.*.*.tests"],
+    ),
+    version="2022.0.7",
     cmdclass={"build_ext": build_ext},
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
-        "numpy>=1.18.0",
+        "numpy>=1.20.1",
         "requests",
         "ruamel.yaml>=0.15.6",
         "monty>=3.0.2",
@@ -135,25 +121,39 @@ setup(
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
-        ':python_version < "3.7"': [
-            "dataclasses>=0.6",
-        ],
         ':python_version < "3.8"': [
             "typing-extensions>=3.7.4.3",
         ],
     },
+    # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
+    # all sorts of useless files like test files and is prone to path errors.
     package_data={
-        "pymatgen": json_yaml_csv_files,
-        "pymatgen.core": ["py.typed"],
-        "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt"],
-        "pymatgen.symmetry": ["*.sqlite"],
+        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
+        "pymatgen.analysis.chemenv": [
+            "coordination_environments/coordination_geometries_files/*.json",
+            "coordination_environments/coordination_geometries_files/*.txt",
+            "coordination_environments/strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
+        ],
+        "pymatgen.analysis.structure_prediction": ["*.yaml", "data/*.json"],
+        "pymatgen.analysis.diffraction": ["*.json"],
+        "pymatgen.analysis.magnetism": ["default_magmoms.yaml"],
+        "pymatgen.entries": ["py.typed", "*.json.gz", "*.yaml", "data/*.json"],
+        "pymatgen.core": ["py.typed", "*.json"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.io.feff": ["*.yaml"],
+        "pymatgen.io.cp2k": ["*.yaml"],
+        "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
         "pymatgen.command_line": ["OxideTersoffPotentials"],
+        "pymatgen.util": ["structures/*.json", "*.json"],
+        "pymatgen.vis": ["*.yaml"],
+        "pymatgen.io.lammps": ["CoeffsDataType.yaml"],
+        "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
     },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
-    url="https://www.pymatgen.org",
+    url="http://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
     "analysis code that defines core object representations for "
@@ -181,7 +181,6 @@ setup(
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

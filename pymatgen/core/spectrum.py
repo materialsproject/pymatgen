@@ -7,15 +7,25 @@ This module defines classes to represent any type of spectrum, essentially any
 x y value pairs.
 """
 
-from typing import List
+from typing import List, Union, Callable
 
 import numpy as np
+import scipy.stats as stats
 from monty.json import MSONable
-from scipy.ndimage.filters import gaussian_filter1d
-
+from scipy.ndimage.filters import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.typing import ArrayLike
+
+
+def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
+    """
+    :param x: x values
+    :param x_0: Center
+    :param sigma: FWHM
+    :return: Value of lorentzian at x.
+    """
+    return 1 / np.pi * 0.5 * sigma / ((x - x_0) ** 2 + (0.5 * sigma) ** 2)
 
 
 class Spectrum(MSONable):
@@ -83,19 +93,33 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float):
+    def smear(self, sigma: float = 0.0, func: Union[str, Callable] = "gaussian"):
         """
-        Apply Gaussian smearing to spectrum y value.
+        Apply Gaussian/Lorentzian smearing to spectrum y value.
 
         Args:
             sigma: Std dev for Gaussian smear function
+            func: "gaussian" or "lorentzian" or a callable. If this is a callable, the sigma value is ignored. The
+                callable should only take a single argument (a numpy array) and return a set of weights.
         """
-        diff = [self.x[i + 1] - self.x[i] for i in range(len(self.x) - 1)]
-        avg_x_per_step = np.sum(diff) / len(diff)
-        if len(self.ydim) == 1:
-            self.y = gaussian_filter1d(self.y, sigma / avg_x_per_step)
+        points = np.linspace(np.min(self.x) - np.mean(self.x), np.max(self.x) - np.mean(self.x), len(self.x))
+        if callable(func):
+            weights = func(points)
+        elif func.lower() == "gaussian":
+            weights = stats.norm.pdf(points, scale=sigma)
+        elif func.lower() == "lorentzian":
+            weights = lorentzian(points, sigma=sigma)
         else:
-            self.y = np.array([gaussian_filter1d(self.y[:, k], sigma / avg_x_per_step) for k in range(self.ydim[1])]).T
+            raise ValueError(f"Invalid func {func}")
+        weights /= np.sum(weights)
+        if len(self.ydim) == 1:
+            total = np.sum(self.y)
+            self.y = convolve1d(self.y, weights)
+            self.y *= total / np.sum(self.y)  # renormalize to maintain the same integrated sum as before.
+        else:
+            total = np.sum(self.y, axis=0)
+            self.y = np.array([convolve1d(self.y[:, k], weights) for k in range(self.ydim[1])]).T
+            self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
     def get_interpolated_value(self, x: float) -> List[float]:
         """

@@ -10,7 +10,7 @@ import json
 from os import makedirs
 from os.path import exists, expanduser
 
-from pymatgen import SETTINGS
+from pymatgen.core import SETTINGS
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 
 
@@ -169,9 +169,8 @@ class ChemEnvConfig:
             if test != "Y":
                 print("Configuration not saved")
                 return config_file
-        f = open(config_file, "w")
-        json.dump(config_dict, f)
-        f.close()
+        with open(config_file, "w") as f:
+            json.dump(config_dict, f)
         print("Configuration saved")
         return config_file
 
@@ -186,9 +185,8 @@ class ChemEnvConfig:
             root_dir = "{}/.chemenv".format(home)
         config_file = "{}/config.json".format(root_dir)
         try:
-            f = open(config_file, "r")
-            config_dict = json.load(f)
-            f.close()
+            with open(config_file, "r") as f:
+                config_dict = json.load(f)
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
         except IOError:

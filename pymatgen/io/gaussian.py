@@ -156,8 +156,6 @@ class GaussianInput:
             # Get a title from the molecule name
             self.title = title if title else self._mol.composition.formula
         else:
-            if charge is None or spin_multiplicity is None:
-                raise ValueError("`charge` and `spin_multiplicity` must be specified")
             self.charge = charge
             self.spin_multiplicity = spin_multiplicity
 
@@ -457,18 +455,32 @@ class GaussianInput:
         output = []
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
+
+        # Handle functional or basis set set to None, empty string or whitespace
+        func_str = "" if self.functional is None else self.functional.strip()
+        bset_str = "" if self.basis_set is None else self.basis_set.strip()
+
+        if func_str != "" and bset_str != "":
+            func_bset_str = " {}/{}".format(func_str, bset_str)
+        else:
+            # don't use the slash if either or both are set as empty
+            func_bset_str = " {}{}".format(func_str, bset_str).rstrip()
+
         output.append(
-            "{diez} {func}/{bset} {route}".format(
+            "{diez}{func_bset} {route}".format(
                 diez=self.dieze_tag,
-                func=self.functional,
-                bset=self.basis_set,
+                func_bset=func_bset_str,
                 route=para_dict_to_string(self.route_parameters),
             )
         )
         output.append("")
         output.append(self.title)
         output.append("")
-        output.append("%d %d" % (self.charge, self.spin_multiplicity))
+
+        charge_str = "" if self.charge is None else "%d" % self.charge
+        multip_str = "" if self.spin_multiplicity is None else " %d" % self.spin_multiplicity
+        output.append("{}{}".format(charge_str, multip_str))
+
         if isinstance(self._mol, Molecule):
             if cart_coords is True:
                 output.append(self.get_cart_coords())
@@ -1256,7 +1268,7 @@ class GaussianOutput:
         """
 
         def floatList(l):
-            """ return a list of float from a list of string """
+            """return a list of float from a list of string"""
             return [float(v) for v in l]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")

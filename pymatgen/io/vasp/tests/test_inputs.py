@@ -14,6 +14,7 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.tempfile import ScratchDir
 
+from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
@@ -964,8 +965,8 @@ class PotcarSingleTest(PymatgenTest):
 
 class PotcarTest(PymatgenTest):
     def setUp(self):
-        if "PMG_VASP_PSP_DIR" not in os.environ:
-            os.environ["PMG_VASP_PSP_DIR"] = str(PymatgenTest.TEST_FILES_DIR)
+        if "PMG_VASP_PSP_DIR" not in SETTINGS:
+            SETTINGS["PMG_VASP_PSP_DIR"] = str(PymatgenTest.TEST_FILES_DIR)
         filepath = PymatgenTest.TEST_FILES_DIR / "POTCAR"
         self.potcar = Potcar.from_file(filepath)
 
