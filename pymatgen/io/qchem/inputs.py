@@ -80,8 +80,8 @@ class QCInput(MSONable):
                 Ex. scan = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
             van_der_waals (dict):
                 A dictionary of custom van der Waals radii to be used when construcing cavities for the PCM
-                model. They keys are strs whose meaning depends on the value of vdw_mode, and the values
-                are the custom radii in angstroms.
+                model or when computing, e.g. Mulliken charges. They keys are strs whose meaning depends on
+                the value of vdw_mode, and the values are the custom radii in angstroms.
             vdw_mode (str): Method of specifying custom van der Waals radii - 'atomic' or 'sequential'.
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., 12 = carbon). In 'sequential' mode, dict keys represent the sequential
