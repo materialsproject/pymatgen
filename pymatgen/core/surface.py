@@ -313,8 +313,8 @@ class Slab(Structure):
         sg = SpacegroupAnalyzer(self, symprec=symprec)
         symmops = sg.get_point_group_operations()
 
-        if sg.is_laue() or any([op.translation_vector[2] != 0 for op in symmops]) or \
-                any([np.alltrue(op.rotation_matrix[2] == np.array([0,0,-1])) for op in symmops]):
+        if sg.is_laue() or any(op.translation_vector[2] != 0 for op in symmops) or \
+                any(np.alltrue(op.rotation_matrix[2] == np.array([0,0,-1])) for op in symmops):
             # Check for inversion symmetry. Or if sites from surface (a) can be translated
             # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
             # two surfaces of our slabs are always parallel to the (hkl) plane,
