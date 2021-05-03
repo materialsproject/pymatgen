@@ -392,6 +392,32 @@ class Interstitial(Defect):
             return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
+class Polaron(Substitution):
+    """
+    Subclass for defining polarons. (Small/localized) Polarons are special version of substitution
+    where the substituted species is the but with a different charge.
+    """
+
+    @property
+    def defect_composition(self):
+        """
+        Returns: Defect composition, which is the same as the bulk.
+        """
+        return self.bulk_structure.composition
+
+    @property
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        poss_deflist = sorted(
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
+        defindex = poss_deflist[0][2]
+        return "Polaron_{}_on_{}_mult{}".format(
+            'e' if self.charge < 0 else 'h', self.bulk_structure[defindex].specie, self.multiplicity
+        )
+
+
 def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
     """
     this takes a Interstitial defect object and generates the
