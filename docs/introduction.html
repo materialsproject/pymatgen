@@ -1,19 +1,15 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.0.7 documentation</title>
   
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -23,19 +19,24 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
@@ -60,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -70,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.7
               </div>
             
           
@@ -87,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -101,7 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#v2022-0-7">v2022.0.7</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
@@ -131,7 +131,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -170,7 +169,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
       <li>Introduction</li>
     
@@ -308,16 +307,17 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2022-0-4-v2021-3-9">
-<h3>v2022.0.4 / v2021.3.9<a class="headerlink" href="#v2022-0-4-v2021-3-9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2022-0-7">
+<h3>v2022.0.7<a class="headerlink" href="#v2022-0-7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Element now has <cite>ionization_energies</cite>, <cite>ionization_energy</cite> and
-<cite>electron_affinity</cite> properties.</p></li>
-<li><p>Extensive documentation has been added on pymatgen compatibility and the
-new namespace architecture! We have also released a
-<a class="reference external" href="https://github.com/materialsproject/pymatgen-addon-template">template repo</a>
-to help new developers write add-ons for pymatgen! Check out our
-<a class="reference internal" href="contributing.html"><span class="doc">contributing page</span></a> for details.</p></li>
+<li><p>Improved Gaussian Cube I/O (&#64;nwinner, #2121)</p></li>
+<li><p>Updated van der Waals radii (&#64;rkingsbury, #2122)</p></li>
+<li><p>Update <cite>MaterialsProject2020Compatibility</cite> for multi-anion systems (&#64;rkingsbury, #2128)</p></li>
+<li><p>Fixes and improvements to Q-Chem parsing (&#64;samblau, #2125)</p></li>
+<li><p>Bug fix for isseus with hard-coded path in <cite>MaterialsProject2020Compatibility</cite> (&#64;CompRhys, #2124)</p></li>
+<li><p>Bug fix for DOS serialization (&#64;zooks97, #2119)</p></li>
+<li><p>Bug fix for XDATCAR lattice parsing (&#64;nkeilbart, #2115)</p></li>
+<li><p>Documentation link fix (&#64;adam-kerrigan, #2127)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -708,19 +708,11 @@ to indicate the copyright and license terms:</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -731,6 +723,7 @@ to indicate the copyright and license terms:</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

@@ -1268,7 +1268,7 @@ class GaussianOutput:
         """
 
         def floatList(l):
-            """ return a list of float from a list of string """
+            """return a list of float from a list of string"""
             return [float(v) for v in l]
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
