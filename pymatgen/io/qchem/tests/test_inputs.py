@@ -136,7 +136,7 @@ $end"""
         vdw_params = {1: 1.20, 12: 1.72}
         vdw_test_atomic = QCInput.van_der_waals_template(vdw_params, mode="atomic")
         vdw_actual_atomic = """$van_der_waals
-   1
+1
    1 1.2
    12 1.72
 $end"""
@@ -144,7 +144,7 @@ $end"""
 
         vdw_test_sequential = QCInput.van_der_waals_template(vdw_params, mode="sequential")
         vdw_actual_sequential = """$van_der_waals
-   2
+2
    1 1.2
    12 1.72
 $end"""

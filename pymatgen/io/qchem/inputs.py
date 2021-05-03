@@ -434,9 +434,9 @@ class QCInput(MSONable):
         vdw_list = list()
         vdw_list.append("$van_der_waals")
         if mode == "atomic":
-            vdw_list.append("   1")
+            vdw_list.append("1")
         elif mode == "sequential":
-            vdw_list.append("   2")
+            vdw_list.append("2")
         else:
             raise ValueError(f"Invalid value {mode} given for 'mode' kwarg.")
 
