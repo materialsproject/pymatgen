@@ -326,12 +326,12 @@ class BaderAnalysis:
 
     def get_decorated_structure(self, property_name, average=False):
         """
-        Get the property decorated structure from the Bader analysis.
+        Get a property-decorated structure from the Bader analysis.
 
         This is distinct from getting charge decorated structure, which assumes
         the "standard" Bader analysis of electron densities followed by converting
         electron count to charge. The expected way to use this is to call Bader on
-        a non-charge density file such as a spin denisty file, electrostatic potential
+        a non-charge density file such as a spin density file, electrostatic potential
         file, etc., while using the charge density file as the reference (chgref_filename)
         so that the partitioning is determined via the charge, but averaging or integrating
         is done for another property.
@@ -342,7 +342,9 @@ class BaderAnalysis:
         property and you have an appropriate reference file.
 
         Args:
-            property_name: name of the property to assign to the structure
+            property_name: name of the property to assign to the structure, note that 
+                if name is "spin" this is handled as a special case, and the appropriate 
+                spin properties are set on the species in the structure
             average: whether or not to return the average of this property, rather
                 than the total, by dividing by the atomic volume.
 
