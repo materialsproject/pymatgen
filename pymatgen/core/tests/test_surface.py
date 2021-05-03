@@ -59,12 +59,9 @@ class SlabTest(PymatgenTest):
             ],
         )
 
-        m = [[3.913449, 0, 0],
-             [0, 3.913449, 0],
-             [0, 0, 5.842644]]
+        m = [[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]]
         latt = Lattice(m)
-        fcoords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482],
-                   [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
+        fcoords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
         non_laue = Structure(latt, ['Nb', 'Nb', 'N', 'N', 'N'], fcoords)
 
         self.ti = Ti
@@ -252,9 +249,7 @@ class SlabTest(PymatgenTest):
             self.assertEqual(symmetric_count, len(slabs))
 
         # Check if we can generate symmetric slabs from bulk with no inversion
-        all_non_laue_slabs = generate_all_slabs(self.nonlaue,
-                                                1, 15, 15,
-                                                symmetrize=True)
+        all_non_laue_slabs = generate_all_slabs(self.nonlaue, 1, 15, 15, symmetrize=True)
         self.assertTrue(len(all_non_laue_slabs) > 0)
 
 
