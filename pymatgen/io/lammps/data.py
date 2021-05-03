@@ -344,7 +344,7 @@ class LammpsData(MSONable):
             site_properties=site_properties,
         )
 
-    def get_string(self, distance=6, velocity=8, charge=4):
+    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
         """
         Returns the string representation of LammpsData, essentially
         the string to be written to a file. Support hybrid style
@@ -358,6 +358,11 @@ class LammpsData(MSONable):
                 velocities. Default to 8.
             charge (int): No. of significant figures to output for
                 charges. Default to 3.
+            hybrid (bool): Whether to write hybrid coeffs types.
+                Default to True. If the data object has no hybrid
+                coeffs types and has large coeffs section, one may
+                use False to speedup the process. Otherwise the
+                default is recommanded.
 
         Returns:
             String representation
@@ -446,7 +451,7 @@ class LammpsData(MSONable):
                 "Angle Coeffs",
                 "Dihedral Coeffs",
                 "Improper Coeffs",
-            ]:
+            ] and hybrid:
                 listofdf = np.array_split(v, len(v.index))
                 df_string = ""
                 for i, df in enumerate(listofdf):
