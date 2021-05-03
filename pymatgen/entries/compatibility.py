@@ -1048,7 +1048,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name="MP2020 anion correction",
+                            name="MP2020 anion correction ({})".format(anion),
                             cls=self.as_dict(),
                         )
                     )
