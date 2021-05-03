@@ -55,7 +55,7 @@ class QCOutput(MSONable):
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
-        with zopen(filename, "rt") as f:
+        with zopen(filename, encoding="ISO-8859-1") as f:
             self.text = f.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
@@ -277,7 +277,7 @@ class QCOutput(MSONable):
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*force"},
             terminate_on_match=True,
         ).get("key")
-        if self.data.get("force", []):
+        if self.data.get("force_job", []):
             self._read_force_data()
 
         self.data["scan_job"] = read_pattern(
@@ -677,13 +677,6 @@ class QCOutput(MSONable):
             == [[]]
         ):
             self.data["warnings"]["diagonalizing_BBt"] = True
-
-        # Check for bad Roothaan step
-        for scf in self.data["SCF"]:
-            if abs(scf[0][0] - scf[1][0]) > 10.0:
-                self.data["warnings"]["bad_roothaan"] = True
-                if abs(scf[0][0] - scf[1][0]) > 100.0:
-                    self.data["warnings"]["very_bad_roothaan"] = True
 
     def _read_geometries(self):
         """
