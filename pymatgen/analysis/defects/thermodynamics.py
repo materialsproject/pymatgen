@@ -869,7 +869,7 @@ class DefectPredominanceDiagram(MSONable):
             free_carrier = (r == 'n' or r == 'p')
             ax1.plot(
                 px2 if partial_pressure else mus,
-                cs[:-1], '--' if free_carrier else '-',
+                cs[:-1] if partial_pressure else cs, '--' if free_carrier else '-',
                 linewidth=3 if free_carrier else 5,
                 alpha=.8, label=r
             )
