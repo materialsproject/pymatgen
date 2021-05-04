@@ -1012,7 +1012,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         # first check for a pre-populated oxidation states key
         # the key is expected to comprise a dict corresponding to the first element output by
         # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-        if not entry.data.get("oxidation_states"):
+        if "oxidation_states" not in entry.data.keys():
             # try to guess the oxidation states from composition
             # for performance reasons, fail if the composition is too large
             try:
