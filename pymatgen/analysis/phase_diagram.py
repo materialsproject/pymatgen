@@ -1492,17 +1492,15 @@ class PatchedPhaseDiagram(PhaseDiagram):
             min_entries.append(min_entry)
             all_entries.extend(g)
 
-        self.min_entries = min_entries
-
-        # print(sorted(elements))
-        # print(sorted(el_refs.keys()))
-
         if len(el_refs) != dim:
             missing = set(elements).difference(el_refs.keys())
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
-        # Get all chemical spaces
-        spaces = {frozenset(e.composition.elements) for e in min_entries if not e.is_element}
+        self.min_entries = min_entries
+        self._min_spaces = [frozenset(e.composition.elements) for e in min_entries]
+
+        # Get all unique chemical spaces
+        spaces = set(s for s in self._min_spaces if len(s) > 1)
 
         # Remove redundant chemical spaces
         if not keep_all_spaces:
@@ -1766,7 +1764,7 @@ def _get_pd_patch_for_space(space, ppd):
     Returns:
         space, PhaseDiagram for the given chemical space
     """
-    space_entries = [e for e in ppd.min_entries if space.issuperset(e.composition.elements)]
+    space_entries = [e for e, s in zip(ppd.min_entries, ppd._min_spaces) if space.issuperset(s)]
 
     return space, PhaseDiagram(space_entries)
 
