@@ -139,7 +139,7 @@ single_job_out_names = {
     "new_qchem_files/VC_solv_eps10.2.qcout",
     "crazy_scf_values.qcout",
     "new_qchem_files/N2.qcout",
-    "new_qchem_files/julian.qcout",
+    "new_qchem_files/julian.qcout.gz",
     "new_qchem_files/Frequency_no_equal.qout",
     "new_qchem_files/gdm.qout",
     "new_qchem_files/DinfH.qout",
