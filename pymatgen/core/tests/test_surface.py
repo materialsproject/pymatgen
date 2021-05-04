@@ -59,10 +59,16 @@ class SlabTest(PymatgenTest):
             ],
         )
 
+        m = [[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]]
+        latt = Lattice(m)
+        fcoords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
+        non_laue = Structure(latt, ["Nb", "Nb", "N", "N", "N"], fcoords)
+
         self.ti = Ti
         self.agfcc = Ag_fcc
         self.zno1 = zno1
         self.zno55 = zno55
+        self.nonlaue = non_laue
         self.h = Structure(Lattice.cubic(3), ["H"], [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
@@ -174,7 +180,6 @@ class SlabTest(PymatgenTest):
             total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
             self.assertTrue(slab.is_symmetric())
             self.assertEqual(total_surf_sites / 2, 4)
-            self.assertTrue(slab.have_equivalent_surfaces())
 
             # Test if the ratio of surface sites per area is
             # constant, ie are the surface energies the same
@@ -242,6 +247,10 @@ class SlabTest(PymatgenTest):
             # Check if slabs are all symmetric
             self.assertEqual(assymetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
+
+        # Check if we can generate symmetric slabs from bulk with no inversion
+        all_non_laue_slabs = generate_all_slabs(self.nonlaue, 1, 15, 15, symmetrize=True)
+        self.assertTrue(len(all_non_laue_slabs) > 0)
 
     def test_get_symmetric_sites(self):
 
