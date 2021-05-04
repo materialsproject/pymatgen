@@ -1,6 +1,26 @@
 Change log
 ==========
 
+v2022.0.7
+---------
+* Improved Gaussian Cube I/O (@nwinner, #2121)
+* Updated van der Waals radii (@rkingsbury, #2122)
+* Update `MaterialsProject2020Compatibility` for multi-anion systems (@rkingsbury, #2128)
+* Fixes and improvements to Q-Chem parsing (@samblau, #2125)
+* Bug fix for isseus with hard-coded path in `MaterialsProject2020Compatibility` (@CompRhys, #2124)
+* Bug fix for DOS serialization (@zooks97, #2119)
+* Bug fix for XDATCAR lattice parsing (@nkeilbart, #2115)
+* Documentation link fix (@adam-kerrigan, #2127)
+
+v2022.0.6
+---------
+* Feature to calculate Selling vectors and distances between Lattices (@bwjustus, #1888)
+* XPS Spectrum class added (@shyuep, #2110, see `galore <https://github.com/SMTG-UCL/galore>`_)
+* Updated `MaterialsProject2020Compatibility` for formation energy correction (@rkingsbury, #2106)
+* Bug fix for detecting broken bonds in slab generation (@fyalcin, #2015)
+* Bug fix for electrodes (@jmmshn, #2101)
+* Documentation improvement for get_conventional_standard_structure (@tom-wood, #2100)
+
 v2022.0.5
 ---------
 * Bug fix to remove possibility of duplicate edges in `StructureGraph` (@mkhorton, #2095)

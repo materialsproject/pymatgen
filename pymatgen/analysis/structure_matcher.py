@@ -537,7 +537,7 @@ class StructureMatcher(MSONable):
         # vectors are from s2 to s1
         vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True, lll_frac_tol=lll_frac_tol)
         lin = LinearAssignment(d_2)
-        s = lin.solution
+        s = lin.solution  # pylint: disable=E1101
         short_vecs = vecs[np.arange(len(s)), s]
         translation = np.average(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
@@ -755,7 +755,7 @@ class StructureMatcher(MSONable):
         if (not self._subset) and mask.shape[1] != mask.shape[0]:
             return None
 
-        if LinearAssignment(mask).min_cost > 0:
+        if LinearAssignment(mask).min_cost > 0:  # pylint: disable=E1101
             return None
 
         best_match = None

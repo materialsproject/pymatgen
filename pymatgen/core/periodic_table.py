@@ -63,8 +63,14 @@ class ElementBase(Enum):
         .. attribute:: van_der_waals_radius
 
             Van der Waals radius for the element. This is the empirical
-            value. Data is obtained from
-            http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+            value determined from critical reviews of X-ray diffraction, gas kinetic
+            collision cross-section, and other experimental data by Bondi and later
+            workers. The uncertainty in these values is on the order of 0.1 Å.
+
+            Data are obtained from
+
+            "Atomic Radii of the Elements" in CRC Handbook of Chemistry and Physics,
+                91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
 
         .. attribute:: mendeleev_no
 
