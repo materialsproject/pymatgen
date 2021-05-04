@@ -362,7 +362,7 @@ class LammpsData(MSONable):
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
                 use False to speedup the process. Otherwise the
-                default is recommanded.
+                default is recommended.
 
         Returns:
             String representation
