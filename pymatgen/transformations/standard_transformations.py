@@ -1114,3 +1114,39 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         Returns: False
         """
         return False
+
+
+class RelaxationTransformation(AbstractTransformation):
+    """
+    Represents the relaxation (e.g. as performed in DFT) as
+    a transformation. Whatever structure you give it, you
+    get back the "final structure".
+    """
+
+    def __init__(self, final_structure, metadata=None):
+        """
+        Args:
+            final_structure: the structure after relaxation
+            metadata: metadata to store with the transformation
+                (i.e. info about the relaxation)
+        """
+        self.final_structure = final_structure
+        self.metadata = metadata if metadata else {}
+
+    def apply_transformation(self, structure):
+        """
+        Apply the transformation
+        """
+        return self.final_structure
+
+    def inverse(self):
+        """
+        No inverse.
+        """
+        return
+
+    def is_one_to_many(self):
+        """
+        Is not one to many
+        """
+        return False
