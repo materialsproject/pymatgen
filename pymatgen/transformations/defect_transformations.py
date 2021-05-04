@@ -8,7 +8,6 @@ This module defines classes for point defect transformations on structures
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
-
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
@@ -45,7 +44,10 @@ class DefectTransformation(AbstractTransformation):
         return def_structure
 
     def __str__(self):
-        inp_args = ["Supercell scaling matrix = {}".format(self.scaling_matrix), "Defect = {}".format(self.defect)]
+        inp_args = [
+            "Supercell scaling matrix = {}".format(self.scaling_matrix),
+            "Defect = {}".format(self.defect),
+        ]
         return "Defect Transformation : " + ", ".join(inp_args)
 
     def __repr__(self):

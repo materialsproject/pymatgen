@@ -19,70 +19,76 @@ import math
 
 import numpy as np
 from numpy.linalg import norm
-from scipy.spatial import ConvexHull
 from scipy.integrate import quad
 from scipy.interpolate import UnivariateSpline
+from scipy.spatial import ConvexHull
 
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 
 def get_lower_and_upper_f(surface_calculation_options):
-    mindist = surface_calculation_options['distance_bounds']['lower']
-    maxdist = surface_calculation_options['distance_bounds']['upper']
-    minang = surface_calculation_options['angle_bounds']['lower']
-    maxang = surface_calculation_options['angle_bounds']['upper']
-    if surface_calculation_options['type'] == 'standard_elliptic':
+    """Get the lower and upper functions defining a surface in the distance-angle space of neighbors.
+
+    :param surface_calculation_options: Options for the surface.
+    :return: Dictionary containing the "lower" and "upper" functions for the surface.
+    """
+    mindist = surface_calculation_options["distance_bounds"]["lower"]
+    maxdist = surface_calculation_options["distance_bounds"]["upper"]
+    minang = surface_calculation_options["angle_bounds"]["lower"]
+    maxang = surface_calculation_options["angle_bounds"]["upper"]
+    if surface_calculation_options["type"] == "standard_elliptic":
         lower_and_upper_functions = quarter_ellipsis_functions(xx=(mindist, maxang), yy=(maxdist, minang))
-    elif surface_calculation_options['type'] == 'standard_diamond':
-        deltadist = surface_calculation_options['distance_bounds']['delta']
-        deltaang = surface_calculation_options['angle_bounds']['delta']
-        lower_and_upper_functions = diamond_functions(xx=(mindist, maxang), yy=(maxdist, minang),
-                                                      x_y0=deltadist, y_x0=deltaang)
-    elif surface_calculation_options['type'] == 'standard_spline':
-        lower_points = surface_calculation_options['lower_points']
-        upper_points = surface_calculation_options['upper_points']
-        degree = surface_calculation_options['degree']
-        lower_and_upper_functions = spline_functions(lower_points=lower_points,
-                                                     upper_points=upper_points,
-                                                     degree=degree)
+    elif surface_calculation_options["type"] == "standard_diamond":
+        deltadist = surface_calculation_options["distance_bounds"]["delta"]
+        deltaang = surface_calculation_options["angle_bounds"]["delta"]
+        lower_and_upper_functions = diamond_functions(
+            xx=(mindist, maxang), yy=(maxdist, minang), x_y0=deltadist, y_x0=deltaang
+        )
+    elif surface_calculation_options["type"] == "standard_spline":
+        lower_points = surface_calculation_options["lower_points"]
+        upper_points = surface_calculation_options["upper_points"]
+        degree = surface_calculation_options["degree"]
+        lower_and_upper_functions = spline_functions(
+            lower_points=lower_points, upper_points=upper_points, degree=degree
+        )
     else:
-        raise ValueError('Surface calculation of type "{}" '
-                         'is not implemented'.format(surface_calculation_options['type']))
+        raise ValueError(
+            'Surface calculation of type "{}" ' "is not implemented".format(surface_calculation_options["type"])
+        )
     return lower_and_upper_functions
 
 
 def function_comparison(f1, f2, x1, x2, numpoints_check=500):
     """
-        Method that compares two functions
+    Method that compares two functions
 
-        Args:
-            f1: First function to compare
-            f2: Second function to compare
-            x1: Lower bound of the interval to compare
-            x2: Upper bound of the interval to compare
-            numpoints_check: Number of points used to compare the functions
+    Args:
+        f1: First function to compare
+        f2: Second function to compare
+        x1: Lower bound of the interval to compare
+        x2: Upper bound of the interval to compare
+        numpoints_check: Number of points used to compare the functions
 
-        Returns:
-            Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
-             f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
-             interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
-             functions that do not cross...)
-        """
+    Returns:
+        Whether the function are equal ("="), f1 is always lower than f2 ("<"), f1 is always larger than f2 (">"),
+         f1 is always lower than or equal to f2 ("<"), f1 is always larger than or equal to f2 (">") on the
+         interval [x1, x2]. If the two functions cross, a RuntimeError is thrown (i.e. we expect to compare
+         functions that do not cross...)
+    """
     xx = np.linspace(x1, x2, num=numpoints_check)
     y1 = f1(xx)
     y2 = f2(xx)
     if np.all(y1 < y2):
-        return '<'
-    elif np.all(y1 > y2):
-        return '>'
-    elif np.all(y1 == y2):
-        return '='
-    elif np.all(y1 <= y2):
-        return '<='
-    elif np.all(y1 >= y2):
-        return '>='
-    else:
-        raise RuntimeError('Error in comparing functions f1 and f2 ...')
+        return "<"
+    if np.all(y1 > y2):
+        return ">"
+    if np.all(y1 == y2):
+        return "="
+    if np.all(y1 <= y2):
+        return "<="
+    if np.all(y1 >= y2):
+        return ">="
+    raise RuntimeError("Error in comparing functions f1 and f2 ...")
 
 
 def quarter_ellipsis_functions(xx, yy):
@@ -102,7 +108,7 @@ def quarter_ellipsis_functions(xx, yy):
     npxx = np.array(xx)
     npyy = np.array(yy)
     if np.any(npxx == npyy):
-        raise RuntimeError('Invalid points for quarter_ellipsis_functions')
+        raise RuntimeError("Invalid points for quarter_ellipsis_functions")
     if np.all(npxx < npyy) or np.all(npxx > npyy):
         if npxx[0] < npyy[0]:
             p1 = npxx
@@ -131,7 +137,7 @@ def quarter_ellipsis_functions(xx, yy):
     def upper(x):
         return c_upper[1] + np.sqrt(b2 - b2overa2 * (x - c_upper[0]) ** 2)
 
-    return {'lower': lower, 'upper': upper}
+    return {"lower": lower, "upper": upper}
 
 
 def spline_functions(lower_points, upper_points, degree=3):
@@ -163,7 +169,7 @@ def spline_functions(lower_points, upper_points, degree=3):
     def upper(x):
         return upper_spline(x)
 
-    return {'lower': lower, 'upper': upper}
+    return {"lower": lower, "upper": upper}
 
 
 def diamond_functions(xx, yy, y_x0, x_y0):
@@ -206,7 +212,7 @@ def diamond_functions(xx, yy, y_x0, x_y0):
     npxx = np.array(xx)
     npyy = np.array(yy)
     if np.any(npxx == npyy):
-        raise RuntimeError('Invalid points for diamond_functions')
+        raise RuntimeError("Invalid points for diamond_functions")
     if np.all(npxx < npyy) or np.all(npxx > npyy):
         if npxx[0] < npyy[0]:
             p1 = npxx
@@ -236,6 +242,7 @@ def diamond_functions(xx, yy, y_x0, x_y0):
 
         def upper(x):
             return np.where(x >= x_ppoint, p2[1] * np.ones_like(x), slope * x + ap_intercept)
+
     else:
         x_bpoint = p1[0] + x_y0
         myy = p1[1]
@@ -251,12 +258,18 @@ def diamond_functions(xx, yy, y_x0, x_y0):
         def upper(x):
             return np.where(x <= x_bpoint, p1[1] * np.ones_like(x), slope * x + bq_intercept)
 
-    return {'lower': lower, 'upper': upper}
+    return {"lower": lower, "upper": upper}
 
 
-def rectangle_surface_intersection(rectangle, f_lower, f_upper,
-                                   bounds_lower=None, bounds_upper=None,
-                                   check=True, numpoints_check=500):
+def rectangle_surface_intersection(
+    rectangle,
+    f_lower,
+    f_upper,
+    bounds_lower=None,
+    bounds_upper=None,
+    check=True,
+    numpoints_check=500,
+):
     """
     Method to calculate the surface of the intersection of a rectangle (aligned with axes) and another surface
     defined by two functions f_lower and f_upper.
@@ -290,53 +303,64 @@ def rectangle_surface_intersection(rectangle, f_lower, f_upper,
         if bounds_lower is not None:
             if bounds_upper is not None:
                 if not all(np.array(bounds_lower) == np.array(bounds_upper)):
-                    raise ValueError('Bounds should be identical for both f_lower and f_upper')
-                if '<' not in function_comparison(f1=f_lower, f2=f_upper,
-                                                  x1=bounds_lower[0], x2=bounds_lower[1],
-                                                  numpoints_check=numpoints_check):
-                    raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
-                                       'the domain defined by the functions bounds.')
+                    raise ValueError("Bounds should be identical for both f_lower and f_upper")
+                if "<" not in function_comparison(
+                    f1=f_lower,
+                    f2=f_upper,
+                    x1=bounds_lower[0],
+                    x2=bounds_lower[1],
+                    numpoints_check=numpoints_check,
+                ):
+                    raise RuntimeError(
+                        "Function f_lower is not allways lower or equal to function f_upper within "
+                        "the domain defined by the functions bounds."
+                    )
             else:
-                raise ValueError('Bounds are given for f_lower but not for f_upper')
+                raise ValueError("Bounds are given for f_lower but not for f_upper")
         elif bounds_upper is not None:
             if bounds_lower is None:
-                raise ValueError('Bounds are given for f_upper but not for f_lower')
-            else:
-                if '<' not in function_comparison(f1=f_lower, f2=f_upper,
-                                                  x1=bounds_lower[0], x2=bounds_lower[1],
-                                                  numpoints_check=numpoints_check):
-                    raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
-                                       'the domain defined by the functions bounds.')
+                raise ValueError("Bounds are given for f_upper but not for f_lower")
+            if "<" not in function_comparison(
+                f1=f_lower,
+                f2=f_upper,
+                x1=bounds_lower[0],
+                x2=bounds_lower[1],
+                numpoints_check=numpoints_check,
+            ):
+                raise RuntimeError(
+                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "the domain defined by the functions bounds."
+                )
         else:
-            if '<' not in function_comparison(f1=f_lower, f2=f_upper,
-                                              x1=x1, x2=x2, numpoints_check=numpoints_check):
-                raise RuntimeError('Function f_lower is not allways lower or equal to function f_upper within '
-                                   'the domain defined by x1 and x2.')
+            if "<" not in function_comparison(f1=f_lower, f2=f_upper, x1=x1, x2=x2, numpoints_check=numpoints_check):
+                raise RuntimeError(
+                    "Function f_lower is not allways lower or equal to function f_upper within "
+                    "the domain defined by x1 and x2."
+                )
     if bounds_lower is None:
-        raise NotImplementedError('Bounds should be given right now ...')
+        raise NotImplementedError("Bounds should be given right now ...")
+    if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
+        return 0.0, 0.0
+    if x1 < bounds_lower[0]:
+        xmin = bounds_lower[0]
     else:
-        if x2 < bounds_lower[0] or x1 > bounds_lower[1]:
-            return (0.0, 0.0)
-        if x1 < bounds_lower[0]:
-            xmin = bounds_lower[0]
-        else:
-            xmin = x1
-        if x2 > bounds_lower[1]:
-            xmax = bounds_lower[1]
-        else:
-            xmax = x2
+        xmin = x1
+    if x2 > bounds_lower[1]:
+        xmax = bounds_lower[1]
+    else:
+        xmax = x2
 
-        def diff(x):
-            flwx = f_lower(x)
-            fupx = f_upper(x)
-            minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
-            maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
-            zeros = np.zeros_like(fupx)
-            upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
-            lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
-            return upper - lower
+    def diff(x):
+        flwx = f_lower(x)
+        fupx = f_upper(x)
+        minup = np.min([fupx, y2 * np.ones_like(fupx)], axis=0)
+        maxlw = np.max([flwx, y1 * np.ones_like(flwx)], axis=0)
+        zeros = np.zeros_like(fupx)
+        upper = np.where(y2 >= flwx, np.where(y1 <= fupx, minup, zeros), zeros)
+        lower = np.where(y1 <= fupx, np.where(y2 >= flwx, maxlw, zeros), zeros)
+        return upper - lower
 
-        return quad(diff, xmin, xmax)
+    return quad(diff, xmin, xmax)
 
 
 def my_solid_angle(center, coords):
@@ -382,7 +406,7 @@ def vectorsToMatrix(aa, bb):
     :return: A 3x3 matrix M composed of the products of the elements of aa and bb :
      M_ij = aa_i * bb_j
     """
-    MM = np.zeros([3, 3], np.float)
+    MM = np.zeros([3, 3], np.float_)
     for ii in range(3):
         for jj in range(3):
             MM[ii, jj] = aa[ii] * bb[jj]
@@ -396,7 +420,7 @@ def matrixTimesVector(MM, aa):
     :param aa: A vector of size 3
     :return: A vector of size 3 which is the product of the matrix by the vector
     """
-    bb = np.zeros(3, np.float)
+    bb = np.zeros(3, np.float_)
     for ii in range(3):
         bb[ii] = np.sum(MM[ii, :] * aa)
     return bb
@@ -436,7 +460,7 @@ def changebasis(uu, vv, nn, pps):
     :param pps: List of points in basis (e1, e2, e3)
     :return: List of points in basis (uu, vv, nn)
     """
-    MM = np.zeros([3, 3], np.float)
+    MM = np.zeros([3, 3], np.float_)
     for ii in range(3):
         MM[ii, 0] = uu[ii]
         MM[ii, 1] = vv[ii]
@@ -478,7 +502,7 @@ def anticlockwise_sort(pps):
     :return: Sorted list of points
     """
     newpps = list()
-    angles = np.zeros(len(pps), np.float)
+    angles = np.zeros(len(pps), np.float_)
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
     iisorted = np.argsort(angles)
@@ -493,22 +517,40 @@ def anticlockwise_sort_indices(pps):
     :param pps: List of points to be sorted
     :return: Indices of the sorted list of points
     """
-    angles = np.zeros(len(pps), np.float)
+    angles = np.zeros(len(pps), np.float_)
     for ipp, pp in enumerate(pps):
         angles[ipp] = np.arctan2(pp[1], pp[0])
     return np.argsort(angles)
 
 
 def sort_separation(separation):
+    """Sort a separation.
+
+    :param separation: Initial separation.
+    :return: Sorted list of separation.
+    """
     if len(separation[0]) > len(separation[2]):
         return [sorted(separation[2]), sorted(separation[1]), sorted(separation[0])]
     return [sorted(separation[0]), sorted(separation[1]), sorted(separation[2])]
 
 
 def sort_separation_tuple(separation):
+    """Sort a separation
+
+    :param separation: Initial separation
+    :return: Sorted tuple of separation
+    """
     if len(separation[0]) > len(separation[2]):
-        return (tuple(sorted(separation[2])), tuple(sorted(separation[1])), tuple(sorted(separation[0])))
-    return (tuple(sorted(separation[0])), tuple(sorted(separation[1])), tuple(sorted(separation[2])))
+        return (
+            tuple(sorted(separation[2])),
+            tuple(sorted(separation[1])),
+            tuple(sorted(separation[0])),
+        )
+    return (
+        tuple(sorted(separation[0])),
+        tuple(sorted(separation[1])),
+        tuple(sorted(separation[2])),
+    )
 
 
 def separation_in_list(separation_indices, separation_indices_list):
@@ -533,7 +575,7 @@ def is_anion_cation_bond(valences, ii, jj):
     :param jj: index of another site
     :return: True if one site is an anion and the other is a cation (from the valences)
     """
-    if valences == 'undefined':
+    if valences == "undefined":
         return True
     if valences[ii] == 0 or valences[jj] == 0:
         return True
@@ -545,27 +587,29 @@ class Plane:
     Class used to describe a plane
     """
 
-    TEST_2D_POINTS = [np.array([0, 0], np.float),
-                      np.array([1, 0], np.float),
-                      np.array([0, 1], np.float),
-                      np.array([-1, 0], np.float),
-                      np.array([0, -1], np.float),
-                      np.array([0, 2], np.float),
-                      np.array([2, 0], np.float),
-                      np.array([0, -2], np.float),
-                      np.array([-2, 0], np.float),
-                      np.array([1, 1], np.float),
-                      np.array([2, 2], np.float),
-                      np.array([-1, -1], np.float),
-                      np.array([-2, -2], np.float),
-                      np.array([1, 2], np.float),
-                      np.array([1, -2], np.float),
-                      np.array([-1, 2], np.float),
-                      np.array([-1, -2], np.float),
-                      np.array([2, 1], np.float),
-                      np.array([2, -1], np.float),
-                      np.array([-2, 1], np.float),
-                      np.array([-2, -1], np.float)]
+    TEST_2D_POINTS = [
+        np.array([0, 0], np.float_),
+        np.array([1, 0], np.float_),
+        np.array([0, 1], np.float_),
+        np.array([-1, 0], np.float_),
+        np.array([0, -1], np.float_),
+        np.array([0, 2], np.float_),
+        np.array([2, 0], np.float_),
+        np.array([0, -2], np.float_),
+        np.array([-2, 0], np.float_),
+        np.array([1, 1], np.float_),
+        np.array([2, 2], np.float_),
+        np.array([-1, -1], np.float_),
+        np.array([-2, -2], np.float_),
+        np.array([1, 2], np.float_),
+        np.array([1, -2], np.float_),
+        np.array([-1, 2], np.float_),
+        np.array([-1, -2], np.float_),
+        np.array([2, 1], np.float_),
+        np.array([2, -1], np.float_),
+        np.array([-2, 1], np.float_),
+        np.array([-2, -1], np.float_),
+    ]
 
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
         """
@@ -573,7 +617,7 @@ class Plane:
         :param coefficients: abcd coefficients of the plane
         """
         # Initializes the normal vector
-        self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float)
+        self.normal_vector = np.array([coefficients[0], coefficients[1], coefficients[2]], np.float_)
         normv = np.linalg.norm(self.normal_vector)
         self.normal_vector /= normv
         nonzeros = np.argwhere(self.normal_vector != 0.0).flatten()
@@ -582,13 +626,13 @@ class Plane:
             raise ValueError("Normal vector is equal to 0.0")
         if self.normal_vector[nonzeros[0]] < 0.0:
             self.normal_vector = -self.normal_vector
-            dd = -np.float(coefficients[3]) / normv
+            dd = -np.float_(coefficients[3]) / normv
         else:
-            dd = np.float(coefficients[3]) / normv
-        self._coefficients = np.array([self.normal_vector[0],
-                                       self.normal_vector[1],
-                                       self.normal_vector[2],
-                                       dd], np.float)
+            dd = np.float_(coefficients[3]) / normv
+        self._coefficients = np.array(
+            [self.normal_vector[0], self.normal_vector[1], self.normal_vector[2], dd],
+            np.float_,
+        )
         self._crosses_origin = np.isclose(dd, 0.0, atol=1e-7, rtol=0.0)
         self.p1 = p1
         self.p2 = p2
@@ -602,19 +646,25 @@ class Plane:
         self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
+        """Initialialize three random points on this plane.
+
+        :param nonzeros: Indices of plane coefficients ([a, b, c]) that are not zero.
+        :param zeros: Indices of plane coefficients ([a, b, c]) that are equal to zero.
+        :return: None
+        """
         if len(nonzeros) == 3:
-            self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float)
-            self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float)
-            self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float)
+            self.p1 = np.array([-self.d / self.a, 0.0, 0.0], np.float_)
+            self.p2 = np.array([0.0, -self.d / self.b, 0.0], np.float_)
+            self.p3 = np.array([0.0, 0.0, -self.d / self.c], np.float_)
         elif len(nonzeros) == 2:
-            self.p1 = np.zeros(3, np.float)
+            self.p1 = np.zeros(3, np.float_)
             self.p1[nonzeros[1]] = -self.d / self.coefficients[nonzeros[1]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
-            self.p3 = np.zeros(3, np.float)
+            self.p3 = np.zeros(3, np.float_)
             self.p3[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
         elif len(nonzeros) == 1:
-            self.p1 = np.zeros(3, np.float)
+            self.p1 = np.zeros(3, np.float_)
             self.p1[nonzeros[0]] = -self.d / self.coefficients[nonzeros[0]]
             self.p2 = np.array(self.p1)
             self.p2[zeros[0]] = 1.0
@@ -626,14 +676,14 @@ class Plane:
         String representation of the Plane object
         :return: String representation of the Plane object
         """
-        outs = ['Plane object']
-        outs.append('  => Normal vector : {nn}'.format(nn=self.normal_vector))
-        outs.append('  => Equation of the plane ax + by + cz + d = 0')
-        outs.append('     with a = {v}'.format(v=self._coefficients[0]))
-        outs.append('          b = {v}'.format(v=self._coefficients[1]))
-        outs.append('          c = {v}'.format(v=self._coefficients[2]))
-        outs.append('          d = {v}'.format(v=self._coefficients[3]))
-        return '\n'.join(outs)
+        outs = ["Plane object"]
+        outs.append("  => Normal vector : {nn}".format(nn=self.normal_vector))
+        outs.append("  => Equation of the plane ax + by + cz + d = 0")
+        outs.append("     with a = {v}".format(v=self._coefficients[0]))
+        outs.append("          b = {v}".format(v=self._coefficients[1]))
+        outs.append("          c = {v}".format(v=self._coefficients[2]))
+        outs.append("          d = {v}".format(v=self._coefficients[3]))
+        return "\n".join(outs)
 
     def is_in_plane(self, pp, dist_tolerance):
         """
@@ -742,13 +792,14 @@ class Plane:
         distances, indices = self.distances_indices_sorted(points=points)
         if delta is None:
             delta = delta_factor * np.abs(distances[indices[-1]])
-        iends = [ii for ii, idist in enumerate(indices, start=1)
-                 if ii == len(distances) or (np.abs(distances[indices[ii]]) - np.abs(distances[idist]) > delta)]
+        iends = [
+            ii
+            for ii, idist in enumerate(indices, start=1)
+            if ii == len(distances) or (np.abs(distances[indices[ii]]) - np.abs(distances[idist]) > delta)
+        ]
         if sign:
             indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
-        grouped_indices = [indices[iends[ii - 1]:iend]
-                           if ii > 0 else indices[:iend]
-                           for ii, iend in enumerate(iends)]
+        grouped_indices = [indices[iends[ii - 1] : iend] if ii > 0 else indices[:iend] for ii, iend in enumerate(iends)]
         return distances, indices, grouped_indices
 
     def projectionpoints(self, pps):
@@ -788,11 +839,11 @@ class Plane:
             elif imax == 2:
                 self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
             else:
-                raise ValueError('Only three values in the normal vector, should not be here ...')
+                raise ValueError("Only three values in the normal vector, should not be here ...")
             self.e2 = np.cross(self.e3, self.e1)
         return [self.e1, self.e2, self.e3]
 
-    def project_and_to2dim_ordered_indices(self, pps, plane_center='mean'):
+    def project_and_to2dim_ordered_indices(self, pps, plane_center="mean"):
         """
         Projects each points in the point list pps on plane and returns the indices that would sort the
         list of projected points in anticlockwise order
@@ -810,15 +861,13 @@ class Plane:
         """
         proj = self.projectionpoints(pps)
         [u1, u2, u3] = self.orthonormal_vectors()
-        PP = np.array([[u1[0], u2[0], u3[0]],
-                       [u1[1], u2[1], u3[1]],
-                       [u1[2], u2[2], u3[2]]])
+        PP = np.array([[u1[0], u2[0], u3[0]], [u1[1], u2[1], u3[1]], [u1[2], u2[2], u3[2]]])
         xypps = list()
         for pp in proj:
             xyzpp = np.dot(pp, PP)
             xypps.append(xyzpp[0:2])
-        if str(plane_center) == str('mean'):
-            mean = np.zeros(2, np.float)
+        if str(plane_center) == str("mean"):
+            mean = np.zeros(2, np.float_)
             for pp in xypps:
                 mean += pp
             mean /= len(xypps)
@@ -829,84 +878,144 @@ class Plane:
             xypps = [pp - xy_projected_plane_center for pp in xypps]
         return xypps
 
-    def fit_error(self, points, fit='least_square_distance'):
-        if fit == 'least_square_distance':
+    def fit_error(self, points, fit="least_square_distance"):
+        """Evaluate the error for a list of points with respect to this plane.
+
+        :param points: List of points.
+        :param fit: Type of fit error.
+        :return: Error for a list of points with respect to this plane.
+        """
+        if fit == "least_square_distance":
             return self.fit_least_square_distance_error(points)
-        if fit == 'maximum_distance':
+        if fit == "maximum_distance":
             return self.fit_maximum_distance_error(points)
+        return None
 
     def fit_least_square_distance_error(self, points):
+        """Evaluate the sum of squared distances error for a list of points with respect to this plane.
+
+        :param points: List of points.
+        :return: Sum of squared distances error for a list of points with respect to this plane.
+        """
         return np.sum([self.distance_to_point(pp) ** 2.0 for pp in points])
 
     def fit_maximum_distance_error(self, points):
+        """Evaluate the max distance error for a list of points with respect to this plane.
+
+        :param points: List of points.
+        :return: Max distance error for a list of points with respect to this plane.
+        """
         return np.max([self.distance_to_point(pp) for pp in points])
 
     @property
     def coefficients(self):
+        """Return a copy of the plane coefficients.
+
+        :return: Plane coefficients as a numpy array.
+        """
         return np.copy(self._coefficients)
 
     @property
     def abcd(self):
-        return self._coefficients[0], self._coefficients[1], self._coefficients[2], self._coefficients[3]
+        """Return a tuple with the plane coefficients.
+
+        :return: Tuple with the plane coefficients.
+        """
+        return (
+            self._coefficients[0],
+            self._coefficients[1],
+            self._coefficients[2],
+            self._coefficients[3],
+        )
 
     @property
     def a(self):
+        """Coefficient a of the plane."""
         return self._coefficients[0]
 
     @property
     def b(self):
+        """Coefficient b of the plane."""
         return self._coefficients[1]
 
     @property
     def c(self):
+        """Coefficient c of the plane."""
         return self._coefficients[2]
 
     @property
     def d(self):
+        """Coefficient d of the plane."""
         return self._coefficients[3]
 
     @property
     def distance_to_origin(self):
+        """Distance of the plane to the origin."""
         return self._coefficients[3]
 
     @property
     def crosses_origin(self):
+        """Whether this plane crosses the origin (i.e. coefficient d is 0.0)."""
         return self._crosses_origin
 
     @classmethod
     def from_2points_and_origin(cls, p1, p2):
+        """Initializes plane from two points and the origin.
+
+        :param p1: First point.
+        :param p2: Second point.
+        :return: Plane.
+        """
         return cls.from_3points(p1, p2, np.zeros(3))
 
     @classmethod
     def from_3points(cls, p1, p2, p3):
+        """Initializes plane from three points.
+
+        :param p1: First point.
+        :param p2: Second point.
+        :param p3: Third point.
+        :return: Plane.
+        """
         nn = np.cross(p1 - p3, p2 - p3)
         normal_vector = nn / norm(nn)
         nonzeros = np.argwhere(normal_vector != 0.0)
         if normal_vector[nonzeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
-        dd = - np.dot(normal_vector, p1)
-        coefficients = np.array([normal_vector[0],
-                                 normal_vector[1],
-                                 normal_vector[2],
-                                 dd], np.float)
+        dd = -np.dot(normal_vector, p1)
+        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)
         return cls(coefficients, p1=p1, p2=p2, p3=p3)
 
     @classmethod
-    def from_npoints(cls, points, best_fit='least_square_distance'):
+    def from_npoints(cls, points, best_fit="least_square_distance"):
+        """Initializes plane from a list of points.
+
+        If the number of points is larger than 3, will use a least square fitting or max distance fitting.
+
+        :param points: List of points.
+        :param best_fit: Type of fitting procedure for more than 3 points.
+        :return: Plane
+        """
         if len(points) == 2:
             return cls.from_2points_and_origin(points[0], points[1])
         if len(points) == 3:
             return cls.from_3points(points[0], points[1], points[2])
-        if best_fit == 'least_square_distance':
+        if best_fit == "least_square_distance":
             return cls.from_npoints_least_square_distance(points)
-        elif best_fit == 'maximum_distance':
+        if best_fit == "maximum_distance":
             return cls.from_npoints_maximum_distance(points)
+        return None
 
     @classmethod
     def from_npoints_least_square_distance(cls, points):
-        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float)
+        """Initializes plane from a list of points using a least square fitting procedure.
+
+        :param points: List of points.
+        :return: Plane.
+        """
+        mean_point = np.array([sum([pp[ii] for pp in points]) for ii in range(3)], np.float_)
         mean_point /= len(points)
-        AA = np.zeros((len(points), 3), np.float)
+        AA = np.zeros((len(points), 3), np.float_)
         for ii, pp in enumerate(points):
             for jj in range(3):
                 AA[ii, jj] = pp[jj] - mean_point[jj]
@@ -916,25 +1025,33 @@ class Plane:
         nonzeros = np.argwhere(normal_vector != 0.0)
         if normal_vector[nonzeros[0, 0]] < 0.0:
             normal_vector = -normal_vector
-        dd = - np.dot(normal_vector, mean_point)
-        coefficients = np.array([normal_vector[0],
-                                 normal_vector[1],
-                                 normal_vector[2],
-                                 dd], np.float)
+        dd = -np.dot(normal_vector, mean_point)
+        coefficients = np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_)
         return cls(coefficients)
 
     @classmethod
     def perpendicular_bisector(cls, p1, p2):
+        """Initialize a plane from the perpendicular bisector of two points.
+
+        The perpendicular bisector of two points is the plane perpendicular to the vector joining these two points
+        and passing through the middle of the segment joining the two points.
+
+        :param p1: First point.
+        :param p2: Second point.
+        :return: Plane.
+        """
         middle_point = 0.5 * (p1 + p2)
         normal_vector = p2 - p1
         dd = -np.dot(normal_vector, middle_point)
-        return cls(np.array([normal_vector[0],
-                             normal_vector[1],
-                             normal_vector[2],
-                             dd], np.float))
+        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_))
 
     @classmethod
     def from_npoints_maximum_distance(cls, points):
+        """Initializes plane from a list of points using a max distance fitting procedure.
+
+        :param points: List of points.
+        :return: Plane.
+        """
         convex_hull = ConvexHull(points)
         heights = []
         ipoints_heights = []
@@ -949,14 +1066,20 @@ class Plane:
         normal_vector = convex_hull.equations[imin_height, 0:3]
         cc = convex_hull.equations[imin_height]
         highest_point = points[ipoints_heights[imin_height]]
-        middle_point = (Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3]).projectionpoints([highest_point])[0] +
-                        highest_point) / 2
-        dd = - np.dot(normal_vector, middle_point)
-        return cls(np.array([normal_vector[0],
-                             normal_vector[1],
-                             normal_vector[2],
-                             dd], np.float))
+        middle_point = (
+            Plane.from_coefficients(cc[0], cc[1], cc[2], cc[3]).projectionpoints([highest_point])[0] + highest_point
+        ) / 2
+        dd = -np.dot(normal_vector, middle_point)
+        return cls(np.array([normal_vector[0], normal_vector[1], normal_vector[2], dd], np.float_))
 
     @classmethod
     def from_coefficients(cls, a, b, c, d):
-        return cls(np.array([a, b, c, d], np.float))
+        """Initialize plane from its coefficients.
+
+        :param a: a coefficient of the plane.
+        :param b: b coefficient of the plane.
+        :param c: c coefficient of the plane.
+        :param d: d coefficient of the plane.
+        :return: Plane.
+        """
+        return cls(np.array([a, b, c, d], np.float_))

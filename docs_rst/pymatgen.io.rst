@@ -1,5 +1,5 @@
-pymatgen.io package
-===================
+pymatgen.io namespace
+=====================
 
 Subpackages
 -----------
@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 7
 
    pymatgen.io.abinit
+   pymatgen.io.cp2k
    pymatgen.io.exciting
    pymatgen.io.feff
    pymatgen.io.lammps
@@ -28,6 +29,7 @@ Submodules
    pymatgen.io.babel
    pymatgen.io.cif
    pymatgen.io.cssr
+   pymatgen.io.cube
    pymatgen.io.fiesta
    pymatgen.io.gaussian
    pymatgen.io.jarvis
@@ -42,11 +44,3 @@ Submodules
    pymatgen.io.xr
    pymatgen.io.xyz
    pymatgen.io.zeopp
-
-Module contents
----------------
-
-.. automodule:: pymatgen.io
-   :members:
-   :undoc-members:
-   :show-inheritance:

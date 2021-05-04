@@ -3,5 +3,5 @@
 # Distributed under the terms of the MIT License.
 """This package implements basic input and output capabilities for Abinit."""
 
-from .netcdf import *
-from .pseudos import *
+from .netcdf import *  # noqa
+from .pseudos import *  # noqa

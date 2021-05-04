@@ -8,10 +8,10 @@
 # To enable this hook, rename this file to "pre-commit".
 
 status=0
-files=$(git diff --diff-filter=d --cached --name-only | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d')
+files=$(git diff --diff-filter=d --cached --name-only | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | sed '/tests/d')
 files=`echo $files | tr '\n' ' '`
 if [ "$files" != " " ]; then
-    for cmd in pycodestyle mypy flake8 pydocstyle
+    for cmd in mypy pydocstyle pylint black flake8
     do
         echo "Running $cmd $files..."
         $cmd $files

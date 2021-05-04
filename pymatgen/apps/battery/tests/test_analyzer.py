@@ -1,19 +1,15 @@
-import unittest
 import os
-
-from pymatgen.apps.battery.analyzer import BatteryAnalyzer
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.structure import Structure
+import unittest
 
 import pymatgen
-
-module_dir = os.path.join(os.path.dirname(pymatgen.__file__), '..', 'test_files')
+from pymatgen.apps.battery.analyzer import BatteryAnalyzer
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
 
 class BatteryAnalyzerTest(PymatgenTest):
-
     def load_from_cif(self, filename, oxidations, cation="Li"):
-        s = Structure.from_file(os.path.join(module_dir, filename))
+        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, filename))
         s.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(s, cation)
 
@@ -23,17 +19,18 @@ class BatteryAnalyzerTest(PymatgenTest):
         return BatteryAnalyzer(s, cation)
 
     def setUp(self):
-        self.lifepo4 = self.load_from_internal("LiFePO4", {'Li': 1, 'Fe': 2, 'P': 5, 'O': -2})
-        self.nafepo4 = self.load_from_internal("NaFePO4", {'Na': 1, 'Fe': 2, 'P': 5, 'O': -2}, cation='Na')
-        self.fepo4 = self.load_from_cif("FePO4a.cif", {'Fe': 3, 'P': 5, 'O': -2})
-        self.lifemnpo4 = self.load_from_cif("Li4Fe3Mn1(PO4)4.cif", {'Li': 1, 'Fe': 2, 'Mn': 2, 'P': 5, 'O': -2})
-        self.li8nicofe208 = self.load_from_cif("Li8Fe2NiCoO8.cif",
-                                               {'Li': 1, 'Fe': 2, 'Mn': 2, 'Co': 2, 'Ni': 2, 'O': -2})
-        self.li3v2p3o12 = self.load_from_internal("Li3V2(PO4)3", {'Li': 1, 'V': 3, 'O': -2, 'P': 5})
+        self.lifepo4 = self.load_from_internal("LiFePO4", {"Li": 1, "Fe": 2, "P": 5, "O": -2})
+        self.nafepo4 = self.load_from_internal("NaFePO4", {"Na": 1, "Fe": 2, "P": 5, "O": -2}, cation="Na")
+        self.fepo4 = self.load_from_cif("FePO4a.cif", {"Fe": 3, "P": 5, "O": -2})
+        self.lifemnpo4 = self.load_from_cif("Li4Fe3Mn1(PO4)4.cif", {"Li": 1, "Fe": 2, "Mn": 2, "P": 5, "O": -2})
+        self.li8nicofe208 = self.load_from_cif(
+            "Li8Fe2NiCoO8.cif", {"Li": 1, "Fe": 2, "Mn": 2, "Co": 2, "Ni": 2, "O": -2}
+        )
+        self.li3v2p3o12 = self.load_from_internal("Li3V2(PO4)3", {"Li": 1, "V": 3, "O": -2, "P": 5})
 
     def test_oxid_check(self):
         s = self.get_structure("LiFePO4")
-        self.assertRaises(ValueError, BatteryAnalyzer, s, 'Li')
+        self.assertRaises(ValueError, BatteryAnalyzer, s, "Li")
 
     def test_capacitygrav_calculations(self):
         lifepo4_cap = 169.89053  # same as fepo4 cap
@@ -72,15 +69,22 @@ class BatteryAnalyzerTest(PymatgenTest):
         self.assertEqual(self.fepo4.get_max_capvol(insert=False), 0)
 
         # give the lifepo4 volume, should get lifepo4 capacity
-        self.assertAlmostEqual(self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume), lifepo4_cap, 3)
+        self.assertAlmostEqual(
+            self.fepo4.get_max_capvol(volume=self.lifepo4.struc_oxid.volume),
+            lifepo4_cap,
+            3,
+        )
 
     def test_delithiation(self):
         self.assertEqual(self.lifemnpo4.get_removals_int_oxid(), set([1.0, 2.0, 3.0, 4.0]))
 
-        self.assertEqual(self.li8nicofe208.get_removals_int_oxid(), set([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]))
+        self.assertEqual(
+            self.li8nicofe208.get_removals_int_oxid(),
+            set([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]),
+        )
 
         self.assertEqual(self.li3v2p3o12.get_removals_int_oxid(), set([4.0, 6.0]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

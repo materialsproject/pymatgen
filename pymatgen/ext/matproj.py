@@ -12,35 +12,41 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-import sys
 import itertools
 import json
+import logging
 import platform
 import re
+import sys
 import warnings
-from time import sleep
-from enum import Enum, unique
 from collections import defaultdict
+from enum import Enum, unique
+from time import sleep
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 import requests
-import ruamel.yaml as yaml
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, SETTINGS_FILE, __version__ as pmg_version
-
+from pymatgen.core import SETTINGS, SETTINGS_FILE
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-from pymatgen.entries.compatibility import (
-    MaterialsProjectCompatibility,
-    MaterialsProjectAqueousCompatibility,
-)
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.sequence import get_chunks, PBar
+from pymatgen.util.sequence import PBar, get_chunks
+from pymatgen.core import __version__ as PMG_VERSION
+
+
+logger = logging.getLogger(__name__)
 
 
 @unique
@@ -168,9 +174,7 @@ class MPRester:
         if endpoint is not None:
             self.preamble = endpoint
         else:
-            self.preamble = SETTINGS.get(
-                "PMG_MAPI_ENDPOINT", "https://materialsproject.org/rest/v2"
-            )
+            self.preamble = SETTINGS.get("PMG_MAPI_ENDPOINT", "https://materialsproject.org/rest/v2")
 
         if self.preamble != "https://materialsproject.org/rest/v2":
             warnings.warn("Non-default endpoint used: {}".format(self.preamble))
@@ -178,18 +182,16 @@ class MPRester:
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
         if include_user_agent:
-            pymatgen_info = "pymatgen/" + pmg_version
+            pymatgen_info = "pymatgen/" + PMG_VERSION
             python_info = "Python/{}.{}.{}".format(
                 sys.version_info.major, sys.version_info.minor, sys.version_info.micro
             )
             platform_info = "{}/{}".format(platform.system(), platform.release())
-            self.session.headers["user-agent"] = "{} ({} {})".format(
-                pymatgen_info, python_info, platform_info
-            )
+            self.session.headers["user-agent"] = "{} ({} {})".format(pymatgen_info, python_info, platform_info)
 
         if notify_db_version:
             db_version = self.get_database_version()
-            print(f"Connection established to Materials Project database, version {db_version}.")
+            logger.debug(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
                 with open(SETTINGS_FILE, "rt") as f:
@@ -215,8 +217,13 @@ class MPRester:
                 )
             d["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
 
-            # write out new database log
-            dumpfn(d, SETTINGS_FILE)
+            # write out new database log if possible
+            # bare except is not ideal (perhaps a PermissionError, etc.) but this is not critical
+            # and should be allowed to fail regardless of reason
+            try:
+                dumpfn(d, SETTINGS_FILE)
+            except Exception:
+                pass
 
     def __enter__(self):
         """
@@ -249,18 +256,10 @@ class MPRester:
                     return data["response"]
                 raise MPRestError(data["error"])
 
-            raise MPRestError(
-                "REST query returned with error status code {}".format(
-                    response.status_code
-                )
-            )
+            raise MPRestError("REST query returned with error status code {}".format(response.status_code))
 
         except Exception as ex:
-            msg = (
-                "{}. Content: {}".format(str(ex), response.content)
-                if hasattr(response, "content")
-                else str(ex)
-            )
+            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
     def get_database_version(self):
@@ -344,9 +343,7 @@ class MPRester:
         Returns:
             ([str]) List of all materials ids.
         """
-        return self._make_request(
-            "/materials/%s/mids" % chemsys_formula, mp_decode=False
-        )
+        return self._make_request("/materials/%s/mids" % chemsys_formula, mp_decode=False)
 
     def get_doc(self, materials_id):
         """
@@ -452,19 +449,13 @@ class MPRester:
             else:
                 raise MPRestError("Provide filename or Structure object.")
             payload = {"structure": json.dumps(s.as_dict(), cls=MontyEncoder)}
-            response = self.session.post(
-                "{}/find_structure".format(self.preamble), data=payload
-            )
+            response = self.session.post("{}/find_structure".format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     return resp["response"]
                 raise MPRestError(resp["error"])
-            raise MPRestError(
-                "REST error with status code {} and error {}".format(
-                    response.status_code, response.text
-                )
-            )
+            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -487,7 +478,7 @@ class MPRester:
                 (e.g., mp-1234) or full Mongo-style dict criteria.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProjectCompatibility class,
+                processed using the MaterialsProject2020Compatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -540,8 +531,7 @@ class MPRester:
         entries = []
         for d in data:
             d["potcar_symbols"] = [
-                "%s %s" % (d["pseudo_potential"]["functional"], l)
-                for l in d["pseudo_potential"]["labels"]
+                "%s %s" % (d["pseudo_potential"]["functional"], l) for l in d["pseudo_potential"]["labels"]
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
@@ -556,11 +546,7 @@ class MPRester:
                 )
 
             else:
-                prim = (
-                    d["initial_structure"]
-                    if inc_structure == "initial"
-                    else d["structure"]
-                )
+                prim = d["initial_structure"] if inc_structure == "initial" else d["structure"]
                 if conventional_unit_cell:
                     s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
                     energy = d["energy"] * (len(s) / len(prim))
@@ -576,16 +562,14 @@ class MPRester:
                 )
             entries.append(e)
         if compatible_only:
-            from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
-            entries = MaterialsProjectCompatibility().process_entries(entries)
+            entries = MaterialsProject2020Compatibility().process_entries(entries)
         if sort_by_e_above_hull:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(
-        self, chemsys, solid_compat=MaterialsProjectCompatibility
-    ):
+    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -595,27 +579,42 @@ class MPRester:
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
-                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
-                Default: MaterialsProjectCompatibility
+                energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
+                (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProject2020Compatibility
         """
-        from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
+        # imports are not top-level due to expense
+
         from pymatgen.analysis.phase_diagram import PhaseDiagram
+        from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
+        from pymatgen.entries.compatibility import (
+            Compatibility,
+            MaterialsProjectAqueousCompatibility,
+            MaterialsProject2020Compatibility,
+            MaterialsProjectCompatibility,
+        )
+
+        if solid_compat == "MaterialsProjectCompatibility":
+            self.solid_compat = MaterialsProjectCompatibility()
+        elif solid_compat == "MaterialsProject2020Compatibility":
+            self.solid_compat = MaterialsProject2020Compatibility()
+        elif solid_compat and not isinstance(solid_compat, Compatibility):
+            self.solid_compat = solid_compat()
+        else:
+            self.solid_compat = solid_compat
 
         pbx_entries = []
 
         if isinstance(chemsys, str):
-            chemsys = chemsys.split('-')
+            chemsys = chemsys.split("-")
 
         # Get ion entries first, because certain ions have reference
         # solids that aren't necessarily in the chemsys (Na2SO4)
         url = "/pourbaix_diagram/reference_data/" + "-".join(chemsys)
         ion_data = self._make_request(url)
         ion_ref_comps = [Composition(d["Reference Solid"]) for d in ion_data]
-        ion_ref_elts = list(
-            itertools.chain.from_iterable(i.elements for i in ion_ref_comps)
-        )
+        ion_ref_elts = list(itertools.chain.from_iterable(i.elements for i in ion_ref_comps))
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ["O", "H"])),
             property_data=["e_above_hull"],
@@ -629,26 +628,19 @@ class MPRester:
                 "ignore",
                 message="You did not provide the required O2 and H2O energies.",
             )
-            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=self.solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
             ion = Ion.from_formula(i_d["Name"])
-            refs = [
-                e
-                for e in ion_ref_entries
-                if e.composition.reduced_formula == i_d["Reference Solid"]
-            ]
+            refs = [e for e in ion_ref_entries if e.composition.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
-            solid_diff = (
-                ion_ref_pd.get_form_energy(stable_ref)
-                - i_d["Reference solid energy"] * rf
-            )
+            solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
             elt = i_d["Major_Elements"][0]
             correction_factor = ion.composition[elt] / stable_ref.composition[elt]
             energy = i_d["Energy"] + solid_diff * correction_factor
@@ -656,31 +648,20 @@ class MPRester:
             pbx_entries.append(PourbaixEntry(ion_entry, "ion-{}".format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
-        extra_elts = (
-            set(ion_ref_elts)
-            - {Element(s) for s in chemsys}
-            - {Element("H"), Element("O")}
-        )
+        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} - {Element("H"), Element("O")}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
-            if not (
-                entry_elts <= {Element("H"), Element("O")}
-                or extra_elts.intersection(entry_elts)
-            ):
+            if not (entry_elts <= {Element("H"), Element("O")} or extra_elts.intersection(entry_elts)):
                 # Create new computed entry
                 form_e = ion_ref_pd.get_form_energy(entry)
-                new_entry = ComputedEntry(
-                    entry.composition, form_e, entry_id=entry.entry_id
-                )
+                new_entry = ComputedEntry(entry.composition, form_e, entry_id=entry.entry_id)
                 pbx_entry = PourbaixEntry(new_entry)
                 pbx_entries.append(pbx_entry)
 
         return pbx_entries
 
-    def get_structure_by_material_id(
-        self, material_id, final=True, conventional_unit_cell=False
-    ):
+    def get_structure_by_material_id(self, material_id, final=True, conventional_unit_cell=False):
         """
         Get a Structure corresponding to a material_id.
 
@@ -719,9 +700,7 @@ class MPRester:
                     "matsci.org/materials-project".format(material_id)
                 )
         if conventional_unit_cell:
-            data[0][prop] = SpacegroupAnalyzer(
-                data[0][prop]
-            ).get_conventional_standard_structure()
+            data[0][prop] = SpacegroupAnalyzer(data[0][prop]).get_conventional_standard_structure()
         return data[0][prop]
 
     def get_entry_by_material_id(
@@ -740,7 +719,7 @@ class MPRester:
                 e.g., mp-1234).
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProjectCompatibility class,
+                processed using the MaterialsProject2020Compatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -810,7 +789,7 @@ class MPRester:
             material_id (str): Materials Project material_id.
 
         Returns:
-            ﻿CompletePhononDos: A phonon DOS object.
+            CompletePhononDos: A phonon DOS object.
         """
         return self._make_request("/materials/{}/phonondos".format(material_id))
 
@@ -859,7 +838,7 @@ class MPRester:
                 symbols, e.g., ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProjectCompatibility class,
+                processed using the MaterialsProject2020Compatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -1003,23 +982,16 @@ class MPRester:
             "properties": json.dumps(properties),
         }
         if chunk_size == 0:
-            return self._make_request(
-                "/query", payload=payload, method="POST", mp_decode=mp_decode
-            )
+            return self._make_request("/query", payload=payload, method="POST", mp_decode=mp_decode)
 
         count_payload = payload.copy()
         count_payload["options"] = json.dumps({"count_only": True})
         num_results = self._make_request("/query", payload=count_payload, method="POST")
         if num_results <= chunk_size:
-            return self._make_request(
-                "/query", payload=payload, method="POST", mp_decode=mp_decode
-            )
+            return self._make_request("/query", payload=payload, method="POST", mp_decode=mp_decode)
 
         data = []
-        mids = [
-            d["material_id"]
-            for d in self.query(criteria, ["material_id"], chunk_size=0)
-        ]
+        mids = [d["material_id"] for d in self.query(criteria, ["material_id"], chunk_size=0)]
         chunks = get_chunks(mids, size=chunk_size)
         progress_bar = PBar(total=len(mids))
         for chunk in chunks:
@@ -1046,9 +1018,7 @@ class MPRester:
                         num_tries += 1
                         print(
                             "Unknown server error. Trying again in five "
-                            "seconds (will try at most {} times)...".format(
-                                max_tries_per_chunk
-                            )
+                            "seconds (will try at most {} times)...".format(max_tries_per_chunk)
                         )
                         sleep(5)
             progress_bar.update(len(chunk))
@@ -1137,9 +1107,7 @@ class MPRester:
             snl = snl if isinstance(snl, list) else [snl]
             jsondata = [s.as_dict() for s in snl]
             payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
-            response = self.session.post(
-                "{}/snl/submit".format(self.preamble), data=payload
-            )
+            response = self.session.post("{}/snl/submit".format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
@@ -1148,11 +1116,7 @@ class MPRester:
                     return resp["inserted_ids"]
                 raise MPRestError(resp["error"])
 
-            raise MPRestError(
-                "REST error with status code {} and error {}".format(
-                    response.status_code, response.text
-                )
-            )
+            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -1175,9 +1139,7 @@ class MPRester:
         """
         try:
             payload = {"ids": json.dumps(snl_ids)}
-            response = self.session.post(
-                "{}/snl/delete".format(self.preamble), data=payload
-            )
+            response = self.session.post("{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text, cls=MontyDecoder)
@@ -1187,11 +1149,7 @@ class MPRester:
                     return resp
                 raise MPRestError(resp["error"])
 
-            raise MPRestError(
-                "REST error with status code {} and error {}".format(
-                    response.status_code, response.text
-                )
-            )
+            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -1217,9 +1175,7 @@ class MPRester:
         """
         try:
             payload = {"criteria": json.dumps(criteria)}
-            response = self.session.post(
-                "{}/snl/query".format(self.preamble), data=payload
-            )
+            response = self.session.post("{}/snl/query".format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
                 resp = json.loads(response.text)
                 if resp["valid_response"]:
@@ -1228,11 +1184,7 @@ class MPRester:
                     return resp["response"]
                 raise MPRestError(resp["error"])
 
-            raise MPRestError(
-                "REST error with status code {} and error {}".format(
-                    response.status_code, response.text
-                )
-            )
+            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -1285,9 +1237,7 @@ class MPRester:
         from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
         from pymatgen.apps.borg.queen import BorgQueen
 
-        drone = VaspToComputedEntryDrone(
-            inc_structure=True, data=["filename", "initial_structure"]
-        )
+        drone = VaspToComputedEntryDrone(inc_structure=True, data=["filename", "initial_structure"])
         queen = BorgQueen(drone, number_of_drones=ncpus)
         queen.parallel_assimilate(rootdir)
 
@@ -1340,11 +1290,7 @@ class MPRester:
                         warnings.warn(resp["warning"])
                     return resp["response"]
                 raise MPRestError(resp["error"])
-            raise MPRestError(
-                "REST error with status code {} and error {}".format(
-                    response.status_code, response.text
-                )
-            )
+            raise MPRestError("REST error with status code {} and error {}".format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -1365,9 +1311,7 @@ class MPRester:
 
         isolated_atom_e_sum, n = 0, 0
         for el in comp_dict.keys():
-            e = self._make_request(
-                "/element/%s/tasks/isolated_atom" % (el), mp_decode=False
-            )[0]
+            e = self._make_request("/element/%s/tasks/isolated_atom" % (el), mp_decode=False)[0]
             isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
             n += comp_dict[el]
         ecoh_per_formula = isolated_atom_e_sum - ebulk
@@ -1449,12 +1393,8 @@ class MPRester:
         if miller_index:
             surf_data_dict = self._make_request(req)
             surf_list = surf_data_dict["surfaces"]
-            ucell = self.get_structure_by_material_id(
-                material_id, conventional_unit_cell=True
-            )
-            eq_indices = get_symmetrically_equivalent_miller_indices(
-                ucell, miller_index
-            )
+            ucell = self.get_structure_by_material_id(material_id, conventional_unit_cell=True)
+            eq_indices = get_symmetrically_equivalent_miller_indices(ucell, miller_index)
             for one_surf in surf_list:
                 if tuple(one_surf["miller_index"]) in eq_indices:
                     return one_surf
@@ -1470,14 +1410,12 @@ class MPRester:
         Returns:
             pymatgen.analysis.wulff.WulffShape
         """
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         from pymatgen.analysis.wulff import WulffShape
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
         structure = self.get_structure_by_material_id(material_id)
         surfaces = self.get_surface_data(material_id)["surfaces"]
-        lattice = (
-            SpacegroupAnalyzer(structure).get_conventional_standard_structure().lattice
-        )
+        lattice = SpacegroupAnalyzer(structure).get_conventional_standard_structure().lattice
         miller_energy_map = {}
         for surf in surfaces:
             miller = tuple(surf["miller_index"])
@@ -1540,12 +1478,10 @@ class MPRester:
             for i, gb_dict in enumerate(list_of_gbs):
                 gb_energy = gb_dict["gb_energy"]
                 gb_plane_int = gb_dict["gb_plane"]
-                surface_energy = self.get_surface_data(
-                    material_id=material_id, miller_index=gb_plane_int
-                )["surface_energy"]
-                wsep = (
-                    2 * surface_energy - gb_energy
-                )  # calculate the work of separation
+                surface_energy = self.get_surface_data(material_id=material_id, miller_index=gb_plane_int)[
+                    "surface_energy"
+                ]
+                wsep = 2 * surface_energy - gb_energy  # calculate the work of separation
                 gb_dict["work_of_separation"] = wsep
             return list_of_gbs
 
@@ -1591,9 +1527,7 @@ class MPRester:
             "relative_mu": relative_mu,
             "use_hull_energy": use_hull_energy,
         }
-        return self._make_request(
-            "/interface_reactions", payload=payload, method="POST"
-        )
+        return self._make_request("/interface_reactions", payload=payload, method="POST")
 
     def get_download_info(self, material_ids, task_types=None, file_patterns=None):
         """
@@ -1611,23 +1545,15 @@ class MPRester:
             metadata info, e.g. the task/external_ids that belong to a directory
         """
         # task_id's correspond to NoMaD external_id's
-        task_types = (
-            [t.value for t in task_types if isinstance(t, TaskType)]
-            if task_types
-            else []
-        )
+        task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
 
         meta = defaultdict(list)
-        for doc in self.query(
-            {"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]
-        ):
+        for doc in self.query({"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]):
 
             for task_type, task_id in doc["blessed_tasks"].items():
                 if task_types and task_type not in task_types:
                     continue
-                meta[doc["material_id"]].append(
-                    {"task_id": task_id, "task_type": task_type}
-                )
+                meta[doc["material_id"]].append({"task_id": task_id, "task_type": task_type})
 
         if not meta:
             raise ValueError("No tasks found.")

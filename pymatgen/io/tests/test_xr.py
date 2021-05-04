@@ -10,21 +10,18 @@ __maintainer__ = "Nils Edvin Richard Zimmermann"
 __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
-import unittest
 import os
+import unittest
 
-from pymatgen.io.xr import Xr
-from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.structure import Structure
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.io.xr import Xr
+from pymatgen.util.testing import PymatgenTest
 
 
 class XrTest(unittest.TestCase):
-
     def setUp(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.xr = Xr(p.structure)
 
@@ -66,7 +63,7 @@ class XrTest(unittest.TestCase):
         self.assertEqual(str(self.xr), expected_string)
 
     def test_from_file(self):
-        filename = os.path.join(test_dir, "EDI.xr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.xr")
         xr = Xr.from_file(filename)
         self.assertIsInstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

@@ -8,8 +8,7 @@ from collections import defaultdict
 import numpy as np
 
 
-def read_pattern(text_str, patterns, terminate_on_match=False,
-                 postprocess=str):
+def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
     r"""
     General pattern reading on an input string
 
@@ -30,10 +29,7 @@ def read_pattern(text_str, patterns, terminate_on_match=False,
         are lists of lists, because you can grep multiple items on one line.
     """
 
-    compiled = {
-        key: re.compile(pattern, re.MULTILINE | re.DOTALL)
-        for key, pattern in patterns.items()
-    }
+    compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
     matches = defaultdict(list)
     for key, pattern in compiled.items():
         for match in pattern.finditer(text_str):
@@ -43,13 +39,15 @@ def read_pattern(text_str, patterns, terminate_on_match=False,
     return matches
 
 
-def read_table_pattern(text_str,
-                       header_pattern,
-                       row_pattern,
-                       footer_pattern,
-                       postprocess=str,
-                       attribute_name=None,
-                       last_one_only=False):
+def read_table_pattern(
+    text_str,
+    header_pattern,
+    row_pattern,
+    footer_pattern,
+    postprocess=str,
+    attribute_name=None,
+    last_one_only=False,
+):
     r"""
     Parse table-like data. A table composes of three parts: header,
     main body, footer. All the data matches "row pattern" in the main body
@@ -85,8 +83,7 @@ def read_table_pattern(text_str,
         row_pattern.
     """
 
-    table_pattern_text = header_pattern + \
-        r"\s*(?P<table_body>(?:" + row_pattern + r")+)\s*" + footer_pattern
+    table_pattern_text = header_pattern + r"\s*(?P<table_body>(?:" + row_pattern + r")+)\s*" + footer_pattern
     table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
     rp = re.compile(row_pattern)
     data = {}
@@ -137,8 +134,7 @@ def lower_and_check_unique(dict_to_check):
             new_key = "job_type"
         if new_key in to_return:
             if to_return[key] != to_return[new_key]:
-                raise Exception(
-                    "Multiple instances of key " + new_key + " found with different values! Exiting...")
+                raise Exception("Multiple instances of key " + new_key + " found with different values! Exiting...")
         else:
             try:
                 to_return[new_key] = dict_to_check.get(key).lower()

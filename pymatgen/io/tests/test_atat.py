@@ -3,13 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 import os
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.atat import Mcsqs
-from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "mcsqs"
-)
+from pymatgen.core.structure import Structure
+from pymatgen.io.atat import Mcsqs
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import PymatgenTest
+
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "mcsqs")
 
 
 class AtatTest(PymatgenTest):

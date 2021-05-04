@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>Change log &mdash; pymatgen 2022.0.7 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="next" title="Compatibility" href="compatibility.html" />
     <link rel="prev" title="Installation" href="installation.html" />
  
 <script type="text/javascript">
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2022.0.7
               </div>
             
           
@@ -99,6 +99,29 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-7">v2022.0.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-6">v2022.0.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-5">v2022.0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-4-v2021-3-9">v2022.0.4 / v2021.3.9</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-3">v2022.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-2-yanked">v2022.0.2 (Yanked)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-1-yanked">v2022.0.1 (Yanked)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2022-0-0-yanked">v2022.0.0 (Yanked)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-3-5">v2021.3.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-3-4-yanked">v2021.3.4 (Yanked)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-3-3">v2021.3.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-16">v2021.2.16</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-14">v2021.2.14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-12">v2021.2.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-8-1">v2021.2.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-2-8">v2021.2.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2021-1-28">v2021.1.28</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-12-31">v2020.12.31</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-12-18">v2020.12.18</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-12-3">v2020.12.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-11-11">v2020.11.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-10-20">v2020.10.20</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-10-9">v2020.10.9</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-9-14">v2020.9.14</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-8-13">v2020.8.13</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-8-3">v2020.8.3</a></li>
@@ -358,6 +381,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#v1-6-0">v1.6.0</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -430,6 +455,250 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2022-0-7">
+<h2>v2022.0.7<a class="headerlink" href="#v2022-0-7" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Improved Gaussian Cube I/O (&#64;nwinner, #2121)</p></li>
+<li><p>Updated van der Waals radii (&#64;rkingsbury, #2122)</p></li>
+<li><p>Update <cite>MaterialsProject2020Compatibility</cite> for multi-anion systems (&#64;rkingsbury, #2128)</p></li>
+<li><p>Fixes and improvements to Q-Chem parsing (&#64;samblau, #2125)</p></li>
+<li><p>Bug fix for isseus with hard-coded path in <cite>MaterialsProject2020Compatibility</cite> (&#64;CompRhys, #2124)</p></li>
+<li><p>Bug fix for DOS serialization (&#64;zooks97, #2119)</p></li>
+<li><p>Bug fix for XDATCAR lattice parsing (&#64;nkeilbart, #2115)</p></li>
+<li><p>Documentation link fix (&#64;adam-kerrigan, #2127)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-6">
+<h2>v2022.0.6<a class="headerlink" href="#v2022-0-6" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Feature to calculate Selling vectors and distances between Lattices (&#64;bwjustus, #1888)</p></li>
+<li><p>XPS Spectrum class added (&#64;shyuep, #2110, see <a class="reference external" href="https://github.com/SMTG-UCL/galore">galore</a>)</p></li>
+<li><p>Updated <cite>MaterialsProject2020Compatibility</cite> for formation energy correction (&#64;rkingsbury, #2106)</p></li>
+<li><p>Bug fix for detecting broken bonds in slab generation (&#64;fyalcin, #2015)</p></li>
+<li><p>Bug fix for electrodes (&#64;jmmshn, #2101)</p></li>
+<li><p>Documentation improvement for get_conventional_standard_structure (&#64;tom-wood, #2100)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-5">
+<h2>v2022.0.5<a class="headerlink" href="#v2022-0-5" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix to remove possibility of duplicate edges in <cite>StructureGraph</cite> (&#64;mkhorton, #2095)</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-4-v2021-3-9">
+<h2>v2022.0.4 / v2021.3.9<a class="headerlink" href="#v2022-0-4-v2021-3-9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Element now has <cite>ionization_energies</cite>, <cite>ionization_energy</cite> and
+<cite>electron_affinity</cite> properties.</p></li>
+<li><p>Extensive documentation has been added on pymatgen compatibility and the
+new namespace architecture! We have also released a
+<a class="reference external" href="https://github.com/materialsproject/pymatgen-addon-template">template repo</a>
+to help new developers write add-ons for pymatgen! Check out our
+<a class="reference internal" href="contributing.html"><span class="doc">contributing page</span></a> for details.</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-3">
+<h2>v2022.0.3<a class="headerlink" href="#v2022-0-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Another bug fix release! Now SETTINGS have been moved to pymatgen.core.</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-2-yanked">
+<h2>v2022.0.2 (Yanked)<a class="headerlink" href="#v2022-0-2-yanked" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix release for missing package data files in v2022.0.1</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-1-yanked">
+<h2>v2022.0.1 (Yanked)<a class="headerlink" href="#v2022-0-1-yanked" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><cite>pymatgen</cite>, <cite>pymatgen.ext</cite>, <cite>pymatgen.io</cite> and <cite>pymatgen.analysis</cite> are now
+namespace packages. Note that this does not affect normal usage of pymatgen
+from v2022.0.0. All imports remain the same. However, it does allow developers
+to write “add-ons” to these subpackages. A full documentation with examples
+and templates is in the works to guide developers on how to write these
+packages.</p></li>
+</ul>
+</div>
+<div class="section" id="v2022-0-0-yanked">
+<h2>v2022.0.0 (Yanked)<a class="headerlink" href="#v2022-0-0-yanked" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>This is the new version of pymatgen going forward. Root-level imports have been removed. Please see
+<a class="reference external" href="https://pymatgen.org/compatibility.html">https://pymatgen.org/compatibility.html</a> on how to update your code for compatibility with v2022.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-3-5">
+<h2>v2021.3.5<a class="headerlink" href="#v2021-3-5" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Backwards incompatible changes in v2021.3.4 have been removed. Instead another semantic version v2022.0.0 has been
+released. Future critical bug fixes will be backported to v2021.x.x, but the main line of development will occur on
+v2022.0.0 onwards.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-3-4-yanked">
+<h2>v2021.3.4 (Yanked)<a class="headerlink" href="#v2021-3-4-yanked" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>Backwards incompatible</strong>: Pymatgen root imports have been removed from
+v2021.3.4 in preparation for a change to a more modular, extensible
+architecture that will allow more developers to contribute.</p>
+<p>If your existing code uses <cite>from pymatgen import &lt;something&gt;</cite>, you will need to make
+modifications. The easiest way is to use an IDE to run a Search and Replace.
+First, replace any <cite>from pymatgen import MPRester</cite> with
+<cite>from pymatgen.ext.matproj import MPRester</cite>. Then, replace
+<cite>from pymatgen import</cite> with <cite>from pymatgen.core import</cite>. Alternatively, if you
+are using a Mac command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;&quot;</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>From a Linux command line, you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import MPRester/from pymatgen.ext.matproj import MPRester/g&#39;</span>
+<span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="n">name</span> <span class="s1">&#39;*.py&#39;</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s/from pymatgen import/from pymatgen.core import/g&#39;</span>
+</pre></div>
+</div>
+<p>This should resolve most import errors and only a few more modifications may
+need to be done by hand.</p>
+<p>Specifically, the following “convenience imports” have been removed in favor of
+their canonical import:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Composition</span>  <span class="c1"># now &quot;from pymatgen.core.composition import Composition&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Lattice</span>  <span class="c1"># now &quot;from pymatgen.core.lattice import Lattice&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">SymmOp</span>  <span class="c1"># now &quot;from pymatgen.core.operations import SymmOp&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">DummySpecies</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Species</span>  <span class="c1"># now &quot;from pymatgen.core.periodic_table ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span>  <span class="c1"># now &quot;from pymatgen.core.sites ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">IMolecule</span><span class="p">,</span> <span class="n">IStructure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Structure</span>  <span class="c1"># now &quot;from pymatgen.core.structure ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">ArrayWithUnit</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">Unit</span>  <span class="c1"># now &quot;from pymatgen.core.units ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">Spin</span>  <span class="c1"># now &quot;from pymatgen.electronic_structure.core ...&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">MPRester</span>  <span class="c1"># now &quot;from pymatgen.ext.matproj ...&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="v2021-3-3">
+<h2>v2021.3.3<a class="headerlink" href="#v2021-3-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Backwards incompatible</strong>: pymatgen.SETTINGS have been moved to
+pymatgen.settings.SETTINGS. In general, this should not lead to many breakages
+since most of these settings are used within pymatgen itself.</p></li>
+<li><p><strong>Backwards incompatible</strong>: pymatgen.loadfn and get_structure_from_mp have been
+removed since no one was using them.</p></li>
+<li><p>critic2_caller has been refactored. (&#64;samblau)</p></li>
+<li><p>Improved hash for Compositon (&#64;CompRhys)</p></li>
+<li><p>Fixes Outcar parsing for VASP 6.2.0. (&#64;MichaelWolloch)</p></li>
+<li><p>Allow None for Gaussian functional, bset, charge and multiplicity (&#64;eimrek)</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-16">
+<h2>v2021.2.16<a class="headerlink" href="#v2021-2-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Add a new interface to OPTIMADE-compliant APIs in pymatgen.ext.optimade (&#64;mkhorton, #2066)</p></li>
+<li><p>Addresses missing text file, all_cg.txt, in package</p></li>
+<li><p>Note that a previous released increased the suggested minimum numpy version and suggested minimum Python version</p></li>
+<li><p>Previous release also dropped support for aconvasp since this the interface has not been maintained</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-14">
+<h2>v2021.2.14<a class="headerlink" href="#v2021-2-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-12">
+<h2>v2021.2.12<a class="headerlink" href="#v2021-2-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-8-1">
+<h2>v2021.2.8.1<a class="headerlink" href="#v2021-2-8-1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Patch release to restore <cite>CompositionError</cite> to preserve backwards compatibility.</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-2-8">
+<h2>v2021.2.8<a class="headerlink" href="#v2021-2-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Addition of new job types to Q-Chem IO (&#64;espottesmith, #2055),
+note <cite>metal_edge_extender</cite> has been moved into <cite>local_env</cite> for this change</p></li>
+<li><p>Improvements to string utils, new Stringify mixin with
+to_pretty_string(), to_latex_string(), to_unicode_string(), to_html_string() (&#64;shyuep)</p></li>
+<li><p>Improvements to build system (&#64;shyuep, &#64;ltalirz, see #2046)</p></li>
+<li><p>Entry is now immutable, removing “in_place” option for normalize (&#64;mkhorton, &#64;mattmcdermott, #2060)</p></li>
+<li><p>Bug fix for co-ordination geometry finder (&#64;davidwaroquiers, #2035)</p></li>
+<li><p>Bug fix for GibbsComputedStructureEntry (&#64;mattmcdermott)</p></li>
+</ul>
+</div>
+<div class="section" id="v2021-1-28">
+<h2>v2021.1.28<a class="headerlink" href="#v2021-1-28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Ability to read Lobster wavefunctions (&#64;JaGeo, #2034)</p></li>
+<li><p>Method to estimate number of bands for VASP calculation (&#64;rwoodsrobinson, #2044)</p></li>
+<li><p>Q-Chem cube file plotting and improvements to output parsring (&#64;samblau, #2032)</p></li>
+<li><p>Improvements to PhaseDiagram hashing and equality checking (&#64;CompRhys, #2014)</p></li>
+<li><p>Improvements to pymatgen import speed (&#64;mkhorton, #2031)</p></li>
+<li><p>Bug fix for k-path generation (&#64;munrojm, #2037)</p></li>
+<li><p>Bug fix for parsing of core potentials from VASP (&#64;utf, #2033)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-12-31">
+<h2>v2020.12.31<a class="headerlink" href="#v2020-12-31" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>End of 2020 release with minor bug fixes for cli scripts.</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-12-18">
+<h2>v2020.12.18<a class="headerlink" href="#v2020-12-18" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New IsayevNN nearest-neighbor algorithm (&#64;utf, #2011)</p></li>
+<li><p>Improvements to electrode objects (&#64;jmmshn, #2016)</p></li>
+<li><p>Improvements to Element and PhaseDiagram (&#64;jmmshn, #2005)</p></li>
+<li><p>Bug fix to increase minimum version of setuptools which was causing incompatible versions of numpy to be installed for some users (&#64;shyuep, see issue #2010)</p></li>
+<li><p>Bug fix to VASP run type detection (&#64;rkingsbury, #2007)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-12-3">
+<h2>v2020.12.3<a class="headerlink" href="#v2020-12-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Site insertion algorithm based on charge density (&#64;jmmshn, #1997)</p></li>
+<li><p>Allow calculation of Fermi level from occupancies in VASP calculation (&#64;rkingsbury, #2000)</p></li>
+<li><p>Improvement to legibility of 3D phase diagram plots (&#64;bayesfactor, #1999)</p></li>
+<li><p>Improvement to allow general input for exciting (&#64;vorwerkc, #1975)</p></li>
+<li><p>Improvements to code formatting (&#64;mkhorton, #2008)</p></li>
+<li><p>Bug fix for VASP run type detection (&#64;rkingsbury, #1996)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-11-11">
+<h2>v2020.11.11<a class="headerlink" href="#v2020-11-11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix for PhononBandStructureSymmLine. (&#64;gpetretto)</p></li>
+<li><p>Improved robustness in ABINIT input generation. (&#64;gpetretto)</p></li>
+<li><p>Other minor bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-10-20">
+<h2>v2020.10.20<a class="headerlink" href="#v2020-10-20" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Cp2K support (&#64;nwinner)</p></li>
+<li><p>Better BSPlotter (&#64;fraricci)</p></li>
+<li><p>Better deprecation warnings.</p></li>
+<li><p>Bug fix for Py3.9 support.</p></li>
+<li><p>Bug fix for neutron diffraction get_plot.</p></li>
+</ol>
+</div>
+<div class="section" id="v2020-10-9">
+<h2>v2020.10.9<a class="headerlink" href="#v2020-10-9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Cube parsing and Cube integration to Bader (&#64;nwinner, #1967)</p></li>
+<li><p>Improvements to PhaseDiagram (&#64;CompRhys, #1899)</p></li>
+<li><p>Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (&#64;jmmshn, #1959)</p></li>
+<li><p>Changes to MPRelaxSet, default to low spin for Co (&#64;shyuep, #1976)</p></li>
+<li><p>Changes to MPScanSet (&#64;rkingsbury, #1952)</p></li>
+<li><p>Rename of <cite>Specie</cite> to <cite>Species</cite>, <cite>Specie</cite> will be retained for backwards compatibility (&#64;shyuep, #1963)</p></li>
+<li><p>Bug fix for VASP sets (&#64;utf, #1979)</p></li>
+<li><p>Bug fix for PDPlotter (&#64;mattmcdermott, #1973)</p></li>
+<li><p>Bug fix for EnergyAdjustment (&#64;rkingsbury, #1960)</p></li>
+</ul>
+</div>
 <div class="section" id="v2020-9-14">
 <h2>v2020.9.14<a class="headerlink" href="#v2020-9-14" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">

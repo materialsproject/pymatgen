@@ -1,6 +1,13 @@
 pymatgen.analysis.magnetism package
 ===================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 7
+
+
 Submodules
 ----------
 

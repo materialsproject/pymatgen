@@ -8,8 +8,9 @@ Tests for pymatgen.io.wannier90
 
 import numpy as np
 from monty.tempfile import ScratchDir
-from pymatgen.util.testing import PymatgenTest
+
 from pymatgen.io.wannier90 import Unk
+from pymatgen.util.testing import PymatgenTest
 
 
 class UnkTest(PymatgenTest):
@@ -34,14 +35,12 @@ class UnkTest(PymatgenTest):
 
         # too small data
         with self.assertRaises(ValueError):
-            data_bad_shape = \
-                np.random.rand(2, 2, 2).astype(np.complex128)
+            data_bad_shape = np.random.rand(2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_shape)
 
         # too big data
         with self.assertRaises(ValueError):
-            data_bad_shape = \
-                np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
+            data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_shape)
 
         # noncollinear unk file
@@ -56,12 +55,11 @@ class UnkTest(PymatgenTest):
 
         # too big data
         with self.assertRaises(ValueError):
-            data_bad_ncl = \
-                np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
+            data_bad_ncl = np.random.rand(2, 3, 2, 2, 2).astype(np.complex128)
             Unk(1, data_bad_ncl)
 
     def test_from_file(self):
-        unk = Unk.from_file(self.TEST_FILES_DIR / 'UNK.std')
+        unk = Unk.from_file(self.TEST_FILES_DIR / "UNK.std")
         self.assertEqual(unk.ik, 1)
         self.assertEqual(unk.nbnd, 5)
         self.assertEqual(unk.ng[0], 6)
@@ -70,7 +68,7 @@ class UnkTest(PymatgenTest):
         self.assertFalse(unk.is_noncollinear)
         self.assertTrue(np.allclose(unk.data.shape, (5, 6, 6, 8)))
 
-        unk = Unk.from_file(self.TEST_FILES_DIR / 'UNK.ncl')
+        unk = Unk.from_file(self.TEST_FILES_DIR / "UNK.ncl")
         self.assertEqual(unk.ik, 1)
         self.assertEqual(unk.nbnd, 5)
         self.assertEqual(unk.ng[0], 6)
@@ -78,40 +76,40 @@ class UnkTest(PymatgenTest):
         self.assertEqual(unk.ng[2], 8)
         self.assertTrue(unk.is_noncollinear)
         self.assertTrue(np.allclose(unk.data.shape, (5, 2, 6, 6, 8)))
-        self.assertNotEqual(unk.data[0, 0, 0, 0, 0].real, 0.)
-        self.assertAlmostEqual(unk.data[0, 1, 0, 0, 0].real, 0.)
+        self.assertNotEqual(unk.data[0, 0, 0, 0, 0].real, 0.0)
+        self.assertAlmostEqual(unk.data[0, 1, 0, 0, 0].real, 0.0)
 
     def test_write_file(self):
-        with ScratchDir('.'):
-            self.unk_std.write_file('UNK00001.1')
-            temp_unk = Unk.from_file('UNK00001.1')
+        with ScratchDir("."):
+            self.unk_std.write_file("UNK00001.1")
+            temp_unk = Unk.from_file("UNK00001.1")
             self.assertEqual(self.unk_std, temp_unk)
 
-        with ScratchDir('.'):
-            self.unk_ncl.write_file('UNK00001.NC')
-            temp_unk = Unk.from_file('UNK00001.NC')
+        with ScratchDir("."):
+            self.unk_ncl.write_file("UNK00001.NC")
+            temp_unk = Unk.from_file("UNK00001.NC")
             self.assertEqual(self.unk_ncl, temp_unk)
 
     def test_read_write(self):
-        unk0 = Unk.from_file(self.TEST_FILES_DIR / 'UNK.std')
-        with ScratchDir('.'):
-            unk0.write_file('UNK00001.1')
-            unk1 = Unk.from_file('UNK00001.1')
+        unk0 = Unk.from_file(self.TEST_FILES_DIR / "UNK.std")
+        with ScratchDir("."):
+            unk0.write_file("UNK00001.1")
+            unk1 = Unk.from_file("UNK00001.1")
             self.assertEqual(unk0, unk1)
 
-        unk0 = Unk.from_file(self.TEST_FILES_DIR / 'UNK.ncl')
-        with ScratchDir('.'):
-            unk0.write_file('UNK00001.NC')
-            unk1 = Unk.from_file('UNK00001.NC')
+        unk0 = Unk.from_file(self.TEST_FILES_DIR / "UNK.ncl")
+        with ScratchDir("."):
+            unk0.write_file("UNK00001.NC")
+            unk1 = Unk.from_file("UNK00001.NC")
             self.assertEqual(unk0, unk1)
 
     def test_repr(self):
-        self.assertNotEqual(repr(self.unk_std), '')
-        self.assertNotEqual(repr(self.unk_ncl), '')
+        self.assertNotEqual(repr(self.unk_std), "")
+        self.assertNotEqual(repr(self.unk_ncl), "")
 
     def test_eq(self):
         # not implemented
-        self.assertFalse(self.unk_std == 'poop')
+        self.assertFalse(self.unk_std == "poop")
 
         # ng
         tmp_unk = Unk(1, np.random.rand(10, 5, 5, 4))
