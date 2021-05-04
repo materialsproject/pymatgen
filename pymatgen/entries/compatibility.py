@@ -1024,13 +1024,13 @@ class MaterialsProject2020Compatibility(Compatibility):
                 entry.data["oxidation_states"] = {}
             else:
                 entry.data["oxidation_states"] = oxi_states[0]
-        
+
         if entry.data["oxidation_states"] == {}:
             warnings.warn(
-                    f"Failed to guess oxidation states for Entry {entry.entry_id} "
-                    f"({entry.composition.reduced_formula}. Assigning anion correction to "
-                    "only the most electronegative atom."
-                )
+                f"Failed to guess oxidation states for Entry {entry.entry_id} "
+                f"({entry.composition.reduced_formula}. Assigning anion correction to "
+                "only the most electronegative atom."
+            )
 
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
             if Element(anion) in comp and anion in self.comp_correction:
