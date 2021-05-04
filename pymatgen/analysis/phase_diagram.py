@@ -780,6 +780,8 @@ class BasePhaseDiagram(MSONable):
         # and so is not done by default
         # TODO check that this is actually an issue?
         if len(competing_entries) > space_limit and not stable_only:
+            raise ValueError("is this bad?")
+
             reduced_space = (
                 set(competing_entries)
                 .difference(self._get_stable_entries_in_space(entry_elems))
@@ -1527,6 +1529,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             if workers < 0:
                 workers = cpu_count()
 
+            # NOTE that for large phase diagrams this is likely to be memory constrained.
             with Pool(workers) as p:
                 results = [
                     *PBar(
