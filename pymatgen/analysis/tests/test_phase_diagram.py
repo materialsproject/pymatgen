@@ -696,8 +696,8 @@ class PatchedPhaseDiagramTest(unittest.TestCase):
         self.assertEqual(self.pd.stable_entries, self.ppd.stable_entries)
 
     def test_get_qhull_entries(self):
-        # NOTE qhull_entry is an unusually sorted list due to it's construction
-        # the order doesn't matter therefore just test if sorted versions are equal.
+        # NOTE qhull_entry is an specially sorted list due to it's construction, we
+        # can't mimic this in ppd therefore just test if sorted versions are equal.
         self.assertEqual(
             sorted(self.pd.qhull_entries, key=lambda e: e.composition.reduced_composition),
             sorted(self.ppd.qhull_entries, key=lambda e: e.composition.reduced_composition),

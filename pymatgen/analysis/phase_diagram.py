@@ -308,7 +308,9 @@ class BasePhaseDiagram(MSONable):
         self.el_refs = el_refs
         self.elements = elements
         self.qhull_entries = qhull_entries
-        self._stable_entries = set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets)))
+        self._qhull_spaces = [frozenset(e.composition.elements) for e in qhull_entries]
+        self._stable_entries = list(set(self.qhull_entries[i] for i in set(itertools.chain(*self.facets))))
+        self._stable_spaces = [frozenset(e.composition.elements) for e in self._stable_entries]
 
     @classmethod
     def from_entries(cls, entries, elements=None):
@@ -436,7 +438,7 @@ class BasePhaseDiagram(MSONable):
             list of Entries that are unstable in the phase diagram.
                 Includes positive formation energy entries.
         """
-        return [e for e in self.all_entries if e not in self.stable_entries]
+        return [e for e in self.all_entries if e not in self._stable_entries]
 
     @property
     def stable_entries(self):
@@ -444,7 +446,8 @@ class BasePhaseDiagram(MSONable):
         Returns:
             the set of stable entries in the phase diagram.
         """
-        return self._stable_entries
+        # TODO: check whether this O(n) slows anything down.
+        return set(self._stable_entries)
 
     @lru_cache(1)
     def _get_stable_entries_in_space(self, space):
@@ -453,9 +456,10 @@ class BasePhaseDiagram(MSONable):
             space ({Elements, }): set of elements
 
         Returns:
-            the set of stable entries in the space.
+            list of stable entries in the space.
         """
-        return [e for e in self._stable_entries if space.issuperset(e.composition.elements)]
+
+        return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
     def get_form_energy(self, entry):
         """
@@ -488,8 +492,8 @@ class BasePhaseDiagram(MSONable):
         symbols = [el.symbol for el in self.elements]
         output = [
             "{} phase diagram".format("-".join(symbols)),
-            "{} stable phases: ".format(len(self.stable_entries)),
-            ", ".join([entry.name for entry in self.stable_entries]),
+            "{} stable phases: ".format(len(self._stable_entries)),
+            ", ".join([entry.name for entry in self._stable_entries]),
         ]
         return "\n".join(output)
 
@@ -735,24 +739,11 @@ class BasePhaseDiagram(MSONable):
         if entry.is_element:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
-        # For materials where there's not a corresponding stable entry use simplex approach
-        # if not any(
-        #     (  # NOTE use this construction to avoid calls to fractional_composition
-        #         len(entry_frac) == len(e.composition)
-        #         and all(
-        #             abs(v - e.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
-        #             for el, v in entry_frac.items()
-        #         )
-        #     )
-        #     for e in self._get_stable_entries_in_space(entry_elems)
-        # ):
-        #     return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
-
         # Select space to compare against
         if stable_only:
             compare_entries = self._get_stable_entries_in_space(entry_elems)
         else:
-            compare_entries = [e for e in self.qhull_entries if entry_elems.issuperset(e.composition.elements)]
+            compare_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces) if entry_elems.issuperset(s)]
 
         # get memory ids of entries with the same composition.
         same_comp_mem_ids = [
@@ -779,6 +770,7 @@ class BasePhaseDiagram(MSONable):
         # requires computing the convex hull of a second (hopefully smallish) space
         # and so is not done by default
         # TODO check that this is actually an issue?
+        # TODO this causes a memory leak when multiprocessing.
         if len(competing_entries) > space_limit and not stable_only:
             raise ValueError("is this bad?")
 
@@ -789,7 +781,7 @@ class BasePhaseDiagram(MSONable):
             )
             inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = inner_hull.stable_entries.union(self._get_stable_entries_in_space(entry_elems))
+            competing_entries = inner_hull._stable_entries.union(self._get_stable_entries_in_space(entry_elems))
             competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
 
             if len(competing_entries) > space_limit:
@@ -1294,8 +1286,8 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
 
         output = [
             "{} grand potential phase diagram with {}".format(chemsys, chempots),
-            "{} stable phases: ".format(len(self.stable_entries)),
-            ", ".join([entry.name for entry in self.stable_entries]),
+            "{} stable phases: ".format(len(self._stable_entries)),
+            ", ".join([entry.name for entry in self._stable_entries]),
         ]
         return "\n".join(output)
 
@@ -1496,11 +1488,23 @@ class PatchedPhaseDiagram(PhaseDiagram):
             missing = set(elements).difference(el_refs.keys())
             raise ValueError(f"There are no entries for the terminal elements: {missing}")
 
-        self.min_entries = min_entries
-        self._min_spaces = [frozenset(e.composition.elements) for e in min_entries]
+        data = np.array(
+            [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
+        )
+
+        # Use only entries with negative formation energy
+        vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
+        form_e = -np.dot(data, vec)
+        inds = np.where(form_e < -BasePhaseDiagram.formation_energy_tol)[0].tolist()
+
+        # Add the elemental references
+        inds.extend([min_entries.index(el) for el in el_refs.values()])
+
+        self.qhull_entries = [min_entries[i] for i in inds]
+        self._qhull_spaces = [frozenset(e.composition.elements) for e in self.qhull_entries]
 
         # Get all unique chemical spaces
-        spaces = set(s for s in self._min_spaces if len(s) > 1)
+        spaces = set(s for s in self._qhull_spaces if len(s) > 1)
 
         # Remove redundant chemical spaces
         if not keep_all_spaces:
@@ -1510,7 +1514,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             # NOTE reduce the number of comparisons by only comparing to larger sets
             for i in range(2, max_size + 1):
                 test = (s for s in spaces if len(s) == i)
-                refer = (set(s) for s in spaces if len(s) > i)
+                refer = (s for s in spaces if len(s) > i)
                 systems.extend([t for t in test if not any(t.issubset(r) for r in refer)])
 
             spaces = systems
@@ -1554,8 +1558,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
         _qhull_entries = {e for pd in pds.values() for e in pd.qhull_entries}
         self.qhull_entries = list(_qhull_entries.union(self.el_refs.values()))
 
-        _stable_entries = {se for pd in pds.values() for se in pd.stable_entries}
-        self._stable_entries = _stable_entries.union(self.el_refs.values())
+        _stable_entries = {se for pd in pds.values() for se in pd._stable_entries}
+
+        # Add terminal elements as we may not have PD patches including them
+        self._stable_entries = list(_stable_entries.union(self.el_refs.values()))
+        self._stable_spaces = [frozenset(e.composition.elements) for e in self._stable_entries]
 
     def __repr__(self):
         return f"{self.__class__.__name__}\n Covering {len(self.spaces)} Sub-Spaces"
@@ -1583,7 +1590,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
     #     all_entries_hulldata,
     #     unstable_entries,
     #     stable_entries,
-    #     get_stable_entries_normed(),
     #     get_form_energy(),
     #     get_form_energy_per_atom(),
     #     get_hull_energy(),
@@ -1764,7 +1770,7 @@ def _get_pd_patch_for_space(space, ppd):
     Returns:
         space, PhaseDiagram for the given chemical space
     """
-    space_entries = [e for e, s in zip(ppd.min_entries, ppd._min_spaces) if space.issuperset(s)]
+    space_entries = [e for e, s in zip(ppd.qhull_entries, ppd._qhull_spaces) if space.issuperset(s)]
 
     return space, PhaseDiagram(space_entries)
 
@@ -1811,7 +1817,7 @@ class ReactionDiagram:
         pd = PhaseDiagram(all_entries + [entry1, entry2])
         terminal_formulas = [entry1.composition.reduced_formula, entry2.composition.reduced_formula]
 
-        logger.debug("%d stable entries" % len(pd.stable_entries))
+        logger.debug("%d stable entries" % len(pd._stable_entries))
         logger.debug("%d facets" % len(pd.facets))
         logger.debug("%d qhull_entries" % len(pd.qhull_entries))
 
@@ -2048,7 +2054,7 @@ class PDPlotter:
         self.lines = uniquelines(self._pd.facets) if self._dim > 1 else [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
         self.backend = backend
-        self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd.stable_entries])
+        self._min_energy = min([self._pd.get_form_energy_per_atom(e) for e in self._pd._stable_entries])
         colors = Set1_3.mpl_colors
         self.plotkwargs = plotkwargs or {"markerfacecolor": colors[2], "markersize": 10, "linewidth": 3}
 
@@ -2093,7 +2099,7 @@ class PDPlotter:
         all_entries = pd.all_entries
         all_data = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
-        stable = pd.stable_entries
+        stable = pd.stable_entries  # TODO if we make this _stable_entries it breaks
         for i, entry in enumerate(all_entries):
             if entry not in stable:
                 if self._dim < 3:
