@@ -151,7 +151,7 @@ def parse_lammps_log(filename="log.lammps"):
         [pd.DataFrame] containing thermo data for each completed run.
 
     """
-    with open(filename) as f:
+    with zopen(filename, "rt") as f:
         lines = f.readlines()
     begin_flag = (
         "Memory usage per processor =",
