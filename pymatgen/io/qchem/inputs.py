@@ -6,7 +6,7 @@
 Classes for reading/manipulating/writing QChem input files.
 """
 import logging
-from typing import Union, Dict, List, Optional
+from typing import Union, Dict, List, Optional, Tuple
 from typing_extensions import Literal
 
 from monty.io import zopen
@@ -220,7 +220,20 @@ class QCInput(MSONable):
             scan = cls.read_scan(string)
         if "plots" in sections:
             plots = cls.read_plots(string)
-        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, scan=scan, plots=plots)
+        if "van_der_waals" in sections:
+            vdw_mode, vdw = cls.read_vdw(string)
+        return cls(
+            molecule,
+            rem,
+            opt=opt,
+            pcm=pcm,
+            solvent=solvent,
+            smx=smx,
+            scan=scan,
+            plots=plots,
+            van_der_waals=vdw,
+            vdw_mode=vdw_mode,
+        )
 
     def write_file(self, filename: str):
         """
@@ -629,8 +642,29 @@ class QCInput(MSONable):
         if not pcm_table:
             print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
             return {}
-
+        print(pcm_table)
         return dict(pcm_table[0])
+
+    @staticmethod
+    def read_vdw(string: str) -> Tuple[str, Dict]:
+        """
+        Read van der Waals parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (str, dict) vdW mode ('atomic' or 'sequential') and dict of van der Waals radii.
+        """
+        header = r"^\s*\$van_der_waals"
+        row = r"[^\d]*(\d+).?(\d+.\d+)?.*"
+        footer = r"^\s*\$end"
+        vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if not vdw_table:
+            print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
+            return "", {}
+
+        return vdw_table[0][0][0], dict(vdw_table[0][1:])
 
     @staticmethod
     def read_solvent(string: str) -> Dict:
