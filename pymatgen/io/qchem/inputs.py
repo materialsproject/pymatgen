@@ -208,6 +208,8 @@ class QCInput(MSONable):
         smx = None
         scan = None
         plots = None
+        vdw = None
+        vdw_mode = 'atomic'
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -664,7 +666,12 @@ class QCInput(MSONable):
             print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
             return "", {}
 
-        return vdw_table[0][0][0], dict(vdw_table[0][1:])
+        if vdw_table[0][0][0] == 1:
+            mode = 'atomic'
+        elif vdw_table[0][0][0] == 2:
+            mode = 'sequential'
+
+        return mode, dict(vdw_table[0][1:])
 
     @staticmethod
     def read_solvent(string: str) -> Dict:
