@@ -985,7 +985,7 @@ class SquareTensor(Tensor):
 
 
 def get_uvec(vec):
-    """ Gets a unit vector parallel to input vector"""
+    """Gets a unit vector parallel to input vector"""
     l = np.linalg.norm(vec)
     if l < 1e-8:
         return vec

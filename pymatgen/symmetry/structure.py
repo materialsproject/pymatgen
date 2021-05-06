@@ -68,7 +68,7 @@ class SymmetrizedStructure(Structure):
         """
         :return: Copy of structure.
         """
-        return self.__class__(
+        return SymmetrizedStructure(
             self,
             spacegroup=self.spacegroup,
             equivalent_positions=self.site_labels,

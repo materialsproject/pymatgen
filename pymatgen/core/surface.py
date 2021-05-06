@@ -300,17 +300,30 @@ class Slab(Structure):
 
     def is_symmetric(self, symprec=0.1):
         """
-        Checks if slab is symmetric, i.e., contains inversion symmetry.
+        Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
+            or screw axis (rotation and translation) about [hkl].
 
         Args:
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            (bool) Whether slab contains inversion symmetry.
+            (bool) Whether surfaces are symmetric.
         """
 
         sg = SpacegroupAnalyzer(self, symprec=symprec)
-        return sg.is_laue()
+        symmops = sg.get_point_group_operations()
+
+        if (
+            sg.is_laue()
+            or any(op.translation_vector[2] != 0 for op in symmops)
+            or any(np.alltrue(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symmops)
+        ):
+            # Check for inversion symmetry. Or if sites from surface (a) can be translated
+            # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
+            # two surfaces of our slabs are always parallel to the (hkl) plane,
+            # any operation where theres an (hkl) mirror plane has surface symmetry
+            return True
+        return False
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -596,38 +609,6 @@ class Slab(Structure):
         if tag:
             self.add_site_property("is_surf_site", properties)
         return surf_sites_dict
-
-    def have_equivalent_surfaces(self):
-        """
-        Check if we have same number of equivalent sites on both surfaces.
-        This is an alternative to checking Laue symmetry (is_symmetric())
-        if we want to ensure both surfaces in the slab are the same
-        """
-
-        # tag the sites as either surface sites or not
-        self.get_surface_sites(tag=True)
-
-        a = SpacegroupAnalyzer(self)
-        symm_structure = a.get_symmetrized_structure()
-
-        # ensure each site on one surface has a
-        # corresponding equivalent site on the other
-        equal_surf_sites = []
-        for equ in symm_structure.equivalent_sites:
-            # Top and bottom are arbitrary, we will just determine
-            # if one site is on one side of the slab or the other
-            top, bottom = 0, 0
-            for s in equ:
-                if s.is_surf_site:
-                    if s.frac_coords[2] > self.center_of_mass[2]:
-                        top += 1
-                    else:
-                        bottom += 1
-            # Check to see if the number of equivalent sites
-            # on one side of the slab are equal to the other
-            equal_surf_sites.append(top == bottom)
-
-        return all(equal_surf_sites)
 
     def get_symmetric_site(self, point, cartesian=False):
         """
@@ -1305,7 +1286,8 @@ class SlabGenerator:
             energy=init_slab.energy,
         )
 
-    def nonstoichiometric_symmetrized_slab(self, init_slab, tol=1e-3):
+    def nonstoichiometric_symmetrized_slab(self, init_slab):
+
         """
         This method checks whether or not the two surfaces of the slab are
         equivalent. If the point group of the slab has an inversion symmetry (
@@ -1317,15 +1299,12 @@ class SlabGenerator:
 
         Arg:
             init_slab (Structure): A single slab structure
-            tol (float): Tolerance for SpaceGroupanalyzer.
 
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
 
-        sg = SpacegroupAnalyzer(init_slab, symprec=tol)
-
-        if sg.is_laue():
+        if init_slab.is_symmetric():
             return [init_slab]
 
         nonstoich_slabs = []
@@ -1350,13 +1329,12 @@ class SlabGenerator:
                     break
 
                 # Check if the altered surface is symmetric
-                sg = SpacegroupAnalyzer(slab, symprec=tol)
-                if sg.is_laue():
+                if slab.is_symmetric():
                     asym = False
                     nonstoich_slabs.append(slab)
 
         if len(slab) <= len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab " "size.")
+            warnings.warn("Too many sites removed, please use a larger slab size.")
 
         return nonstoich_slabs
 

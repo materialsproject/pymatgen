@@ -662,6 +662,7 @@ class SpacegroupAnalyzer:
         elif latt_type == "triclinic":
             # we use a LLL Minkowski-like reduction for the triclinic cells
             struct = struct.get_reduced_structure("LLL")
+            latt = struct.lattice
 
             a, b, c = latt.lengths
             alpha, beta, gamma = [math.pi * i / 180 for i in latt.angles]

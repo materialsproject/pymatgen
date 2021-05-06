@@ -113,7 +113,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         read_ok = []
         for fname in filenames:
             try:
-                fh = open(fname)
+                fh = open(fname)  # pylint: disable=R1732
             except IOError:
                 logger.warning("Cannot open file %s" % fname)
                 continue
@@ -701,7 +701,7 @@ class AbinitTimer:
         openclose = is_string(fileobj)
 
         if openclose:
-            fileobj = open(fileobj, "w")
+            fileobj = open(fileobj, "w")  # pylint: disable=R1732
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))

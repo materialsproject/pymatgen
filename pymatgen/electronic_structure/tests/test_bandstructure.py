@@ -10,6 +10,7 @@ import warnings
 from io import open
 
 from monty.serialization import loadfn
+import numpy
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import (
@@ -41,6 +42,14 @@ class KpointTest(unittest.TestCase):
         self.assertEqual(self.kpoint.cart_coords[1], 4.0)
         self.assertEqual(self.kpoint.cart_coords[2], -5.0)
         self.assertEqual(self.kpoint.label, "X")
+
+    def test_as_dict(self):
+        self.assertIsInstance(self.kpoint.as_dict()["fcoords"], list)
+        self.assertIsInstance(self.kpoint.as_dict()["ccoords"], list)
+        self.assertNotIsInstance(self.kpoint.as_dict()["fcoords"][0], numpy.float64)
+        self.assertNotIsInstance(self.kpoint.as_dict()["ccoords"][0], numpy.float64)
+        self.assertListEqual(self.kpoint.as_dict()["fcoords"], [0.1, 0.4, -0.5])
+        self.assertListEqual(self.kpoint.as_dict()["ccoords"], [1.0, 4.0, -5.0])
 
 
 class BandStructureSymmLine_test(PymatgenTest):
