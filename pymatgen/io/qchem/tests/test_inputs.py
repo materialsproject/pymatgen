@@ -834,6 +834,19 @@ $end
             self.assertEqual(test_dict[key], test_ref_dict[key])
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
 
+    def test_write_file_from_OptSet_with_vdw(self):
+        from pymatgen.io.qchem.sets import OptSet
+
+        odd_dict = loadfn(os.path.join(os.path.dirname(__file__), "odd.json"))
+        odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
+        qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
+        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin")).as_dict()
+        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin")).as_dict()
+        for key in test_dict:
+            self.assertEqual(test_dict[key], test_ref_dict[key])
+        os.remove(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
+
 
 if __name__ == "__main__":
     unittest.main()
