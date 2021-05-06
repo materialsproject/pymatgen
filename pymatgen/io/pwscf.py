@@ -160,9 +160,18 @@ class PWInput:
                 out.append("  %s %.6f %.6f %.6f" % (name, site.a, site.b, site.c))
 
         out.append("K_POINTS %s" % self.kpoints_mode)
-        kpt_str = ["%s" % i for i in self.kpoints_grid]
-        kpt_str.extend(["%s" % i for i in self.kpoints_shift])
-        out.append("  %s" % " ".join(kpt_str))
+        if self.kpoints_mode == "automatic":
+            kpt_str = ["%s" % i for i in self.kpoints_grid]
+            kpt_str.extend(["%s" % i for i in self.kpoints_shift])
+            out.append("  %s" % " ".join(kpt_str))
+        elif self.kpoints_mode == "crystal_b":
+            out.append(" %s" % str(len(self.kpoints_grid)))
+            for i in range(len(self.kpoints_grid)):
+                kpt_str = ["%.s" % str(i) for i in self.kpoints_grid[i]]
+                out.append(" %s" % " ".join(kpt_str))
+        elif self.kpoints_mode == "gamma":
+            pass
+
         out.append("CELL_PARAMETERS angstrom")
         for vec in self.structure.lattice.matrix:
             out.append("  %f %f %f" % (vec[0], vec[1], vec[2]))
@@ -268,7 +277,6 @@ class PWInput:
             "cell": {},
         }
         pseudo = {}
-        pseudo_index = 0
         lattice = []
         species = []
         coords = []
@@ -301,10 +309,7 @@ class PWInput:
             elif mode[0] == "pseudo":
                 m = re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line)
                 if m:
-                    pseudo[m.group(1).strip()] = {}
-                    pseudo[m.group(1).strip()]["index"] = pseudo_index
-                    pseudo[m.group(1).strip()]["pseudopot"] = m.group(3).strip()
-                    pseudo_index += 1
+                    pseudo[m.group(1).strip()] = m.group(3).strip()
             elif mode[0] == "kpoints":
                 m = re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line)
                 if m:
@@ -322,13 +327,10 @@ class PWInput:
                         float(m_l.group(3)),
                     ]
                 elif m_p:
-                    site_properties["pseudo"].append(pseudo[m_p.group(1)]["pseudopot"])
-                    species += [pseudo[m_p.group(1)]["pseudopot"].split(".")[0]]
+                    site_properties["pseudo"].append(pseudo[m_p.group(1)])
+                    species += [pseudo[m_p.group(1)].split(".")[0]]
                     coords += [[float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]]
 
-                    for k, v in site_properties.items():
-                        if k != "pseudo":
-                            site_properties[k].append(sections['system'][k][pseudo[m_p.group(1)]["index"]])
                     if mode[1] == "angstrom":
                         coords_are_cartesian = True
                     elif mode[1] == "crystal":
@@ -344,6 +346,7 @@ class PWInput:
         return PWInput(
             structure=structure,
             control=sections["control"],
+            pseudo=pseudo,
             system=sections["system"],
             electrons=sections["electrons"],
             ions=sections["ions"],
