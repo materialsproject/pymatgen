@@ -209,7 +209,7 @@ class QCInput(MSONable):
         scan = None
         plots = None
         vdw = None
-        vdw_mode = 'atomic'
+        vdw_mode = "atomic"
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -667,9 +667,9 @@ class QCInput(MSONable):
             return "", {}
 
         if vdw_table[0][0][0] == 1:
-            mode = 'atomic'
+            mode = "atomic"
         elif vdw_table[0][0][0] == 2:
-            mode = 'sequential'
+            mode = "sequential"
 
         return mode, dict(vdw_table[0][1:])
 
