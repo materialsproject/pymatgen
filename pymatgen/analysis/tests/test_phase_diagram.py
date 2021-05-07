@@ -253,11 +253,7 @@ class PhaseDiagramTest(unittest.TestCase):
                 1e-11,
                 "Stable entries should have e above hull of zero!",
             )
-            self.assertEqual(
-                decomp[entry],
-                1,
-                "Decomposition of stable entry should be itself."
-            )
+            self.assertEqual(decomp[entry], 1, "Decomposition of stable entry should be itself.")
 
         for entry in self.pd.all_entries:
             if entry not in self.pd.stable_entries:
