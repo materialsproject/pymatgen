@@ -644,7 +644,7 @@ class QCInput(MSONable):
         if not pcm_table:
             print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
             return {}
-        print(pcm_table)
+
         return dict(pcm_table[0])
 
     @staticmethod
