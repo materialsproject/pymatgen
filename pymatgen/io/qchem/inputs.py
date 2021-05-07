@@ -672,7 +672,6 @@ class QCInput(MSONable):
         else:
             mode = "atomic"
 
-
         return mode, dict(vdw_table[0][1:])
 
     @staticmethod
