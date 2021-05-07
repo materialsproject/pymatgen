@@ -496,7 +496,7 @@ class QCInput(MSONable):
         Returns:
             List of sections.
         """
-        patterns = {"sections": r"^\s*?\$([a-z]+)", "multiple_jobs": r"(@@@)"}
+        patterns = {"sections": r"^\s*?\$([a-z_]+)", "multiple_jobs": r"(@@@)"}
         matches = read_pattern(string, patterns)
         # list of the sections present
         sections = [val[0] for val in matches["sections"]]
@@ -509,6 +509,7 @@ class QCInput(MSONable):
             raise ValueError("Output file does not contain a molecule section")
         if "rem" not in sections:
             raise ValueError("Output file does not contain a rem section")
+        print(sections)
         return sections
 
     @staticmethod
@@ -666,10 +667,11 @@ class QCInput(MSONable):
             print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
             return "", {}
 
-        if vdw_table[0][0][0] == 1:
-            mode = "atomic"
-        elif vdw_table[0][0][0] == 2:
+        if vdw_table[0][0][0] == 2:
             mode = "sequential"
+        else:
+            mode = "atomic"
+
 
         return mode, dict(vdw_table[0][1:])
 
