@@ -44,6 +44,7 @@ class QChemDictSet(QCInput):
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode: str = "atomic",
     ):
         """
         Args:
@@ -93,7 +94,7 @@ class QChemDictSet(QCInput):
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
-                solvent, smx, opt, and plots. The value of each key is a
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
                 dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
@@ -101,6 +102,17 @@ class QChemDictSet(QCInput):
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.molecule = molecule
         self.job_type = job_type
@@ -116,6 +128,7 @@ class QChemDictSet(QCInput):
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
         self.overwrite_inputs = overwrite_inputs
+        self.vdw_mode = vdw_mode
 
         pcm_defaults = {
             "heavypoints": "194",
@@ -140,6 +153,7 @@ class QChemDictSet(QCInput):
         mypcm = dict()
         mysolvent = dict()
         mysmx = dict()
+        myvdw = dict()
         myplots = dict()
         myrem = dict()
         myrem["job_type"] = job_type
@@ -220,6 +234,12 @@ class QChemDictSet(QCInput):
                     temp_scan = lower_and_check_unique(sec_dict)
                     for k, v in temp_scan.items():
                         myscan[k] = v
+                if sec == "van_der_waals":
+                    temp_vdw = lower_and_check_unique(sec_dict)
+                    for k, v in temp_vdw.items():
+                        myvdw[k] = v
+                    # set the PCM section to read custom radii
+                    mypcm["radii"] = "read"
                 if sec == "plots":
                     temp_plots = lower_and_check_unique(sec_dict)
                     for k, v in temp_plots.items():
@@ -237,7 +257,9 @@ class QChemDictSet(QCInput):
             solvent=mysolvent,
             smx=mysmx,
             scan=myscan,
+            van_der_waals=myvdw,
             plots=myplots,
+            vdw_mode=self.vdw_mode,
         )
 
     def write(self, input_file: str):
@@ -268,6 +290,7 @@ class SinglePointSet(QChemDictSet):
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode: str = "atomic",
     ):
         """
         Args:
@@ -304,14 +327,26 @@ class SinglePointSet(QChemDictSet):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -328,6 +363,7 @@ class SinglePointSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
+            vdw_mode=vdw_mode,
         )
 
 
@@ -350,6 +386,7 @@ class OptSet(QChemDictSet):
         opt_variables: Optional[Dict[str, List]] = None,
         geom_opt_max_cycles: int = 200,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode: str = "atomic",
     ):
         """
         Args:
@@ -387,14 +424,26 @@ class OptSet(QChemDictSet):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -414,6 +463,7 @@ class OptSet(QChemDictSet):
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
+            vdw_mode=vdw_mode,
         )
 
 
@@ -436,6 +486,7 @@ class TransitionStateSet(QChemDictSet):
         opt_variables: Optional[Dict[str, List]] = None,
         geom_opt_max_cycles: int = 200,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode="atomic",
     ):
         """
         Args:
@@ -470,14 +521,26 @@ class TransitionStateSet(QChemDictSet):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -497,6 +560,7 @@ class TransitionStateSet(QChemDictSet):
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
+            vdw_mode=vdw_mode,
         )
 
 
@@ -517,6 +581,7 @@ class ForceSet(QChemDictSet):
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode: str = "atomic",
     ):
         """
         Args:
@@ -551,14 +616,26 @@ class ForceSet(QChemDictSet):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -575,6 +652,7 @@ class ForceSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
+            vdw_mode=vdw_mode,
         )
 
 
@@ -595,6 +673,7 @@ class FreqSet(QChemDictSet):
         max_scf_cycles: int = 200,
         plot_cubes: bool = False,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode: str = "atomic",
     ):
         """
         Args:
@@ -629,14 +708,26 @@ class FreqSet(QChemDictSet):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -653,6 +744,7 @@ class FreqSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
+            vdw_mode=vdw_mode,
         )
 
 
@@ -681,6 +773,7 @@ class PESScanSet(QChemDictSet):
         opt_variables: Optional[Dict[str, List]] = None,
         scan_variables: Optional[Dict[str, List]] = None,
         overwrite_inputs: Optional[Dict] = None,
+        vdw_mode: str = "atomic",
     ):
         """
         Args:
@@ -727,14 +820,26 @@ class PESScanSet(QChemDictSet):
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
-                The currently available sections (keys) are rem, pcm, solvent, smx, and plots. The value of
-                each key is a dictionary of key value pairs relevant to that section. For example, to add
+                The currently available sections (keys) are rem, pcm,
+                solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
+                dictionary of key value pairs relevant to that section. For example, to add
                 a new variable to the rem section that sets symmetry to false, use
 
                 overwrite_inputs = {"rem": {"symmetry": "false"}}
 
                 **Note that if something like basis is added to the rem dict it will overwrite
                 the default basis.**
+
+                **Note that supplying a van_der_waals section here will automatically modify
+                the PCM "radii" setting to "read".**
+
+                **Note that all keys must be given as strings, even when they are numbers!**
+            vdw_mode (str): Method of specifying custom van der Waals radii. Applies only if
+                you are using overwrite_inputs to add a $van_der_waals section to the input.
+                Valid value are 'atomic' and 'sequential'. In 'atomic' mode (default), dict
+                keys represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of a single
+                specific atom in the input structure.
         """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
@@ -757,4 +862,5 @@ class PESScanSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
             overwrite_inputs=overwrite_inputs,
+            vdw_mode=vdw_mode,
         )
