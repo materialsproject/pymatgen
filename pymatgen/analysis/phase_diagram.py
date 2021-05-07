@@ -438,7 +438,8 @@ class BasePhaseDiagram(MSONable):
             list of Entries that are unstable in the phase diagram.
                 Includes positive formation energy entries.
         """
-        return [e for e in self.all_entries if e not in self._stable_entries]
+        # NOTE use stable_entries set here for faster 'in' test
+        return [e for e in self.all_entries if e not in self.stable_entries]
 
     @property
     def stable_entries(self):
@@ -688,7 +689,12 @@ class BasePhaseDiagram(MSONable):
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomp_and_phase_separation_energy(
-        self, entry, space_limit=200, stable_only=False, tol=1e-10, maxiter=1000
+        self,
+        entry,
+        space_limit=200,
+        stable_only=False,
+        tols=[1e-8],
+        maxiter=1000,
     ):
         """
         Provides the combination of entries in the PhaseDiagram that gives the
@@ -721,8 +727,8 @@ class BasePhaseDiagram(MSONable):
                 before calculating a second convex hull to reducing the complexity
                 of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
-            tol (float): The tolerence for convergence of the SLSQP optimization
-                when finding the equilibrium reaction.
+            tol (list): Tolerences for convergence of the SLSQP optimization
+                when finding the equilibrium reaction. Tighter tolerences tested first.
             maxiter (int): The maximum number of iterations of the SLSQP optimizer
                 when finding the equilibrium reaction.
 
@@ -764,36 +770,35 @@ class BasePhaseDiagram(MSONable):
         # take entries with negative e_form and different compositons as competing entries
         competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
 
-        # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
-        # result in phase diagrams where we have too many competing entries we can
-        # reduce the number by looking at the first and second convex hulls. This
-        # requires computing the convex hull of a second (hopefully smallish) space
-        # and so is not done by default
-        # TODO check that this is actually an issue?
-        # TODO this causes a memory leak when multiprocessing.
+        # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries.
+        # TODO come up with smart way to restrict the space. The inner hull idea
+        # caused a memory leak when trying multiprocessing.
         if len(competing_entries) > space_limit and not stable_only:
-            raise ValueError("is this bad?")
-
-            reduced_space = (
-                set(competing_entries)
-                .difference(self._get_stable_entries_in_space(entry_elems))
-                .union(self.el_refs.values())
+            raise ValueError(
+                f"Number of competing_entries ({len(compare_entries)}) for {entry.composition}"
+                f"exceeds space_limit ({space_limit})."
             )
-            inner_hull = PhaseDiagram(reduced_space)
 
-            competing_entries = inner_hull._stable_entries.union(self._get_stable_entries_in_space(entry_elems))
-            competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
+            # reduced_space = (
+            #     set(competing_entries)
+            #     .difference(self._get_stable_entries_in_space(entry_elems))
+            #     .union(self.el_refs.values())
+            # )
+            # inner_hull = PhaseDiagram(reduced_space)
 
-            if len(competing_entries) > space_limit:
-                warnings.warn(
-                    (
-                        f"After reduction {len(competing_entries)} competing entries "
-                        f"remain for {entry.composition} - Using SLSQP to find "
-                        "decomposition likely to be slow"
-                    )
-                )
+            # competing_entries = inner_hull._stable_entries.union(self._get_stable_entries_in_space(entry_elems))
+            # competing_entries = [c for c in compare_entries if id(c) not in same_comp_mem_ids]
 
-        decomp = _get_slsqp_decomp(entry.composition, competing_entries, tol, maxiter)
+            # if len(competing_entries) > space_limit:
+            #     warnings.warn(
+            #         (
+            #             f"After reduction {len(competing_entries)} competing entries "
+            #             f"remain for {entry.composition} - Using SLSQP to find "
+            #             "decomposition likely to be slow"
+            #         )
+            #     )
+
+        decomp = _get_slsqp_decomp(entry.composition, competing_entries, tols, maxiter)
 
         # find the minimum alternative formation energy for the decomposition
         decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
@@ -1486,8 +1491,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         if len(el_refs) != dim:
             missing = set(elements).difference(el_refs.keys())
-            raise ValueError(f"There are no entries for the terminal elements: {missing}")
+            raise ValueError(f"Terminal entries for: {missing} are missing")
 
+        # TODO Numba?
         data = np.array(
             [[e.composition.get_atomic_fraction(el) for el in elements] + [e.energy_per_atom] for e in min_entries]
         )
@@ -1553,14 +1559,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.el_refs = el_refs
         self.elements = elements
 
-        # NOTE add el_refs incase no multielement entries are present for el
-        # NOTE qhull_entries for ppd is not in the same order as obtained in pd
-        _qhull_entries = {e for pd in pds.values() for e in pd.qhull_entries}
-        self.qhull_entries = list(_qhull_entries.union(self.el_refs.values()))
-
         _stable_entries = {se for pd in pds.values() for se in pd._stable_entries}
 
         # Add terminal elements as we may not have PD patches including them
+        # NOTE add el_refs incase no multielement entries are present for el
         self._stable_entries = list(_stable_entries.union(self.el_refs.values()))
         self._stable_spaces = [frozenset(e.composition.elements) for e in self._stable_entries]
 
@@ -1946,7 +1948,12 @@ def get_facets(qhull_data, joggle=False):
     return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
-def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
+def _get_slsqp_decomp(
+    comp,
+    competing_entries,
+    tols=[1e-8],
+    maxiter=1000,
+):
     """
     Finds the amounts of competing compositions that minimize the energy of a
     given composition
@@ -1960,8 +1967,8 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
     Args:
         comp (Composition/PDEntry): A Composition/PDEntry like entry to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
-        tol (float): tolerence for SLSQP convergence. Issues observed for
-            tol > 1e-7 in the fractional composition (default 1e-10)
+        tols (list): tolerences to try for SLSQP convergence. Issues observed for
+            tol > 1e-7 in the fractional composition (default 1e-8)
         maxiter (int): maximum number of SLSQP iterations
 
     Returns:
@@ -2000,24 +2007,25 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-8, maxiter=1000):
     # NOTE the tolerence needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
     # tol > 1e-7 in the fractional composition (default 1e-8).
-    solution = minimize(
-        fun=lambda x: np.dot(x, Es),
-        x0=x0,
-        method="SLSQP",
-        jac=lambda x: Es,
-        bounds=bounds,
-        constraints=[molar_constraint],
-        tol=tol,
-        options=options,
-    )
+    for tol in sorted(tols):
+        solution = minimize(
+            fun=lambda x: np.dot(x, Es),
+            x0=x0,
+            method="SLSQP",
+            jac=lambda x: Es,
+            bounds=bounds,
+            constraints=[molar_constraint],
+            tol=tol,
+            options=options,
+        )
 
-    if solution.success:
-        decomp_amts = solution.x
-        return {
-            c: amt  # NOTE this is the amount of the fractional composition.
-            for c, amt in zip(competing_entries, decomp_amts)
-            if amt > PhaseDiagram.numerical_tol
-        }
+        if solution.success:
+            decomp_amts = solution.x
+            return {
+                c: amt  # NOTE this is the amount of the fractional composition.
+                for c, amt in zip(competing_entries, decomp_amts)
+                if amt > PhaseDiagram.numerical_tol
+            }
 
     raise ValueError("No valid decomp found for {}!".format(comp))
 
