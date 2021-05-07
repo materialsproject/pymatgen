@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.bonds &#8212; pymatgen 2019.7.30 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.bonds &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.bonds</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.core.bonds</h1><div class="highlight"><pre>
@@ -49,25 +49,22 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This class implements definitions for various kinds of bonds. Typically used in</span>
 <span class="sd">Molecule analysis.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Jul 26, 2012&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_load_bond_length_data</span><span class="p">():</span>
@@ -89,7 +86,7 @@
 <span class="sd">    Defines a covalent bond between two sites.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site1</span><span class="p">,</span> <span class="n">site2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site1</span><span class="p">,</span> <span class="n">site2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a covalent bond between two sites.</span>
 
@@ -159,15 +156,15 @@
                 <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">elif</span> <span class="n">default_bl</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">default_bl</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span> <span class="o">*</span> <span class="n">default_bl</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No bond data for elements </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">syms</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Covalent bond between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site1</span><span class="p">,</span>
                                                         <span class="bp">self</span><span class="o">.</span><span class="n">site2</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
 
 
@@ -192,10 +189,9 @@
     <span class="n">syms</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">]))</span>
     <span class="k">if</span> <span class="n">syms</span> <span class="ow">in</span> <span class="n">bond_lengths</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">bond_lengths</span><span class="p">[</span><span class="n">syms</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">default_bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">default_bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">default_bl</span><span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No bond data for elements </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">syms</span><span class="p">))</span></div>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No bond data for elements </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">syms</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="get_bond_order"><a class="viewcode-back" href="../../../pymatgen.core.bonds.html#pymatgen.core.bonds.get_bond_order">[docs]</a><span class="k">def</span> <span class="nf">get_bond_order</span><span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">default_bl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -223,16 +219,15 @@
     <span class="c1"># Transform bond lengths dict to list assuming bond data is successive</span>
     <span class="c1"># and add an imaginary bond 0 length</span>
     <span class="n">lengths_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)]</span> <span class="o">+</span> \
-                   <span class="p">[</span><span class="n">all_lengths</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_lengths</span><span class="p">))]</span>
+                   <span class="p">[</span><span class="n">all_lengths</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_lengths</span><span class="p">))]</span>
     <span class="n">trial_bond_order</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">trial_bond_order</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lengths_list</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">trial_bond_order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">trial_bond_order</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">low_bl</span> <span class="o">=</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span><span class="p">]</span>
-                <span class="n">high_bl</span> <span class="o">=</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-                <span class="k">return</span> <span class="n">trial_bond_order</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="n">low_bl</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">high_bl</span> <span class="o">-</span> <span class="n">low_bl</span><span class="p">)</span>
+            <span class="n">low_bl</span> <span class="o">=</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span><span class="p">]</span>
+            <span class="n">high_bl</span> <span class="o">=</span> <span class="n">lengths_list</span><span class="p">[</span><span class="n">trial_bond_order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">trial_bond_order</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">-</span> <span class="n">low_bl</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">high_bl</span> <span class="o">-</span> <span class="n">low_bl</span><span class="p">)</span>
         <span class="n">trial_bond_order</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="c1"># Distance shorter than the shortest bond length stored,</span>
     <span class="c1"># check if the distance is too short</span>
@@ -276,22 +271,8 @@
         <span class="k">return</span> <span class="n">sp1</span><span class="o">.</span><span class="n">atomic_radius</span> <span class="o">+</span> <span class="n">sp2</span><span class="o">.</span><span class="n">atomic_radius</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -304,15 +285,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.bonds</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,12 +1,24 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+Implementation for `pmg potcar` CLI.
+"""
+
+
 import os
 
 from pymatgen.io.vasp import Potcar
 
 
 def proc_dir(dirname, procfilefunction):
+    """
+    Process a directory.
+
+    Args:
+        dirname (str): Directory name.
+        procfilefunction (callable): Callable to execute on directory.
+    """
     for f in os.listdir(dirname):
         if os.path.isdir(os.path.join(dirname, f)):
             proc_dir(os.path.join(dirname, f), procfilefunction)
@@ -15,17 +27,29 @@ def proc_dir(dirname, procfilefunction):
 
 
 def gen_potcar(dirname, filename):
+    """
+    Generate POTCAR from POTCAR.spec in directories.
+
+    Args:
+        dirname (str): Directory name.
+        filename (str): Filename in directory.
+    """
     if filename == "POTCAR.spec":
         fullpath = os.path.join(dirname, filename)
-        f = open(fullpath, "r")
-        elements = f.readlines()
-        f.close()
+        with open(fullpath, "r") as f:
+            elements = f.readlines()
         symbols = [el.strip() for el in elements if el.strip() != ""]
         potcar = Potcar(symbols)
         potcar.write_file(os.path.join(dirname, "POTCAR"))
 
 
 def generate_potcar(args):
+    """
+    Generate POTCAR.
+
+    Args:
+        args (dict): Args from argparse.
+    """
     if args.recursive:
         proc_dir(args.recursive, gen_potcar)
     elif args.symbols:

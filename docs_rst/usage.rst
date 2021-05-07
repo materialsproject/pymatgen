@@ -1,5 +1,6 @@
-Overview
-========
+=====
+Usage
+=====
 
 This page provides new users of the pymatgen code base with a quick overview of
 the pymatgen code base. It should also be pointed out that there is an
@@ -124,7 +125,7 @@ This is generally the most painful method. Though sometimes necessary, it is
 seldom the method you would use.  An example of creating the basic silicon
 crystal is provided below::
 
-    from pymatgen import Lattice, Structure, Molecule
+    from pymatgen.core import Lattice, Structure, Molecule
 
     coords = [[0, 0, 0], [0.75,0.5,0.75]]
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120,
@@ -251,8 +252,8 @@ some examples::
     # Make a supercell
     structure.make_supercell([2, 2, 2])
 
-    #Find a primitive version of the Structure
-    structure.find_primitive_structure()
+    # Get a primitive version of the Structure
+    structure.get_primitive_structure()
 
     # Interpolate between two structures to get 10 structures (typically for
     # NEB calculations.
@@ -459,6 +460,7 @@ a few key methods here.
 To obtain information on a material with Materials Project Id "mp-1234",
 one can use the following::
 
+    from pymatgen.ext.matproj import MPRester
     with MPRester("USER_API_KEY") as m:
 
         # Structure for material id

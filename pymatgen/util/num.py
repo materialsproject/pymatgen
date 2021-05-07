@@ -42,7 +42,7 @@ def sort_dict(d, key=None, reverse=False):
     Returns:
         OrderedDict object whose keys are ordered according to their value.
     """
-    kv_items = [kv for kv in d.items()]
+    kv_items = list(d.items())
 
     # Sort kv_items according to key.
     if key is None:
@@ -101,7 +101,7 @@ def non_decreasing(values):
     return all(x <= y for x, y in zip(values, values[1:]))
 
 
-def monotonic(values, mode="<", atol=1.e-8):
+def monotonic(values, mode="<", atol=1.0e-8):
     """
     Returns False if values are not monotonic (decreasing|increasing).
     mode is "<" for a decreasing sequence, ">" for an increasing sequence.
@@ -120,21 +120,18 @@ def monotonic(values, mode="<", atol=1.e-8):
         return True
 
     if mode == ">":
-        for i in range(len(values)-1):
-            v, vp = values[i], values[i+1]
+        for i in range(len(values) - 1):
+            v, vp = values[i], values[i + 1]
             if abs(vp - v) > atol and vp <= v:
                 return False
 
     elif mode == "<":
-        for i in range(len(values)-1):
-            v, vp = values[i], values[i+1]
+        for i in range(len(values) - 1):
+            v, vp = values[i], values[i + 1]
             if abs(vp - v) > atol and vp >= v:
                 return False
 
-    else:
-        raise ValueError("Wrong mode %s" % str(mode))
-
-    return True
+    raise ValueError("Wrong mode %s" % str(mode))
 
 
 def round_to_sigfigs(num, sigfigs):
@@ -142,16 +139,18 @@ def round_to_sigfigs(num, sigfigs):
     Rounds a number rounded to a specific number of significant
     figures instead of to a specific precision.
     """
-    if type(sigfigs) != int:
+    if not isinstance(sigfigs, int):
         raise TypeError("Number of significant figures must be integer.")
-    elif sigfigs < 1:
-        raise ValueError("Number of significant figures "
-                         "must be larger than zero.")
-    elif num == 0:
+
+    if sigfigs < 1:
+        raise ValueError("Number of significant figures " "must be larger than zero.")
+
+    if num == 0:
         return num
-    else:
-        prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
-        return round(num, prec)
+
+    prec = int(sigfigs - np.ceil(np.log10(np.absolute(num))))
+    return round(num, prec)
+
 
 def make_symmetric_matrix_from_upper_tri(val):
     """
@@ -160,15 +159,11 @@ def make_symmetric_matrix_from_upper_tri(val):
     This will generate the full matrix:
     [[A_xx,A_xy,A_xz],[A_xy,A_yy,A_yz],[A_xz,A_yz,A_zz]
     """
-    idx = [0,3,4,1,5,2]
+    idx = [0, 3, 4, 1, 5, 2]
     val = np.array(val)[idx]
-    mask = ~np.tri(3,k=-1,dtype=bool)
-    out = np.zeros((3,3),dtype=val.dtype)
+    mask = ~np.tri(3, k=-1, dtype=bool)
+    out = np.zeros((3, 3), dtype=val.dtype)
     out[mask] = val
+    # pylint: disable=E1137
     out.T[mask] = val
     return out
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()

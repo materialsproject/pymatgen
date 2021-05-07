@@ -2,18 +2,24 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to generate point defect structures
+"""
+
 import logging
 from abc import ABCMeta, abstractmethod
 
 from monty.json import MSONable
 
-from pymatgen.core import PeriodicSite
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.defects.utils import StructureMotifInterstitial, TopographyAnalyzer
+from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
+from pymatgen.analysis.defects.utils import (
+    StructureMotifInterstitial,
+    TopographyAnalyzer,
+)
 from pymatgen.analysis.structure_matcher import PointDefectComparator
-
+from pymatgen.core import PeriodicSite
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -22,9 +28,7 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
-"""
-This module defines classes to generate point defect structures
-"""
+
 
 logger = logging.getLogger(__name__)
 
@@ -87,8 +91,8 @@ class VacancyGenerator(DefectGenerator):
                 charge = -1 * self.struct_valences[site_index]
 
             return Vacancy(self.structure, vac_site[0], charge=charge)
-        else:
-            raise StopIteration
+
+        raise StopIteration
 
 
 class SubstitutionGenerator(DefectGenerator):
@@ -103,7 +107,7 @@ class SubstitutionGenerator(DefectGenerator):
         note: an Antisite is considered a type of substitution
         Args:
             structure(Structure): pymatgen structure object
-            element (str or Element or Specie): element for the substitution
+            element (str or Element or Species): element for the substitution
         """
         self.structure = structure
         self.element = element
@@ -120,7 +124,12 @@ class SubstitutionGenerator(DefectGenerator):
             else:
                 vac_specie = vac_site.specie
             if element != vac_specie:
-                defect_site = PeriodicSite(element, vac_site.coords, structure.lattice, coords_are_cartesian=True)
+                defect_site = PeriodicSite(
+                    element,
+                    vac_site.coords,
+                    structure.lattice,
+                    coords_are_cartesian=True,
+                )
                 sub = Substitution(structure, defect_site)
                 self.equiv_sub.append(sub)
 
@@ -131,8 +140,7 @@ class SubstitutionGenerator(DefectGenerator):
         """
         if len(self.equiv_sub) > 0:
             return self.equiv_sub.pop(0)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class InterstitialGenerator(DefectGenerator):
@@ -153,7 +161,7 @@ class InterstitialGenerator(DefectGenerator):
         Initializes an Interstitial generator using structure motifs
         Args:
             structure (Structure): pymatgen structure object
-            element (str or Element or Specie): element for the interstitial
+            element (str or Element or Species): element for the interstitial
         """
         self.structure = structure
         self.element = element
@@ -165,13 +173,13 @@ class InterstitialGenerator(DefectGenerator):
         pdc = PointDefectComparator()
 
         for poss_site in interstitial_finder.enumerate_defectsites():
-            now_defect = Interstitial( self.structure, poss_site)
+            now_defect = Interstitial(self.structure, poss_site)
             append_defect = True
             for unique_defect in self.unique_defect_seq:
-                if pdc.are_equal( now_defect, unique_defect):
+                if pdc.are_equal(now_defect, unique_defect):
                     append_defect = False
             if append_defect:
-                self.unique_defect_seq.append( now_defect)
+                self.unique_defect_seq.append(now_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 
@@ -184,10 +192,9 @@ class InterstitialGenerator(DefectGenerator):
             inter_defect = self.unique_defect_seq.pop(0)
             inter_site = inter_defect.site
             self.count_def += 1
-            site_name = 'InFiT' + str(self.count_def)
+            site_name = "InFiT" + str(self.count_def)
             return Interstitial(self.structure, inter_site, site_name=site_name)
-        else:
-            raise StopIteration
+        raise StopIteration
 
 
 class VoronoiInterstitialGenerator(DefectGenerator):
@@ -200,7 +207,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         Initializes an Interstitial generator using Voronoi sites
         Args:
             structure (Structure): pymatgen structure object
-            element (str or Element or Specie): element for the interstitial
+            element (str or Element or Species): element for the interstitial
         """
         self.structure = structure
         self.element = element
@@ -225,13 +232,13 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         for poss_site_list in equiv_sites_list:
             poss_site = poss_site_list[0]
             if poss_site not in self.structure:
-                now_defect = Interstitial( self.structure, poss_site)
+                now_defect = Interstitial(self.structure, poss_site)
                 append_defect = True
                 for unique_defect in self.unique_defect_seq:
-                    if pdc.are_equal( now_defect, unique_defect):
+                    if pdc.are_equal(now_defect, unique_defect):
                         append_defect = False
                 if append_defect:
-                    self.unique_defect_seq.append( now_defect)
+                    self.unique_defect_seq.append(now_defect)
 
         self.count_def = 0  # for counting the index of the generated defect
 
@@ -244,10 +251,9 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             inter_defect = self.unique_defect_seq.pop(0)
             inter_site = inter_defect.site
             self.count_def += 1
-            site_name = 'Voronoi' + str(self.count_def)
-            return Interstitial( self.structure, inter_site, site_name=site_name)
-        else:
-            raise StopIteration
+            site_name = "Voronoi" + str(self.count_def)
+            return Interstitial(self.structure, inter_site, site_name=site_name)
+        raise StopIteration
 
 
 class SimpleChargeGenerator(DefectGenerator):
@@ -273,7 +279,8 @@ class SimpleChargeGenerator(DefectGenerator):
             bv = BVAnalyzer()
             struct_valences = bv.get_valences(self.defect.bulk_structure)
             site_index = self.defect.bulk_structure.get_sites_in_sphere(
-                self.defect.site.coords, 0.1, include_index=True)[0][2]
+                self.defect.site.coords, 0.1, include_index=True
+            )[0][2]
             def_site_valence = struct_valences[site_index]
         except Exception:  # sometimes valences cant be assigned
             def_site_valence = 0
@@ -281,7 +288,7 @@ class SimpleChargeGenerator(DefectGenerator):
         if isinstance(defect, Vacancy):
             self.charges = [-1 * def_site_valence]
         elif isinstance(defect, Substitution):
-            #(minimize difference with host site specie)
+            # (minimize difference with host site specie)
             probable_chgs = [ox - def_site_valence for ox in self.defect.site.specie.oxidation_states]
             self.charges = [min(probable_chgs, key=abs)]
         elif isinstance(defect, Interstitial):
@@ -299,5 +306,4 @@ class SimpleChargeGenerator(DefectGenerator):
             defect = self.defect.copy()
             defect.set_charge(charge)
             return defect
-        else:
-            raise StopIteration
+        raise StopIteration

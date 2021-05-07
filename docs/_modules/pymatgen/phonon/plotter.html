@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.phonon.plotter &#8212; pymatgen 2019.7.30 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.phonon.plotter &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.phonon.plotter</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.phonon.plotter</h1><div class="highlight"><pre>
@@ -49,20 +49,19 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
-
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
-<span class="kn">from</span> <span class="nn">pymatgen.phonon.bandstructure</span> <span class="k">import</span> <span class="n">PhononBandStructureSymmLine</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span><span class="p">,</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="k">import</span> <span class="n">plot_brillouin_zone</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements plotter for DOS and band structure.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">jsanitize</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">plot_brillouin_zone</span>
+<span class="kn">from</span> <span class="nn">pymatgen.phonon.bandstructure</span> <span class="kn">import</span> <span class="n">PhononBandStructureSymmLine</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span><span class="p">,</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -71,8 +70,13 @@
 
 <div class="viewcode-block" id="freq_units"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.freq_units">[docs]</a><span class="k">def</span> <span class="nf">freq_units</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns conversion factor from THz to the requred units and the label in the form of a namedtuple</span>
-<span class="sd">    Accepted values: thz, ev, mev, ha, cm-1, cm^-1</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Returns conversion factor from THz to the requred units and the label in the form of a namedtuple</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;thz&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;THz&quot;</span><span class="p">),</span>
@@ -104,15 +108,17 @@
 <span class="sd">        # Alternatively, you can add a dict of DOSs. This is the typical</span>
 <span class="sd">        # form returned by CompletePhononDos.get_element_dos().</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        stack: Whether to plot the DOS as a stacked area graph</span>
-<span class="sd">        key_sort_func: function used to sort the dos_dict keys.</span>
-<span class="sd">        sigma: A float specifying a standard deviation for Gaussian smearing</span>
-<span class="sd">            the DOS for nicer looking plots. Defaults to None for no</span>
-<span class="sd">            smearing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stack: Whether to plot the DOS as a stacked area graph</span>
+<span class="sd">            sigma: A float specifying a standard deviation for Gaussian smearing</span>
+<span class="sd">            the DOS for nicer looking plots. Defaults to None for no</span>
+<span class="sd">            smearing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_doses</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -250,7 +256,8 @@
 <span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PhononDosPlotter.show"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -270,11 +277,14 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to plot or get data to facilitate the plot of band structure objects.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        bs: A BandStructureSymmLine object.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bs: A PhononBandStructureSymmLine object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">PhononBandStructureSymmLine</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;PhononBSPlotter only works with PhononBandStructureSymmLine objects. &quot;</span>
@@ -318,11 +328,9 @@
                 <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;already print label... &quot;</span>
-                                     <span class="s2">&quot;skipping label </span><span class="si">{i}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">i</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+                                     <span class="s2">&quot;skipping label </span><span class="si">{i}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding a line at </span><span class="si">{d}</span><span class="s2">&quot;</span>
-                                     <span class="s2">&quot; for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding a line at </span><span class="si">{d}</span><span class="s2"> for label </span><span class="si">{l}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                             <span class="n">d</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="o">=</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">ticks</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -477,7 +485,7 @@
                 <span class="n">previous_branch</span> <span class="o">=</span> <span class="n">this_branch</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;distance&#39;</span><span class="p">:</span> <span class="n">tick_distance</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">tick_labels</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="PhononBSPlotter.plot_compare"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.plot_compare">[docs]</a>    <span class="k">def</span> <span class="nf">plot_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_plotter</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononBSPlotter.plot_compare"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.plot_compare">[docs]</a>    <span class="k">def</span> <span class="nf">plot_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_plotter</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        plot two band structure for comparison. One is in red the other in blue.</span>
 <span class="sd">        The two band structures need to be defined on the same symmetry lines!</span>
@@ -492,18 +500,21 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">u</span> <span class="o">=</span> <span class="n">freq_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+
         <span class="n">data_orig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs_plot_data</span><span class="p">()</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">other_plotter</span><span class="o">.</span><span class="n">bs_plot_data</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_orig</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The two objects are not compatible.&#39;</span><span class="p">)</span>
 
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">()</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
         <span class="n">band_linewidth</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">other_plotter</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_orig</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">])):</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_orig</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">],</span>
-                         <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]][</span><span class="n">d</span><span class="p">],</span>
+                         <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">factor</span>
+                          <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_orig</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]))],</span>
                          <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">band_linewidth</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">plt</span></div>
@@ -534,7 +545,7 @@
 <span class="sd">    the plots in units of mol instead of mole-cell</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            dos: A PhononDos object.</span>
@@ -709,31 +720,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">entropy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                           <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$S$ (J/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">internal_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
-                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">helmholtz_free_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
-                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -746,15 +743,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.phonon.plotter</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

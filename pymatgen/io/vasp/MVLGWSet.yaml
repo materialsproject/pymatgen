@@ -1,4 +1,5 @@
 # Default VASP settings for GW calculations used by the Materials Virtual Lab.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: Normal
   EDIFF: 1.0e-8
@@ -14,6 +15,7 @@ INCAR:
   SIGMA: 0.01
 KPOINTS:
   reciprocal_density: 100
+POTCAR_FUNCTIONAL: PBE_54
 POTCAR:
   Ac: Ac
   Ag: Ag_sv_GW

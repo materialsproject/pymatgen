@@ -1,0 +1,133 @@
+Angle Coeffs:
+  charmm: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  charmm/intel: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  charmm/kk: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  charmm/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  cosine: {coeff2: float_format}
+  cosine/omp: {coeff2: float_format}
+  cosine/kk: {coeff2: float_format}
+  cosine/buck6d: {coeff2: float_format, coeff3: int_format, coeff4: float_format}
+  cosine/delta: {coeff2: float_format, coeff3: float_format}
+  cosine/delta/omp: {coeff2: float_format, coeff3: float_format}
+  cosine/periodic: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  cosine/periodic/omp: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  cosine/shift: {coeff2: float_format, coeff3: float_format}
+  cosine/shift/omp: {coeff2: float_format, coeff3: float_format}
+  cosine/shift/exp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  cosine/shift/exp/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  cosine/squared: {coeff2: float_format, coeff3: float_format}
+  cosine/squared/omp: {coeff2: float_format, coeff3: float_format}
+  cross: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format, coeff7: float_format}
+  dipole: {coeff2: float_format, coeff3: float_format}
+  dipole/omp: {coeff2: float_format, coeff3: float_format}
+  fourier: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  fourier/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  fourier/simple: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  fourier/simple/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  harmonic: {coeff2: float_format, coeff3: float_format}
+  harmonic/intel: {coeff2: float_format, coeff3: float_format}
+  harmonic/kk: {coeff2: float_format, coeff3: float_format}
+  harmonic/omp: {coeff2: float_format, coeff3: float_format}
+  mm3: {coeff2: float_format, coeff3: float_format}
+  quartic: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  quartic/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  sdk: {coeff2: float_format, coeff3: float_format}
+  sdk/omp: {coeff2: float_format, coeff3: float_format}
+Bond Coeffs:
+  fene: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format}
+  fene/intel: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  fene/kk: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  fene/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  fene/expand: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format}
+  fene/expand/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format}
+  gromos: {coeff2: float_format, coeff3: float_format}
+  gromos/omp: {coeff2: float_format, coeff3: float_format}
+  harmonic: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  harmonic/intel: {coeff2: float_format, coeff3: float_format}
+  harmonic/kk: {coeff2: float_format, coeff3: float_format}
+  harmonic/omp: {coeff2: float_format, coeff3: float_format}
+  harmonic/shift: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  harmonic/shift/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  harmonic/shift/cut: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  harmonic/shift/cut/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  mm3: {coeff2: float_format, coeff3: float_format}
+  morse: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  morse/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  nonlinear: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  nonlinear/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  oxdna/fene: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  oxdna2/fene: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  quartic: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format}
+  quartic/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format}
+Dihedral Coeffs:
+  charmm: {coeff2: float_format, coeff3: int_format, coeff4: int_format, coeff5: float_format_2}
+  charmm/intel: {coeff2: float_format, coeff3: int_format, coeff4: int_format, coeff5: float_format_2}
+  charmm/kk: {coeff2: float_format, coeff3: int_format, coeff4: int_format, coeff5: float_format_2}
+  charmm/omp: {coeff2: float_format, coeff3: int_format, coeff4: int_format, coeff5: float_format_2}
+  charmmfsw: {coeff2: float_format, coeff3: int_format, coeff4: int_format, coeff5: float_format_2}
+  cosine/shift/exp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  cosine/shift/exp/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  fourier: {coeff10: int_format, coeff11: float_format, coeff2: int_format, coeff3: float_format,
+    coeff4: int_format, coeff5: float_format, coeff6: float_format, coeff7: int_format,
+    coeff8: float_format, coeff9: float_format}
+  fourier/intel: {coeff10: int_format, coeff11: float_format, coeff2: int_format, coeff3: float_format,
+    coeff4: int_format, coeff5: float_format, coeff6: float_format, coeff7: int_format,
+    coeff8: float_format, coeff9: float_format}
+  fourier/omp: {coeff10: int_format, coeff11: float_format, coeff2: int_format, coeff3: float_format,
+    coeff4: int_format, coeff5: float_format, coeff6: float_format, coeff7: int_format,
+    coeff8: float_format, coeff9: float_format}
+  harmonic: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  harmonic/intel: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  harmonic/omp: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  helix: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  helix/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format}
+  multi/harmonic: {coeff2: float_format, coeff3: float_format, coeff4: float_format,
+    coeff5: float_format, coeff6: float_format}
+  multi/harmonic/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format,
+    coeff5: float_format, coeff6: float_format}
+  nharmonic: {coeff2: int_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format, coeff7: float_format, coeff8: float_format, coeff9: float_format}
+  nharmonic/omp: {coeff2: int_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: float_format, coeff7: float_format, coeff8: float_format, coeff9: float_format}
+  opls: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  opls/intel: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  opls/kk: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  opls/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format}
+  quadratic: {coeff2: float_format, coeff3: float_format}
+  quadratic/omp: {coeff2: float_format, coeff3: float_format}
+  spherical: {coeff10: int_format, coeff11: float_format_2, coeff12: float_format_2,
+    coeff13: float_format, coeff14: int_format, coeff15: float_format, coeff16: float_format_2,
+    coeff17: int_format, coeff18: float_format_2, coeff19: float_format_2, coeff2: int_format,
+    coeff20: int_format, coeff21: float_format_2, coeff22: float_format_2, coeff23: float_format,
+    coeff24: int_format, coeff25: float_format, coeff26: float_format_2, coeff27: int_format,
+    coeff28: float_format_2, coeff29: float_format_2, coeff3: float_format, coeff30: int_format,
+    coeff31: float_format_2, coeff32: float_format_2, coeff4: int_format, coeff5: float_format,
+    coeff6: float_format_2, coeff7: int_format, coeff8: float_format_2, coeff9: float_format_2}
+Improper Coeffs:
+  cossq: {coeff2: float_format, coeff3: float_format}
+  cossq/omp: {coeff2: float_format, coeff3: float_format}
+  cvff: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  cvff/intel: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  cvff/omp: {coeff2: float_format, coeff3: int_format, coeff4: int_format}
+  distance: {coeff2: float_format, coeff3: float_format}
+  distharm: {coeff2: float_format, coeff3: float_format}
+  fourier: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: int_format}
+  fourier/omp: {coeff2: float_format, coeff3: float_format, coeff4: float_format, coeff5: float_format,
+    coeff6: int_format}
+  harmonic: {coeff2: float_format, coeff3: float_format_2}
+  harmonic/intel: {coeff2: float_format, coeff3: float_format_2}
+  harmonic/kk: {coeff2: float_format, coeff3: float_format_2}
+  harmonic/omp: {coeff2: float_format, coeff3: float_format_2}
+  inversion/harmonic: {coeff2: float_format, coeff3: float_format}
+  ring: {coeff2: float_format, coeff3: float_format}
+  ring/omp: {coeff2: float_format, coeff3: float_format}
+  umbrella: {coeff2: float_format, coeff3: float_format}
+  umbrella/omp: {coeff2: float_format, coeff3: float_format}
+  sqdistharm: {coeff2: float_format, coeff3: float_format}

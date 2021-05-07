@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.adsorption &#8212; pymatgen 2019.7.30 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.adsorption &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.adsorption</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.adsorption</h1><div class="highlight"><pre>
@@ -56,21 +56,21 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">vis</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">vis</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Delaunay</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">Delaunay</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">in_coord_list_pbc</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">VoronoiNN</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">generate_all_slabs</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">in_coord_list_pbc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">VoronoiNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">generate_all_slabs</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
 
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">patches</span>
-<span class="kn">from</span> <span class="nn">matplotlib.path</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">patches</span>
+<span class="kn">from</span> <span class="nn">matplotlib.path</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
@@ -99,7 +99,7 @@
 <span class="sd">            these sites</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">height</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">mi_vec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an AdsorbateSiteFinder object.</span>
@@ -327,7 +327,6 @@
                     <span class="k">if</span> <span class="s1">&#39;hollow&#39;</span> <span class="ow">in</span> <span class="n">positions</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obtuse</span><span class="p">:</span>
                         <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;hollow&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">ensemble_center</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ads_sites</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[])</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">ads_sites</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c1"># Pare off outer sites for bridge/hollow</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bridge&#39;</span><span class="p">,</span> <span class="s1">&#39;hollow&#39;</span><span class="p">]:</span>
@@ -348,6 +347,7 @@
             <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span> <span class="o">+</span> <span class="n">distance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mvec</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
 
             <span class="n">ads_sites</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sites</span>
+        <span class="n">ads_sites</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ads_sites</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="p">[])</span>
         <span class="k">return</span> <span class="n">ads_sites</span></div>
 
 <div class="viewcode-block" id="AdsorbateSiteFinder.symm_reduce"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.symm_reduce">[docs]</a>    <span class="k">def</span> <span class="nf">symm_reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_set</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
@@ -421,7 +421,7 @@
                       <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds an adsorbate at a particular coordinate.  Adsorbate</span>
-<span class="sd">        represented by a Molecule object and is translated to (0, 0, 0) if </span>
+<span class="sd">        represented by a Molecule object and is translated to (0, 0, 0) if</span>
 <span class="sd">        translate is True, or positioned relative to the input adsorbate</span>
 <span class="sd">        coordinate if translate is False.</span>
 
@@ -442,10 +442,10 @@
             <span class="n">front_atoms</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">front_atoms</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span>
                                   <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">min</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-                                  <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">])]</span>
+                                                         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">molecule</span><span class="o">.</span><span class="n">sites</span><span class="p">])]</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">front_atoms</span><span class="o">.</span><span class="n">center_of_mass</span>
             <span class="n">molecule</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>    
+        <span class="k">if</span> <span class="n">reorient</span><span class="p">:</span>
             <span class="c1"># Reorient the molecule along slab m_index</span>
             <span class="n">sop</span> <span class="o">=</span> <span class="n">get_rot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">)</span>
             <span class="n">molecule</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">sop</span><span class="o">.</span><span class="n">inverse</span><span class="p">)</span>
@@ -505,8 +505,8 @@
 
         <span class="n">find_args</span> <span class="o">=</span> <span class="n">find_args</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_adsorption_sites</span><span class="p">(</span><span class="o">**</span><span class="n">find_args</span><span class="p">)[</span><span class="s1">&#39;all&#39;</span><span class="p">]:</span>
-            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> 
-                <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_adsorbate</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                                              <span class="n">repeat</span><span class="o">=</span><span class="n">repeat</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="n">translate</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="n">reorient</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span></div>
 
 <div class="viewcode-block" id="AdsorbateSiteFinder.adsorb_both_surfaces"><a class="viewcode-back" href="../../../pymatgen.analysis.adsorption.html#pymatgen.analysis.adsorption.AdsorbateSiteFinder.adsorb_both_surfaces">[docs]</a>    <span class="k">def</span> <span class="nf">adsorb_both_surfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_lw</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
@@ -540,7 +540,7 @@
         <span class="k">for</span> <span class="n">adslab</span> <span class="ow">in</span> <span class="n">adslabs</span><span class="p">:</span>
 
             <span class="c1"># Find the adsorbate sites and indices in each slab</span>
-            <span class="n">symmetric</span><span class="p">,</span> <span class="n">adsorbates</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">adsorbates</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">adslab</span><span class="o">.</span><span class="n">sites</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">surface_properties</span> <span class="o">==</span> <span class="s2">&quot;adsorbate&quot;</span><span class="p">:</span>
                     <span class="n">adsorbates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
@@ -597,7 +597,7 @@
                               <span class="n">sym_slab</span><span class="o">.</span><span class="n">equivalent_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">eq_indices</span><span class="p">:</span>
                     <span class="k">if</span> <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sym_slab</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">!=</span> \
-                                    <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                            <span class="s2">&quot;</span><span class="si">%.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
                         <span class="n">props</span><span class="p">[</span><span class="s2">&quot;surface_properties&quot;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;substitute&quot;</span>
                         <span class="n">slab</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">atom</span><span class="p">)</span>
                         <span class="k">break</span>
@@ -751,22 +751,8 @@
     <span class="k">return</span> <span class="n">ax</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -779,15 +765,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.7.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.adsorption</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

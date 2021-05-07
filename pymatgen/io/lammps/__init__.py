@@ -1,0 +1,3 @@
+"""
+IO for LAMMPS
+"""

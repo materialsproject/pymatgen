@@ -2,26 +2,17 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import warnings
-
 import os
 import unittest
+import warnings
+
 import pandas as pd
 
-from monty.serialization import loadfn
-
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-from pymatgen import Structure
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "..",
-    "..",
-    "test_files",
-    "magnetic_orderings",
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 
 
 class HeisenbergMapperTest(unittest.TestCase):
@@ -41,7 +32,7 @@ class HeisenbergMapperTest(unittest.TestCase):
             epa = list(c["energy_per_atom"])
             energies = [e * len(s) for (e, s) in zip(epa, ordered_structures)]
 
-            hm = HeisenbergMapper(ordered_structures, energies, cutoff=7.5, tol=0.02)
+            hm = HeisenbergMapper(ordered_structures, energies, cutoff=5.0, tol=0.02)
             cls.hms.append(hm)
 
     def setUp(self):
@@ -71,7 +62,7 @@ class HeisenbergMapperTest(unittest.TestCase):
     def test_exchange_params(self):
         for hm in self.hms:
             ex_params = hm.get_exchange()
-            J_nn = round(101.01616118049606, 3)
+            J_nn = round(18.052116895702852, 3)
             self.assertEqual(round(ex_params["0-1-nn"], 3), J_nn)
 
     def test_mean_field(self):
@@ -81,13 +72,18 @@ class HeisenbergMapperTest(unittest.TestCase):
             self.assertEqual(round(j_avg, 3), value)
 
             mft_t = hm.get_mft_temperature(j_avg)
-            value = round(1031.1626039484843)
+            value = round(292.90252668100584)
             self.assertEqual(round(mft_t), value)
 
     def test_get_igraph(self):
         for hm in self.hms:
-            igraph = hm.get_interaction_graph("igraph.json")
+            igraph = hm.get_interaction_graph()
             self.assertEqual(len(igraph), 6)
+
+    def test_heisenberg_model(self):
+        for hm in self.hms:
+            hmodel = hm.get_heisenberg_model()
+            self.assertEqual(hmodel.formula, "Mn3Al")
 
 
 if __name__ == "__main__":

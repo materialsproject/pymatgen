@@ -1,10 +1,18 @@
 pymatgen.io.exciting package
 ============================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 7
+
+
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.io.exciting.inputs
 

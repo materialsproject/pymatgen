@@ -1,10 +1,18 @@
 pymatgen.analysis.magnetism package
 ===================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 7
+
+
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.magnetism.analyzer
    pymatgen.analysis.magnetism.heisenberg
