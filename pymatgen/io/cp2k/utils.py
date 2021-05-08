@@ -7,11 +7,9 @@ import re
 from pathlib import Path
 import numpy as np
 from ruamel import yaml
-from monty.serialization import loadfn
 from monty.io import zopen
 
 from pymatgen.core import SETTINGS
-from pymatgen.core.periodic_table import Element
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -105,18 +103,15 @@ def natural_keys(text):
     return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_basis_and_potential(species, basis_and_potential_map, cardinality="DZVP", functional="PBE"):
+def get_basis_and_potential(species, basis_and_potential_map, functional="PBE"):
     """
-    Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
-    Generally, the GTH potentials are used with the GTH basis sets.
+    Retrieve basis/potential dictionary
 
     Args:
         species: (list) list of species for which to get the potential/basis strings
-        d: (dict) a dictionary specifying how bases and/or potentials should be assigned to species
-            E.g. {'Si': {'cardinality': 'DZVP', 'sr': True}, 'O': {'cardinality': 'TZVP'}}
+        basis_and_potential_map: (dict or str) a keyword string or a dictionary
+            specifying how bases and/or potentials should be assigned
         functional: (str) functional type. Default: 'PBE'
-        basis_type: (str) the basis set type. Default: 'MOLOPT'
-        cardinality: (str) basis set cardinality. Default: 'DZVP'
 
     Returns:
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
@@ -126,64 +121,33 @@ def get_basis_and_potential(species, basis_and_potential_map, cardinality="DZVP"
     basis_filenames = ["BASIS_MOLOPT", "BASIS_MOLOPT_UCL"]
 
     functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-    cardinality = cardinality or SETTINGS.get("PMG_DEFAULT_BASIS_CARDINALITY", "DZVP")
+
     basis_and_potential = {
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
     }
 
+    with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
+        settings = yaml.load(f, Loader=yaml.Loader)
+
     if basis_and_potential_map == "best":
-        with open(os.path.join(MODULE_DIR, "best_basis.yaml"), "rt") as f:
-            d = yaml.load(f, Loader=yaml.Loader)
+        basis_and_potential.update({
+            s: {
+                'basis': settings[s]['basis_sets']['best_basis'],
+                'potential': [p for p in settings[s]['potentials']['gth_potentials'] if functional in p][0]
+            }
+            for s in species
+        })
+    elif basis_and_potential_map == "preferred":
+        basis_and_potential.update({
+            s: {
+                'basis': settings[s]['basis_sets']['preferred_basis'],
+                'potential': [p for p in settings[s]['potentials']['gth_potentials'] if functional in p][0]
+            }
+            for s in species
+        })
     else:
-        d = basis_and_potential_map
-        for s in species:
-            if s not in d:
-                d[s] = {}
-            if "sr" not in d[s]:
-                d[s]["sr"] = True
-            if "cardinality" not in d[s]:
-                if s == "Mg":
-                    d[s]["cardinality"] = "DZVPd"
-                else:
-                    d[s]["cardinality"] = cardinality
-
-    with open(os.path.join(MODULE_DIR, "basis_molopt.yaml"), "rt") as f:
-        data_b = yaml.load(f, Loader=yaml.Loader)
-    with open(os.path.join(MODULE_DIR, "gth_potentials.yaml"), "rt") as f:
-        data_p = yaml.load(f, Loader=yaml.Loader)
-
-    for s in species:
-        basis_and_potential[s] = {}
-        if "basis" in d[s]:
-            b = [d[s]["basis"]] if d[s]["basis"].upper() in [_.upper() for _ in data_b[s]] else []
-        else:
-            b = [_ for _ in data_b[s] if d[s]["cardinality"] in _.split("-")]
-            if d[s]["sr"] and any("SR" in _ for _ in b):
-                b = [_ for _ in b if "SR" in _]
-            else:
-                b = [_ for _ in b if "SR" not in _]
-            if "q" in d[s]:
-                b = [_ for _ in b if d[s]["q"] in _]
-            else:
-
-                def srt(x):
-                    return int(x.split("q")[-1])
-
-                b = sorted(b, key=srt)[-1:]
-        if len(b) == 0:
-            raise LookupError("NO BASIS OF THAT TYPE AVAILABLE")
-        elif len(b) > 1:
-            raise LookupError("AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER")
-
-        basis_and_potential[s]["basis"] = b[0]
-        p = [_ for _ in data_p[s] if functional in _.split("-")]
-        if len(p) == 0:
-            raise LookupError("NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE")
-        if len(p) > 1:
-            raise LookupError("AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER")
-
-        basis_and_potential[s]["potential"] = p[0]
+        basis_and_potential.update(basis_and_potential_map)
 
     return basis_and_potential
 
@@ -208,10 +172,16 @@ def get_aux_basis(basis_type, default_basis_type="cpFIT"):
         default_basis_type (str) default basis type if n
 
     """
+    with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
+        settings = yaml.load(f, Loader=yaml.Loader)
+        aux_bases = {
+            s: settings[s]['basis_sets']['aux_basis']
+            for s in settings
+        }
+
     default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
     basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
     basis = {k: {} for k in basis_type}
-    aux_bases = loadfn(os.path.join(MODULE_DIR, "aux_basis.yaml"))
     for k in basis_type:
         if aux_bases.get(k) is None:
             basis[k] = None
@@ -291,31 +261,12 @@ def get_cutoff_from_basis(els, bases, rel_cutoff=50):
     Returns:
         Ideal cutoff for calculation.
     """
-    with open(os.path.join(MODULE_DIR, "basis_largest_exponents.yaml"), "rt") as f:
+    with open(os.path.join(MODULE_DIR, "settings.yaml"), "rt") as f:
         _exponents = yaml.load(f, Loader=yaml.Loader)
+        _exponents = {
+            k: v['basis_sets'].get('basis_set_largest_exponents')
+            for k, v in _exponents.items()
+            if v['basis_sets'].get('basis_set_largest_exponents')
+        }
         exponents = {el.upper(): {b.upper(): v for b, v in basis.items()} for el, basis in _exponents.items()}
         return max([np.ceil(exponents[el.upper()][basis.upper()]) * rel_cutoff for el, basis in zip(els, bases)])
-
-
-def generate_max_exponents(files):
-    """
-    Helper function to get the max exponent for each basis set and write to a yaml file.
-    """
-    exponents = {}
-    els = [str(e) for e in Element]
-    for file in files:
-        with open(file) as f:
-            lines = f.readlines()
-            i = 0
-            while i < len(lines):
-                if lines[i].split():
-                    el = lines[i].split()[0]
-                    basis = lines[i].split()[-1]
-                    if el in els:
-                        i += 3
-                        if el not in exponents:
-                            exponents[el] = {}
-                        exponents[el][basis] = float(lines[i].split()[0])
-                i += 1
-    with open(os.path.join(MODULE_DIR, "basis_largest_exponents.yaml"), "w") as f:
-        yaml.dump(exponents, f, Dumper=yaml.Dumper, allow_unicode=True, default_flow_style=False)
