@@ -449,6 +449,40 @@ class Polaron(Substitution):
         )
 
 
+class GhostVacancy(Vacancy):
+    """
+    Current workaround for the Vacancy class in CP2K. Vacancies are normally just structures
+    with an atom removed, but with CP2K we want to retain the site and turn off its interaction
+    potential (Ghost atom) in order to avoid Basis set superposition error for localized basis.
+    """
+
+    def generate_defect_structure(self, supercell=(1, 1, 1)):
+        """
+        Returns Defective Vacancy structure, decorated with charge
+        Args:
+            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
+        """
+        defect_structure = self.bulk_structure.copy()
+        defect_structure.make_supercell(supercell)
+
+        # create a trivial defect structure to find where supercell transformation moves the lattice
+        struct_for_defect_site = Structure(self.bulk_structure.copy().lattice,
+                                           [self.site.specie],
+                                           [self.site.frac_coords],
+                                           to_unit_cell=True)
+        struct_for_defect_site.make_supercell(supercell)
+        defect_site = struct_for_defect_site[0]
+
+        poss_deflist = sorted(
+            defect_structure.get_sites_in_sphere(defect_site.coords, 0.1, include_index=True), key=lambda x: x[1])
+        defindex = poss_deflist[0][2]
+        defect_structure.add_site_property(
+            'ghost', [True if i == defindex else False for i in range(len(defect_structure))]
+        )
+        defect_structure.set_charge(self.charge)
+        return defect_structure
+
+
 def create_saturated_interstitial_structure(interstitial_def, dist_tol=0.1):
     """
     this takes a Interstitial defect object and generates the
