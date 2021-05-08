@@ -85,9 +85,9 @@ class Cp2kOutput:
         self.parse_cp2k_params()
         self.parse_input()  # parse the input file
         self.parse_global_params()  # Always present, parse the global parameters, most important is what run type
+        self.parse_atomic_kind_info()
         self.parse_dft_params()  # Present so long as a DFT calculation was performed
         self.parse_scf_params()
-        self.parse_atomic_kind_info()
 
         # Auto-load will load the most crucial data into the data attribute
         if auto_load:
@@ -611,6 +611,9 @@ class Cp2kOutput:
             {"functional": functional}, terminate_on_match=False, postprocess=_postprocessor, reverse=False,
         )
         self.data["dft"]["functional"] = [item for sublist in self.data.pop("functional", None) for item in sublist]
+
+        # DFT+U
+        self.data["dft"]['dft_plus_u'] = self.is_hubbard
 
         # HF exchange info
         hfx = re.compile(r"\s+HFX_INFO\|\s+(.+):\s+(.*)$")
