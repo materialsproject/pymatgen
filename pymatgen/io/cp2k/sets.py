@@ -67,8 +67,8 @@ __date__ = "April 2021"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
-with open(os.path.join(MODULE_DIR, "dft_plus_u_params.yaml")) as f:
-    DFT_PLUS_U_PARAMS = yaml.load(f, Loader=yaml.Loader)
+with open(os.path.join(MODULE_DIR, "settings.yaml")) as f:
+    SETTINGS = yaml.load(f, Loader=yaml.Loader)
 
 
 class Cp2kInputSet(Cp2kInput):
@@ -95,7 +95,7 @@ class Cp2kInputSet(Cp2kInput):
     def __init__(
         self,
         structure: Union[Structure, Molecule],
-        basis_and_potential: Dict = {},
+        basis_and_potential: Union[Dict, str] = 'preferred',
         multiplicity: int = 0,
         project_name: str = "CP2K",
         override_default_params: Dict = {},
@@ -196,12 +196,12 @@ class Cp2kInputSet(Cp2kInput):
                 kind, alias=k, basis_set=basis_set, potential=potential, subsections={"BS": bs} if bs else {}, **kwargs
             )
 
-            if DFT_PLUS_U_PARAMS.get(kind):
+            if SETTINGS.get(kind, {}).get('dft_plus_u'):
                 dft_plus_u = Section(
                     "DFT_PLUS_U",
                     keywords={
-                        "U_MINUS_J": Keyword("U_MINUS_J", DFT_PLUS_U_PARAMS.get(kind).get("U_MINUS_J", 0), units="eV"),
-                        "L": Keyword("L", DFT_PLUS_U_PARAMS.get(kind).get("L", 0)),
+                        "U_MINUS_J": Keyword("U_MINUS_J", SETTINGS['dft_plus_u'][kind]["U_MINUS_J"], units="eV"),
+                        "L": Keyword("L", SETTINGS['dft_plus_u'][kind]["L"]),
                     },
                 )
                 _kind.insert(dft_plus_u)
