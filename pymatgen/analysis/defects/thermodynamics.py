@@ -24,7 +24,7 @@ from pymatgen.analysis.defects.core import DefectEntry
 from pymatgen.analysis.structure_matcher import PointDefectComparator
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.entries.computed_entries import GibbsComputedStructureEntry, CompositionEnergyAdjustment
-from pymatgen import Element
+from pymatgen.core import Element
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
