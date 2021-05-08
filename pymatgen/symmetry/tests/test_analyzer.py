@@ -265,6 +265,16 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(conv.lattice.b, 3.699919902005897)
         self.assertAlmostEqual(conv.lattice.c, 6.9779585500000003)
 
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "tric_684654.json"))
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
+        conv = s.get_conventional_standard_structure()
+        self.assertAlmostEqual(conv.lattice.alpha, 74.09581916308757)
+        self.assertAlmostEqual(conv.lattice.beta, 75.72817279281173)
+        self.assertAlmostEqual(conv.lattice.gamma, 63.63234318667333)
+        self.assertAlmostEqual(conv.lattice.a, 3.741372924048738)
+        self.assertAlmostEqual(conv.lattice.b, 3.9883228679270686)
+        self.assertAlmostEqual(conv.lattice.c, 7.288495840048958)
+
     def test_get_primitive_standard_structure(self):
         parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "bcc_1927.cif"))
         structure = parser.get_structures(False)[0]

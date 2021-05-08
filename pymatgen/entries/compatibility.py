@@ -1008,31 +1008,33 @@ class MaterialsProject2020Compatibility(Compatibility):
             )
 
         # Check for anion corrections
+        # only apply anion corrections if the element is an anion
+        # first check for a pre-populated oxidation states key
+        # the key is expected to comprise a dict corresponding to the first element output by
+        # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
+        if "oxidation_states" not in entry.data.keys():
+            # try to guess the oxidation states from composition
+            # for performance reasons, fail if the composition is too large
+            try:
+                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
+            except ValueError:
+                oxi_states = []
+
+            if oxi_states == []:
+                entry.data["oxidation_states"] = {}
+            else:
+                entry.data["oxidation_states"] = oxi_states[0]
+
+        if entry.data["oxidation_states"] == {}:
+            warnings.warn(
+                f"Failed to guess oxidation states for Entry {entry.entry_id} "
+                f"({entry.composition.reduced_formula}. Assigning anion correction to "
+                "only the most electronegative atom."
+            )
+
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
-                # only apply anion corrections if the element is an anion
-                # first check for a pre-populated oxidation states key
-                # the key is expected to comprise a dict corresponding to the first element output by
-                # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-                if not entry.data.get("oxidation_states"):
-                    # try to guess the oxidation states from composition
-                    # for performance reasons, fail if the composition is too large
-                    try:
-                        oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
-                    except ValueError:
-                        oxi_states = []
-
-                    if oxi_states == []:
-                        warnings.warn(
-                            f"Failed to guess oxidation states for Entry {entry.entry_id} "
-                            f"({entry.composition.reduced_formula}. Assigning anion correction to "
-                            "only the most electronegative atom."
-                        )
-                        entry.data["oxidation_states"] = {}
-                    else:
-                        entry.data["oxidation_states"] = oxi_states[0]
-
                 # if the oxidation_states key is not populated, only apply the correction if the anion
                 # is the most electronegative element
                 if entry.data["oxidation_states"].get(anion, 0) < 0:
@@ -1048,10 +1050,11 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name="MP2020 anion correction",
+                            name="MP2020 anion correction ({})".format(anion),
                             cls=self.as_dict(),
                         )
                     )
+
         # GGA / GGA+U mixing scheme corrections
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
