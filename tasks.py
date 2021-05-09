@@ -262,12 +262,14 @@ def update_changelog(ctx, version, sim=False):
             pr_number = m.group(1)
             contrib, pr_name = m.group(2).split("/", 1)
             response = requests.get(
-                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}",
-                headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}"
             )
             lines.append(f"* PR #{pr_number} from @{contrib} {pr_name}")
             for ll in response.json()["body"].split("\n"):
-                if ll == "## Checklist" or ll == "## TODO":
+                ll = ll.strip()
+                if ll in ["", "## Summary"]:
+                    continue
+                elif ll.startswith("## Checklist") or ll.startswith("## TODO"):
                     break
                 lines.append(f"    {ll}")
         misc.append(l)
