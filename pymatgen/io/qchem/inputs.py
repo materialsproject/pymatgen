@@ -43,6 +43,8 @@ class QCInput(MSONable):
         solvent: Optional[Dict] = None,
         smx: Optional[Dict] = None,
         scan: Optional[Dict[str, List]] = None,
+        van_der_waals: Optional[Dict[str, float]] = None,
+        vdw_mode: str = "atomic",
         plots: Optional[Dict] = None,
     ):
         """
@@ -76,6 +78,14 @@ class QCInput(MSONable):
                 CANNOT be
                 more than two.
                 Ex. scan = {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}
+            van_der_waals (dict):
+                A dictionary of custom van der Waals radii to be used when construcing cavities for the PCM
+                model or when computing, e.g. Mulliken charges. They keys are strs whose meaning depends on
+                the value of vdw_mode, and the values are the custom radii in angstroms.
+            vdw_mode (str): Method of specifying custom van der Waals radii - 'atomic' or 'sequential'.
+                In 'atomic' mode (default), dict keys represent the atomic number associated with each
+                radius (e.g., 12 = carbon). In 'sequential' mode, dict keys represent the sequential
+                position of a single specific atom in the input structure.
 
         """
         self.molecule = molecule
@@ -85,6 +95,8 @@ class QCInput(MSONable):
         self.solvent = lower_and_check_unique(solvent)
         self.smx = lower_and_check_unique(smx)
         self.scan = lower_and_check_unique(scan)
+        self.van_der_waals = lower_and_check_unique(van_der_waals)
+        self.vdw_mode = vdw_mode
         self.plots = lower_and_check_unique(plots)
 
         # Make sure rem is valid:
@@ -147,6 +159,10 @@ class QCInput(MSONable):
         # section for pes_scan
         if self.scan:
             combined_list.append(self.scan_template(self.scan))
+            combined_list.append("")
+        # section for van_der_waals radii
+        if self.van_der_waals:
+            combined_list.append(self.van_der_waals_template(self.van_der_waals, self.vdw_mode))
             combined_list.append("")
         # plots section
         if self.plots:
@@ -406,6 +422,37 @@ class QCInput(MSONable):
                     scan_list.append("   {var_type} {var}".format(var_type=var_type, var=var))
         scan_list.append("$end")
         return "\n".join(scan_list)
+
+    @staticmethod
+    def van_der_waals_template(radii: Dict[str, float], mode: str = "atomic") -> str:
+        """
+        Args:
+            radii (dict): Dictionary with custom van der Waals radii, in
+                Angstroms, keyed by either atomic number or sequential
+                atom number (see 'mode' kwarg).
+                Ex: {1: 1.20, 12: 1.70}
+            mode: 'atomic' or 'sequential'. In 'atomic' mode (default), dict keys
+                represent the atomic number associated with each radius (e.g., '12' = carbon).
+                In 'sequential' mode, dict keys represent the sequential position of
+                a single specific atom in the input structure.
+                **NOTE: keys must be given as strings even though they are numbers!**
+
+        Returns:
+            String representing Q-Chem input format for van_der_waals section
+        """
+        vdw_list = list()
+        vdw_list.append("$van_der_waals")
+        if mode == "atomic":
+            vdw_list.append("1")
+        elif mode == "sequential":
+            vdw_list.append("2")
+        else:
+            raise ValueError(f"Invalid value {mode} given for 'mode' kwarg.")
+
+        for num, radius in radii.items():
+            vdw_list.append(f"   {num} {radius}")
+        vdw_list.append("$end")
+        return "\n".join(vdw_list)
 
     @staticmethod
     def plots_template(plots: Dict) -> str:
