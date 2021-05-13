@@ -566,9 +566,7 @@ class MPRester:
 
             # suppress the warning about missing oxidation states
             with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore", message="Failed to guess oxidation states.*"
-                )
+                warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
                 entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
         if sort_by_e_above_hull:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
