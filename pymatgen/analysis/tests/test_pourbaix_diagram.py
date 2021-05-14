@@ -206,6 +206,17 @@ class PourbaixDiagramTest(unittest.TestCase):
         ph, v = np.meshgrid(np.linspace(0, 14), np.linspace(-3, 3))
         self.pbx.get_decomposition_energy(entry, ph, v)
 
+        # Test custom ions
+        entries = self.test_data["C-Na-Sn"]
+        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
+        custom_ion_entry = PourbaixEntry(ion, entry_id="my_ion")
+        pbx = PourbaixDiagram(
+            entries + [custom_ion_entry],
+            filter_solids=True,
+            comp_dict={"Na": 1, "Sn": 12, "C": 24},
+        )
+        self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2), 2.1209002582, 1)
+
     def test_get_stable_entry(self):
         entry = self.pbx.get_stable_entry(0, 0)
         self.assertEqual(entry.entry_id, "ion-0")
@@ -284,18 +295,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Ag": 1e-8, "Te": 1e-8})
         self.assertEqual(len(pbx.stable_entries), 29)
         test_entry = pbx.find_stable_entry(8, 2)
-        self.assertAlmostEqual(test_entry.energy, 2.3894017960000009, 1)
-
-        # Test custom ions
-        entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
-        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
-        custom_ion_entry = PourbaixEntry(ion, entry_id="my_ion")
-        pbx = PourbaixDiagram(
-            entries + [custom_ion_entry],
-            filter_solids=True,
-            comp_dict={"Na": 1, "Sn": 12, "C": 24},
-        )
-        self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2), 2.1209002582, 1)
+        self.assertEqual(sorted(test_entry.entry_id), ["ion-10", "mp-499"])
 
         # Test against ion sets with multiple equivalent ions (Bi-V regression)
         entries = mpr.get_pourbaix_entries(["Bi", "V"])
