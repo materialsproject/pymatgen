@@ -516,6 +516,5 @@ class MPResterTest(PymatgenTest):
         self.assertTrue(all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries]))
 
 
-
 if __name__ == "__main__":
     unittest.main()
