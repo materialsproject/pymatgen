@@ -79,7 +79,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         self,
         structure,
         two_theta_range=(0, 90),
-        annotate_peaks="full",
+        annotate_peaks="compact",
         ax=None,
         with_labels=True,
         fontsize=16,
@@ -94,9 +94,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
             annotate_peaks (str or None): Whether and how to annotate the peaks
-                with hkl indices.  Default is 'full', e.g. (1, 0, 0). If
-                'compact', show short version (oriented vertically), e.g.
-                100.  If None, do not annotate.
+                with hkl indices.  Default is 'compact', i.e. show short
+                version (oriented vertically), e.g. 100.  If 'full', show
+                long version, e.g. (1, 0, 0).  If None, do not show anything.
             ax: matplotlib :class:`Axes` or None if a new figure should be
                 created.
             with_labels: True to add xlabels and ylabels to the plot.
@@ -176,9 +176,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
             annotate_peaks (str or None): Whether and how to annotate the peaks
-                with hkl indices.  Default is 'full', e.g. (1, 0, 0). If
-                'compact', show short version (oriented vertically), e.g.
-                100.  If None, do not annotate.
+                with hkl indices.  Default is 'compact', i.e. show short
+                version (oriented vertically), e.g. 100.  If 'full', show
+                long version, e.g. (1, 0, 0).  If None, do not show anything.
         """
         self.get_plot(structure, **kwargs).show()
 
@@ -194,9 +194,9 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
             annotate_peaks (str or None): Whether and how to annotate the peaks
-                with hkl indices.  Default is 'full', e.g. (1, 0, 0). If
-                'compact', show short version (oriented vertically), e.g.
-                100.  If None, do not annotate.
+                with hkl indices.  Default is 'compact', i.e. show short
+                version (oriented vertically), e.g. 100.  If 'full', show
+                long version, e.g. (1, 0, 0).  If None, do not show anything.
             fontsize: (int) fontsize for peak labels.
         """
         import matplotlib.pyplot as plt
