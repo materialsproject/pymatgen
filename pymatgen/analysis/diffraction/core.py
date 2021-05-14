@@ -131,7 +131,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                         fontsize=fontsize,
                     )
                 elif annotate_peaks == "compact":
-                    if all([all([i < 10 for i in hkl_tuple]) for hkl_tuple in hkl_tuples]):
+                    if all(all(i < 10 for i in hkl_tuple) for hkl_tuple in hkl_tuples):
                         label = ",".join(["".join([str(i) for i in hkl_tuple]) for hkl_tuple in hkl_tuples])
                         # 'compact' label.  Would be unclear for indices >= 10
                         # It would have more than 3 figures, e.g. 1031
