@@ -632,7 +632,10 @@ class MPRester:
                 message="You did not provide the required O2 and H2O energies.",
             )
             compat = MaterialsProjectAqueousCompatibility(solid_compat=self.solid_compat)
-        ion_ref_entries = compat.process_entries(ion_ref_entries)
+        # suppress the warning about missing oxidation states
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
+            ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
         # position the ion energies relative to most stable reference state
