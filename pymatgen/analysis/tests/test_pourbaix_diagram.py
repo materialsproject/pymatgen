@@ -267,41 +267,6 @@ class PourbaixDiagramTest(unittest.TestCase):
         new_binary = PourbaixDiagram.from_dict(pd_binary.as_dict())
         self.assertEqual(len(pd_binary.stable_entries), len(new_binary.stable_entries))
 
-    # The two tests below rely on the MP Rest interface.
-    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-    def test_heavy(self):
-        from pymatgen.ext.matproj import MPRester
-
-        mpr = MPRester()
-        entries = mpr.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
-        entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
-        entries = mpr.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
-        entries = mpr.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
-        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
-
-    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"), "PMG_MAPI_KEY environment variable not set.")
-    def test_mpr_pipeline(self):
-        from pymatgen.ext.matproj import MPRester
-
-        mpr = MPRester()
-        data = mpr.get_pourbaix_entries(["Zn"])
-        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
-        pbx.find_stable_entry(10, 0)
-
-        data = mpr.get_pourbaix_entries(["Ag", "Te"])
-        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Ag": 1e-8, "Te": 1e-8})
-        self.assertEqual(len(pbx.stable_entries), 29)
-        test_entry = pbx.find_stable_entry(8, 2)
-        self.assertEqual(sorted(test_entry.entry_id), ["ion-10", "mp-499"])
-
-        # Test against ion sets with multiple equivalent ions (Bi-V regression)
-        entries = mpr.get_pourbaix_entries(["Bi", "V"])
-        pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
-        self.assertTrue(all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries]))
-
 
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):
