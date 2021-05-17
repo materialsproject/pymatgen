@@ -71,13 +71,13 @@ class HighSymmKpath(KPathBase):
                 should point. If all magnetic moments are provided as
                 vectors then this argument is not used.
             path_type (string): Chooses which convention to use to generate
-                the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma', 
-                'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and  
-                Latimer & Munro conventions. Choosing 'all' will generate one path 
+                the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma',
+                'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and
+                Latimer & Munro conventions. Choosing 'all' will generate one path
                 with points from all three conventions. Equivalent labels between
-                each will also be generated. Order will always be Latimer & Munro, 
-                Setyawan & Curtarolo, and Hinuma et al. Lengths for each of the paths 
-                will also be generated and output as a list. Note for 'all' the user 
+                each will also be generated. Order will always be Latimer & Munro,
+                Setyawan & Curtarolo, and Hinuma et al. Lengths for each of the paths
+                will also be generated and output as a list. Note for 'all' the user
                 will have to alter the labels on their own for plotting.
             symprec (float): Tolerance for symmetry finding
             angle_tolerance (float): Angle tolerance for symmetry finding.
@@ -248,7 +248,9 @@ of the input structure. Use `KPathSeek` for the path in the original author-inte
 
         n_op = len(rpg)
 
-        pairs = itertools.permutations([{"setyawan_curtarolo": sc_path}, {"latimer_munro": lm_path}, {"hinuma": hin_path}], r=2)
+        pairs = itertools.permutations(
+            [{"setyawan_curtarolo": sc_path}, {"latimer_munro": lm_path}, {"hinuma": hin_path}], r=2
+        )
         labels = {"setyawan_curtarolo": {}, "latimer_munro": {}, "hinuma": {}}
 
         for (a, b) in pairs:
