@@ -52,7 +52,7 @@ class HighSymmKpath(KPathBase):
         structure,
         has_magmoms=False,
         magmom_axis=None,
-        path_type="sc",
+        path_type="setyawan_curtarolo",
         symprec=0.01,
         angle_tolerance=5,
         atol=1e-5,
