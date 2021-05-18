@@ -462,6 +462,16 @@ class BasePhaseDiagram(MSONable):
 
         return [e for e, s in zip(self._stable_entries, self._stable_spaces) if space.issuperset(s)]
 
+    def get_reference_energy_per_atom(self, comp):
+        """
+        Args:
+            comp (Composition): Input composition
+
+        Returns:
+            Reference energy of the terminal species at a given composition.
+        """
+        return sum([comp[el] * self.el_refs[el].energy_per_atom for el in comp.elements]) / comp.num_atoms
+
     def get_form_energy(self, entry):
         """
         Returns the formation energy for an entry (NOT normalized) from the
