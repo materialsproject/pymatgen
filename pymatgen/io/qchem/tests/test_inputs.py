@@ -828,10 +828,13 @@ $end
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
-        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test.qin")).as_dict()
-        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref.qin")).as_dict()
-        for key in test_dict:
-            self.assertEqual(test_dict[key], test_ref_dict[key])
+        test_file = open(os.path.join(os.path.dirname(__file__), "test.qin"), "r")
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref.qin"), "r")
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            # By default, if this statement fails the offending line will be printed
+            assert l_test == l_ref
+
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
 
     def test_write_file_from_OptSet_with_vdw(self):
@@ -841,10 +844,13 @@ $end
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
-        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin")).as_dict()
-        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin")).as_dict()
-        for key in test_dict:
-            self.assertEqual(test_dict[key], test_ref_dict[key])
+        test_file = open(os.path.join(os.path.dirname(__file__), "test_vdw.qin"), "r")
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin"), "r")
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            # By default, if this statement fails the offending line will be printed
+            assert l_test == l_ref
+
         os.remove(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
 
 
