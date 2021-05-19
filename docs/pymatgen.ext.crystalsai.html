@@ -1,15 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.ext.crystalsai module &mdash; pymatgen 2022.0.7 documentation</title>
+  <title>pymatgen.ext.crystalsai module &mdash; pymatgen 2022.0.8 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +25,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.ext.jhu module" href="pymatgen.ext.jhu.html" />
@@ -61,7 +63,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.7
+                2022.0.8
               </div>
             
           
@@ -88,6 +90,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +138,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +177,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -207,8 +211,8 @@
 <p>This module provides an interface to the MaterialsVirtualLab’s MEGNet REST API
 for rapid property prediction.</p>
 <dl class="py class">
-<dt id="pymatgen.ext.crystalsai.CrystalAIRester">
-<em class="property">class </em><code class="sig-name descname">CrystalAIRester</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../ext/crystalsai.py#L14-L103"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CrystalAIRester</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../ext/crystalsai.py#L14-L103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is a high-level interface to the REST API for <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a>
 for property prediction. Using this API, you can use MatErials Graph
@@ -227,8 +231,8 @@ Chen, C.; Ye, W.; Zuo, Y.; Zheng, C.; Ong, S. P. &lt;i&gt;Graph Networks as a Un
 </div></blockquote>
 <p>Init for Rester.</p>
 <dl class="py method">
-<dt id="pymatgen.ext.crystalsai.CrystalAIRester.get_available_models">
-<code class="sig-name descname">get_available_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../ext/crystalsai.py#L49-L56"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.get_available_models" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester.get_available_models">
+<span class="sig-name descname"><span class="pre">get_available_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../ext/crystalsai.py#L49-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.get_available_models" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Available model names. It should be noted that model names starting
@@ -238,8 +242,8 @@ with log10 are for the log10 of that quantity.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.ext.crystalsai.CrystalAIRester.predict_mp">
-<code class="sig-name descname">predict_mp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">mp_id</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../ext/crystalsai.py#L58-L79"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_mp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester.predict_mp">
+<span class="sig-name descname"><span class="pre">predict_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp_id</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../ext/crystalsai.py#L58-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_mp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict using the <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -259,8 +263,8 @@ with log10 are for the log10 of that quantity and you should apply
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.ext.crystalsai.CrystalAIRester.predict_structure">
-<code class="sig-name descname">predict_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../ext/crystalsai.py#L81-L103"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.ext.crystalsai.CrystalAIRester.predict_structure">
+<span class="sig-name descname"><span class="pre">predict_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../ext/crystalsai.py#L81-L103"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.predict_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict using the <a class="reference external" href="http://megnet.crystals.ai">http://megnet.crystals.ai</a> API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -294,11 +298,19 @@ with log10 are for the log10 of that quantity and you should apply
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -309,7 +321,6 @@ with log10 are for the log10 of that quantity and you should apply
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
