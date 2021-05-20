@@ -312,7 +312,7 @@ class Interface(Structure):
         d["in_plane_offset"] = self.in_plane_offset.tolist()
         d["gap"] = self.gap
         d["vacuum_over_film"] = self.vacuum_over_film
-
+        d["interface_properties"] = self.interface_properties
         return d
 
     @classmethod
@@ -325,14 +325,18 @@ class Interface(Structure):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
 
+        optional = dict(
+            in_plane_offset=d.get("in_plane_offset"),
+            gap=d.get("gap"),
+            vacuum_over_film=d.get("vacuum_over_film"),
+            interface_properties=d.get("interface_properties"),
+        )
         return Interface(
             lattice=lattice,
             species=s.species_and_occu,
             coords=s.frac_coords,
             site_properties=s.site_properties,
-            in_plane_offset=d["in_plane_offset"],
-            gap=d["gap"],
-            vacuum_over_film=d["vacuum_over_film"],
+            **{k: v for k, v in optional.items() if v is not None},
         )
 
     @classmethod
