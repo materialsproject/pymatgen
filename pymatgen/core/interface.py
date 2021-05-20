@@ -80,7 +80,7 @@ class Interface(Structure):
         assert "interface_label" in site_properties, ValueError(
             "Must provide labeling of substrate and film sites in site properties"
         )
-        self._in_plane_offset = np.array(in_plane_offset)
+        self._in_plane_offset = np.array(in_plane_offset, dtype="float")
         self._gap = gap
         self._vacuum_over_film = vacuum_over_film
         self.interface_properties = interface_properties
@@ -309,7 +309,7 @@ class Interface(Structure):
         :return: MSONAble dict
         """
         d = super().as_dict()
-        d["in_plane_offset"] = self.in_plane_offset
+        d["in_plane_offset"] = self.in_plane_offset.tolist()
         d["gap"] = self.gap
         d["vacuum_over_film"] = self.vacuum_over_film
 
