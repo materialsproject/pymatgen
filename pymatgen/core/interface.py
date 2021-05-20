@@ -19,12 +19,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-__author__ = "Shyam Dwaraknath, Eric Sivonxay, and Kyle Bystrom"
-__copyright__ = "Copyright 2019, The Materials Project"
-__maintainer__ = "Shyam Dwaraknath"
-__email__ = "shyamd@lbl.gov"
-
-
 
 class Interface(Structure):
     """
@@ -86,7 +80,7 @@ class Interface(Structure):
         assert "interface_label" in site_properties, ValueError(
             "Must provide labeling of substrate and film sites in site properties"
         )
-        self._in_plane_offset = list(in_plane_offset)
+        self._in_plane_offset = np.array(in_plane_offset)
         self._gap = gap
         self._vacuum_over_film = vacuum_over_film
         self.interface_properties = interface_properties
@@ -104,7 +98,7 @@ class Interface(Structure):
         self.sort()
 
     @property
-    def in_plane_offset(self) -> Tuple[float, float]:
+    def in_plane_offset(self) -> np.ndarray:
         """
         The shift between the film and substrate in fractional
         coordinates
@@ -112,12 +106,12 @@ class Interface(Structure):
         return self._in_plane_offset
 
     @in_plane_offset.setter
-    def in_plane_offset(self, new_shift: Tuple[float, float]) -> None:
+    def in_plane_offset(self, new_shift: np.ndarray) -> None:
         if len(new_shift) != 2:
             raise ValueError("In-plane shifts require two floats for a and b vectors")
         new_shift = np.mod(new_shift, 1)
         delta = new_shift - np.array(self.in_plane_offset)
-        self._in_plane_offset = new_shift.tolist()
+        self._in_plane_offset = new_shift
         self.translate_sites(self.film_indices, [delta[0], delta[1], 0], to_unit_cell=True)
 
     @property
@@ -201,7 +195,7 @@ class Interface(Structure):
         """
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> Interface:
+    def copy(self) -> Interface:  # type:ignore
         """
         Convenience method to get a copy of the structure, with options to add
         site properties.
@@ -269,17 +263,17 @@ class Interface(Structure):
         return list(np.unique(pos_shift, axis=0))
 
     @property
-    def film_termination(self):
+    def film_termination(self) -> str:
         """ Label for the film termination chemistry """
         return label_termination(self.film)
 
     @property
-    def substrate_termination(self):
+    def substrate_termination(self) -> str:
         """ Label for the substrate termination chemistry """
         return label_termination(self.substrate)
 
     @property
-    def film_layers(self):
+    def film_layers(self) -> int:
         """ Number of layers of the minimum element in the film composition """
         sorted_element_list = sorted(
             self.film.composition.element_composition.items(), key=lambda x: x[1], reverse=True
@@ -287,7 +281,7 @@ class Interface(Structure):
         return count_layers(self.film, sorted_element_list[0][0])
 
     @property
-    def substrate_layers(self):
+    def substrate_layers(self) -> int:
         """ Number of layers of the minimum element in the substrate composition """
         sorted_element_list = sorted(
             self.substrate.composition.element_composition.items(), key=lambda x: x[1], reverse=True
@@ -351,8 +345,7 @@ class Interface(Structure):
         vacuum_over_film: float = 0.0,
         interface_properties: Dict = {},
         center_slab: bool = True,
-        **kwargs,
-    ):
+    ) -> Interface:
         """
         Makes an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
@@ -451,14 +444,14 @@ class Interface(Structure):
             gap=gap,
             vacuum_over_film=vacuum_over_film,
             interface_properties=interface_properties,
-            **kwargs,
         )
 
         iface.sort()
         return iface
 
 
-def label_termination(slab: Structure):
+def label_termination(slab: Structure) -> str:
+    """ Labels the slab surface termination """
     frac_coords = slab.frac_coords
     n = len(frac_coords)
 
@@ -483,7 +476,7 @@ def label_termination(slab: Structure):
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites = {c: [] for c in clusters}
+    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(slab[i])
 
@@ -499,7 +492,7 @@ def label_termination(slab: Structure):
     return f"{form}_{sp_symbol}_{len(top_plane)}"
 
 
-def count_layers(struc: Structure, el=None):
+def count_layers(struc: Structure, el=None) -> int:
     """
     Counts the number of 'layers' along the c-axis
     """
@@ -525,7 +518,7 @@ def count_layers(struc: Structure, el=None):
     z = linkage(condensed_m)
     clusters = fcluster(z, 0.25, criterion="distance")
 
-    clustered_sites = {c: [] for c in clusters}
+    clustered_sites: Dict[int, List[Site]] = {c: [] for c in clusters}
     for i, c in enumerate(clusters):
         clustered_sites[c].append(struc[i])
 

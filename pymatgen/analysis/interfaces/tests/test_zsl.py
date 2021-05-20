@@ -23,13 +23,14 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class ZSLGenTest(PymatgenTest):
-    @classmethod
-    def setUpClass(cls) -> None:
+    def setUp(self):
         # Film VO2
-        cls.film = SpacegroupAnalyzer(cls.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
+        self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
 
         # Substrate TiO2
-        cls.substrate = SpacegroupAnalyzer(cls.get_structure("TiO2"), symprec=0.1).get_conventional_standard_structure()
+        self.substrate = SpacegroupAnalyzer(
+            self.get_structure("TiO2"), symprec=0.1
+        ).get_conventional_standard_structure()
 
     def test_zsl(self):
 

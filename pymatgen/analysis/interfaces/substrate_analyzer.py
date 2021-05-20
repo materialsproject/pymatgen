@@ -6,7 +6,6 @@
 This module provides classes to identify optimal substrates for film growth
 """
 
-
 from dataclasses import dataclass
 from typing import Tuple
 
@@ -79,6 +78,7 @@ class SubstrateMatch(ZSLMatch):
 
     @property
     def total_energy(self):
+        """ Total energy of this match """
         return self.ground_state_energy + self.elastic_energy
 
 

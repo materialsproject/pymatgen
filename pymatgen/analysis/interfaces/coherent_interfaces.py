@@ -1,10 +1,14 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+"""
+This module provides classes to store, generate, and manipulate material interfaces.
+"""
+
 from __future__ import annotations
 
 from itertools import product
-from typing import Generator, Optional, Tuple, Union
+from typing import Iterator, Optional, Tuple, Union
 
 import numpy as np
 from scipy.linalg import polar
@@ -15,9 +19,6 @@ from pymatgen.core import Structure
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
 
-"""
-This module provides classes to store, generate, and manipulate material interfaces.
-"""
 
 Vector3D = Tuple[float, float, float]
 Matrix3D = Tuple[Vector3D, Vector3D, Vector3D]
@@ -159,7 +160,7 @@ class CoherentInterfaceBuilder:
         film_thickness: Union[float, int] = 1,
         substrate_thickness: Union[float, int] = 1,
         in_layers: bool = True,
-    ) -> Generator[Interface]:
+    ) -> Iterator[Interface]:
         """
         Generates interface structures given the film and substrate structure
         as well as the desired terminations
@@ -199,8 +200,6 @@ class CoherentInterfaceBuilder:
 
         film_slab = film_sg.get_slab(shift=film_shift)
         sub_slab = sub_sg.get_slab(shift=sub_shift)
-
-        self.interfaces = []
 
         for match in self.zsl_matches:
             # Build film superlattice
@@ -253,7 +252,7 @@ class CoherentInterfaceBuilder:
             )
 
 
-def get_rot_3d_for_2d(film_matrix: Matrix3D, sub_matrix: Matrix3D):
+def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     """
     Finds a trasnformation matrix that will rotate and strain the film to the subtrate while preserving the c-axis
     """
@@ -279,7 +278,7 @@ def get_rot_3d_for_2d(film_matrix: Matrix3D, sub_matrix: Matrix3D):
     return rot
 
 
-def get_2d_transform(start: Matrix2D, end: Matrix2D):
+def get_2d_transform(start: np.ndarray, end: np.ndarray) -> np.ndarray:
     """
     Gets a 2d transformation matrix
     that converts start to end
@@ -287,7 +286,8 @@ def get_2d_transform(start: Matrix2D, end: Matrix2D):
     return np.dot(end, np.linalg.pinv(start))
 
 
-def from_2d_to_3d(mat: Matrix2D):
+def from_2d_to_3d(mat: np.ndarray) -> np.ndarray:
+    """ Converts a 2D matrix to a 3D matrix """
     new_mat = np.diag([1.0, 1.0, 1.0])
     new_mat[:2, :2] = mat
     return new_mat

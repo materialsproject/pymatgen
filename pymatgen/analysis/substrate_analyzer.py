@@ -6,7 +6,7 @@
 This module provides classes to identify optimal substrates for film growth
 """
 
-from pymatgen.analysis.interfaces import ZSLGenerator, SubstrateAnalyzer
+from pymatgen.analysis.interfaces import ZSLGenerator, SubstrateAnalyzer # noqa
 import warnings
 
 __author__ = "Shyam Dwaraknath"
@@ -19,7 +19,8 @@ __date__ = "Feb, 2016"
 
 
 warnings.warn(
-    "The substrate_analyzer module is being moved to the interfaces submodule in analysis. These imports will break in Pymatgen 2023",
+    "The substrate_analyzer module is being moved to the interfaces submodule in analysis."
+    " These imports will break in Pymatgen 2023",
     category=FutureWarning,
     stacklevel=2,
 )

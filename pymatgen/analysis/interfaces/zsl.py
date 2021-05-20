@@ -6,13 +6,13 @@
 This module implements the Zur and McGill lattice matching algorithm
 """
 
+from typing import Iterator
+
 from dataclasses import dataclass
 from itertools import product
 
 import numpy as np
 from monty.json import MSONable
-
-from pymatgen.analysis.elasticity.strain import Deformation
 
 
 @dataclass
@@ -24,12 +24,12 @@ class ZSLMatch(MSONable):
     the appropriate transformation matrix
     """
 
-    film_sl_vectors: np.array
-    substrate_sl_vectors: np.array
-    film_vectors: np.array
-    substrate_vectors: np.array
-    film_transformation: np.array
-    substrate_transformation: np.array
+    film_sl_vectors: np.ndarray
+    substrate_sl_vectors: np.ndarray
+    film_vectors: np.ndarray
+    substrate_vectors: np.ndarray
+    film_transformation: np.ndarray
+    substrate_transformation: np.ndarray
 
     @property
     def match_area(self):
@@ -202,7 +202,7 @@ class ZSLGenerator(MSONable):
                 if self.is_same_vectors(f, s):
                     yield [f, s, f_trans, s_trans]
 
-    def __call__(self, film_vectors, substrate_vectors, lowest=False) -> ZSLMatch:
+    def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
         """
         Runs the ZSL algorithm to generate all possible matching
         :return:
