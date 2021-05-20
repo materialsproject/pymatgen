@@ -34,7 +34,7 @@ class ZSLMatch(MSONable):
     @property
     def match_area(self):
         """ The area of the match between the substrate and film super lattice vectors """
-        return vec_area(self.film_sl_vectors)
+        return vec_area(*self.film_sl_vectors.tolist())
 
     @property
     def match_transformation(self):
