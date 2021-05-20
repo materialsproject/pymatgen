@@ -23,16 +23,15 @@ from pymatgen.util.testing import PymatgenTest
 
 
 class ZSLGenTest(PymatgenTest):
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         # Film VO2
-        self.film = SpacegroupAnalyzer(self.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
+        cls.film = SpacegroupAnalyzer(cls.get_structure("VO2"), symprec=0.1).get_conventional_standard_structure()
 
         # Substrate TiO2
-        self.substrate = SpacegroupAnalyzer(
-            self.get_structure("TiO2"), symprec=0.1
-        ).get_conventional_standard_structure()
+        cls.substrate = SpacegroupAnalyzer(cls.get_structure("TiO2"), symprec=0.1).get_conventional_standard_structure()
 
-    def test_init(self):
+    def test_zsl(self):
 
         z = ZSLGenerator()
 
@@ -44,8 +43,21 @@ class ZSLGenTest(PymatgenTest):
         self.assertFalse(z.is_same_vectors([[1.01, 2, 0], [0, 2, 0]], [[1, 0, 0], [0, 2.01, 0]]))
 
         matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
-
         self.assertEqual(len(matches), 8)
+
+    def test_bidirectional(self):
+
+        z = ZSLGenerator(max_area_ratio_tol=0.05, max_angle_tol=0.05, max_length_tol=0.05)
+
+        matches = list(z(self.film.lattice.matrix[:2], self.substrate.lattice.matrix[:2]))
+        self.assertEqual(len(matches), 48)
+
+        matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
+        self.assertEqual(len(matches), 40)
+
+        z.bidirectional = True
+        matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
+        self.assertEqual(len(matches), 48)
 
 
 if __name__ == "__main__":
