@@ -78,7 +78,7 @@ class PourbaixEntryTest(unittest.TestCase):
         # Ensure computed entry data persists
         entry = ComputedEntry("TiO2", energy=-20, data={"test": "test"})
         pbx_entry = PourbaixEntry(entry=entry)
-        with ScratchDir('.'):
+        with ScratchDir("."):
             dumpfn(pbx_entry, "pbx_entry.json")
             reloaded = loadfn("pbx_entry.json")
         self.assertIsInstance(reloaded.entry, ComputedEntry)

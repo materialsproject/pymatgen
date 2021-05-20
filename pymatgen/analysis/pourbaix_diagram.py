@@ -235,7 +235,7 @@ class PourbaixEntry(MSONable, Stringify):
         if entry_type == "Ion":
             entry = IonEntry.from_dict(d["entry"])
         else:
-            entry = MontyDecoder().process_decoded(d['entry'])
+            entry = MontyDecoder().process_decoded(d["entry"])
         entry_id = d["entry_id"]
         concentration = d["concentration"]
         return PourbaixEntry(entry, entry_id, concentration)
