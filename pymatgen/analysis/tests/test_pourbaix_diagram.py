@@ -10,7 +10,8 @@ import unittest
 import warnings
 
 import numpy as np
-from monty.serialization import loadfn
+from monty.serialization import loadfn, dumpfn
+from monty.tempfile import ScratchDir
 
 from pymatgen.core import SETTINGS
 from pymatgen.analysis.pourbaix_diagram import (
@@ -73,6 +74,15 @@ class PourbaixEntryTest(unittest.TestCase):
             self.PxSol.energy,
             "as_dict and from_dict energies unequal",
         )
+
+        # Ensure computed entry data persists
+        entry = ComputedEntry("TiO2", energy=-20, data={"test": "test"})
+        pbx_entry = PourbaixEntry(entry=entry)
+        with ScratchDir('.'):
+            dumpfn(pbx_entry, "pbx_entry.json")
+            reloaded = loadfn("pbx_entry.json")
+        self.assertIsInstance(reloaded.entry, ComputedEntry)
+        self.assertIsNotNone(reloaded.entry.data)
 
     def test_energy_functions(self):
         # TODO: test these for values
