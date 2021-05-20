@@ -81,6 +81,7 @@ class ZSLGenerator(MSONable):
         max_area=400,
         max_length_tol=0.03,
         max_angle_tol=0.01,
+        bidirectional=False,
     ):
         """
         Intialize a Zur Super Lattice Generator for a specific film and
@@ -98,8 +99,22 @@ class ZSLGenerator(MSONable):
         self.max_area = max_area
         self.max_length_tol = max_length_tol
         self.max_angle_tol = max_angle_tol
+        self.bidirectional = bidirectional
 
     def is_same_vectors(self, vec_set1, vec_set2):
+        """
+        Determine if two sets of vectors are the same within length and angle
+        tolerances
+        Args:
+            vec_set1(array[array]): an array of two vectors
+            vec_set2(array[array]): second array of two vectors
+        """
+        if self.bidirectional:
+            return self._bidirectional_same_vectors(vec_set1, vec_set2)
+
+        return self._unidirectional_is_same_vectors(vec_set1, vec_set2)
+
+    def _unidirectional_is_same_vectors(self, vec_set1, vec_set2):
         """
         Determine if two sets of vectors are the same within length and angle
         tolerances
@@ -114,6 +129,12 @@ class ZSLGenerator(MSONable):
         if np.absolute(rel_angle(vec_set1, vec_set2)) > self.max_angle_tol:
             return False
         return True
+
+    def _bidirectional_same_vectors(self, vec_set1, vec_set2):
+        """ Bidirectional version of above matching constraint check """
+        return self._unidirectional_is_same_vectors(vec_set1, vec_set2) or self._unidirectional_is_same_vectors(
+            vec_set2, vec_set1
+        )
 
     def generate_sl_transformation_sets(self, film_area, substrate_area):
         """
@@ -137,12 +158,18 @@ class ZSLGenerator(MSONable):
             for i in range(1, int(self.max_area / film_area))
             for j in range(1, int(self.max_area / substrate_area))
             if np.absolute(film_area / substrate_area - float(j) / i) < self.max_area_ratio_tol
+        ] + [
+            (i, j)
+            for i in range(1, int(self.max_area / film_area))
+            for j in range(1, int(self.max_area / substrate_area))
+            if np.absolute(substrate_area / film_area - float(i) / j) < self.max_area_ratio_tol
         ]
+        transformation_indicies = list(set(transformation_indicies))
 
         # Sort sets by the square of the matching area and yield in order
         # from smallest to largest
-        for x in sorted(transformation_indicies, key=lambda x: x[0] * x[1]):
-            yield (gen_sl_transform_matricies(x[0]), gen_sl_transform_matricies(x[1]))
+        for i, j in sorted(transformation_indicies, key=lambda x: x[0] * x[1]):
+            yield (gen_sl_transform_matricies(i), gen_sl_transform_matricies(j))
 
     def get_equiv_transformations(self, transformation_sets, film_vectors, substrate_vectors):
         """
