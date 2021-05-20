@@ -77,7 +77,7 @@ class InterfaceTest(PymatgenTest):
         test_coords = np.array(init_coords)
         for i in interface.film_indices:
             test_coords[i] += [0.2, 0.2, 0]
-        assert np.allclose( np.mod(test_coords, 1.0), np.mod(interface.frac_coords, 1.0))
+        assert np.allclose(np.mod(test_coords, 1.0), np.mod(interface.frac_coords, 1.0))
 
     def test_vacuum_over_film_setter(self):
         interface = self.interface

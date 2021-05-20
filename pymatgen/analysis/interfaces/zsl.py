@@ -33,12 +33,12 @@ class ZSLMatch(MSONable):
 
     @property
     def match_area(self):
-        """ The area of the match between the substrate and film super lattice vectors """
+        """The area of the match between the substrate and film super lattice vectors"""
         return vec_area(*self.film_sl_vectors.tolist())
 
     @property
     def match_transformation(self):
-        """ The tranformation matrix to conver the film super lattice vectors to the substrate """
+        """The tranformation matrix to conver the film super lattice vectors to the substrate"""
         # Generate 3D lattice vectors for film super lattice
         film_matrix = list(self.film_sl_vectors)
         film_matrix.append(np.cross(film_matrix[0], film_matrix[1]))
@@ -131,7 +131,7 @@ class ZSLGenerator(MSONable):
         return True
 
     def _bidirectional_same_vectors(self, vec_set1, vec_set2):
-        """ Bidirectional version of above matching constraint check """
+        """Bidirectional version of above matching constraint check"""
         return self._unidirectional_is_same_vectors(vec_set1, vec_set2) or self._unidirectional_is_same_vectors(
             vec_set2, vec_set1
         )

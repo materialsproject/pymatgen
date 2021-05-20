@@ -287,7 +287,7 @@ def get_2d_transform(start: np.ndarray, end: np.ndarray) -> np.ndarray:
 
 
 def from_2d_to_3d(mat: np.ndarray) -> np.ndarray:
-    """ Converts a 2D matrix to a 3D matrix """
+    """Converts a 2D matrix to a 3D matrix"""
     new_mat = np.diag([1.0, 1.0, 1.0])
     new_mat[:2, :2] = mat
     return new_mat

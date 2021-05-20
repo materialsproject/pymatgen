@@ -264,17 +264,17 @@ class Interface(Structure):
 
     @property
     def film_termination(self) -> str:
-        """ Label for the film termination chemistry """
+        """Label for the film termination chemistry"""
         return label_termination(self.film)
 
     @property
     def substrate_termination(self) -> str:
-        """ Label for the substrate termination chemistry """
+        """Label for the substrate termination chemistry"""
         return label_termination(self.substrate)
 
     @property
     def film_layers(self) -> int:
-        """ Number of layers of the minimum element in the film composition """
+        """Number of layers of the minimum element in the film composition"""
         sorted_element_list = sorted(
             self.film.composition.element_composition.items(), key=lambda x: x[1], reverse=True
         )
@@ -282,7 +282,7 @@ class Interface(Structure):
 
     @property
     def substrate_layers(self) -> int:
-        """ Number of layers of the minimum element in the substrate composition """
+        """Number of layers of the minimum element in the substrate composition"""
         sorted_element_list = sorted(
             self.substrate.composition.element_composition.items(), key=lambda x: x[1], reverse=True
         )
@@ -455,7 +455,7 @@ class Interface(Structure):
 
 
 def label_termination(slab: Structure) -> str:
-    """ Labels the slab surface termination """
+    """Labels the slab surface termination"""
     frac_coords = slab.frac_coords
     n = len(frac_coords)
 

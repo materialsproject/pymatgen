@@ -47,7 +47,7 @@ class SubstrateMatch(ZSLMatch):
         elasticity_tensor=None,
         ground_state_energy=0,
     ):
-        """ Generate a substrate match from a ZSL match plus metadata """
+        """Generate a substrate match from a ZSL match plus metadata"""
 
         # Get the appropriate surface structure
         struc = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
@@ -78,7 +78,7 @@ class SubstrateMatch(ZSLMatch):
 
     @property
     def total_energy(self):
-        """ Total energy of this match """
+        """Total energy of this match"""
         return self.ground_state_energy + self.elastic_energy
 
 
