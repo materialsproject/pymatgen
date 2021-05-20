@@ -34,7 +34,7 @@ class InterfaceTest(PymatgenTest):
         assert interface.film_layers == 6
         assert interface.substrate_layers == 2
 
-        self.assertMSONable(self.interface)
+        self.assertMSONable(interface)
 
     def test_gap_setter(self):
         interface = self.interface
