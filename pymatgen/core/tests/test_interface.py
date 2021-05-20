@@ -5,6 +5,7 @@
 import unittest
 
 import numpy as np
+from numpy.core.records import array
 
 from pymatgen.core.interface import Interface
 from pymatgen.core.surface import Slab, SlabGenerator
@@ -15,12 +16,12 @@ from pymatgen.util.testing import PymatgenTest
 class InterfaceTest(PymatgenTest):
     def setUp(self):
         self.interface: Interface = self.get_structure("Si_SiO2_Interface")
-        assert isinstance(self.interface, Interface)
 
     def test_basic_props(self):
         props = ["film_indices", "film_sites", "film"]
 
         interface = self.interface
+        assert isinstance(interface, Interface)
 
         assert len(interface.substrate_indicies) == 14
         assert len(interface.film_indices) == 36
@@ -34,7 +35,17 @@ class InterfaceTest(PymatgenTest):
         assert interface.film_layers == 6
         assert interface.substrate_layers == 2
 
-        self.assertMSONable(interface)
+        iface_dict = interface.as_dict()
+        for k in [
+            "lattice",
+            "sites",
+            "in_plane_offset",
+            "gap",
+            "vacuum_over_film",
+            "interface_properties",
+        ]:
+            assert k in iface_dict
+        assert isinstance(interface.from_dict(iface_dict), Interface)
 
     def test_gap_setter(self):
         interface = self.interface
@@ -58,15 +69,15 @@ class InterfaceTest(PymatgenTest):
     def test_in_plane_offset_setter(self):
 
         interface = self.interface
-        init_coords = self.interface.frac_coords
-        interface.in_plane_offset += np.array([0.2, 0.2])
+        init_coords = np.array(self.interface.frac_coords)
+        interface.in_plane_offset = np.array([0.2, 0.2])
 
         assert np.allclose(interface.in_plane_offset, np.array([0.2, 0.2]))
 
         test_coords = np.array(init_coords)
         for i in interface.film_indices:
             test_coords[i] += [0.2, 0.2, 0]
-        assert np.allclose(np.mod(test_coords, 1.0), np.mod(interface.frac_coords, 1.0))
+        assert np.allclose( np.mod(test_coords, 1.0), np.mod(interface.frac_coords, 1.0))
 
     def test_vacuum_over_film_setter(self):
         interface = self.interface
