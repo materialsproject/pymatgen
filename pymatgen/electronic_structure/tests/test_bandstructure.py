@@ -51,6 +51,24 @@ class KpointTest(unittest.TestCase):
         self.assertListEqual(self.kpoint.as_dict()["fcoords"], [0.1, 0.4, -0.5])
         self.assertListEqual(self.kpoint.as_dict()["ccoords"], [1.0, 4.0, -5.0])
 
+    def test_from_dict(self):
+
+        d = self.kpoint.as_dict()
+
+        kpoint = Kpoint.from_dict(d)
+
+        self.assertEqual(kpoint.frac_coords[0], 0.1)
+        self.assertEqual(kpoint.frac_coords[1], 0.4)
+        self.assertEqual(kpoint.frac_coords[2], -0.5)
+        self.assertEqual(kpoint.a, 0.1)
+        self.assertEqual(kpoint.b, 0.4)
+        self.assertEqual(kpoint.c, -0.5)
+        self.assertEqual(kpoint.lattice, Lattice.cubic(10.0))
+        self.assertEqual(kpoint.cart_coords[0], 1.0)
+        self.assertEqual(kpoint.cart_coords[1], 4.0)
+        self.assertEqual(kpoint.cart_coords[2], -5.0)
+        self.assertEqual(kpoint.label, "X")
+
 
 class BandStructureSymmLine_test(PymatgenTest):
     def setUp(self):
