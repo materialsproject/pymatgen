@@ -602,7 +602,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
                 For large displacements, this difference is noticeable.
         """
         self.site_index = site_index
-        self.d = displacement
+        self.displacement = displacement
         self.nn_only = nn_only
 
     def apply_transformation(self, structure):
@@ -636,7 +636,7 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         for vals in structure.get_neighbors(site, r=r0 if self.nn_only else rmax):
             site2, distance, index = vals[:3]
             v = site2.coords - site.coords
-            kwargs = {"indices": [index], "vector": v * f(self.d, distance, r0) / np.linalg.norm(v)}
+            kwargs = {"indices": [index], "vector": v * f(self.displacement, distance, r0) / np.linalg.norm(v)}
             if hasattr(structure, "lattice"):
                 kwargs["frac_coords"] = False
             structure.translate_sites(**kwargs)
