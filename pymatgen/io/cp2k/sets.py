@@ -200,8 +200,8 @@ class Cp2kInputSet(Cp2kInput):
                 dft_plus_u = Section(
                     "DFT_PLUS_U",
                     keywords={
-                        "U_MINUS_J": Keyword("U_MINUS_J", SETTINGS['dft_plus_u'][kind]["U_MINUS_J"], units="eV"),
-                        "L": Keyword("L", SETTINGS['dft_plus_u'][kind]["L"]),
+                        "U_MINUS_J": Keyword("U_MINUS_J", SETTINGS[kind]['dft_plus_u']["U_MINUS_J"], units="eV"),
+                        "L": Keyword("L", SETTINGS[kind]['dft_plus_u']["L"]),
                     },
                 )
                 _kind.insert(dft_plus_u)
