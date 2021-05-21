@@ -487,6 +487,34 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
         self.assertIsInstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
+    def test_pourbaix_heavy(self):
+
+        entries = self.rester.get_pourbaix_entries(["Li", "Mg", "Sn", "Pd"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = self.rester.get_pourbaix_entries(["Ba", "Ca", "V", "Cu", "F", "Fe"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+        entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
+        pbx = PourbaixDiagram(entries, nproc=4, filter_solids=False)
+
+    def test_pourbaix_mpr_pipeline(self):
+
+        data = self.rester.get_pourbaix_entries(["Zn"])
+        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
+        pbx.find_stable_entry(10, 0)
+
+        data = self.rester.get_pourbaix_entries(["Ag", "Te"])
+        pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        self.assertEqual(len(pbx.stable_entries), 29)
+        test_entry = pbx.find_stable_entry(8, 2)
+        self.assertEqual(sorted(test_entry.entry_id), ["ion-10", "mp-499"])
+
+        # Test against ion sets with multiple equivalent ions (Bi-V regression)
+        entries = self.rester.get_pourbaix_entries(["Bi", "V"])
+        pbx = PourbaixDiagram(entries, filter_solids=True, conc_dict={"Bi": 1e-8, "V": 1e-8})
+        self.assertTrue(all(["Bi" in entry.composition and "V" in entry.composition for entry in pbx.all_entries]))
+
 
 if __name__ == "__main__":
     unittest.main()
