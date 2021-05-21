@@ -807,7 +807,7 @@ Fe:
     preferred_basis: TZVP-MOLOPT-SR-GTH-q16
   dft_plus_u:
     L: 2
-    U_MINUS_J: 0
+    U_MINUS_J: 4.66
   potentials:
     gth_potentials:
     - GTH-BLYP-q16
