@@ -1,15 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.abinit.abiinspect module &mdash; pymatgen 2022.0.7 documentation</title>
+  <title>pymatgen.io.abinit.abiinspect module &mdash; pymatgen 2022.0.8 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +25,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.abinit.abiobjects module" href="pymatgen.io.abinit.abiobjects.html" />
@@ -61,7 +63,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.7
+                2022.0.8
               </div>
             
           
@@ -88,6 +90,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +138,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +177,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -209,20 +213,20 @@
 <p>This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).</p>
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter">
-<em class="property">class </em><code class="sig-name descname">CyclesPlotter</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L277-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.CyclesPlotter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CyclesPlotter</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L277-L323"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Relies on the plot method of cycle objects to build multiple subfigures.</p>
 <p>Initialize object.</p>
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle">
-<code class="sig-name descname">add_label_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">cycle</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L289-L292"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle">
+<span class="sig-name descname"><span class="pre">add_label_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L289-L292"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add new cycle to the plotter with label <cite>label</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">
-<code class="sig-name descname">combiplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../util/plotting.py#L294-L316"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">
+<span class="sig-name descname"><span class="pre">combiplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/plotting.py#L294-L316"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compare multiple cycels on a grid: one subplot per quantity,
 all cycles on the same subplot.</p>
 <dl class="field-list simple">
@@ -274,22 +278,22 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.items">
-<code class="sig-name descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L285-L287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.items" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.CyclesPlotter.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L285-L287"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.items" title="Permalink to this definition">¶</a></dt>
 <dd><p>To iterate over (label, cycle).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow">
-<code class="sig-name descname">slideshow</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L318-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow">
+<span class="sig-name descname"><span class="pre">slideshow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L318-L323"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Produce slides show of the different cycles. One plot per cycle.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle">
-<em class="property">class </em><code class="sig-name descname">D2DEScfCycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fields</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L262-L270"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.D2DEScfCycle">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">D2DEScfCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L262-L270"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
 <p>Result of the Phonon self-consistent cycle.</p>
 <dl class="field-list simple">
@@ -298,21 +302,21 @@ Default: False</p></td>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC">
-<code class="sig-name descname">MAGIC</code><em class="property"> = 'iter   2DEtotal(Ha)'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC">
+<span class="sig-name descname"><span class="pre">MAGIC</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'iter</span>&#160;&#160; <span class="pre">2DEtotal(Ha)'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.last_etotal">
-<em class="property">property </em><code class="sig-name descname">last_etotal</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle.last_etotal" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.last_etotal">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">last_etotal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle.last_etotal" title="Permalink to this definition">¶</a></dt>
 <dd><p>The 2-nd order derivative of the energy at the last iteration.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle">
-<em class="property">class </em><code class="sig-name descname">GroundStateScfCycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fields</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L251-L259"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">GroundStateScfCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L251-L259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
 <p>Result of the Ground State self-consistent cycle.</p>
 <dl class="field-list simple">
@@ -321,21 +325,21 @@ Default: False</p></td>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC">
-<code class="sig-name descname">MAGIC</code><em class="property"> = 'iter   Etot(hartree)'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC">
+<span class="sig-name descname"><span class="pre">MAGIC</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'iter</span>&#160;&#160; <span class="pre">Etot(hartree)'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.last_etotal">
-<em class="property">property </em><code class="sig-name descname">last_etotal</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle.last_etotal" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.last_etotal">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">last_etotal</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle.last_etotal" title="Permalink to this definition">¶</a></dt>
 <dd><p>The total energy at the last iteration.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.PhononScfCycle">
-<em class="property">class </em><code class="sig-name descname">PhononScfCycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fields</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L273-L274"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.PhononScfCycle" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.PhononScfCycle">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PhononScfCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L273-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.PhononScfCycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="pymatgen.io.abinit.abiinspect.D2DEScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.D2DEScfCycle</span></code></a></p>
 <p>Iterations of the DFPT SCF cycle for phonons.</p>
 <dl class="field-list simple">
@@ -346,8 +350,8 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation">
-<em class="property">class </em><code class="sig-name descname">Relaxation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cycles</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L326-L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycles</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L326-L489"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterable</span></code></p>
 <p>A list of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="pymatgen.io.abinit.abiinspect.GroundStateScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroundStateScfCycle</span></code></a> objects.</p>
 <div class="admonition note">
@@ -362,27 +366,27 @@ can be obtained by using the HIST.nc file.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L374-L378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.from_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation.from_file">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L374-L378"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the object from the Abinit main output file.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation.from_stream">
-<em class="property">classmethod </em><code class="sig-name descname">from_stream</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L380-L392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.from_stream" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation.from_stream">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L380-L392"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.from_stream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract data from stream. Returns None if some error occurred.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation.history">
-<code class="sig-name descname">history</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.history" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation.history">
+<span class="sig-name descname"><span class="pre">history</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.history" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ordered Dictionary of lists with the evolution of
 the data as function of the relaxation step.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../util/plotting.py#L432-L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/plotting.py#L432-L489"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -438,8 +442,8 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation.slideshow">
-<code class="sig-name descname">slideshow</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L415-L430"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.slideshow" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation.slideshow">
+<span class="sig-name descname"><span class="pre">slideshow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L415-L430"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.slideshow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses matplotlib to plot the evolution of the structural relaxation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -452,16 +456,16 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.Relaxation.to_string">
-<code class="sig-name descname">to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L363-L372"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.to_string" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.Relaxation.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L363-L372"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>String representation.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle">
-<em class="property">class </em><code class="sig-name descname">ScfCycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fields</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L123-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ScfCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L123-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code></p>
 <p>It essentially consists of a dictionary mapping string
 to list of floats containing the data at the different iterations.</p>
@@ -471,19 +475,19 @@ to list of floats containing the data at the different iterations.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.MAGIC">
-<code class="sig-name descname">MAGIC</code><em class="property"> = 'Must be defined by the subclass.'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle.MAGIC">
+<span class="sig-name descname"><span class="pre">MAGIC</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'Must</span> <span class="pre">be</span> <span class="pre">defined</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">subclass.'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.MAGIC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L168-L172"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.from_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle.from_file">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L168-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the first occurrence of ScfCycle from file.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.from_stream">
-<em class="property">classmethod </em><code class="sig-name descname">from_stream</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L174-L187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.from_stream" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle.from_stream">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L174-L187"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.from_stream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the first occurrence of ScfCycle from stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -492,15 +496,15 @@ to list of floats containing the data at the different iterations.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.last_iteration">
-<em class="property">property </em><code class="sig-name descname">last_iteration</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.last_iteration" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle.last_iteration">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">last_iteration</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.last_iteration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with the values of the last iteration.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../util/plotting.py#L189-L248"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/plotting.py#L189-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses matplotlib to plot the evolution of the SCF cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -556,16 +560,16 @@ Default: False</p></td>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.to_string">
-<code class="sig-name descname">to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L157-L161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.to_string" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.ScfCycle.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L157-L161"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>String representation.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.YamlDoc">
-<em class="property">class </em><code class="sig-name descname">YamlDoc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">lineno</span></em>, <em class="sig-param"><span class="n">tag</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L722-L775"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlDoc">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">YamlDoc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L722-L775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handy object that stores that YAML document, its main tag and the
 position inside the file.</p>
@@ -579,29 +583,29 @@ position inside the file.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L773-L775"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlDoc.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L773-L775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use Yaml to parse the text (without the tag) and returns a dictionary.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.lineno">
-<code class="sig-name descname">lineno</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.lineno" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlDoc.lineno">
+<span class="sig-name descname"><span class="pre">lineno</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.lineno" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.tag">
-<code class="sig-name descname">tag</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.tag" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlDoc.tag">
+<span class="sig-name descname"><span class="pre">tag</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.text">
-<code class="sig-name descname">text</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.text" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlDoc.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.text" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlDoc.text_notag">
-<em class="property">property </em><code class="sig-name descname">text_notag</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.text_notag" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlDoc.text_notag">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">text_notag</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/io/abinit/abiinspect.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc.text_notag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the YAML text without the tag.
 Useful if we don’t have any constructor registered for the tag
 (we used the tag just to locate the document).</p>
@@ -610,8 +614,8 @@ Useful if we don’t have any constructor registered for the tag
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer">
-<em class="property">class </em><code class="sig-name descname">YamlTokenizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L546-L700"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">YamlTokenizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L546-L700"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterator</span></code></p>
 <p>Provides context-manager support so you can use it in a with statement.</p>
 <dl class="field-list simple">
@@ -620,20 +624,20 @@ Useful if we don’t have any constructor registered for the tag
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.Error">
-<code class="sig-name descname">Error</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L542-L543"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="pymatgen.io.abinit.abiinspect.YamlTokenizerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">YamlTokenizerError</span></code></a></p>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.Error">
+<span class="sig-name descname"><span class="pre">Error</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L542-L543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="pymatgen.io.abinit.abiinspect.YamlTokenizerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.YamlTokenizerError</span></code></a></p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag">
-<code class="sig-name descname">all_docs_with_tag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">doc_tag</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L685-L700"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag">
+<span class="sig-name descname"><span class="pre">all_docs_with_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_tag</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L685-L700"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_docs_with_tag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all the documents with the specified tag.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.all_yaml_docs">
-<code class="sig-name descname">all_yaml_docs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L658-L670"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_yaml_docs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.all_yaml_docs">
+<span class="sig-name descname"><span class="pre">all_yaml_docs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L658-L670"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.all_yaml_docs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list with all the YAML docs found in stream.
 Seek the stream before returning.</p>
 <div class="admonition warning">
@@ -644,14 +648,14 @@ are closed explicitely with the sentinel ‘…’</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.close">
-<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L586-L593"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.close" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L586-L593"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the stream.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.next">
-<code class="sig-name descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L616-L656"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.next" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.next">
+<span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L616-L656"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.next" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the first YAML document in stream.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -660,14 +664,14 @@ are closed explicitely with the sentinel ‘…’</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.next_doc_with_tag">
-<code class="sig-name descname">next_doc_with_tag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">doc_tag</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L672-L683"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.next_doc_with_tag" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.next_doc_with_tag">
+<span class="sig-name descname"><span class="pre">next_doc_with_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_tag</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L672-L683"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.next_doc_with_tag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the next document with the specified tag. Empty string is no doc is found.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.seek">
-<code class="sig-name descname">seek</code><span class="sig-paren">(</span><em class="sig-param">offset</em><span class="optional">[</span>, <em class="sig-param">whence</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; None.  Move to new file position.<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L595-L610"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.seek" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizer.seek">
+<span class="sig-name descname"><span class="pre">seek</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">offset</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">whence</span></em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None.</span>&#160; <span class="pre">Move</span> <span class="pre">to</span> <span class="pre">new</span> <span class="pre">file</span> <span class="pre">position.</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L595-L610"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.seek" title="Permalink to this definition">¶</a></dt>
 <dd><p>Argument offset is a byte count.  Optional argument whence defaults to
 0 (offset from start of file, offset should be &gt;= 0); other values are 1
 (move relative to current position, positive or negative), and 2 (move
@@ -681,34 +685,34 @@ Note that not all file objects are seekable.</p>
 </dd></dl>
 
 <dl class="py exception">
-<dt id="pymatgen.io.abinit.abiinspect.YamlTokenizerError">
-<em class="property">exception </em><code class="sig-name descname">YamlTokenizerError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L542-L543"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.YamlTokenizerError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">YamlTokenizerError</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L542-L543"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exceptions raised by <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="pymatgen.io.abinit.abiinspect.YamlTokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">YamlTokenizer</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.io.abinit.abiinspect.plottable_from_outfile">
-<code class="sig-name descname">plottable_from_outfile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L87-L110"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.plottable_from_outfile" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.plottable_from_outfile">
+<span class="sig-name descname"><span class="pre">plottable_from_outfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L87-L110"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.plottable_from_outfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Factory function that returns a plottable object by inspecting the main output file of abinit
 Returns None if it is not able to detect the class to instantiate.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.io.abinit.abiinspect.straceback">
-<code class="sig-name descname">straceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L30-L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.straceback" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.straceback">
+<span class="sig-name descname"><span class="pre">straceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L30-L34"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.straceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string with the traceback.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.io.abinit.abiinspect.yaml_read_irred_perts">
-<code class="sig-name descname">yaml_read_irred_perts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">doc_tag</span><span class="o">=</span><span class="default_value">'!IrredPerts'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L712-L718"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.yaml_read_irred_perts" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.yaml_read_irred_perts">
+<span class="sig-name descname"><span class="pre">yaml_read_irred_perts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'!IrredPerts'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L712-L719"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.yaml_read_irred_perts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the list of irreducible perturbations from file.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.io.abinit.abiinspect.yaml_read_kpoints">
-<code class="sig-name descname">yaml_read_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">doc_tag</span><span class="o">=</span><span class="default_value">'!Kpoints'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/abinit/abiinspect.py#L703-L709"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.yaml_read_kpoints" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.abinit.abiinspect.yaml_read_kpoints">
+<span class="sig-name descname"><span class="pre">yaml_read_kpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'!Kpoints'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/abinit/abiinspect.py#L703-L709"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.yaml_read_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the K-points from file.</p>
 </dd></dl>
 
@@ -725,11 +729,19 @@ Returns None if it is not able to detect the class to instantiate.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -740,7 +752,6 @@ Returns None if it is not able to detect the class to instantiate.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

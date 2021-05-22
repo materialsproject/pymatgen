@@ -712,12 +712,31 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
             },
         )
 
+        # An entry that should receive multiple anion corrections if oxidation
+        # states are populated
+        entry_multi_anion = ComputedEntry(
+            "C8N4Cl4",
+            -87.69656726,
+            correction=0.0,
+            parameters={
+                "run_type": "GGA",
+                "is_hubbard": False,
+                "pseudo_potential": {"functional": "PBE", "labels": ["C", "N", "Cl"], "pot_type": "paw"},
+                "hubbards": {},
+                "potcar_symbols": ["PBE C", "PBE N", "PBE Cl"],
+                "oxide_type": "None",
+            },
+        )
+
         with pytest.warns(UserWarning, match="Failed to guess oxidation state"):
             e1 = self.compat.process_entry(entry_blank)
             self.assertAlmostEqual(e1.correction, -0.422)
 
         e2 = self.compat.process_entry(entry_oxi)
         self.assertAlmostEqual(e2.correction, -0.687 + -3.202 * 2 + -0.614 * 8)
+
+        e3 = self.compat.process_entry(entry_multi_anion)
+        self.assertAlmostEqual(e3.correction, -0.361 * 4 + -0.614 * 4)
 
     def test_correction_values(self):
         # test_corrections

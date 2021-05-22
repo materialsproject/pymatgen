@@ -229,13 +229,13 @@ class PourbaixEntry(MSONable, Stringify):
     @classmethod
     def from_dict(cls, d):
         """
-        Invokes
+        Invokes a PourbaixEntry from a dictionary
         """
         entry_type = d["entry_type"]
         if entry_type == "Ion":
             entry = IonEntry.from_dict(d["entry"])
         else:
-            entry = PDEntry.from_dict(d["entry"])
+            entry = MontyDecoder().process_decoded(d["entry"])
         entry_id = d["entry_id"]
         concentration = d["concentration"]
         return PourbaixEntry(entry, entry_id, concentration)
