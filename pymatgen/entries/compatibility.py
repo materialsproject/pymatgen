@@ -915,8 +915,9 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # check the POTCAR symbols
         # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
-        pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash)
-        pc.get_correction(entry)
+        if entry.parameters.get('software', 'vasp') == 'vasp':
+            pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash)
+            pc.get_correction(entry)
 
         # apply energy adjustments
         adjustments: List[CompositionEnergyAdjustment] = []
