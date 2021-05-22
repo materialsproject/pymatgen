@@ -247,23 +247,47 @@ def post_discourse(ctx, version):
 
 
 @task
-def update_changelog(ctx, version):
+def update_changelog(ctx, version, sim=False):
     """
     Create a preliminary change log using the git logs.
 
     :param ctx:
     """
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", "v%s..HEAD" % CURRENT_VER])
-    lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
+    lines = []
+    misc = []
+    for l in output.decode("utf-8").strip().split("\n"):
+        m = re.match(r"Merge pull request \#(\d+) from (.*)", l)
+        if m:
+            pr_number = m.group(1)
+            contrib, pr_name = m.group(2).split("/", 1)
+            response = requests.get(
+                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}"
+            )
+            lines.append(f"* PR #{pr_number} from @{contrib} {pr_name}")
+            for ll in response.json()["body"].split("\n"):
+                ll = ll.strip()
+                if ll in ["", "## Summary"]:
+                    continue
+                elif ll.startswith("## Checklist") or ll.startswith("## TODO"):
+                    break
+                lines.append(f"    {ll}")
+        misc.append(l)
     with open("CHANGES.rst") as f:
         contents = f.read()
     l = "=========="
     toks = contents.split(l)
     head = "\n\nv%s\n" % version + "-" * (len(version) + 1) + "\n"
     toks.insert(-1, head + "\n".join(lines))
-    with open("CHANGES.rst", "w") as f:
-        f.write(toks[0] + l + "".join(toks[1:]))
-    ctx.run("open CHANGES.rst")
+    if not sim:
+        with open("CHANGES.rst", "w") as f:
+            f.write(toks[0] + l + "".join(toks[1:]))
+        ctx.run("open CHANGES.rst")
+    else:
+        print(toks[0] + l + "".join(toks[1:]))
+    print("The following commit messages were not included...")
+    print("\n".join(misc))
+    
 
 
 @task
