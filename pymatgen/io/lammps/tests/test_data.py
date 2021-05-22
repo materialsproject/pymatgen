@@ -866,6 +866,7 @@ class CombinedDataTest(unittest.TestCase):
             os.path.join(test_dir, "fec.data"),
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
+        cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()
 
     def test_from_files(self):
         # general tests
@@ -1013,6 +1014,66 @@ class CombinedDataTest(unittest.TestCase):
             "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000",
         )
         self.assertEqual(ec_fec_lines[141], "1  10.5 -1  2")
+        self.assertEqual(len(ec_fec_lines), 99159)
+
+    def test_as_lammpsdata(self):
+        ec_fec = self.ec_fec_ld
+        self.assertEqual(ec_fec.masses.shape, (12, 1))
+        self.assertEqual(ec_fec.atoms.shape, (15000, 6))
+        self.assertListEqual(list(ec_fec.atoms.columns), ["molecule-ID", "type", "q", "x", "y", "z"])
+        topo = ec_fec.topology
+        self.assertEqual(topo["Bonds"].shape, (15000, 3))
+        self.assertEqual(topo["Angles"].shape, (25500, 4))
+        self.assertEqual(topo["Dihedrals"].shape, (42000, 5))
+        self.assertEqual(topo["Impropers"].shape, (1500, 5))
+        ff = ec_fec.force_field
+        self.assertEqual(ff["Pair Coeffs"].shape, (12, 2))
+        self.assertEqual(ff["Bond Coeffs"].shape, (15, 2))
+        self.assertEqual(ff["Angle Coeffs"].shape, (24, 2))
+        self.assertEqual(ff["Dihedral Coeffs"].shape, (39, 6))
+        self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
+        # header box
+        np.testing.assert_array_equal(
+            ec_fec.box.bounds,
+            [[-0.597365, 54.56835], [-0.597365, 54.56835], [-0.597365, 54.56835]],
+        )
+        # body
+        self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
+        self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)
+        self.assertEqual(ff["Bond Coeffs"].at[5, "coeff2"], 1.0900)
+        self.assertEqual(ff["Angle Coeffs"].at[24, "coeff2"], 108.46005)
+        self.assertTrue(np.isnan(ff["Dihedral Coeffs"].at[30, "coeff6"]))
+        self.assertEqual(ff["Improper Coeffs"].at[2, "coeff1"], 10.5)
+        self.assertEqual(ec_fec.atoms.at[29, "molecule-ID"], 3)
+        self.assertEqual(ec_fec.atoms.at[29, "type"], 5)
+        self.assertEqual(ec_fec.atoms.at[29, "q"], 0.0755)
+        self.assertAlmostEqual(ec_fec.atoms.at[29, "x"], 14.442260)
+        self.assertEqual(ec_fec.atoms.at[14958, "molecule-ID"], 1496)
+        self.assertEqual(ec_fec.atoms.at[14958, "type"], 11)
+        self.assertAlmostEqual(ec_fec.atoms.at[14958, "y"], 41.010962)
+        self.assertEqual(topo["Bonds"].at[47, "type"], 5)
+        self.assertEqual(topo["Bonds"].at[47, "atom2"], 47)
+        self.assertEqual(topo["Bonds"].at[953, "atom1"], 951)
+        self.assertEqual(topo["Angles"].at[105, "type"], 2)
+        self.assertEqual(topo["Angles"].at[105, "atom3"], 63)
+        self.assertEqual(topo["Angles"].at[14993, "atom2"], 8815)
+        self.assertEqual(topo["Dihedrals"].at[151, "type"], 4)
+        self.assertEqual(topo["Dihedrals"].at[151, "atom4"], 55)
+        self.assertEqual(topo["Dihedrals"].at[41991, "type"], 30)
+        self.assertEqual(topo["Dihedrals"].at[41991, "atom2"], 14994)
+        self.assertEqual(topo["Impropers"].at[4, "atom4"], 34)
+        ec_fec_lines = self.ec_fec_ld.get_string().splitlines()
+        # header information
+        self.assertEqual(ec_fec_lines[1], "")
+        # data type consistency tests
+        self.assertEqual(ec_fec_lines[97], "1  harmonic 3.200000000 -1 2")
+        self.assertEqual(ec_fec_lines[108], "12  charmm 2.700000000 2 180 0.0")
+        self.assertEqual(
+            ec_fec_lines[112],
+            "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000",
+        )
+        self.assertEqual(ec_fec_lines[140], "1  10.5 -1  2")
+        self.assertEqual(len(ec_fec_lines), 99159)
 
 
 if __name__ == "__main__":

@@ -344,7 +344,7 @@ class LammpsData(MSONable):
             site_properties=site_properties,
         )
 
-    def get_string(self, distance=6, velocity=8, charge=4):
+    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
         """
         Returns the string representation of LammpsData, essentially
         the string to be written to a file. Support hybrid style
@@ -358,6 +358,11 @@ class LammpsData(MSONable):
                 velocities. Default to 8.
             charge (int): No. of significant figures to output for
                 charges. Default to 3.
+            hybrid (bool): Whether to write hybrid coeffs types.
+                Default to True. If the data object has no hybrid
+                coeffs types and has large coeffs section, one may
+                use False to speedup the process. Otherwise the
+                default is recommended.
 
         Returns:
             String representation
@@ -441,12 +446,16 @@ class LammpsData(MSONable):
         parts = []
         for k, v in body_dict.items():
             index = k != "PairIJ Coeffs"
-            if k in [
-                "Bond Coeffs",
-                "Angle Coeffs",
-                "Dihedral Coeffs",
-                "Improper Coeffs",
-            ]:
+            if (
+                k
+                in [
+                    "Bond Coeffs",
+                    "Angle Coeffs",
+                    "Dihedral Coeffs",
+                    "Improper Coeffs",
+                ]
+                and hybrid
+            ):
                 listofdf = np.array_split(v, len(v.index))
                 df_string = ""
                 for i, df in enumerate(listofdf):
@@ -1443,6 +1452,21 @@ class CombinedData(LammpsData):
         info = "# " + " + ".join(str(a) + " " + b for a, b in zip(self.nums, self.names))
         lines.insert(1, info)
         return "\n".join(lines)
+
+    def as_lammpsdata(self):
+        """
+        Convert a CombinedData object to a LammpsData object.
+
+        """
+        items = dict()
+        items["box"] = self.box
+        items["masses"] = self.masses
+        items["atoms"] = self.atoms
+        items["atom_style"] = self.atom_style
+        items["velocities"] = self.velocities
+        items["force_field"] = self.force_field
+        items["topology"] = self.topology
+        return LammpsData(**items)
 
 
 @deprecated(

@@ -1,15 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.apps.battery.insertion_battery module &mdash; pymatgen 2022.0.7 documentation</title>
+  <title>pymatgen.apps.battery.insertion_battery module &mdash; pymatgen 2022.0.8 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +25,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.apps.battery.plotter module" href="pymatgen.apps.battery.plotter.html" />
@@ -61,7 +63,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.7
+                2022.0.8
               </div>
             
           
@@ -88,6 +90,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +138,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +177,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -209,26 +213,26 @@
 <p>This module is used for analysis of materials with potential application as
 intercalation batteries.</p>
 <dl class="py class">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode">
-<em class="property">class </em><code class="sig-name descname">InsertionElectrode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">voltage_pairs</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">working_ion_entry</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a></span></em>, <em class="sig-param"><span class="n">_framework_formula</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">_stable_entries</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_unstable_entries</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L31-L468"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">InsertionElectrode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage_pairs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_framework_formula</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_stable_entries</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_unstable_entries</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L30-L468"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractElectrode" title="pymatgen.apps.battery.battery_abc.AbstractElectrode"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractElectrode</span></code></a></p>
 <p>A set of topotactically related compounds, with different amounts of a
 single element, e.g. TiO2 and LiTiO2, that can be used to define an
 insertion battery electrode.</p>
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_legacy">
-<code class="sig-name descname">as_dict_legacy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L459-L468"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_legacy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_legacy">
+<span class="sig-name descname"><span class="pre">as_dict_legacy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L459-L468"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_legacy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns: MSONAble dict</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_summary">
-<code class="sig-name descname">as_dict_summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_summary" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_summary">
+<span class="sig-name descname"><span class="pre">as_dict_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../../../monty/monty/dev.py#L38-L51"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict_summary" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict_legacy">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict_legacy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L442-L457"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict_legacy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict_legacy">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_dict_legacy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L442-L457"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict_legacy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -240,8 +244,8 @@ insertion battery electrode.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_entries">
-<em class="property">classmethod </em><code class="sig-name descname">from_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entries</span></em>, <em class="sig-param"><span class="n">working_ion_entry</span></em>, <em class="sig-param"><span class="n">strip_structures</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L41-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_entries">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip_structures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L41-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new InsertionElectrode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -261,21 +265,21 @@ with ComputedEntry and the volume will be stored in ComputedEntry.data[‘volume
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry">
-<em class="property">property </em><code class="sig-name descname">fully_charged_entry</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fully_charged_entry</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>The most charged entry along the topotactic path.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_discharged_entry">
-<em class="property">property </em><code class="sig-name descname">fully_discharged_entry</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_discharged_entry" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_discharged_entry">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">fully_discharged_entry</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_discharged_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>The most discharged entry along the topotactic path.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries">
-<code class="sig-name descname">get_all_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">charge_to_discharge</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L144-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries">
+<span class="sig-name descname"><span class="pre">get_all_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge_to_discharge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L144-L164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_all_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all entries input for the electrode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -290,8 +294,8 @@ ordered by amount of the working ion.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability">
-<code class="sig-name descname">get_max_instability</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_voltage</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_voltage</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L180-L198"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability">
+<span class="sig-name descname"><span class="pre">get_max_instability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L180-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_instability" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum instability along a path for a specific voltage range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -308,8 +312,8 @@ path (a subset of the path can be chosen by the optional arguments)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2">
-<code class="sig-name descname">get_max_muO2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_voltage</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_voltage</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L220-L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2">
+<span class="sig-name descname"><span class="pre">get_max_muO2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L220-L239"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_max_muO2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum critical oxygen chemical potential along path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -327,8 +331,8 @@ arguments).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability">
-<code class="sig-name descname">get_min_instability</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_voltage</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_voltage</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L200-L218"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability">
+<span class="sig-name descname"><span class="pre">get_min_instability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L200-L218"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_instability" title="Permalink to this definition">¶</a></dt>
 <dd><p>The minimum instability along a path for a specific voltage range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -345,8 +349,8 @@ path (a subset of the path can be chosen by the optional arguments)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2">
-<code class="sig-name descname">get_min_muO2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_voltage</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_voltage</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L241-L261"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2">
+<span class="sig-name descname"><span class="pre">get_min_muO2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_voltage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L241-L261"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_min_muO2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimum critical oxygen chemical potential along path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -365,8 +369,8 @@ arguments).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries">
-<code class="sig-name descname">get_stable_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">charge_to_discharge</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L114-L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries">
+<span class="sig-name descname"><span class="pre">get_stable_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge_to_discharge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L114-L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_stable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the stable entries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -381,8 +385,8 @@ working ion.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes">
-<code class="sig-name descname">get_sub_electrodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adjacent_only</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">include_myself</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L263-L310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes">
+<span class="sig-name descname"><span class="pre">get_sub_electrodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_myself</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L263-L310"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_sub_electrodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>If this electrode contains multiple voltage steps, then it is possible
 to use only a subset of the voltage steps to define other electrodes.
 For example, an LiTiO2 electrode might contain three subelectrodes:
@@ -406,8 +410,8 @@ results.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_summary_dict">
-<code class="sig-name descname">get_summary_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">print_subelectrodes</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L312-L359"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_summary_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_summary_dict">
+<span class="sig-name descname"><span class="pre">get_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">print_subelectrodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L312-L359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_summary_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a summary dict.
 Populates the summary dict with the basic information from the parent method then populates more information.
 Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
@@ -424,8 +428,8 @@ subelectrodes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries">
-<code class="sig-name descname">get_unstable_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">charge_to_discharge</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L129-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries">
+<span class="sig-name descname"><span class="pre">get_unstable_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge_to_discharge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L129-L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.get_unstable_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the unstable entries for the electrode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,23 +446,23 @@ the working ion.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair">
-<em class="property">class </em><code class="sig-name descname">InsertionVoltagePair</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">voltage</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">mAh</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">mass_charge</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">mass_discharge</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">vol_charge</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">vol_discharge</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">frac_charge</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">frac_discharge</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">working_ion_entry</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a></span></em>, <em class="sig-param"><span class="n">_framework_formula</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">entry_charge</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a></span></em>, <em class="sig-param"><span class="n">entry_discharge</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry">pymatgen.entries.computed_entries.ComputedEntry</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L472-L605"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">InsertionVoltagePair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mAh</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_charge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_discharge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_charge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_discharge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_charge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_discharge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_framework_formula</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_charge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_discharge</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L471-L605"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.apps.battery.battery_abc.html#pymatgen.apps.battery.battery_abc.AbstractVoltagePair" title="pymatgen.apps.battery.battery_abc.AbstractVoltagePair"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.battery.battery_abc.AbstractVoltagePair</span></code></a></p>
 <p>Defines an Insertion Voltage Pair.</p>
 <dl class="py attribute">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_charge">
-<code class="sig-name descname">entry_charge</code><em class="property">: ComputedEntry</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_charge" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_charge">
+<span class="sig-name descname"><span class="pre">entry_charge</span></span><em class="property"><span class="pre">:</span> <a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_charge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_discharge">
-<code class="sig-name descname">entry_discharge</code><em class="property">: ComputedEntry</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_discharge" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_discharge">
+<span class="sig-name descname"><span class="pre">entry_discharge</span></span><em class="property"><span class="pre">:</span> <a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/apps/battery/insertion_battery.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.entry_discharge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.from_entries">
-<em class="property">classmethod </em><code class="sig-name descname">from_entries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">entry1</span></em>, <em class="sig-param"><span class="n">entry2</span></em>, <em class="sig-param"><span class="n">working_ion_entry</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../apps/battery/insertion_battery.py#L480-L592"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.from_entries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.from_entries">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">working_ion_entry</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../apps/battery/insertion_battery.py#L480-L592"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.from_entries" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -486,11 +490,19 @@ the element that carries charge across the battery, e.g. Li.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -501,7 +513,6 @@ the element that carries charge across the battery, e.g. Li.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

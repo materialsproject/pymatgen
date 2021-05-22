@@ -137,6 +137,25 @@ class Kpoint(MSONable):
             "@class": self.__class__.__name__,
         }
 
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Create from dict.
+
+        Args:
+            A dict with all data for a kpoint object.
+
+        Returns:
+            A Kpoint object
+        """
+
+        return cls(
+            coords=d["fcoords"],
+            lattice=Lattice.from_dict(d["lattice"]),
+            coords_are_cartesian=False,
+            label=d["label"],
+        )
+
 
 class BandStructure:
     """
