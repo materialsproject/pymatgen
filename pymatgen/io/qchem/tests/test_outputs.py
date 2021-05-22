@@ -145,6 +145,7 @@ single_job_out_names = {
     "new_qchem_files/DinfH.qout",
     "new_qchem_files/mpi_error.qout",
     "new_qchem_files/molecule_read_error.qout",
+    "new_qchem_files/basis_not_supported.qout",
     "new_qchem_files/Optimization_no_equal.qout",
     "new_qchem_files/2068.qout",
     "new_qchem_files/2620.qout",

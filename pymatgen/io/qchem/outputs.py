@@ -1304,6 +1304,15 @@ class QCOutput(MSONable):
         elif (
             read_pattern(
                 self.text,
+                {"key": r"Basis not supported for the above atom"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["basis_not_supported"]
+        elif (
+            read_pattern(
+                self.text,
                 {"key": r"gen_scfman_exception:  GDM:: Zero or negative preconditioner scaling factor"},
                 terminate_on_match=True,
             ).get("key")
