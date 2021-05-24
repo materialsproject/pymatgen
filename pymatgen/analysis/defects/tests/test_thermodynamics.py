@@ -102,7 +102,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
 
     def test_solve_for_fermi_energy(self):
         fermi_energy = self.pd.solve_for_fermi_energy(100.0, self.mu_elts, self.dos)
-        self.assertAlmostEqual(fermi_energy, 0.5738732534885003, 3)
+        self.assertAlmostEqual(fermi_energy, 0.8334775317578078, 3)
         fermi_energy = self.pd.solve_for_fermi_energy(1000.0, self.mu_elts, self.dos)
         self.assertAlmostEqual(fermi_energy, 0.74139553, 3)
 
