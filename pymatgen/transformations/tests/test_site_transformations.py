@@ -17,7 +17,7 @@ from pymatgen.transformations.site_transformations import (
     RemoveSitesTransformation,
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
-    RadialSiteDistortionTransformation
+    RadialSiteDistortionTransformation,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -39,11 +39,7 @@ class TranslateSitesTransformationTest(PymatgenTest):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -94,11 +90,7 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -127,11 +119,7 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -160,11 +148,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -196,19 +180,13 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
+            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation_complete(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))],
-            [0.5, 0.5],
-            PartialRemoveSitesTransformation.ALGO_COMPLETE,
+            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_COMPLETE,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
@@ -218,9 +196,7 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
     @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformation_enumerate(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))],
-            [0.5, 0.5],
-            PartialRemoveSitesTransformation.ALGO_ENUMERATE,
+            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_ENUMERATE,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
@@ -229,18 +205,14 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
 
     def test_apply_transformation_best_first(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))],
-            [0.5, 0.5],
-            PartialRemoveSitesTransformation.ALGO_BEST_FIRST,
+            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_BEST_FIRST,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
 
     def test_apply_transformation_fast(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))],
-            [0.5, 0.5],
-            PartialRemoveSitesTransformation.ALGO_FAST,
+            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_FAST,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
@@ -275,29 +247,44 @@ class AddSitePropertyTransformationTest(PymatgenTest):
 
 
 class RadialSiteDistortionTransformationTest(PymatgenTest):
-
     def setUp(self):
         self.molecule = Molecule(
-            species=['C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'],
+            species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[
                 [0, 0, 0],
-                [1, 0, 0], [0, 1, 0], [0, 0, 1],
-                [-1, 0, 0], [0, -1, 0], [0, 0, -1],
-                [3, 0, 0], [0, 3, 0], [0, 0, 3],
-                [-3, 0, 0], [0, -3, 0], [0, 0, -3],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1],
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+                [-3, 0, 0],
+                [0, -3, 0],
+                [0, 0, -3],
             ],
         )
         self.structure = Structure(
-            species=['C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'],
+            species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[
                 [0, 0, 0],
-                [1, 0, 0], [0, 1, 0], [0, 0, 1],
-                [-1, 0, 0], [0, -1, 0], [0, 0, -1],
-                [3, 0, 0], [0, 3, 0], [0, 0, 3],
-                [-3, 0, 0], [0, -3, 0], [0, 0, -3],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1],
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+                [-3, 0, 0],
+                [0, -3, 0],
+                [0, 0, -3],
             ],
             lattice=[[10, 0, 0], [0, 10, 0], [0, 0, 10]],
-            coords_are_cartesian=True
+            coords_are_cartesian=True,
         )
 
     def test(self):
@@ -314,7 +301,7 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
         t = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         s = t.apply_transformation(self.structure)
         for c1, c2 in zip(self.structure[1:7], s[1:7]):
-            self.assertTrue(c1.distance(c2) == 1.)
+            self.assertTrue(c1.distance(c2) == 1.0)
 
         self.assertTrue(np.array_equal(s[0].coords, [0, 0, 0]))
         self.assertTrue(np.array_equal(s[1].coords, [2, 0, 0]))
