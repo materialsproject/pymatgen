@@ -861,8 +861,8 @@ class DefectPredominanceDiagram(MSONable):
             chempots (dict): dictionary of chemical potentials for the various elements in
                 the defect phase diagram.
         """
-        ef_scf = self.dpd.solve_for_fermi_energy(temperature, chempots, self.dos)
-        fd = FermiDos(self.dos, bandgap=self.dpd.band_gap)
+        ef_scf = self.defect_phase_diagram.solve_for_fermi_energy(temperature, chempots, self.dos)
+        fd = FermiDos(self.dos, bandgap=self.defect_phase_diagram.band_gap)
 
         cb_integral = np.sum(
             fd.tdos[fd.idx_cbm:]
