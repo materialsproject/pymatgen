@@ -1338,7 +1338,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        is_periodic = True if isinstance(structure, (Structure, IStructure)) else False
+        is_periodic = isinstance(structure, (Structure, IStructure))
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
