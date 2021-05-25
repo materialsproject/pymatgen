@@ -2,26 +2,25 @@
 Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
 
 Forked and adjusted from :
-https://github.com/usnistgov/jarvis  
+https://github.com/usnistgov/jarvis
 
-References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  & 
+References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  &
             2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
 """
 
+import os
+from math import pi
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as constants
-from scipy.integrate import simps
-import matplotlib.pyplot as plt
-import os
-from pymatgen.io.vasp.outputs import Vasprun
-from math import pi
 from scipy.constants import physical_constants, speed_of_light
+from scipy.integrate import simps
 from scipy.interpolate import interp1d
 
+from pymatgen.io.vasp.outputs import Vasprun
 
-eV_to_recip_cm = 1.0 / (
-    physical_constants["Planck constant in eV s"][0] * speed_of_light * 1e2
-)
+eV_to_recip_cm = 1.0 / (physical_constants["Planck constant in eV s"][0] * speed_of_light * 1e2)
 
 
 def get_dir_indir_gap(run=""):
@@ -172,9 +171,7 @@ def slme(
         material_absorbance_data = material_absorbance_data * 100
 
     # Load the Air Mass 1.5 Global tilt solar spectrum
-    solar_spectrum_data_file = str(
-        os.path.join(os.path.dirname(__file__), "am1.5G.dat")
-    )
+    solar_spectrum_data_file = str(os.path.join(os.path.dirname(__file__), "am1.5G.dat"))
 
     solar_spectra_wavelength, solar_spectra_irradiance = np.loadtxt(
         solar_spectrum_data_file, usecols=[0, 1], unpack=True, skiprows=2
@@ -189,9 +186,7 @@ def slme(
     # photon#/s*m**2(nm) power is Watt, which is Joule / s
     # E = hc/wavelength
     # at each wavelength, Power * (wavelength(m)/(h(Js)*c(m/s))) = ph#/s
-    solar_spectra_photon_flux = solar_spectra_irradiance * (
-        solar_spectra_wavelength_meters / (h * c)
-    )
+    solar_spectra_photon_flux = solar_spectra_irradiance * (solar_spectra_wavelength_meters / (h * c))
 
     # Calculation of total solar power incoming
     power_in = simps(solar_spectra_irradiance, solar_spectra_wavelength)
@@ -199,22 +194,15 @@ def slme(
     # calculation of blackbody irradiance spectra
     # units of W/(m**3), different than solar_spectra_irradiance!!! (This
     # is intentional, it is for convenience)
-    blackbody_irradiance = (
-        2.0 * h * c ** 2 / (solar_spectra_wavelength_meters ** 5)
-    ) * (
-        1.0
-        / ((np.exp(h * c / (solar_spectra_wavelength_meters * k * temperature))) - 1.0)
+    blackbody_irradiance = (2.0 * h * c ** 2 / (solar_spectra_wavelength_meters ** 5)) * (
+        1.0 / ((np.exp(h * c / (solar_spectra_wavelength_meters * k * temperature))) - 1.0)
     )
 
     # now to convert the irradiance from Power/m**2(m) into photon#/s*m**2(m)
-    blackbody_photon_flux = blackbody_irradiance * (
-        solar_spectra_wavelength_meters / (h * c)
-    )
+    blackbody_photon_flux = blackbody_irradiance * (solar_spectra_wavelength_meters / (h * c))
 
     # units of nm
-    material_wavelength_for_absorbance_data = (
-        (c * h_e) / (material_energy_for_absorbance_data + 0.00000001)
-    ) * 10 ** 9
+    material_wavelength_for_absorbance_data = ((c * h_e) / (material_energy_for_absorbance_data + 0.00000001)) * 10 ** 9
 
     # absorbance interpolation onto each solar spectrum wavelength
 
@@ -234,17 +222,12 @@ def slme(
         # with VASPs broadening of the calculated absorption data
 
         if (
-            solar_spectra_wavelength[i]
-            < 1e9 * ((c * h_e) / material_direct_allowed_gap)
+            solar_spectra_wavelength[i] < 1e9 * ((c * h_e) / material_direct_allowed_gap)
             or cut_off_absorbance_below_direct_allowed_gap is False
         ):
-            material_interpolated_absorbance[i] = material_absorbance_data_function(
-                solar_spectra_wavelength[i]
-            )
+            material_interpolated_absorbance[i] = material_absorbance_data_function(solar_spectra_wavelength[i])
 
-    absorbed_by_wavelength = 1.0 - np.exp(
-        -2.0 * material_interpolated_absorbance * thickness
-    )
+    absorbed_by_wavelength = 1.0 - np.exp(-2.0 * material_interpolated_absorbance * thickness)
 
     #  Numerically integrating irradiance over wavelength array
     #  Note: elementary charge, not math e!  # units of A/m**2   W/(V*m**2)
@@ -259,9 +242,7 @@ def slme(
 
     J_0 = J_0_r / fr
 
-    J_sc = e * simps(
-        solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength
-    )
+    J_sc = e * simps(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
 
     def J(V):
         J = J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)

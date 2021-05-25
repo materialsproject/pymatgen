@@ -17,16 +17,15 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
-import subprocess
 import logging
-import pandas as pd
+import subprocess
 
+import pandas as pd
 from monty.dev import requires
-from monty.os.path import which
 from monty.json import MSONable
+from monty.os.path import which
 
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -43,24 +42,24 @@ class VampireCaller:
     Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
     temperature with classical Monte Carlo.
     """
+
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
     def __init__(
-            self,
-            ordered_structures=None,
-            energies=None,
-            mc_box_size=4.0,
-            equil_timesteps=2000,
-            mc_timesteps=4000,
-            save_inputs=False,
-            hm=None,
-            avg=True,
-            user_input_settings=None,
+        self,
+        ordered_structures=None,
+        energies=None,
+        mc_box_size=4.0,
+        equil_timesteps=2000,
+        mc_timesteps=4000,
+        save_inputs=False,
+        hm=None,
+        avg=True,
+        user_input_settings=None,
     ):
-
         """
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
@@ -109,9 +108,7 @@ class VampireCaller:
 
         # Get exchange parameters and set instance variables
         if not hm:
-            hmapper = HeisenbergMapper(
-                ordered_structures, energies, cutoff=3.0, tol=0.02
-            )
+            hmapper = HeisenbergMapper(ordered_structures, energies, cutoff=3.0, tol=0.02)
 
             hm = hmapper.get_heisenberg_model()
 
@@ -140,11 +137,9 @@ class VampireCaller:
         self._create_ucf()
 
         # Call Vampire
-        process = subprocess.Popen(
-            ["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        stdout, stderr = process.communicate()
-        stdout = stdout.decode()
+        with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            stdout, stderr = process.communicate()
+            stdout = stdout.decode()
 
         if stderr:
             vanhelsing = stderr.decode()
@@ -152,9 +147,7 @@ class VampireCaller:
                 logging.warning(vanhelsing)
 
         if process.returncode != 0:
-            raise RuntimeError(
-                "Vampire exited with return code {}.".format(process.returncode)
-            )
+            raise RuntimeError("Vampire exited with return code {}.".format(process.returncode))
 
         self._stdout = stdout
         self._stderr = stderr
@@ -231,8 +224,7 @@ class VampireCaller:
                 mat_file += ["material[%d]:material-element=%s" % (mat_id, atom)]
                 mat_file += [
                     "material[%d]:damping-constant=1.0" % (mat_id),
-                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24"
-                    % (mat_id),  # xx - do we need this?
+                    "material[%d]:uniaxial-anisotropy-constant=1.0e-24" % (mat_id),  # xx - do we need this?
                     "material[%d]:atomic-spin-moment=%.2f !muB" % (mat_id, m_magnitude),
                     "material[%d]:initial-spin-direction=0,0,%d" % (mat_id, spin),
                 ]
@@ -410,11 +402,7 @@ class VampireCaller:
 
         """
 
-        names = (
-            ["T", "m_total"]
-            + ["m_" + str(i) for i in range(1, nmats + 1)]
-            + ["X_x", "X_y", "X_z", "X_m", "nan"]
-        )
+        names = ["T", "m_total"] + ["m_" + str(i) for i in range(1, nmats + 1)] + ["X_x", "X_y", "X_z", "X_m", "nan"]
 
         # Parsing vampire MC output
         df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)

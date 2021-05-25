@@ -4,12 +4,18 @@
 
 
 import unittest
-from monty.os.path import which
 import warnings
+
+import requests
+
+from monty.os.path import which
 
 from pymatgen.ext.cod import COD
 
+website_is_up = requests.get("https://www.crystallography.net").status_code == 200
 
+
+@unittest.skipIf(not website_is_up, "www.crystallography.net is down.")
 class CODTest(unittest.TestCase):
     _multiprocess_shared_ = True
 
@@ -28,8 +34,7 @@ class CODTest(unittest.TestCase):
     def test_get_structure_by_formula(self):
         data = COD().get_structure_by_formula("Li2O")
         self.assertTrue(len(data) > 15)
-        self.assertEqual(data[0]["structure"].composition.reduced_formula,
-                         "Li2O")
+        self.assertEqual(data[0]["structure"].composition.reduced_formula, "Li2O")
 
     def test_get_structure_by_id(self):
         s = COD().get_structure_by_id(2002926)

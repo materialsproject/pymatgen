@@ -3,38 +3,39 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
+import unittest
 import warnings
 
-from pymatgen.apps.borg.hive import VaspToComputedEntryDrone, \
-    SimpleVaspToComputedEntryDrone, GaussianToComputedEntryDrone
+from pymatgen.apps.borg.hive import (
+    GaussianToComputedEntryDrone,
+    SimpleVaspToComputedEntryDrone,
+    VaspToComputedEntryDrone,
+)
 from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.util.testing import PymatgenTest
 
 
 class VaspToComputedEntryDroneTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                     "..", "..", 'test_files')
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(self.test_dir):
-            if path[0] == self.test_dir:
+        for path in os.walk(PymatgenTest.TEST_FILES_DIR):
+            if path[0] == PymatgenTest.TEST_FILES_DIR:
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            entry = self.drone.assimilate(self.test_dir)
+            entry = self.drone.assimilate(PymatgenTest.TEST_FILES_DIR)
             for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
                 self.assertIn(p, entry.parameters)
             self.assertAlmostEqual(entry.data["efermi"], -6.62148548)
             self.assertEqual(entry.composition.reduced_formula, "Xe")
             self.assertAlmostEqual(entry.energy, 0.5559329)
-            entry = self.structure_drone.assimilate(self.test_dir)
+            entry = self.structure_drone.assimilate(PymatgenTest.TEST_FILES_DIR)
             self.assertEqual(entry.composition.reduced_formula, "Xe")
             self.assertAlmostEqual(entry.energy, 0.5559329)
             self.assertIsInstance(entry, ComputedStructureEntry)
@@ -51,10 +52,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
 
 class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                     "..", "..", 'test_files')
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(True)
         warnings.simplefilter("ignore")
@@ -63,8 +61,8 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
-        for path in os.walk(self.test_dir):
-            if path[0] == self.test_dir:
+        for path in os.walk(PymatgenTest.TEST_FILES_DIR):
+            if path[0] == PymatgenTest.TEST_FILES_DIR:
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_to_from_dict(self):
@@ -74,10 +72,7 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
 
 
 class GaussianToComputedEntryDroneTest(unittest.TestCase):
-
     def setUp(self):
-        self.test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
-                                     "..", "..", 'test_files', "molecules")
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(True)
         warnings.simplefilter("ignore")
@@ -86,15 +81,20 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
-        for path in os.walk(self.test_dir):
-            if path[0] == self.test_dir:
+        for path in os.walk(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules")):
+            if path[0] == os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules"):
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_assimilate(self):
-        test_file = os.path.join(self.test_dir, "methane.log")
+        test_file = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "methane.log")
         entry = self.drone.assimilate(test_file)
-        for p in ["functional", "basis_set", "charge",
-                  "spin_multiplicity", "route_parameters"]:
+        for p in [
+            "functional",
+            "basis_set",
+            "charge",
+            "spin_multiplicity",
+            "route_parameters",
+        ]:
             self.assertIn(p, entry.parameters)
         for p in ["corrections"]:
             self.assertIn(p, entry.data)

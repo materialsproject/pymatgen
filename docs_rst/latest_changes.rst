@@ -1,15 +1,18 @@
 Change log
 ==========
 
-v2020.9.14
-----------
-* New Plotly backend for PhaseDiagram plotting (@mattmcdermott, #1936)
-* New reporting and logging of Materials Project database version in MPRester (@mkhorton, #1945)
-* Improvements and bug fixes with mcsqs integration (@rwoodsrobinson, #1942)
-* Improvements to PackmolRunner (@rkingsbury, #1947)
-* Improvements to ComputerEntry (@rkingsbury, #1948)
-* Improvements for MPScanSet (@rkingsbury, #1940)
-* Bug fix for Surface and Composition (@gpetretto, #1937)
-* Bug fix for EwaldSummation serialization (@lbluque, #1932)
-* Bug fix for SeeK k-path (@Ian496, #1930)
-* Fix for deprecation warning in MPRester (@rkingsbury, #1951)
+v2022.0.8
+---------
+* PR #2130 @rkingsbury ensures that energy corrections applied to each anion
+  have unique names (e.g., N vs. Cl vs. Br).
+* PR #2133 @rkingsbury adds support for custom vdW radii to `QCInput` and 
+  `QChemDictSet`. These radii are used in the construction of PCM cavities and
+  when calculating charges.  
+* PR #2123 from @gpetretto fixes bug in `get_conventional_standard_structure` 
+  method of the `SpacegroupAnalyzer` for triclinic crystals.
+* PR #2134 from @ab5424 supports zopen in parsing lammps logs
+* PR #2132 from @htz1992213 speeds up LammpsData.as_string for
+  non-hybrid data with large coeff sections and adds as_lammpsdata method to
+  CombinedData  
+* PR #2129 from @richardtran415 improves analysis of surface symmetry of slabs.
+* PR #2117 from @nwinner contains bug fixes for bader caller.    

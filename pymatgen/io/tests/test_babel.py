@@ -2,48 +2,32 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-"""
-Created on Apr 28, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong, Qi Wang"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 28, 2012"
-
-import unittest
-import os
 import copy
+import os
+import unittest
 import warnings
-from pymatgen.core.structure import Molecule
-from pymatgen.io.xyz import XYZ
-from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+
+import pytest
+
 from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
+from pymatgen.io.xyz import XYZ
+from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files")
-
-try:
-    from openbabel import openbabel as ob
-    from openbabel import pybel as pb
-except ImportError:
-    ob = None
+pytest.importorskip("openbabel", reason="OpenBabel not installed")
 
 
-@unittest.skipIf(not (ob), "OpenBabel not present. Skipping...")
 class BabelMolAdaptorTest(unittest.TestCase):
-
     def setUp(self):
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+        coords = [
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000],
+        ]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
         warnings.simplefilter("ignore")
 
@@ -59,15 +43,16 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEqual(adaptor.pymatgen_mol.formula, "H4 C1")
 
     def test_from_file(self):
-        adaptor = BabelMolAdaptor.from_file(
-            os.path.join(test_dir, "molecules/Ethane_e.pdb"), "pdb")
+        adaptor = BabelMolAdaptor.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules/Ethane_e.pdb"), "pdb")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H6 C2")
 
     def test_from_file_return_all_molecules(self):
         adaptors = BabelMolAdaptor.from_file(
-            os.path.join(test_dir, "multiple_frame_xyz.xyz"), "xyz",
-            return_all_molecules=True)
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "multiple_frame_xyz.xyz"),
+            "xyz",
+            return_all_molecules=True,
+        )
         self.assertEqual(len(adaptors), 302)
 
     def test_from_molecule_graph(self):
@@ -93,12 +78,16 @@ class BabelMolAdaptorTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_make3d(self):
+        from openbabel import pybel as pb
+
         mol_0d = pb.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol_0d)
         adaptor.make3d()
         self.assertEqual(mol_0d.GetDimension(), 3)
 
     def add_hydrogen(self):
+        from openbabel import pybel as pb
+
         mol_0d = pb.readstring("smi", "CCCC").OBMol
         self.assertEqual(len(pb.Molecule(mol_0d).atoms), 2)
         adaptor = BabelMolAdaptor(mol_0d)
@@ -134,6 +123,8 @@ class BabelMolAdaptorTest(unittest.TestCase):
             self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_confab_conformers(self):
+        from openbabel import pybel as pb
+
         mol = pb.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)
         adaptor.make3d()
@@ -141,8 +132,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEquals(adaptor.openbabel_mol.NumRotors(), 1)
         self.assertGreaterEqual(len(conformers), 1)
         if len(conformers) > 1:
-            self.assertNotAlmostEqual(
-                MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0)
+            self.assertNotAlmostEqual(MoleculeMatcher().get_rmsd(conformers[0], conformers[1]), 0)
 
 
 if __name__ == "__main__":

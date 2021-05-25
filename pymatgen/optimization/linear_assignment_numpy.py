@@ -69,10 +69,10 @@ class LinearAssignment:
             # is a safer choice. The fill value is not zero to avoid choosing the extra
             # rows in the initial column reduction step
             self.c = np.full((self.n, self.n), np.max(np.min(self.orig_c, axis=1)))
-            self.c[:self.nx] = self.orig_c
+            self.c[: self.nx] = self.orig_c
 
         # initialize solution vectors
-        self._x = np.zeros(self.n, dtype=np.int) - 1
+        self._x = np.zeros(self.n, dtype=np.int_) - 1
         self._y = self._x.copy()
 
         # if column reduction doesn't find a solution, augment with shortest
@@ -84,7 +84,7 @@ class LinearAssignment:
             while -1 in self._x:
                 self._augment()
 
-        self.solution = self._x[:self.nx]
+        self.solution = self._x[: self.nx]
         self._min_cost = None
 
     @property
@@ -196,7 +196,7 @@ class LinearAssignment:
 
         # compute distances
         self._d = self.c[istar] - self._v
-        _pred = np.zeros(self.n, dtype=np.int) + istar
+        _pred = np.zeros(self.n, dtype=np.int_) + istar
 
         # initialize sets
         # READY: set of nodes visited and in the path (whose price gets

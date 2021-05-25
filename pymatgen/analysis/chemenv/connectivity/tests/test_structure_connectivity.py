@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 
 
-__author__ = 'waroquiers'
+__author__ = "waroquiers"
 
-from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
-from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
+from pymatgen.analysis.chemenv.connectivity.connectivity_finder import (
+    ConnectivityFinder,
+)
+from pymatgen.analysis.chemenv.connectivity.structure_connectivity import (
+    StructureConnectivity,
+)
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    SimplestChemenvStrategy,
+)
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
+    LightStructureEnvironments,
+    StructureEnvironments,
+)
 from pymatgen.util.testing import PymatgenTest
 
 try:
@@ -19,16 +27,19 @@ import os
 
 
 class StructureConnectivityTest(PymatgenTest):
-
     def test_serialization(self):
-        BaTiO3_se_fpath = os.path.join(self.TEST_FILES_DIR,
-                                       'chemenv', 'structure_environments_files',
-                                       'se_mp-5020.json')
-        with open(BaTiO3_se_fpath, 'r') as f:
+        BaTiO3_se_fpath = os.path.join(
+            self.TEST_FILES_DIR,
+            "chemenv",
+            "structure_environments_files",
+            "se_mp-5020.json",
+        )
+        with open(BaTiO3_se_fpath, "r") as f:
             dd = json.load(f)
         se = StructureEnvironments.from_dict(dd)
-        lse = LightStructureEnvironments.from_structure_environments(strategy=SimplestChemenvStrategy(),
-                                                                     structure_environments=se)
+        lse = LightStructureEnvironments.from_structure_environments(
+            strategy=SimplestChemenvStrategy(), structure_environments=se
+        )
         cf = ConnectivityFinder()
         sc = cf.get_structure_connectivity(light_structure_environments=lse)
         sc_from_dict = StructureConnectivity.from_dict(sc.as_dict())

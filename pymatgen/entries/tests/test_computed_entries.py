@@ -3,30 +3,30 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
-import pytest
-import os
 import json
-
+import os
+import copy
+import unittest
 from collections import defaultdict
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.entries.computed_entries import (
-    ComputedEntry,
-    ComputedStructureEntry,
-    GibbsComputedStructureEntry,
-    EnergyAdjustment,
-    ConstantEnergyAdjustment,
-    CompositionEnergyAdjustment,
-    TemperatureEnergyAdjustment,
-    ManualEnergyAdjustment,
-)
-from pymatgen.analysis.phase_diagram import PhaseDiagram
 
+import pytest
 from monty.json import MontyDecoder
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.entries.computed_entries import (
+    CompositionEnergyAdjustment,
+    ComputedEntry,
+    ComputedStructureEntry,
+    ConstantEnergyAdjustment,
+    EnergyAdjustment,
+    GibbsComputedStructureEntry,
+    ManualEnergyAdjustment,
+    TemperatureEnergyAdjustment,
+)
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.testing import PymatgenTest
 
-filepath = os.path.join(test_dir, "vasprun.xml")
+filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml")
 vasprun = Vasprun(filepath)
 
 
@@ -34,7 +34,6 @@ def test_energyadjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert ea.cls == {}
-    assert ea.description == ""
     ead = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())
@@ -44,36 +43,42 @@ def test_manual_energy_adjustment():
     ea = ManualEnergyAdjustment(10)
     assert ea.name == "Manual energy adjustment"
     assert ea.value == 10
-    assert ea.description == "Manual energy adjustment (10.000 eV)"
+    assert ea.explain == "Manual energy adjustment (10.000 eV)"
+    ead = ea.as_dict()
+    ea2 = ManualEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 def test_constant_energy_adjustment():
     ea = ConstantEnergyAdjustment(8)
     assert ea.name == "Constant energy adjustment"
     assert ea.value == 8
-    assert ea.description == "Constant energy adjustment (8.000 eV)"
+    assert ea.explain == "Constant energy adjustment (8.000 eV)"
+    ead = ea.as_dict()
+    ea2 = ConstantEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 def test_composition_energy_adjustment():
     ea = CompositionEnergyAdjustment(2, 2, uncertainty_per_atom=0, name="H")
     assert ea.name == "H"
     assert ea.value == 4
-    assert (
-        ea.description
-        == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
-    )
+    assert ea.explain == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
+    ead = ea.as_dict()
+    ea2 = CompositionEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 def test_temp_energy_adjustment():
-    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_degK=0, name="entropy")
+    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
     assert ea.temp == 298
-    assert (
-        ea.description
-        == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
-    )
+    assert ea.explain == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    ead = ea.as_dict()
+    ea2 = TemperatureEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 class ComputedEntryTest(unittest.TestCase):
@@ -105,49 +110,49 @@ class ComputedEntryTest(unittest.TestCase):
 
     def test_per_atom_props(self):
         entry = ComputedEntry("Fe6O9", 6.9)
-        entry.energy_adjustments.append(
-            CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O")
-        )
+        entry.energy_adjustments.append(CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O"))
         self.assertAlmostEqual(entry.energy, 2.4)
         self.assertAlmostEqual(entry.energy_per_atom, 2.4 / 15)
         self.assertAlmostEqual(entry.uncorrected_energy, 6.9)
         self.assertAlmostEqual(entry.uncorrected_energy_per_atom, 6.9 / 15)
         self.assertAlmostEqual(entry.correction, -4.5)
-        self.assertAlmostEqual(entry.correction_per_atom, -4.5/15)
+        self.assertAlmostEqual(entry.correction_per_atom, -4.5 / 15)
         self.assertAlmostEqual(entry.correction_uncertainty, 0.9)
-        self.assertAlmostEqual(entry.correction_uncertainty_per_atom, 0.9/15)
+        self.assertAlmostEqual(entry.correction_uncertainty_per_atom, 0.9 / 15)
 
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
-        entry.normalize()
-        self.assertEqual(entry.composition.formula, "Fe2 O3")
-        self.assertAlmostEqual(entry.uncorrected_energy, 6.9 / 3)
-        self.assertAlmostEqual(entry.correction, 1 / 3)
-        self.assertAlmostEqual(entry.energy * 3, 6.9 + 1)
-        self.assertAlmostEqual(entry.energy_adjustments[0].value, 1 / 3)
-        entry.normalize("atom")
-        self.assertEqual(entry.composition.formula, "Fe0.4 O0.6")
-        self.assertAlmostEqual(entry.uncorrected_energy, 6.9 / 15)
-        self.assertAlmostEqual(entry.correction, 1 / 15)
-        self.assertAlmostEqual(entry.energy * 15, 6.9 + 1)
-        self.assertAlmostEqual(entry.energy_adjustments[0].value, 1 / 15)
+        entry_formula = entry.normalize()
+        self.assertEqual(entry_formula.composition.formula, "Fe2 O3")
+        self.assertAlmostEqual(entry_formula.uncorrected_energy, 6.9 / 3)
+        self.assertAlmostEqual(entry_formula.correction, 1 / 3)
+        self.assertAlmostEqual(entry_formula.energy * 3, 6.9 + 1)
+        self.assertAlmostEqual(entry_formula.energy_adjustments[0].value, 1 / 3)
+        entry_atom = entry.normalize("atom")
+        self.assertEqual(entry_atom.composition.formula, "Fe0.4 O0.6")
+        self.assertAlmostEqual(entry_atom.uncorrected_energy, 6.9 / 15)
+        self.assertAlmostEqual(entry_atom.correction, 1 / 15)
+        self.assertAlmostEqual(entry_atom.energy * 15, 6.9 + 1)
+        self.assertAlmostEqual(entry_atom.energy_adjustments[0].value, 1 / 15)
 
     def test_normalize_energy_adjustments(self):
-        ealist = [ManualEnergyAdjustment(5),
-                  ConstantEnergyAdjustment(5),
-                  CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
-                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_degK=0)
-                  ]
+        ealist = [
+            ManualEnergyAdjustment(5),
+            ConstantEnergyAdjustment(5),
+            CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
+            TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0),
+        ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
         assert entry.correction == 20
-        entry.normalize()
-        assert entry.correction == 4
-        for ea in entry.energy_adjustments:
+        normed_entry = entry.normalize()
+        assert normed_entry.correction == 4
+        for ea in normed_entry.energy_adjustments:
             assert ea.value == 1
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
+        self.assertEqual(self.entry, e)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
     def test_to_from_dict_with_adjustment(self):
@@ -157,9 +162,7 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry6.as_dict()
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertEqual(
-            e.energy_adjustments[0].value, self.entry6.energy_adjustments[0].value
-        )
+        self.assertEqual(e.energy_adjustments[0].value, self.entry6.energy_adjustments[0].value)
 
     def test_to_from_dict_with_adjustment_2(self):
         """
@@ -168,9 +171,7 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry7.as_dict()
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
-        self.assertEqual(
-            e.energy_adjustments[0].value, self.entry7.energy_adjustments[0].value
-        )
+        self.assertEqual(e.energy_adjustments[0].value, self.entry7.energy_adjustments[0].value)
 
     def test_to_from_dict_with_adjustment_3(self):
         """
@@ -223,9 +224,7 @@ class ComputedEntryTest(unittest.TestCase):
 
 class ComputedStructureEntryTest(unittest.TestCase):
     def setUp(self):
-        self.entry = ComputedStructureEntry(
-            vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar
-        )
+        self.entry = ComputedStructureEntry(vasprun.final_structure, vasprun.final_energy, parameters=vasprun.incar)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)
@@ -238,6 +237,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedStructureEntry.from_dict(d)
+        self.assertEqual(self.entry, e)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
     def test_str(self):
@@ -392,19 +392,22 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasprun.final_structure
         self.num_atoms = self.struct.composition.num_atoms
-        self.temp_entries = {
+        self.entries_with_temps = {
             temp: GibbsComputedStructureEntry(
                 self.struct,
-                -2.436 * self.num_atoms,
+                -2.436,
                 temp=temp,
+                gibbs_model="SISSO",
                 parameters=vasprun.incar,
                 entry_id="test",
             )
             for temp in self.temps
         }
 
-        with open(os.path.join(test_dir, "Mn-O_entries.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "Mn-O_entries.json"), "r") as f:
             data = json.load(f)
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "structure_CO2.json"), "r") as f:
+            self.co2_struct = MontyDecoder().process_decoded(json.load(f))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
@@ -418,32 +421,42 @@ class GibbsComputedStructureEntryTest(unittest.TestCase):
             1800: -32.32513382051749,
         }
         for t in self.temps:
-            self.assertAlmostEqual(self.temp_entries[t].energy, energies[t])
+            self.assertAlmostEqual(self.entries_with_temps[t].energy, energies[t])
 
     def test_interpolation(self):
         temp = 450
-        e = GibbsComputedStructureEntry(self.struct, -2.436 * self.num_atoms, temp=temp)
+        e = GibbsComputedStructureEntry(self.struct, -2.436, temp=temp)
         self.assertAlmostEqual(e.energy, -53.7243542548528)
+
+    def test_expt_gas_entry(self):
+        co2_entry = GibbsComputedStructureEntry(self.co2_struct, 0, temp=900)
+        self.assertAlmostEqual(co2_entry.energy, -16.406560223724014)
+        self.assertAlmostEqual(co2_entry.energy_per_atom, -1.3672133519770011)
 
     def test_from_entries(self):
         gibbs_entries = GibbsComputedStructureEntry.from_entries(self.mp_entries)
-
         self.assertIsNotNone(gibbs_entries)
 
     def test_from_pd(self):
         pd = PhaseDiagram(self.mp_entries)
         gibbs_entries = GibbsComputedStructureEntry.from_pd(pd)
-
         self.assertIsNotNone(gibbs_entries)
 
     def test_to_from_dict(self):
-        test_entry = self.temp_entries[300]
+        test_entry = self.entries_with_temps[300]
         d = test_entry.as_dict()
         e = GibbsComputedStructureEntry.from_dict(d)
+        self.assertEqual(test_entry, e)
         self.assertAlmostEqual(e.energy, test_entry.energy)
 
     def test_str(self):
-        self.assertIsNotNone(str(self.temp_entries[300]))
+        self.assertIsNotNone(str(self.entries_with_temps[300]))
+
+    def test_normalize(self):
+        for e in self.entries_with_temps.values():
+            entry = copy.deepcopy(e)
+            normed_entry = entry.normalize(mode="atom")
+            self.assertAlmostEqual(entry.uncorrected_energy, normed_entry.uncorrected_energy * self.num_atoms, 11)
 
 
 if __name__ == "__main__":

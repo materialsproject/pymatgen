@@ -6,12 +6,13 @@ https://www.nature.com/articles/s41524-020-0319-4
 """
 
 import numpy as np
-from pymatgen.io.vasp.outputs import Wavecar 
+
+from pymatgen.io.vasp.outputs import Wavecar
 
 # from jarvis.io.vasp.outputs import Wavecar
 
 
-class SOCSpillage(object):
+class SOCSpillage:
     """
     Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
     The spillage criteria physically signifies number of band-inverted electrons.
@@ -20,7 +21,7 @@ class SOCSpillage(object):
 
     def __init__(self, wf_noso="", wf_so=""):
         """
-        Requires path to WAVECAR files with and without LSORBIT = .TRUE. 
+        Requires path to WAVECAR files with and without LSORBIT = .TRUE.
         Args:
             wf_noso : WAVECAR without spin-orbit coupling
             wf_so : WAVECAR with spin-orbit coupling
@@ -29,16 +30,15 @@ class SOCSpillage(object):
         self.wf_noso = wf_noso
         self.wf_so = wf_so
 
-    def isclose(self, n1, n2, rel_tol=1e-7):
+    @staticmethod
+    def isclose(n1, n2, rel_tol=1e-7):
         """
         Checking if the numbers are close enoung
         """
-        if abs(n1 - n2) < rel_tol:
-            return True
-        else:
-            return False
+        return abs(n1 - n2) < rel_tol
 
-    def orth(self, A):
+    @staticmethod
+    def orth(A):
         """
         Helper function to create orthonormal basis
         """
@@ -79,9 +79,7 @@ class SOCSpillage(object):
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
                 if (
-                    self.isclose(kso[0], knoso[0])
-                    and self.isclose(kso[1], knoso[1])
-                    and self.isclose(kso[2], knoso[2])
+                    self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
                 ):  # do kpoints match?
                     for c, e in enumerate(noso_occs[0, nk1 - 1, :]):
                         if e < 0.5:
@@ -139,9 +137,7 @@ class SOCSpillage(object):
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
                 if (
-                    self.isclose(kso[0], knoso[0])
-                    and self.isclose(kso[1], knoso[1])
-                    and self.isclose(kso[2], knoso[2])
+                    self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
                 ):  # do kpoints match?
 
                     # changes section 2
@@ -159,9 +155,7 @@ class SOCSpillage(object):
                         noso.coeffs[1][nk1 - 1][0]
                     )  # noso.readBandCoeff(ispin=2, ikpt=nk1, iband=1, norm=False)
                     # n_noso2 = vnoso.shape[0]
-                    vso = so.coeffs[nk1 - 1][
-                        0
-                    ].flatten()  # so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)
+                    vso = so.coeffs[nk1 - 1][0].flatten()  # so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)
                     n_so = vso.shape[0]
 
                     vs = min(n_noso1 * 2, n_so)
@@ -173,19 +167,15 @@ class SOCSpillage(object):
                         # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
                         # prepare matricies
                         for n1 in range(1, nelec_up + 1):
-                            Vnoso[0:vs // 2, n1 - 1] = np.array(
-                                noso.coeffs[0][nk1 - 1][n1 - 1]
-                            )[0:vs // 2]
+                            Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]
                         for n1 in range(1, nelec_dn + 1):
-                            Vnoso[vs // 2:vs, n1 - 1 + nelec_up] = np.array(
-                                noso.coeffs[1][nk1 - 1][n1 - 1]
-                            )[0:vs // 2]
+                            Vnoso[vs // 2 : vs, n1 - 1 + nelec_up] = np.array(noso.coeffs[1][nk1 - 1][n1 - 1])[
+                                0 : vs // 2
+                            ]
                         for n1 in range(1, nelec_tot + 1):
                             t = so.coeffs[nk2 - 1][n1 - 1].flatten()
-                            Vso[0:vs // 2, n1 - 1] = t[0:vs // 2]
-                            Vso[vs // 2:vs, n1 - 1] = t[
-                                n_so // 2:n_so // 2 + vs // 2
-                            ]
+                            Vso[0 : vs // 2, n1 - 1] = t[0 : vs // 2]
+                            Vso[vs // 2 : vs, n1 - 1] = t[n_so // 2 : n_so // 2 + vs // 2]
                         Qnoso, num_noso = self.orth(Vnoso)  # make orthonormal basis?
 
                         Qso, num_so = self.orth(Vso)

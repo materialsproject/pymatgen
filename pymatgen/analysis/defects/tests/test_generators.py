@@ -5,10 +5,14 @@
 
 import unittest
 
+from pymatgen.analysis.defects.generators import (
+    InterstitialGenerator,
+    SimpleChargeGenerator,
+    SubstitutionGenerator,
+    VacancyGenerator,
+    VoronoiInterstitialGenerator,
+)
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.defects.generators import VacancyGenerator, \
-    SubstitutionGenerator, InterstitialGenerator, VoronoiInterstitialGenerator, \
-    SimpleChargeGenerator
 
 
 class VacancyGeneratorTest(PymatgenTest):
@@ -41,21 +45,20 @@ class SubstitutionGeneratorTest(PymatgenTest):
         sub_gen = SubstitutionGenerator(struc, "V")
         sub = list(sub_gen)
         self.assertEqual(len(sub), 1)
-        self.assertEqual(sub[0].site.specie.symbol, 'V')
+        self.assertEqual(sub[0].site.specie.symbol, "V")
         self.assertEqual(sub[0].multiplicity, 4)
         #   test vacant site symbol
-        defindex = sorted(
-            struc.get_sites_in_sphere(sub[0].site.coords, 2,
-                                      include_index=True),
-            key=lambda x: x[1])[0][2]
-        self.assertEqual(struc[defindex].specie.symbol, 'O')
+        defindex = sorted(struc.get_sites_in_sphere(sub[0].site.coords, 2, include_index=True), key=lambda x: x[1],)[
+            0
+        ][2]
+        self.assertEqual(struc[defindex].specie.symbol, "O")
 
         # test substitutional
         sub_gen = SubstitutionGenerator(struc, "S")
         subs = list(sub_gen)
         self.assertEqual(len(subs), 2)
         name_sets = set([s.name for s in subs])
-        true_name_sets = set(['Sub_S_on_O_mult4', 'Sub_S_on_V_mult2'])
+        true_name_sets = set(["Sub_S_on_O_mult4", "Sub_S_on_V_mult2"])
         self.assertEqual(true_name_sets, name_sets)
 
 
@@ -74,7 +77,15 @@ class InterstitialGeneratorTest(PymatgenTest):
         self.assertEqual(str(ints[1].site.specie), "Li")
 
         self.assertArrayAlmostEqual(ints[0].site.coords, (0.9106, 0.3078, 0.3078), decimal=4)
-        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 1.7444, 0.3078,), decimal=4)
+        self.assertArrayAlmostEqual(
+            ints[1].site.coords,
+            (
+                1.5177,
+                1.7444,
+                0.3078,
+            ),
+            decimal=4,
+        )
 
 
 class VoronoiInterstitialGeneratorTest(PymatgenTest):
@@ -100,7 +111,6 @@ class VoronoiInterstitialGeneratorTest(PymatgenTest):
 
 
 class SimpleChargeGeneratorTest(PymatgenTest):
-
     def test_charge_gen(self):
         struc = PymatgenTest.get_structure("VO2")
 
@@ -108,7 +118,7 @@ class SimpleChargeGeneratorTest(PymatgenTest):
         vac_gen = VacancyGenerator(struc)
         vacs = list(vac_gen)
         full_subs = []
-        for sub_elt in ['V', 'O', 'S']:
+        for sub_elt in ["V", "O", "S"]:
             sub_gen = SubstitutionGenerator(struc, sub_elt)
             full_subs.extend(list(sub_gen))
         int_gen = VoronoiInterstitialGenerator(struc, "H")
@@ -116,11 +126,18 @@ class SimpleChargeGeneratorTest(PymatgenTest):
         defect_list = list(set().union(vacs, full_subs, inters))
 
         # test simple charges
-        true_charges = {'Vac_O_mult4': 2, 'Int_H_Voronoi1_mult8': 0,
-                        'Int_H_Voronoi2_mult8': 0, 'Vac_V_mult2': -4,
-                        'Sub_S_on_V_mult2': 0, 'Int_H_Voronoi3_mult4': 0,
-                        'Int_H_Voronoi4_mult4': 0, 'Sub_O_on_V_mult2': -2,
-                        'Sub_S_on_O_mult4': 0, 'Sub_V_on_O_mult4': 1}
+        true_charges = {
+            "Vac_O_mult4": 2,
+            "Int_H_Voronoi1_mult8": 0,
+            "Int_H_Voronoi2_mult8": 0,
+            "Vac_V_mult2": -4,
+            "Sub_S_on_V_mult2": 0,
+            "Int_H_Voronoi3_mult4": 0,
+            "Int_H_Voronoi4_mult4": 0,
+            "Sub_O_on_V_mult2": -2,
+            "Sub_S_on_O_mult4": 0,
+            "Sub_V_on_O_mult4": 1,
+        }
         for defect in defect_list:
             scg = SimpleChargeGenerator(defect)
             charged_defects_list = list(scg)

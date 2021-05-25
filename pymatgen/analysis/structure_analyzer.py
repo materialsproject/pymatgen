@@ -11,16 +11,17 @@ __copyright__ = "Copyright 2011, The Materials Project"
 
 import collections
 import itertools
-from math import pi, acos
+from math import acos, pi
 from warnings import warn
 
 import numpy as np
-from scipy.spatial import Voronoi
 from monty.dev import deprecated
+from scipy.spatial import Voronoi
 
-from pymatgen import Element, Specie, Composition
-from pymatgen import PeriodicSite
-from pymatgen.analysis.local_env import VoronoiNN, JmolNN
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element, Species
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import abs_cap
@@ -113,8 +114,7 @@ class VoronoiAnalyzer:
                     pass
         return vor_index
 
-    def analyze_structures(self, structures, step_freq=10,
-                           most_frequent_polyhedra=15):
+    def analyze_structures(self, structures, step_freq=10, most_frequent_polyhedra=15):
         """
         Perform Voronoi analysis on a list of Structures.
         Note that this might take a significant amount of time depending on the
@@ -147,9 +147,7 @@ class VoronoiAnalyzer:
                     voro_dict[voro] += 1
                 else:
                     voro_dict[voro] = 1
-        return sorted(voro_dict.items(),
-                      key=lambda x: (x[1], x[0]),
-                      reverse=True)[:most_frequent_polyhedra]
+        return sorted(voro_dict.items(), key=lambda x: (x[1], x[0]), reverse=True)[:most_frequent_polyhedra]
 
     @staticmethod
     def plot_vor_analysis(voronoi_ensemble):
@@ -164,13 +162,14 @@ class VoronoiAnalyzer:
         val = list(t[1])
         tot = np.sum(val)
         val = [float(j) / tot for j in val]
-        pos = np.arange(len(val)) + .5  # the bar centers on the y axis
+        pos = np.arange(len(val)) + 0.5  # the bar centers on the y axis
         import matplotlib.pyplot as plt
+
         plt.figure()
-        plt.barh(pos, val, align='center', alpha=0.5)
+        plt.barh(pos, val, align="center", alpha=0.5)
         plt.yticks(pos, labels)
-        plt.xlabel('Count')
-        plt.title('Voronoi Spectra')
+        plt.xlabel("Count")
+        plt.title("Voronoi Spectra")
         plt.grid(True)
         return plt
 
@@ -193,8 +192,7 @@ class RelaxationAnalyzer:
                 calculation.
         """
         if final_structure.formula != initial_structure.formula:
-            raise ValueError("Initial and final structures have different " +
-                             "formulas!")
+            raise ValueError("Initial and final structures have different " + "formulas!")
         self.initial = initial_structure
         self.final = final_structure
 
@@ -220,8 +218,7 @@ class RelaxationAnalyzer:
         """
         initial_latt = self.initial.lattice
         final_latt = self.final.lattice
-        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1
-             for l in ["a", "b", "c"]}
+        d = {l: getattr(final_latt, l) / getattr(initial_latt, l) - 1 for l in ["a", "b", "c"]}
         return d
 
     def get_percentage_bond_dist_changes(self, max_radius=3.0):
@@ -256,6 +253,7 @@ class VoronoiConnectivity:
     Computes the solid angles swept out by the shared face of the voronoi
     polyhedron between two sites.
     """
+
     def __init__(self, structure, cutoff=10):
         """
         Args:
@@ -266,7 +264,7 @@ class VoronoiConnectivity:
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
         i = np.ceil(cutoff * recp_len / (2 * pi))
-        offsets = np.mgrid[-i[0]:i[0] + 1, -i[1]:i[1] + 1, -i[2]:i[2] + 1].T
+        offsets = np.mgrid[-i[0] : i[0] + 1, -i[1] : i[1] + 1, -i[2] : i[2] + 1].T
         self.offsets = np.reshape(offsets, (-1, 3))
         # shape = [image, axis]
         self.cart_offsets = self.s.lattice.get_cartesian_coords(self.offsets)
@@ -313,9 +311,7 @@ class VoronoiConnectivity:
                 connectivity[atomj, atomi, imagei] = val
 
             if -10.101 in vts[v]:
-                warn('Found connectivity with infinite vertex. '
-                     'Cutoff is too low, and results may be '
-                     'incorrect')
+                warn("Found connectivity with infinite vertex. " "Cutoff is too low, and results may be " "incorrect")
         return connectivity
 
     @property
@@ -376,8 +372,7 @@ def solid_angle(center, coords):
     n.append(np.cross(r[1], r[0]))
     vals = []
     for i in range(len(n) - 1):
-        v = -np.dot(n[i], n[i + 1]) \
-            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
+        v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
         vals.append(acos(abs_cap(v)))
     phi = sum(vals)
     return phi + (3 - len(r)) * pi
@@ -408,12 +403,22 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     return bonds_lens
 
 
-@deprecated(message=("find_dimension has been moved to"
-                     "pymatgen.analysis.dimensionality.get_dimensionality_gorai"
-                     " this method will be removed in pymatgen v2019.1.1."))
-def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
-                       min_slab_size=5, min_vacuum_size=5,
-                       standardize=True, bonds=None):
+@deprecated(
+    message=(
+        "find_dimension has been moved to"
+        "pymatgen.analysis.dimensionality.get_dimensionality_gorai"
+        " this method will be removed in pymatgen v2019.1.1."
+    )
+)
+def get_dimensionality(
+    structure,
+    max_hkl=2,
+    el_radius_updates=None,
+    min_slab_size=5,
+    min_vacuum_size=5,
+    standardize=True,
+    bonds=None,
+):
     """
     This method returns whether a structure is 3D, 2D (layered), or 1D (linear
     chains or molecules) according to the algorithm published in Gorai, P.,
@@ -448,8 +453,7 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
 
     """
     if standardize:
-        structure = SpacegroupAnalyzer(structure). \
-            get_conventional_standard_structure()
+        structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
 
     if not bonds:
         bonds = get_max_bond_lengths(structure, el_radius_updates)
@@ -459,9 +463,12 @@ def get_dimensionality(structure, max_hkl=2, el_radius_updates=None,
         for k in range(max_hkl):
             for l in range(max_hkl):
                 if max([h, k, l]) > 0 and num_surfaces < 2:
-                    sg = SlabGenerator(structure, (h, k, l),
-                                       min_slab_size=min_slab_size,
-                                       min_vacuum_size=min_vacuum_size)
+                    sg = SlabGenerator(
+                        structure,
+                        (h, k, l),
+                        min_slab_size=min_slab_size,
+                        min_vacuum_size=min_vacuum_size,
+                    )
                     slabs = sg.get_slabs(bonds)
                     for _ in slabs:
                         num_surfaces += 1
@@ -521,7 +528,7 @@ class OxideType:
 
         if isinstance(structure.composition.elements[0], Element):
             comp = structure.composition
-        elif isinstance(structure.composition.elements[0], Specie):
+        elif isinstance(structure.composition.elements[0], Species):
             elmap = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
@@ -538,13 +545,13 @@ class OxideType:
                 h_sites_frac_coords.append(site.frac_coords)
 
         if h_sites_frac_coords:
-            dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
-                                                    h_sites_frac_coords)
+            dist_matrix = lattice.get_all_distances(o_sites_frac_coords, h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return "hydroxide", len(
-                    np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
-        dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
-                                                o_sites_frac_coords)
+                return (
+                    "hydroxide",
+                    len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0,
+                )
+        dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
         is_peroxide = False
@@ -612,8 +619,7 @@ def sulfide_type(structure):
 
     finder = SpacegroupAnalyzer(structure, symprec=0.1)
     symm_structure = finder.get_symmetrized_structure()
-    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if
-               sites[0].specie == s]
+    s_sites = [sites[0] for sites in symm_structure.equivalent_sites if sites[0].specie == s]
 
     def process_site(site):
 
@@ -629,8 +635,7 @@ def sulfide_type(structure):
 
         neighbors = sorted(neighbors, key=lambda n: n.nn_distance)
         dist = neighbors[0].nn_distance
-        coord_elements = [nn.specie for nn in neighbors
-                          if nn.nn_distance < dist + 0.4][:4]
+        coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"

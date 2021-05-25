@@ -4,47 +4,46 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 """
 
 import os
-import warnings
 import tempfile
-from subprocess import Popen, TimeoutExpired
-from typing import Dict, Union, List, NamedTuple, Optional
+import warnings
 from pathlib import Path
+from subprocess import Popen, TimeoutExpired
+from collections import namedtuple
+from typing import Dict, List, Optional, Union
 
 from monty.dev import requires
 from monty.os.path import which
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 
 
-class Sqs(NamedTuple):
-    """
-    Return type for run_mcsqs.
-    """
-
-    bestsqs: Structure
-    objective_function: Union[float, str]
-    allsqs: List
-    clusters: List
-    directory: str
+Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
+"""
+Return type for run_mcsqs.
+bestsqs: Structure
+objective_function: Union[float, str]
+allsqs: List
+clusters: List
+directory: str
+"""
 
 
 @requires(
     which("mcsqs") and which("str2cif"),
-    "run_mcsqs requires first installing AT-AT, "
-    "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
+    "run_mcsqs requires first installing AT-AT, " "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
-        structure: Structure,
-        clusters: Dict[int, float],
-        scaling: Union[int, List[int]] = 1,
-        search_time: float = 60,
-        directory: Optional[str] = None,
-        instances: Optional[int] = None,
-        temperature: Union[int, float] = 1,
-        wr: float = 1,
-        wn: float = 1,
-        wd: float = 0.5,
-        tol: float = 1e-3,
+    structure: Structure,
+    clusters: Dict[int, float],
+    scaling: Union[int, List[int]] = 1,
+    search_time: float = 60,
+    directory: Optional[str] = None,
+    instances: Optional[int] = None,
+    temperature: Union[int, float] = 1,
+    wr: float = 1,
+    wn: float = 1,
+    wd: float = 0.5,
+    tol: float = 1e-3,
 ) -> Sqs:
     """
     Helper function for calling mcsqs with different arguments
@@ -111,8 +110,8 @@ def run_mcsqs(
         mcsqs_generate_clusters_cmd.append("-" + str(num) + "=" + str(clusters[num]))
 
     # Run mcsqs to find clusters
-    p = Popen(mcsqs_generate_clusters_cmd)
-    p.communicate()
+    with Popen(mcsqs_generate_clusters_cmd) as p:
+        p.communicate()
 
     # Generate SQS structures
     add_ons = [
@@ -129,12 +128,12 @@ def run_mcsqs(
         for i in range(instances):
             instance_cmd = ["-ip {}".format(i + 1)]
             cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
-            p = Popen(cmd)
+            p = Popen(cmd)  # pylint: disable=R1732
             mcsqs_find_sqs_processes.append(p)
     else:
         # run normal mcsqs command
         cmd = mcsqs_find_sqs_cmd + add_ons
-        p = Popen(cmd)
+        p = Popen(cmd)  # pylint: disable=R1732
         mcsqs_find_sqs_processes.append(p)
 
     try:
@@ -142,7 +141,7 @@ def run_mcsqs(
             p.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            p = Popen(["mcsqs", "-best"])
+            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
             p.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -164,7 +163,7 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            p = Popen(["mcsqs", "-best"])
+            p = Popen(["mcsqs", "-best"])  # pylint: disable=R1732
             p.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
@@ -192,8 +191,8 @@ def _parse_sqs_path(path) -> Sqs:
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to cif file and pymatgen Structure
-    p = Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path)
-    p.communicate()
+    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as p:
+        p.communicate()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -217,8 +216,8 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_out = "bestsqs{}.out".format(i + 1)
         sqs_cif = "bestsqs{}.cif".format(i + 1)
         corr_out = "bestcorr{}.out".format(i + 1)
-        p = Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path)
-        p.communicate()
+        with Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path) as p:
+            p.communicate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             sqs = Structure.from_file(path / sqs_out)
@@ -240,7 +239,7 @@ def _parse_sqs_path(path) -> Sqs:
         objective_function=objective_function,
         allsqs=allsqs,
         directory=str(path.resolve()),
-        clusters=clusters
+        clusters=clusters,
     )
 
 
@@ -261,7 +260,7 @@ def _parse_clusters(filename):
     cluster_block = []
     for line in lines:
         line = line.split("\n")[0]
-        if line == '':
+        if line == "":
             clusters.append(cluster_block)
             cluster_block = []
         else:
@@ -269,9 +268,11 @@ def _parse_clusters(filename):
 
     cluster_dicts = []
     for cluster in clusters:
-        cluster_dict = {"multiplicity": int(cluster[0]),
-                        "longest_pair_length": float(cluster[1]),
-                        "num_points_in_cluster": int(cluster[2])}
+        cluster_dict = {
+            "multiplicity": int(cluster[0]),
+            "longest_pair_length": float(cluster[1]),
+            "num_points_in_cluster": int(cluster[2]),
+        }
         points = []
         for point in range(cluster_dict["num_points_in_cluster"]):
             line = cluster[3 + point].split(" ")

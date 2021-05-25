@@ -17,37 +17,31 @@ as well as::
     Surface Science, 2013, 617, 53–59, doi:10.1016/j.susc.2013.05.016.
 """
 
+import copy
+import itertools
+import json
+import logging
+import math
+import os
+import warnings
 from functools import reduce
 from math import gcd
-import math
-import itertools
-import logging
-import warnings
-import copy
-import os
-import json
 
 import numpy as np
-from scipy.spatial.distance import squareform
-from scipy.cluster.hierarchy import linkage, fcluster
-
 from monty.fractions import lcm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
 
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.sites import PeriodicSite
-
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
-__copyright__ = "Copyright 2014, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "6/10/14"
+
 
 logger = logging.getLogger(__name__)
 
@@ -81,11 +75,23 @@ class Slab(Structure):
         slab has been shifted.
     """
 
-    def __init__(self, lattice, species, coords, miller_index,
-                 oriented_unit_cell, shift, scale_factor, reorient_lattice=True,
-                 validate_proximity=False, to_unit_cell=False,
-                 reconstruction=None, coords_are_cartesian=False,
-                 site_properties=None, energy=None):
+    def __init__(
+        self,
+        lattice,
+        species,
+        coords,
+        miller_index,
+        oriented_unit_cell,
+        shift,
+        scale_factor,
+        reorient_lattice=True,
+        validate_proximity=False,
+        to_unit_cell=False,
+        reconstruction=None,
+        coords_are_cartesian=False,
+        site_properties=None,
+        energy=None,
+    ):
         """
         Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
@@ -96,12 +102,12 @@ class Slab(Structure):
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species ([Specie]): Sequence of species on each site. Can take in
+            species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
@@ -143,15 +149,24 @@ class Slab(Structure):
             if coords_are_cartesian:
                 coords = lattice.get_fractional_coords(coords)
                 coords_are_cartesian = False
-            lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
-                                              lattice.alpha, lattice.beta,
-                                              lattice.gamma)
+            lattice = Lattice.from_parameters(
+                lattice.a,
+                lattice.b,
+                lattice.c,
+                lattice.alpha,
+                lattice.beta,
+                lattice.gamma,
+            )
 
         super().__init__(
-            lattice, species, coords, validate_proximity=validate_proximity,
+            lattice,
+            species,
+            coords,
+            validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
-            site_properties=site_properties)
+            site_properties=site_properties,
+        )
 
     def get_orthogonal_c_slab(self):
         """
@@ -168,13 +183,19 @@ class Slab(Structure):
         new_c /= np.linalg.norm(new_c)
         new_c = np.dot(c, new_c) * new_c
         new_latt = Lattice([a, b, new_c])
-        return Slab(lattice=new_latt, species=self.species_and_occu,
-                    coords=self.cart_coords, miller_index=self.miller_index,
-                    oriented_unit_cell=self.oriented_unit_cell,
-                    shift=self.shift, scale_factor=self.scale_factor,
-                    coords_are_cartesian=True, energy=self.energy,
-                    reorient_lattice=self.reorient_lattice,
-                    site_properties=self.site_properties)
+        return Slab(
+            lattice=new_latt,
+            species=self.species_and_occu,
+            coords=self.cart_coords,
+            miller_index=self.miller_index,
+            oriented_unit_cell=self.oriented_unit_cell,
+            shift=self.shift,
+            scale_factor=self.scale_factor,
+            coords_are_cartesian=True,
+            energy=self.energy,
+            reorient_lattice=self.reorient_lattice,
+            site_properties=self.site_properties,
+        )
 
     def get_tasker2_slabs(self, tol=0.01, same_species_only=True):
         """
@@ -199,10 +220,8 @@ class Slab(Structure):
 
         # Determine what fraction the slab is of the total cell size in the
         # c direction. Round to nearest rational number.
-        nlayers_total = int(round(self.lattice.c /
-                                  self.oriented_unit_cell.lattice.c))
-        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c)
-                                 * nlayers_total))
+        nlayers_total = int(round(self.lattice.c / self.oriented_unit_cell.lattice.c))
+        nlayers_slab = int(round((sortedcsites[-1].c - sortedcsites[0].c) * nlayers_total))
         slab_ratio = nlayers_slab / nlayers_total
 
         a = SpacegroupAnalyzer(self)
@@ -214,14 +233,16 @@ class Slab(Structure):
                     return i
             raise ValueError("Cannot determine equi index!")
 
-        for surface_site, shift in [(sortedcsites[0], slab_ratio),
-                                    (sortedcsites[-1], -slab_ratio)]:
+        for surface_site, shift in [
+            (sortedcsites[0], slab_ratio),
+            (sortedcsites[-1], -slab_ratio),
+        ]:
             tomove = []
             fixed = []
             for site in sites:
                 if abs(site.c - surface_site.c) < tol and (
-                        (not same_species_only) or
-                        site.species == surface_site.species):
+                    (not same_species_only) or site.species == surface_site.species
+                ):
                     tomove.append(site)
                 else:
                     fixed.append(site)
@@ -229,14 +250,15 @@ class Slab(Structure):
             # Sort and group the sites by the species and symmetry equivalence
             tomove = sorted(tomove, key=lambda s: equi_index(s))
 
-            grouped = [list(sites) for k, sites in itertools.groupby(
-                tomove, key=lambda s: equi_index(s))]
+            grouped = [list(sites) for k, sites in itertools.groupby(tomove, key=lambda s: equi_index(s))]
 
-            if len(tomove) == 0 or any([len(g) % 2 != 0 for g in grouped]):
-                warnings.warn("Odd number of sites to divide! Try changing "
-                              "the tolerance to ensure even division of "
-                              "sites or create supercells in a or b directions "
-                              "to allow for atoms to be moved!")
+            if len(tomove) == 0 or any(len(g) % 2 != 0 for g in grouped):
+                warnings.warn(
+                    "Odd number of sites to divide! Try changing "
+                    "the tolerance to ensure even division of "
+                    "sites or create supercells in a or b directions "
+                    "to allow for atoms to be moved!"
+                )
                 continue
             combinations = []
             for g in grouped:
@@ -260,10 +282,17 @@ class Slab(Structure):
                 sp_fcoord = sorted(zip(species, fcoords), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 fcoords = [x[1] for x in sp_fcoord]
-                slab = Slab(self.lattice, species, fcoords, self.miller_index,
-                            self.oriented_unit_cell, self.shift,
-                            self.scale_factor, energy=self.energy,
-                            reorient_lattice=self.reorient_lattice)
+                slab = Slab(
+                    self.lattice,
+                    species,
+                    fcoords,
+                    self.miller_index,
+                    self.oriented_unit_cell,
+                    self.shift,
+                    self.scale_factor,
+                    energy=self.energy,
+                    reorient_lattice=self.reorient_lattice,
+                )
                 slabs.append(slab)
         s = StructureMatcher()
         unique = [ss[0] for ss in s.group_structures(slabs)]
@@ -271,17 +300,30 @@ class Slab(Structure):
 
     def is_symmetric(self, symprec=0.1):
         """
-        Checks if slab is symmetric, i.e., contains inversion symmetry.
+        Checks if surfaces are symmetric, i.e., contains inversion, mirror on (hkl) plane,
+            or screw axis (rotation and translation) about [hkl].
 
         Args:
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            (bool) Whether slab contains inversion symmetry.
+            (bool) Whether surfaces are symmetric.
         """
 
         sg = SpacegroupAnalyzer(self, symprec=symprec)
-        return sg.is_laue()
+        symmops = sg.get_point_group_operations()
+
+        if (
+            sg.is_laue()
+            or any(op.translation_vector[2] != 0 for op in symmops)
+            or any(np.alltrue(op.rotation_matrix[2] == np.array([0, 0, -1])) for op in symmops)
+        ):
+            # Check for inversion symmetry. Or if sites from surface (a) can be translated
+            # to surface (b) along the [hkl]-axis, surfaces are symmetric. Or because the
+            # two surfaces of our slabs are always parallel to the (hkl) plane,
+            # any operation where theres an (hkl) mirror plane has surface symmetry
+            return True
+        return False
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -299,10 +341,17 @@ class Slab(Structure):
         """
         sites = sorted(self, key=key, reverse=reverse)
         s = Structure.from_sites(sites)
-        return Slab(s.lattice, s.species_and_occu, s.frac_coords,
-                    self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=s.site_properties,
-                    reorient_lattice=self.reorient_lattice)
+        return Slab(
+            s.lattice,
+            s.species_and_occu,
+            s.frac_coords,
+            self.miller_index,
+            self.oriented_unit_cell,
+            self.shift,
+            self.scale_factor,
+            site_properties=s.site_properties,
+            reorient_lattice=self.reorient_lattice,
+        )
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -329,10 +378,17 @@ class Slab(Structure):
         props = self.site_properties
         if site_properties:
             props.update(site_properties)
-        return Slab(self.lattice, self.species_and_occu, self.frac_coords,
-                    self.miller_index, self.oriented_unit_cell, self.shift,
-                    self.scale_factor, site_properties=props,
-                    reorient_lattice=self.reorient_lattice)
+        return Slab(
+            self.lattice,
+            self.species_and_occu,
+            self.frac_coords,
+            self.miller_index,
+            self.oriented_unit_cell,
+            self.shift,
+            self.scale_factor,
+            site_properties=props,
+            reorient_lattice=self.reorient_lattice,
+        )
 
     @property
     def dipole(self):
@@ -345,8 +401,7 @@ class Slab(Structure):
         mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
         normal = self.normal
         for site in self:
-            charge = sum([getattr(sp, "oxi_state", 0) * amt
-                          for sp, amt in site.species.items()])
+            charge = sum([getattr(sp, "oxi_state", 0) * amt for sp, amt in site.species.items()])
             dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
         return dipole
 
@@ -390,8 +445,7 @@ class Slab(Structure):
         Calculates the center of mass of the slab
         """
         weights = [s.species.weight for s in self]
-        center_of_mass = np.average(self.frac_coords,
-                                    weights=weights, axis=0)
+        center_of_mass = np.average(self.frac_coords, weights=weights, axis=0)
         return center_of_mass
 
     def add_adsorbate_atom(self, indices, specie, distance):
@@ -403,13 +457,12 @@ class Slab(Structure):
             indices ([int]): Indices of sites on which to put the absorbate.
                 Absorbed atom will be displaced relative to the center of
                 these sites.
-            specie (Specie/Element/str): adsorbed atom species
+            specie (Species/Element/str): adsorbed atom species
             distance (float): between centers of the adsorbed atom and the
                 given site in Angstroms.
         """
         # Let's do the work in cartesian coords
-        center = np.sum([self[i].coords for i in indices], axis=0) / len(
-            indices)
+        center = np.sum([self[i].coords for i in indices], axis=0) / len(indices)
 
         coords = center + self.normal * distance / np.linalg.norm(self.normal)
 
@@ -421,20 +474,25 @@ class Slab(Structure):
             "Slab Summary (%s)" % comp.formula,
             "Reduced Formula: %s" % comp.reduced_formula,
             "Miller index: %s" % (self.miller_index,),
-            "Shift: %.4f, Scale Factor: %s" % (self.shift,
-                                               self.scale_factor.__str__())]
+            "Shift: %.4f, Scale Factor: %s" % (self.shift, self.scale_factor.__str__()),
+        ]
 
         def to_s(x):
             return "%0.6f" % x
-        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.abc]))
-        outs.append("angles: " + " ".join([to_s(i).rjust(10)
-                                           for i in self.lattice.angles]))
+
+        outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
-                                  " ".join([to_s(j).rjust(12)
-                                            for j in site.frac_coords])]))
+            outs.append(
+                " ".join(
+                    [
+                        str(i + 1),
+                        site.species_string,
+                        " ".join([to_s(j).rjust(12) for j in site.frac_coords]),
+                    ]
+                )
+            )
         return "\n".join(outs)
 
     def as_dict(self):
@@ -464,11 +522,14 @@ class Slab(Structure):
 
         return Slab(
             lattice=lattice,
-            species=s.species_and_occu, coords=s.frac_coords,
+            species=s.species_and_occu,
+            coords=s.frac_coords,
             miller_index=d["miller_index"],
             oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
-            shift=d["shift"], scale_factor=d["scale_factor"],
-            site_properties=s.site_properties, energy=d["energy"]
+            shift=d["shift"],
+            scale_factor=d["scale_factor"],
+            site_properties=s.site_properties,
+            energy=d["energy"],
         )
 
     def get_surface_sites(self, tag=False):
@@ -518,7 +579,7 @@ class Slab(Structure):
             # species, eg. bond distance of each neighbor or neighbor species. The
             # decimal place to get some cn to be equal.
             cn = v.get_cn(ucell, i, use_weights=True)
-            cn = float('%.5f' % (round(cn, 5)))
+            cn = float("%.5f" % (round(cn, 5)))
             if cn not in cn_dict[el]:
                 cn_dict[el].append(cn)
 
@@ -532,7 +593,7 @@ class Slab(Structure):
             try:
                 # A site is a surface site, if its environment does
                 # not fit the environment of other sites
-                cn = float('%.5f' % (round(v.get_cn(self, i, use_weights=True), 5)))
+                cn = float("%.5f" % (round(v.get_cn(self, i, use_weights=True), 5)))
                 if cn < min(cn_dict[site.species_string]):
                     properties.append(True)
                     key = "top" if top else "bottom"
@@ -548,38 +609,6 @@ class Slab(Structure):
         if tag:
             self.add_site_property("is_surf_site", properties)
         return surf_sites_dict
-
-    def have_equivalent_surfaces(self):
-        """
-        Check if we have same number of equivalent sites on both surfaces.
-        This is an alternative to checking Laue symmetry (is_symmetric())
-        if we want to ensure both surfaces in the slab are the same
-        """
-
-        # tag the sites as either surface sites or not
-        self.get_surface_sites(tag=True)
-
-        a = SpacegroupAnalyzer(self)
-        symm_structure = a.get_symmetrized_structure()
-
-        # ensure each site on one surface has a
-        # corresponding equivalent site on the other
-        equal_surf_sites = []
-        for equ in symm_structure.equivalent_sites:
-            # Top and bottom are arbitrary, we will just determine
-            # if one site is on one side of the slab or the other
-            top, bottom = 0, 0
-            for s in equ:
-                if s.is_surf_site:
-                    if s.frac_coords[2] > self.center_of_mass[2]:
-                        top += 1
-                    else:
-                        bottom += 1
-            # Check to see if the number of equivalent sites
-            # on one side of the slab are equal to the other
-            equal_surf_sites.append(top == bottom)
-
-        return all(equal_surf_sites)
 
     def get_symmetric_site(self, point, cartesian=False):
         """
@@ -623,7 +652,6 @@ class Slab(Structure):
         return site2
 
     def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
-
         """
         Class method for adding a site at a specified point in a slab.
             Will add the corresponding site on the other side of the
@@ -648,7 +676,6 @@ class Slab(Structure):
         self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
 
     def symmetrically_remove_atoms(self, indices):
-
         """
         Class method for removing sites corresponding to a list of indices.
             Will remove the corresponding site on the other side of the
@@ -739,10 +766,19 @@ class SlabGenerator:
 
     """
 
-    def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, lll_reduce=False, center_slab=False,
-                 in_unit_planes=False, primitive=True, max_normal_search=None,
-                 reorient_lattice=True):
+    def __init__(
+        self,
+        initial_structure,
+        miller_index,
+        min_slab_size,
+        min_vacuum_size,
+        lll_reduce=False,
+        center_slab=False,
+        in_unit_planes=False,
+        primitive=True,
+        max_normal_search=None,
+        reorient_lattice=True,
+    ):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -798,10 +834,8 @@ class SlabGenerator:
         # Add Wyckoff symbols of the bulk, will help with
         # identfying types of sites in the slab system
         sg = SpacegroupAnalyzer(initial_structure)
-        initial_structure.add_site_property("bulk_wyckoff",
-                                            sg.get_symmetry_dataset()['wyckoffs'])
-        initial_structure.add_site_property("bulk_equivalent",
-                                            sg.get_symmetry_dataset()['equivalent_atoms'].tolist())
+        initial_structure.add_site_property("bulk_wyckoff", sg.get_symmetry_dataset()["wyckoffs"])
+        initial_structure.add_site_property("bulk_equivalent", sg.get_symmetry_dataset()["equivalent_atoms"].tolist())
         latt = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
@@ -811,7 +845,7 @@ class SlabGenerator:
 
         slab_scale_factor = []
         non_orth_ind = []
-        eye = np.eye(3, dtype=np.int)
+        eye = np.eye(3, dtype=np.int_)
         for i, j in enumerate(miller_index):
             if j == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,
@@ -844,11 +878,11 @@ class SlabGenerator:
 
             index_range = sorted(
                 reversed(range(-max_normal_search, max_normal_search + 1)),
-                key=lambda x: abs(x))
+                key=lambda x: abs(x),
+            )
             candidates = []
             for uvw in itertools.product(index_range, index_range, index_range):
-                if (not any(uvw)) or abs(
-                        np.linalg.det(slab_scale_factor + [uvw])) < 1e-8:
+                if (not any(uvw)) or abs(np.linalg.det(slab_scale_factor + [uvw])) < 1e-8:
                     continue
                 vec = latt.get_cartesian_coords(uvw)
                 l = np.linalg.norm(vec)
@@ -879,8 +913,7 @@ class SlabGenerator:
 
         # When getting the OUC, lets return the most reduced
         # structure as possible to reduce calculations
-        self.oriented_unit_cell = Structure.from_sites(single,
-                                                       to_unit_cell=True)
+        self.oriented_unit_cell = Structure.from_sites(single, to_unit_cell=True)
         self.max_normal_search = max_normal_search
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
@@ -938,8 +971,7 @@ class SlabGenerator:
             fcoords[:, 2] += i / nlayers
             all_coords.extend(fcoords)
 
-        slab = Structure(new_lattice, species * nlayers_slab, all_coords,
-                         site_properties=props)
+        slab = Structure(new_lattice, species * nlayers_slab, all_coords, site_properties=props)
 
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
@@ -965,18 +997,30 @@ class SlabGenerator:
         if self.primitive:
             # find a reduced ouc
             slab_l = slab.lattice
-            ouc = ouc.get_primitive_structure(constrain_latt={"a": slab_l.a, "b": slab_l.b,
-                                                              "alpha": slab_l.alpha,
-                                                              "beta": slab_l.beta,
-                                                              "gamma": slab_l.gamma})
+            ouc = ouc.get_primitive_structure(
+                constrain_latt={
+                    "a": slab_l.a,
+                    "b": slab_l.b,
+                    "alpha": slab_l.alpha,
+                    "beta": slab_l.beta,
+                    "gamma": slab_l.gamma,
+                }
+            )
             # Check this is the correct oriented unit cell
             ouc = self.oriented_unit_cell if slab_l.a != ouc.lattice.a or slab_l.b != ouc.lattice.b else ouc
 
-        return Slab(slab.lattice, slab.species_and_occu,
-                    slab.frac_coords, self.miller_index,
-                    ouc, shift, scale_factor, energy=energy,
-                    site_properties=slab.site_properties,
-                    reorient_lattice=self.reorient_lattice)
+        return Slab(
+            slab.lattice,
+            slab.species_and_occu,
+            slab.frac_coords,
+            self.miller_index,
+            ouc,
+            shift,
+            scale_factor,
+            energy=energy,
+            site_properties=slab.site_properties,
+            reorient_lattice=self.reorient_lattice,
+        )
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
@@ -1028,32 +1072,37 @@ class SlabGenerator:
         return shifts
 
     def _get_c_ranges(self, bonds):
-        c_ranges = set()
-        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
-                 bonds.items()}
+        c_ranges = []
+        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
         for (sp1, sp2), bond_dist in bonds.items():
             for site in self.oriented_unit_cell:
                 if sp1 in site.species:
                     for nn in self.oriented_unit_cell.get_neighbors(site, bond_dist):
                         if sp2 in nn.species:
-                            c_range = tuple(sorted([site.frac_coords[2],
-                                                    nn.frac_coords[2]]))
+                            c_range = tuple(sorted([site.frac_coords[2], nn.frac_coords[2]]))
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
-                                c_ranges.add((c_range[0], 1))
-                                c_ranges.add((0, c_range[1] - 1))
+                                c_ranges.append((c_range[0], 1))
+                                c_ranges.append((0, c_range[1] - 1))
                             elif c_range[0] < 0:
                                 # Takes care of PBC when c coordinate of site
                                 # is below the lower boundary of the unit cell
-                                c_ranges.add((0, c_range[1]))
-                                c_ranges.add((c_range[0] + 1, 1))
+                                c_ranges.append((0, c_range[1]))
+                                c_ranges.append((c_range[0] + 1, 1))
                             elif c_range[0] != c_range[1]:
-                                c_ranges.add(c_range)
+                                c_ranges.append((c_range[0], c_range[1]))
         return c_ranges
 
-    def get_slabs(self, bonds=None, ftol=0.1, tol=0.1, max_broken_bonds=0,
-                  symmetrize=False, repair=False):
+    def get_slabs(
+        self,
+        bonds=None,
+        ftol=0.1,
+        tol=0.1,
+        max_broken_bonds=0,
+        symmetrize=False,
+        repair=False,
+    ):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -1086,7 +1135,7 @@ class SlabGenerator:
             ([Slab]) List of all possible terminations of a particular surface.
             Slabs are sorted by the # of bonds broken.
         """
-        c_ranges = set() if bonds is None else self._get_c_ranges(bonds)
+        c_ranges = [] if bonds is None else self._get_c_ranges(bonds)
 
         slabs = []
         for shift in self._calculate_possible_shifts(tol=ftol):
@@ -1103,8 +1152,7 @@ class SlabGenerator:
                 slabs.append(self.repair_broken_bonds(slab, bonds))
 
         # Further filters out any surfaces made that might be the same
-        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
-                             scale=False)
+        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
         new_slabs = []
         for g in m.group_structures(slabs):
@@ -1116,8 +1164,7 @@ class SlabGenerator:
             else:
                 new_slabs.append(g[0])
 
-        match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
-                                 scale=False)
+        match = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
         new_slabs = [g[0] for g in match.group_structures(new_slabs)]
 
         return sorted(new_slabs, key=lambda s: s.energy)
@@ -1155,8 +1202,7 @@ class SlabGenerator:
                     poly_coord = 0
                     if site.species_string == el:
 
-                        for nn in self.oriented_unit_cell.get_neighbors(
-                                site, blength):
+                        for nn in self.oriented_unit_cell.get_neighbors(site, blength):
                             if nn[0].species_string == pair[i - 1]:
                                 poly_coord += 1
                     cnlist.append(poly_coord)
@@ -1183,10 +1229,8 @@ class SlabGenerator:
 
                         # find its NNs with the corresponding
                         # species it should be coordinated with
-                        neighbors = slab.get_neighbors(slab[i], blength,
-                                                       include_index=True)
-                        tomove = [nn[2] for nn in neighbors if
-                                  nn[0].species_string == element2]
+                        neighbors = slab.get_neighbors(slab[i], blength, include_index=True)
+                        tomove = [nn[2] for nn in neighbors if nn[0].species_string == element2]
                         tomove.append(i)
                         # and then move those NNs along with the central
                         # atom back to the other side of the slab again
@@ -1224,21 +1268,25 @@ class SlabGenerator:
         slab_ratio = nlayers_slab / nlayers
 
         # Sort the index of sites based on which side they are on
-        top_site_index = [i for i in index_of_sites if
-                          slab[i].frac_coords[2] > slab.center_of_mass[2]]
-        bottom_site_index = [i for i in index_of_sites if
-                             slab[i].frac_coords[2] < slab.center_of_mass[2]]
+        top_site_index = [i for i in index_of_sites if slab[i].frac_coords[2] > slab.center_of_mass[2]]
+        bottom_site_index = [i for i in index_of_sites if slab[i].frac_coords[2] < slab.center_of_mass[2]]
 
         # Translate sites to the opposite surfaces
         slab.translate_sites(top_site_index, [0, 0, slab_ratio])
         slab.translate_sites(bottom_site_index, [0, 0, -slab_ratio])
 
-        return Slab(init_slab.lattice, slab.species, slab.frac_coords,
-                    init_slab.miller_index, init_slab.oriented_unit_cell,
-                    init_slab.shift, init_slab.scale_factor,
-                    energy=init_slab.energy)
+        return Slab(
+            init_slab.lattice,
+            slab.species,
+            slab.frac_coords,
+            init_slab.miller_index,
+            init_slab.oriented_unit_cell,
+            init_slab.shift,
+            init_slab.scale_factor,
+            energy=init_slab.energy,
+        )
 
-    def nonstoichiometric_symmetrized_slab(self, init_slab, tol=1e-3):
+    def nonstoichiometric_symmetrized_slab(self, init_slab):
 
         """
         This method checks whether or not the two surfaces of the slab are
@@ -1251,15 +1299,12 @@ class SlabGenerator:
 
         Arg:
             init_slab (Structure): A single slab structure
-            tol (float): Tolerance for SpaceGroupanalyzer.
 
         Returns:
             Slab (structure): A symmetrized Slab object.
         """
 
-        sg = SpacegroupAnalyzer(init_slab, symprec=tol)
-
-        if sg.is_laue():
+        if init_slab.is_symmetric():
             return [init_slab]
 
         nonstoich_slabs = []
@@ -1284,21 +1329,18 @@ class SlabGenerator:
                     break
 
                 # Check if the altered surface is symmetric
-                sg = SpacegroupAnalyzer(slab, symprec=tol)
-                if sg.is_laue():
+                if slab.is_symmetric():
                     asym = False
                     nonstoich_slabs.append(slab)
 
         if len(slab) <= len(self.parent):
-            warnings.warn("Too many sites removed, please use a larger slab "
-                          "size.")
+            warnings.warn("Too many sites removed, please use a larger slab size.")
 
         return nonstoich_slabs
 
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(module_dir,
-                       "reconstructions_archive.json")) as data_file:
+with open(os.path.join(module_dir, "reconstructions_archive.json")) as data_file:
     reconstructions_archive = json.load(data_file)
 
 
@@ -1335,9 +1377,7 @@ class ReconstructionGenerator:
         added. In the future, use basis sets?
     """
 
-    def __init__(self, initial_structure, min_slab_size,
-                 min_vacuum_size, reconstruction_name):
-
+    def __init__(self, initial_structure, min_slab_size, min_vacuum_size, reconstruction_name):
         """
         Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
@@ -1434,11 +1474,12 @@ class ReconstructionGenerator:
         """
 
         if reconstruction_name not in reconstructions_archive.keys():
-            raise KeyError("The reconstruction_name entered (%s) does not exist in the "
-                           "archive. Please select from one of the following reconstructions: %s "
-                           "or add the appropriate dictionary to the archive file "
-                           "reconstructions_archive.json." % (reconstruction_name,
-                                                              list(reconstructions_archive.keys())))
+            raise KeyError(
+                "The reconstruction_name entered (%s) does not exist in the "
+                "archive. Please select from one of the following reconstructions: %s "
+                "or add the appropriate dictionary to the archive file "
+                "reconstructions_archive.json." % (reconstruction_name, list(reconstructions_archive.keys()))
+            )
 
         # Get the instructions to build the reconstruction
         # from the reconstruction_archive
@@ -1497,8 +1538,7 @@ class ReconstructionGenerator:
             if "points_to_remove" in self.reconstruction_json.keys():
                 pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
                 for p in pts_to_rm:
-                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                               top_site[2] + p[2] * d])[2]
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
                     cart_point = slab.lattice.get_cartesian_coords(p)
                     dist = [site.distance_from_point(cart_point) for site in slab]
                     site1 = dist.index(min(dist))
@@ -1508,8 +1548,7 @@ class ReconstructionGenerator:
             if "points_to_add" in self.reconstruction_json.keys():
                 pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
                 for p in pts_to_add:
-                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                               top_site[2] + p[2] * d])[2]
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1], top_site[2] + p[2] * d])[2]
                     slab.symmetrically_add_atom(slab[0].specie, p)
 
             slab.reconstruction = self.name
@@ -1524,7 +1563,6 @@ class ReconstructionGenerator:
         return recon_slabs
 
     def get_unreconstructed_slabs(self):
-
         """
         Generates the unreconstructed or pristine super slab.
         """
@@ -1548,8 +1586,7 @@ def get_d(slab):
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]
 
 
-def is_already_analyzed(
-        miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
+def is_already_analyzed(miller_index: tuple, miller_list: list, symm_ops: list) -> bool:
     """
     Helper function to check if a given Miller index is
     part of the family of indices of any index in a list
@@ -1581,8 +1618,7 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     """
 
     # Change to hkl if hkil because in_coord_list only handles tuples of 3
-    miller_index = (miller_index[0], miller_index[1], miller_index[3]) \
-        if len(miller_index) == 4 else miller_index
+    miller_index = (miller_index[0], miller_index[1], miller_index[3]) if len(miller_index) == 4 else miller_index
     mmi = max(np.abs(miller_index))
     r = list(range(-mmi, mmi + 1))
     r.reverse()
@@ -1599,20 +1635,17 @@ def get_symmetrically_equivalent_miller_indices(structure, miller_index, return_
     for miller in itertools.product(r, r, r):
         if miller == miller_index:
             continue
-        if any([i != 0 for i in miller]):
+        if any(i != 0 for i in miller):
             if is_already_analyzed(miller, equivalent_millers, symm_ops):
                 equivalent_millers.append(miller)
 
             # include larger Miller indices in the family of planes
-            if all([mmi > i for i in np.abs(miller)]) and \
-                    not in_coord_list(equivalent_millers, miller):
-                if is_already_analyzed(mmi * np.array(miller),
-                                       equivalent_millers, symm_ops):
+            if all(mmi > i for i in np.abs(miller)) and not in_coord_list(equivalent_millers, miller):
+                if is_already_analyzed(mmi * np.array(miller), equivalent_millers, symm_ops):
                     equivalent_millers.append(miller)
 
     if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
-        return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1],
-                 hkl[2]) for hkl in equivalent_millers]
+        return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in equivalent_millers]
     return equivalent_millers
 
 
@@ -1634,7 +1667,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
     r.reverse()
 
     # First we get a list of all hkls for conventional (including equivalent)
-    conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any([i != 0 for i in miller])]
+    conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any(i != 0 for i in miller)]
 
     sg = SpacegroupAnalyzer(structure)
     # Get distinct hkl planes from the rhombohedral setting if trigonal
@@ -1651,7 +1684,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
 
     for i, miller in enumerate(miller_list):
         d = abs(reduce(gcd, miller))
-        miller = tuple([int(i / d) for i in miller])
+        miller = tuple(int(i / d) for i in miller)
         if not is_already_analyzed(miller, unique_millers, symm_ops):
             if sg.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
@@ -1659,15 +1692,14 @@ def get_symmetrically_distinct_miller_indices(structure, max_index, return_hkil=
                 # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
                 d = abs(reduce(gcd, conv_hkl_list[i]))
-                cmiller = tuple([int(i / d) for i in conv_hkl_list[i]])
+                cmiller = tuple(int(i / d) for i in conv_hkl_list[i])
                 unique_millers_conv.append(cmiller)
             else:
                 unique_millers.append(miller)
                 unique_millers_conv.append(miller)
 
     if return_hkil and sg.get_crystal_system() in ["trigonal", "hexagonal"]:
-        return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1],
-                 hkl[2]) for hkl in unique_millers_conv]
+        return [(hkl[0], hkl[1], -1 * hkl[0] - hkl[1], hkl[2]) for hkl in unique_millers_conv]
     return unique_millers_conv
 
 
@@ -1700,11 +1732,24 @@ def hkl_transformation(transf, miller_index):
     return tuple(t_hkl)
 
 
-def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=0.1, ftol=0.1, max_broken_bonds=0,
-                       lll_reduce=False, center_slab=False, primitive=True,
-                       max_normal_search=None, symmetrize=False, repair=False,
-                       include_reconstructions=False, in_unit_planes=False):
+def generate_all_slabs(
+    structure,
+    max_index,
+    min_slab_size,
+    min_vacuum_size,
+    bonds=None,
+    tol=0.1,
+    ftol=0.1,
+    max_broken_bonds=0,
+    lll_reduce=False,
+    center_slab=False,
+    primitive=True,
+    max_normal_search=None,
+    symmetrize=False,
+    repair=False,
+    include_reconstructions=False,
+    in_unit_planes=False,
+):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -1761,15 +1806,26 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     """
     all_slabs = []
 
-    for miller in get_symmetrically_distinct_miller_indices(structure,
-                                                            max_index):
-        gen = SlabGenerator(structure, miller, min_slab_size,
-                            min_vacuum_size, lll_reduce=lll_reduce,
-                            center_slab=center_slab, primitive=primitive,
-                            max_normal_search=max_normal_search,
-                            in_unit_planes=in_unit_planes)
-        slabs = gen.get_slabs(bonds=bonds, tol=tol, ftol=ftol, symmetrize=symmetrize,
-                              max_broken_bonds=max_broken_bonds, repair=repair)
+    for miller in get_symmetrically_distinct_miller_indices(structure, max_index):
+        gen = SlabGenerator(
+            structure,
+            miller,
+            min_slab_size,
+            min_vacuum_size,
+            lll_reduce=lll_reduce,
+            center_slab=center_slab,
+            primitive=primitive,
+            max_normal_search=max_normal_search,
+            in_unit_planes=in_unit_planes,
+        )
+        slabs = gen.get_slabs(
+            bonds=bonds,
+            tol=tol,
+            ftol=ftol,
+            symmetrize=symmetrize,
+            max_broken_bonds=max_broken_bonds,
+            repair=repair,
+        )
 
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
@@ -1788,8 +1844,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 # equal or less than the given max index
                 if max(instructions["miller_index"]) > max_index:
                     continue
-                recon = ReconstructionGenerator(structure, min_slab_size,
-                                                min_vacuum_size, name)
+                recon = ReconstructionGenerator(structure, min_slab_size, min_vacuum_size, name)
                 all_slabs.extend(recon.build_slabs())
 
     return all_slabs
@@ -1809,8 +1864,7 @@ def get_slab_regions(slab, blength=3.5):
     fcoords, indices, all_indices = [], [], []
     for site in slab:
         # find sites with c < 0 (noncontiguous)
-        neighbors = slab.get_neighbors(site, blength, include_index=True,
-                                       include_image=True)
+        neighbors = slab.get_neighbors(site, blength, include_index=True, include_image=True)
         for nn in neighbors:
             if nn[0].frac_coords[2] < 0:
                 # sites are noncontiguous within cell
@@ -1826,12 +1880,10 @@ def get_slab_regions(slab, blength=3.5):
             last_fcoords = copy.copy(fcoords)
             last_indices = copy.copy(indices)
             site = slab[indices[fcoords.index(min(fcoords))]]
-            neighbors = slab.get_neighbors(site, blength, include_index=True,
-                                           include_image=True)
+            neighbors = slab.get_neighbors(site, blength, include_index=True, include_image=True)
             fcoords, indices = [], []
             for nn in neighbors:
-                if 1 > nn[0].frac_coords[2] > 0 and \
-                        nn[0].frac_coords[2] < site.frac_coords[2]:
+                if 1 > nn[0].frac_coords[2] > 0 and nn[0].frac_coords[2] < site.frac_coords[2]:
                     # sites are noncontiguous within cell
                     fcoords.append(nn[0].frac_coords[2])
                     indices.append(nn[-2])
@@ -1841,8 +1893,7 @@ def get_slab_regions(slab, blength=3.5):
         # Now locate the highest site within the lower region of the slab
         upper_fcoords = []
         for site in slab:
-            if all([nn.index not in all_indices for nn in
-                    slab.get_neighbors(site, blength)]):
+            if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
                 upper_fcoords.append(site.frac_coords[2])
         coords = copy.copy(last_fcoords) if not fcoords else copy.copy(fcoords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
@@ -1851,14 +1902,12 @@ def get_slab_regions(slab, blength=3.5):
         # If the entire slab region is within the slab cell, just
         # set the range as the highest and lowest site in the slab
         sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-        ranges = [[sorted_sites[0].frac_coords[2],
-                   sorted_sites[-1].frac_coords[2]]]
+        ranges = [[sorted_sites[0].frac_coords[2], sorted_sites[-1].frac_coords[2]]]
 
     return ranges
 
 
-def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,
-                            round_dp=4, verbose=True):
+def miller_index_from_sites(lattice, coords, coords_are_cartesian=True, round_dp=4, verbose=True):
     """
     Get the Miller index of a plane from a list of site coordinates.
 
@@ -1886,8 +1935,11 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,
         lattice = Lattice(lattice)
 
     return lattice.get_miller_index_from_coords(
-        coords, coords_are_cartesian=coords_are_cartesian, round_dp=round_dp,
-        verbose=verbose)
+        coords,
+        coords_are_cartesian=coords_are_cartesian,
+        round_dp=round_dp,
+        verbose=verbose,
+    )
 
 
 def center_slab(slab):
@@ -1919,8 +1971,7 @@ def center_slab(slab):
     """
 
     # get a reasonable r cutoff to sample neighbors
-    bdists = sorted([nn[1] for nn in
-                     slab.get_neighbors(slab[0], 10) if nn[1] > 0])
+    bdists = sorted([nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0])
     r = bdists[0] * 3
 
     all_indices = [i for i, site in enumerate(slab)]
@@ -1928,15 +1979,13 @@ def center_slab(slab):
     # check if structure is case 2 or 3, shift all the
     # sites up to the other side until it is case 1
     for site in slab:
-        if any([nn[1] > slab.lattice.c for nn
-                in slab.get_neighbors(site, r)]):
+        if any(nn[1] > slab.lattice.c for nn in slab.get_neighbors(site, r)):
             shift = 1 - site.frac_coords[2] + 0.05
             slab.translate_sites(all_indices, [0, 0, shift])
 
     # now the slab is case 1, shift the center of mass of the slab to 0.5
     weights = [s.species.weight for s in slab]
-    center_of_mass = np.average(slab.frac_coords,
-                                weights=weights, axis=0)
+    center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
     shift = 0.5 - center_of_mass[2]
     slab.translate_sites(all_indices, [0, 0, shift])
 
@@ -1947,6 +1996,6 @@ def _reduce_vector(vector):
     # small function to reduce vectors
 
     d = abs(reduce(gcd, vector))
-    vector = tuple([int(i / d) for i in vector])
+    vector = tuple(int(i / d) for i in vector)
 
     return vector

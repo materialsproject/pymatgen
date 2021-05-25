@@ -20,10 +20,11 @@ import warnings
 from monty.dev import requires
 
 try:
-    from aiida.orm import DataFactory
     from aiida.common.exceptions import MissingPluginError
+    from aiida.orm import DataFactory
+
     try:
-        StructureData = DataFactory('structure')
+        StructureData = DataFactory("structure")
     except MissingPluginError:
         raise ImportError
     aiida_loaded = True
@@ -31,13 +32,17 @@ except ImportError:
     aiida_loaded = False
 
 
-warnings.warn("The pymatgen.io.aiida module is deprecated and does not work with"
-              "Aiida >= 1.0. It will be removed in pmg 2020. Pls install the "
-              "aiida package if you need to convert pmg objects to Aiida objects.")
+warnings.warn(
+    "The pymatgen.io.aiida module is deprecated and does not work with"
+    "Aiida >= 1.0. It will be removed in pmg 2020. Pls install the "
+    "aiida package if you need to convert pmg objects to Aiida objects."
+)
 
 
-@requires(aiida_loaded, "To use the AiidaStructureAdaptor, you need to have "
-                        "aiida installed.")
+@requires(
+    aiida_loaded,
+    "To use the AiidaStructureAdaptor, you need to have " "aiida installed.",
+)
 class AiidaStructureAdaptor:
     """
     Adaptor serves as a bridge between AiiDA StructureData and pymatgen

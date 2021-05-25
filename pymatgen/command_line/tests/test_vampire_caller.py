@@ -2,21 +2,18 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
 import os
+import unittest
 import warnings
 
 import pandas as pd
-
 from monty.os.path import which
 
 import pymatgen.command_line.vampire_caller as vampirecaller
+from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 
-from pymatgen import Structure
-
-test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "test_files", "magnetic_orderings"
-)
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 
 
 @unittest.skipIf(not which("vampire-serial"), "vampire executable not present")

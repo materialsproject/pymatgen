@@ -6,9 +6,11 @@
 This module implements core classes for calculation of diffraction patterns.
 """
 
-import collections
 import abc
+import collections
+
 import numpy as np
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs
 
@@ -42,6 +44,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
     """
     Abstract base class for computing the diffraction pattern of a crystal.
     """
+
     # Tolerance in which to treat two peaks as having the same two theta.
     TWO_THETA_TOL = 1e-5
 
@@ -72,9 +75,15 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         """
         pass
 
-    def get_plot(self, structure, two_theta_range=(0, 90),
-                 annotate_peaks=True, ax=None, with_labels=True,
-                 fontsize=16):
+    def get_plot(
+        self,
+        structure,
+        two_theta_range=(0, 90),
+        annotate_peaks="compact",
+        ax=None,
+        with_labels=True,
+        fontsize=16,
+    ):
         """
         Returns the diffraction plot as a matplotlib.pyplot.
 
@@ -84,9 +93,12 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks: Whether to annotate the peaks with plane
-                information.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            annotate_peaks (str or None): Whether and how to annotate the peaks
+                with hkl indices.  Default is 'compact', i.e. show short
+                version (oriented vertically), e.g. 100.  If 'full', show
+                long version, e.g. (1, 0, 0).  If None, do not show anything.
+            ax: matplotlib :class:`Axes` or None if a new figure should be
+                created.
             with_labels: True to add xlabels and ylabels to the plot.
             fontsize: (int) fontsize for peak labels.
 
@@ -95,6 +107,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         """
         if ax is None:
             from pymatgen.util.plotting import pretty_plot
+
             plt = pretty_plot(16, 10)
             ax = plt.gca()
         else:
@@ -102,15 +115,46 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             import matplotlib.pyplot as plt
 
         xrd = self.get_pattern(structure, two_theta_range=two_theta_range)
+        imax = max(xrd.y)
 
         for two_theta, i, hkls, d_hkl in zip(xrd.x, xrd.y, xrd.hkls, xrd.d_hkls):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
-                label = ", ".join([str(hkl["hkl"]) for hkl in hkls])
-                ax.plot([two_theta, two_theta], [0, i], color='k',
-                        linewidth=3, label=label)
-                if annotate_peaks:
-                    ax.annotate(label, xy=[two_theta, i],
-                                xytext=[two_theta, i], fontsize=fontsize)
+                hkl_tuples = [hkl["hkl"] for hkl in hkls]
+                label = ", ".join([str(hkl_tuple) for hkl_tuple in hkl_tuples])  # 'full' label
+                ax.plot([two_theta, two_theta], [0, i], color="k", linewidth=3, label=label)
+
+                if annotate_peaks == "full":
+                    ax.annotate(
+                        label,
+                        xy=[two_theta, i],
+                        xytext=[two_theta, i],
+                        fontsize=fontsize,
+                    )
+                elif annotate_peaks == "compact":
+                    if all(all(i < 10 for i in hkl_tuple) for hkl_tuple in hkl_tuples):
+                        label = ",".join(["".join([str(i) for i in hkl_tuple]) for hkl_tuple in hkl_tuples])
+                        # 'compact' label.  Would be unclear for indices >= 10
+                        # It would have more than 3 figures, e.g. 1031
+
+                    if i / imax > 0.5:  # Big peak: annotation on the side
+                        xytext = [-fontsize / 4, 0]
+                        ha = "right"
+                        va = "top"
+                    else:  # Small peak: annotation on top
+                        xytext = [0, 10]
+                        ha = "center"
+                        va = "bottom"
+
+                    ax.annotate(
+                        label,
+                        xy=[two_theta, i],
+                        xytext=xytext,
+                        textcoords="offset points",
+                        va=va,
+                        ha=ha,
+                        rotation=90,
+                        fontsize=fontsize,
+                    )
 
         if with_labels:
             ax.set_xlabel(r"$2\theta$ ($^\circ$)")
@@ -131,8 +175,10 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (bool): Whether to annotate the peaks with plane
-                information.
+            annotate_peaks (str or None): Whether and how to annotate the peaks
+                with hkl indices.  Default is 'compact', i.e. show short
+                version (oriented vertically), e.g. 100.  If 'full', show
+                long version, e.g. (1, 0, 0).  If None, do not show anything.
         """
         self.get_plot(structure, **kwargs).show()
 
@@ -147,22 +193,21 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (bool): Whether to annotate the peaks with plane
-                information.
+            annotate_peaks (str or None): Whether and how to annotate the peaks
+                with hkl indices.  Default is 'compact', i.e. show short
+                version (oriented vertically), e.g. 100.  If 'full', show
+                long version, e.g. (1, 0, 0).  If None, do not show anything.
             fontsize: (int) fontsize for peak labels.
         """
         import matplotlib.pyplot as plt
+
         nrows = len(structures)
-        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True,
-                                 squeeze=False)
+        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_plot(structure,
-                          fontsize=fontsize, ax=ax, with_labels=i == nrows - 1,
-                          **kwargs)
+            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == nrows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
-            ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol,
-                                              spg_number))
+            ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol, spg_number))
 
         return fig
 
@@ -183,7 +228,7 @@ def get_unique_families(hkls):
     def is_perm(hkl1, hkl2):
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
-        return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
+        return all(i == j for i, j in zip(sorted(h1), sorted(h2)))
 
     unique = collections.defaultdict(list)
     for hkl1 in hkls:
