@@ -567,7 +567,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 adjustments = self.get_adjustments(entry)
             except CompatibilityError as exc:
                 ignore_entry = True
-                print(exc)
                 continue
 
             for ea in adjustments:
