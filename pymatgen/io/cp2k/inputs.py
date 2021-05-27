@@ -140,7 +140,14 @@ class Keyword(MSONable):
     @staticmethod
     def from_string(s):
         """
-        Initialise from a string
+        Initialise from a string.
+
+        Keywords must be labeled with strings. If the postprocessor finds
+        that the keywords is a number, then None is return (used by
+        the file reader).
+
+        returns:
+            Keyword or None
         """
         s = s.strip()
         if s.__contains__("!") or s.__contains__("#"):
@@ -151,7 +158,8 @@ class Keyword(MSONable):
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
         args = list(map(_postprocessor, s.split()))
-        args[0] = str(args[0])
+        if not isinstance(args[0], str):
+            return None
         return Keyword(*args, units=units[0], description=description)
 
     def verbosity(self, v):
@@ -660,6 +668,8 @@ class Cp2kInput(Section):
                 current = current + "/" + alias if alias else current + "/" + name
             else:
                 kwd = Keyword.from_string(line)
+                if not kwd:
+                    continue
                 tmp = self.by_path(current).get(kwd.name)
                 if tmp:
                     if isinstance(tmp, KeywordList):
