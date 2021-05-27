@@ -1,17 +1,17 @@
-numpy==1.20.1
-sympy==1.7.1
+numpy==1.20.2
+sympy==1.8
 requests==2.25.1
 monty==2021.5.9
-ruamel.yaml==0.16.12
+ruamel.yaml==0.17.4
 scipy==1.6.2
 tabulate==0.8.9
 matplotlib==3.3.4
 palettable==3.3.0
 spglib==1.16.1
-pandas==1.2.3
-networkx==2.5
+pandas==1.2.4
+networkx==2.5.1
 plotly==4.14.3
 beautifulsoup4==4.9.3
 uncertainties==3.1.5
 Cython==0.29.23
-typing_extensions==3.7.4.3; python_version < '3.8'
+typing_extensions==3.10.0.0; python_version < '3.8'
