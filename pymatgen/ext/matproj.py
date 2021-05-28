@@ -44,10 +44,9 @@ from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import PBar, get_chunks
 from pymatgen.core import __version__ as PMG_VERSION
-
+from typing import List
 
 logger = logging.getLogger(__name__)
-
 
 
 @unique
@@ -573,7 +572,6 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-
     def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
@@ -670,7 +668,6 @@ class MPRester:
                 pbx_entries.append(pbx_entry)
 
         return pbx_entries
-
 
     def get_structure_by_material_id(self, material_id, final=True, conventional_unit_cell=False):
         """
@@ -1560,36 +1557,43 @@ class MPRester:
         # task_id's correspond to NoMaD external_id's
         task_types = [t.value for t in task_types if isinstance(t, TaskType)] if task_types else []
 
-        meta = defaultdict(list)
-        for doc in self.query(
-                {"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]
-        ):
-
+        meta = dict()
+        for doc in self.query({"task_id": {"$in": material_ids}}, ["task_id", "blessed_tasks"]):
             for task_type, task_id in doc["blessed_tasks"].items():
                 if task_types and task_type not in task_types:
                     continue
-                meta[doc["material_id"]].append({"task_id": task_id, "task_type": task_type})
-
+                mp_id = doc["task_id"]
+                if meta.get(mp_id) is None:
+                    meta[mp_id] = [{"task_id": task_id, "task_type": task_type}]
+                else:
+                    meta[mp_id].append({"task_id": task_id, "task_type": task_type})
         if not meta:
-            raise ValueError("No tasks found.")
+            raise ValueError(f"No tasks found for material id {material_ids}.")
 
         # return a list of URLs for NoMaD Downloads containing the list of files
         # for every external_id in `task_ids`
         # For reference, please visit https://nomad-lab.eu/prod/rae/api/
+
+        # check if these task ids exist on NOMAD
         prefix = "https://nomad-lab.eu/prod/rae/api/repo/?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
                 prefix += f"file_pattern={file_pattern}&"
         prefix += "external_id="
 
-        # NOTE: IE has 2kb URL char limit
-        nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
         task_ids = [t["task_id"] for tl in meta.values() for t in tl]
         nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
         if len(nomad_exist_task_ids) != len(task_ids):
             self._print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types)
-        chunks = get_chunks(nomad_exist_task_ids, size=nmax)
-        urls = [prefix + ",".join(tids) for tids in chunks]
+
+        # generate download links for those that exist
+        prefix = "https://nomad-lab.eu/prod/rae/api/raw/query?"
+        if file_patterns is not None:
+            for file_pattern in file_patterns:
+                prefix += f"file_pattern={file_pattern}&"
+        prefix += "external_id="
+
+        urls = [prefix + tids for tids in nomad_exist_task_ids]
         return meta, urls
 
     @staticmethod
@@ -1605,7 +1609,7 @@ class MPRester:
         for task_id in task_ids:
             url = prefix + task_id
             if self._check_nomad_exist(url):
-                nomad_exist_task_ids.append(url)
+                nomad_exist_task_ids.append(task_id)
         return nomad_exist_task_ids
 
     @staticmethod
