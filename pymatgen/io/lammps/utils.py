@@ -474,8 +474,8 @@ class LammpsRunner:
         """
         lammps_cmd = self.lammps_bin + ["-in", self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
-        p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
-        (stdout, stderr) = p.communicate()
+        with Popen(lammps_cmd, stdout=PIPE, stderr=PIPE) as p:
+            (stdout, stderr) = p.communicate()
         return stdout, stderr
 
 

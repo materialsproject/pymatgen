@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.qchem.inputs module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.io.qchem.inputs module &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -70,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.8
               </div>
             
           
@@ -209,8 +212,8 @@
 <span id="pymatgen-io-qchem-inputs-module"></span><h1>pymatgen.io.qchem.inputs module<a class="headerlink" href="#module-pymatgen.io.qchem.inputs" title="Permalink to this headline">¶</a></h1>
 <p>Classes for reading/manipulating/writing QChem input files.</p>
 <dl class="py class">
-<dt id="pymatgen.io.qchem.inputs.QCInput">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">QCInput</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">read</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rem</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plots</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L28-L690"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">QCInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">read</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rem</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcm</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">van_der_waals</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'atomic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plots</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L28-L737"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a QChem input file. QCInput attributes represent different sections of a QChem input file.
 To add a new section one needs to modify __init__, __str__, from_sting and add staticmethods
@@ -242,12 +245,19 @@ dict, rather than each variable. Note that the total number of variable (sum of 
 CANNOT be
 more than two.
 Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 180 15”]}</p></li>
+<li><p><strong>van_der_waals</strong> (<em>dict</em>) – A dictionary of custom van der Waals radii to be used when construcing cavities for the PCM
+model or when computing, e.g. Mulliken charges. They keys are strs whose meaning depends on
+the value of vdw_mode, and the values are the custom radii in angstroms.</p></li>
+<li><p><strong>vdw_mode</strong> (<em>str</em>) – Method of specifying custom van der Waals radii - ‘atomic’ or ‘sequential’.
+In ‘atomic’ mode (default), dict keys represent the atomic number associated with each
+radius (e.g., 12 = carbon). In ‘sequential’ mode, dict keys represent the sequential
+position of a single specific atom in the input structure.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.find_sections">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">find_sections</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L426-L450"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.find_sections" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.find_sections">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">find_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L473-L497"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.find_sections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find sections in the string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -260,8 +270,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.from_file">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L231-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.from_file">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L247-L258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create QcInput from file.
 :param filename: Filename
 :type filename: str</p>
@@ -273,8 +283,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_multi_jobs_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L244-L259"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_multi_jobs_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L260-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_multi_jobs_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create list of QcInput from a file.
 :param filename: Filename
 :type filename: str</p>
@@ -286,8 +296,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.from_string">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L174-L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_string" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.from_string">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L190-L223"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read QcInput from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -300,8 +310,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.molecule_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">molecule_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">read</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L261-L289"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.molecule_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.molecule_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">molecule_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">read</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L277-L305"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.molecule_template" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – molecule</p>
@@ -313,8 +323,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.multi_job_string">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">multi_job_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L157-L172"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.multi_job_string" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.multi_job_string">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">multi_job_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L173-L188"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.multi_job_string" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>job_list</em>) – List of jobs</p>
@@ -326,8 +336,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.opt_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">opt_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L307-L331"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.opt_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.opt_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">opt_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L323-L347"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.opt_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optimization template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -340,8 +350,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.pcm_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">pcm_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pcm</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L333-L349"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.pcm_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.pcm_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">pcm_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pcm</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L349-L365"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.pcm_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pcm run template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -354,8 +364,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.plots_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">plots_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plots</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L410-L424"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.plots_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.plots_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">plots_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plots</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L457-L471"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.plots_template" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>plots</em>) – </p>
@@ -367,8 +377,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_molecule">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_molecule</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">read</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L452-L487"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_molecule" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_molecule">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_molecule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">read</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L499-L534"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read molecule from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -381,8 +391,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_opt">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_opt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L506-L565"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_opt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_opt">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L553-L612"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read opt section from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -395,8 +405,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_pcm">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_pcm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L567-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_pcm" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_pcm">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_pcm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L614-L633"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_pcm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read pcm parameters from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -409,8 +419,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_plots">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_plots</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L669-L690"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_plots" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_plots">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L716-L737"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_plots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read plots parameters from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -423,8 +433,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_rem">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_rem</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L489-L504"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_rem" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_rem">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_rem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L536-L551"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_rem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse rem from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -437,8 +447,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_scan">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_scan</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L634-L667"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_scan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_scan">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L681-L714"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_scan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read scan section from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -451,8 +461,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_smx">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_smx</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L609-L632"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_smx" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_smx">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_smx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L656-L679"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_smx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read smx parameters from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -465,8 +475,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.read_solvent">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">read_solvent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L588-L607"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_solvent" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.read_solvent">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">read_solvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L635-L654"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_solvent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read solvent parameters from string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -479,8 +489,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.rem_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">rem_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rem</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L291-L305"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.rem_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.rem_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">rem_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rem</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L307-L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.rem_template" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>rem</em>) – </p>
@@ -492,8 +502,8 @@ Ex. scan = {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 18
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.scan_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">scan_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L388-L408"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.scan_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.scan_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">scan_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L404-L424"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.scan_template" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>scan</strong> (<em>dict</em>) – Dictionary with scan section information.
@@ -506,8 +516,8 @@ Ex: {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 180 15”
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.smx_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">smx_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L369-L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.smx_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.smx_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">smx_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L385-L402"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.smx_template" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>smx</em>) – </p>
@@ -519,8 +529,8 @@ Ex: {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 180 15”
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.solvent_template">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">solvent_template</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L351-L367"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.solvent_template" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.solvent_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">solvent_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L367-L383"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.solvent_template" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solvent template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -533,8 +543,31 @@ Ex: {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 180 15”
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.write_file">
-<code class="sig-name descname"><span class="pre">write_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L209-L217"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.van_der_waals_template">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">van_der_waals_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radii</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'atomic'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L426-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.van_der_waals_template" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radii</strong> (<em>dict</em>) – Dictionary with custom van der Waals radii, in
+Angstroms, keyed by either atomic number or sequential
+atom number (see ‘mode’ kwarg).
+Ex: {1: 1.20, 12: 1.70}</p></li>
+<li><p><strong>mode</strong> – ‘atomic’ or ‘sequential’. In ‘atomic’ mode (default), dict keys
+represent the atomic number associated with each radius (e.g., ‘12’ = carbon).
+In ‘sequential’ mode, dict keys represent the sequential position of
+a single specific atom in the input structure.
+<strong>NOTE: keys must be given as strings even though they are numbers!</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String representing Q-Chem input format for van_der_waals section</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.write_file">
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L225-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write QcInput to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -544,8 +577,8 @@ Ex: {“stre”: [“3 6 1.5 1.9 0.1”], “tors”: [“1 2 3 4 -180 180 15”
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.inputs.QCInput.write_multi_job_file">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">write_multi_job_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/qchem/inputs.py#L219-L229"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_multi_job_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.inputs.QCInput.write_multi_job_file">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">write_multi_job_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/inputs.py#L235-L245"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.write_multi_job_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a multijob file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

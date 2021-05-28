@@ -560,7 +560,7 @@ class YamlTokenizer(Iterator):
         self.filename = filename
 
         try:
-            self.stream = open(filename, "rt")
+            self.stream = open(filename, "rt")  # pylint: disable=R1732
         except IOError as exc:
             # Look for associated error file.
             root, ext = os.path.splitext(self.filename)

@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.jarvis module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.io.jarvis module &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -70,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.8
               </div>
             
           
@@ -208,13 +211,13 @@
 <p>This module provides conversion between the JARVIS
 Atoms object and pymatgen Structure objects.</p>
 <dl class="py class">
-<dt id="pymatgen.io.jarvis.JarvisAtomsAdaptor">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">JarvisAtomsAdaptor</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/jarvis.py#L16-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.jarvis.JarvisAtomsAdaptor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">JarvisAtomsAdaptor</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/jarvis.py#L16-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Adaptor serves as a bridge between JARVIS Atoms and pymatgen objects.</p>
 <dl class="py method">
-<dt id="pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_atoms</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/jarvis.py#L21-L44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/jarvis.py#L21-L44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns JARVIS Atoms object from pymatgen structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -227,8 +230,8 @@ Atoms object and pymatgen Structure objects.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_structure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../io/jarvis.py#L46-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/jarvis.py#L46-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.jarvis.JarvisAtomsAdaptor.get_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns pymatgen structure from JARVIS Atoms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

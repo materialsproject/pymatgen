@@ -59,10 +59,16 @@ class SlabTest(PymatgenTest):
             ],
         )
 
+        m = [[3.913449, 0, 0], [0, 3.913449, 0], [0, 0, 5.842644]]
+        latt = Lattice(m)
+        fcoords = [[0.5, 0, 0.222518], [0, 0.5, 0.777482], [0, 0, 0], [0, 0, 0.5], [0.5, 0.5, 0]]
+        non_laue = Structure(latt, ["Nb", "Nb", "N", "N", "N"], fcoords)
+
         self.ti = Ti
         self.agfcc = Ag_fcc
         self.zno1 = zno1
         self.zno55 = zno55
+        self.nonlaue = non_laue
         self.h = Structure(Lattice.cubic(3), ["H"], [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
@@ -174,7 +180,6 @@ class SlabTest(PymatgenTest):
             total_surf_sites = sum([len(surf_sites_dict[key]) for key in surf_sites_dict.keys()])
             self.assertTrue(slab.is_symmetric())
             self.assertEqual(total_surf_sites / 2, 4)
-            self.assertTrue(slab.have_equivalent_surfaces())
 
             # Test if the ratio of surface sites per area is
             # constant, ie are the surface energies the same
@@ -242,6 +247,10 @@ class SlabTest(PymatgenTest):
             # Check if slabs are all symmetric
             self.assertEqual(assymetric_count, 0)
             self.assertEqual(symmetric_count, len(slabs))
+
+        # Check if we can generate symmetric slabs from bulk with no inversion
+        all_non_laue_slabs = generate_all_slabs(self.nonlaue, 1, 15, 15, symmetrize=True)
+        self.assertTrue(len(all_non_laue_slabs) > 0)
 
     def test_get_symmetric_sites(self):
 
@@ -619,6 +628,25 @@ class SlabGeneratorTest(PymatgenTest):
         slab = slabgen.move_to_other_side(slab, bottom_index)
         all_top = [slab[i].frac_coords[2] > slab.center_of_mass[2] for i in bottom_index]
         self.assertTrue(all(all_top))
+
+    def test_bonds_broken(self):
+        # Querying the Materials Project database for Si
+        s = self.get_structure("Si")
+        # Conventional unit cell is supplied to ensure miller indices
+        # correspond to usual crystallographic definitions
+        conv_bulk = SpacegroupAnalyzer(s).get_conventional_standard_structure()
+        slabgen = SlabGenerator(conv_bulk, [1, 1, 1], 10, 10, center_slab=True)
+        # Setting a generous estimate for max_broken_bonds
+        # so that all terminations are generated. These slabs
+        # are ordered by ascending number of bonds broken
+        # which is assigned to Slab.energy
+        slabs = slabgen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
+        # Looking at the two slabs generated in VESTA, we
+        # expect 2 and 6 bonds broken so we check for this.
+        # Number of broken bonds are floats due to primitive
+        # flag check and subsequent transformation of slabs.
+        self.assertTrue(slabs[0].energy, 2.0)
+        self.assertTrue(slabs[1].energy, 6.0)
 
 
 class ReconstructionGeneratorTests(PymatgenTest):

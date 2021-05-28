@@ -10,11 +10,10 @@ import abc
 import os
 import warnings
 from collections import defaultdict
-from typing import List, Optional, Sequence, Union
+from typing import Optional, Sequence, Union, List, Type
 
 import numpy as np
 from monty.design_patterns import cached_class
-from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
 from uncertainties import ufloat
@@ -29,6 +28,7 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
+from pymatgen.util.sequence import PBar
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
@@ -176,7 +176,7 @@ class GasCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    For old MaterialsProjectCompatibility and MITCompatibility.
+    Used by legacy MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file):
@@ -215,7 +215,7 @@ class AnionCorrection(Correction):
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
-    For old MaterialsProjectCompatibility and MITCompatibility.
+    Used by legacy MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file, correct_peroxide=True):
@@ -306,6 +306,8 @@ class AqueousCorrection(Correction):
     """
     This class implements aqueous phase compound corrections for elements
     and H2O.
+
+    Used only by MITAqueousCompatibility.
     """
 
     def __init__(self, config_file, error_file=None):
@@ -318,9 +320,7 @@ class AqueousCorrection(Correction):
         self.cpd_energies = c["AqueousCompoundEnergies"]
         # there will either be a CompositionCorrections OR an OxideCorrections key,
         # but not both, depending on the compatibility scheme we are using.
-        # TODO - the two lines below are specific to MaterialsProjectCompatibility
-        # and MaterialsProject2020Compatibility. Could be changed to be more general
-        # and/or streamlined if MaterialsProjectCompatibility is retired.
+        # MITCompatibility only uses OxideCorrections, and hence self.comp_correction is none.
         self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
         self.oxide_correction = c.get("OxideCorrections", defaultdict(float))
         self.name = c["Name"]
@@ -533,7 +533,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return self.process_entries(entry)[0]
         return None
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True, verbose: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
@@ -543,6 +543,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
+            verbose: bool, whether to display progress bar for processing multiple entries.
+                Default is False.
 
         Returns:
             A list of adjusted entries.  Entries in the original list which
@@ -554,7 +556,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         processed_entry_list = []
 
-        for entry in entries:
+        for entry in PBar(entries, disable=(not verbose)):
             ignore_entry = False
             # if clean is True, remove all previous adjustments from the entry
             if clean:
@@ -565,7 +567,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 adjustments = self.get_adjustments(entry)
             except CompatibilityError as exc:
                 ignore_entry = True
-                print(exc)
                 continue
 
             for ea in adjustments:
@@ -769,12 +770,6 @@ class MaterialsProjectCompatibility(CorrectionsList):
     valid.
     """
 
-    @deprecated(
-        message=(
-            "MaterialsProjectCompatibility will be updated with new correction classes "
-            "as well as new values of corrections and uncertainties in 2020"
-        )
-    )
     def __init__(self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False):
         """
         Args:
@@ -820,6 +815,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         compat_type="Advanced",
         correct_peroxide=True,
         check_potcar_hash=False,
+        config_file=None,
     ):
         """
         Args:
@@ -848,10 +844,15 @@ class MaterialsProject2020Compatibility(Compatibility):
             check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are
                 consistent with MPRelaxSet. If False, only the POTCAR symbols will
                 be used. (Default: False)
+            config_file (Path): Path to the selected compatibility.yaml config file.
+                If None, defaults to `MP2020Compatibility.yaml` distributed with
+                pymatgen.
 
         References:
-            Wang, A., et al. A framework for quantifying uncertainty in DFT energy corrections.
-                Under review.
+            Wang, A., Kingsbury, R., McDermott, M., Horton, M., Jain. A., Ong, S.P.,
+                Dwaraknath, S., Persson, K. A framework for quantifying uncertainty
+                in DFT energy corrections. ChemRxiv. Preprint.
+                https://doi.org/10.26434/chemrxiv.14593476.v1
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
@@ -864,8 +865,18 @@ class MaterialsProject2020Compatibility(Compatibility):
         self.check_potcar_hash = check_potcar_hash
 
         # load corrections and uncertainties
-        self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
-        c = loadfn(self.config_file)
+        if config_file:
+            if os.path.isfile(config_file):
+                self.config_file = config_file
+                c = loadfn(self.config_file)
+            else:
+                raise ValueError(
+                    f"Custom MaterialsProject2020Compatibility config_file ({config_file}) does not exist."
+                )
+        else:
+            self.config_file = None
+            c = loadfn(os.path.join(MODULE_DIR, "MP2020Compatibility.yaml"))
+
         self.name = c["Name"]
         self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
         self.comp_errors = c["Uncertainties"].get("CompositionCorrections", defaultdict(float))
@@ -1000,21 +1011,39 @@ class MaterialsProject2020Compatibility(Compatibility):
             )
 
         # Check for anion corrections
+        # only apply anion corrections if the element is an anion
+        # first check for a pre-populated oxidation states key
+        # the key is expected to comprise a dict corresponding to the first element output by
+        # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
+        if "oxidation_states" not in entry.data.keys():
+            # try to guess the oxidation states from composition
+            # for performance reasons, fail if the composition is too large
+            try:
+                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
+            except ValueError:
+                oxi_states = []
+
+            if oxi_states == []:
+                entry.data["oxidation_states"] = {}
+            else:
+                entry.data["oxidation_states"] = oxi_states[0]
+
+        if entry.data["oxidation_states"] == {}:
+            warnings.warn(
+                f"Failed to guess oxidation states for Entry {entry.entry_id} "
+                f"({entry.composition.reduced_formula}. Assigning anion correction to "
+                "only the most electronegative atom."
+            )
+
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
-                # only apply anion corrections if the element is an anion
-                # first check for a pre-populated oxidation states key
-                # the key is expected to comprise a dict corresponding to the first element output by
-                # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-                if entry.data.get("oxidation_states"):
-                    if entry.data["oxidation_states"].get(anion, 0) < 0:
-                        apply_correction = True
+                # if the oxidation_states key is not populated, only apply the correction if the anion
+                # is the most electronegative element
+                if entry.data["oxidation_states"].get(anion, 0) < 0:
+                    apply_correction = True
                 else:
-                    # if the oxidation_states key is not populated, only apply the correction if the anion
-                    # is the most electronegative element
                     most_electroneg = elements[-1].symbol
-
                     if anion == most_electroneg:
                         apply_correction = True
 
@@ -1024,10 +1053,11 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name="MP2020 anion correction",
+                            name="MP2020 anion correction ({})".format(anion),
                             cls=self.as_dict(),
                         )
                     )
+
         # GGA / GGA+U mixing scheme corrections
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
@@ -1158,7 +1188,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(
         self,
-        solid_compat: Optional[Compatibility] = MaterialsProjectCompatibility,
+        solid_compat: Optional[Type[Compatibility]] = MaterialsProject2020Compatibility,
         o2_energy: Optional[float] = None,
         h2o_energy: Optional[float] = None,
         h2o_adjustments: Optional[float] = None,
@@ -1173,9 +1203,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Args:
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
-                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
-                Default: MaterialsProjectCompatibility
+                energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
+                (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProject2020Compatibility
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
                 If not set, this value will be determined from any O2 entries passed to process_entries.
                 Default: None
@@ -1186,10 +1216,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 If not set, this value will be determined from any H2O entries passed to process_entries.
                 Default: None
         """
-        self.solid_compat = solid_compat
-        if self.solid_compat:
-            if not isinstance(self.solid_compat, Compatibility):  # check whether solid_compat has been instantiated
+        self.solid_compat = None
+        # check whether solid_compat has been instantiated
+        if solid_compat:
+            if not isinstance(solid_compat, Compatibility):
                 self.solid_compat = solid_compat()
+            else:
+                self.solid_compat = solid_compat
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
@@ -1350,7 +1383,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False, verbose: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -1358,6 +1391,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             entries: ComputedEntry or [ComputedEntry]
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
+                Default is False.
+            verbose: bool, whether to display progress bar for processing multiple entries.
                 Default is False.
 
         Returns:
@@ -1385,4 +1420,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 self.h2o_energy = h2o_entries[0].energy_per_atom
                 self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
 
-        return super().process_entries(entries, clean=clean)
+        return super().process_entries(entries, clean=clean, verbose=verbose)
