@@ -55,7 +55,7 @@ class QCOutput(MSONable):
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
-        with zopen(filename, encoding="ISO-8859-1") as f:
+        with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
             self.text = f.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
@@ -1301,6 +1301,15 @@ class QCOutput(MSONable):
             == [[]]
         ):
             self.data["errors"] += ["driver_error"]
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Basis not supported for the above atom"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["basis_not_supported"]
         elif (
             read_pattern(
                 self.text,

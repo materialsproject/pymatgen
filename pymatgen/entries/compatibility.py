@@ -28,6 +28,7 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
+from pymatgen.util.sequence import PBar
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
@@ -532,7 +533,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return self.process_entries(entry)[0]
         return None
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True, verbose: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme. Note
         that this method will change the data of the original entries.
@@ -542,6 +543,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
+            verbose: bool, whether to display progress bar for processing multiple entries.
+                Default is False.
 
         Returns:
             A list of adjusted entries.  Entries in the original list which
@@ -553,7 +556,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         processed_entry_list = []
 
-        for entry in entries:
+        for entry in PBar(entries, disable=(not verbose)):
             ignore_entry = False
             # if clean is True, remove all previous adjustments from the entry
             if clean:
@@ -564,7 +567,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 adjustments = self.get_adjustments(entry)
             except CompatibilityError as exc:
                 ignore_entry = True
-                print(exc)
                 continue
 
             for ea in adjustments:
@@ -849,7 +851,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         References:
             Wang, A., Kingsbury, R., McDermott, M., Horton, M., Jain. A., Ong, S.P.,
                 Dwaraknath, S., Persson, K. A framework for quantifying uncertainty
-                in DFT energy corrections. In preparation.
+                in DFT energy corrections. ChemRxiv. Preprint.
+                https://doi.org/10.26434/chemrxiv.14593476.v1
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
@@ -1008,31 +1011,33 @@ class MaterialsProject2020Compatibility(Compatibility):
             )
 
         # Check for anion corrections
+        # only apply anion corrections if the element is an anion
+        # first check for a pre-populated oxidation states key
+        # the key is expected to comprise a dict corresponding to the first element output by
+        # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
+        if "oxidation_states" not in entry.data.keys():
+            # try to guess the oxidation states from composition
+            # for performance reasons, fail if the composition is too large
+            try:
+                oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
+            except ValueError:
+                oxi_states = []
+
+            if oxi_states == []:
+                entry.data["oxidation_states"] = {}
+            else:
+                entry.data["oxidation_states"] = oxi_states[0]
+
+        if entry.data["oxidation_states"] == {}:
+            warnings.warn(
+                f"Failed to guess oxidation states for Entry {entry.entry_id} "
+                f"({entry.composition.reduced_formula}. Assigning anion correction to "
+                "only the most electronegative atom."
+            )
+
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
-                # only apply anion corrections if the element is an anion
-                # first check for a pre-populated oxidation states key
-                # the key is expected to comprise a dict corresponding to the first element output by
-                # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
-                if not entry.data.get("oxidation_states"):
-                    # try to guess the oxidation states from composition
-                    # for performance reasons, fail if the composition is too large
-                    try:
-                        oxi_states = entry.composition.oxi_state_guesses(max_sites=-20)
-                    except ValueError:
-                        oxi_states = []
-
-                    if oxi_states == []:
-                        warnings.warn(
-                            f"Failed to guess oxidation states for Entry {entry.entry_id} "
-                            f"({entry.composition.reduced_formula}. Assigning anion correction to "
-                            "only the most electronegative atom."
-                        )
-                        entry.data["oxidation_states"] = {}
-                    else:
-                        entry.data["oxidation_states"] = oxi_states[0]
-
                 # if the oxidation_states key is not populated, only apply the correction if the anion
                 # is the most electronegative element
                 if entry.data["oxidation_states"].get(anion, 0) < 0:
@@ -1048,10 +1053,11 @@ class MaterialsProject2020Compatibility(Compatibility):
                             self.comp_correction[anion],
                             comp[anion],
                             uncertainty_per_atom=self.comp_errors[anion],
-                            name="MP2020 anion correction",
+                            name="MP2020 anion correction ({})".format(anion),
                             cls=self.as_dict(),
                         )
                     )
+
         # GGA / GGA+U mixing scheme corrections
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
@@ -1377,7 +1383,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         return adjustments
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False, verbose: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -1385,6 +1391,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             entries: ComputedEntry or [ComputedEntry]
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
+                Default is False.
+            verbose: bool, whether to display progress bar for processing multiple entries.
                 Default is False.
 
         Returns:
@@ -1412,4 +1420,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 self.h2o_energy = h2o_entries[0].energy_per_atom
                 self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
 
-        return super().process_entries(entries, clean=clean)
+        return super().process_entries(entries, clean=clean, verbose=verbose)
