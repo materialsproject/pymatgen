@@ -1290,7 +1290,8 @@ class CombinedData(LammpsData):
     ):
         """
         Args:
-            list_of_molecules: a list of LammpsData of a single cluster.
+            list_of_molecules: a list of LammpsData objects of a chemical cluster.
+                 Each LammpsData object (cluster) may contain one or more molecule ID.
             list_of_names: a list of name for each cluster.
             list_of_numbers: a list of Integer for counts of each molecule
                 coordinates (pandas.DataFrame): DataFrame with with four
@@ -1395,7 +1396,7 @@ class CombinedData(LammpsData):
             coordinate_file (str): The filename of xyz coordinates.
             list_of_numbers (list): A list of numbers specifying counts for each
                 clusters parsed from files.
-            filenames (str): A series of filenames in string format.
+            filenames (str): A series of LAMMPS data filenames in string format.
         """
         names = []
         mols = []
@@ -1417,7 +1418,8 @@ class CombinedData(LammpsData):
         The input LammpsData objects are used non-destructively.
 
         Args:
-            mols: a list of LammpsData of a single cluster.
+            mols: a list of LammpsData of a chemical cluster.Each LammpsData object (cluster)
+                may contain one or more molecule ID.
             names: a list of name for each cluster.
             list_of_numbers: a list of Integer for counts of each molecule
                 coordinates (pandas.DataFrame): DataFrame with with four
@@ -1437,7 +1439,11 @@ class CombinedData(LammpsData):
     def get_string(self, distance=6, velocity=8, charge=4):
         """
         Returns the string representation of CombinedData, essentially
-        the string to be written to a file. Combination info is included.
+        the string to be written to a file. Combination info is included
+        as a comment. For single molecule ID data, the info format is:
+            num name
+        For data with multiple molecule ID, the format is:
+            num(mols_per_data) name
 
         Args:
             distance (int): No. of significant figures to output for
