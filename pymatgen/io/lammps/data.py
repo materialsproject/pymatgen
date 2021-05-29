@@ -45,10 +45,10 @@ from pymatgen.util.io_utils import clean_lines
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
-__version__ = "1.0"
-__maintainer__ = "Zhi Deng"
-__email__ = "z4deng@eng.ucsd.edu"
-__date__ = "Aug 1, 2018"
+__version__ = "2.0"
+__maintainer__ = "Tingzheng Hou"
+__email__ = "tingzheng_hou@berkeley.edu"
+__date__ = "May 29, 2021"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -1322,15 +1322,18 @@ class CombinedData(LammpsData):
         self.atoms = pd.DataFrame()
         mol_count = 0
         type_count = 0
+        self.mols_per_data = list()
         for i, mol in enumerate(self.mols):
             atoms_df = mol.atoms.copy()
             atoms_df["molecule-ID"] += mol_count
             atoms_df["type"] += type_count
+            mols_in_data = len(atoms_df["molecule-ID"].unique())
+            self.mols_per_data.append(mols_in_data)
             for j in range(self.nums[i]):
                 self.atoms = self.atoms.append(atoms_df, ignore_index=True)
-                atoms_df["molecule-ID"] += 1
+                atoms_df["molecule-ID"] += mols_in_data
             type_count += len(mol.masses)
-            mol_count += self.nums[i]
+            mol_count += self.nums[i] * mols_in_data
         self.atoms.index += 1
         assert len(self.atoms) == len(coordinates), "Wrong number of coordinates."
         self.atoms.update(coordinates)
@@ -1449,7 +1452,10 @@ class CombinedData(LammpsData):
             String representation
         """
         lines = LammpsData.get_string(self, distance, velocity, charge).splitlines()
-        info = "# " + " + ".join(str(a) + " " + b for a, b in zip(self.nums, self.names))
+        info = "# " + " + ".join(
+            (str(a) + " " + b) if c == 1 else (str(a) + "(" + str(c) + ") " + b)
+            for a, b, c in zip(self.nums, self.names, self.mols_per_data)
+        )
         lines.insert(1, info)
         return "\n".join(lines)
 
