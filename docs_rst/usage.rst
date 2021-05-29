@@ -186,7 +186,7 @@ example, to read a POSCAR and write a cif::
     from pymatgen.io.cif import CifWriter
 
     p = Poscar.from_file('POSCAR')
-    w = CifWriter(p.struct)
+    w = CifWriter(p.structure)
     w.write_file('mystructure.cif')
 
 For molecules, pymatgen has in-built support for XYZ and Gaussian input and
