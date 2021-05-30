@@ -869,7 +869,7 @@ class CombinedDataTest(unittest.TestCase):
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()
         cls.double_coord = pd.concat([cls.coord, cls.coord], ignore_index=True)
         cls.double_coord.index += 1
-        cls.ec_fec3 = CombinedData.from_lammpsdata([cls.ec_fec_ld], ["ECFEC"], [2], cls.double_coord)
+        cls.ec_fec3 = CombinedData.from_lammpsdata([cls.ec_fec_ld], ["EC FEC"], [2], cls.double_coord)
 
     def test_from_files(self):
         # general tests
@@ -1010,7 +1010,7 @@ class CombinedDataTest(unittest.TestCase):
         ec_fec_double_lines = self.ec_fec3.get_string().splitlines()
         # header information
         self.assertEqual(ec_fec_lines[1], "# 1200 cluster1 + 300 cluster2")
-        self.assertEqual(ec_fec_double_lines[1], "# 2(1500) ECFEC")
+        self.assertEqual(ec_fec_double_lines[1], "# 2(1500) EC_FEC")
         # data type consistency tests
         self.assertEqual(ec_fec_lines[98], "1  harmonic 3.200000000 -1 2")
         self.assertEqual(ec_fec_lines[109], "12  charmm 2.700000000 2 180 0.0")

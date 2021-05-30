@@ -1290,10 +1290,12 @@ class CombinedData(LammpsData):
     ):
         """
         Args:
-            list_of_molecules: a list of LammpsData objects of a chemical cluster.
+            list_of_molecules: A list of LammpsData objects of a chemical cluster.
                  Each LammpsData object (cluster) may contain one or more molecule ID.
-            list_of_names: a list of name for each cluster.
-            list_of_numbers: a list of Integer for counts of each molecule
+            list_of_names: A list of name (string) for each cluster. The characters in each name are
+                restricted to word characters ([a-zA-Z0-9_]). If names with any non-word characters
+                are passed in, the special characters will be substituted by '_'.
+            list_of_numbers: A list of Integer for counts of each molecule
                 coordinates (pandas.DataFrame): DataFrame with with four
                 columns ["atom", "x", "y", "z"] for coordinates of atoms.
             atom_style (str): Output atom_style. Default to "full".
@@ -1305,7 +1307,9 @@ class CombinedData(LammpsData):
         self.box = LammpsBox(np.array(3 * [[min_xyz - 0.5, max_xyz + 0.5]]))
         self.atom_style = atom_style
         self.n = sum(list_of_numbers)
-        self.names = list_of_names
+        self.names = list()
+        for name in list_of_names:
+            self.names.append("_".join(re.findall(r"\w+", name)))
         self.mols = list_of_molecules
         self.nums = list_of_numbers
         self.masses = pd.concat([mol.masses.copy() for mol in self.mols], ignore_index=True)
