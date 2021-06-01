@@ -80,7 +80,7 @@ class Stress(SquareTensor):
         returns the deviatoric component of the stress
         """
         if not self.is_symmetric:
-            raise warnings.warn("The stress tensor is not symmetric, " "so deviator stress will not be either")
+            raise ValueError("The stress tensor is not symmetric, so deviator stress will not be either")
         return self - self.mean_stress * np.eye(3)
 
     def piola_kirchoff_1(self, def_grad):
