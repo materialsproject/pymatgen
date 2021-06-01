@@ -33,21 +33,12 @@ class FStarDiagram:
     Take a list of structure objects and/or cifs and use them to generate an f* phase diagram.
     """
 
-    def __init__(self, structure_objects=None, cifs=None, cif_index=0, occupancy_tolerance=5,
-                 scattering_type='X-ray_simple', custom_scatter=None):
+    def __init__(self, structure_objects, scattering_type='X-ray_simple', custom_scatter=None):
         """
         Initialize the f* diagram generator with the list of structures and scattering type.
 
         Args:
             structure_objects(list): List of structure objects to use in the diagram.
-            cifs(list): List of crystallographic information file names. If using this argument, the cifs must be stored
-                in the same working directory as the class is being run.
-            structure_objects and cifs can be used at the same time. Doing so will override the occupancy values from
-                the structure objects with that of the cifs. This is useful if you have refined structures with greater
-                than 1 occupancies.
-            cif_index(int): The index to use in a cif with more than one structure. Defaults to 0.
-            occupancy_tolerance(int): The occupancy tolerance for the CifParser class. Defaults to 5 to accept
-                structures with greater then 1 occupancy.
             scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray_simple'
                 which uses the atomic number as the scattering factor. 'X-ray' and 'Neutron' are built in scattering
                 types which use X-ray and neutron scattering factors, respectively. 'Custom' allows the user to
@@ -55,35 +46,19 @@ class FStarDiagram:
             custom_scatter(function): when using custom scattering set this equal to a global varialble that is equal
                 to the custom scattering function.
         """
-        if structure_objects:
-            self._structures = structure_objects
-            self._scatter = scattering_type
-            self._custscat = custom_scatter
-            self._symstructs = [SpacegroupAnalyzer(structure).get_symmetrized_structure() for structure in
-                                self._structures]
-            self._equiv_inds = [struct.equivalent_indices for struct in self._symstructs]
-            if cifs:
-                self.cif_list = [[d.data for d in CifParser(cif)._cif.data.values()][cif_index] for cif in cifs]
-            else:
-                self.cif_list = None
-            self.site_labels = self.get_site_labels()
-            self.coords = self.get_fstar_coords()
-            self.plot = px.scatter_ternary(data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1],
-                                           c=self.site_labels[2])
-        if cifs and not structure_objects:
-            self._structures = [CifParser(file, occupancy_tolerance=occupancy_tolerance).get_structures(primitive=False)
-                                [cif_index] for file in cifs]
-            self._scatter = scattering_type
-            self._custscat = custom_scatter
-            self._symstructs = [SpacegroupAnalyzer(structure).get_symmetrized_structure() for structure in
-                                self._structures]
-            self._equiv_inds = [struct.equivalent_indices for struct in self._symstructs]
-            self.cif_list = [[d.data for d in CifParser(cif)._cif.data.values()][cif_index] for cif in cifs]
-            self.site_labels = self.get_site_labels()
-            self.coords = self.get_fstar_coords()
-            self.plot = px.scatter_ternary(data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1],
-                                           c=self.site_labels[2])
 
+        self._structures = structure_objects
+        self._scatter = scattering_type
+        self._custscat = custom_scatter
+        self._symstructs = [SpacegroupAnalyzer(structure).get_symmetrized_structure() for structure in
+                            self._structures]
+        self._equiv_inds = [struct.equivalent_indices for struct in self._symstructs]
+        self.site_labels = self.get_site_labels()
+        self.coords = self.get_fstar_coords()
+        self.plot = px.scatter_ternary(data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1],
+                                       c=self.site_labels[2])
+        print("The labels for this structure's unique sites are")
+        print(self.site_labels)
     def edit_fstar_diagram(self, combine_list=False, plot_list=False, **kwargs):
         """
         Edit the plot of the f* diagram using plotly express.
@@ -91,7 +66,8 @@ class FStarDiagram:
         Args:
             combine_list(list): This is a list of lists which indicates what unique sites need to be combined to make
                 the plot ternary.
-            plot_list(list): This is a list that indicates what unique sites to plot and what order to plot them in.
+            plot_list(list): This is a list that indicates what unique sites or combined sites to plot and what order to
+            plot them in.
             kwargs: use this to add any other arguments from scatter_ternary .
         """
         if combine_list:
@@ -168,32 +144,6 @@ class FStarDiagram:
                 column = [label for label in self.site_labels if site_frac_coord in label]
                 elements_and_occupancies = self._symstructs[ind1][site[0]].species_and_occu.items()
                 for sp, occ in elements_and_occupancies:
-                    if self.cif_list:
-                        cif_dic = self.cif_list[ind1]
-                        site_frac_coord_list = [round(c, 4) for c in list(self._structures[ind1][site[0]].frac_coords)]
-                        for xi, x in enumerate(cif_dic['_atom_site_fract_x']):
-                            if str2float(x) < 0:
-                                x = round(1.0 + str2float(x), 4)
-                            else:
-                                x = round(str2float(x), 4)
-                            y = cif_dic['_atom_site_fract_y'][xi]
-                            if str2float(y) < 0:
-                                y = round(1.0 + str2float(y), 4)
-                            else:
-                                y = round(str2float(y), 4)
-                            z = cif_dic['_atom_site_fract_z'][xi]
-                            if str2float(z) < 0:
-                                z = round(1.0 + str2float(z), 4)
-                            else:
-                                z = round(str2float(z), 4)
-                            frac_coord = [x, y, z]
-                            if frac_coord == site_frac_coord_list:
-                                if hasattr(sp, "element"):
-                                    if str(sp.element) == str(cif_dic['_atom_site_type_symbol'][xi]):
-                                        occ = str2float(cif_dic['_atom_site_occupancy'][xi])
-                                else:
-                                    if str(sp) == str(cif_dic['_atom_site_type_symbol'][xi]):
-                                        occ = str2float(cif_dic['_atom_site_occupancy'][xi])
                     if self._scatter == 'X-ray_simple':
                         f_occ = sp.Z * occ
                     if self._scatter == 'X-ray':
