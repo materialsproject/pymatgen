@@ -565,7 +565,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             # get the energy adjustments
             try:
                 adjustments = self.get_adjustments(entry)
-            except CompatibilityError as exc:
+            except CompatibilityError:
                 ignore_entry = True
                 continue
 

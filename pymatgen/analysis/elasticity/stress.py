@@ -9,7 +9,6 @@ calculate relevant properties of the stress tensor.
 """
 
 import math
-import warnings
 
 import numpy as np
 
