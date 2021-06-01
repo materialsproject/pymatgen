@@ -867,6 +867,9 @@ class CombinedDataTest(unittest.TestCase):
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()
+        cls.double_coord = pd.concat([cls.coord, cls.coord], ignore_index=True)
+        cls.double_coord.index += 1
+        cls.ec_fec3 = CombinedData.from_lammpsdata([cls.ec_fec_ld], ["EC FEC"], [2], cls.double_coord)
 
     def test_from_files(self):
         # general tests
@@ -1004,8 +1007,10 @@ class CombinedDataTest(unittest.TestCase):
     def test_get_string(self):
         # general tests
         ec_fec_lines = self.ec_fec1.get_string().splitlines()
+        ec_fec_double_lines = self.ec_fec3.get_string().splitlines()
         # header information
         self.assertEqual(ec_fec_lines[1], "# 1200 cluster1 + 300 cluster2")
+        self.assertEqual(ec_fec_double_lines[1], "# 2(1500) EC_FEC")
         # data type consistency tests
         self.assertEqual(ec_fec_lines[98], "1  harmonic 3.200000000 -1 2")
         self.assertEqual(ec_fec_lines[109], "12  charmm 2.700000000 2 180 0.0")
@@ -1014,7 +1019,19 @@ class CombinedDataTest(unittest.TestCase):
             "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000",
         )
         self.assertEqual(ec_fec_lines[141], "1  10.5 -1  2")
+        self.assertEqual(ec_fec_double_lines[98], "1  harmonic 3.200000000 -1 2")
+        self.assertEqual(ec_fec_double_lines[109], "12  charmm 2.700000000 2 180 0.0")
+        self.assertEqual(
+            ec_fec_double_lines[113],
+            "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000",
+        )
+        self.assertEqual(
+            ec_fec_double_lines[30146],
+            "30000  3000  12 -0.2329  4.630985  7.328547 51.604678",
+        )
+        self.assertEqual(ec_fec_double_lines[141], "1  10.5 -1  2")
         self.assertEqual(len(ec_fec_lines), 99159)
+        self.assertEqual(len(ec_fec_double_lines), 198159)
 
     def test_as_lammpsdata(self):
         ec_fec = self.ec_fec_ld
