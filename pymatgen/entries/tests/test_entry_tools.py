@@ -22,6 +22,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
 from pymatgen.util.testing import PymatgenTest
 
+
 class FuncTest(unittest.TestCase):
     def test_group_entries_by_structure(self):
         entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"))
@@ -51,6 +52,7 @@ class FuncTest(unittest.TestCase):
         for g in groups:
             assert g == sorted(g, key=lambda e: e.energy_per_atom)
 
+
 class EntrySetTest(unittest.TestCase):
     def setUp(self):
         entries = loadfn(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li-Fe-P-O_entries.json"))
@@ -62,9 +64,7 @@ class EntrySetTest(unittest.TestCase):
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
-            self.assertTrue(
-                set([Element.Li, Element.O]).issuperset(e.composition.keys())
-            )
+            self.assertTrue(set([Element.Li, Element.O]).issuperset(e.composition.keys()))
         self.assertRaises(ValueError, self.entry_set.get_subset_in_chemsys, ["Fe", "F"])
 
     def test_remove_non_ground_states(self):
