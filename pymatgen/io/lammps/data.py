@@ -1315,7 +1315,8 @@ class CombinedData(LammpsData):
         self.masses = pd.concat([mol.masses.copy() for mol in self.mols], ignore_index=True)
         self.masses.index += 1
         all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
-        ff_kws = [k for k in all_ff_kws if k in self.mols[0].force_field]
+        appeared_kws = {k for mol in self.mols if mol.force_field is not None for k in mol.force_field}
+        ff_kws = [k for k in all_ff_kws if k in appeared_kws]
         self.force_field = {}
         for kw in ff_kws:
             self.force_field[kw] = pd.concat(
@@ -1323,6 +1324,8 @@ class CombinedData(LammpsData):
                 ignore_index=True,
             )
             self.force_field[kw].index += 1
+        if not bool(self.force_field):
+            self.force_field = None
 
         self.atoms = pd.DataFrame()
         mol_count = 0
@@ -1351,7 +1354,7 @@ class CombinedData(LammpsData):
         count = {"Bonds": 0, "Angles": 0, "Dihedrals": 0, "Impropers": 0}
         for i, mol in enumerate(self.mols):
             for kw in SECTION_KEYWORDS["topology"]:
-                if kw in mol.topology:
+                if bool(mol.topology) and kw in mol.topology:
                     if kw not in self.topology:
                         self.topology[kw] = pd.DataFrame()
                     topo_df = mol.topology[kw].copy()
@@ -1367,6 +1370,8 @@ class CombinedData(LammpsData):
         for kw in SECTION_KEYWORDS["topology"]:
             if kw in self.topology:
                 self.topology[kw].index += 1
+        if not bool(self.topology):
+            self.topology = None
 
     @classmethod
     def parse_xyz(cls, filename):
