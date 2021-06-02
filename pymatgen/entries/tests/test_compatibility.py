@@ -104,7 +104,7 @@ class CorrectionSpecificityTest(unittest.TestCase):
             0.0,
             parameters={
                 "is_hubbard": False,
-                "run_type": "SCAN",
+                "run_type": "R2SCAN",
                 "potcar_spec": [
                     {
                         "titel": "PAW_PBE Fe_pv 06Sep2000",
@@ -628,7 +628,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
         entries = [
             ComputedEntry("Sn", 0, parameters={"run_type": "GGA"}),
             ComputedEntry("Br", 0, parameters={"run_type": "GGA"}),
-            ComputedEntry("SnBr2", -10, parameters={"run_type": "SCAN"}),
+            ComputedEntry("SnBr2", -10, parameters={"run_type": "R2SCAN"}),
             ComputedEntry("SnBr2", -100, parameters={"run_type": "GGA"}),
             ComputedStructureEntry(
                 Structure(
@@ -714,7 +714,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice, ["Sn"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={}
@@ -724,7 +724,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
@@ -739,7 +739,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     ],
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
 
@@ -755,7 +755,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice, ["Sn"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             )
         ]
 
@@ -770,19 +770,19 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice, ["Sn"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Br"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
@@ -797,7 +797,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     ],
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
 
@@ -869,7 +869,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             assert e.correction == 0
 
     def test_incompatible_run_type(self):
-        # If entry.parameters.run_type is not "GGA", "GGA+U", or "SCAN", raise
+        # If entry.parameters.run_type is not "GGA", "GGA+U", or "R2SCAN", raise
         # a CompatibilityError and ignore that entry
         lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
         lda_entry = ComputedStructureEntry(
@@ -941,7 +941,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     ],
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
 
@@ -958,19 +958,19 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice, ["Sn"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Br"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
@@ -985,7 +985,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     ],
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
         gga_entries = [
@@ -1018,7 +1018,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                                                   [True] * len(gga_entries),
                                                   []
                                                   ) == []
-            elif e.parameters["run_type"] == "SCAN":
+            elif e.parameters["run_type"] == "R2SCAN":
                 assert compat.get_adjustments(e,
                                               EntrySet(gga_entries),
                                               EntrySet(scan_entries),
@@ -1041,19 +1041,19 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice, ["Sn"], [[0, 0, 0]]),
                 -25,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(lattice, ["Br"], [[0, 0, 0]]),
                 -25,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
                 ),
                 -100,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
@@ -1068,7 +1068,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     ],
                 ),
                 -150,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
         gga_entries = [
@@ -1221,7 +1221,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice2, ["Sn"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             ComputedStructureEntry(
                 Structure(
@@ -1230,7 +1230,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]],
                 ),
                 -100,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
         compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
@@ -1310,7 +1310,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
                 ),
                 -100,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             # SCAN unstable polymorph structure, e_above_hull = 2 eV
             ComputedStructureEntry(
@@ -1320,7 +1320,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     [[0, 0, 0], [0.7, 0.7, 0.7], [1, 1, 1]],
                 ),
                 -98,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
 
@@ -1410,7 +1410,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
             ComputedStructureEntry(
                 Structure(lattice, ["Sn"], [[0, 0, 0]]),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
             # SCAN entry with a different structure than the GGA reference
             ComputedStructureEntry(
@@ -1418,7 +1418,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.7, 0.7, 0.7], [1, 1, 1]]
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
 
@@ -1474,7 +1474,7 @@ class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
                     lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
                 ),
                 0,
-                parameters={"run_type": "SCAN"},
+                parameters={"run_type": "R2SCAN"},
             ),
         ]
 
