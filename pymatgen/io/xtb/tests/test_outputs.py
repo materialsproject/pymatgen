@@ -23,12 +23,9 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-test_dir = os.path.join(os.path.dirname(__file__),
-                        PymatgenTest.TEST_FILES_DIR, "xtb",
-                                                     "sample_CREST_output")
-expected_output_dir = os.path.join(
-    os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "expected_output"
-)
+test_dir = os.path.join(os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "sample_CREST_output")
+expected_output_dir = os.path.join(os.path.dirname(__file__), PymatgenTest.TEST_FILES_DIR, "xtb", "expected_output")
+
 
 class TestCRESTOutput(PymatgenTest):
     """
@@ -98,8 +95,7 @@ class TestCRESTOutput(PymatgenTest):
                 self.assertAlmostEqual(float(r[1]), float(expected_energies[i][j]), 4)
 
         self.assertEqual(cout.properly_terminated, True)
-        self.assertEqual(check_for_structure_changes(
-            cout.lowest_energy_structure, exp_best), "no_change")
+        self.assertEqual(check_for_structure_changes(cout.lowest_energy_structure, exp_best), "no_change")
         self.assertDictEqual(cout.cmd_options, expected_cmd_options)
 
 
