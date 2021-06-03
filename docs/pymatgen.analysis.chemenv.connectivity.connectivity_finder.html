@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chemenv.connectivity.connectivity_finder module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.analysis.chemenv.connectivity.connectivity_finder module &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -70,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.8
               </div>
             
           
@@ -211,8 +214,8 @@
 <span id="pymatgen-analysis-chemenv-connectivity-connectivity-finder-module"></span><h1>pymatgen.analysis.chemenv.connectivity.connectivity_finder module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity.connectivity_finder" title="Permalink to this headline">¶</a></h1>
 <p>Module implementing connectivity finding.</p>
 <dl class="py class">
-<dt id="pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">ConnectivityFinder</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiple_environments_choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/connectivity/connectivity_finder.py#L22-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ConnectivityFinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiple_environments_choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/connectivity/connectivity_finder.py#L22-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Main class used to find the structure connectivity of a structure</p>
 <p>Constructor for the ConnectivityFinder.</p>
@@ -224,8 +227,8 @@
 <p>the environment of a given site is described as a “mix” of more than one
 coordination environments.</p>
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity">
-<code class="sig-name descname"><span class="pre">get_structure_connectivity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_structure_environments</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/connectivity/connectivity_finder.py#L37-L70"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity">
+<span class="sig-name descname"><span class="pre">get_structure_connectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">light_structure_environments</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/connectivity/connectivity_finder.py#L37-L70"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the structure connectivity from the coordination environments provided
 as an input.</p>
 <dl class="field-list simple">
@@ -239,8 +242,8 @@ the environments in the structure</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters">
-<code class="sig-name descname"><span class="pre">setup_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiple_environments_choice</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../analysis/chemenv/connectivity/connectivity_finder.py#L72-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters">
+<span class="sig-name descname"><span class="pre">setup_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiple_environments_choice</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/chemenv/connectivity/connectivity_finder.py#L72-L82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup of the parameters for the connectivity finder.</p>
 </dd></dl>
 

@@ -86,9 +86,8 @@ class Critic2Caller:
             f.write(input_script)
 
         args = ["critic2", "input_script.cri"]
-        rs = subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
-
-        stdout, stderr = rs.communicate()
+        with subprocess.Popen(args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
+            stdout, stderr = rs.communicate()
         stdout = stdout.decode()
 
         if stderr:

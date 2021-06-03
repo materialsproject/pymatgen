@@ -1,12 +1,18 @@
 Change log
 ==========
 
-v2022.0.4 / v2021.3.9
+v2022.0.8
 ---------
-* Element now has `ionization_energies`, `ionization_energy` and 
-  `electron_affinity` properties.
-* Extensive documentation has been added on pymatgen compatibility and the
-  new namespace architecture! We have also released a 
-  `template repo <https://github.com/materialsproject/pymatgen-addon-template>`_
-  to help new developers write add-ons for pymatgen! Check out our 
-  :doc:`contributing page</contributing>` for details.
+* PR #2130 @rkingsbury ensures that energy corrections applied to each anion
+  have unique names (e.g., N vs. Cl vs. Br).
+* PR #2133 @rkingsbury adds support for custom vdW radii to `QCInput` and 
+  `QChemDictSet`. These radii are used in the construction of PCM cavities and
+  when calculating charges.  
+* PR #2123 from @gpetretto fixes bug in `get_conventional_standard_structure` 
+  method of the `SpacegroupAnalyzer` for triclinic crystals.
+* PR #2134 from @ab5424 supports zopen in parsing lammps logs
+* PR #2132 from @htz1992213 speeds up LammpsData.as_string for
+  non-hybrid data with large coeff sections and adds as_lammpsdata method to
+  CombinedData  
+* PR #2129 from @richardtran415 improves analysis of surface symmetry of slabs.
+* PR #2117 from @nwinner contains bug fixes for bader caller.    

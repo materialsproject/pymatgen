@@ -61,3 +61,4 @@ Submodules
    pymatgen.analysis.thermochemistry
    pymatgen.analysis.transition_state
    pymatgen.analysis.wulff
+   pymatgen.analysis.xps

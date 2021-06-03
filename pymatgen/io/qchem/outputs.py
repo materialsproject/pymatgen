@@ -55,7 +55,7 @@ class QCOutput(MSONable):
         self.data["errors"] = []
         self.data["warnings"] = {}
         self.text = ""
-        with zopen(filename, "rt") as f:
+        with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
             self.text = f.read()
 
         # Check if output file contains multiple output files. If so, print an error message and exit
@@ -277,7 +277,7 @@ class QCOutput(MSONable):
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*force"},
             terminate_on_match=True,
         ).get("key")
-        if self.data.get("force", []):
+        if self.data.get("force_job", []):
             self._read_force_data()
 
         self.data["scan_job"] = read_pattern(
@@ -306,9 +306,8 @@ class QCOutput(MSONable):
         if text[0] == "":
             text = text[1:]
         for i, sub_text in enumerate(text):
-            temp = open(filename + "." + str(i), "w")
-            temp.write(sub_text)
-            temp.close()
+            with open(filename + "." + str(i), "w") as temp:
+                temp.write(sub_text)
             tempOutput = cls(filename + "." + str(i))
             to_return.append(tempOutput)
             if not keep_sub_files:
@@ -678,13 +677,6 @@ class QCOutput(MSONable):
             == [[]]
         ):
             self.data["warnings"]["diagonalizing_BBt"] = True
-
-        # Check for bad Roothaan step
-        for scf in self.data["SCF"]:
-            if abs(scf[0][0] - scf[1][0]) > 10.0:
-                self.data["warnings"]["bad_roothaan"] = True
-                if abs(scf[0][0] - scf[1][0]) > 100.0:
-                    self.data["warnings"]["very_bad_roothaan"] = True
 
     def _read_geometries(self):
         """
@@ -1309,6 +1301,15 @@ class QCOutput(MSONable):
             == [[]]
         ):
             self.data["errors"] += ["driver_error"]
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"Basis not supported for the above atom"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["basis_not_supported"]
         elif (
             read_pattern(
                 self.text,

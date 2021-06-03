@@ -478,7 +478,7 @@ class MPRester:
                 (e.g., mp-1234) or full Mongo-style dict criteria.
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProjectCompatibility class,
+                processed using the MaterialsProject2020Compatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -562,14 +562,17 @@ class MPRester:
                 )
             entries.append(e)
         if compatible_only:
-            from pymatgen.entries.compatibility import MaterialsProjectCompatibility
+            from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
-            entries = MaterialsProjectCompatibility().process_entries(entries)
+            # suppress the warning about missing oxidation states
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
+                entries = MaterialsProject2020Compatibility().process_entries(entries, clean=True)
         if sort_by_e_above_hull:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProjectCompatibility"):
+    def get_pourbaix_entries(self, chemsys, solid_compat="MaterialsProject2020Compatibility"):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -579,9 +582,9 @@ class MPRester:
                 symbols separated by dashes, e.g., "Li-Fe-O" or List of element
                 symbols, e.g., ["Li", "Fe", "O"].
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
-                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
-                Default: MaterialsProjectCompatibility
+                energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
+                (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProject2020Compatibility
         """
         # imports are not top-level due to expense
 
@@ -589,12 +592,20 @@ class MPRester:
         from pymatgen.analysis.pourbaix_diagram import IonEntry, PourbaixEntry
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import (
+            Compatibility,
             MaterialsProjectAqueousCompatibility,
+            MaterialsProject2020Compatibility,
             MaterialsProjectCompatibility,
         )
 
         if solid_compat == "MaterialsProjectCompatibility":
-            solid_compat = MaterialsProjectCompatibility
+            self.solid_compat = MaterialsProjectCompatibility()
+        elif solid_compat == "MaterialsProject2020Compatibility":
+            self.solid_compat = MaterialsProject2020Compatibility()
+        elif solid_compat and not isinstance(solid_compat, Compatibility):
+            self.solid_compat = solid_compat()
+        else:
+            self.solid_compat = solid_compat
 
         pbx_entries = []
 
@@ -620,8 +631,11 @@ class MPRester:
                 "ignore",
                 message="You did not provide the required O2 and H2O energies.",
             )
-            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
-        ion_ref_entries = compat.process_entries(ion_ref_entries)
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=self.solid_compat)
+        # suppress the warning about missing oxidation states
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Failed to guess oxidation states.*")
+            ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
         # position the ion energies relative to most stable reference state
@@ -711,7 +725,7 @@ class MPRester:
                 e.g., mp-1234).
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProjectCompatibility class,
+                processed using the MaterialsProject2020Compatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -830,7 +844,7 @@ class MPRester:
                 symbols, e.g., ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
-                processed using the MaterialsProjectCompatibility class,
+                processed using the MaterialsProject2020Compatibility class,
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
@@ -1003,7 +1017,7 @@ class MPRester:
                     break
                 except MPRestError as e:
                     # pylint: disable=E1101
-                    match = re.search(r"error status code (\d+)", e.message)
+                    match = re.search(r"error status code (\d+)", str(e))
                     if match:
                         if not match.group(1).startswith("5"):
                             raise e

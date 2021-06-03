@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.util.sequence module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.util.sequence module &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -70,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.8
               </div>
             
           
@@ -208,8 +211,8 @@
 <p>This module provides utilities to chunk large sequences and display progress
 bars during processing.</p>
 <dl class="py class">
-<dt id="pymatgen.util.sequence.PBarSafe">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">PBarSafe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../util/sequence.py#L26-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.PBarSafe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.sequence.PBarSafe">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PBarSafe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/sequence.py#L26-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.PBarSafe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Progress bar.</p>
 <dl class="field-list simple">
@@ -218,14 +221,14 @@ bars during processing.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.util.sequence.PBarSafe.report">
-<code class="sig-name descname"><span class="pre">report</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../util/sequence.py#L50-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.PBarSafe.report" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.sequence.PBarSafe.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/sequence.py#L50-L54"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.PBarSafe.report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print progress.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.util.sequence.PBarSafe.update">
-<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../util/sequence.py#L40-L48"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.PBarSafe.update" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.sequence.PBarSafe.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/sequence.py#L40-L48"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.PBarSafe.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update progress bar by amount.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,8 +240,8 @@ bars during processing.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.util.sequence.get_chunks">
-<code class="sig-name descname"><span class="pre">get_chunks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/../util/sequence.py#L13-L23"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.get_chunks" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.util.sequence.get_chunks">
+<span class="sig-name descname"><span class="pre">get_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../util/sequence.py#L13-L23"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.util.sequence.get_chunks" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

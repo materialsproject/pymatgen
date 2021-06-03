@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>Introduction &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -69,7 +72,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.8
               </div>
             
           
@@ -288,16 +291,22 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="v2022-0-4-v2021-3-9">
-<h3>v2022.0.4 / v2021.3.9<a class="headerlink" href="#v2022-0-4-v2021-3-9" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="v2022-0-8">
+<h3>v2022.0.8<a class="headerlink" href="#v2022-0-8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Element now has <cite>ionization_energies</cite>, <cite>ionization_energy</cite> and
-<cite>electron_affinity</cite> properties.</p></li>
-<li><p>Extensive documentation has been added on pymatgen compatibility and the
-new namespace architecture! We have also released a
-<a class="reference external" href="https://github.com/materialsproject/pymatgen-addon-template">template repo</a>
-to help new developers write add-ons for pymatgen! Check out our
-<a class="reference internal" href="contributing.html"><span class="doc">contributing page</span></a> for details.</p></li>
+<li><p>PR #2130 &#64;rkingsbury ensures that energy corrections applied to each anion
+have unique names (e.g., N vs. Cl vs. Br).</p></li>
+<li><p>PR #2133 &#64;rkingsbury adds support for custom vdW radii to <cite>QCInput</cite> and
+<cite>QChemDictSet</cite>. These radii are used in the construction of PCM cavities and
+when calculating charges.</p></li>
+<li><p>PR #2123 from &#64;gpetretto fixes bug in <cite>get_conventional_standard_structure</cite>
+method of the <cite>SpacegroupAnalyzer</cite> for triclinic crystals.</p></li>
+<li><p>PR #2134 from &#64;ab5424 supports zopen in parsing lammps logs</p></li>
+<li><p>PR #2132 from &#64;htz1992213 speeds up LammpsData.as_string for
+non-hybrid data with large coeff sections and adds as_lammpsdata method to
+CombinedData</p></li>
+<li><p>PR #2129 from &#64;richardtran415 improves analysis of surface symmetry of slabs.</p></li>
+<li><p>PR #2117 from &#64;nwinner contains bug fixes for bader caller.</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>

@@ -2173,8 +2173,7 @@ class GrainBoundaryGenerator:
                 t_matrix[2] = csl[c_index]
                 return t_matrix
             max_j = abs(miller_nonzero[0])
-        if max_j > max_search:
-            max_j = max_search
+        max_j = min(max_j, max_search)
         # area of a, b vectors
         area = None
         # length of c vector
@@ -2234,8 +2233,7 @@ class GrainBoundaryGenerator:
                     warnings.warn("Cannot find the perpendicular c vector, please increase max_search")
                     break
                 max_j = 3 * max_j
-                if max_j > max_search:
-                    max_j = max_search
+                max_j = min(max_j, max_search)
                 j = np.arange(0, max_j + 1)
                 combination = []
                 for i in itertools.product(j, repeat=3):

@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.core.molecular_orbitals module &mdash; pymatgen 2022.0.4 documentation</title>
+  <title>pymatgen.core.molecular_orbitals module &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -70,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.4
+                2022.0.8
               </div>
             
           
@@ -208,8 +211,8 @@
 <p>This module implements a MolecularOrbital class to represent band character in
 solids. Usefull for predicting PDOS character from structural information.</p>
 <dl class="py class">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">MolecularOrbitals</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/molecular_orbitals.py#L16-L124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MolecularOrbitals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py#L16-L124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents the character of bands in a solid. The input is a chemical
 formula, since no structural characteristics are taken into account.</p>
@@ -234,34 +237,34 @@ the uncharged atomic species. Functionality can be improved by:
 </dd>
 </dl>
 <dl class="py attribute">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.composition">
-<code class="sig-name descname"><span class="pre">composition</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.composition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.composition">
+<span class="sig-name descname"><span class="pre">composition</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.composition" title="Permalink to this definition">¶</a></dt>
 <dd><p>the composition as a dictionary.
 Ex: {‘Sr’: 1, ‘Ti’: 1, ‘O’, 3}</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.elements">
-<code class="sig-name descname"><span class="pre">elements</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.elements" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.elements">
+<span class="sig-name descname"><span class="pre">elements</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>the dictionary keys for the composition</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.elec_neg">
-<code class="sig-name descname"><span class="pre">elec_neg</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.elec_neg" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.elec_neg">
+<span class="sig-name descname"><span class="pre">elec_neg</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.elec_neg" title="Permalink to this definition">¶</a></dt>
 <dd><p>the maximum pairwise electronegetivity difference</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.aos">
-<code class="sig-name descname"><span class="pre">aos</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.aos">
+<span class="sig-name descname"><span class="pre">aos</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos" title="Permalink to this definition">¶</a></dt>
 <dd><p>the consituant atomic orbitals for each element as a
 dictionary</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.band_edges">
-<code class="sig-name descname"><span class="pre">band_edges</span></code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.band_edges" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.band_edges">
+<span class="sig-name descname"><span class="pre">band_edges</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.band_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>dictionary containing the highest occupied molecular
 orbital (HOMO), lowest unocupied molecular orbital
 (LUMO), and whether the material is predicted to be a
@@ -269,8 +272,8 @@ metal</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.aos_as_list">
-<code class="sig-name descname"><span class="pre">aos_as_list</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/molecular_orbitals.py#L77-L90"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos_as_list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.aos_as_list">
+<span class="sig-name descname"><span class="pre">aos_as_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py#L77-L90"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.aos_as_list" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><p>A list of atomic orbitals, sorted from lowest to highest energy.</p>
@@ -286,8 +289,8 @@ metal</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity">
-<code class="sig-name descname"><span class="pre">max_electronegativity</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/molecular_orbitals.py#L66-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity">
+<span class="sig-name descname"><span class="pre">max_electronegativity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py#L66-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.max_electronegativity" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The maximum pairwise electronegativity difference.</p>
@@ -296,8 +299,8 @@ metal</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.core.molecular_orbitals.MolecularOrbitals.obtain_band_edges">
-<code class="sig-name descname"><span class="pre">obtain_band_edges</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.4/pymatgen/pymatgen/molecular_orbitals.py#L92-L124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.obtain_band_edges" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.core.molecular_orbitals.MolecularOrbitals.obtain_band_edges">
+<span class="sig-name descname"><span class="pre">obtain_band_edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/molecular_orbitals.py#L92-L124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.core.molecular_orbitals.MolecularOrbitals.obtain_band_edges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fill up the atomic orbitals with available electrons.
 :returns: HOMO, LUMO, and whether it’s a metal.</p>
 </dd></dl>
