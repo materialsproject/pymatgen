@@ -95,7 +95,8 @@ class TestCRESTOutput(PymatgenTest):
                 self.assertAlmostEqual(float(r[1]), float(expected_energies[i][j]), 4)
 
         self.assertEqual(cout.properly_terminated, True)
-        self.assertEqual(check_for_structure_changes(cout.lowest_energy_structure, exp_best), "no_change")
+        if have_babel:
+            self.assertEqual(check_for_structure_changes(cout.lowest_energy_structure, exp_best), "no_change")
         self.assertDictEqual(cout.cmd_options, expected_cmd_options)
 
 
