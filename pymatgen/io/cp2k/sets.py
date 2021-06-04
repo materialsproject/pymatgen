@@ -337,7 +337,7 @@ class DftSet(Cp2kInputSet):
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
-        # If there's a band gap, use OT, else use Davidson
+        # If there's a band gap, use OT, else use diagonalization
         if ot:
             if band_gap <= 0:
                 warnings.warn(
@@ -366,18 +366,11 @@ class DftSet(Cp2kInputSet):
                 )
             )
         else:
-            algo = "STANDARD" if kpoints else "DAVIDSON"  # As of CP2K/7.1, Davidson doesn't work with kpoints
-            scf.insert(Section("DIAGONALIZATION", subsections={}, keywords={"DAVIDSON": Keyword("ALGORITHM", algo)}))
-            mixing_kwds = {
-                "METHOD": Keyword("METHOD", "BROYDEN_MIXING"),
-                "ALPHA": Keyword("ALPHA", 0.2),
-                "NBUFFER": Keyword("NBUFFER", 5),
-            }
+            scf.insert(Section("DIAGONALIZATION", subsections={}))
+            mixing_kwds = {"ALPHA": Keyword("ALPHA", 0.05)}
             mixing = Section("MIXING", keywords=mixing_kwds, subsections=None)
             scf.insert(mixing)
-            davidson_kwds = {"PRECONDITIONER": Keyword("PRECONDITIONER", "FULL_ALL")}
-            davidson = Section("DAVIDSON", keywords=davidson_kwds, subsections=None)
-            scf["DIAGONALIZATION"].insert(davidson)
+            scf.add(Keyword("MAX_DIIS", 15))
 
         # Create the multigrid for FFTs
         if not cutoff:
