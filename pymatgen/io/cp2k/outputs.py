@@ -990,7 +990,7 @@ class Cp2kOutput:
                         eigenvalues.append(
                             {"occupied": {Spin.up: [], Spin.down: []}, "unoccupied": {Spin.up: [], Spin.down: []},}
                         )
-                        efermi.append({Spin.up: None, Spin.down: None})
+                        efermi.append({Spin.up: np.nan, Spin.down: np.nan})
                         next(lines)
                         while True:
                             line = next(lines)
@@ -1034,7 +1034,9 @@ class Cp2kOutput:
                             elif line.__contains__("convergence"):
                                 line = next(lines)
 
-                            if line.lower().__contains__("eigenvalues") or line.__contains__("HOMO"):
+                            if line.lower().__contains__("eigenvalues") or \
+                                    line.__contains__("HOMO") or \
+                                    line.__contains__("ENERGY"):
                                 break
                             eigenvalues[-1]["unoccupied"][Spin.up].extend(
                                 [_hartree_to_ev_ * float(l) for l in line.split()]
@@ -1094,12 +1096,12 @@ class Cp2kOutput:
                 Spin.down: np.max(eigenvalues[-1]["occupied"][Spin.down]),
             }
             self.data["cbm"] = {
-                Spin.up: np.min(eigenvalues[-1]["unoccupied"][Spin.up]),
-                Spin.down: np.min(eigenvalues[-1]["unoccupied"][Spin.down]),
+                Spin.up: np.nanmin(eigenvalues[-1]["unoccupied"][Spin.up] or np.nan),
+                Spin.down: np.nanmin(eigenvalues[-1]["unoccupied"][Spin.down] or np.nan),
             }
-            self.vbm = (self.data["vbm"][Spin.up] + self.data["vbm"][Spin.down]) / 2
-            self.cbm = (self.data["cbm"][Spin.up] + self.data["cbm"][Spin.down]) / 2
-            self.efermi = (efermi[-1][Spin.up] + efermi[-1][Spin.down]) / 2
+            self.vbm = np.nanmean(list(self.data["vbm"].values()))
+            self.cbm = np.nanmean(list(self.data["cbm"].values()))
+            self.efermi = np.nanmean(list(efermi[-1].values()))
         else:
             self.data["vbm"] = {
                 Spin.up: np.max(eigenvalues[-1]["occupied"][Spin.up]),
