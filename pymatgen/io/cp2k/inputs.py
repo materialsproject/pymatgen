@@ -158,8 +158,7 @@ class Keyword(MSONable):
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
         args = list(map(_postprocessor, s.split()))
-        if not isinstance(args[0], str):
-            return None
+        args[0] = str(args[0])
         return Keyword(*args, units=units[0], description=description)
 
     def verbosity(self, v):
@@ -659,6 +658,10 @@ class Cp2kInput(Section):
                 current = "/".join(current.split("/")[:-1])
             elif line.startswith("&"):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
+                subsection_params = [] \
+                    if len(subsection_params) == 1 \
+                    and subsection_params[0].upper() in ('T', 'TRUE', 'F', 'FALSE', 'ON') \
+                    else subsection_params
                 alias = name + " " + " ".join(subsection_params) if subsection_params else None
                 s = Section(
                     name, section_parameters=subsection_params, alias=alias, subsections={}, description=description,
@@ -668,8 +671,6 @@ class Cp2kInput(Section):
                 current = current + "/" + alias if alias else current + "/" + name
             else:
                 kwd = Keyword.from_string(line)
-                if not kwd:
-                    continue
                 tmp = self.by_path(current).get(kwd.name)
                 if tmp:
                     if isinstance(tmp, KeywordList):
