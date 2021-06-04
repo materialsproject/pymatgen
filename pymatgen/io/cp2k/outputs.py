@@ -1356,7 +1356,7 @@ class Cp2kOutput:
         d["composition"] = self.composition.as_dict()
         d["output"]["energy"] = self.final_energy
         d["output"]["energy_per_atom"] = self.final_energy / self.composition.num_atoms
-        d["output"]["bandgap"] = self.band_gap
+        d["output"]["bandgap"] = self.cbm - self.vbm
         d["output"]["cbm"] = self.cbm
         d["output"]["vbm"] = self.vbm
         d["output"]["efermi"] = self.efermi
