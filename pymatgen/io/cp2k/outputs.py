@@ -270,7 +270,7 @@ class Cp2kOutput:
             else:
                 self.filenames["restart"].append(r)
 
-        wfn = glob.glob(os.path.join(self.dir, "*wfn*"))
+        wfn = glob.glob(os.path.join(self.dir, "*.wfn*")) + glob.glob(os.path.join(self.dir, "*.kp*"))
         self.filenames["wfn.bak"] = []
         for w in wfn:
             if w.split("/")[-1].__contains__("bak"):
@@ -1031,12 +1031,15 @@ class Cp2kOutput:
                                 line = next(lines)
                                 break
 
-                            line = next(lines)
-                            if line.__contains__("Eigenvalues") or line.__contains__("HOMO"):
+                            elif line.__contains__("convergence"):
+                                line = next(lines)
+
+                            if line.lower().__contains__("eigenvalues") or line.__contains__("HOMO"):
                                 break
                             eigenvalues[-1]["unoccupied"][Spin.up].extend(
                                 [_hartree_to_ev_ * float(l) for l in line.split()]
                             )
+                            line = next(lines)
 
                         if line.__contains__(" unoccupied subspace spin"):
                             next(lines)
@@ -1055,8 +1058,10 @@ class Cp2kOutput:
                                     )
                                     break
 
-                                line = next(lines)
-                                if line.__contains__("HOMO"):
+                                elif line.__contains__("convergence"):
+                                    line = next(lines)
+
+                                if line.__contains__("HOMO") or line.__contains__("ENERGY"):
                                     next(lines)
                                     break
                                 try:
@@ -1065,12 +1070,13 @@ class Cp2kOutput:
                                     )
                                 except AttributeError:
                                     break
+                                line = next(lines)
 
                 except ValueError:
                     eigenvalues = [
                         {"occupied": {Spin.up: None, Spin.down: None}, "unoccupied": {Spin.up: None, Spin.down: None}}
                     ]
-                    warnings.warn("Convergence of eigenvalues  for one or more subspaces did NOT converge")
+                    warnings.warn("Convergence of eigenvalues for one or more subspaces did NOT converge")
 
         self.data["eigenvalues"] = eigenvalues
         self.data["band_gap"] = band_gap
