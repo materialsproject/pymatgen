@@ -1,15 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.qchem.outputs module &mdash; pymatgen 2022.0.7 documentation</title>
+  <title>pymatgen.io.qchem.outputs module &mdash; pymatgen 2022.0.8 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,24 +25,20 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.qchem.sets module" href="pymatgen.io.qchem.sets.html" />
@@ -61,7 +63,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +73,7 @@
             
             
               <div class="version">
-                2022.0.7
+                2022.0.8
               </div>
             
           
@@ -88,6 +90,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +138,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +177,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -208,8 +212,8 @@
 <span id="pymatgen-io-qchem-outputs-module"></span><h1>pymatgen.io.qchem.outputs module<a class="headerlink" href="#module-pymatgen.io.qchem.outputs" title="Permalink to this headline">¶</a></h1>
 <p>Parsers for Qchem output files.</p>
 <dl class="py class">
-<dt id="pymatgen.io.qchem.outputs.QCOutput">
-<em class="property">class </em><code class="sig-name descname">QCOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/qchem/outputs.py#L43-L1334"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.outputs.QCOutput">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">QCOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/outputs.py#L43-L1334"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to parse QChem output files.</p>
 <dl class="field-list simple">
@@ -218,8 +222,8 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pymatgen.io.qchem.outputs.QCOutput.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/qchem/outputs.py#L1325-L1334"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.outputs.QCOutput.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/outputs.py#L1325-L1334"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -228,8 +232,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file">
-<em class="property">static </em><code class="sig-name descname">multiple_outputs_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">keep_sub_files</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/qchem/outputs.py#L293-L315"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">multiple_outputs_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_sub_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/outputs.py#L293-L315"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses a QChem output file with multiple calculations
 # 1.) Seperates the output into sub-files</p>
 <blockquote>
@@ -243,8 +247,8 @@ b.) Make seperate output sub-files</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pymatgen.io.qchem.outputs.check_for_structure_changes">
-<code class="sig-name descname">check_for_structure_changes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol1</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em>, <em class="sig-param"><span class="n">mol2</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule">pymatgen.core.structure.Molecule</a></span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.7/pymatgen/core/../io/qchem/outputs.py#L1337-L1397"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.check_for_structure_changes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.qchem.outputs.check_for_structure_changes">
+<span class="sig-name descname"><span class="pre">check_for_structure_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol1</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">pymatgen.core.structure.Molecule</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/qchem/outputs.py#L1337-L1397"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.qchem.outputs.check_for_structure_changes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares connectivity of two molecules (using MoleculeGraph w/ OpenBabelNN).
 This function will work with two molecules with different atom orderings,</p>
 <blockquote>
@@ -290,11 +294,19 @@ MoleculeGraph of mol1</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -305,7 +317,6 @@ MoleculeGraph of mol1</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
