@@ -48,8 +48,8 @@ def _load_pmg_settings():
     # Override anything in env vars with that in yml file
     try:
         with open(SETTINGS_FILE, "rt") as f:
-            dyml = yaml.safe_load(f)
-        d.update(dyml)
+            d_yml = yaml.safe_load(f)
+        d.update(d_yml)
     except IOError:
         # If there are any errors, default to using environment variables
         # if present.
