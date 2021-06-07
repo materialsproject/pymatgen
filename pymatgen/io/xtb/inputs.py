@@ -59,9 +59,7 @@ class CRESTInput(MSONable):
         Write input files to working directory
         """
 
-        self.molecule.to(
-            filename=os.path.join(self.working_dir, self.coords_filename)
-        )
+        self.molecule.to(filename=os.path.join(self.working_dir, self.coords_filename))
         if self.constraints:
             constrains_string = self.constrains_template(
                 molecule=self.molecule,
@@ -90,11 +88,7 @@ class CRESTInput(MSONable):
         force_constant = constraints["force_constant"]
         reference_fnm = reference_fnm
         mol = molecule
-        atoms_for_mtd = [
-            i
-            for i in range(1, len(mol.sites) + 1)
-            if i not in atoms_to_constrain
-        ]
+        atoms_for_mtd = [i for i in range(1, len(mol.sites) + 1) if i not in atoms_to_constrain]
         # Write as 1-3,5 instead of 1,2,3,5
         interval_list = [atoms_for_mtd[0]]
         for i, v in enumerate(atoms_for_mtd):
@@ -104,17 +98,11 @@ class CRESTInput(MSONable):
                     interval_list.append(atoms_for_mtd[i + 1])
         force_constant = force_constant
         allowed_mtd_string = ",".join(
-            [
-                "{}-{}".format(interval_list[i], interval_list[i + 1])
-                for i in range(len(interval_list))
-                if i % 2 == 0
-            ]
+            ["{}-{}".format(interval_list[i], interval_list[i + 1]) for i in range(len(interval_list)) if i % 2 == 0]
         )
         constrains_file_string = (
             "$constrain\n"
-            + "  atoms: {}\n".format(
-                ",".join([str(i) for i in atoms_to_constrain])
-            )
+            + "  atoms: {}\n".format(",".join([str(i) for i in atoms_to_constrain]))
             + "  force constant={}\n".format(force_constant)
             + "  reference={}\n".format(reference_fnm)
             + "$metadyn\n"
