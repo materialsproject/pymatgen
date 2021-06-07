@@ -128,7 +128,9 @@ class CRESTOutput(MSONable):
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
                     if conformer_match:
-                        conformer_degeneracies.append(int(conformer_match["degen"]))
+                        conformer_degeneracies.append(
+                            int(conformer_match["degen"])
+                        )
                         energies.append(conformer_match["Etot"])
                     elif rotamer_match:
                         energies.append(rotamer_match["Etot"])
@@ -143,7 +145,9 @@ class CRESTOutput(MSONable):
                         n_rot_file = int(os.path.splitext(f)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
                 if len(n_rot_files) > 0:
-                    final_rotamer_filename = "crest_rotamers_{}.xyz".format(max(n_rot_files))
+                    final_rotamer_filename = "crest_rotamers_{}.xyz".format(
+                        max(n_rot_files)
+                    )
             try:
                 rotamers_path = os.path.join(self.path, final_rotamer_filename)
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules
@@ -154,10 +158,16 @@ class CRESTOutput(MSONable):
                     self.sorted_structures_energies.append([])
                     i = 0
                     for i in range(start, start + d):
-                        self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
+                        self.sorted_structures_energies[n].append(
+                            [rotamer_structures[i], energies[i]]
+                        )
                     start = i + 1
             except FileNotFoundError:
-                print("{} not found, no rotamer list processed".format(final_rotamer_filename))
+                print(
+                    "{} not found, no rotamer list processed".format(
+                        final_rotamer_filename
+                    )
+                )
 
             # Get lowest energy conformer from 'crest_best.xyz'
             crestbest_path = os.path.join(self.path, "crest_best.xyz")

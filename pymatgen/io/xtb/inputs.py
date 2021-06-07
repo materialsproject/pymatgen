@@ -5,7 +5,7 @@
 Classes for writing XTB input files
 """
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Union, List
 
 from monty.json import MSONable
 from pymatgen.core import Molecule
@@ -29,7 +29,10 @@ class CRESTInput(MSONable):
     """
 
     def __init__(
-        self, molecule: Molecule, coords_filename: Optional[str] = "crest_in.xyz", constraints: Optional[Dict] = None
+        self,
+        molecule: Molecule,
+        coords_filename: Optional[str] = "crest_in.xyz",
+        constraints: Optional[Dict[str, Union[List[int], float]]] = None,
     ):
         """
 
@@ -49,15 +52,23 @@ class CRESTInput(MSONable):
     def write_input_files(self):
         self.molecule.to(filename=self.coords_filename)
         if self.constraints:
-            constrains_string = self.constrains_template()
+            constrains_string = self.constrains_template(
+                molecule=self.molecule, reference_fnm=self.coords_filename,
+                constraints=self.constraints)
             with open(".constrains", "w") as f:
                 f.write(constrains_string)
 
-    def constrains_template(self) -> str:
-        atoms_to_constrain = self.constraints["atoms"]
-        force_constant = self.constraints["force_constant"]
-        reference_fnm = self.coords_filename
-        atoms_for_mtd = [i for i in range(1, len(self.molecule.sites) + 1) if i not in atoms_to_constrain]
+    @staticmethod
+    def constrains_template(molecule, reference_fnm, constraints) -> str:
+        atoms_to_constrain = constraints["atoms"]
+        force_constant = constraints["force_constant"]
+        reference_fnm = reference_fnm
+        mol = molecule
+        atoms_for_mtd = [
+            i
+            for i in range(1, len(mol.sites) + 1)
+            if i not in atoms_to_constrain
+        ]
         # Write as 1-3,5 instead of 1,2,3,5
         interval_list = [atoms_for_mtd[0]]
         for i, v in enumerate(atoms_for_mtd):
@@ -67,11 +78,17 @@ class CRESTInput(MSONable):
                     interval_list.append(atoms_for_mtd[i + 1])
         force_constant = force_constant
         allowed_mtd_string = ",".join(
-            ["{}-{}".format(interval_list[i], interval_list[i + 1]) for i in range(len(interval_list)) if i % 2 == 0]
+            [
+                "{}-{}".format(interval_list[i], interval_list[i + 1])
+                for i in range(len(interval_list))
+                if i % 2 == 0
+            ]
         )
         constrains_file_string = (
             "$constrain\n"
-            + "  atoms: {}\n".format(",".join([str(i) for i in atoms_to_constrain]))
+            + "  atoms: {}\n".format(
+                ",".join([str(i) for i in atoms_to_constrain])
+            )
             + "  force constant={}\n".format(force_constant)
             + "  reference={}\n".format(reference_fnm)
             + "$metadyn\n"
