@@ -41,4 +41,6 @@ class TestCRESTInput(PymatgenTest):
         cin = CRESTInput(molecule=mol, constraints=constraints)
         with open(os.path.join(expected_output_dir, "expected_constrains.txt"), "r") as f:
             exp_con = f.read()
-            self.assertEqual(exp_con.strip(), cin.constrains_template().strip())
+            self.assertEqual(exp_con.strip(), cin.constrains_template(
+                molecule=mol,reference_fnm='crest_in.xyz',
+                constraints=constraints).strip())
