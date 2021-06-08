@@ -696,7 +696,7 @@ class ComputedStructureEntry(ComputedEntry):
         factor = self._normalization_factor(mode)
         d = super().normalize(mode).as_dict()
         d["structure"] = self.structure.as_dict()
-        entry = self.from_dict(d)
+        entry: ComputedStructureEntry = self.from_dict(d)
         entry._composition /= factor  # type: ignore
         return entry
 
