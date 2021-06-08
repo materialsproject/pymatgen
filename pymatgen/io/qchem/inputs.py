@@ -6,6 +6,7 @@
 Classes for reading/manipulating/writing QChem input files.
 """
 import logging
+import sys
 from typing import Union, Dict, List, Optional
 
 from monty.io import zopen
@@ -15,9 +16,9 @@ from pymatgen.core import Molecule
 
 from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
-try:
+if sys.version_info >= (3, 8):
     from typing import Literal
-except ImportError:
+else:
     from typing_extensions import Literal
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith"
