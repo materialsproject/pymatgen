@@ -565,9 +565,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             # get the energy adjustments
             try:
                 adjustments = self.get_adjustments(entry)
-            except CompatibilityError as exc:
+            except CompatibilityError:
                 ignore_entry = True
-                print(exc)
                 continue
 
             for ea in adjustments:
@@ -1032,7 +1031,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         if entry.data["oxidation_states"] == {}:
             warnings.warn(
                 f"Failed to guess oxidation states for Entry {entry.entry_id} "
-                f"({entry.composition.reduced_formula}. Assigning anion correction to "
+                f"({entry.composition.reduced_formula}). Assigning anion correction to "
                 "only the most electronegative atom."
             )
 
