@@ -27,9 +27,7 @@ class CifTransmuterTest(PymatgenTest):
     def test_init(self):
         trans = []
         trans.append(SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"}))
-        tsc = CifTransmuter.from_filenames(
-            [os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans
-        )
+        tsc = CifTransmuter.from_filenames([os.path.join(self.TEST_FILES_DIR, "MultiStructure.cif")], trans)
         self.assertEqual(len(tsc), 2)
         expected_ans = set(["Mn", "O", "Li", "P"])
         for s in tsc:
@@ -55,12 +53,8 @@ class PoscarTransmuterTest(PymatgenTest):
         tsc.append_transformation(RemoveSpeciesTransformation("O"))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
-        tsc.append_transformation(
-            SubstitutionTransformation({"Fe": {"Fe2+": 0.25, "Mn3+": 0.75}, "P": "P5+"})
-        )
-        tsc.append_transformation(
-            OrderDisorderedStructureTransformation(), extend_collection=50
-        )
+        tsc.append_transformation(SubstitutionTransformation({"Fe": {"Fe2+": 0.25, "Mn3+": 0.75}, "P": "P5+"}))
+        tsc.append_transformation(OrderDisorderedStructureTransformation(), extend_collection=50)
         self.assertEqual(len(tsc), 4)
 
         t = SuperTransformation(
@@ -81,11 +75,7 @@ class PoscarTransmuterTest(PymatgenTest):
             )
 
         # test the filter
-        tsc.apply_filter(
-            ContainsSpecieFilter(
-                ["Zn2+", "Be2+", "Mn4+"], strict_compare=True, AND=False
-            )
-        )
+        tsc.apply_filter(ContainsSpecieFilter(["Zn2+", "Be2+", "Mn4+"], strict_compare=True, AND=False))
         self.assertEqual(len(tsc), 8)
         self.assertEqual(
             tsc.transformed_structures[0].as_dict()["history"][-1]["@class"],
@@ -110,4 +100,5 @@ class PoscarTransmuterTest(PymatgenTest):
 
 if __name__ == "__main__":
     import unittest
+
     unittest.main()

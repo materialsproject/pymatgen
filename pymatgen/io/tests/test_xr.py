@@ -16,16 +16,12 @@ import unittest
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.xr import Xr
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class XrTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.xr = Xr(p.structure)
 
@@ -67,7 +63,7 @@ class XrTest(unittest.TestCase):
         self.assertEqual(str(self.xr), expected_string)
 
     def test_from_file(self):
-        filename = os.path.join(test_dir, "EDI.xr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.xr")
         xr = Xr.from_file(filename)
         self.assertIsInstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

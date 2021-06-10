@@ -11,7 +11,7 @@ import warnings
 import matplotlib.pylab as plt
 import numpy as np
 
-from pymatgen import Composition
+from pymatgen.core.composition import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 
@@ -69,18 +69,11 @@ class InterfacialReactivity:
         # if include_no_mixing_energy is True, pd should be a
         # GrandPotentialPhaseDiagram object and pd_non_grand should be given.
         if include_no_mixing_energy and not self.grand:
-            raise ValueError(
-                "Please provide grand phase diagram to compute" " no_mixing_energy!"
-            )
+            raise ValueError("Please provide grand phase diagram to compute" " no_mixing_energy!")
         if include_no_mixing_energy and not pd_non_grand:
-            raise ValueError(
-                "Please provide non-grand phase diagram to " "compute no_mixing_energy!"
-            )
+            raise ValueError("Please provide non-grand phase diagram to " "compute no_mixing_energy!")
         if self.grand and use_hull_energy and not pd_non_grand:
-            raise ValueError(
-                "Please provide non-grand phase diagram if"
-                " you want to use convex hull energy."
-            )
+            raise ValueError("Please provide non-grand phase diagram if" " you want to use convex hull energy.")
 
         # Keeps copy of original compositions.
         self.c1_original = c1
@@ -108,12 +101,8 @@ class InterfacialReactivity:
 
         if self.grand:
             # Excludes element(s) from reservoir.
-            self.comp1 = Composition(
-                {k: v for k, v in c1.items() if k not in pd.chempots}
-            )
-            self.comp2 = Composition(
-                {k: v for k, v in c2.items() if k not in pd.chempots}
-            )
+            self.comp1 = Composition({k: v for k, v in c1.items() if k not in pd.chempots})
+            self.comp2 = Composition({k: v for k, v in c2.items() if k not in pd.chempots})
             # Calculate the factors in case where self.grand = True and
             # self.norm = True.
             factor1 = self.comp1.num_atoms / c1.num_atoms
@@ -168,23 +157,19 @@ class InterfacialReactivity:
         candidate = [
             i.energy_per_atom
             for i in pd.qhull_entries
-            if i.composition.fractional_composition
-            == composition.fractional_composition
+            if i.composition.fractional_composition == composition.fractional_composition
         ]
 
         if not candidate:
             warnings.warn(
-                "The reactant "
-                + composition.reduced_formula
-                + " has no matching entry with negative formation"
+                "The reactant " + composition.reduced_formula + " has no matching entry with negative formation"
                 " energy, instead convex hull energy for this"
                 " composition will be used for reaction energy "
                 "calculation. "
             )
             return pd.get_hull_energy(composition)
-        else:
-            min_entry_energy = min(candidate)
-            return min_entry_energy * composition.num_atoms
+        min_entry_energy = min(candidate)
+        return min_entry_energy * composition.num_atoms
 
     def _get_grand_potential(self, composition):
         """
@@ -200,18 +185,12 @@ class InterfacialReactivity:
         if self.use_hull_energy:
             grand_potential = self.pd_non_grand.get_hull_energy(composition)
         else:
-            grand_potential = InterfacialReactivity._get_entry_energy(
-                self.pd_non_grand, composition
-            )
-        grand_potential -= sum(
-            [composition[e] * mu for e, mu in self.pd.chempots.items()]
-        )
+            grand_potential = InterfacialReactivity._get_entry_energy(self.pd_non_grand, composition)
+        grand_potential -= sum([composition[e] * mu for e, mu in self.pd.chempots.items()])
         if self.norm:
             # Normalizes energy to the composition excluding element(s)
             # from reservoir.
-            grand_potential /= sum(
-                [composition[el] for el in composition if el not in self.pd.chempots]
-            )
+            grand_potential /= sum([composition[el] for el in composition if el not in self.pd.chempots])
         return grand_potential
 
     def _get_energy(self, x):
@@ -225,11 +204,7 @@ class InterfacialReactivity:
         Returns:
             Reaction energy.
         """
-        return (
-            self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x))
-            - self.e1 * x
-            - self.e2 * (1 - x)
-        )
+        return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
     def _get_reaction(self, x):
         """
@@ -286,7 +261,7 @@ class InterfacialReactivity:
         """
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products.union(set([k.reduced_formula for k in react.products]))
+            products = products.union({k.reduced_formula for k in react.products})
         return list(products)
 
     @staticmethod
@@ -351,10 +326,7 @@ class InterfacialReactivity:
             x_kink = [0, 1]
             energy_kink = [self._get_energy(x) for x in x_kink]
             react_kink = [self._get_reaction(x) for x in x_kink]
-            num_atoms = [
-                (x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms)
-                for x in x_kink
-            ]
+            num_atoms = [(x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms) for x in x_kink]
             energy_per_rxt_formula = [
                 energy_kink[i]
                 * self._get_elmt_amt_in_rxt(react_kink[i])
@@ -373,9 +345,7 @@ class InterfacialReactivity:
                 n_atoms = x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms
                 # Converts mixing ratio in comp1 - comp2 tie line to that in
                 # c1 - c2 tie line.
-                x_converted = InterfacialReactivity._convert(
-                    x, self.factor1, self.factor2
-                )
+                x_converted = InterfacialReactivity._convert(x, self.factor1, self.factor2)
                 x_kink.append(x_converted)
                 # Gets reaction energy at kinks
                 normalized_energy = self._get_energy(x)
@@ -383,12 +353,8 @@ class InterfacialReactivity:
                 # Gets balanced reaction at kinks
                 rxt = self._get_reaction(x)
                 react_kink.append(rxt)
-                rxt_energy = (
-                    normalized_energy * self._get_elmt_amt_in_rxt(rxt) / n_atoms
-                )
-                energy_per_rxt_formula.append(
-                    rxt_energy * InterfacialReactivity.EV_TO_KJ_PER_MOL
-                )
+                rxt_energy = normalized_energy * self._get_elmt_amt_in_rxt(rxt) / n_atoms
+                energy_per_rxt_formula.append(rxt_energy * InterfacialReactivity.EV_TO_KJ_PER_MOL)
         index_kink = range(1, len(critical_comp) + 1)
         return zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula)
 
@@ -426,16 +392,8 @@ class InterfacialReactivity:
         """
         if self.c1_original == self.c2_original:
             return 1
-        c1_coeff = (
-            reaction.get_coeff(self.c1_original)
-            if self.c1_original in reaction.reactants
-            else 0
-        )
-        c2_coeff = (
-            reaction.get_coeff(self.c2_original)
-            if self.c2_original in reaction.reactants
-            else 0
-        )
+        c1_coeff = reaction.get_coeff(self.c1_original) if self.c1_original in reaction.reactants else 0
+        c2_coeff = reaction.get_coeff(self.c2_original) if self.c2_original in reaction.reactants else 0
         return c1_coeff * 1.0 / (c1_coeff + c2_coeff)
 
     def labels(self):
@@ -447,12 +405,7 @@ class InterfacialReactivity:
                3: 'x= 1.0 energy = 0.0 O2 -> O2'}.
         """
         return {
-            j: "x= "
-            + str(round(x, 4))
-            + " energy in eV/atom = "
-            + str(round(energy, 4))
-            + " "
-            + str(reaction)
+            j: "x= " + str(round(x, 4)) + " energy in eV/atom = " + str(round(energy, 4)) + " " + str(reaction)
             for j, x, energy, reaction, _ in self.get_kinks()
         }
 
@@ -473,9 +426,7 @@ class InterfacialReactivity:
 
         # Converts sampling points in self.c1 - self.c2 tie line to those in
         # self.comp1 - self.comp2 tie line.
-        xs_reverse_converted = InterfacialReactivity._reverse_convert(
-            xs, self.factor1, self.factor2
-        )
+        xs_reverse_converted = InterfacialReactivity._reverse_convert(xs, self.factor1, self.factor2)
         energies = [self._get_energy(x) for x in xs_reverse_converted]
         plt.plot(xs, energies, "k-")
 
@@ -502,11 +453,7 @@ class InterfacialReactivity:
             plt.ylabel("Energy (eV/atom)")
         else:
             plt.ylabel("Energy (eV/f.u.)")
-        plt.xlabel(
-            "$x$ in $x$ {} + $(1-x)$ {}".format(
-                self.c1.reduced_formula, self.c2.reduced_formula
-            )
-        )
+        plt.xlabel("$x$ in $x$ {} + $(1-x)$ {}".format(self.c1.reduced_formula, self.c2.reduced_formula))
         return plt
 
     def minimum(self):
@@ -517,9 +464,7 @@ class InterfacialReactivity:
         Returns:
             Tuple (x_min, E_min).
         """
-        return min(
-            [(x, energy) for _, x, energy, _, _ in self.get_kinks()], key=lambda i: i[1]
-        )
+        return min([(x, energy) for _, x, energy, _, _ in self.get_kinks()], key=lambda i: i[1])
 
     def get_no_mixing_energy(self):
         """
@@ -529,16 +474,10 @@ class InterfacialReactivity:
         Returns:
             [(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].
         """
-        assert (
-            self.grand == 1
-        ), "Please provide grand potential phase diagram for computing no_mixing_energy!"
+        assert self.grand == 1, "Please provide grand potential phase diagram for computing no_mixing_energy!"
 
-        energy1 = self.pd.get_hull_energy(self.comp1) - self._get_grand_potential(
-            self.c1
-        )
-        energy2 = self.pd.get_hull_energy(self.comp2) - self._get_grand_potential(
-            self.c2
-        )
+        energy1 = self.pd.get_hull_energy(self.comp1) - self._get_grand_potential(self.c1)
+        energy2 = self.pd.get_hull_energy(self.comp2) - self._get_grand_potential(self.c2)
         unit = "eV/f.u."
         if self.norm:
             unit = "eV/atom"

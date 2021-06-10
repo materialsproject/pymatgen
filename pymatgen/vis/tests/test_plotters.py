@@ -13,11 +13,8 @@ from pymatgen.analysis.xas.spectrum import XAS
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.vis.plotters import SpectrumPlotter
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "spectrum_test")
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "spectrum_test")
 
 with open(os.path.join(test_dir, "LiCoO2_k_xanes.json")) as fp:
     spect_data_dict = json.load(fp, cls=MontyDecoder)

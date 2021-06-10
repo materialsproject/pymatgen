@@ -126,9 +126,7 @@ class XcFunc(MSONable):
             return obj
         if is_string(obj):
             return cls.from_name(obj)
-        raise TypeError(
-            "Don't know how to convert <%s:%s> to Xcfunc" % (type(obj), str(obj))
-        )
+        raise TypeError("Don't know how to convert <%s:%s> to Xcfunc" % (type(obj), str(obj)))
 
     @classmethod
     def from_abinit_ixc(cls, ixc):

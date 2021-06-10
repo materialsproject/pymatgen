@@ -11,6 +11,7 @@ from monty.serialization import loadfn
 
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
+from pymatgen.util.testing import PymatgenTest
 
 try:
     from pymatgen.electronic_structure.boltztrap2 import (
@@ -28,11 +29,7 @@ except Exception:
 
 # BOLTZTRAP2_PRESENT = False
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "boltztrap2")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "boltztrap2")
 
 
 vrunfile = os.path.join(test_dir, "vasprun.xml")
@@ -158,13 +155,9 @@ class BztInterpolatorTest(unittest.TestCase):
         self.loader = VasprunBSLoader(vrun)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
         self.assertIsNotNone(self.bztInterp)
-        self.bztInterp = BztInterpolator(
-            self.loader, lpfac=2, save_bztInterp=True, fname=bztinterp_fn
-        )
+        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp)
-        self.bztInterp = BztInterpolator(
-            self.loader, load_bztInterp=True, fname=bztinterp_fn
-        )
+        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp)
 
         warnings.simplefilter("ignore")
@@ -172,13 +165,9 @@ class BztInterpolatorTest(unittest.TestCase):
         self.loader_sp = VasprunBSLoader(vrun_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
         self.assertIsNotNone(self.bztInterp_sp)
-        self.bztInterp_sp = BztInterpolator(
-            self.loader_sp, lpfac=2, save_bztInterp=True, fname=bztinterp_fn
-        )
+        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp_sp)
-        self.bztInterp_sp = BztInterpolator(
-            self.loader_sp, lpfac=2, load_bztInterp=True, fname=bztinterp_fn
-        )
+        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp_sp)
 
         warnings.simplefilter("ignore")
@@ -249,9 +238,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
     def setUp(self):
         loader = VasprunBSLoader(vrun)
         bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(
-            bztInterp, temp_r=np.arange(300, 600, 100)
-        )
+        self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
@@ -274,17 +261,13 @@ class BztTransportPropertiesTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
         bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(
-            bztInterp, load_bztTranspProps=True, fname=bzttransp_fn
-        )
+        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=bzttransp_fn)
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
         loader_sp = VasprunBSLoader(vrun_sp)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(
-            bztInterp_sp, temp_r=np.arange(300, 600, 100)
-        )
+        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         self.assertIsNotNone(self.bztTransp_sp)
         warnings.simplefilter("ignore")
 
@@ -299,9 +282,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
         warnings.simplefilter("ignore")
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(
-            bztInterp_sp, load_bztTranspProps=True, fname=bzttransp_fn
-        )
+        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=bzttransp_fn)
         self.assertIsNotNone(self.bztTransp_sp)
         warnings.simplefilter("ignore")
 

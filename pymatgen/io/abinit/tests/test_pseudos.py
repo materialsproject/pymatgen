@@ -9,9 +9,7 @@ import os.path
 from pymatgen.io.abinit.pseudos import *
 from pymatgen.util.testing import PymatgenTest
 
-_test_dir = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit"
-)
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "abinit")
 
 
 def ref_file(filename):
@@ -110,8 +108,7 @@ class PseudoTestCase(PymatgenTest):
 
         self.assertTrue(oxygen.ispaw)
         self.assertTrue(
-            oxygen.symbol == "O"
-            and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
+            oxygen.symbol == "O" and (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
             oxygen.Z_val == 6,
         )
 
@@ -128,7 +125,8 @@ class PseudoTestCase(PymatgenTest):
         for o in new_objs:
             self.assertTrue(o.ispaw)
             self.assertTrue(
-                o.symbol == "O" and (o.Z, o.core, o.valence) == (8, 2, 6), o.Z_val == 6,
+                o.symbol == "O" and (o.Z, o.core, o.valence) == (8, 2, 6),
+                o.Z_val == 6,
             )
 
             self.assertAlmostEqual(o.paw_radius, 1.4146523028)

@@ -12,15 +12,14 @@ import warnings
 from monty.json import MontyDecoder
 from monty.os.path import which
 
-from pymatgen import Element, Lattice, PeriodicSite
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.transformations.standard_transformations import *
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 enumlib_present = which("enum.x") and which("makestr.x")
 
@@ -42,17 +41,13 @@ class RotationTransformationsTest(unittest.TestCase):
     def test_as_from_dict(self):
         t = RotationTransformation([0, 1, 0], 30, False)
         d = t.as_dict()
-        self.assertEqual(
-            type(RotationTransformation.from_dict(d)), RotationTransformation
-        )
+        self.assertEqual(type(RotationTransformation.from_dict(d)), RotationTransformation)
 
     def test_rotation_transformation(self):
         t = RotationTransformation([0, 1, 0], 30, False)
         s2 = t.apply_transformation(self.struct)
         s1 = t.inverse.apply_transformation(s2)
-        self.assertTrue(
-            (abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all()
-        )
+        self.assertTrue((abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all())
 
 
 class RemoveSpeciesTransformationTest(unittest.TestCase):
@@ -75,9 +70,7 @@ class RemoveSpeciesTransformationTest(unittest.TestCase):
         self.assertEqual(s.composition.formula, "O2")
 
         d = t.as_dict()
-        self.assertEqual(
-            type(RemoveSpeciesTransformation.from_dict(d)), RemoveSpeciesTransformation
-        )
+        self.assertEqual(type(RemoveSpeciesTransformation.from_dict(d)), RemoveSpeciesTransformation)
 
 
 class SubstitutionTransformationTest(unittest.TestCase):
@@ -145,9 +138,7 @@ class SupercellTransformationTest(unittest.TestCase):
         scale_factors = [random.randint(1, 5) for i in range(3)]
         t = SupercellTransformation.from_scaling_factors(*scale_factors)
         s = t.apply_transformation(self.struct)
-        self.assertEqual(
-            s.num_sites, 4 * functools.reduce(lambda a, b: a * b, scale_factors)
-        )
+        self.assertEqual(s.num_sites, 4 * functools.reduce(lambda a, b: a * b, scale_factors))
 
 
 class OxidationStateDecorationTransformationTest(unittest.TestCase):
@@ -178,9 +169,7 @@ class OxidationStateDecorationTransformationTest(unittest.TestCase):
 
 class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.LiFePO4"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         t = AutoOxiStateDecorationTransformation()
         s = t.apply_transformation(p.structure)
         expected_oxi = {"Li": 1, "P": 5, "O": -2, "Fe": 2}
@@ -264,9 +253,7 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         lattice = Lattice([[10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = t.apply_transformation(struct)
-        t = PartialRemoveSpecieTransformation(
-            "Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE
-        )
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
         self.assertAlmostEqual(
             EwaldSummation(fast_opt_s).total_energy,
@@ -276,25 +263,17 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         self.assertEqual(fast_opt_s, slow_opt_s)
 
     def test_apply_transformations_complete_ranking(self):
-        p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.LiFePO4"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
         s = t1.apply_transformation(p.structure)
-        t = PartialRemoveSpecieTransformation(
-            "Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE
-        )
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
-        p = Poscar.from_file(
-            os.path.join(test_dir, "POSCAR.LiFePO4"), check_for_POTCAR=False
-        )
+        p = Poscar.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.LiFePO4"), check_for_POTCAR=False)
         t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
         s = t1.apply_transformation(p.structure)
-        t = PartialRemoveSpecieTransformation(
-            "Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST
-        )
+        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
 
@@ -343,15 +322,11 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         self.assertEqual(len(output), 4)
         self.assertEqual(t.lowest_energy_structure, output[0]["structure"])
 
-        struct = Structure(
-            lattice, [{"Si4+": 0.5}, {"Si4+": 0.5}, {"O2-": 0.5}, {"O2-": 0.5}], coords
-        )
+        struct = Structure(lattice, [{"Si4+": 0.5}, {"Si4+": 0.5}, {"O2-": 0.5}, {"O2-": 0.5}], coords)
         allstructs = t.apply_transformation(struct, 50)
         self.assertEqual(len(allstructs), 4)
 
-        struct = Structure(
-            lattice, [{"Si4+": 0.333}, {"Si4+": 0.333}, {"Si4+": 0.333}, "O2-"], coords
-        )
+        struct = Structure(lattice, [{"Si4+": 0.333}, {"Si4+": 0.333}, {"Si4+": 0.333}, "O2-"], coords)
         allstructs = t.apply_transformation(struct, 50)
         self.assertEqual(len(allstructs), 3)
 
@@ -363,9 +338,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
 
     def test_no_oxidation(self):
         specie = {"Cu1+": 0.5, "Au2+": 0.5}
-        cuau = Structure.from_spacegroup(
-            "Fm-3m", Lattice.cubic(3.677), [specie], [[0, 0, 0]]
-        )
+        cuau = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.677), [specie], [[0, 0, 0]])
         trans = OrderDisorderedStructureTransformation()
         ss = trans.apply_transformation(cuau, return_ranked_list=100)
         self.assertEqual(ss[0]["structure"].composition["Cu+"], 2)
@@ -391,9 +364,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         l = Lattice.cubic(5)
         s = Structure(l, sp, c)
         test_site = PeriodicSite("Si4+", c[2], l)
-        s = SymmetrizedStructure(
-            s, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"]
-        )
+        s = SymmetrizedStructure(s, "not_real", [0, 1, 1, 2, 2], ["a", "b", "b", "c", "c"])
         output = t.apply_transformation(s)
         self.assertTrue(test_site in output.sites)
 
@@ -460,21 +431,17 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
                 [0.00, -2.2171384943, 3.1355090603],
             ]
         )
-        struct = Structure(
-            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
-        )
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
 
-        with open(os.path.join(test_dir, "TiO2_super.json")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_super.json")) as f:
             s = json.load(f, cls=MontyDecoder)
             prim = t.apply_transformation(s)
             self.assertEqual(prim.formula, "Ti4 O8")
 
         d = t.as_dict()
-        self.assertEqual(
-            type(PrimitiveCellTransformation.from_dict(d)), PrimitiveCellTransformation
-        )
+        self.assertEqual(type(PrimitiveCellTransformation.from_dict(d)), PrimitiveCellTransformation)
 
 
 class ConventionalCellTransformationTest(unittest.TestCase):
@@ -515,9 +482,7 @@ class PerturbStructureTransformationTest(unittest.TestCase):
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(
-            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
-        )
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
         transformed_s = t.apply_transformation(struct)
         for i, site in enumerate(transformed_s):
             self.assertAlmostEqual(site.distance(struct[i]), 0.05)
@@ -543,9 +508,7 @@ class PerturbStructureTransformationTest(unittest.TestCase):
 
 class DeformStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = DeformStructureTransformation(
-            [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.05, 1.0]]
-        )
+        t = DeformStructureTransformation([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.05, 1.0]])
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
@@ -561,9 +524,7 @@ class DeformStructureTransformationTest(unittest.TestCase):
             [1.9200989668, 3.3257101909, 0.00],
             [0.00, -2.2171384943, 3.1355090603],
         ]
-        struct = Structure(
-            lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords
-        )
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
         transformed_s = t.apply_transformation(struct)
         self.assertAlmostEqual(transformed_s.lattice.a, 3.84019793)
         self.assertAlmostEqual(transformed_s.lattice.b, 3.84379750)
@@ -600,9 +561,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
 
-        dot = DiscretizeOccupanciesTransformation(
-            max_denominator=9, tol=0.25, fix_denominator=False
-        )
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25, fix_denominator=False)
 
         s = dot.apply_transformation(s_orig_2)
         self.assertEqual(
@@ -614,9 +573,7 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
             },
         )
 
-        dot = DiscretizeOccupanciesTransformation(
-            max_denominator=9, tol=0.05, fix_denominator=True
-        )
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05, fix_denominator=True)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
 
 
@@ -636,7 +593,7 @@ class ChargedCellTransformationTest(unittest.TestCase):
 class ScaleToRelaxedTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         # Test on slab relaxation where volume is fixed
-        f = os.path.join(test_dir, "surface_tests")
+        f = os.path.join(PymatgenTest.TEST_FILES_DIR, "surface_tests")
         Cu_fin = Structure.from_file(os.path.join(f, "Cu_slab_fin.cif"))
         Cu_init = Structure.from_file(os.path.join(f, "Cu_slab_init.cif"))
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
@@ -645,37 +602,25 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
 
         # Test on gb relaxation
-        f = os.path.join(test_dir, "grain_boundary")
+        f = os.path.join(PymatgenTest.TEST_FILES_DIR, "grain_boundary")
         Be_fin = Structure.from_file(os.path.join(f, "Be_gb_fin.cif"))
         Be_init = Structure.from_file(os.path.join(f, "Be_gb_init.cif"))
         Zn_init = Structure.from_file(os.path.join(f, "Zn_gb_init.cif"))
         gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
         Zn_fin = gb_scaling.apply_transformation(Zn_init)
         self.assertTrue(all([site.species_string == "Zn" for site in Zn_fin]))
-        self.assertEqual(
-            Be_init.lattice.a < Be_fin.lattice.a, Zn_init.lattice.a < Zn_fin.lattice.a
-        )
-        self.assertEqual(
-            Be_init.lattice.b < Be_fin.lattice.b, Zn_init.lattice.b < Zn_fin.lattice.b
-        )
-        self.assertEqual(
-            Be_init.lattice.c < Be_fin.lattice.c, Zn_init.lattice.c < Zn_fin.lattice.c
-        )
+        self.assertEqual(Be_init.lattice.a < Be_fin.lattice.a, Zn_init.lattice.a < Zn_fin.lattice.a)
+        self.assertEqual(Be_init.lattice.b < Be_fin.lattice.b, Zn_init.lattice.b < Zn_fin.lattice.b)
+        self.assertEqual(Be_init.lattice.c < Be_fin.lattice.c, Zn_init.lattice.c < Zn_fin.lattice.c)
         Fe_fin = Structure.from_file(os.path.join(f, "Fe_gb_fin.cif"))
         Fe_init = Structure.from_file(os.path.join(f, "Fe_gb_init.cif"))
         Mo_init = Structure.from_file(os.path.join(f, "Mo_gb_init.cif"))
         gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
         Mo_fin = gb_scaling.apply_transformation(Mo_init)
         self.assertTrue(all([site.species_string == "Mo" for site in Mo_fin]))
-        self.assertEqual(
-            Fe_init.lattice.a < Fe_fin.lattice.a, Mo_init.lattice.a < Mo_fin.lattice.a
-        )
-        self.assertEqual(
-            Fe_init.lattice.b < Fe_fin.lattice.b, Mo_init.lattice.b < Mo_fin.lattice.b
-        )
-        self.assertEqual(
-            Fe_init.lattice.c < Fe_fin.lattice.c, Mo_init.lattice.c < Mo_fin.lattice.c
-        )
+        self.assertEqual(Fe_init.lattice.a < Fe_fin.lattice.a, Mo_init.lattice.a < Mo_fin.lattice.a)
+        self.assertEqual(Fe_init.lattice.b < Fe_fin.lattice.b, Mo_init.lattice.b < Mo_fin.lattice.b)
+        self.assertEqual(Fe_init.lattice.c < Fe_fin.lattice.c, Mo_init.lattice.c < Mo_fin.lattice.c)
 
 
 if __name__ == "__main__":

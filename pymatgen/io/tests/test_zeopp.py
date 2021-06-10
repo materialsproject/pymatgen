@@ -27,22 +27,18 @@ from pymatgen.io.zeopp import (
     get_void_volume_surfarea,
     get_voronoi_nodes,
 )
+from pymatgen.util.testing import PymatgenTest
 
 try:
     import zeo
 except ImportError:
     zeo = None
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 @unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.zeocssr = ZeoCssr(p.structure)
 
@@ -78,7 +74,7 @@ class ZeoCssrTest(unittest.TestCase):
         self.assertEqual(str(self.zeocssr), expected_string)
 
     def test_from_file(self):
-        filename = os.path.join(test_dir, "EDI.cssr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI.cssr")
         zeocssr = ZeoCssr.from_file(filename)
         self.assertIsInstance(zeocssr.structure, Structure)
 
@@ -86,7 +82,7 @@ class ZeoCssrTest(unittest.TestCase):
 # @unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrOxiTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         structure = BVAnalyzer().get_oxi_state_decorated_structure(p.structure)
         self.zeocssr = ZeoCssr(structure)
@@ -123,7 +119,7 @@ class ZeoCssrOxiTest(unittest.TestCase):
         self.assertEqual(str(self.zeocssr), expected_string)
 
     def test_from_file(self):
-        filename = os.path.join(test_dir, "EDI_oxistate_decorated.cssr")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_oxistate_decorated.cssr")
         zeocssr = ZeoCssr.from_file(filename)
         self.assertIsInstance(zeocssr.structure, Structure)
 
@@ -139,9 +135,7 @@ class ZeoVoronoiXYZTest(unittest.TestCase):
             [-0.513360, 0.889165, -0.363000],
         ]
         prop = [0.4, 0.2, 0.2, 0.2, 0.2]
-        self.mol = Molecule(
-            ["C", "H", "H", "H", "H"], coords, site_properties={"voronoi_radius": prop}
-        )
+        self.mol = Molecule(["C", "H", "H", "H", "H"], coords, site_properties={"voronoi_radius": prop})
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
     def test_str(self):
@@ -156,7 +150,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         self.assertEqual(str(self.xyz), ans)
 
     def test_from_file(self):
-        filename = os.path.join(test_dir, "EDI_voro.xyz")
+        filename = os.path.join(PymatgenTest.TEST_FILES_DIR, "EDI_voro.xyz")
         vor = ZeoVoronoiXYZ.from_file(filename)
         self.assertIsInstance(vor.molecule, Molecule)
 
@@ -164,7 +158,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 @unittest.skipIf(not zeo, "zeo not present.")
 class GetVoronoiNodesTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.structure = p.structure
         bv = BVAnalyzer()
@@ -193,7 +187,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
 @unittest.skip("file free_sph.cif not present")
 class GetFreeSphereParamsTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "free_sph.cif")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "free_sph.cif")
         self.structure = Structure.from_file(filepath)
         self.rad_dict = {
             "Ge": 0.67,
@@ -209,15 +203,13 @@ class GetFreeSphereParamsTest(unittest.TestCase):
         # Zeo results can change in future. Hence loose comparison
         self.assertAlmostEqual(free_sph_params["inc_sph_max_dia"], 2.58251, places=1)
         self.assertAlmostEqual(free_sph_params["free_sph_max_dia"], 1.29452, places=1)
-        self.assertAlmostEqual(
-            free_sph_params["inc_sph_along_free_sph_path_max_dia"], 2.58251, places=1
-        )
+        self.assertAlmostEqual(free_sph_params["inc_sph_along_free_sph_path_max_dia"], 2.58251, places=1)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
 class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.structure = p.structure
         bv = BVAnalyzer()
@@ -244,7 +236,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
 @unittest.skipIf(not zeo, "zeo not present.")
 class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(test_dir, "POSCAR")
+        filepath = os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR")
         p = Poscar.from_file(filepath)
         self.structure = p.structure
         bv = BVAnalyzer()
@@ -274,7 +266,7 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
 @unittest.skip("The function is deprecated")
 class GetVoidVolumeSurfaceTest(unittest.TestCase):
     def setUp(self):
-        filepath1 = os.path.join(test_dir, "Li2O.cif")
+        filepath1 = os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif")
         p = CifParser(filepath1).get_structures(False)[0]
         bv = BVAnalyzer()
         valences = bv.get_valences(p)

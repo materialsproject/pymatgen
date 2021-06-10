@@ -59,9 +59,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         if np.any(angdeg <= 0.0):
             raise ValueError("Angles must be > 0 but got %s" % str(angdeg))
         if angdeg.sum() >= 360.0:
-            raise ValueError(
-                "The sum of angdeg must be lower that 360, angdeg %s" % str(angdeg)
-            )
+            raise ValueError("The sum of angdeg must be lower that 360, angdeg %s" % str(angdeg))
 
         # This code follows the implementation in ingeo.F90
         # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
@@ -71,8 +69,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         if (
             abs(angdeg[0] - angdeg[1]) < tol12
             and abs(angdeg[1] - angdeg[2]) < tol12
-            and abs(angdeg[0] - 90.0) + abs(angdeg[1] - 90.0) + abs(angdeg[2] - 90)
-            > tol12
+            and abs(angdeg[0] - 90.0) + abs(angdeg[1] - 90.0) + abs(angdeg[2] - 90) > tol12
         ):
             # Treat the case of equal angles (except all right angles):
             # generates trigonal symmetry wrt third axis
@@ -95,18 +92,14 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             rprim[1, 0] = cos(pi * angdeg[2] / 180.0)
             rprim[1, 1] = sin(pi * angdeg[2] / 180.0)
             rprim[2, 0] = cos(pi * angdeg[1] / 180.0)
-            rprim[2, 1] = (
-                cos(pi * angdeg[0] / 180.0) - rprim[1, 0] * rprim[2, 0]
-            ) / rprim[1, 1]
+            rprim[2, 1] = (cos(pi * angdeg[0] / 180.0) - rprim[1, 0] * rprim[2, 0]) / rprim[1, 1]
             rprim[2, 2] = sqrt(1.0 - rprim[2, 0] ** 2 - rprim[2, 1] ** 2)
 
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    raise ValueError(
-        "Don't know how to construct a Lattice from dict:\n%s" % pformat(d)
-    )
+    raise ValueError("Don't know how to construct a Lattice from dict:\n%s" % pformat(d))
 
 
 def structure_from_abivars(cls=None, *args, **kwargs):
@@ -164,12 +157,10 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         typat = [typat]
 
     if len(typat) != len(coords):
-        raise ValueError(
-            "len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords)
-        )
+        raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
 
     # Note conversion to int and Fortran --> C indexing
-    typat = np.array(typat, dtype=np.int)
+    typat = np.array(typat, dtype=np.int_)
     species = [znucl_type[typ - 1] for typ in typat]
 
     return cls(
@@ -238,15 +229,13 @@ or the Virtual Crystal Approximation."""
 
         if len(enforce_typat) != len(structure):
             raise ValueError(
-                "enforce_typat contains %d entries while it should be natom: %s"
-                % (len(enforce_typat)),
+                "enforce_typat contains %d entries while it should be natom: %s" % (len(enforce_typat)),
                 len(structure),
             )
 
         if len(enforce_znucl) != ntypat:
             raise ValueError(
-                "enforce_znucl contains %d entries while it should be ntypat: %s"
-                % (len(enforce_znucl)),
+                "enforce_znucl contains %d entries while it should be ntypat: %s" % (len(enforce_znucl)),
                 ntypat,
             )
 
@@ -256,7 +245,7 @@ or the Virtual Crystal Approximation."""
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]
-        typat = np.zeros(natom, np.int)
+        typat = np.zeros(natom, np.int_)
         for atm_idx, site in enumerate(structure):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
     else:
@@ -273,7 +262,13 @@ or the Virtual Crystal Approximation."""
     xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
 
     # Info on atoms.
-    d = dict(natom=natom, ntypat=ntypat, typat=typat, znucl=znucl_type, xred=xred,)
+    d = dict(
+        natom=natom,
+        ntypat=ntypat,
+        typat=typat,
+        znucl=znucl_type,
+        xred=xred,
+    )
 
     # Add info on the lattice.
     # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
@@ -289,12 +284,14 @@ or the Virtual Crystal Approximation."""
 
     if geomode == "rprim":
         d.update(
-            acell=3 * [1.0], rprim=rprim,
+            acell=3 * [1.0],
+            rprim=rprim,
         )
 
     elif geomode == "angdeg":
         d.update(
-            acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"), angdeg=angdeg,
+            acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
+            angdeg=angdeg,
         )
     else:
         raise ValueError("Wrong value for geomode: %s" % geomode)
@@ -544,10 +541,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
         for k in self:
             if k not in self._DEFAULT:
-                raise ValueError(
-                    "%s: No default value has been provided for "
-                    "key %s" % (self.__class__.__name__, k)
-                )
+                raise ValueError("%s: No default value has been provided for " "key %s" % (self.__class__.__name__, k))
 
     def to_abivars(self):
         """Dictionary with Abinit input variables."""
@@ -643,7 +637,11 @@ class Electrons(AbivarAble, MSONable):
         abivars = self.spin_mode.to_abivars()
 
         abivars.update(
-            {"nband": self.nband, "fband": self.fband, "charge": self.charge,}
+            {
+                "nband": self.nband,
+                "fband": self.fband,
+                "charge": self.charge,
+            }
         )
 
         if self.smearing:
@@ -806,9 +804,7 @@ class KSampling(AbivarAble, MSONable):
         return cls(kpt_shifts=(0.0, 0.0, 0.0), comment="Gamma-only sampling")
 
     @classmethod
-    def gamma_centered(
-        cls, kpts=(1, 1, 1), use_symmetries=True, use_time_reversal=True
-    ):
+    def gamma_centered(cls, kpts=(1, 1, 1), use_symmetries=True, use_time_reversal=True):
         """
         Convenient static constructor for an automatic Gamma centered Kpoint grid.
 
@@ -858,9 +854,7 @@ class KSampling(AbivarAble, MSONable):
             use_symmetries=use_symmetries,
             use_time_reversal=use_time_reversal,
             chksymbreak=chksymbreak,
-            comment=comment
-            if comment
-            else "Monkhorst-Pack scheme with user-specified shiftk",
+            comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk",
         )
 
     @classmethod
@@ -986,10 +980,7 @@ class KSampling(AbivarAble, MSONable):
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        comment = (
-            "pymatge.io.abinit generated KPOINTS with grid density = "
-            + "{} / atom".format(kppa)
-        )
+        comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
         return cls(
             mode="monkhorst",
@@ -1080,16 +1071,12 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         for k in self.abivars:
             if k not in self._default_vars:
-                raise ValueError(
-                    "%s: No default value has been provided for key %s"
-                    % (self.__class__.__name__, k)
-                )
+                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
 
         for k in self.abivars:
             if k is MANDATORY:
                 raise ValueError(
-                    "%s: No default value has been provided for the mandatory key %s"
-                    % (self.__class__.__name__, k)
+                    "%s: No default value has been provided for the mandatory key %s" % (self.__class__.__name__, k)
                 )
 
     @classmethod
@@ -1097,9 +1084,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         """Relax atomic positions, keep unit cell fixed."""
         if atoms_constraints is None:
             return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
-        return cls(
-            ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints
-        )
+        return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
 
     @classmethod
     def atoms_and_cell(cls, atoms_constraints=None):
@@ -1134,7 +1119,9 @@ class RelaxationMethod(AbivarAble, MSONable):
         # Atom relaxation.
         if self.move_atoms:
             out_vars.update(
-                {"tolmxf": self.abivars.tolmxf,}
+                {
+                    "tolmxf": self.abivars.tolmxf,
+                }
             )
 
         if self.abivars.atoms_constraints:
@@ -1618,7 +1605,7 @@ class ExcHamiltonian(AbivarAble):
         with_lf=True,
         bs_freq_mesh=None,
         zcut=None,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Args:
@@ -1660,9 +1647,7 @@ class ExcHamiltonian(AbivarAble):
         self.with_lf = with_lf
 
         # if bs_freq_mesh is not given, abinit will select its own mesh.
-        self.bs_freq_mesh = (
-            np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
-        )
+        self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
         self.optdriver = 99
 

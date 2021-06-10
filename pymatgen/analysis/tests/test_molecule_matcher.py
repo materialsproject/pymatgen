@@ -26,12 +26,10 @@ from pymatgen.analysis.molecule_matcher import (
 )
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "molecules", "molecule_matcher")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "molecule_matcher")
+
 
 obalign_missing = (ob is None) or ("OBAlign" not in dir(ob))
 
@@ -80,9 +78,7 @@ def generate_Si_cluster():
     from pymatgen.io.xyz import XYZ
 
     coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-    lattice = Lattice.from_parameters(
-        a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60
-    )
+    lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
 
     struct = Structure(lattice, ["Si", "Si"], coords)
     struct.make_supercell([2, 2, 2])
@@ -126,9 +122,7 @@ def generate_Si2O_cluster():
         [0.750, 0.750, 0.750],
     ]
 
-    lattice = Lattice.from_parameters(
-        a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60
-    )
+    lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
     struct = Structure(lattice, ["Si", "Si", "Si", "Si", "O", "O"], coords)
     # struct.make_supercell([2, 2, 2])
 
@@ -175,21 +169,15 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm = MoleculeMatcher(tolerance=0.001)
         with open(os.path.join(test_dir, "mol_list.txt")) as f:
             filename_list = [line.strip() for line in f.readlines()]
-        mol_list = [
-            Molecule.from_file(os.path.join(test_dir, f)) for f in filename_list
-        ]
+        mol_list = [Molecule.from_file(os.path.join(test_dir, f)) for f in filename_list]
         mol_groups = mm.group_molecules(mol_list)
-        filename_groups = [
-            [filename_list[mol_list.index(m)] for m in g] for g in mol_groups
-        ]
+        filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]
         with open(os.path.join(test_dir, "grouped_mol_list.txt")) as f:
             grouped_text = f.read().strip()
         self.assertEqual(str(filename_groups), grouped_text)
 
     def test_to_and_from_dict(self):
-        mm = MoleculeMatcher(
-            tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0)
-        )
+        mm = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
         d = mm.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
         self.assertEqual(d, mm2.as_dict())

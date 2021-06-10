@@ -8,14 +8,11 @@ import warnings
 
 import pandas as pd
 
-from pymatgen import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "magnetic_orderings")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "magnetic_orderings")
 
 
 class HeisenbergMapperTest(unittest.TestCase):

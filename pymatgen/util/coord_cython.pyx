@@ -1,13 +1,10 @@
 # coding: utf-8
-
-#from __future__ import division, unicode_literals
+#cython: language_level=3
 
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise.
 """
-
-from six.moves import zip
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"

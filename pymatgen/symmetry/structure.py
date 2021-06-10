@@ -68,7 +68,7 @@ class SymmetrizedStructure(Structure):
         """
         :return: Copy of structure.
         """
-        return self.__class__(
+        return SymmetrizedStructure(
             self,
             spacegroup=self.spacegroup,
             equivalent_positions=self.site_labels,
@@ -99,17 +99,14 @@ class SymmetrizedStructure(Structure):
             "SymmetrizedStructure",
             "Full Formula ({s})".format(s=self.composition.formula),
             "Reduced Formula: {}".format(self.composition.reduced_formula),
+            "Spacegroup: {} ({})".format(self.spacegroup.int_symbol, self.spacegroup.int_number),
         ]
 
         def to_s(x):
             return "%0.6f" % x
 
-        outs.append(
-            "abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc])
-        )
-        outs.append(
-            "angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles])
-        )
+        outs.append("abc   : " + " ".join([to_s(i).rjust(10) for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i).rjust(10) for i in self.lattice.angles]))
         if self._charge:
             if self._charge >= 0:
                 outs.append("Overall Charge: +{}".format(self._charge))
@@ -128,7 +125,10 @@ class SymmetrizedStructure(Structure):
                 row.append(props[k][i])
             data.append(row)
         outs.append(
-            tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,)
+            tabulate(
+                data,
+                headers=["#", "SP", "a", "b", "c", "Wyckoff"] + keys,
+            )
         )
         return "\n".join(outs)
 

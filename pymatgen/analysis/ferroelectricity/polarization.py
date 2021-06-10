@@ -168,31 +168,21 @@ class Polarization:
             contribution to the polarization) uses lattice directions.
         """
         if len(p_elecs) != len(p_ions) or len(p_elecs) != len(structures):
-            raise ValueError(
-                "The number of electronic polarization and ionic polarization values must be equal."
-            )
+            raise ValueError("The number of electronic polarization and ionic polarization values must be equal.")
         if p_elecs_in_cartesian:
             p_elecs = np.array(
-                [
-                    struct.lattice.get_vector_along_lattice_directions(p_elecs[i])
-                    for i, struct in enumerate(structures)
-                ]
+                [struct.lattice.get_vector_along_lattice_directions(p_elecs[i]) for i, struct in enumerate(structures)]
             )
         if p_ions_in_cartesian:
             p_ions = np.array(
-                [
-                    struct.lattice.get_vector_along_lattice_directions(p_ions[i])
-                    for i, struct in enumerate(structures)
-                ]
+                [struct.lattice.get_vector_along_lattice_directions(p_ions[i]) for i, struct in enumerate(structures)]
             )
         self.p_elecs = np.array(p_elecs)
         self.p_ions = np.array(p_ions)
         self.structures = structures
 
     @classmethod
-    def from_outcars_and_structures(
-        cls, outcars, structures, calc_ionic_from_zval=False
-    ):
+    def from_outcars_and_structures(cls, outcars, structures, calc_ionic_from_zval=False):
         """
         Create Polarization object from list of Outcars and Structures in order
         of nonpolar to polar.
@@ -240,9 +230,9 @@ class Polarization:
 
             return p_elecs, p_ions
 
-    def get_same_branch_polarization_data(
-        self, convert_to_muC_per_cm2=True, all_in_polar=True
-    ):
+        return None
+
+    def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         r"""
         Get same branch dipole moment (convert_to_muC_per_cm2=False)
         or polarization for given polarization data (convert_to_muC_per_cm2=True).
@@ -304,9 +294,7 @@ class Polarization:
                 lattice = lattices[i]
                 l = lattice.lengths
                 a = lattice.angles
-                lattices[i] = Lattice.from_parameters(
-                    *(np.array(l) * units.ravel()[i]), *a
-                )
+                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[i]), *a)
         #  convert polarizations to polar lattice
         elif convert_to_muC_per_cm2 and all_in_polar:
             abc = [lattice.abc for lattice in lattices]
@@ -318,9 +306,7 @@ class Polarization:
                 l = lattice.lengths
                 a = lattice.angles
                 # Use polar units (volume)
-                lattices[i] = Lattice.from_parameters(
-                    *(np.array(l) * units.ravel()[-1]), *a
-                )
+                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[-1]), *a)
 
         d_structs = []
         sites = []
@@ -342,9 +328,7 @@ class Polarization:
         adjust_pol = []
         for s, d in zip(sites, d_structs):
             l = d.lattice
-            adjust_pol.append(
-                np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel()
-            )
+            adjust_pol.append(np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel())
         adjust_pol = np.array(adjust_pol)
 
         return adjust_pol
@@ -371,17 +355,13 @@ class Polarization:
                 lattice = lattices[i]
                 l = lattice.lengths
                 a = lattice.angles
-                lattices[i] = Lattice.from_parameters(
-                    *(np.array(l) * units.ravel()[i]), *a
-                )
+                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[i]), *a)
         elif convert_to_muC_per_cm2 and all_in_polar:
             for i in range(L):
                 lattice = lattices[-1]
                 l = lattice.lengths
                 a = lattice.angles
-                lattices[i] = Lattice.from_parameters(
-                    *(np.array(l) * units.ravel()[-1]), *a
-                )
+                lattices[i] = Lattice.from_parameters(*(np.array(l) * units.ravel()[-1]), *a)
 
         quanta = np.array([np.array(l.lengths) for l in lattices])
 
@@ -398,9 +378,7 @@ class Polarization:
         # when switching from np.matrix to np.array
         return (tot[-1] - tot[0]).reshape((1, 3))
 
-    def get_polarization_change_norm(
-        self, convert_to_muC_per_cm2=True, all_in_polar=True
-    ):
+    def get_polarization_change_norm(self, convert_to_muC_per_cm2=True, all_in_polar=True):
         """
         Get magnitude of difference between nonpolar and polar same branch
         polarization.
@@ -446,15 +424,11 @@ class Polarization:
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
         )
-        sps = self.same_branch_splines(
-            convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
-        )
+        sps = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         max_jumps = [None, None, None]
         for i, sp in enumerate(sps):
             if sp is not None:
-                max_jumps[i] = max(
-                    tot[:, i].ravel() - sp(range(len(tot[:, i].ravel())))
-                )
+                max_jumps[i] = max(tot[:, i].ravel() - sp(range(len(tot[:, i].ravel()))))
         return max_jumps
 
     def smoothness(self, convert_to_muC_per_cm2=True, all_in_polar=True):
@@ -466,9 +440,7 @@ class Polarization:
         )
         L = tot.shape[0]
         try:
-            sp = self.same_branch_splines(
-                convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar
-            )
+            sp = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         except Exception:
             print("Something went wrong.")
             return None

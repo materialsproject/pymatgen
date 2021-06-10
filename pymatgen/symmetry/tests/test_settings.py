@@ -43,9 +43,7 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
         for test_string in self.test_strings:
             jft = JonesFaithfulTransformation.from_transformation_string(test_string)
             self.assertEqual(jft, jft.inverse.inverse)
-            self.assertEqual(
-                jft.transformation_string, jft.inverse.inverse.transformation_string
-            )
+            self.assertEqual(jft.transformation_string, jft.inverse.inverse.transformation_string)
 
     def test_transform_lattice(self):
         lattice = Lattice.cubic(5)
@@ -59,9 +57,7 @@ class JonesFaithfulTransformationTest(unittest.TestCase):
 
         for ref_lattice, (P, p) in zip(all_ref_lattices, self.test_Pps):
             jft = JonesFaithfulTransformation(P, p)
-            self.assertTrue(
-                np.allclose(jft.transform_lattice(lattice).matrix, ref_lattice)
-            )
+            self.assertTrue(np.allclose(jft.transform_lattice(lattice).matrix, ref_lattice))
 
     def test_transform_coords(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -184,20 +180,14 @@ y,-x,-z+1/2
 -1/2x+1/2y+z+1/4,1/2x-1/2y+z+1/4,-1/2x-1/2y+3/4
 1/2x-1/2y+z+1/4,-1/2x+1/2y+z+1/4,1/2x+1/2y+3/4"""
 
-        jft = JonesFaithfulTransformation.from_transformation_string(
-            self.test_strings[1]
-        )
+        jft = JonesFaithfulTransformation.from_transformation_string(self.test_strings[1])
 
         input_symmops = [SymmOp.from_xyz_string(s) for s in input_symmops.split()]
-        ref_transformed_symmops = [
-            SymmOp.from_xyz_string(s) for s in ref_transformed_symmops.split()
-        ]
+        ref_transformed_symmops = [SymmOp.from_xyz_string(s) for s in ref_transformed_symmops.split()]
 
         transformed_symmops = [jft.transform_symmop(op) for op in input_symmops]
 
-        for transformed_op, ref_transformed_op in zip(
-            transformed_symmops, ref_transformed_symmops
-        ):
+        for transformed_op, ref_transformed_op in zip(transformed_symmops, ref_transformed_symmops):
             self.assertEqual(transformed_op, ref_transformed_op)
 
 

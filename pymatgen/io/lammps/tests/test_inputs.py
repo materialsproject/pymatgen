@@ -9,15 +9,11 @@ import unittest
 
 import pandas as pd
 
-from pymatgen import Lattice, Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "lammps")
+from pymatgen.util.testing import PymatgenTest
 
 
 class LammpsRunTest(unittest.TestCase):
@@ -82,12 +78,10 @@ run             10000
 class FuncTest(unittest.TestCase):
     def test_write_lammps_inputs(self):
         # script template
-        with open(os.path.join(test_dir, "kappa.txt")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "kappa.txt")) as f:
             kappa_template = f.read()
         kappa_settings = {"method": "heat"}
-        write_lammps_inputs(
-            output_dir="heat", script_template=kappa_template, settings=kappa_settings
-        )
+        write_lammps_inputs(output_dir="heat", script_template=kappa_template, settings=kappa_settings)
         with open(os.path.join("heat", "in.lammps")) as f:
             kappa_script = f.read()
         fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
@@ -101,19 +95,17 @@ class FuncTest(unittest.TestCase):
         pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
         self.assertEqual(pair_style.group(1), "${rc}")
 
-        with open(os.path.join(test_dir, "in.peptide")) as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "in.peptide")) as f:
             peptide_script = f.read()
         # copy data file
-        src = os.path.join(test_dir, "data.quartz")
+        src = os.path.join(PymatgenTest.TEST_FILES_DIR, "lammps", "data.quartz")
         write_lammps_inputs(output_dir="path", script_template=peptide_script, data=src)
         dst = os.path.join("path", "data.peptide")
         self.assertTrue(filecmp.cmp(src, dst, shallow=False))
         # write data file from obj
         obj = LammpsData.from_file(src, atom_style="atomic")
         write_lammps_inputs(output_dir="obj", script_template=peptide_script, data=obj)
-        obj_read = LammpsData.from_file(
-            os.path.join("obj", "data.peptide"), atom_style="atomic"
-        )
+        obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"), atom_style="atomic")
         pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
         pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 

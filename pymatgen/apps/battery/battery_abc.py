@@ -26,7 +26,7 @@ from typing import Dict, Tuple
 from monty.json import MSONable
 from scipy.constants import N_A
 
-from pymatgen import Composition, Element
+from pymatgen.core import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
@@ -89,9 +89,7 @@ class AbstractVoltagePair(MSONable):
         """
         The number of working ions per formula unit of host in the discharged state
         """
-        return (
-            self.frac_discharge * self.framework.num_atoms / (1 - self.frac_discharge)
-        )
+        return self.frac_discharge * self.framework.num_atoms / (1 - self.frac_discharge)
 
 
 @dataclass
@@ -284,9 +282,7 @@ class AbstractElectrode(Sequence, MSONable):
         total_edens_in_range = sum([p.mAh * p.voltage for p in pairs_in_range])
         return total_edens_in_range / total_cap_in_range
 
-    def get_capacity_grav(
-        self, min_voltage=None, max_voltage=None, use_overall_normalization=True
-    ):
+    def get_capacity_grav(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
         Get the gravimetric capacity of the electrode.
 
@@ -312,9 +308,7 @@ class AbstractElectrode(Sequence, MSONable):
         )
         return sum([pair.mAh for pair in pairs_in_range]) / normalization_mass
 
-    def get_capacity_vol(
-        self, min_voltage=None, max_voltage=None, use_overall_normalization=True
-    ):
+    def get_capacity_vol(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
         Get the volumetric capacity of the electrode.
 
@@ -338,13 +332,9 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].vol_discharge
         )
-        return (
-            sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1e24 / N_A
-        )
+        return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1e24 / N_A
 
-    def get_specific_energy(
-        self, min_voltage=None, max_voltage=None, use_overall_normalization=True
-    ):
+    def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
         Returns the specific energy of the battery in mAh/g.
 
@@ -362,13 +352,11 @@ class AbstractElectrode(Sequence, MSONable):
             Specific energy in Wh/kg across the insertion path (a subset of
             the path can be chosen by the optional arguments)
         """
-        return self.get_capacity_grav(
-            min_voltage, max_voltage, use_overall_normalization
-        ) * self.get_average_voltage(min_voltage, max_voltage)
+        return self.get_capacity_grav(min_voltage, max_voltage, use_overall_normalization) * self.get_average_voltage(
+            min_voltage, max_voltage
+        )
 
-    def get_energy_density(
-        self, min_voltage=None, max_voltage=None, use_overall_normalization=True
-    ):
+    def get_energy_density(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
         """
         Args:
             min_voltage (float): The minimum allowable voltage for a given
@@ -384,9 +372,9 @@ class AbstractElectrode(Sequence, MSONable):
             Energy density in Wh/L across the insertion path (a subset of the
             path can be chosen by the optional arguments).
         """
-        return self.get_capacity_vol(
-            min_voltage, max_voltage, use_overall_normalization
-        ) * self.get_average_voltage(min_voltage, max_voltage)
+        return self.get_capacity_vol(min_voltage, max_voltage, use_overall_normalization) * self.get_average_voltage(
+            min_voltage, max_voltage
+        )
 
     def _select_in_voltage_range(self, min_voltage=None, max_voltage=None):
         """
@@ -403,11 +391,7 @@ class AbstractElectrode(Sequence, MSONable):
         """
         min_voltage = min_voltage if min_voltage is not None else self.min_voltage
         max_voltage = max_voltage if max_voltage is not None else self.max_voltage
-        return list(
-            filter(
-                lambda p: min_voltage <= p.voltage <= max_voltage, self.voltage_pairs
-            )
-        )
+        return list(filter(lambda p: min_voltage <= p.voltage <= max_voltage, self.voltage_pairs))
 
     def get_summary_dict(self, print_subelectrodes=True) -> Dict:
         """
@@ -443,10 +427,6 @@ class AbstractElectrode(Sequence, MSONable):
             def f_dict(c):
                 return c.get_summary_dict(print_subelectrodes=False)
 
-            d["adj_pairs"] = list(
-                map(f_dict, self.get_sub_electrodes(adjacent_only=True))
-            )
-            d["all_pairs"] = list(
-                map(f_dict, self.get_sub_electrodes(adjacent_only=False))
-            )
+            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
+            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
         return d

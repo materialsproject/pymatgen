@@ -8,7 +8,8 @@ import warnings
 
 from monty.os.path import which
 
-from pymatgen import Element, Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import RemoveSitesTransformation
@@ -18,10 +19,6 @@ from pymatgen.util.testing import PymatgenTest
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
@@ -38,32 +35,22 @@ class EnumlibAdaptorTest(PymatgenTest):
             structures = adaptor.structures
             self.assertEqual(len(structures), 86)
             for s in structures:
-                self.assertAlmostEqual(
-                    s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5
-                )
-            adaptor = EnumlibAdaptor(
-                subtrans.apply_transformation(struct), 1, 2, refine_structure=True
-            )
+                self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
+            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2, refine_structure=True)
             adaptor.run()
             structures = adaptor.structures
             self.assertEqual(len(structures), 52)
 
             subtrans = SubstitutionTransformation({"Li": {"Li": 0.25}})
-            adaptor = EnumlibAdaptor(
-                subtrans.apply_transformation(struct), 1, 1, refine_structure=True
-            )
+            adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 1, refine_structure=True)
             adaptor.run()
             structures = adaptor.structures
             self.assertEqual(len(structures), 1)
             for s in structures:
-                self.assertAlmostEqual(
-                    s.composition.get_atomic_fraction(Element("Li")), 0.25 / 6.25
-                )
+                self.assertAlmostEqual(s.composition.get_atomic_fraction(Element("Li")), 0.25 / 6.25)
 
             # Make sure it works for completely disordered structures.
-            struct = Structure(
-                [[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{"Fe": 0.5}], [[0, 0, 0]]
-            )
+            struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]], [{"Fe": 0.5}], [[0, 0, 0]])
             adaptor = EnumlibAdaptor(struct, 1, 2)
             adaptor.run()
             self.assertEqual(len(adaptor.structures), 3)
@@ -90,7 +77,7 @@ class EnumlibAdaptorTest(PymatgenTest):
             structures = adaptor.structures
             self.assertEqual(len(structures), 10)
 
-            struct = Structure.from_file(os.path.join(test_dir, "EnumerateTest.json"))
+            struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "EnumerateTest.json"))
             adaptor = EnumlibAdaptor(struct, 1, 1)
             adaptor.run()
             structures = adaptor.structures
@@ -100,7 +87,7 @@ class EnumlibAdaptorTest(PymatgenTest):
         # It used to be that a rounding issue would result in this structure
         # showing that Cu3Te2 satisfies an ordering of this structure.
         # This has been fixed by multiplying the base by 100.
-        struct = Structure.from_file(os.path.join(test_dir, "Cu7Te5.cif"))
+        struct = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Cu7Te5.cif"))
         adaptor = EnumlibAdaptor(struct, 1, 2)
         self.assertRaises(EnumError, adaptor.run)
         adaptor = EnumlibAdaptor(struct, 1, 5)
@@ -108,7 +95,7 @@ class EnumlibAdaptorTest(PymatgenTest):
         self.assertEqual(len(adaptor.structures), 197)
 
     def test_partial_disorder(self):
-        s = Structure.from_file(filename=os.path.join(test_dir, "garnet.cif"))
+        s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
         a = SpacegroupAnalyzer(s, 0.1)
         prim = a.find_primitive()
         s = prim.copy()
@@ -139,12 +126,10 @@ class EnumlibAdaptorTest(PymatgenTest):
 
     @unittest.skip("Fails seemingly at random.")
     def test_timeout(self):
-        s = Structure.from_file(filename=os.path.join(test_dir, "garnet.cif"))
+        s = Structure.from_file(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "garnet.cif"))
         a = SpacegroupAnalyzer(s, 0.1)
         s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
-        adaptor = EnumlibAdaptor(
-            s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001
-        )
+        adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)
         self.assertRaises(TimeoutError, adaptor._run_multienum)
 
 

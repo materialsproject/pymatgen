@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.cube module &mdash; pymatgen 2020.12.31 documentation</title>
+  <title>pymatgen.io.cube module &mdash; pymatgen 2022.0.8 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
@@ -29,11 +31,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -72,7 +73,7 @@
             
             
               <div class="version">
-                2020.12.31
+                2022.0.8
               </div>
             
           
@@ -101,25 +102,26 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -127,7 +129,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -180,9 +181,9 @@
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
-          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
         
-          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+          <li><a href="pymatgen.io.html">pymatgen.io namespace</a> &raquo;</li>
         
       <li>pymatgen.io.cube module</li>
     
@@ -207,19 +208,22 @@
             
   <div class="section" id="module-pymatgen.io.cube">
 <span id="pymatgen-io-cube-module"></span><h1>pymatgen.io.cube module<a class="headerlink" href="#module-pymatgen.io.cube" title="Permalink to this headline">¶</a></h1>
-<p>Module for reading Gaussian cube files, which have become one of the standard file formats for volumetric data
-in quantum chemistry and solid state physics software packages (VASP being an exception).</p>
-<p>Some basic info about cube files (abridged info from <a class="reference external" href="http://paulbourke.net/dataformats/cube/">http://paulbourke.net/dataformats/cube/</a> by Paul Bourke)</p>
-<p>The file consists of a header which includes the atom information and the size as well as orientation of the
-volumetric data. The first two lines of the header are comments. The third line has the number of atoms
-included in the file followed by the position of the origin of the volumetric data. The next three lines
-give the number of voxels along each axis (x, y, z) followed by the axis vector. The last section in the
-header is one line for each atom consisting of 5 numbers, the first is the atom number, the second is the
-charge, and the last three are the x,y,z coordinates of the atom center. The volumetric data is straightforward,
+<p>Module for reading Gaussian cube files, which have become one of the standard file formats
+for volumetric data in quantum chemistry and solid state physics software packages
+(VASP being an exception).</p>
+<p>Some basic info about cube files
+(abridged info from <a class="reference external" href="http://paulbourke.net/dataformats/cube/">http://paulbourke.net/dataformats/cube/</a> by Paul Bourke)</p>
+<p>The file consists of a header which includes the atom information and the size as well
+as orientation of the volumetric data. The first two lines of the header are comments. The
+third line has the number of atoms included in the file followed by the position of the
+origin of the volumetric data. The next three lines give the number of voxels along each axis
+(x, y, z) followed by the axis vector. The last section in the header is one line for each
+atom consisting of 5 numbers, the first is the atom number, the second is the charge, and
+the last three are the x,y,z coordinates of the atom center. The volumetric data is straightforward,
 one floating point number for each volumetric element.</p>
 <p>Example
-In the following example the volumetric data is a 40 by 40 by 40 grid,
-each voxel is 0.283459 units wide and the volume is aligned with the coordinate axis. There are three atoms.</p>
+In the following example the volumetric data is a 40 by 40 by 40 grid, each voxel is 0.283459 units
+wide and the volume is aligned with the coordinate axis. There are three atoms.</p>
 <blockquote>
 <div><p>CPMD CUBE FILE.
 OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z</p>
@@ -250,13 +254,94 @@ OUTER LOOP: X, MIDDLE LOOP: Y, INNER LOOP: Z</p>
 </dl>
 </div></blockquote>
 <dl class="py class">
-<dt id="pymatgen.io.cube.Cube">
-<em class="property">class </em><code class="sig-name descname">Cube</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.12.31/pymatgen/io/cube.py#L47-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cube.Cube" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.cube.Cube">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/cube.py#L52-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to read Gaussian cube file formats for volumetric data.</p>
-<p>Initialize the cube object and store the data as self.data
-:param fname: filename of the cube to read
-:type fname: str</p>
+<p>Cube files are, by default, written in atomic units, and this
+class assumes that convention.</p>
+<p>Initialize the cube object and store the data as self.data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>str</em>) – filename of the cube to read</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.cube.Cube.get_atomic_site_averages">
+<span class="sig-name descname"><span class="pre">get_atomic_site_averages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_site_radii</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/cube.py#L145-L156"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_averages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the average value around each atomic site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atomic_site_radii</strong> (<em>dict</em>) – dictionary determining the cutoff radius (in Angstroms)
+for averaging around atomic sites (e.g. {‘Li’: 0.97, ‘B’: 0.77, …}. If
+not provided, then the</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of site averages, [Average around site 1, Average around site 2, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.cube.Cube.get_atomic_site_totals">
+<span class="sig-name descname"><span class="pre">get_atomic_site_totals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_site_radii</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/cube.py#L172-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_atomic_site_totals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the integrated total in a sphere around each atomic site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>atomic_site_radii</strong> (<em>dict</em>) – dictionary determining the cutoff radius (in Angstroms)
+for averaging around atomic sites (e.g. {‘Li’: 0.97, ‘B’: 0.77, …}. If
+not provided, then the</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of site averages, [Average around site 1, Average around site 2, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.cube.Cube.get_average_along_axis">
+<span class="sig-name descname"><span class="pre">get_average_along_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/cube.py#L213-L234"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified from pymatgen.io.vasp.outputs</p>
+<p>Get the averaged total of the volumetric data a certain axis direction.
+For example, useful for visualizing Hartree Potentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ind</strong> (<em>int</em>) – Index of axis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Average total along axis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.cube.Cube.get_axis_grid">
+<span class="sig-name descname"><span class="pre">get_axis_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/cube.py#L199-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.get_axis_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modified from pymatgen.io.vasp.outputs</p>
+<p>Returns the grid for a particular axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ind</strong> (<em>int</em>) – Axis index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.cube.Cube.mask_sphere">
+<span class="sig-name descname"><span class="pre">mask_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cz</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../io/cube.py#L115-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.cube.Cube.mask_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a mask for a sphere with radius=radius, centered at cx, cy, cz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> – (flaot) of the mask (in Angstroms)</p></li>
+<li><p><strong>cx</strong> – (float) the fractional coordinates of the center of the sphere</p></li>
+<li><p><strong>cy</strong> – (float) the fractional coordinates of the center of the sphere</p></li>
+<li><p><strong>cz</strong> – (float) the fractional coordinates of the center of the sphere</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>

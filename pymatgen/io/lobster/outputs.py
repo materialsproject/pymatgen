@@ -17,13 +17,12 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from monty.io import zopen
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Kpoints
-from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -101,23 +100,13 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array(
-            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]
-        ).transpose()
-        data = np.array(
-            [np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]
-        ).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
         self.energies = data[0]
         cohp_data = {
             "average": {
-                "COHP": {
-                    spin: data[1 + 2 * s * (num_bonds + 1)]
-                    for s, spin in enumerate(spins)
-                },
-                "ICOHP": {
-                    spin: data[2 + 2 * s * (num_bonds + 1)]
-                    for s, spin in enumerate(spins)
-                },
+                "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
+                "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
             }
         }  # type: Dict[Any, Any]
 
@@ -133,15 +122,9 @@ class Cohpcar:
             label = str(bondnumber)
 
             orbs = bond_data["orbitals"]
-            cohp = {
-                spin: data[2 * (bond + s * (num_bonds + 1)) + 3]
-                for s, spin in enumerate(spins)
-            }
+            cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
 
-            icohp = {
-                spin: data[2 * (bond + s * (num_bonds + 1)) + 4]
-                for s, spin in enumerate(spins)
-            }
+            icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
             if orbs is None:
                 bondnumber = bondnumber + 1
                 label = str(bondnumber)
@@ -244,9 +227,7 @@ class Cohpcar:
         # species = tuple(re.split(r"\d+", site)[0] for site in sites)
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
-            orbitals = [
-                tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs
-            ]  # type: Any
+            orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:])))) for orb in orbs]  # type: Any
             orb_label = "%d%s-%d%s" % (
                 orbitals[0][0],
                 orbitals[0][1].name,
@@ -315,9 +296,7 @@ class Icohplist:
             version = "3.1.1"
         elif len(data[0].split()) == 6:
             version = "2.2.1"
-            warnings.warn(
-                "Please consider using the new Lobster version. See www.cohp.de."
-            )
+            warnings.warn("Please consider using the new Lobster version. See www.cohp.de.")
         else:
             raise ValueError
 
@@ -478,32 +457,29 @@ class Doscar:
 
         tdensities = {}
         itdensities = {}
-        f = open(doscar)
-        natoms = int(f.readline().split()[0])
-        efermi = float([f.readline() for nn in range(4)][3].split()[17])
-        dos = []
-        orbitals = []
-        for atom in range(natoms + 1):
-            line = f.readline()
-            ndos = int(line.split()[2])
-            orbitals.append(line.split(";")[-1].split())
-            line = f.readline().split()
-            cdos = np.zeros((ndos, len(line)))
-            cdos[0] = np.array(line)
-            for nd in range(1, ndos):
+        with open(doscar) as f:
+            natoms = int(f.readline().split()[0])
+            efermi = float([f.readline() for nn in range(4)][3].split()[17])
+            dos = []
+            orbitals = []
+            for atom in range(natoms + 1):
+                line = f.readline()
+                ndos = int(line.split()[2])
+                orbitals.append(line.split(";")[-1].split())
                 line = f.readline().split()
-                cdos[nd] = np.array(line)
-            dos.append(cdos)
-        f.close()
+                cdos = np.zeros((ndos, len(line)))
+                cdos[0] = np.array(line)
+                for nd in range(1, ndos):
+                    line = f.readline().split()
+                    cdos[nd] = np.array(line)
+                dos.append(cdos)
         doshere = np.array(dos[0])
         if len(doshere[0, :]) == 5:
             self._is_spin_polarized = True
         elif len(doshere[0, :]) == 3:
             self._is_spin_polarized = False
         else:
-            raise ValueError(
-                "There is something wrong with the DOSCAR. Can't extract spin polarization."
-            )
+            raise ValueError("There is something wrong with the DOSCAR. Can't extract spin polarization.")
         energies = doshere[:, 0]
         if not self._is_spin_polarized:
             tdensities[Spin.up] = doshere[:, 1]
@@ -576,23 +552,23 @@ class Doscar:
         return self._tdos
 
     @property
-    def energies(self) -> np.array:
+    def energies(self) -> np.ndarray:
         """
         :return: Energies
         """
         return self._energies
 
     @property
-    def tdensities(self) -> np.array:
+    def tdensities(self) -> np.ndarray:
         """
-        :return: total densities as a np.array
+        :return: total densities as a np.ndarray
         """
         return self._tdensities
 
     @property
-    def itdensities(self) -> np.array:
+    def itdensities(self) -> np.ndarray:
         """
-        :return: integrated total densities as a np.array
+        :return: integrated total densities as a np.ndarray
         """
         return self._itdensities
 
@@ -741,9 +717,7 @@ class Lobsterout:
         Args:
             filename: filename of lobsterout
         """
-        warnings.warn(
-            "Make sure the lobsterout is read in correctly. This is a brand new class."
-        )
+        warnings.warn("Make sure the lobsterout is read in correctly. This is a brand new class.")
         # read in file
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")  # [3:-3]
@@ -751,9 +725,7 @@ class Lobsterout:
             raise IOError("lobsterout does not contain any data")
 
         # check if Lobster starts from a projection
-        self.is_restart_from_projection = (
-            "loading projection from projectionData.lobster..." in data
-        )
+        self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
 
         self.lobster_version = self._get_lobster_version(data=data)
 
@@ -761,9 +733,7 @@ class Lobsterout:
         self.dftprogram = self._get_dft_program(data=data)
 
         self.number_of_spins = self._get_number_of_spins(data=data)
-        chargespilling, totalspilling = self._get_spillings(
-            data=data, number_of_spins=self.number_of_spins
-        )
+        chargespilling, totalspilling = self._get_spillings(data=data, number_of_spins=self.number_of_spins)
         self.chargespilling = chargespilling
         self.totalspilling = totalspilling
 
@@ -792,10 +762,7 @@ class Lobsterout:
         infos = self._get_all_info_lines(data=data)
         self.info_lines = infos
 
-        self.has_DOSCAR = (
-            "writing DOSCAR.lobster..." in data
-            and "SKIPPING writing DOSCAR.lobster..." not in data
-        )
+        self.has_DOSCAR = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
         self.has_COHPCAR = (
             "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
             and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
@@ -806,14 +773,9 @@ class Lobsterout:
         )
         self.has_CHARGE = "SKIPPING writing CHARGE.lobster..." not in data
         self.has_Projection = "saving projection to projectionData.lobster..." in data
-        self.has_bandoverlaps = (
-            "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster."
-            in data
-        )
+        self.has_bandoverlaps = "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
         self.has_fatbands = self._has_fatband(data=data)
-        self.has_grosspopulation = (
-            "writing CHARGE.lobster and GROSSPOP.lobster..." in data
-        )
+        self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
 
     def get_doc(self):
@@ -906,18 +868,11 @@ class Lobsterout:
             if len(splitrow) > 2:
                 if splitrow[2] == "spilling:":
                     if splitrow[1] == "charge":
-                        charge_spilling.append(
-                            np.float(splitrow[3].replace("%", "")) / 100.0
-                        )
+                        charge_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
                     if splitrow[1] == "total":
-                        total_spilling.append(
-                            np.float(splitrow[3].replace("%", "")) / 100.0
-                        )
+                        total_spilling.append(np.float_(splitrow[3].replace("%", "")) / 100.0)
 
-            if (
-                len(charge_spilling) == number_of_spins
-                and len(total_spilling) == number_of_spins
-            ):
+            if len(charge_spilling) == number_of_spins and len(total_spilling) == number_of_spins:
                 break
 
         return charge_spilling, total_spilling
@@ -1080,9 +1035,7 @@ class Fatband:
             vasprun: corresponding vasprun file
             Kpointsfile: KPOINTS file for bandstructure calculation, typically "KPOINTS"
         """
-        warnings.warn(
-            "Make sure all relevant FATBAND files were generated and read in!"
-        )
+        warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
 
         VASPRUN = Vasprun(
@@ -1119,7 +1072,6 @@ class Fatband:
             with zopen(filename, "rt") as f:
                 contents = f.read().split("\n")
 
-            # TODO: could be replaced for future versions of Lobster, get atomname from filename
             atomnames.append(os.path.split(filename)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
             atomtype.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
@@ -1135,9 +1087,7 @@ class Fatband:
         # are there
         for key, items in atom_orbital_dict.items():
             if len(set(items)) != len(items):
-                raise ValueError(
-                    "The are two FATBAND files for the same atom and orbital. The program will stop."
-                )
+                raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
             split = []
             for item in items:
                 split.append(item.split("_")[0])
@@ -1155,9 +1105,7 @@ class Fatband:
 
             if ifilename == 0:
                 self.nbands = int(parameters[6])
-                self.number_kpts = (
-                    kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
-                )
+                self.number_kpts = kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
 
             if len(contents[1:]) == self.nbands + 2:
                 self.is_spinpolarized = False
@@ -1178,26 +1126,18 @@ class Fatband:
             if ifilename == 0:
                 eigenvals = {}
                 eigenvals[Spin.up] = [
-                    [collections.defaultdict(float) for i in range(self.number_kpts)]
-                    for j in range(self.nbands)
+                    [collections.defaultdict(float) for i in range(self.number_kpts)] for j in range(self.nbands)
                 ]
                 if self.is_spinpolarized:
                     eigenvals[Spin.down] = [
-                        [
-                            collections.defaultdict(float)
-                            for i in range(self.number_kpts)
-                        ]
-                        for j in range(self.nbands)
+                        [collections.defaultdict(float) for i in range(self.number_kpts)] for j in range(self.nbands)
                     ]
 
                 p_eigenvals = {}
                 p_eigenvals[Spin.up] = [
                     [
                         {
-                            str(e): {
-                                str(orb): collections.defaultdict(float)
-                                for orb in atom_orbital_dict[e]
-                            }
+                            str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
                             for e in atomnames
                         }
                         for i in range(self.number_kpts)
@@ -1209,10 +1149,7 @@ class Fatband:
                     p_eigenvals[Spin.down] = [
                         [
                             {
-                                str(e): {
-                                    str(orb): collections.defaultdict(float)
-                                    for orb in atom_orbital_dict[e]
-                                }
+                                str(e): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[e]}
                                 for e in atomnames
                             }
                             for i in range(self.number_kpts)
@@ -1242,21 +1179,17 @@ class Fatband:
 
                     if linenumber < self.nbands:
                         if ifilename == 0:
-                            eigenvals[Spin.up][iband][ikpoint] = (
-                                float(line.split()[1]) + self.efermi
-                            )
+                            eigenvals[Spin.up][iband][ikpoint] = float(line.split()[1]) + self.efermi
 
-                        p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][
-                            orbital_names[ifilename]
-                        ] = float(line.split()[2])
+                        p_eigenvals[Spin.up][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
+                            line.split()[2]
+                        )
                     if linenumber >= self.nbands and self.is_spinpolarized:
                         if ifilename == 0:
-                            eigenvals[Spin.down][iband][ikpoint] = (
-                                float(line.split()[1]) + self.efermi
-                            )
-                        p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][
-                            orbital_names[ifilename]
-                        ] = float(line.split()[2])
+                            eigenvals[Spin.down][iband][ikpoint] = float(line.split()[1]) + self.efermi
+                        p_eigenvals[Spin.down][iband][ikpoint][atomnames[ifilename]][orbital_names[ifilename]] = float(
+                            line.split()[2]
+                        )
 
                     linenumber += 1
                     iband += 1
@@ -1266,9 +1199,7 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for ilabel, label in enumerate(
-            kpoints_object.labels[-self.number_kpts :], start=0
-        ):
+        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
 
             if label is not None:
                 label_dict[label] = kpoints_array[ilabel]
@@ -1322,15 +1253,9 @@ class Bandoverlaps:
         self.max_deviation = []  # type: List
         # This has to be done like this because there can be different numbers of problematic k-points per spin
         for line in contents:
-            if (
-                "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0"
-                in line
-            ):
+            if "Overlap Matrix (abs) of the orthonormalized projected bands for spin 0" in line:
                 spin = Spin.up
-            elif (
-                "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1"
-                in line
-            ):
+            elif "Overlap Matrix (abs) of the orthonormalized projected bands for spin 1" in line:
                 spin = Spin.down
             elif "k-point" in line:
                 kpoint = line.split(" ")
@@ -1345,9 +1270,7 @@ class Bandoverlaps:
                 if not " ".join(kpoint_array) in self.bandoverlapsdict[spin]:
                     self.bandoverlapsdict[spin][" ".join(kpoint_array)] = {}
                 maxdev = line.split(" ")[2]
-                self.bandoverlapsdict[spin][" ".join(kpoint_array)][
-                    "maxDeviation"
-                ] = float(maxdev)
+                self.bandoverlapsdict[spin][" ".join(kpoint_array)]["maxDeviation"] = float(maxdev)
                 self.max_deviation.append(float(maxdev))
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"] = []
 
@@ -1356,9 +1279,7 @@ class Bandoverlaps:
                 for el in line.split(" "):
                     if el not in [""]:
                         overlaps.append(float(el))
-                self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"].append(
-                    overlaps
-                )
+                self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """
@@ -1397,10 +1318,7 @@ class Bandoverlaps:
         for matrix in self.bandoverlapsdict[Spin.up].values():
             for iband1, band1 in enumerate(matrix["matrix"]):
                 for iband2, band2 in enumerate(band1):
-                    if (
-                        iband1 < number_occ_bands_spin_up
-                        and iband2 < number_occ_bands_spin_up
-                    ):
+                    if iband1 < number_occ_bands_spin_up and iband2 < number_occ_bands_spin_up:
                         if iband1 == iband2:
                             if abs(band2 - 1.0) > limit_deviation:
                                 return False
@@ -1413,10 +1331,7 @@ class Bandoverlaps:
                 for iband1, band1 in enumerate(matrix["matrix"]):
                     for iband2, band2 in enumerate(band1):
                         if number_occ_bands_spin_down is not None:
-                            if (
-                                iband1 < number_occ_bands_spin_down
-                                and iband2 < number_occ_bands_spin_down
-                            ):
+                            if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
                                 if iband1 == iband2:
                                     if abs(band2 - 1.0) > limit_deviation:
                                         return False
@@ -1488,3 +1403,199 @@ class Grosspop:
         }
         new_struct = struct.copy(site_properties=site_properties)
         return new_struct
+
+
+class Wavefunction:
+    """
+    Class to read in wave function files from Lobster and transfer them into an object of the type VolumetricData
+
+    .. attribute: grid
+
+        grid for the wave function [Nx+1,Ny+1,Nz+1]
+
+    .. attribute: points
+
+        list of points
+
+    .. attribute: real
+
+        list of real part of wave function
+
+    .. attribute: imaginary
+
+        list of imaginary part of wave function
+
+    .. attribute: distance
+
+        list of distance to first point in wave function file
+
+
+    """
+
+    def __init__(self, filename, structure):
+        """
+
+        Args:
+            filename: filename of wavecar file from Lobster
+            structure: Structure object (e.g., created by Structure.from_file(""))
+        """
+
+        self.filename = filename
+        self.structure = structure
+
+        (
+            self.grid,
+            self.points,
+            self.real,
+            self.imaginary,
+            self.distance,
+        ) = Wavefunction._parse_file(filename)
+
+    @staticmethod
+    def _parse_file(filename):
+        with zopen(filename, "rt") as f:
+            contents = f.read().split("\n")
+        points = []
+        distance = []
+        real = []
+        imaginary = []
+        splitline = contents[0].split()
+        grid = [int(splitline[7]), int(splitline[8]), int(splitline[9])]
+        for line in contents[1:]:
+            splitline = line.split()
+            if len(splitline) >= 6:
+                points.append([float(splitline[0]), float(splitline[1]), float(splitline[2])])
+                distance.append(float(splitline[3]))
+                real.append(float(splitline[4]))
+                imaginary.append(float(splitline[5]))
+
+        if not len(real) == grid[0] * grid[1] * grid[2]:
+            raise ValueError("Something went wrong while reading the file")
+        if not len(imaginary) == grid[0] * grid[1] * grid[2]:
+            raise ValueError("Something went wrong while reading the file")
+        return grid, points, real, imaginary, distance
+
+    def set_volumetric_data(self, grid, structure):
+        """
+        Will create the VolumetricData Objects
+
+        Args:
+            grid: grid on which wavefunction was calculated, e.g. [1,2,2]
+            structure: Structure object
+
+        Returns:
+
+        """
+        Nx = grid[0] - 1
+        Ny = grid[1] - 1
+        Nz = grid[2] - 1
+        a = structure.lattice.matrix[0]
+        b = structure.lattice.matrix[1]
+        c = structure.lattice.matrix[2]
+        new_x = []
+        new_y = []
+        new_z = []
+        new_real = []
+        new_imaginary = []
+        new_density = []
+
+        runner = 0
+        for x in range(0, Nx + 1):
+            for y in range(0, Ny + 1):
+                for z in range(0, Nz + 1):
+                    x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
+                    y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
+                    z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
+
+                    if x != Nx:
+                        if y != Ny:
+                            if z != Nz:
+                                if not np.isclose(self.points[runner][0], x_here, 1e-3):
+                                    if not np.isclose(self.points[runner][1], y_here, 1e-3):
+                                        if not np.isclose(self.points[runner][2], z_here, 1e-3):
+                                            raise ValueError(
+                                                "The provided wavefunction from Lobster does not contain all relevant"
+                                                " points. "
+                                                "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
+                                                "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
+                                            )
+
+                                new_x.append(x_here)
+                                new_y.append(y_here)
+                                new_z.append(z_here)
+
+                                new_real.append(self.real[runner])
+                                new_imaginary.append(self.imaginary[runner])
+                                new_density.append(self.real[runner] ** 2 + self.imaginary[runner] ** 2)
+
+                    runner += 1
+
+        self.final_real = np.reshape(new_real, [Nx, Ny, Nz])
+        self.final_imaginary = np.reshape(new_imaginary, [Nx, Ny, Nz])
+        self.final_density = np.reshape(new_density, [Nx, Ny, Nz])
+
+        self.volumetricdata_real = VolumetricData(structure, {"total": self.final_real})
+        self.volumetricdata_imaginary = VolumetricData(structure, {"total": self.final_imaginary})
+        self.volumetricdata_density = VolumetricData(structure, {"total": self.final_density})
+
+    def get_volumetricdata_real(self):
+        """
+        will return a VolumetricData object including the real part of the wave function
+
+        Returns: VolumetricData object
+        """
+
+        if not hasattr(self, "volumetricdata_real"):
+            self.set_volumetric_data(self.grid, self.structure)
+        return self.volumetricdata_real
+
+    def get_volumetricdata_imaginary(self):
+        """
+        will return a VolumetricData object including the imaginary part of the wave function
+
+        Returns: VolumetricData object
+        """
+        if not hasattr(self, "volumetricdata_imaginary"):
+            self.set_volumetric_data(self.grid, self.structure)
+        return self.volumetricdata_imaginary
+
+    def get_volumetricdata_density(self):
+        """
+        will return a VolumetricData object including the imaginary part of the wave function
+
+        Returns: VolumetricData object
+
+        """
+        if not hasattr(self, "volumetricdata_density"):
+            self.set_volumetric_data(self.grid, self.structure)
+        return self.volumetricdata_density
+
+    def write_file(self, filename="WAVECAR.vasp", part="real"):
+        """
+        will save the wavefunction in a file format that can be read by VESTA
+        This will only work if the wavefunction from lobster was constructed with:
+        "printLCAORealSpaceWavefunction kpoint 1 coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 2 3 4
+        5 6 "
+        or similar (the whole unit cell has to be covered!)
+
+        Args:
+            filename: Filename for the output, e.g., WAVECAR.vasp
+            part: which part of the wavefunction will be saved ("real" or "imaginary")
+
+        Returns:
+
+        """
+        if not (
+            hasattr(self, "volumetricdata_real")
+            and hasattr(self, "volumetricdata_imaginary")
+            and hasattr(self, "volumetricdata_density")
+        ):
+            self.set_volumetric_data(self.grid, self.structure)
+        if part == "real":
+            self.volumetricdata_real.write_file(filename)
+        elif part == "imaginary":
+            self.volumetricdata_imaginary.write_file(filename)
+        elif part == "density":
+            self.volumetricdata_density.write_file(filename)
+        else:
+            raise ValueError('part can be only "real" or "imaginary" or "density"')

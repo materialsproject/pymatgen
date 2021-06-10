@@ -64,10 +64,7 @@ class ExcitingInput(MSONable):
             self.structure = structure.copy(site_properties=site_properties)
             self.title = structure.formula if title is None else title
         else:
-            raise ValueError(
-                "Structure with partial occupancies cannot be "
-                "converted into exciting input!"
-            )
+            raise ValueError("Structure with partial occupancies cannot be " "converted into exciting input!")
 
     # define conversion factor between Bohr radius and Angstrom
     bohr2ang = const.value("Bohr radius") / const.value("Angstrom star")
@@ -157,9 +154,7 @@ class ExcitingInput(MSONable):
             )
         # create lattice and structure object
         lattice_in = Lattice(vectors)
-        structure_in = Structure(
-            lattice_in, elements, positions, coords_are_cartesian=cartesian
-        )
+        structure_in = Structure(lattice_in, elements, positions, coords_are_cartesian=cartesian)
 
         return ExcitingInput(structure_in, title_in, lockxyz)
 
@@ -173,15 +168,7 @@ class ExcitingInput(MSONable):
             data = f.read().replace("\n", "")
         return ExcitingInput.from_string(data)
 
-    def write_etree(
-        self,
-        celltype,
-        cartesian=False,
-        bandstr=False,
-        symprec=0.4,
-        angle_tolerance=5,
-        **kwargs
-    ):
+    def write_etree(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes the exciting input parameters to an xml object.
 
@@ -215,9 +202,7 @@ class ExcitingInput(MSONable):
         title = ET.SubElement(root, "title")
         title.text = self.title
         if cartesian:
-            structure = ET.SubElement(
-                root, "structure", cartesian="true", speciespath="./"
-            )
+            structure = ET.SubElement(root, "structure", cartesian="true", speciespath="./")
         else:
             structure = ET.SubElement(root, "structure", speciespath="./")
 
@@ -226,17 +211,11 @@ class ExcitingInput(MSONable):
         ang2bohr = const.value("Angstrom star") / const.value("Bohr radius")
         crystal.set("scale", str(ang2bohr))
         # determine which structure to use
-        finder = SpacegroupAnalyzer(
-            self.structure, symprec=symprec, angle_tolerance=angle_tolerance
-        )
+        finder = SpacegroupAnalyzer(self.structure, symprec=symprec, angle_tolerance=angle_tolerance)
         if celltype == "primitive":
-            new_struct = finder.get_primitive_standard_structure(
-                international_monoclinic=False
-            )
+            new_struct = finder.get_primitive_standard_structure(international_monoclinic=False)
         elif celltype == "conventional":
-            new_struct = finder.get_conventional_standard_structure(
-                international_monoclinic=False
-            )
+            new_struct = finder.get_conventional_standard_structure(international_monoclinic=False)
         elif celltype == "unchanged":
             new_struct = self.structure
         else:
@@ -280,9 +259,7 @@ class ExcitingInput(MSONable):
                 _ = ET.SubElement(species, "atom", coord=coord)
         # write bandstructure if needed
         if bandstr and celltype == "primitive":
-            kpath = HighSymmKpath(
-                new_struct, symprec=symprec, angle_tolerance=angle_tolerance
-            )
+            kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop = ET.SubElement(root, "properties")
             bandstrct = ET.SubElement(prop, "bandstructure")
             for i in range(len(kpath.kpath["path"])):
@@ -306,15 +283,7 @@ class ExcitingInput(MSONable):
 
         return root
 
-    def write_string(
-        self,
-        celltype,
-        cartesian=False,
-        bandstr=False,
-        symprec=0.4,
-        angle_tolerance=5,
-        **kwargs
-    ):
+    def write_string(self, celltype, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input.xml as a string.
 
@@ -341,9 +310,7 @@ class ExcitingInput(MSONable):
             String
         """
         try:
-            root = self.write_etree(
-                celltype, cartesian, bandstr, symprec, angle_tolerance, **kwargs
-            )
+            root = self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance, **kwargs)
             self._indent(root)
             # output should be a string not a bytes object
             string = ET.tostring(root).decode("UTF-8")
@@ -351,16 +318,7 @@ class ExcitingInput(MSONable):
             raise ValueError("Incorrect celltype!")
         return string
 
-    def write_file(
-        self,
-        celltype,
-        filename,
-        cartesian=False,
-        bandstr=False,
-        symprec=0.4,
-        angle_tolerance=5,
-        **kwargs
-    ):
+    def write_file(self, celltype, filename, cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input file.
 
@@ -386,9 +344,7 @@ class ExcitingInput(MSONable):
             **kwargs: Additional parameters for the input file.
         """
         try:
-            root = self.write_etree(
-                celltype, cartesian, bandstr, symprec, angle_tolerance, **kwargs
-            )
+            root = self.write_etree(celltype, cartesian, bandstr, symprec, angle_tolerance, **kwargs)
             self._indent(root)
             tree = ET.ElementTree(root)
             tree.write(filename)

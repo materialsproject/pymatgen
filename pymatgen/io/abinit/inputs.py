@@ -47,11 +47,28 @@ GEOVARS = set(
 
 # Variables defining tolerances (used in pop_tolerances)
 _TOLVARS = set(
-    ["toldfe", "tolvrs", "tolwfr", "tolrff", "toldff", "tolimg", "tolmxf", "tolrde",]
+    [
+        "toldfe",
+        "tolvrs",
+        "tolwfr",
+        "tolrff",
+        "toldff",
+        "tolimg",
+        "tolmxf",
+        "tolrde",
+    ]
 )
 
 # Variables defining tolerances for the SCF cycle that are mutally exclusive
-_TOLVARS_SCF = set(["toldfe", "tolvrs", "tolwfr", "tolrff", "toldff",])
+_TOLVARS_SCF = set(
+    [
+        "toldfe",
+        "tolvrs",
+        "tolwfr",
+        "tolrff",
+        "toldff",
+    ]
+)
 
 # Variables determining if data files should be read in input
 _IRDVARS = set(
@@ -87,7 +104,7 @@ _runl2tolname = {
 
 # Tolerances for the different levels of accuracy.
 
-T = namedtuple("Tolerance", "low normal high")
+T = namedtuple("T", "low normal high")
 _tolerances = {
     "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
     "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
@@ -98,7 +115,9 @@ del T
 
 
 # Default values used if user does not specify them
-_DEFAULTS = dict(kppa=1000,)
+_DEFAULTS = dict(
+    kppa=1000,
+)
 
 
 def as_structure(obj):
@@ -333,9 +352,7 @@ def ebands_input(
     if dos_kppa is not None and not isinstance(dos_kppa, (list, tuple)):
         dos_kppa = [dos_kppa]
 
-    multi = BasicMultiDataset(
-        structure, pseudos, ndtset=2 if dos_kppa is None else 2 + len(dos_kppa)
-    )
+    multi = BasicMultiDataset(structure, pseudos, ndtset=2 if dos_kppa is None else 2 + len(dos_kppa))
 
     # Set the cutoff energies.
     multi.set_vars(_find_ecut_pawecutdg(ecut, pawecutdg, multi.pseudos, accuracy))
@@ -353,9 +370,7 @@ def ebands_input(
     )
 
     if scf_electrons.nband is None:
-        scf_electrons.nband = _find_scf_nband(
-            structure, multi.pseudos, scf_electrons, multi[0].get("spinat", None)
-        )
+        scf_electrons.nband = _find_scf_nband(structure, multi.pseudos, scf_electrons, multi[0].get("spinat", None))
 
     multi[0].set_vars(scf_ksampling.to_abivars())
     multi[0].set_vars(scf_electrons.to_abivars())
@@ -382,9 +397,7 @@ def ebands_input(
     # DOS calculation with different values of kppa.
     if dos_kppa is not None:
         for i, kppa_ in enumerate(dos_kppa):
-            dos_ksampling = aobj.KSampling.automatic_density(
-                structure, kppa_, chksymbreak=0
-            )
+            dos_ksampling = aobj.KSampling.automatic_density(structure, kppa_, chksymbreak=0)
             # dos_ksampling = aobj.KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
             dos_electrons = aobj.Electrons(
                 spin_mode=spin_mode,
@@ -440,9 +453,7 @@ def ion_ioncell_relax_input(
 
     shift_mode = ShiftMode.from_object(shift_mode)
     shifts = _get_shifts(shift_mode, structure)
-    ksampling = aobj.KSampling.automatic_density(
-        structure, kppa, chksymbreak=0, shifts=shifts
-    )
+    ksampling = aobj.KSampling.automatic_density(structure, kppa, chksymbreak=0, shifts=shifts)
     electrons = aobj.Electrons(
         spin_mode=spin_mode,
         smearing=smearing,
@@ -453,9 +464,7 @@ def ion_ioncell_relax_input(
     )
 
     if electrons.nband is None:
-        electrons.nband = _find_scf_nband(
-            structure, multi.pseudos, electrons, multi[0].get("spinat", None)
-        )
+        electrons.nband = _find_scf_nband(structure, multi.pseudos, electrons, multi[0].get("spinat", None))
 
     ion_relax = aobj.RelaxationMethod.atoms_only(atoms_constraints=None)
     ioncell_relax = aobj.RelaxationMethod.atoms_and_cell(atoms_constraints=None)
@@ -523,9 +532,7 @@ def calc_shiftk(structure, symprec=0.01, angle_tolerance=5):
     # Find lattice type.
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-    sym = SpacegroupAnalyzer(
-        structure, symprec=symprec, angle_tolerance=angle_tolerance
-    )
+    sym = SpacegroupAnalyzer(structure, symprec=symprec, angle_tolerance=angle_tolerance)
     lattice_type, spg_symbol = sym.get_lattice_type(), sym.get_space_group_symbol()
 
     # Check if the cell is primitive
@@ -762,9 +769,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             pseudos = [os.path.join(pseudo_dir, p) for p in list_strings(pseudos)]
 
         try:
-            self._pseudos = PseudoTable.as_table(pseudos).get_pseudos_for_structure(
-                self.structure
-            )
+            self._pseudos = PseudoTable.as_table(pseudos).get_pseudos_for_structure(self.structure)
         except ValueError as exc:
             raise self.Error(str(exc))
 
@@ -801,9 +806,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         JSON interface used in pymatgen for easier serialization.
         """
         pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
-        return cls(
-            d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"]
-        )
+        return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
         """
@@ -813,23 +816,14 @@ class BasicAbinitInput(AbstractInput, MSONable):
         d = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
-                raise TypeError(
-                    "type %s: %s does not have `to_abivars` method"
-                    % (type(obj), repr(obj))
-                )
+                raise TypeError("type %s: %s does not have `to_abivars` method" % (type(obj), repr(obj)))
             d.update(self.set_vars(obj.to_abivars()))
         return d
 
     def __setitem__(self, key, value):
-        if (
-            key in _TOLVARS_SCF
-            and hasattr(self, "_vars")
-            and any(t in self._vars and t != key for t in _TOLVARS_SCF)
-        ):
+        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
             logger.info(
-                "Replacing previously set tolerance variable: {0}.".format(
-                    self.remove_vars(_TOLVARS_SCF, strict=False)
-                )
+                "Replacing previously set tolerance variable: {0}.".format(self.remove_vars(_TOLVARS_SCF, strict=False))
             )
 
         return super().__setitem__(key, value)
@@ -841,9 +835,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "Use Structure objects to prepare the input file."
             )
 
-    def to_string(
-        self, post=None, with_structure=True, with_pseudos=True, exclude=None
-    ):
+    def to_string(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
         r"""
         String representation.
 
@@ -869,9 +861,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         exclude = set(exclude) if exclude is not None else set()
 
         # Default is no sorting else alphabetical order.
-        keys = sorted(
-            [k for k, v in self.items() if k not in exclude and v is not None]
-        )
+        keys = sorted([k for k, v in self.items() if k not in exclude and v is not None])
 
         # Extract the items from the dict and add the geo variables at the end
         items = [(k, self[k]) for k in keys]
@@ -920,9 +910,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         # Check volume
         m = self.structure.lattice.matrix
         if np.dot(np.cross(m[0], m[1]), m[2]) <= 0:
-            raise self.Error(
-                "The triple product of the lattice vector is negative. Use structure.abi_sanitize."
-            )
+            raise self.Error("The triple product of the lattice vector is negative. Use structure.abi_sanitize.")
 
         return self._structure
 
@@ -937,9 +925,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             kptopt: Option for the generation of the mesh.
         """
         shiftk = np.reshape(shiftk, (-1, 3))
-        return self.set_vars(
-            ngkpt=ngkpt, kptopt=kptopt, nshiftk=len(shiftk), shiftk=shiftk
-        )
+        return self.set_vars(ngkpt=ngkpt, kptopt=kptopt, nshiftk=len(shiftk), shiftk=shiftk)
 
     def set_gamma_sampling(self):
         """Gamma-only sampling of the BZ."""
@@ -974,9 +960,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         kptbounds = np.reshape(kptbounds, (-1, 3))
         # self.pop_vars(["ngkpt", "shiftk"]) ??
 
-        return self.set_vars(
-            kptbounds=kptbounds, kptopt=-(len(kptbounds) - 1), ndivsm=ndivsm, iscf=iscf
-        )
+        return self.set_vars(kptbounds=kptbounds, kptopt=-(len(kptbounds) - 1), ndivsm=ndivsm, iscf=iscf)
 
     def set_spin_mode(self, spin_mode):
         """
@@ -1083,9 +1067,7 @@ class BasicMultiDataset:
         """Build object from a list of BasicAbinitInput objects."""
         for inp in inputs:
             if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
-                raise ValueError(
-                    "Pseudos must be consistent when from_inputs is invoked."
-                )
+                raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
 
         # Build BasicMultiDataset from input structures and pseudos and add inputs.
         multi = cls(
@@ -1137,10 +1119,7 @@ class BasicMultiDataset:
 
             missing = [p for p in pseudo_paths if not os.path.exists(p)]
             if missing:
-                raise self.Error(
-                    "Cannot find the following pseudopotential files:\n%s"
-                    % str(missing)
-                )
+                raise self.Error("Cannot find the following pseudopotential files:\n%s" % str(missing))
 
             pseudos = PseudoTable(pseudo_paths)
 
@@ -1149,15 +1128,10 @@ class BasicMultiDataset:
             raise ValueError("ndtset %d cannot be <=0" % ndtset)
 
         if not isinstance(structure, (list, tuple)):
-            self._inputs = [
-                BasicAbinitInput(structure=structure, pseudos=pseudos)
-                for i in range(ndtset)
-            ]
+            self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
         else:
             assert len(structure) == ndtset
-            self._inputs = [
-                BasicAbinitInput(structure=s, pseudos=pseudos) for s in structure
-            ]
+            self._inputs = [BasicAbinitInput(structure=s, pseudos=pseudos) for s in structure]
 
     @property
     def ndtset(self):
@@ -1250,9 +1224,7 @@ class BasicMultiDataset:
         assert all(isinstance(inp, BasicAbinitInput) for inp in abinit_inputs)
         for inp in abinit_inputs:
             if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos)):
-                raise ValueError(
-                    "Pseudos must be consistent when from_inputs is invoked."
-                )
+                raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.extend(abinit_inputs)
 
     def addnew_from(self, dtindex):
@@ -1335,14 +1307,7 @@ class BasicMultiDataset:
                     exclude=global_vars,
                 )
                 if s:
-                    header = (
-                        len(header) * "#"
-                        + "\n"
-                        + header
-                        + "\n"
-                        + len(header) * "#"
-                        + "\n"
-                    )
+                    header = len(header) * "#" + "\n" + header + "\n" + len(header) * "#" + "\n"
                     s = "\n" + header + s + "\n"
 
                 lines.append(s)

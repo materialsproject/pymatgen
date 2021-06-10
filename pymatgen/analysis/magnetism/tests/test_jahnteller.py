@@ -6,11 +6,7 @@ import unittest
 
 from pymatgen.analysis.magnetism.jahnteller import *
 from pymatgen.io.cif import CifParser
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class JahnTellerTest(unittest.TestCase):
@@ -85,10 +81,10 @@ class JahnTellerTest(unittest.TestCase):
         self.assertEqual(m, "none")
 
     def test_jahn_teller_structure_analysis(self):
-        parser = CifParser(os.path.join(test_dir, "LiFePO4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
         LiFePO4 = parser.get_structures()[0]
 
-        parser = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
+        parser = CifParser(os.path.join(PymatgenTest.TEST_FILES_DIR, "Fe3O4.cif"))
         Fe3O4 = parser.get_structures()[0]
 
         self.assertTrue(self.jt.is_jahn_teller_active(LiFePO4))
@@ -101,9 +97,7 @@ class JahnTellerTest(unittest.TestCase):
                 {
                     "ligand": "O2-",
                     "ligand_bond_length_spread": 0.2111,
-                    "ligand_bond_lengths": set(
-                        [2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863]
-                    ),
+                    "ligand_bond_lengths": set([2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863]),
                     "strength": "weak",
                     "motif": "oct",
                     "motif_order_parameter": 0.1441,
@@ -115,19 +109,13 @@ class JahnTellerTest(unittest.TestCase):
         }
         jt_predicted = self.jt.get_analysis(LiFePO4)
         # order does not matter
-        jt_predicted["sites"][0]["ligand_bond_lengths"] = set(
-            jt_predicted["sites"][0]["ligand_bond_lengths"]
-        )
+        jt_predicted["sites"][0]["ligand_bond_lengths"] = set(jt_predicted["sites"][0]["ligand_bond_lengths"])
         self.assertDictEqual(LiFePO4_analysis, jt_predicted)
 
     def test_mu_so(self):
         SpeciesCo = Species(symbol="Co", oxidation_state=4)
-        self.assertAlmostEqual(
-            np.sqrt(3), JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "low")
-        )
-        self.assertAlmostEqual(
-            np.sqrt(35), JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "high")
-        )
+        self.assertAlmostEqual(np.sqrt(3), JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "low"))
+        self.assertAlmostEqual(np.sqrt(35), JahnTellerAnalyzer.mu_so(SpeciesCo, "oct", "high"))
         SpeciesNa = Species(symbol="Na", oxidation_state=1)
         self.assertEqual(None, JahnTellerAnalyzer.mu_so(SpeciesNa, "oct", "high"))
 

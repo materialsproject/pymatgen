@@ -6,4 +6,4 @@
 Package for analysis of magnetic structures.
 """
 
-from pymatgen.analysis.magnetism.analyzer import *
+from pymatgen.analysis.magnetism.analyzer import *  # noqa

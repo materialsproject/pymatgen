@@ -9,12 +9,9 @@ import unittest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
+from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "nwchem")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "nwchem")
 
 coords = [
     [0.000000, 0.000000, 0.000000],
@@ -126,9 +123,7 @@ task dft energy"""
         self.assertEqual(str(task), ans)
 
     def test_esp_task(self):
-        task = NwTask.esp_task(
-            mol, charge=mol.charge, operation="", basis_set="6-311++G**"
-        )
+        task = NwTask.esp_task(mol, charge=mol.charge, operation="", basis_set="6-311++G**")
         ans = """title "H4C1 esp "
 charge 0
 basis cartesian
@@ -143,13 +138,9 @@ task esp """
 class NwInputTest(unittest.TestCase):
     def setUp(self):
         tasks = [
-            NwTask.dft_task(
-                mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"
-            ),
+            NwTask.dft_task(mol, operation="optimize", xc="b3lyp", basis_set="6-31++G*"),
             NwTask.dft_task(mol, operation="freq", xc="b3lyp", basis_set="6-31++G*"),
-            NwTask.dft_task(
-                mol, operation="energy", xc="b3lyp", basis_set="6-311++G**"
-            ),
+            NwTask.dft_task(mol, operation="energy", xc="b3lyp", basis_set="6-311++G**"),
             NwTask.dft_task(
                 mol,
                 charge=mol.charge + 1,
@@ -393,9 +384,7 @@ task dft energy
         self.assertEqual(nwi.tasks[-1].theory, "dft")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
 
-        str_inp_symm = str_inp.replace(
-            "geometry units angstroms", "geometry units angstroms\n symmetry " "c1"
-        )
+        str_inp_symm = str_inp.replace("geometry units angstroms", "geometry units angstroms\n symmetry " "c1")
 
         nwi_symm = NwInput.from_string(str_inp_symm)
         self.assertEqual(nwi_symm.geometry_options, ["units", "angstroms"])
@@ -416,33 +405,15 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(len(nwo), 5)
         self.assertAlmostEqual(-1102.6224491715582, nwo[0]["energies"][-1], 2)
         self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1], 3)
-        self.assertAlmostEqual(
-            -11156.354030653656, nwo_cosmo[5]["energies"][0]["cosmo scf"], 3
-        )
-        self.assertAlmostEqual(
-            -11153.374133394364, nwo_cosmo[5]["energies"][0]["gas phase"], 3
-        )
-        self.assertAlmostEqual(
-            -11156.353632962995, nwo_cosmo[5]["energies"][0]["sol phase"], 2
-        )
-        self.assertAlmostEqual(
-            -11168.818934311605, nwo_cosmo[6]["energies"][0]["cosmo scf"], 2
-        )
-        self.assertAlmostEqual(
-            -11166.3624424611462, nwo_cosmo[6]["energies"][0]["gas phase"], 2
-        )
-        self.assertAlmostEqual(
-            -11168.818934311605, nwo_cosmo[6]["energies"][0]["sol phase"], 2
-        )
-        self.assertAlmostEqual(
-            -11165.227959110889, nwo_cosmo[7]["energies"][0]["cosmo scf"], 2
-        )
-        self.assertAlmostEqual(
-            -11165.025443612385, nwo_cosmo[7]["energies"][0]["gas phase"], 2
-        )
-        self.assertAlmostEqual(
-            -11165.227959110154, nwo_cosmo[7]["energies"][0]["sol phase"], 2
-        )
+        self.assertAlmostEqual(-11156.354030653656, nwo_cosmo[5]["energies"][0]["cosmo scf"], 3)
+        self.assertAlmostEqual(-11153.374133394364, nwo_cosmo[5]["energies"][0]["gas phase"], 3)
+        self.assertAlmostEqual(-11156.353632962995, nwo_cosmo[5]["energies"][0]["sol phase"], 2)
+        self.assertAlmostEqual(-11168.818934311605, nwo_cosmo[6]["energies"][0]["cosmo scf"], 2)
+        self.assertAlmostEqual(-11166.3624424611462, nwo_cosmo[6]["energies"][0]["gas phase"], 2)
+        self.assertAlmostEqual(-11168.818934311605, nwo_cosmo[6]["energies"][0]["sol phase"], 2)
+        self.assertAlmostEqual(-11165.227959110889, nwo_cosmo[7]["energies"][0]["cosmo scf"], 2)
+        self.assertAlmostEqual(-11165.025443612385, nwo_cosmo[7]["energies"][0]["gas phase"], 2)
+        self.assertAlmostEqual(-11165.227959110154, nwo_cosmo[7]["energies"][0]["sol phase"], 2)
 
         self.assertAlmostEqual(nwo[1]["hessian"][0][0], 4.60187e01)
         self.assertAlmostEqual(nwo[1]["hessian"][1][2], -1.14030e-08)
@@ -484,14 +455,10 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(nwo[1]["frequencies"][0][0], -70.47)
         self.assertEqual(len(nwo[1]["frequencies"][0][1]), 27)
         self.assertEqual(nwo[1]["frequencies"][-1][0], 3696.74)
-        self.assertEqual(
-            nwo[1]["frequencies"][-1][1][-1], (0.20498, -0.94542, -0.00073)
-        )
+        self.assertEqual(nwo[1]["frequencies"][-1][1][-1], (0.20498, -0.94542, -0.00073))
         self.assertEqual(nwo[1]["normal_frequencies"][1][0], -70.72)
         self.assertEqual(nwo[1]["normal_frequencies"][3][0], -61.92)
-        self.assertEqual(
-            nwo[1]["normal_frequencies"][1][1][-1], (0.00056, 0.00042, 0.06781)
-        )
+        self.assertEqual(nwo[1]["normal_frequencies"][1][1][-1], (0.00056, 0.00042, 0.06781))
 
     def test_parse_tddft(self):
         nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))

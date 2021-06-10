@@ -9,14 +9,12 @@ from unittest import TestCase
 
 from pymatgen.analysis.molecule_structure_comparator import MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "xiaohuiqu"
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir = os.path.join(test_dir, "molecules", "structural_change")
+
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "structural_change")
 
 
 class TestMoleculeStructureComparator(TestCase):
@@ -32,12 +30,8 @@ class TestMoleculeStructureComparator(TestCase):
         # noinspection PyProtectedMember
         msc2 = MoleculeStructureComparator(priority_bonds=msc1._get_bonds(thio1))
         self.assertTrue(msc2.are_equal(thio1, thio2))
-        hal1 = Molecule.from_file(
-            os.path.join(test_dir, "molecule_with_halogen_bonds_1.xyz")
-        )
-        hal2 = Molecule.from_file(
-            os.path.join(test_dir, "molecule_with_halogen_bonds_2.xyz")
-        )
+        hal1 = Molecule.from_file(os.path.join(test_dir, "molecule_with_halogen_bonds_1.xyz"))
+        hal2 = Molecule.from_file(os.path.join(test_dir, "molecule_with_halogen_bonds_2.xyz"))
         msc3 = MoleculeStructureComparator(priority_bonds=msc1._get_bonds(hal1))
         self.assertTrue(msc3.are_equal(hal1, hal2))
 
@@ -78,9 +72,7 @@ class TestMoleculeStructureComparator(TestCase):
         self.assertEqual(bonds, bonds_ref)
         mol2 = Molecule.from_file(os.path.join(test_dir, "MgBH42.xyz"))
         bonds = msc._get_bonds(mol2)
-        self.assertEqual(
-            bonds, [(1, 3), (2, 3), (3, 4), (3, 5), (6, 8), (7, 8), (8, 9), (8, 10)]
-        )
+        self.assertEqual(bonds, [(1, 3), (2, 3), (3, 4), (3, 5), (6, 8), (7, 8), (8, 9), (8, 10)])
         msc = MoleculeStructureComparator(ignore_ionic_bond=False)
         bonds = msc._get_bonds(mol2)
         self.assertEqual(
@@ -105,9 +97,7 @@ class TestMoleculeStructureComparator(TestCase):
             ],
         )
 
-        mol1 = Molecule.from_file(
-            os.path.join(test_dir, "molecule_with_halogen_bonds_1.xyz")
-        )
+        mol1 = Molecule.from_file(os.path.join(test_dir, "molecule_with_halogen_bonds_1.xyz"))
         msc = MoleculeStructureComparator()
         # noinspection PyProtectedMember
         bonds = msc._get_bonds(mol1)
@@ -145,9 +135,7 @@ class TestMoleculeStructureComparator(TestCase):
         self.assertEqual(d1, d2)
         thio1 = Molecule.from_file(os.path.join(test_dir, "thiophene1.xyz"))
         # noinspection PyProtectedMember
-        msc2 = MoleculeStructureComparator(
-            bond_length_cap=0.2, priority_bonds=msc1._get_bonds(thio1), priority_cap=0.5
-        )
+        msc2 = MoleculeStructureComparator(bond_length_cap=0.2, priority_bonds=msc1._get_bonds(thio1), priority_cap=0.5)
         d1 = msc2.as_dict()
         d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         self.assertEqual(d1, d2)

@@ -13,11 +13,17 @@ from collections import OrderedDict
 from collections.abc import Iterable, Iterator, Mapping
 
 import numpy as np
-import ruamel.yaml as yaml
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from tabulate import tabulate
 
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    try:
+        import ruamel_yaml as yaml  # type: ignore  # noqa
+    except ImportError:
+        import yaml  # type: ignore # noqa
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 
@@ -150,10 +156,7 @@ class ScfCycle(Mapping):
 
     def to_string(self, verbose=0):
         """String representation."""
-        rows = [
-            [it + 1] + list(map(str, (self[k][it] for k in self.keys())))
-            for it in range(self.num_iterations)
-        ]
+        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys()))) for it in range(self.num_iterations)]
 
         return tabulate(rows, headers=["Iter"] + list(self.keys()))
 
@@ -557,7 +560,7 @@ class YamlTokenizer(Iterator):
         self.filename = filename
 
         try:
-            self.stream = open(filename, "rt")
+            self.stream = open(filename, "rt")  # pylint: disable=R1732
         except IOError as exc:
             # Look for associated error file.
             root, ext = os.path.splitext(self.filename)
@@ -751,11 +754,7 @@ class YamlDoc:
     def __eq__(self, other):
         if other is None:
             return False
-        return (
-            self.text == other.text
-            and self.lineno == other.lineno
-            and self.tag == other.tag
-        )
+        return self.text == other.text and self.lineno == other.lineno and self.tag == other.tag
 
     def __ne__(self, other):
         return not self == other

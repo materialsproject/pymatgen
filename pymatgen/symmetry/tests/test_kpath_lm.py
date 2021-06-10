@@ -15,11 +15,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.kpath import KPathLatimerMunro
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-test_dir_structs = test_dir
+
+test_dir_structs = PymatgenTest.TEST_FILES_DIR
 
 
 class KPathLatimerMunroTest(PymatgenTest):
@@ -58,15 +55,11 @@ class KPathLatimerMunroTest(PymatgenTest):
                 lattice = Lattice.cubic(2)
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = KPathLatimerMunro(
-                struct
-            )  # Throws error if something doesn't work, causing test to fail.
+            kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
         struct = Structure.from_file(struct_file_path)
-        kpath = KPathLatimerMunro(
-            struct
-        )  # Throws error if something doesn't work, causing test to fail.
+        kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
@@ -74,9 +67,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         lattice = Lattice.orthorhombic(2, 9, 1)
         struct = Structure.from_spacegroup(38, lattice, species, coords)
         sga = SpacegroupAnalyzer(struct)
-        struct_prim = sga.get_primitive_standard_structure(
-            international_monoclinic=False
-        )
+        struct_prim = sga.get_primitive_standard_structure(international_monoclinic=False)
         kpath = KPathLatimerMunro(struct_prim)
 
         kpoints = kpath._kpath["kpoints"]
@@ -112,9 +103,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         self.assertAlmostEqual(kpoints["e"][2], 0.5000000000000002)
 
         d = False
-        if np.allclose(
-            kpoints["d_{1}"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5
-        ) or np.allclose(
+        if np.allclose(kpoints["d_{1}"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5) or np.allclose(
             kpoints["d"], [0.2530864197530836, 0.25308641975308915, 0.0], atol=1e-5
         ):
             d = True
@@ -122,9 +111,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         self.assertTrue(d)
 
         q = False
-        if np.allclose(
-            kpoints["q_{1}"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5
-        ) or np.allclose(
+        if np.allclose(kpoints["q_{1}"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5) or np.allclose(
             kpoints["q"], [0.2530864197530836, 0.25308641975308915, 0.5], atol=1e-5
         ):
             q = True
@@ -138,9 +125,7 @@ class KPathLatimerMunroTest(PymatgenTest):
         col_spin_orig = mga.get_structure_with_spin()
         col_spin_orig.add_spin_by_site([0.0] * 20)
         col_spin_sym = SpacegroupAnalyzer(col_spin_orig)
-        col_spin_prim = col_spin_sym.get_primitive_standard_structure(
-            international_monoclinic=False
-        )
+        col_spin_prim = col_spin_sym.get_primitive_standard_structure(international_monoclinic=False)
 
         magmom_vec_list = [np.zeros(3) for site in col_spin_prim]
         magmom_vec_list[4:8] = [

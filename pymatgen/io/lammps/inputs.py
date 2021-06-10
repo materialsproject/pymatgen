@@ -74,7 +74,7 @@ class LammpsRun(MSONable):
             settings=self.settings,
             data=self.data,
             script_filename=self.script_filename,
-            **kwargs
+            **kwargs,
         )
 
     @classmethod
@@ -97,9 +97,7 @@ class LammpsRun(MSONable):
         with open(template_path) as f:
             script_template = f.read()
         settings = other_settings.copy() if other_settings is not None else {}
-        settings.update(
-            {"force_field": force_field, "temperature": temperature, "nsteps": nsteps}
-        )
+        settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
         script_filename = "in.md"
         return cls(
             script_template=script_template,
@@ -116,7 +114,7 @@ def write_lammps_inputs(
     data=None,
     script_filename="in.lammps",
     make_dir_if_not_present=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Writes input files for a LAMMPS run. Input script is constructed

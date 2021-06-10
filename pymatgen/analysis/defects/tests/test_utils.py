@@ -36,11 +36,7 @@ try:
 except ImportError:
     peak_local_max = None
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-    test_dir = os.path.join(test_dir, "chgden")
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "chgden")
+test_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "chgden")
 
 
 class DefectsUtilsTest(PymatgenTest):
@@ -62,9 +58,7 @@ class DefectsUtilsTest(PymatgenTest):
     def test_genrecip(self):
         a = 6.0
         lattconsts = [a, a / 2.0, 3.0 * a]
-        lattvectors = [
-            [lattconsts[i] if i == j else 0.0 for j in range(3)] for i in range(3)
-        ]
+        lattvectors = [[lattconsts[i] if i == j else 0.0 for j in range(3)] for i in range(3)]
         recip_list = list(genrecip(lattvectors[0], lattvectors[1], lattvectors[2], 300))
         self.assertEqual(len(recip_list), 25620)
 
@@ -74,27 +68,17 @@ class DefectsUtilsTest(PymatgenTest):
         lattvectors = [[a if i == j else 0.0 for j in range(3)] for i in range(3)]
         brecip = [1.0966227112321507 for i in range(6)]
         self.assertAlmostEqual(
-            list(
-                generate_reciprocal_vectors_squared(
-                    lattvectors[0], lattvectors[1], lattvectors[2], 1.3
-                )
-            ),
+            list(generate_reciprocal_vectors_squared(lattvectors[0], lattvectors[1], lattvectors[2], 1.3)),
             brecip,
         )
 
         # test orthorhombic case
         lattconsts = [a, a / 2.0, 3.0 * a]
-        lattvectors = [
-            [lattconsts[i] if i == j else 0.0 for j in range(3)] for i in range(3)
-        ]
+        lattvectors = [[lattconsts[i] if i == j else 0.0 for j in range(3)] for i in range(3)]
         brval = 0.4873878716587337
         brecip = [brval, brval / 4.0, brval / 4.0, brval]
         self.assertAlmostEqual(
-            list(
-                generate_reciprocal_vectors_squared(
-                    lattvectors[0], lattvectors[1], lattvectors[2], 1.0
-                )
-            ),
+            list(generate_reciprocal_vectors_squared(lattvectors[0], lattvectors[1], lattvectors[2], 1.0)),
             brecip,
         )
 
@@ -103,11 +87,7 @@ class DefectsUtilsTest(PymatgenTest):
         brval = 24.28330561545568
         brecip = [brval, brval]
         self.assertAlmostEqual(
-            list(
-                generate_reciprocal_vectors_squared(
-                    lattvectors[0], lattvectors[1], lattvectors[2], 30.0
-                )
-            ),
+            list(generate_reciprocal_vectors_squared(lattvectors[0], lattvectors[1], lattvectors[2], 30.0)),
             brecip,
         )
 
@@ -134,9 +114,7 @@ class DefectsUtilsTest(PymatgenTest):
         self.assertAlmostEqual(converge(np.sqrt, 0.1, 0.1, 1.0), 0.6324555320336759)
 
     def test_tune_for_gamma(self):
-        lattice = Lattice(
-            [[4.692882, -8.12831, 0.0], [4.692882, 8.12831, 0.0], [0.0, 0.0, 10.03391]]
-        )
+        lattice = Lattice([[4.692882, -8.12831, 0.0], [4.692882, 8.12831, 0.0], [0.0, 0.0, 10.03391]])
         epsilon = 10.0 * np.identity(3)
         gamma = tune_for_gamma(lattice, epsilon)
         self.assertAlmostEqual(gamma, 0.19357221)
@@ -144,13 +122,9 @@ class DefectsUtilsTest(PymatgenTest):
     def test_generate_R_and_G_vecs(self):
         gamma = 0.19357221
         prec = 28
-        lattice = Lattice(
-            [[4.692882, -8.12831, 0.0], [4.692882, 8.12831, 0.0], [0.0, 0.0, 10.03391]]
-        )
+        lattice = Lattice([[4.692882, -8.12831, 0.0], [4.692882, 8.12831, 0.0], [0.0, 0.0, 10.03391]])
         epsilon = 10.0 * np.identity(3)
-        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(
-            gamma, prec, lattice, epsilon
-        )
+        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
         self.assertEqual(len(g_vecs[0]), 16418)
         self.assertAlmostEqual(recip_summation[0], 2.8946556e-15)
         self.assertEqual(len(r_vecs[0]), 16299)
@@ -272,19 +246,11 @@ class TopographyAnalyzerTest(unittest.TestCase):
 
     def test_topography_analyzer(self):
         # check interstitial sites for FePO4 using Voronoi Tessellation
-        vor_feo4 = TopographyAnalyzer(
-            self.feo4, framework_ions=["O"], cations=["P", "Fe"], check_volume=False
-        )
+        vor_feo4 = TopographyAnalyzer(self.feo4, framework_ions=["O"], cations=["P", "Fe"], check_volume=False)
         vor_feo4.cluster_nodes(tol=1.2)
         vor_feo4.remove_collisions(1.2)
         s_feo4 = vor_feo4.get_structure_with_nodes()
-        sites_feo4 = np.array(
-            [
-                s_feo4[i].frac_coords
-                for i in range(len(s_feo4))
-                if s_feo4[i].species_string == "X0+"
-            ]
-        )
+        sites_feo4 = np.array([s_feo4[i].frac_coords for i in range(len(s_feo4)) if s_feo4[i].species_string == "X0+"])
 
         # check total number of vnodes
         self.assertAlmostEqual(len(vor_feo4.vnodes), 24)
@@ -294,9 +260,7 @@ class TopographyAnalyzerTest(unittest.TestCase):
         for i in range(0, 4):
             is_site_matched = False
             for site in sites_feo4:
-                distance = s_feo4.lattice.get_distance_and_image(
-                    site, site_predicted[i]
-                )
+                distance = s_feo4.lattice.get_distance_and_image(site, site_predicted[i])
                 if distance[0] < 0.01:
                     is_site_matched = True
                 else:
@@ -315,9 +279,7 @@ class TopographyAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(vol, vol_expected, 4)
 
 
-@unittest.skipIf(
-    not peak_local_max, "skimage.feature.peak_local_max module not present."
-)
+@unittest.skipIf(not peak_local_max, "skimage.feature.peak_local_max module not present.")
 class ChgDenAnalyzerTest(unittest.TestCase):
     def setUp(self):
         # This is a CHGCAR_sum file with reduced grid size
@@ -335,48 +297,28 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         threshold_abs_max = random.randrange(27e2, 28e4)
 
         # Minima test
-        full_list_min = self.ca_FePO4.get_local_extrema(
-            find_min=True, threshold_frac=1.0
-        )
-        frac_list_min_frac = self.ca_FePO4.get_local_extrema(
-            find_min=True, threshold_frac=threshold_frac
-        )
-        frac_list_min_abs = self.ca_FePO4.get_local_extrema(
-            find_min=True, threshold_abs=threshold_abs_min
-        )
+        full_list_min = self.ca_FePO4.get_local_extrema(find_min=True, threshold_frac=1.0)
+        frac_list_min_frac = self.ca_FePO4.get_local_extrema(find_min=True, threshold_frac=threshold_frac)
+        frac_list_min_abs = self.ca_FePO4.get_local_extrema(find_min=True, threshold_abs=threshold_abs_min)
 
-        self.assertAlmostEqual(
-            len(full_list_min) * threshold_frac, len(frac_list_min_frac), delta=1
-        )
+        self.assertAlmostEqual(len(full_list_min) * threshold_frac, len(frac_list_min_frac), delta=1)
 
         ca.get_local_extrema(find_min=True)
-        df_expected = ca.extrema_df[
-            ca.extrema_df["Charge Density"] <= threshold_abs_min
-        ]
+        df_expected = ca.extrema_df[ca.extrema_df["Charge Density"] <= threshold_abs_min]
         self.assertEqual(len(frac_list_min_abs), len(df_expected))
 
         # Maxima test
-        full_list_max = self.ca_FePO4.get_local_extrema(
-            find_min=False, threshold_frac=1.0
-        )
-        frac_list_max = self.ca_FePO4.get_local_extrema(
-            find_min=False, threshold_frac=threshold_frac
-        )
-        frac_list_max_abs = self.ca_FePO4.get_local_extrema(
-            find_min=False, threshold_abs=threshold_abs_max
-        )
+        full_list_max = self.ca_FePO4.get_local_extrema(find_min=False, threshold_frac=1.0)
+        frac_list_max = self.ca_FePO4.get_local_extrema(find_min=False, threshold_frac=threshold_frac)
+        frac_list_max_abs = self.ca_FePO4.get_local_extrema(find_min=False, threshold_abs=threshold_abs_max)
 
-        self.assertAlmostEqual(
-            len(full_list_max) * threshold_frac, len(frac_list_max), delta=1
-        )
+        self.assertAlmostEqual(len(full_list_max) * threshold_frac, len(frac_list_max), delta=1)
 
         # Local maxima should finds all center of atoms
         self.assertEqual(len(self.ca_FePO4.structure), len(full_list_max))
 
         ca.get_local_extrema(find_min=False)
-        df_expected = ca.extrema_df[
-            ca.extrema_df["Charge Density"] >= threshold_abs_max
-        ]
+        df_expected = ca.extrema_df[ca.extrema_df["Charge Density"] >= threshold_abs_max]
         self.assertEqual(len(frac_list_max_abs), len(df_expected))
 
     def test_remove_collisions(self):
@@ -406,15 +348,9 @@ class ChgDenAnalyzerTest(unittest.TestCase):
             ]
         )
         sites_guess = np.array(
-            [
-                s_FePO4[i].frac_coords
-                for i in range(len(s_FePO4))
-                if s_FePO4[i].species_string == "X0+"
-            ]
+            [s_FePO4[i].frac_coords for i in range(len(s_FePO4)) if s_FePO4[i].species_string == "X0+"]
         )
-        distances = s_FePO4.lattice.get_all_distances(
-            sites_predicted, sites_guess
-        ).flatten()
+        distances = s_FePO4.lattice.get_all_distances(sites_predicted, sites_guess).flatten()
         distances = [d for d in distances if d < 0.1]
         self.assertEqual(len(distances), len(sites_predicted))
 
@@ -433,14 +369,10 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(ca._extrema_df.iloc[0]["b"], 0.5)
         self.assertAlmostEqual(ca._extrema_df.iloc[0]["c"], 0.0)
         self.assertAlmostEqual(ca._extrema_df.iloc[0]["Charge Density"], 1.65288944124)
-        self.assertAlmostEqual(
-            ca._extrema_df.iloc[0]["avg_charge_den"], 0.006831484178753711
-        )
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]["avg_charge_den"], 0.006831484178753711)
 
 
-@unittest.skipIf(
-    not peak_local_max, "skimage.feature.peak_local_max module not present."
-)
+@unittest.skipIf(not peak_local_max, "skimage.feature.peak_local_max module not present.")
 class TestChargeInsertionAnalyzer(unittest.TestCase):
     def setUp(self):
         # This is a CHGCAR_sum file with reduced grid size

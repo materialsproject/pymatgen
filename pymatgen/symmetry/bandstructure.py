@@ -7,9 +7,11 @@ generate high-symmetry k-paths using different conventions.
 """
 
 import itertools
+from warnings import warn
 
 import networkx as nx
 import numpy as np
+
 
 from pymatgen.symmetry.kpath import (
     KPathBase,
@@ -50,7 +52,7 @@ class HighSymmKpath(KPathBase):
         structure,
         has_magmoms=False,
         magmom_axis=None,
-        path_type="sc",
+        path_type="setyawan_curtarolo",
         symprec=0.01,
         angle_tolerance=5,
         atol=1e-5,
@@ -69,23 +71,21 @@ class HighSymmKpath(KPathBase):
                 should point. If all magnetic moments are provided as
                 vectors then this argument is not used.
             path_type (string): Chooses which convention to use to generate
-                the high symmetry path. Options are: 'sc', 'hin', 'lm' for the
-                Setyawan & Curtarolo, Hinuma et al., and  Latimer & Munro conventions.
-                Choosing 'all' will generate one path with points from all three
-                conventions. Equivalent labels between each will also be generated.
-                Order will always be Latimer & Munro, Setyawan & Curtarolo, and Hinuma et al.
-                Lengths for each of the paths will also be generated and output
-                as a list. Note for 'all' the user will have to alter the labels on
-                their own for plotting.
+                the high symmetry path. Options are: 'setyawan_curtarolo', 'hinuma',
+                'latimer_munro' for the Setyawan & Curtarolo, Hinuma et al., and
+                Latimer & Munro conventions. Choosing 'all' will generate one path
+                with points from all three conventions. Equivalent labels between
+                each will also be generated. Order will always be Latimer & Munro,
+                Setyawan & Curtarolo, and Hinuma et al. Lengths for each of the paths
+                will also be generated and output as a list. Note for 'all' the user
+                will have to alter the labels on their own for plotting.
             symprec (float): Tolerance for symmetry finding
             angle_tolerance (float): Angle tolerance for symmetry finding.
             atol (float): Absolute tolerance used to determine symmetric
                 equivalence of points and lines on the BZ.
         """
 
-        super().__init__(
-            structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol
-        )
+        super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         self._path_type = path_type
 
@@ -95,16 +95,12 @@ class HighSymmKpath(KPathBase):
 
         if path_type != "all":
 
-            if path_type == "lm":
-                self._kpath = self._get_lm_kpath(
-                    has_magmoms, magmom_axis, symprec, angle_tolerance, atol
-                ).kpath
-            elif path_type == "sc":
+            if path_type == "latimer_munro":
+                self._kpath = self._get_lm_kpath(has_magmoms, magmom_axis, symprec, angle_tolerance, atol).kpath
+            elif path_type == "setyawan_curtarolo":
                 self._kpath = self._get_sc_kpath(symprec, angle_tolerance, atol).kpath
-            elif path_type == "hin":
-                hin_dat = self._get_hin_kpath(
-                    symprec, angle_tolerance, atol, not has_magmoms
-                )
+            elif path_type == "hinuma":
+                hin_dat = self._get_hin_kpath(symprec, angle_tolerance, atol, not has_magmoms)
                 self._kpath = hin_dat.kpath
                 self._hin_tmat = hin_dat._tmat
 
@@ -113,15 +109,11 @@ class HighSymmKpath(KPathBase):
             if has_magmoms:
                 raise ValueError("Cannot select 'all' with non-zero magmoms.")
 
-            lm_bs = self._get_lm_kpath(
-                has_magmoms, magmom_axis, symprec, angle_tolerance, atol
-            )
+            lm_bs = self._get_lm_kpath(has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
             rpg = lm_bs._rpg
 
             sc_bs = self._get_sc_kpath(symprec, angle_tolerance, atol)
-            hin_bs = self._get_hin_kpath(
-                symprec, angle_tolerance, atol, not has_magmoms
-            )
+            hin_bs = self._get_hin_kpath(symprec, angle_tolerance, atol, not has_magmoms)
 
             index = 0
             cat_points = {}
@@ -202,9 +194,7 @@ class HighSymmKpath(KPathBase):
         Latimer and Munro k-path with labels.
         """
 
-        return KPathLatimerMunro(
-            self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol
-        )
+        return KPathLatimerMunro(self._structure, has_magmoms, magmom_axis, symprec, angle_tolerance, atol)
 
     def _get_sc_kpath(self, symprec, angle_tolerance, atol):
         """
@@ -232,6 +222,14 @@ class HighSymmKpath(KPathBase):
         for key in kpoints:
             kpoints[key] = np.dot(np.transpose(np.linalg.inv(tmat)), kpoints[key])
 
+        bs.kpath["kpoints"] = kpoints
+        self._rec_lattice = self._structure.lattice.reciprocal_lattice
+
+        warn(
+            "K-path from the Hinuma et al. convention has been transformed to the basis of the reciprocal lattice \
+of the input structure. Use `KPathSeek` for the path in the original author-intended basis."
+        )
+
         return bs
 
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
@@ -251,9 +249,9 @@ class HighSymmKpath(KPathBase):
         n_op = len(rpg)
 
         pairs = itertools.permutations(
-            [{"sc": sc_path}, {"lm": lm_path}, {"hin": hin_path}], r=2
+            [{"setyawan_curtarolo": sc_path}, {"latimer_munro": lm_path}, {"hinuma": hin_path}], r=2
         )
-        labels = {"sc": {}, "lm": {}, "hin": {}}
+        labels = {"setyawan_curtarolo": {}, "latimer_munro": {}, "hinuma": {}}
 
         for (a, b) in pairs:
             [(a_type, a_path)] = list(a.items())
@@ -359,13 +357,8 @@ class HighSymmKpath(KPathBase):
             spins = [Spin.up]
 
         new_kpoints = []
-        new_bands = {
-            spin: [np.array([]) for _ in range(bandstructure.nb_bands)]
-            for spin in spins
-        }
-        new_projections = {
-            spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins
-        }
+        new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
+        new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
         for entry in distances_map:
             if not entry[1]:
@@ -381,17 +374,13 @@ class HighSymmKpath(KPathBase):
                 step = -1
 
             # kpoints
-            new_kpoints += [
-                point.frac_coords for point in bandstructure.kpoints[start:stop:step]
-            ]
+            new_kpoints += [point.frac_coords for point in bandstructure.kpoints[start:stop:step]]
 
             # eigenvals
             for spin in spins:
                 for n, band in enumerate(bandstructure.bands[spin]):
 
-                    new_bands[spin][n] = np.concatenate(
-                        (new_bands[spin][n], band[start:stop:step])
-                    )
+                    new_bands[spin][n] = np.concatenate((new_bands[spin][n], band[start:stop:step]))
 
             # projections
             for spin in spins:
@@ -402,10 +391,7 @@ class HighSymmKpath(KPathBase):
         for spin in spins:
             new_projections[spin] = np.array(new_projections[spin])
 
-        new_labels_dict = {
-            label: point.frac_coords
-            for label, point in bandstructure.labels_dict.items()
-        }
+        new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
 
         new_bandstructure = BandStructureSymmLine(
             kpoints=new_kpoints,

@@ -105,9 +105,7 @@ class QModel(MSONable):
         Returns:
             Charge density at the reciprocal vector magnitude
         """
-        return self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (
-            1 - self.expnorm
-        ) * np.exp(-0.25 * self.beta2 * g2)
+        return self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (1 - self.expnorm) * np.exp(-0.25 * self.beta2 * g2)
 
     @property
     def rho_rec_limit0(self):
@@ -326,36 +324,19 @@ class StructureMotifInterstitial:
         # grid in fractional coordinate space
         # within the unit cell.
         for vec in vecs:
-            struct_w_inter.replace(
-                natoms - 1, inter_elem, coords=vec, coords_are_cartesian=False
-            )
-            if (
-                len(
-                    struct_w_inter.get_sites_in_sphere(
-                        struct_w_inter.sites[natoms - 1].coords, doverlap
-                    )
-                )
-                == 1
-            ):
-                neighs_images_weigths = MinimumDistanceNN(
-                    tol=0.8, cutoff=6
-                ).get_nn_info(struct_w_inter, natoms - 1)
-                neighs_images_weigths_sorted = sorted(
-                    neighs_images_weigths, key=lambda x: x["weight"], reverse=True
-                )
+            struct_w_inter.replace(natoms - 1, inter_elem, coords=vec, coords_are_cartesian=False)
+            if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms - 1].coords, doverlap)) == 1:
+                neighs_images_weigths = MinimumDistanceNN(tol=0.8, cutoff=6).get_nn_info(struct_w_inter, natoms - 1)
+                neighs_images_weigths_sorted = sorted(neighs_images_weigths, key=lambda x: x["weight"], reverse=True)
                 for nsite in range(1, len(neighs_images_weigths_sorted) + 1):
                     if nsite not in self.target_cns:
                         continue
 
-                    allsites = [
-                        neighs_images_weigths_sorted[i]["site"] for i in range(nsite)
-                    ]
+                    allsites = [neighs_images_weigths_sorted[i]["site"] for i in range(nsite)]
                     indices_neighs = list(range(len(allsites)))
                     allsites.append(struct_w_inter.sites[natoms - 1])
                     for mot, ops in self.cn_motif_lostop[nsite].items():
-                        opvals = ops.get_order_parameters(
-                            allsites, len(allsites) - 1, indices_neighs=indices_neighs
-                        )
+                        opvals = ops.get_order_parameters(allsites, len(allsites) - 1, indices_neighs=indices_neighs)
                         if opvals[0] > op_threshs[motif_types.index(mot)]:
                             cns = {}
                             for isite in range(nsite):
@@ -372,9 +353,7 @@ class StructureMotifInterstitial:
                                 {
                                     "mtype": mot,
                                     "opval": opvals[0],
-                                    "coords": struct_w_inter.sites[natoms - 1].coords[
-                                        :
-                                    ],
+                                    "coords": struct_w_inter.sites[natoms - 1].coords[:],
                                     "fracs": vec,
                                     "cns": dict(cns),
                                 }
@@ -445,9 +424,7 @@ class StructureMotifInterstitial:
                 if trialsites[i]["mtype"] != motif or i in discard_motif:
                     continue
                 multiplicity[i] = 1
-                symposlist = [
-                    trialsites[i]["fracs"].dot(np.array(m, dtype=float)) for m in rots
-                ]
+                symposlist = [trialsites[i]["fracs"].dot(np.array(m, dtype=float)) for m in rots]
                 for t in trans:
                     symposlist.append(trialsites[i]["fracs"] + np.array(t))
                 for indj in range(indi + 1, len(include)):
@@ -455,9 +432,7 @@ class StructureMotifInterstitial:
                     if trialsites[j]["mtype"] != motif or j in discard_motif:
                         continue
                     for sympos in symposlist:
-                        dist, image = struct.lattice.get_distance_and_image(
-                            sympos, trialsites[j]["fracs"]
-                        )
+                        dist, image = struct.lattice.get_distance_and_image(sympos, trialsites[j]["fracs"])
                         if dist < maxdl * facmaxdl:
                             discard_motif.append(j)
                             multiplicity[i] += 1
@@ -469,9 +444,7 @@ class StructureMotifInterstitial:
         if verbose:
             print(
                 "Initial trial sites: {}\nAfter clustering: {}\n"
-                "After symmetry pruning: {}".format(
-                    len(trialsites), len(include), len(include) - len(discard)
-                )
+                "After symmetry pruning: {}".format(len(trialsites), len(include), len(include) - len(discard))
             )
         for i in include:
             if i not in discard:
@@ -563,10 +536,7 @@ class StructureMotifInterstitial:
                 properties=None,
             )
             if not sc_with_inter:
-                raise RuntimeError(
-                    "could not generate supercell with"
-                    " interstitial {}".format(ids + 1)
-                )
+                raise RuntimeError("could not generate supercell with" " interstitial {}".format(ids + 1))
             scs.append(sc_with_inter.copy())
         return scs
 
@@ -723,9 +693,7 @@ class TopographyAnalyzer:
         # Eliminate all voronoi nodes which are closest to existing cations.
         if len(cations) > 0:
             cation_coords = [
-                site.frac_coords
-                for site in non_framework
-                if self.cations.intersection(site.species.keys())
+                site.frac_coords for site in non_framework if self.cations.intersection(site.species.keys())
             ]
 
             vertex_fcoords = [v.frac_coords for v in vnodes]
@@ -748,9 +716,7 @@ class TopographyAnalyzer:
         Basic check for volume of all voronoi poly sum to unit cell volume
         Note that this does not apply after poly combination.
         """
-        vol = sum((v.volume for v in self.vnodes)) + sum(
-            (v.volume for v in self.cation_vnodes)
-        )
+        vol = sum((v.volume for v in self.vnodes)) + sum((v.volume for v in self.cation_vnodes))
         if abs(vol - self.structure.volume) > 1e-8:
             raise ValueError(
                 "Sum of voronoi volumes is not equal to original volume of "
@@ -792,11 +758,7 @@ class TopographyAnalyzer:
                     # We need the image to combine the frac_coords properly.
                     d, image = lattice.get_distance_and_image(frac_coords[0], fcoords)
                     frac_coords.append(fcoords + image)
-            merged_vnodes.append(
-                VoronoiPolyhedron(
-                    lattice, np.average(frac_coords, axis=0), poly_indices, self.coords
-                )
-            )
+            merged_vnodes.append(VoronoiPolyhedron(lattice, np.average(frac_coords, axis=0), poly_indices, self.coords))
         self.vnodes = merged_vnodes
         logger.debug("%d vertices after combination." % len(self.vnodes))
 
@@ -899,10 +861,7 @@ class TopographyAnalyzer:
         for v in self.vnodes:
             vis.add_site(PeriodicSite("K", v.frac_coords, lattice))
             vis.add_polyhedron(
-                [
-                    PeriodicSite("S", c, lattice, coords_are_cartesian=True)
-                    for c in v.polyhedron_coords
-                ],
+                [PeriodicSite("S", c, lattice, coords_are_cartesian=True) for c in v.polyhedron_coords],
                 PeriodicSite("Na", v.frac_coords, lattice),
                 color="element",
                 draw_edges=True,
@@ -1023,12 +982,7 @@ class ChargeDensityAnalyzer(MSONable):
         Return a complete table of fractional coordinates - charge density.
         """
         # Fraction coordinates and corresponding indices
-        axis_grid = np.array(
-            [
-                np.array(self.chgcar.get_axis_grid(i)) / self.structure.lattice.abc[i]
-                for i in range(3)
-            ]
-        )
+        axis_grid = np.array([np.array(self.chgcar.get_axis_grid(i)) / self.structure.lattice.abc[i] for i in range(3)])
         axis_index = np.array([range(len(axis_grid[i])) for i in range(3)])
 
         data = {}
@@ -1045,16 +999,12 @@ class ChargeDensityAnalyzer(MSONable):
 
         return df
 
-    def _update_extrema(
-        self, f_coords, extrema_type, threshold_frac=None, threshold_abs=None
-    ):
+    def _update_extrema(self, f_coords, extrema_type, threshold_frac=None, threshold_abs=None):
         """Update _extrema_df, extrema_type and extrema_coords"""
 
         if threshold_frac is not None:
             if threshold_abs is not None:
-                logger.warning(  # Exit if both filter are set
-                    "Filter can be either threshold_frac or threshold_abs!"
-                )
+                logger.warning("Filter can be either threshold_frac or threshold_abs!")  # Exit if both filter are set
                 return
             if threshold_frac > 1 or threshold_frac < 0:
                 raise Exception("threshold_frac range is [0, 1]!")
@@ -1085,11 +1035,7 @@ class ChargeDensityAnalyzer(MSONable):
             df.reset_index(drop=True, inplace=True)  # reset major index
         else:  # threshold_abs is set
             df = df.sort_values(by="Charge Density", ascending=ascending)
-            df = (
-                df[df["Charge Density"] <= threshold_abs]
-                if ascending
-                else df[df["Charge Density"] >= threshold_abs]
-            )
+            df = df[df["Charge Density"] <= threshold_abs] if ascending else df[df["Charge Density"] >= threshold_abs]
 
         extrema_coords = []
         for row in df.iterrows():
@@ -1150,9 +1096,7 @@ class ChargeDensityAnalyzer(MSONable):
 
         # Remove duplicated sites introduced by supercell.
         f_coords = [coord / total_chg.shape * 3 for coord in coordinates]
-        f_coords = [
-            f - 1 for f in f_coords if all(np.array(f) < 2) and all(np.array(f) >= 1)
-        ]
+        f_coords = [f - 1 for f in f_coords if all(np.array(f) < 2) and all(np.array(f) >= 1)]
 
         # Update information
         self._update_extrema(
@@ -1176,9 +1120,7 @@ class ChargeDensityAnalyzer(MSONable):
 
         if len(vf_coords) == 0:
             if self.extrema_type is None:
-                logger.warning(
-                    "Please run ChargeDensityAnalyzer.get_local_extrema first!"
-                )
+                logger.warning("Please run ChargeDensityAnalyzer.get_local_extrema first!")
                 return None
             new_f_coords = []
             self._update_extrema(new_f_coords, self.extrema_type)
@@ -1231,9 +1173,7 @@ class ChargeDensityAnalyzer(MSONable):
         f_coords = self.extrema_coords
         if len(f_coords) == 0:
             if self.extrema_type is None:
-                logger.warning(
-                    "Please run ChargeDensityAnalyzer.get_local_extrema first!"
-                )
+                logger.warning("Please run ChargeDensityAnalyzer.get_local_extrema first!")
                 return None
             new_f_coords = []
             self._update_extrema(new_f_coords, self.extrema_type)
@@ -1323,12 +1263,8 @@ class ChargeDensityAnalyzer(MSONable):
         int_den = []
         for isite in self.extrema_coords:
             mask = self._dist_mat(isite) < r
-            vol_sphere = self.chgcar.structure.volume * (
-                mask.sum() / self.chgcar.ngridpts
-            )
-            chg_in_sphere = (
-                np.sum(self.chgcar.data["total"] * mask) / mask.size / vol_sphere
-            )
+            vol_sphere = self.chgcar.structure.volume * (mask.sum() / self.chgcar.ngridpts)
+            chg_in_sphere = np.sum(self.chgcar.data["total"] * mask) / mask.size / vol_sphere
             int_den.append(chg_in_sphere)
         self._extrema_df["avg_charge_den"] = int_den
         self._extrema_df.sort_values(by=["avg_charge_den"], inplace=True)
@@ -1405,9 +1341,7 @@ class ChargeInsertionAnalyzer(ChargeDensityAnalyzer):
 
         inserted_structs = []
 
-        self._extrema_df = self._extrema_df[
-            self._extrema_df.avg_charge_den <= self.max_avg_charge
-        ]
+        self._extrema_df = self._extrema_df[self._extrema_df.avg_charge_den <= self.max_avg_charge]
 
         for itr, li_site in self._extrema_df.iterrows():
             if li_site["avg_charge_den"] > self.max_avg_charge:
@@ -1423,9 +1357,7 @@ class ChargeInsertionAnalyzer(ChargeDensityAnalyzer):
             tmp_struct.sort()
             inserted_structs.append(tmp_struct)
         self._extrema_df["inserted_struct"] = inserted_structs
-        site_labels = generic_groupby(
-            self._extrema_df.inserted_struct, comp=self.sm.fit
-        )
+        site_labels = generic_groupby(self._extrema_df.inserted_struct, comp=self.sm.fit)
         self._extrema_df["site_label"] = site_labels
 
         # generate the structure with only Li atoms for NN analysis
@@ -1433,9 +1365,7 @@ class ChargeInsertionAnalyzer(ChargeDensityAnalyzer):
             self.structure.lattice,
             np.repeat(self.working_ion, len(self._extrema_df)),
             self._extrema_df[["a", "b", "c"]].values,
-            site_properties={
-                "label": self._extrema_df[["site_label"]].values.flatten()
-            },
+            site_properties={"label": self._extrema_df[["site_label"]].values.flatten()},
         )
 
 
@@ -1525,20 +1455,13 @@ def tune_for_gamma(lattice, epsilon):
         "vecs.".format(gamma, len(real_set), len(recip_set))
     )
 
-    while (
-        float(len(real_set)) / len(recip_set) > 1.05
-        or float(len(recip_set)) / len(real_set) > 1.05
-    ):
+    while float(len(real_set)) / len(recip_set) > 1.05 or float(len(recip_set)) / len(real_set) > 1.05:
         gamma *= (float(len(real_set)) / float(len(recip_set))) ** 0.17
         logger.debug("\tNot converged...Try modifying gamma to {}.".format(gamma))
         recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
         recip_set = recip_set[0]
         real_set = real_set[0]
-        logger.debug(
-            "Now have {} real vecs and {} recip vecs.".format(
-                len(real_set), len(recip_set)
-            )
-        )
+        logger.debug("Now have {} real vecs and {} recip vecs.".format(len(real_set), len(recip_set)))
 
     logger.debug("Converged with gamma = {}".format(gamma))
 
@@ -1608,9 +1531,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                     if normrvec <= real_cut:
                         real_set[real_cut_ind].append(rvec)
                         if normrvec > 1e-8:
-                            sqrt_loc_res = np.sqrt(
-                                np.dot(rvec, np.dot(invepsilon, rvec))
-                            )
+                            sqrt_loc_res = np.sqrt(np.dot(rvec, np.dot(invepsilon, rvec)))
                             nmr = math.erfc(gamma * sqrt_loc_res)
                             real_summation_values[real_cut_ind] += nmr / sqrt_loc_res
 

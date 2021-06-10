@@ -11,7 +11,9 @@ import unittest
 import numpy as np
 from monty.json import MontyDecoder
 
-from pymatgen import Element, Lattice, Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.defects.core import Interstitial, Substitution, Vacancy
 from pymatgen.analysis.structure_matcher import (
     ElementComparator,
@@ -26,30 +28,23 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class StructureMatcherTest(PymatgenTest):
     _multiprocess_shared_ = True
 
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [
             self.get_structure("Li2O"),
-            Structure.from_file(os.path.join(test_dir, "POSCAR.Li2O")),
+            Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR.Li2O")),
         ]
 
     def test_ignore_species(self):
-        s1 = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        s2 = Structure.from_file(os.path.join(test_dir, "POSCAR"))
-        m = StructureMatcher(
-            ignored_species=["Li"], primitive_cell=False, attempt_supercell=True
-        )
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "LiFePO4.cif"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "POSCAR"))
+        m = StructureMatcher(ignored_species=["Li"], primitive_cell=False, attempt_supercell=True)
         self.assertTrue(m.fit(s1, s2))
         self.assertTrue(m.fit_anonymous(s1, s2))
         groups = m.group_structures([s1, s2])
@@ -60,12 +55,7 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(ss1.composition.reduced_formula, "LiFePO4")
 
         self.assertEqual(
-            {
-                k.symbol: v.symbol
-                for k, v in m.get_best_electronegativity_anonymous_mapping(
-                    s1, s2
-                ).items()
-            },
+            {k.symbol: v.symbol for k, v in m.get_best_electronegativity_anonymous_mapping(s1, s2).items()},
             {"Fe": "Fe", "P": "P", "O": "O"},
         )
 
@@ -243,15 +233,13 @@ class StructureMatcherTest(PymatgenTest):
             2) Ensure match after translation and rotations
             3) Ensure no-match after large site translation
             4) Ensure match after site shuffling
-            """
+        """
         sm = StructureMatcher()
 
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
 
         # Test rotational/translational invariance
-        op = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], 30, False, np.array([0.4, 0.7, 0.9])
-        )
+        op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, False, np.array([0.4, 0.7, 0.9]))
         self.struct_list[1].apply_operation(op)
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
 
@@ -297,11 +285,14 @@ class StructureMatcherTest(PymatgenTest):
 
         # test symmetric
         sm_coarse = sm = StructureMatcher(
-            comparator=ElementComparator(), ltol=0.6, stol=0.6, angle_tol=6,
+            comparator=ElementComparator(),
+            ltol=0.6,
+            stol=0.6,
+            angle_tol=6,
         )
 
-        s1 = Structure.from_file(test_dir + "/fit_symm_s1.vasp")
-        s2 = Structure.from_file(test_dir + "/fit_symm_s2.vasp")
+        s1 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s1.vasp")
+        s2 = Structure.from_file(PymatgenTest.TEST_FILES_DIR / "fit_symm_s2.vasp")
         self.assertEqual(sm_coarse.fit(s1, s2), True)
         self.assertEqual(sm_coarse.fit(s2, s1), False)
         self.assertEqual(sm_coarse.fit(s1, s2, symmetric=True), False)
@@ -339,7 +330,7 @@ class StructureMatcherTest(PymatgenTest):
             self.get_structure("LiFePO4"),
         ]
         for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]:
-            structures.append(Structure.from_file(os.path.join(test_dir, fname)))
+            structures.append(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
         for g in groups:
@@ -352,7 +343,7 @@ class StructureMatcherTest(PymatgenTest):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted"""
         sm = StructureMatcher()
-        s = Structure.from_file(os.path.join(test_dir, "Li3GaPCO7.json"))
+        s = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li3GaPCO7.json"))
         self.assertTrue(sm.fit(s, s))
 
     def test_as_dict_and_from_dict(self):
@@ -369,19 +360,15 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(sm2.as_dict(), d)
 
     def test_no_scaling(self):
-        sm = StructureMatcher(
-            ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator()
-        )
+        sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2, scale=False, comparator=ElementComparator())
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
 
-        self.assertTrue(
-            sm.get_rms_dist(self.struct_list[0], self.struct_list[1])[0] < 0.0008
-        )
+        self.assertTrue(sm.get_rms_dist(self.struct_list[0], self.struct_list[1])[0] < 0.0008)
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = Structure.from_file(os.path.join(test_dir, "Al3F9.json"))
-        s2 = Structure.from_file(os.path.join(test_dir, "Al3F9_distorted.json"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9.json"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Al3F9_distorted.json"))
 
         self.assertFalse(sm.fit(s1, s2))
 
@@ -423,17 +410,11 @@ class StructureMatcherTest(PymatgenTest):
             attempt_supercell=False,
         )
         l = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
-        )
-        s2 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]]
-        )
+        s1 = Structure(l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
+        s2 = Structure(l, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [0.7, 0.5, 0.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
-        match = sm._strict_match(
-            s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False
-        )
+        match = sm._strict_match(s1, s2, fu, s1_supercell=True, use_rms=True, break_on_match=False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
@@ -458,9 +439,7 @@ class StructureMatcherTest(PymatgenTest):
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
 
-        match = sm._strict_match(
-            s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False
-        )
+        match = sm._strict_match(s1, s2, fu, s1_supercell=False, use_rms=True, break_on_match=False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         s2.translate_sites(range(len(s2)), match[3])
@@ -490,13 +469,9 @@ class StructureMatcherTest(PymatgenTest):
             supercell_size="volume",
         )
         l = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(
-            l, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]]
-        )
+        s1 = Structure(l, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]]
-        )
+        s2 = Structure(l, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [0, 2, 1, 3, 4, 5]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
@@ -564,14 +539,10 @@ class StructureMatcherTest(PymatgenTest):
         )
 
         l = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(
-            l, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]]
-        )
+        s1 = Structure(l, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
 
         l2 = Lattice.orthorhombic(1.01, 2.01, 3.01)
-        s2 = Structure(
-            l2, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]]
-        )
+        s2 = Structure(l2, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
         s2.make_supercell([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
         result = sm.get_s2_like_s1(s1, s2)
@@ -590,13 +561,9 @@ class StructureMatcherTest(PymatgenTest):
             allow_subset=True,
         )
         l = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(
-            l, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]]
-        )
+        s1 = Structure(l, ["Ag", "Si", "Si"], [[0.7, 0.4, 0.5], [0, 0, 0.1], [0, 0, 0.2]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]]
-        )
+        s2 = Structure(l, ["Si", "Si", "Ag"], [[0, 0.1, -0.95], [0, 0.1, 0], [-0.7, 0.5, 0.375]])
 
         shuffle = [2, 0, 1, 3, 5, 4]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
@@ -627,24 +594,16 @@ class StructureMatcherTest(PymatgenTest):
 
         l = Lattice.orthorhombic(1, 2, 3)
 
-        s1 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
-        )
+        s1 = Structure(l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([2, 1, 1])
-        s2 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]]
-        )
+        s2 = Structure(l, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
         result = sm.get_supercell_matrix(s1, s2)
         self.assertTrue((result == [[-2, 0, 0], [0, 1, 0], [0, 0, 1]]).all())
 
-        s1 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
-        )
+        s1 = Structure(l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s1.make_supercell([[1, -1, 0], [0, 0, -1], [0, 1, 0]])
 
-        s2 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]]
-        )
+        s2 = Structure(l, ["Si", "Si", "Ag"], [[0, 0.1, 0], [0, 0.1, -0.95], [-0.7, 0.5, 0.375]])
         result = sm.get_supercell_matrix(s1, s2)
         self.assertTrue((result == [[-1, -1, 0], [0, 0, -1], [0, 1, 0]]).all())
 
@@ -673,53 +632,33 @@ class StructureMatcherTest(PymatgenTest):
             allow_subset=True,
         )
         l = Lattice.orthorhombic(10, 20, 30)
-        s1 = Structure(
-            l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
-        )
+        s1 = Structure(l, ["Si", "Si", "Ag"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s2 = Structure(l, ["Si", "Ag"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
 
-        self.assertEqual(
-            len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])), 1
-        )
-        self.assertEqual(
-            len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])), 1
-        )
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])), 1)
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])), 1)
 
         # test with fewer species in s2
-        s1 = Structure(
-            l, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
-        )
+        s1 = Structure(l, ["Si", "Ag", "Si"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s2 = Structure(l, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         result = sm.get_s2_like_s1(s1, s2)
-        mindists = np.min(
-            s1.lattice.get_all_distances(s1.frac_coords, result.frac_coords), axis=0
-        )
+        mindists = np.min(s1.lattice.get_all_distances(s1.frac_coords, result.frac_coords), axis=0)
         self.assertLess(np.max(mindists), 1e-6)
 
-        self.assertEqual(
-            len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])), 1
-        )
-        self.assertEqual(
-            len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])), 1
-        )
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, [0, 0, 0.1])), 1)
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, [0.7, 0.4, 0.5])), 1)
 
         # test with not enough sites in s1
         # test with fewer species in s2
-        s1 = Structure(
-            l, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]]
-        )
+        s1 = Structure(l, ["Si", "Ag", "Cl"], [[0, 0, 0.1], [0, 0, 0.2], [0.7, 0.4, 0.5]])
         s2 = Structure(l, ["Si", "Si"], [[0, 0.1, 0], [-0.7, 0.5, 0.4]])
         self.assertEqual(sm.get_s2_like_s1(s1, s2), None)
 
     def test_out_of_cell_s2_like_s1(self):
         l = Lattice.cubic(5)
-        s1 = Structure(
-            l, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]]
-        )
-        s2 = Structure(
-            l, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]]
-        )
+        s1 = Structure(l, ["Si", "Ag", "Si"], [[0, 0, -0.02], [0, 0, 0.001], [0.7, 0.4, 0.5]])
+        s2 = Structure(l, ["Si", "Ag", "Si"], [[0, 0, 0.98], [0, 0, 0.99], [0.7, 0.4, 0.5]])
         new_s2 = StructureMatcher(primitive_cell=False).get_s2_like_s1(s1, s2)
         dists = np.sum((s1.cart_coords - new_s2.cart_coords) ** 2, axis=-1) ** 0.5
         self.assertLess(np.max(dists), 0.1)
@@ -789,9 +728,7 @@ class StructureMatcherTest(PymatgenTest):
         ls = Lattice.orthorhombic(20, 20, 30)
         scoords = [[0, 0, 0], [0.5, 0, 0], [0.25, 0.5, 0.5], [0.75, 0.5, 0.5]]
         s1 = Structure(lp, ["Na", "Cl"], pcoords)
-        s2 = Structure(
-            ls, [{"Na": 0.5}, {"Na": 0.5}, {"Cl": 0.5}, {"Cl": 0.5}], scoords
-        )
+        s2 = Structure(ls, [{"Na": 0.5}, {"Na": 0.5}, {"Cl": 0.5}, {"Cl": 0.5}], scoords)
 
         self.assertTrue(sm_sites.fit(s1, s2))
         self.assertFalse(sm_atoms.fit(s1, s2))
@@ -840,8 +777,8 @@ class StructureMatcherTest(PymatgenTest):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = Structure.from_file(os.path.join(test_dir, "Na2Fe2PAsO4S4.json"))
-        s2 = Structure.from_file(os.path.join(test_dir, "Na2Fe2PNO4Se4.json"))
+        s1 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PAsO4S4.json"))
+        s2 = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Na2Fe2PNO4Se4.json"))
         self.assertEqual(
             sm.get_best_electronegativity_anonymous_mapping(s1, s2),
             {
@@ -881,9 +818,7 @@ class PointDefectComparatorTest(PymatgenTest):
     def test_defect_matching(self):
         # SETUP DEFECTS FOR TESTING
         # symmorphic defect test set
-        s_struc = Structure.from_file(
-            os.path.join(test_dir, "CsSnI3.cif")
-        )  # tetragonal CsSnI3
+        s_struc = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CsSnI3.cif"))  # tetragonal CsSnI3
         identical_Cs_vacs = [Vacancy(s_struc, s_struc[0]), Vacancy(s_struc, s_struc[1])]
         identical_I_vacs_sublattice1 = [
             Vacancy(s_struc, s_struc[4]),
@@ -899,23 +834,11 @@ class PointDefectComparatorTest(PymatgenTest):
 
         # NOW TEST DEFECTS
         # test vacancy matching
-        self.assertTrue(
-            pdc.are_equal(identical_Cs_vacs[0], identical_Cs_vacs[0])
-        )  # trivial vacancy test
-        self.assertTrue(
-            pdc.are_equal(identical_Cs_vacs[0], identical_Cs_vacs[1])
-        )  # vacancies on same sublattice
+        self.assertTrue(pdc.are_equal(identical_Cs_vacs[0], identical_Cs_vacs[0]))  # trivial vacancy test
+        self.assertTrue(pdc.are_equal(identical_Cs_vacs[0], identical_Cs_vacs[1]))  # vacancies on same sublattice
         for i, j in itertools.combinations(range(4), 2):
-            self.assertTrue(
-                pdc.are_equal(
-                    identical_I_vacs_sublattice1[i], identical_I_vacs_sublattice1[j]
-                )
-            )
-        self.assertTrue(
-            pdc.are_equal(
-                identical_I_vacs_sublattice2[0], identical_I_vacs_sublattice2[1]
-            )
-        )
+            self.assertTrue(pdc.are_equal(identical_I_vacs_sublattice1[i], identical_I_vacs_sublattice1[j]))
+        self.assertTrue(pdc.are_equal(identical_I_vacs_sublattice2[0], identical_I_vacs_sublattice2[1]))
         self.assertFalse(
             pdc.are_equal(
                 identical_Cs_vacs[0],
@@ -938,12 +861,8 @@ class PointDefectComparatorTest(PymatgenTest):
         sub_Cs_on_I_sublattice1_set2 = PeriodicSite(
             "Cs", identical_I_vacs_sublattice1[1].site.frac_coords, s_struc.lattice
         )
-        sub_Cs_on_I_sublattice2 = PeriodicSite(
-            "Cs", identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice
-        )
-        sub_Rb_on_I_sublattice2 = PeriodicSite(
-            "Rb", identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice
-        )
+        sub_Cs_on_I_sublattice2 = PeriodicSite("Cs", identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice)
+        sub_Rb_on_I_sublattice2 = PeriodicSite("Rb", identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice)
 
         self.assertTrue(
             pdc.are_equal(  # trivial substitution test
@@ -976,15 +895,9 @@ class PointDefectComparatorTest(PymatgenTest):
         # interstitial_structure function)
         inter_H_sublattice1_set1 = PeriodicSite("H", [0.0, 0.75, 0.25], s_struc.lattice)
         inter_H_sublattice1_set2 = PeriodicSite("H", [0.0, 0.75, 0.75], s_struc.lattice)
-        inter_H_sublattice2 = PeriodicSite(
-            "H", [0.57796112, 0.06923687, 0.56923687], s_struc.lattice
-        )
-        inter_H_sublattice3 = PeriodicSite(
-            "H", [0.25, 0.25, 0.54018268], s_struc.lattice
-        )
-        inter_He_sublattice3 = PeriodicSite(
-            "He", [0.25, 0.25, 0.54018268], s_struc.lattice
-        )
+        inter_H_sublattice2 = PeriodicSite("H", [0.57796112, 0.06923687, 0.56923687], s_struc.lattice)
+        inter_H_sublattice3 = PeriodicSite("H", [0.25, 0.25, 0.54018268], s_struc.lattice)
+        inter_He_sublattice3 = PeriodicSite("He", [0.25, 0.25, 0.54018268], s_struc.lattice)
 
         self.assertTrue(
             pdc.are_equal(  # trivial interstitial test
@@ -1021,19 +934,11 @@ class PointDefectComparatorTest(PymatgenTest):
         # test non-symmorphic interstitial matching
         # (using set generated from Voronoi generator, with same sublattice given by
         # saturatated_interstitial_structure function)
-        ns_struc = Structure.from_file(os.path.join(test_dir, "CuCl.cif"))
-        ns_inter_H_sublattice1_set1 = PeriodicSite(
-            "H", [0.06924513, 0.06308959, 0.86766528], ns_struc.lattice
-        )
-        ns_inter_H_sublattice1_set2 = PeriodicSite(
-            "H", [0.43691041, 0.36766528, 0.06924513], ns_struc.lattice
-        )
-        ns_inter_H_sublattice2 = PeriodicSite(
-            "H", [0.06022109, 0.60196031, 0.1621814], ns_struc.lattice
-        )
-        ns_inter_He_sublattice2 = PeriodicSite(
-            "He", [0.06022109, 0.60196031, 0.1621814], ns_struc.lattice
-        )
+        ns_struc = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "CuCl.cif"))
+        ns_inter_H_sublattice1_set1 = PeriodicSite("H", [0.06924513, 0.06308959, 0.86766528], ns_struc.lattice)
+        ns_inter_H_sublattice1_set2 = PeriodicSite("H", [0.43691041, 0.36766528, 0.06924513], ns_struc.lattice)
+        ns_inter_H_sublattice2 = PeriodicSite("H", [0.06022109, 0.60196031, 0.1621814], ns_struc.lattice)
+        ns_inter_He_sublattice2 = PeriodicSite("He", [0.06022109, 0.60196031, 0.1621814], ns_struc.lattice)
 
         self.assertTrue(
             pdc.are_equal(  # trivial interstitial test
@@ -1065,9 +970,7 @@ class PointDefectComparatorTest(PymatgenTest):
         vac_diff_chg = identical_Cs_vacs[0].copy()
         vac_diff_chg.set_charge(3.0)
         self.assertTrue(pdc.are_equal(identical_Cs_vacs[0], vac_diff_chg))
-        chargecheck_pdc = PointDefectComparator(
-            check_charge=True
-        )  # switch to PDC which cares about charge state
+        chargecheck_pdc = PointDefectComparator(check_charge=True)  # switch to PDC which cares about charge state
         self.assertFalse(chargecheck_pdc.are_equal(identical_Cs_vacs[0], vac_diff_chg))
 
         # test different supercell size
@@ -1093,15 +996,9 @@ class PointDefectComparatorTest(PymatgenTest):
             sc_scaled_s_struc.lattice,
             coords_are_cartesian=True,
         )
-        sc_scaled_I_vac_sublatt1_defect1 = Vacancy(
-            sc_scaled_s_struc, sc_scaled_I_vac_sublatt1_ps1
-        )
-        sc_scaled_I_vac_sublatt1_defect2 = Vacancy(
-            sc_scaled_s_struc, sc_scaled_I_vac_sublatt1_ps2
-        )
-        sc_scaled_I_vac_sublatt2_defect = Vacancy(
-            sc_scaled_s_struc, sc_scaled_I_vac_sublatt2_ps
-        )
+        sc_scaled_I_vac_sublatt1_defect1 = Vacancy(sc_scaled_s_struc, sc_scaled_I_vac_sublatt1_ps1)
+        sc_scaled_I_vac_sublatt1_defect2 = Vacancy(sc_scaled_s_struc, sc_scaled_I_vac_sublatt1_ps2)
+        sc_scaled_I_vac_sublatt2_defect = Vacancy(sc_scaled_s_struc, sc_scaled_I_vac_sublatt2_ps)
 
         self.assertFalse(
             pdc.are_equal(
@@ -1110,11 +1007,7 @@ class PointDefectComparatorTest(PymatgenTest):
                 sc_scaled_I_vac_sublatt1_defect1,
             )
         )
-        self.assertTrue(
-            sc_agnostic_pdc.are_equal(
-                identical_I_vacs_sublattice1[0], sc_scaled_I_vac_sublatt1_defect1
-            )
-        )
+        self.assertTrue(sc_agnostic_pdc.are_equal(identical_I_vacs_sublattice1[0], sc_scaled_I_vac_sublatt1_defect1))
         self.assertFalse(
             pdc.are_equal(
                 identical_I_vacs_sublattice1[1],
@@ -1122,11 +1015,7 @@ class PointDefectComparatorTest(PymatgenTest):
                 sc_scaled_I_vac_sublatt1_defect1,
             )
         )
-        self.assertTrue(
-            sc_agnostic_pdc.are_equal(
-                identical_I_vacs_sublattice1[1], sc_scaled_I_vac_sublatt1_defect1
-            )
-        )
+        self.assertTrue(sc_agnostic_pdc.are_equal(identical_I_vacs_sublattice1[1], sc_scaled_I_vac_sublatt1_defect1))
         self.assertFalse(
             pdc.are_equal(
                 identical_I_vacs_sublattice1[0],
@@ -1134,11 +1023,7 @@ class PointDefectComparatorTest(PymatgenTest):
                 sc_scaled_I_vac_sublatt1_defect2,
             )
         )
-        self.assertTrue(
-            sc_agnostic_pdc.are_equal(
-                identical_I_vacs_sublattice1[0], sc_scaled_I_vac_sublatt1_defect2
-            )
-        )
+        self.assertTrue(sc_agnostic_pdc.are_equal(identical_I_vacs_sublattice1[0], sc_scaled_I_vac_sublatt1_defect2))
         self.assertFalse(
             sc_agnostic_pdc.are_equal(
                 identical_I_vacs_sublattice1[0],
@@ -1152,15 +1037,9 @@ class PointDefectComparatorTest(PymatgenTest):
         vol_agnostic_pdc = PointDefectComparator(check_lattice_scale=True)
         vol_scaled_s_struc = s_struc.copy()
         vol_scaled_s_struc.scale_lattice(s_struc.volume * 0.95)
-        vol_scaled_I_vac_sublatt1_defect1 = Vacancy(
-            vol_scaled_s_struc, vol_scaled_s_struc[4]
-        )
-        vol_scaled_I_vac_sublatt1_defect2 = Vacancy(
-            vol_scaled_s_struc, vol_scaled_s_struc[5]
-        )
-        vol_scaled_I_vac_sublatt2_defect = Vacancy(
-            vol_scaled_s_struc, vol_scaled_s_struc[6]
-        )
+        vol_scaled_I_vac_sublatt1_defect1 = Vacancy(vol_scaled_s_struc, vol_scaled_s_struc[4])
+        vol_scaled_I_vac_sublatt1_defect2 = Vacancy(vol_scaled_s_struc, vol_scaled_s_struc[5])
+        vol_scaled_I_vac_sublatt2_defect = Vacancy(vol_scaled_s_struc, vol_scaled_s_struc[6])
 
         self.assertFalse(
             pdc.are_equal(
@@ -1169,11 +1048,7 @@ class PointDefectComparatorTest(PymatgenTest):
                 vol_scaled_I_vac_sublatt1_defect1,
             )
         )
-        self.assertTrue(
-            vol_agnostic_pdc.are_equal(
-                identical_I_vacs_sublattice1[0], vol_scaled_I_vac_sublatt1_defect1
-            )
-        )
+        self.assertTrue(vol_agnostic_pdc.are_equal(identical_I_vacs_sublattice1[0], vol_scaled_I_vac_sublatt1_defect1))
         self.assertFalse(
             pdc.are_equal(
                 identical_I_vacs_sublattice1[0],
@@ -1181,11 +1056,7 @@ class PointDefectComparatorTest(PymatgenTest):
                 vol_scaled_I_vac_sublatt1_defect2,
             )
         )
-        self.assertTrue(
-            vol_agnostic_pdc.are_equal(
-                identical_I_vacs_sublattice1[0], vol_scaled_I_vac_sublatt1_defect2
-            )
-        )
+        self.assertTrue(vol_agnostic_pdc.are_equal(identical_I_vacs_sublattice1[0], vol_scaled_I_vac_sublatt1_defect2))
         self.assertFalse(
             vol_agnostic_pdc.are_equal(
                 identical_I_vacs_sublattice1[0],
@@ -1196,9 +1067,7 @@ class PointDefectComparatorTest(PymatgenTest):
 
         # test identical defect which has had entire lattice shifted
         shift_s_struc = s_struc.copy()
-        shift_s_struc.translate_sites(
-            range(len(s_struc)), [0.2, 0.3, 0.4], frac_coords=True, to_unit_cell=True
-        )
+        shift_s_struc.translate_sites(range(len(s_struc)), [0.2, 0.3, 0.4], frac_coords=True, to_unit_cell=True)
         shifted_identical_Cs_vacs = [
             Vacancy(shift_s_struc, shift_s_struc[0]),
             Vacancy(shift_s_struc, shift_s_struc[1]),
@@ -1220,9 +1089,7 @@ class PointDefectComparatorTest(PymatgenTest):
 
         # test uniform lattice shift within non-symmorphic structure
         shift_ns_struc = ns_struc.copy()
-        shift_ns_struc.translate_sites(
-            range(len(ns_struc)), [0.0, 0.6, 0.3], frac_coords=True, to_unit_cell=True
-        )
+        shift_ns_struc.translate_sites(range(len(ns_struc)), [0.0, 0.6, 0.3], frac_coords=True, to_unit_cell=True)
 
         shift_ns_inter_H_sublattice1_set1 = PeriodicSite(
             "H",
@@ -1263,11 +1130,7 @@ class PointDefectComparatorTest(PymatgenTest):
                 rotated_identical_Cs_vacs[0],
             )
         )
-        self.assertTrue(
-            sc_agnostic_pdc.are_equal(
-                identical_Cs_vacs[0], rotated_identical_Cs_vacs[0]
-            )
-        )
+        self.assertTrue(sc_agnostic_pdc.are_equal(identical_Cs_vacs[0], rotated_identical_Cs_vacs[0]))
         self.assertFalse(
             pdc.are_equal(
                 identical_Cs_vacs[0],
@@ -1285,17 +1148,11 @@ class PointDefectComparatorTest(PymatgenTest):
 
         # test a rotational + supercell + shift type structure transformation for non-symmorphic structure
         rotANDshift_ns_struc = ns_struc.copy()
-        rotANDshift_ns_struc.translate_sites(
-            range(len(ns_struc)), [0.0, 0.6, 0.3], frac_coords=True, to_unit_cell=True
-        )
+        rotANDshift_ns_struc.translate_sites(range(len(ns_struc)), [0.0, 0.6, 0.3], frac_coords=True, to_unit_cell=True)
         rotANDshift_ns_struc.make_supercell([[2, 1, 0], [-1, 3, 0], [0, 0, 2]])
         ns_vac_Cs_set1 = Vacancy(ns_struc, ns_struc[0])
-        rotANDshift_ns_vac_Cs_set1 = Vacancy(
-            rotANDshift_ns_struc, rotANDshift_ns_struc[0]
-        )
-        rotANDshift_ns_vac_Cs_set2 = Vacancy(
-            rotANDshift_ns_struc, rotANDshift_ns_struc[1]
-        )
+        rotANDshift_ns_vac_Cs_set1 = Vacancy(rotANDshift_ns_struc, rotANDshift_ns_struc[0])
+        rotANDshift_ns_vac_Cs_set2 = Vacancy(rotANDshift_ns_struc, rotANDshift_ns_struc[1])
 
         self.assertTrue(
             sc_agnostic_pdc.are_equal(

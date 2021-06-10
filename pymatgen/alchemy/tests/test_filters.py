@@ -22,11 +22,6 @@ from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
-
 
 class ContainsSpecieFilterTest(PymatgenTest):
     def test_filtering(self):
@@ -92,7 +87,7 @@ class SpecieProximityFilterTest(PymatgenTest):
 
 class RemoveDuplicatesFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()
@@ -106,14 +101,12 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
     def test_to_from_dict(self):
         fil = RemoveDuplicatesFilter()
         d = fil.as_dict()
-        self.assertIsInstance(
-            RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter
-        )
+        self.assertIsInstance(RemoveDuplicatesFilter().from_dict(d), RemoveDuplicatesFilter)
 
 
 class RemoveExistingFilterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as fp:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "TiO2_entries.json"), "r") as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self._struct_list = [e.structure for e in entries]
         self._sm = StructureMatcher()

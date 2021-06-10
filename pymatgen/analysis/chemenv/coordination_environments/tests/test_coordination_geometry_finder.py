@@ -44,9 +44,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
     def test_abstract_geometry(self):
         cg_ts3 = self.lgf.allcg["TS:3"]
         cg_tet = self.lgf.allcg["T:4"]
-        abstract_geom = AbstractGeometry.from_cg(
-            cg=cg_ts3, centering_type="central_site"
-        )
+        abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="central_site")
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.0])
         abstract_geom = AbstractGeometry.from_cg(cg=cg_ts3, centering_type="centroid")
         self.assertArrayAlmostEqual(abstract_geom.centre, [0.0, 0.0, 0.33333333333])
@@ -82,9 +80,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
 
         tio2_struct = self.get_structure("TiO2")
 
-        envs = self.lgf.compute_coordination_environments(
-            structure=tio2_struct, indices=[0]
-        )
+        envs = self.lgf.compute_coordination_environments(structure=tio2_struct, indices=[0])
         self.assertAlmostEqual(envs[0][0]["csm"], 1.5309987846957258)
         self.assertAlmostEqual(envs[0][0]["ce_fraction"], 1.0)
         self.assertEqual(envs[0][0]["ce_symbol"], "O:6")
@@ -101,17 +97,13 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertEqual(self.lgf.icentral_site, 0)
         self.assertEqual(self.lgf.indices, list(range(1, 6)))
 
-        self.lgf.setup_explicit_indices_local_geometry(
-            explicit_indices=[3, 5, 2, 0, 1, 4]
-        )
+        self.lgf.setup_explicit_indices_local_geometry(explicit_indices=[3, 5, 2, 0, 1, 4])
         self.assertEqual(self.lgf.icentral_site, 0)
         self.assertEqual(self.lgf.indices, [4, 6, 3, 1, 2, 5])
 
         LiFePO4_struct = self.get_structure("LiFePO4")
         isite = 10
-        envs_LiFePO4 = self.lgf.compute_coordination_environments(
-            structure=LiFePO4_struct, indices=[isite]
-        )
+        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
         self.assertAlmostEqual(envs_LiFePO4[isite][0]["csm"], 0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
@@ -200,9 +192,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         }
 
         for coordination in range(1, 21):
-            for mp_symbol in allcg.get_implemented_geometries(
-                coordination=coordination, returned="mp_symbol"
-            ):
+            for mp_symbol in allcg.get_implemented_geometries(coordination=coordination, returned="mp_symbol"):
                 cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
                 self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
                 self.lgf.setup_test_perfect_environment(
@@ -224,9 +214,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                     se.get_csm(0, mp_symbol)["symmetry_measure"],
                     0.0,
                     delta=1e-8,
-                    msg="Failed to get perfect environment with mp_symbol {}".format(
-                        mp_symbol
-                    ),
+                    msg="Failed to get perfect environment with mp_symbol {}".format(mp_symbol),
                 )
 
     def test_disable_hints(self):
@@ -266,9 +254,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             abc = se_nohints.ce_list[0][12]
             abc.minimum_geometries()
         self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
-        self.assertTrue(
-            set(se_nohints.ce_list[0].keys()).issubset(set(se_hints.ce_list[0].keys()))
-        )
+        self.assertTrue(set(se_nohints.ce_list[0].keys()).issubset(set(se_hints.ce_list[0].keys())))
 
 
 if __name__ == "__main__":

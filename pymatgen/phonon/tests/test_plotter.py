@@ -3,21 +3,15 @@ import os
 import unittest
 from io import open
 
-import scipy
-
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
-
-try:
-    test_dir = os.environ["PMG_TEST_FILES_DIR"]
-except KeyError:
-    test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
+from pymatgen.util.testing import PymatgenTest
 
 
 class PhononDosPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json"), "r") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
             self.plotter_nostack = PhononDosPlotter(sigma=0.2, stack=False)
@@ -25,16 +19,12 @@ class PhononDosPlotterTest(unittest.TestCase):
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 0)
-        self.plotter.add_dos_dict(
-            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
-        )
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
         self.assertEqual(len(d), 2)
 
     def test_get_dos_dict(self):
-        self.plotter.add_dos_dict(
-            self.dos.get_element_dos(), key_sort_func=lambda x: x.X
-        )
+        self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         d = self.plotter.get_dos_dict()
         for el in ["Na", "Cl"]:
             self.assertIn(el, d)
@@ -52,7 +42,7 @@ class PhononDosPlotterTest(unittest.TestCase):
 
 class PhononBSPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "NaCl_phonon_bandstructure.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_phonon_bandstructure.json"), "r") as f:
             d = json.loads(f.read())
             self.bs = PhononBandStructureSymmLine.from_dict(d)
             self.plotter = PhononBSPlotter(self.bs)
@@ -63,17 +53,13 @@ class PhononBSPlotterTest(unittest.TestCase):
             51,
             "wrong number of distances in the first branch",
         )
-        self.assertEqual(
-            len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches"
-        )
+        self.assertEqual(len(self.plotter.bs_plot_data()["distances"]), 4, "wrong number of branches")
         self.assertEqual(
             sum([len(e) for e in self.plotter.bs_plot_data()["distances"]]),
             204,
             "wrong number of distances",
         )
-        self.assertEqual(
-            self.plotter.bs_plot_data()["ticks"]["label"][4], "Y", "wrong tick label"
-        )
+        self.assertEqual(self.plotter.bs_plot_data()["ticks"]["label"][4], "Y", "wrong tick label")
         self.assertEqual(
             len(self.plotter.bs_plot_data()["ticks"]["label"]),
             8,
@@ -97,7 +83,7 @@ class PhononBSPlotterTest(unittest.TestCase):
 
 class ThermoPlotterTest(unittest.TestCase):
     def setUp(self):
-        with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
+        with open(os.path.join(PymatgenTest.TEST_FILES_DIR, "NaCl_complete_ph_dos.json"), "r") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
@@ -110,9 +96,7 @@ class ThermoPlotterTest(unittest.TestCase):
         self.plotter.plot_entropy(5, 100, 5, show=False)
         self.plotter.plot_internal_energy(5, 100, 5, show=False)
         self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
-        self.plotter.plot_thermodynamic_properties(
-            5, 100, 5, show=False, fig_close=True
-        )
+        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
 
 
 if __name__ == "__main__":
