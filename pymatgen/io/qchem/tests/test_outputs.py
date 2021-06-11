@@ -263,6 +263,15 @@ class TestQCOutput(PymatgenTest):
 
         self.assertEqual(check_for_structure_changes(frag_1, frag_2), "bond_change")
 
+    def test_NBO_parsing(self):
+        data = QCOutput(os.path.join(PymatgenTest.TEST_FILES_DIR, "molecules", "new_qchem_files", "nbo.qout")).data
+        self.assertEqual(len(data["nbo_data"]["natural_populations"]), 3)
+        self.assertEqual(len(data["nbo_data"]["hybridization_character"]), 4)
+        self.assertEqual(len(data["nbo_data"]["perturbation_energy"]), 2)
+        self.assertEqual(data["nbo_data"]["natural_populations"][0]["Density"][5], -0.08624)
+        self.assertEqual(data["nbo_data"]["hybridization_character"][-1]["atom 2 pol coeff"][35], "-0.7059")
+        self.assertEqual(data["nbo_data"]["perturbation_energy"][-1]["fock matrix element"][104], 0.071)
+
 
 if __name__ == "__main__":
     unittest.main()

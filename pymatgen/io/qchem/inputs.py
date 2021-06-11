@@ -51,6 +51,7 @@ class QCInput(MSONable):
         van_der_waals: Optional[Dict[str, float]] = None,
         vdw_mode: str = "atomic",
         plots: Optional[Dict] = None,
+        nbo: Optional[Dict] = None,
     ):
         """
         Args:
@@ -103,6 +104,7 @@ class QCInput(MSONable):
         self.van_der_waals = lower_and_check_unique(van_der_waals)
         self.vdw_mode = vdw_mode
         self.plots = lower_and_check_unique(plots)
+        self.nbo = lower_and_check_unique(nbo)
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -173,6 +175,10 @@ class QCInput(MSONable):
         if self.plots:
             combined_list.append(self.plots_template(self.plots))
             combined_list.append("")
+        # nbo section
+        if self.nbo is not None:
+            combined_list.append(self.nbo_template(self.nbo))
+            combined_list.append("")
         return "\n".join(combined_list)
 
     @staticmethod
@@ -213,6 +219,7 @@ class QCInput(MSONable):
         smx = None
         scan = None
         plots = None
+        nbo = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
@@ -225,7 +232,9 @@ class QCInput(MSONable):
             scan = cls.read_scan(string)
         if "plots" in sections:
             plots = cls.read_plots(string)
-        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, scan=scan, plots=plots)
+        if "nbo" in sections:
+            nbo = cls.read_nbo(string)
+        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, scan=scan, plots=plots, nbo=nbo)
 
     def write_file(self, filename: str):
         """
@@ -474,6 +483,22 @@ class QCInput(MSONable):
             plots_list.append("   {key} {value}".format(key=key, value=value))
         plots_list.append("$end")
         return "\n".join(plots_list)
+
+    @staticmethod
+    def nbo_template(nbo: Dict) -> str:
+        """
+        Args:
+            nbo ():
+
+        Returns:
+            (str)
+        """
+        nbo_list = []
+        nbo_list.append("$nbo")
+        for key, value in nbo.items():
+            nbo_list.append("   {key} = {value}".format(key=key, value=value))
+        nbo_list.append("$end")
+        return "\n".join(nbo_list)
 
     @staticmethod
     def find_sections(string: str) -> List:
@@ -740,3 +765,26 @@ class QCInput(MSONable):
         for key, val in plots_table[0]:
             plots[key] = val
         return plots
+
+    @staticmethod
+    def read_nbo(string: str) -> Dict:
+        """
+        Read nbo parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) nbo parameters.
+        """
+        header = r"^\s*\$nbo"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        footer = r"^\s*\$end"
+        nbo_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if nbo_table == []:
+            print("No valid nbo inputs found.")
+            return {}
+        nbo = {}
+        for key, val in nbo_table[0]:
+            nbo[key] = val
+        return nbo
