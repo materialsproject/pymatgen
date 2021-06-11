@@ -2,11 +2,11 @@ sphinx
 doc2dash
 sphinx_rtd_theme
 pytest==6.2.4
-pytest-cov==2.11.1
+pytest-cov==2.12.1
 coverage==5.5
-coveralls==3.0.1
-mypy==0.812
-pydocstyle==5.1.1
+coveralls==3.1.0
+mypy==0.901
+pydocstyle==6.1.1
 flake8==3.9.2
-pylint==2.8.2
-black==21.5b0
+pylint==2.8.3
+black==21.5b2

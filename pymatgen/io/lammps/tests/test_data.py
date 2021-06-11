@@ -858,7 +858,12 @@ class CombinedDataTest(unittest.TestCase):
     def setUpClass(cls):
         cls.ec = LammpsData.from_file(filename=os.path.join(test_dir, "ec.data"))
         cls.fec = LammpsData.from_file(filename=os.path.join(test_dir, "fec.data"))
+        cls.li = LammpsData.from_file(filename=os.path.join(test_dir, "li.data"))
+        cls.li_minimal = LammpsData.from_file(filename=os.path.join(test_dir, "li_minimal.data"))
         cls.coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "ec_fec.xyz"))
+        cls.small_coord = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec.xyz"))
+        cls.small_coord_2 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_ec_2.xyz"))
+        cls.small_coord_3 = CombinedData.parse_xyz(filename=os.path.join(test_dir, "li_2.xyz"))
         cls.ec_fec1 = CombinedData.from_files(
             os.path.join(test_dir, "ec_fec.xyz"),
             [1200, 300],
@@ -867,6 +872,13 @@ class CombinedDataTest(unittest.TestCase):
         )
         cls.ec_fec2 = CombinedData.from_lammpsdata([cls.ec, cls.fec], ["EC", "FEC"], [1200, 300], cls.coord)
         cls.ec_fec_ld = cls.ec_fec1.as_lammpsdata()
+        cls.double_coord = pd.concat([cls.coord, cls.coord], ignore_index=True)
+        cls.double_coord.index += 1
+        cls.ec_fec3 = CombinedData.from_lammpsdata([cls.ec_fec_ld], ["EC FEC"], [2], cls.double_coord)
+        cls.li_ec = CombinedData.from_lammpsdata([cls.li, cls.ec], ["Li", "EC"], [1, 1], cls.small_coord)
+        cls.ec_li = CombinedData.from_lammpsdata([cls.ec, cls.li], ["EC", "Li"], [1, 1], cls.small_coord_2)
+        cls.li_2 = CombinedData.from_lammpsdata([cls.li], ["Li"], [2], cls.small_coord_3)
+        cls.li_2_minimal = CombinedData.from_lammpsdata([cls.li_minimal], ["Li_minimal"], [2], cls.small_coord_3)
 
     def test_from_files(self):
         # general tests
@@ -1001,11 +1013,36 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(topo["Impropers"].at[1, "atom3"], 3)
         self.assertEqual(topo["Impropers"].at[1, "atom4"], 6)
 
+        # tests for data objects with different number of ff kw
+        li_ec = self.li_ec
+        ec_li = self.ec_li
+        self.assertEqual(li_ec.force_field["Pair Coeffs"].at[6, "coeff2"], 2.42)
+        self.assertEqual(ec_li.force_field["Pair Coeffs"].at[6, "coeff2"], 2.87)
+        self.assertEqual(li_ec.force_field["Bond Coeffs"].at[5, "coeff2"], 1.09)
+        self.assertEqual(ec_li.force_field["Bond Coeffs"].at[5, "coeff2"], 1.09)
+        self.assertEqual(li_ec.force_field["Angle Coeffs"].at[7, "coeff2"], 107.80)
+        self.assertEqual(ec_li.force_field["Angle Coeffs"].at[7, "coeff2"], 107.80)
+        self.assertEqual(li_ec.force_field["Dihedral Coeffs"].at[11, "coeff2"], 0.156)
+        self.assertEqual(ec_li.force_field["Dihedral Coeffs"].at[11, "coeff2"], 0.156)
+        self.assertEqual(li_ec.force_field["Improper Coeffs"].at[1, "coeff1"], 10.5)
+        self.assertEqual(ec_li.force_field["Improper Coeffs"].at[1, "coeff1"], 10.5)
+
+        # tests for combining data with no topo info
+        li_2 = self.li_2
+        self.assertIsNone(li_2.topology, "Empty topo info should be none")
+
+        # tests for combining data with no topo and ff info
+        li_2_minimal = self.li_2_minimal
+        self.assertIsNone(li_2_minimal.force_field, "Empty ff info should be none")
+        self.assertIsNone(li_2_minimal.topology, "Empty topo info should be none")
+
     def test_get_string(self):
         # general tests
         ec_fec_lines = self.ec_fec1.get_string().splitlines()
+        ec_fec_double_lines = self.ec_fec3.get_string().splitlines()
         # header information
         self.assertEqual(ec_fec_lines[1], "# 1200 cluster1 + 300 cluster2")
+        self.assertEqual(ec_fec_double_lines[1], "# 2(1500) EC_FEC")
         # data type consistency tests
         self.assertEqual(ec_fec_lines[98], "1  harmonic 3.200000000 -1 2")
         self.assertEqual(ec_fec_lines[109], "12  charmm 2.700000000 2 180 0.0")
@@ -1014,7 +1051,19 @@ class CombinedDataTest(unittest.TestCase):
             "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000",
         )
         self.assertEqual(ec_fec_lines[141], "1  10.5 -1  2")
+        self.assertEqual(ec_fec_double_lines[98], "1  harmonic 3.200000000 -1 2")
+        self.assertEqual(ec_fec_double_lines[109], "12  charmm 2.700000000 2 180 0.0")
+        self.assertEqual(
+            ec_fec_double_lines[113],
+            "16  multi/harmonic 0.382999522 -1.148998570 0.000000000 1.531998090 0.000000000",
+        )
+        self.assertEqual(
+            ec_fec_double_lines[30146],
+            "30000  3000  12 -0.2329  4.630985  7.328547 51.604678",
+        )
+        self.assertEqual(ec_fec_double_lines[141], "1  10.5 -1  2")
         self.assertEqual(len(ec_fec_lines), 99159)
+        self.assertEqual(len(ec_fec_double_lines), 198159)
 
     def test_as_lammpsdata(self):
         ec_fec = self.ec_fec_ld

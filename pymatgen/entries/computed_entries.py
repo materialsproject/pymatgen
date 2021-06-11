@@ -683,7 +683,7 @@ class ComputedStructureEntry(ComputedEntry):
                 composition.reduced_formula. The other option is "atom",
                 which normalizes such that the composition amounts sum to 1.
         """
-        # TODO this should raise TypeError
+        # TODO: this should raise TypeError since normalization does not make sense
         # raise TypeError("You cannot normalize a structure.")
         warnings.warn(
             (
@@ -697,7 +697,7 @@ class ComputedStructureEntry(ComputedEntry):
         d = super().normalize(mode).as_dict()
         d["structure"] = self.structure.as_dict()
         entry = self.from_dict(d)
-        entry._composition /= factor
+        entry._composition /= factor  # type: ignore
         return entry
 
 
