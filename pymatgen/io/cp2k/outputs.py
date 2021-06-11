@@ -99,10 +99,11 @@ class Cp2kOutput:
             self.parse_forces()  # get forces on all atoms (in order), if available
             self.parse_stresses()  # get stress tensor and total stress at each ionic step, if available
             self.parse_ionic_steps()  # collect energy, forces, and total stress into ionic steps variable
-            self.parse_dos()
 
-            self.parse_mo_eigenvalues()  # Get the eigenvalues of the MOs (for finding gaps, VBM, CBM)
-            self.parse_homo_lumo()  # Get the HOMO LUMO gap as printed after the mo eigenvalues
+            self.parse_dos()  # Get dos and use to find gap, CBM, and VBM
+            if not self.band_gap or self.vbm or self.cbm:
+                self.parse_mo_eigenvalues()  # Get the eigenvalues of the MOs
+                self.parse_homo_lumo()  # Get the HOMO LUMO gap as printed after the mo eigenvalues (for OT only)
             self.parse_timing()  # Get timing info (includes total CPU time consumed, but also much more)
 
             # TODO: Is this the best way to implement? Should there just be the option to select each individually?
@@ -1036,7 +1037,7 @@ class Cp2kOutput:
 
                             if line.lower().__contains__("eigenvalues") or \
                                     line.__contains__("HOMO") or \
-                                    line.__contains__("ENERGY"):
+                                    line.__contains__("|"):
                                 break
                             eigenvalues[-1]["unoccupied"][Spin.up].extend(
                                 [_hartree_to_ev_ * float(l) for l in line.split()]
@@ -1063,7 +1064,7 @@ class Cp2kOutput:
                                 elif line.__contains__("convergence"):
                                     line = next(lines)
 
-                                if line.__contains__("HOMO") or line.__contains__("ENERGY"):
+                                if line.__contains__("HOMO") or line.__contains__("|"):
                                     next(lines)
                                     break
                                 try:
@@ -1187,6 +1188,9 @@ class Cp2kOutput:
         self.data["pdos"] = jsanitize(pdoss, strict=True)
         self.data["ldos"] = jsanitize(ldoss, strict=True)
         self.data["tdos"] = jsanitize(tdos, strict=True)
+
+        self.band_gap = tdos.get_gap()
+        self.cbm, self.vbm = tdos.get_cbm_vbm()
 
         # If number of site-projected dos == number of sites, assume they are bijective
         # and create the CompleteDos object
@@ -1420,7 +1424,6 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
         kind = re.search(r"atomic kind\s(.*)\sat iter", lines[0]) or re.search(r"list\s(\d+)\s(.*)\sat iter", lines[0])
         kind = kind.groups()[0]
 
-        efermi = float(lines[0].split()[-2]) * _hartree_to_ev_
         header = re.split(r"\s{2,}", lines[1].replace("#", "").strip())[2:]
         dat = np.loadtxt(dos_file)
 
@@ -1460,9 +1463,26 @@ def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
         header = [cp2k_to_pmg_labels(h) for h in header]
 
         data = np.delete(dat, 0, 1)
+        occupations = data[:, 1]
         data = np.delete(data, 1, 1)
         data[:, 0] *= _hartree_to_ev_
         energies = data[:, 0]
+        for i, o in enumerate(occupations):
+            if o == 0:
+                break
+            vbmtop = i
+
+        # set fermi level to be vbm plus tolerance for
+        # PMG compatability
+        # *not* middle of the gap, which pdos might report
+        efermi = energies[vbmtop] + 1e-6
+
+        # for pymatgen's dos class. VASP creates an evenly spaced grid of energy states, which leads to 0 density
+        # states in the band gap. CP2K does not do this. PMG's Dos class was created with VASP in mind so the way
+        # it searches for vbm and cbm relies on grid points in between VBM and CBM, so here we introduce trivial ones
+        energies = np.insert(energies, vbmtop+1, np.linspace(energies[vbmtop]+1e-6, energies[vbmtop + 1]-1e-6, 2))
+        data = np.insert(data, vbmtop+1, np.zeros((2, data.shape[1])), axis=0)
+
         data = gauss_smear(data, sigma)
 
         pdos = {
