@@ -513,6 +513,7 @@ class MPStaticSetTest(PymatgenTest):
         leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
         self.assertTrue(leps_vis.incar["LEPSILON"])
         self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertEqual(leps_vis.incar["EDIFF"], 1e-5)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
         self.assertEqual(non_prev_vis.kpoints.kpts, [[11, 10, 10]])

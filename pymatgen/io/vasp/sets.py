@@ -1112,6 +1112,9 @@ class MPStaticSet(MPRelaxSet):
             incar.pop("NSW", None)
             incar.pop("NPAR", None)
 
+            # tighter ediff for DFPT
+            incar["EDIFF"] = 1e-5
+
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
