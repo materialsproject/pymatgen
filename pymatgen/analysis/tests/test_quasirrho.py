@@ -6,7 +6,6 @@ Testing for quasirrho.py
 """
 
 import os
-import unittest
 
 from pymatgen.analysis.quasirrho import QuasiRRHO
 from pymatgen.io.gaussian import GaussianOutput
@@ -21,12 +20,9 @@ class TestQuasiRRHO(PymatgenTest):
 
     def setUp(self):
         test_dir = self.TEST_FILES_DIR
-        self.gout = GaussianOutput(
-            os.path.join(test_dir, "molecules", "quasirrho_gaufreq.log"))
-        self.qout = QCOutput(os.path.join(test_dir,
-                                          "molecules",
-                                          "new_qchem_files",
-                                          "Frequency_no_equal.qout"))
+        self.gout = GaussianOutput(os.path.join(test_dir, "molecules", "quasirrho_gaufreq.log"))
+        self.linear_gout = GaussianOutput(os.path.join(test_dir, "molecules", "co2.log"))
+        self.qout = QCOutput(os.path.join(test_dir, "molecules", "new_qchem_files", "Frequency_no_equal.qout"))
 
     def test_qrrho_gaussian(self):
         """
@@ -40,8 +36,7 @@ class TestQuasiRRHO(PymatgenTest):
         qrrho = QuasiRRHO(self.gout, conc=m)
         self.assertAlmostEqual(correct_stot, qrrho.entropy_quasiRRHO, 0)
         self.assertAlmostEqual(correct_g, qrrho.free_energy_quasiRRHO, 3)
-        self.assertAlmostEqual(correct_g_conc,
-                               qrrho.concentration_corrected_g_quasiRRHO, 3)
+        self.assertAlmostEqual(correct_g_conc, qrrho.concentration_corrected_g_quasiRRHO, 3)
 
     def test_qrrho_qchem(self):
         """
@@ -58,8 +53,7 @@ class TestQuasiRRHO(PymatgenTest):
         qrrho = QuasiRRHO(self.qout, conc=m)
         self.assertAlmostEqual(correct_stot, qrrho.entropy_quasiRRHO, 0)
         self.assertAlmostEqual(correct_g, qrrho.free_energy_quasiRRHO, 3)
-        self.assertAlmostEqual(correct_g_conc,
-                               qrrho.concentration_corrected_g_quasiRRHO, 3)
+        self.assertAlmostEqual(correct_g_conc, qrrho.concentration_corrected_g_quasiRRHO, 3)
 
     def test_rrho_manual(self):
         """
@@ -69,8 +63,8 @@ class TestQuasiRRHO(PymatgenTest):
         rrho_in["mult"] = self.gout.spin_multiplicity
         rrho_in["elec_energy"] = self.gout.final_energy
         rrho_in["mol"] = self.gout.final_structure
-        vib_freqs = [f['frequency'] for f in self.gout.frequencies[-1]]
-        rrho_in['frequencies'] = vib_freqs
+        vib_freqs = [f["frequency"] for f in self.gout.frequencies[-1]]
+        rrho_in["frequencies"] = vib_freqs
 
         m = 55
         correct_g_conc = -884.770084
@@ -79,5 +73,18 @@ class TestQuasiRRHO(PymatgenTest):
         qrrho = QuasiRRHO(rrho_in, conc=m)
         self.assertAlmostEqual(correct_stot, qrrho.entropy_quasiRRHO, 0)
         self.assertAlmostEqual(correct_g, qrrho.free_energy_quasiRRHO, 3)
-        self.assertAlmostEqual(correct_g_conc,
-                               qrrho.concentration_corrected_g_quasiRRHO, 3)
+        self.assertAlmostEqual(correct_g_conc, qrrho.concentration_corrected_g_quasiRRHO, 3)
+
+    def test_rrho_linear(self):
+        """
+        Testing on a linear CO2 molecule from Gaussian Output file.
+        Correct free_energy_ho is checked with Gaussian's internal calculation.
+        Correct free_energy_quasirrho is compared internally in the hope of
+        preventing future errors.
+        .
+        """
+        correct_g_ho = -187.642070
+        correct_g_qrrho = -187.642725
+        qrrho = QuasiRRHO(self.linear_gout)
+        self.assertAlmostEqual(correct_g_ho, qrrho.free_energy_ho, 2)
+        self.assertAlmostEqual(correct_g_qrrho, qrrho.free_energy_quasiRRHO, 2)
