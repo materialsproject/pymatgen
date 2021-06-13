@@ -276,6 +276,11 @@ class VasprunTest(PymatgenTest):
         self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
 
+    def test_chi(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.xml.chi.gz"
+        vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
+        self.assertTrue(vasprun_chi.incar.get("ALGO", ""), "CHI")
+
     def test_uniform(self):
         vasprun_uniform = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.uniform", parse_potcar_file=False)
         self.assertEqual(vasprun_uniform.kpoints.style, Kpoints.supported_modes.Reciprocal)
