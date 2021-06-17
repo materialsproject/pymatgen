@@ -959,7 +959,7 @@ class MPScanRelaxSet(DictSet):
             updates["SIGMA"] = 0.2
             updates["ISMEAR"] = 2
         else:
-            rmin = 25.22 - 1.87 * bandgap  # Eq. 25
+            rmin = 25.22 - 2.87 * bandgap  # Eq. 25
             kspacing = 2 * np.pi * 1.0265 / (rmin - 1.0183)  # Eq. 29
             # cap the KSPACING at a max of 0.44, per internal benchmarking
             kspacing = min(0.44, kspacing)
@@ -1111,6 +1111,9 @@ class MPStaticSet(MPRelaxSet):
             # to output ionic.
             incar.pop("NSW", None)
             incar.pop("NPAR", None)
+
+            # tighter ediff for DFPT
+            incar["EDIFF"] = 1e-5
 
         if self.lcalcpol:
             incar["LCALCPOL"] = True
