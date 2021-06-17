@@ -19,3 +19,12 @@ $rem
    method = wb97xd
    geom_opt_max_cycles = 200
 $end
+
+$pcm
+   radii read
+$end
+
+$van_der_waals
+1
+   16 3.14159
+$end
