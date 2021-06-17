@@ -538,9 +538,14 @@ class NearNeighbors:
     def _get_original_site(structure, site):
         """Private convenience method for get_nn_info,
         gives original site index from ProvidedPeriodicSite."""
-        for i, s in enumerate(structure):
-            if site.is_periodic_image(s):
-                return i
+        if isinstance(structure, (IStructure, Structure)):
+            for i, s in enumerate(structure):
+                if site.is_periodic_image(s):
+                    return i
+        else:
+            for i, s in enumerate(structure):
+                if site == s:
+                    return i
         raise Exception("Site not found!")
 
     def get_bonded_structure(self, structure, decorate=False, weights=True):
@@ -1333,7 +1338,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-
+        is_periodic = isinstance(structure, (Structure, IStructure))
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
@@ -1341,7 +1346,7 @@ class MinimumDistanceNN(NearNeighbors):
                 siw.append(
                     {
                         "site": nn,
-                        "image": self._get_image(structure, nn),
+                        "image": self._get_image(structure, nn) if is_periodic else None,
                         "weight": w,
                         "site_index": self._get_original_site(structure, nn),
                     }
@@ -1355,7 +1360,7 @@ class MinimumDistanceNN(NearNeighbors):
                     siw.append(
                         {
                             "site": nn,
-                            "image": self._get_image(structure, nn),
+                            "image": self._get_image(structure, nn) if is_periodic else None,
                             "weight": w,
                             "site_index": self._get_original_site(structure, nn),
                         }
