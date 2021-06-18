@@ -37,6 +37,7 @@ from .utils import process_parsed_coords, read_pattern, read_table_pattern
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
+__credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
 
@@ -1617,7 +1618,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                 # Termination conditions
                 if "NHO DIRECTIONALITY AND BOND BENDING" in line:
                     break
-                elif "Archival summary:" in line:
+                if "Archival summary:" in line:
                     break
 
                 # Lone pair
@@ -1762,7 +1763,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                     break
 
                 # Skip conditions
-                if "" == line.strip():
+                if line.strip() == "":
                     continue
                 if "unit" in line:
                     continue
