@@ -12,7 +12,7 @@ import math
 import os
 import re
 import warnings
-from typing import List, Dict, Any
+from typing import Union, List, Dict, Any
 
 import networkx as nx
 import numpy as np
