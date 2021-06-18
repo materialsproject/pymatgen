@@ -1449,7 +1449,7 @@ def jump_to_header(lines: List[str], header: str) -> List[str]:
             Truncated lines.
 
     Raises:
-            HeaderNotFoundError
+            RuntimeError
     """
 
     # Search for the header
@@ -1519,7 +1519,7 @@ def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
             Data frame of formatted output.
 
     Raises:
-            HeaderNotFoundError
+            RuntimeError
     """
 
     no_failures = True
@@ -1530,7 +1530,7 @@ def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
         # Natural populations
         try:
             lines = jump_to_header(lines, "Summary of Natural Population Analysis:")
-        except HeaderNotFoundError:
+        except RuntimeError:
             no_failures = False
 
         if no_failures:
@@ -1582,7 +1582,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
             Data frames of formatted output.
 
     Raises:
-            HeaderNotFoundError
+            RuntimeError
     """
 
     # Orbitals
@@ -1596,7 +1596,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
         # NBO Analysis
         try:
             lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
-        except HeaderNotFoundError:
+        except RuntimeError:
             no_failures = False
 
         if no_failures:
@@ -1725,7 +1725,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
             Data frame of formatted output.
 
     Raises:
-            HeaderNotFoundError
+            RuntimeError
     """
 
     no_failures = True
@@ -1739,7 +1739,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                 lines,
                 "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS",
             )
-        except HeaderNotFoundError:
+        except RuntimeError:
             no_failures = False
 
         if no_failures:
@@ -1809,7 +1809,7 @@ def nbo_parser(filename: str) -> Dict[str, List[pd.DataFrame]]:
             Data frames of formatted output.
 
     Raises:
-            HeaderNotFoundError
+            RuntimeError
     """
 
     # Open the lines
