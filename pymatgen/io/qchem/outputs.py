@@ -1626,18 +1626,18 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    entry = {orbital: 0.0 for orbital in orbitals}  # type: Dict[str, Union[str, int, float]]
-                    entry["bond index"] = line[0:4].strip()
-                    entry["occupancy"] = line[7:14].strip()
-                    entry["type"] = line[16:19].strip()
-                    entry["orbital index"] = line[20:22].strip()
-                    entry["atom symbol"] = line[23:25].strip()
-                    entry["atom number"] = line[25:28].strip()
+                    LPentry = {orbital: 0.0 for orbital in orbitals}  # type: Dict[str, Union[str, int, float]]
+                    LPentry["bond index"] = line[0:4].strip()
+                    LPentry["occupancy"] = line[7:14].strip()
+                    LPentry["type"] = line[16:19].strip()
+                    LPentry["orbital index"] = line[20:22].strip()
+                    LPentry["atom symbol"] = line[23:25].strip()
+                    LPentry["atom number"] = line[25:28].strip()
 
                     # Populate the orbital percentages
                     for orbital in orbitals:
                         if orbital in line:
-                            entry[orbital] = get_percentage(line, orbital)
+                            LPentry[orbital] = get_percentage(line, orbital)
 
                     # Move one line down
                     i += 1
@@ -1646,36 +1646,36 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                     # Populate the orbital percentages
                     for orbital in orbitals:
                         if orbital in line:
-                            entry[orbital] = get_percentage(line, orbital)
+                            LPentry[orbital] = get_percentage(line, orbital)
 
                     # Save the entry
-                    lp_data.append(entry)
+                    lp_data.append(LPentry)
 
                 # Bonding
                 if "BD" in line:
-                    entry = {
+                    BDentry = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
                     }  # type: Dict[str, Union[str, int, float]]
-                    entry["bond index"] = line[0:4].strip()
-                    entry["occupancy"] = line[7:14].strip()
-                    entry["type"] = line[16:19].strip()
-                    entry["orbital index"] = line[20:22].strip()
-                    entry["atom 1 symbol"] = line[23:25].strip()
-                    entry["atom 1 number"] = line[25:28].strip()
-                    entry["atom 2 symbol"] = line[29:31].strip()
-                    entry["atom 2 number"] = line[31:34].strip()
+                    BDentry["bond index"] = line[0:4].strip()
+                    BDentry["occupancy"] = line[7:14].strip()
+                    BDentry["type"] = line[16:19].strip()
+                    BDentry["orbital index"] = line[20:22].strip()
+                    BDentry["atom 1 symbol"] = line[23:25].strip()
+                    BDentry["atom 1 number"] = line[25:28].strip()
+                    BDentry["atom 2 symbol"] = line[29:31].strip()
+                    BDentry["atom 2 number"] = line[31:34].strip()
 
                     # Move one line down
                     i += 1
                     line = lines[i]
 
-                    entry["atom 1 polarization"] = line[16:22].strip()
-                    entry["atom 1 pol coeff"] = line[24:33].strip()
+                    BDentry["atom 1 polarization"] = line[16:22].strip()
+                    BDentry["atom 1 pol coeff"] = line[24:33].strip()
 
                     # Populate the orbital percentages
                     for orbital in orbitals:
                         if orbital in line:
-                            entry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+                            BDentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
 
                     # Move one line down
                     i += 1
@@ -1684,20 +1684,20 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                     # Populate the orbital percentages
                     for orbital in orbitals:
                         if orbital in line:
-                            entry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+                            BDentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
 
                     # Move down until you see an orbital
                     while "s" not in line:
                         i += 1
                         line = lines[i]
 
-                    entry["atom 2 polarization"] = line[16:22].strip()
-                    entry["atom 2 pol coeff"] = line[24:33].strip()
+                    BDentry["atom 2 polarization"] = line[16:22].strip()
+                    BDentry["atom 2 pol coeff"] = line[24:33].strip()
 
                     # Populate the orbital percentages
                     for orbital in orbitals:
                         if orbital in line:
-                            entry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+                            BDentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
 
                     # Move one line down
                     i += 1
@@ -1706,10 +1706,10 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                     # Populate the orbital percentages
                     for orbital in orbitals:
                         if orbital in line:
-                            entry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+                            BDentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
 
                     # Save the entry
-                    bd_data.append(entry)
+                    bd_data.append(BDentry)
 
             # Store values in a dataframe
             lp_and_bd_dfs.append(pd.DataFrame(data=lp_data))
