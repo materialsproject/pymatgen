@@ -1436,10 +1436,6 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     return "bond_change"
 
 
-class HeaderNotFoundError(Exception):
-    pass
-
-
 def jump_to_header(lines: List[str], header: str) -> List[str]:
     """
     Given a list of lines, truncate the start of the list so that the first line
@@ -1462,7 +1458,7 @@ def jump_to_header(lines: List[str], header: str) -> List[str]:
             return lines[i:]
 
     # Search failed
-    raise HeaderNotFoundError(f"Header {header} could not be found in the lines.")
+    raise RuntimeError(f"Header {header} could not be found in the lines.")
 
 
 def get_percentage(line: str, orbital: str) -> str:
