@@ -39,7 +39,11 @@ class TranslateSitesTransformationTest(PymatgenTest):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -90,7 +94,11 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -119,7 +127,11 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -148,7 +160,11 @@ class InsertSitesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
@@ -180,13 +196,19 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
 
         lattice = Lattice(
-            [[3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603],]
+            [
+                [3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603],
+            ]
         )
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation_complete(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_COMPLETE,
+            [tuple(range(4)), tuple(range(4, 8))],
+            [0.5, 0.5],
+            PartialRemoveSitesTransformation.ALGO_COMPLETE,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
@@ -196,7 +218,9 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
     @unittest.skipIf(not enumlib_present, "enum_lib not present.")
     def test_apply_transformation_enumerate(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_ENUMERATE,
+            [tuple(range(4)), tuple(range(4, 8))],
+            [0.5, 0.5],
+            PartialRemoveSitesTransformation.ALGO_ENUMERATE,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
@@ -205,14 +229,18 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
 
     def test_apply_transformation_best_first(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_BEST_FIRST,
+            [tuple(range(4)), tuple(range(4, 8))],
+            [0.5, 0.5],
+            PartialRemoveSitesTransformation.ALGO_BEST_FIRST,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")
 
     def test_apply_transformation_fast(self):
         t = PartialRemoveSitesTransformation(
-            [tuple(range(4)), tuple(range(4, 8))], [0.5, 0.5], PartialRemoveSitesTransformation.ALGO_FAST,
+            [tuple(range(4)), tuple(range(4, 8))],
+            [0.5, 0.5],
+            PartialRemoveSitesTransformation.ALGO_FAST,
         )
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O2")

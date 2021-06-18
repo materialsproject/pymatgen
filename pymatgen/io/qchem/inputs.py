@@ -92,10 +92,10 @@ class QCInput(MSONable):
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., 12 = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
-			plots (dict):
-				A dictionary of all the input parameters for the plots section of QChem input file.
-			nbo (dict):
-				A dictionary of all the input parameters for the nbo section of QChem input file.
+            plots (dict):
+                    A dictionary of all the input parameters for the plots section of QChem input file.
+            nbo (dict):
+                    A dictionary of all the input parameters for the nbo section of QChem input file.
 
         """
         self.molecule = molecule
