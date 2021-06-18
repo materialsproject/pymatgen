@@ -1599,9 +1599,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
 
         # NBO Analysis
         try:
-            lines = jump_to_header(
-                lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids"
-            )
+            lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
         except HeaderNotFoundError:
             no_failures = False
 
@@ -1628,7 +1626,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
 
                 # Lone pair
                 if "LP" in line or "LV" in line:
-                    entry = {orbital: 0.0 for orbital in orbitals}
+                    entry = {orbital: 0.0 for orbital in orbitals}  # type: Dict[str, Union[str, int, float]]
                     entry["bond index"] = line[0:4].strip()
                     entry["occupancy"] = line[7:14].strip()
                     entry["type"] = line[16:19].strip()
@@ -1656,10 +1654,8 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                 # Bonding
                 if "BD" in line:
                     entry = {
-                        f"atom {i} {orbital}": 0.0
-                        for orbital in orbitals
-                        for i in range(1, 3)
-                    }  # type: Dict[str, Any]
+                        f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
+                    }  # type: Dict[str, Union[str, int, float]]
                     entry["bond index"] = line[0:4].strip()
                     entry["occupancy"] = line[7:14].strip()
                     entry["type"] = line[16:19].strip()
@@ -1780,7 +1776,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry = {}  # type: Dict[str, Any]
+                entry = {}  # type: Dict[str, Union[str, int, float]]
                 entry["donor bond index"] = int(line[0:4].strip())
                 entry["donor type"] = str(line[5:9].strip())
                 entry["donor orbital index"] = int(line[10:12].strip())
