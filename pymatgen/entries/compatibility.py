@@ -1224,7 +1224,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             self.solid_compat = solid_compat()
         elif issubclass(type(solid_compat),Compatibility):
             self.solid_compat = solid_compat
-        else
+        else:
             raise ValueError("Expected a Compatability class, instance of a Compatability or None")
 
         self.o2_energy = o2_energy
