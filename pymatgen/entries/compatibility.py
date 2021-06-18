@@ -1188,9 +1188,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
     def __init__(
         self,
-        solid_compat: Optional[
-            Union[Compatibility, Type[Compatibility], Optional[Compatibility]]
-        ] = MaterialsProject2020Compatibility,
+        solid_compat: Optional[Union[Compatibility, Type[Compatibility]]] = MaterialsProject2020Compatibility,
         o2_energy: Optional[float] = None,
         h2o_energy: Optional[float] = None,
         h2o_adjustments: Optional[float] = None,
@@ -1224,7 +1222,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             if not isinstance(solid_compat, Compatibility):
                 self.solid_compat = solid_compat()
             else:
-                self.solid_compat = solid_compat
+                self.solid_compat = solid_compat  # type: ignore
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
