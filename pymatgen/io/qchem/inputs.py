@@ -224,7 +224,7 @@ class QCInput(MSONable):
         scan = None
         vdw = None
         vdw_mode = "atomic"
-		plots = None
+        plots = None
         nbo = None
         if "opt" in sections:
             opt = cls.read_opt(string)
@@ -544,7 +544,6 @@ class QCInput(MSONable):
             raise ValueError("Output file does not contain a molecule section")
         if "rem" not in sections:
             raise ValueError("Output file does not contain a rem section")
-        print(sections)
         return sections
 
     @staticmethod

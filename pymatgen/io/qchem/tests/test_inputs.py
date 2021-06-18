@@ -923,6 +923,8 @@ $end
             # By default, if this statement fails the offending line will be printed
             assert l_test == l_ref
 
+        test_file.close()
+        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
 
     def test_write_file_from_OptSet_with_vdw(self):
@@ -939,6 +941,8 @@ $end
             # By default, if this statement fails the offending line will be printed
             assert l_test == l_ref
 
+        test_file.close()
+        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
 
 
