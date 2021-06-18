@@ -7,7 +7,7 @@ Classes for reading/manipulating/writing QChem input files.
 """
 import logging
 import sys
-from typing import Union, Dict, List, Optional
+from typing import Union, Dict, List, Optional, Tuple
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -92,6 +92,10 @@ class QCInput(MSONable):
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
                 radius (e.g., 12 = carbon). In 'sequential' mode, dict keys represent the sequential
                 position of a single specific atom in the input structure.
+			plots (dict):
+				A dictionary of all the input parameters for the plots section of QChem input file.
+			nbo (dict):
+				A dictionary of all the input parameters for the nbo section of QChem input file.
 
         """
         self.molecule = molecule
@@ -218,7 +222,9 @@ class QCInput(MSONable):
         solvent = None
         smx = None
         scan = None
-        plots = None
+        vdw = None
+        vdw_mode = "atomic"
+		plots = None
         nbo = None
         if "opt" in sections:
             opt = cls.read_opt(string)
@@ -230,11 +236,25 @@ class QCInput(MSONable):
             smx = cls.read_smx(string)
         if "scan" in sections:
             scan = cls.read_scan(string)
+        if "van_der_waals" in sections:
+            vdw_mode, vdw = cls.read_vdw(string)
         if "plots" in sections:
             plots = cls.read_plots(string)
         if "nbo" in sections:
             nbo = cls.read_nbo(string)
-        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx, scan=scan, plots=plots, nbo=nbo)
+        return cls(
+            molecule,
+            rem,
+            opt=opt,
+            solvent=solvent,
+            pcm=pcm,
+            smx=smx,
+            scan=scan,
+            van_der_waals=vdw,
+            vdw_mode=vdw_mode,
+            plots=plots,
+            nbo=nbo,
+        )
 
     def write_file(self, filename: str):
         """
@@ -511,7 +531,7 @@ class QCInput(MSONable):
         Returns:
             List of sections.
         """
-        patterns = {"sections": r"^\s*?\$([a-z]+)", "multiple_jobs": r"(@@@)"}
+        patterns = {"sections": r"^\s*?\$([a-z_]+)", "multiple_jobs": r"(@@@)"}
         matches = read_pattern(string, patterns)
         # list of the sections present
         sections = [val[0] for val in matches["sections"]]
@@ -524,6 +544,7 @@ class QCInput(MSONable):
             raise ValueError("Output file does not contain a molecule section")
         if "rem" not in sections:
             raise ValueError("Output file does not contain a rem section")
+        print(sections)
         return sections
 
     @staticmethod
@@ -661,6 +682,32 @@ class QCInput(MSONable):
             return {}
 
         return dict(pcm_table[0])
+
+    @staticmethod
+    def read_vdw(string: str) -> Tuple[str, Dict]:
+        """
+        Read van der Waals parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (str, dict) vdW mode ('atomic' or 'sequential') and dict of van der Waals radii.
+        """
+        header = r"^\s*\$van_der_waals"
+        row = r"[^\d]*(\d+).?(\d+.\d+)?.*"
+        footer = r"^\s*\$end"
+        vdw_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if not vdw_table:
+            print("No valid vdW inputs found. Note that there should be no '=' chracters in vdW input lines.")
+            return "", {}
+
+        if vdw_table[0][0][0] == 2:
+            mode = "sequential"
+        else:
+            mode = "atomic"
+
+        return mode, dict(vdw_table[0][1:])
 
     @staticmethod
     def read_solvent(string: str) -> Dict:

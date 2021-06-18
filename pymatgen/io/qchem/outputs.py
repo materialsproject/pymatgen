@@ -1285,6 +1285,15 @@ class QCOutput(MSONable):
             == [[]]
         ):
             self.data["errors"] += ["premature_end_FileMan_error"]
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"need to increase the array of NLebdevPts"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["NLebdevPts"]
         elif read_pattern(self.text, {"key": r"method not available"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["method_not_available"]
         elif (
