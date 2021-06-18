@@ -1659,7 +1659,7 @@ def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
                         f"atom {i} {orbital}": 0.0
                         for orbital in orbitals
                         for i in range(1, 3)
-                    }  # type: ignore
+                    }  # type: Dict[str, Any]
                     entry["bond index"] = line[0:4].strip()
                     entry["occupancy"] = line[7:14].strip()
                     entry["type"] = line[16:19].strip()
@@ -1780,7 +1780,7 @@ def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
                     continue
 
                 # Extract the values
-                entry = {}  # type: ignore
+                entry = {}  # type: Dict[str, Any]
                 entry["donor bond index"] = int(line[0:4].strip())
                 entry["donor type"] = str(line[5:9].strip())
                 entry["donor orbital index"] = int(line[10:12].strip())
