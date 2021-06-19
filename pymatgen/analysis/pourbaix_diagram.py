@@ -973,7 +973,7 @@ class PourbaixDiagram(MSONable):
             include_unprocessed_entries (): DEPRECATED. Whether to include unprocessed
                 entries (equivalent to filter_solids=False). Serialization now includes
                 all unprocessed entries by default. Set filter_solids=False before
-                serializing to exclude unstable solids from the generated Pourbaix Diagram.
+                serializing to include unstable solids from the generated Pourbaix Diagram.
 
         Returns:
             MSONable dict.
