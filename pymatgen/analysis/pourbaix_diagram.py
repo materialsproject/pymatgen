@@ -21,6 +21,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
+from typing import Optional, Union, List
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -466,7 +467,14 @@ class PourbaixDiagram(MSONable):
     Class to create a Pourbaix diagram from entries
     """
 
-    def __init__(self, entries, comp_dict=None, conc_dict=None, filter_solids=True, nproc=None):
+    def __init__(
+        self,
+        entries: Union[List[PourbaixEntry], List[MultiEntry]],
+        comp_dict: Optional[dict[str, float]] = None,
+        conc_dict: Optional[dict[str, float]] = None,
+        filter_solids: bool = True,
+        nproc: Optional[int] = None,
+    ):
         """
         Args:
             entries ([PourbaixEntry] or [MultiEntry]): Entries list
@@ -491,8 +499,9 @@ class PourbaixDiagram(MSONable):
         self.filter_solids = filter_solids
 
         # Get non-OH elements
-        self.pbx_elts = set(itertools.chain.from_iterable([entry.composition.elements for entry in entries]))
-        self.pbx_elts = list(self.pbx_elts - ELEMENTS_HO)
+        self.pbx_elts = list(
+            set(itertools.chain.from_iterable([entry.composition.elements for entry in entries])) - ELEMENTS_HO
+        )
         self.dim = len(self.pbx_elts) - 1
 
         # Process multientry inputs
@@ -970,8 +979,12 @@ class PourbaixDiagram(MSONable):
             MSONable dict.
         """
         if include_unprocessed_entries:
-            warnings.warn(DeprecationWarning("The include_unprocessed_entries kwarg is deprecated! "
-                                             "Set filter_solids=True / False before serializing instead."))
+            warnings.warn(
+                DeprecationWarning(
+                    "The include_unprocessed_entries kwarg is deprecated! "
+                    "Set filter_solids=True / False before serializing instead."
+                )
+            )
         d = {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,

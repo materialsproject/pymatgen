@@ -15,7 +15,7 @@ import json
 import os
 import warnings
 from itertools import combinations
-from typing import List
+from typing import List, Union
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -310,7 +310,7 @@ class ComputedEntry(Entry):
 
     def __init__(
         self,
-        composition: Composition,
+        composition: Union[Composition, str, dict[str, float]],
         energy: float,
         correction: float = 0.0,
         energy_adjustments: list = None,
@@ -582,7 +582,7 @@ class ComputedStructureEntry(ComputedEntry):
         structure: Structure,
         energy: float,
         correction: float = 0.0,
-        composition: Composition = None,
+        composition: Union[Composition, str, dict[str, float]] = None,
         energy_adjustments: list = None,
         parameters: dict = None,
         data: dict = None,
@@ -598,6 +598,10 @@ class ComputedStructureEntry(ComputedEntry):
             energy_adjustments: An optional list of EnergyAdjustment to
                 be applied to the energy. This is used to modify the energy for
                 certain analyses. Defaults to None.
+            composition (Composition): Composition of the entry. For
+                flexibility, this can take the form of all the typical input
+                taken by a Composition, including a {symbol: amt} dict,
+                a string formula, and others.
             parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
             data: An optional dict of any additional data associated
