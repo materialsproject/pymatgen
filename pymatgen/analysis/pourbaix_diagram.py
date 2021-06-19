@@ -21,7 +21,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, lru_cache, partial
 from multiprocessing import Pool
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Dict
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -470,8 +470,8 @@ class PourbaixDiagram(MSONable):
     def __init__(
         self,
         entries: Union[List[PourbaixEntry], List[MultiEntry]],
-        comp_dict: Optional[dict[str, float]] = None,
-        conc_dict: Optional[dict[str, float]] = None,
+        comp_dict: Optional[Dict[str, float]] = None,
+        conc_dict: Optional[Dict[str, float]] = None,
         filter_solids: bool = True,
         nproc: Optional[int] = None,
     ):

@@ -15,7 +15,7 @@ import json
 import os
 import warnings
 from itertools import combinations
-from typing import List, Union
+from typing import List, Union, Dict
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -310,7 +310,7 @@ class ComputedEntry(Entry):
 
     def __init__(
         self,
-        composition: Union[Composition, str, dict[str, float]],
+        composition: Union[Composition, str, Dict[str, float]],
         energy: float,
         correction: float = 0.0,
         energy_adjustments: list = None,
@@ -582,7 +582,7 @@ class ComputedStructureEntry(ComputedEntry):
         structure: Structure,
         energy: float,
         correction: float = 0.0,
-        composition: Union[Composition, str, dict[str, float]] = None,
+        composition: Union[Composition, str, Dict[str, float]] = None,
         energy_adjustments: list = None,
         parameters: dict = None,
         data: dict = None,
