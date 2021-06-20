@@ -1220,12 +1220,12 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # check whether solid_compat has been instantiated
         if solid_compat is None:
             self.solid_compat = None
-        elif isinstance(solid_compat, str):
+        elif isinstance(solid_compat, type) and issubclass(solid_compat, Compatibility):
             self.solid_compat = solid_compat()
         elif issubclass(type(solid_compat), Compatibility):
             self.solid_compat = solid_compat
         else:
-            raise ValueError("Expected a Compatability class as a string, instance of a Compatability or None")
+            raise ValueError("Expected a Compatability class, instance of a Compatability or None")
 
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
