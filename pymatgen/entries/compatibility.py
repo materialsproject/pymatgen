@@ -1220,7 +1220,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # check whether solid_compat has been instantiated
         if solid_compat is None:
             self.solid_compat = None
-        elif issubclass(solid_compat, Compatibility):
+        elif isinstance(solid_compat, type) and issubclass(solid_compat, Compatibility):
             self.solid_compat = solid_compat()
         elif issubclass(type(solid_compat), Compatibility):
             self.solid_compat = solid_compat
