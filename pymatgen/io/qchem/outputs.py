@@ -12,10 +12,11 @@ import math
 import os
 import re
 import warnings
-from typing import List, Dict, Any
+from typing import Union, List, Dict, Any
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable, jsanitize
 
@@ -36,6 +37,7 @@ from .utils import process_parsed_coords, read_pattern, read_table_pattern
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
+__credits__ = "Gabe Gomes"
 
 logger = logging.getLogger(__name__)
 
@@ -264,6 +266,7 @@ class QCOutput(MSONable):
         if self.data.get("frequency_job", []):
             self._read_frequency_data()
 
+        # Check if the calculation is a single point. If so, parse the relevant output
         self.data["single_point_job"] = read_pattern(
             self.text,
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*sp"},
@@ -272,6 +275,7 @@ class QCOutput(MSONable):
         if self.data.get("single_point_job", []):
             self._read_single_point_data()
 
+        # Check if the calculation is a force calculation. If so, parse the relevant output
         self.data["force_job"] = read_pattern(
             self.text,
             {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*force"},
@@ -280,11 +284,19 @@ class QCOutput(MSONable):
         if self.data.get("force_job", []):
             self._read_force_data()
 
+        # Check if the calculation is a PES scan. If so, parse the relevant output
         self.data["scan_job"] = read_pattern(
             self.text, {"key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*pes_scan"}, terminate_on_match=True
         ).get("key")
         if self.data.get("scan_job", []):
             self._read_scan_data()
+
+        # Check if an NBO calculation was performed. If so, parse the relevant output
+        self.data["nbo"] = read_pattern(
+            self.text, {"key": r"Job title: Starting NBO analysis"}, terminate_on_match=True
+        ).get("key")
+        if self.data.get("nbo", []):
+            self._read_nbo_data()
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get("completion", []) and self.data.get("errors") == []:
@@ -1229,6 +1241,16 @@ class QCOutput(MSONable):
         for key in pcm_keys:
             self.data["solvent_data"][key] = None
 
+    def _read_nbo_data(self):
+        """
+        Parses NBO output
+        """
+        dfs = nbo_parser(self.filename)
+        nbo_data = {}
+        for key in dfs:
+            nbo_data[key] = [df.to_dict() for df in dfs[key]]
+        self.data["nbo_data"] = nbo_data
+
     def _check_completion_errors(self):
         """
         Parses potential errors that can cause jobs to crash
@@ -1264,6 +1286,15 @@ class QCOutput(MSONable):
             == [[]]
         ):
             self.data["errors"] += ["premature_end_FileMan_error"]
+        elif (
+            read_pattern(
+                self.text,
+                {"key": r"need to increase the array of NLebdevPts"},
+                terminate_on_match=True,
+            ).get("key")
+            == [[]]
+        ):
+            self.data["errors"] += ["NLebdevPts"]
         elif read_pattern(self.text, {"key": r"method not available"}, terminate_on_match=True).get("key") == [[]]:
             self.data["errors"] += ["method_not_available"]
         elif (
@@ -1404,3 +1435,391 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     if last_graph.number_of_edges() > initial_graph.number_of_edges():
         return "more_bonds"
     return "bond_change"
+
+
+def jump_to_header(lines: List[str], header: str) -> List[str]:
+    """
+    Given a list of lines, truncate the start of the list so that the first line
+    of the new list contains the header.
+
+    Args:
+            lines: List of lines.
+            header: Substring to match.
+
+    Returns:
+            Truncated lines.
+
+    Raises:
+            RuntimeError
+    """
+
+    # Search for the header
+    for i, line in enumerate(lines):
+        if header in line.strip():
+            return lines[i:]
+
+    # Search failed
+    raise RuntimeError(f"Header {header} could not be found in the lines.")
+
+
+def get_percentage(line: str, orbital: str) -> str:
+    """
+    Retrieve the percent character of an orbital.
+
+    Args:
+            line: Line containing orbital and percentage.
+            orbital: Type of orbital (s, p, d, f).
+
+    Returns:
+            Percentage of character.
+
+    Raises:
+            n/a
+    """
+
+    # Locate orbital in line
+    index = line.find(orbital)
+    line = line[index:]
+
+    # Locate the first open bracket
+    index = line.find("(")
+    line = line[index:]
+
+    # Isolate the percentage
+    return line[1:7].strip()
+
+
+def z_int(string: str) -> int:
+    """
+    Convert string to integer.
+    If string empty, return -1.
+
+    Args:
+            string: Input to be cast to int.
+
+    Returns:
+            Int representation.
+
+    Raises:
+            n/a
+    """
+    try:
+        return int(string)
+    except ValueError:
+        return -1
+
+
+def parse_natural_populations(lines: List[str]) -> List[pd.DataFrame]:
+    """
+    Parse the natural populations section of NBO output.
+
+    Args:
+            lines: QChem output lines.
+
+    Returns:
+            Data frame of formatted output.
+
+    Raises:
+            RuntimeError
+    """
+
+    no_failures = True
+    pop_dfs = []
+
+    while no_failures:
+
+        # Natural populations
+        try:
+            lines = jump_to_header(lines, "Summary of Natural Population Analysis:")
+        except RuntimeError:
+            no_failures = False
+
+        if no_failures:
+            # Jump to column names
+            lines = lines[4:]
+            columns = lines[0].split()
+
+            # Jump to values
+            lines = lines[2:]
+            data = []
+            for line in lines:
+
+                # Termination condition
+                if "=" in line:
+                    break
+
+                # Extract the values
+                values = line.split()
+                if len(values[0]) > 2:
+                    values.insert(0, values[0][0:-3])
+                    values[1] = values[1][-3:]
+                data.append(
+                    [
+                        str(values[0]),
+                        int(values[1]),
+                        float(values[2]),
+                        float(values[3]),
+                        float(values[4]),
+                        float(values[5]),
+                        float(values[6]),
+                    ]
+                )
+                if len(columns) == 8:
+                    data[-1].append(float(values[7]))
+
+            # Store values in a dataframe
+            pop_dfs.append(pd.DataFrame(data=data, columns=columns))
+    return pop_dfs
+
+
+def parse_hybridization_character(lines: List[str]) -> List[pd.DataFrame]:
+    """
+    Parse the hybridization character section of NBO output.
+
+    Args:
+            lines: QChem output lines.
+
+    Returns:
+            Data frames of formatted output.
+
+    Raises:
+            RuntimeError
+    """
+
+    # Orbitals
+    orbitals = ["s", "p", "d", "f"]
+
+    no_failures = True
+    lp_and_bd_dfs = []
+
+    while no_failures:
+
+        # NBO Analysis
+        try:
+            lines = jump_to_header(lines, "(Occupancy)   Bond orbital/ Coefficients/ Hybrids")
+        except RuntimeError:
+            no_failures = False
+
+        if no_failures:
+
+            # Jump to values
+            lines = lines[2:]
+
+            # Save the data for different types of orbitals
+            lp_data = []
+            bd_data = []
+
+            # Iterate over the lines
+            i = -1
+            while True:
+                i += 1
+                line = lines[i]
+
+                # Termination conditions
+                if "NHO DIRECTIONALITY AND BOND BENDING" in line:
+                    break
+                if "Archival summary:" in line:
+                    break
+
+                # Lone pair
+                if "LP" in line or "LV" in line:
+                    LPentry = {orbital: 0.0 for orbital in orbitals}  # type: Dict[str, Union[str, int, float]]
+                    LPentry["bond index"] = line[0:4].strip()
+                    LPentry["occupancy"] = line[7:14].strip()
+                    LPentry["type"] = line[16:19].strip()
+                    LPentry["orbital index"] = line[20:22].strip()
+                    LPentry["atom symbol"] = line[23:25].strip()
+                    LPentry["atom number"] = line[25:28].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            LPentry[orbital] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            LPentry[orbital] = get_percentage(line, orbital)
+
+                    # Save the entry
+                    lp_data.append(LPentry)
+
+                # Bonding
+                if "BD" in line:
+                    BDentry = {
+                        f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
+                    }  # type: Dict[str, Union[str, int, float]]
+                    BDentry["bond index"] = line[0:4].strip()
+                    BDentry["occupancy"] = line[7:14].strip()
+                    BDentry["type"] = line[16:19].strip()
+                    BDentry["orbital index"] = line[20:22].strip()
+                    BDentry["atom 1 symbol"] = line[23:25].strip()
+                    BDentry["atom 1 number"] = line[25:28].strip()
+                    BDentry["atom 2 symbol"] = line[29:31].strip()
+                    BDentry["atom 2 number"] = line[31:34].strip()
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    BDentry["atom 1 polarization"] = line[16:22].strip()
+                    BDentry["atom 1 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            BDentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            BDentry[f"atom 1 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move down until you see an orbital
+                    while "s" not in line:
+                        i += 1
+                        line = lines[i]
+
+                    BDentry["atom 2 polarization"] = line[16:22].strip()
+                    BDentry["atom 2 pol coeff"] = line[24:33].strip()
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            BDentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+
+                    # Move one line down
+                    i += 1
+                    line = lines[i]
+
+                    # Populate the orbital percentages
+                    for orbital in orbitals:
+                        if orbital in line:
+                            BDentry[f"atom 2 {orbital}"] = get_percentage(line, orbital)
+
+                    # Save the entry
+                    bd_data.append(BDentry)
+
+            # Store values in a dataframe
+            lp_and_bd_dfs.append(pd.DataFrame(data=lp_data))
+            lp_and_bd_dfs.append(pd.DataFrame(data=bd_data))
+
+    return lp_and_bd_dfs
+
+
+def parse_perturbation_energy(lines: List[str]) -> List[pd.DataFrame]:
+    """
+    Parse the perturbation energy section of NBO output.
+
+    Args:
+            lines: QChem output lines.
+
+    Returns:
+            Data frame of formatted output.
+
+    Raises:
+            RuntimeError
+    """
+
+    no_failures = True
+    e2_dfs = []
+
+    while no_failures:
+
+        # 2nd order perturbation theory analysis
+        try:
+            lines = jump_to_header(
+                lines,
+                "SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS",
+            )
+        except RuntimeError:
+            no_failures = False
+
+        if no_failures:
+
+            # Jump to values
+            i = -1
+            while True:
+                i += 1
+                line = lines[i]
+                if "within" in line:
+                    lines = lines[i:]
+                    break
+
+            # Extract 2nd order data
+            e2_data = []
+            for line in lines:
+
+                # Termination condition
+                if "NATURAL BOND ORBITALS" in line:
+                    break
+
+                # Skip conditions
+                if line.strip() == "":
+                    continue
+                if "unit" in line:
+                    continue
+                if "None" in line:
+                    continue
+                if "RY" in line:
+                    continue
+
+                # Extract the values
+                entry = {}  # type: Dict[str, Union[str, int, float]]
+                entry["donor bond index"] = int(line[0:4].strip())
+                entry["donor type"] = str(line[5:9].strip())
+                entry["donor orbital index"] = int(line[10:12].strip())
+                entry["donor atom 1 symbol"] = str(line[13:15].strip())
+                entry["donor atom 1 number"] = int(line[15:17].strip())
+                entry["donor atom 2 symbol"] = str(line[18:20].strip())
+                entry["donor atom 2 number"] = z_int(line[20:22].strip())
+                entry["acceptor bond index"] = int(line[25:31].strip())
+                entry["acceptor type"] = str(line[32:36].strip())
+                entry["acceptor orbital index"] = int(line[37:39].strip())
+                entry["acceptor atom 1 symbol"] = str(line[40:42].strip())
+                entry["acceptor atom 1 number"] = int(line[42:44].strip())
+                entry["acceptor atom 2 symbol"] = str(line[45:47].strip())
+                entry["acceptor atom 2 number"] = z_int(line[47:49].strip())
+                entry["perturbation energy"] = float(line[50:62].strip())
+                entry["energy difference"] = float(line[62:70].strip())
+                entry["fock matrix element"] = float(line[70:79].strip())
+                e2_data.append(entry)
+
+            # Store values in a dataframe
+            e2_dfs.append(pd.DataFrame(data=e2_data))
+
+    return e2_dfs
+
+
+def nbo_parser(filename: str) -> Dict[str, List[pd.DataFrame]]:
+    """
+    Parse all the important sections of NBO output.
+
+    Args:
+            filename: Path to QChem NBO output.
+
+    Returns:
+            Data frames of formatted output.
+
+    Raises:
+            RuntimeError
+    """
+
+    # Open the lines
+    with zopen(filename, mode="rt", encoding="ISO-8859-1") as f:
+        lines = f.readlines()
+
+    # Compile the dataframes
+    dfs = {}
+    dfs["natural_populations"] = parse_natural_populations(lines)
+    dfs["hybridization_character"] = parse_hybridization_character(lines)
+    dfs["perturbation_energy"] = parse_perturbation_energy(lines)
+    return dfs
