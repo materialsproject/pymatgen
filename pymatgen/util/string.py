@@ -37,8 +37,9 @@ SUPERSCRIPT_UNICODE = {
 }
 
 # TODO: make standalone functions in this module use the same implementation as Stringify
-# Note: previous deprecations of standalone functions in this module were removed due to 
+# Note: previous deprecations of standalone functions in this module were removed due to
 # a community need.
+
 
 class Stringify:
     """
@@ -144,8 +145,8 @@ def latexify(formula):
     """
     Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
-    
-    Note that Composition now has a to_latex_string() method that may 
+
+    Note that Composition now has a to_latex_string() method that may
     be used instead.
 
     Args:
@@ -161,8 +162,8 @@ def htmlify(formula):
     """
     Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
     Fe<sub>2</sub>O</sub>3</sub>
-    
-    Note that Composition now has a to_html_string() method that may 
+
+    Note that Composition now has a to_html_string() method that may
     be used instead.
 
     :param formula:
@@ -175,8 +176,8 @@ def unicodeify(formula):
     """
     Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
-    
-    Note that Composition now has a to_unicode_string() method that may 
+
+    Note that Composition now has a to_unicode_string() method that may
     be used instead.
 
     :param formula:
@@ -196,8 +197,8 @@ def latexify_spacegroup(spacegroup_symbol):
     r"""
     Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
-    
-    Note that SymmetryGroup now has a to_latex_string() method that may 
+
+    Note that SymmetryGroup now has a to_latex_string() method that may
     be called instead.
 
     Args:
@@ -214,8 +215,8 @@ def unicodeify_spacegroup(spacegroup_symbol):
     r"""
     Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
-    
-    Note that SymmetryGroup now has a to_unicode_string() method that 
+
+    Note that SymmetryGroup now has a to_unicode_string() method that
     may be called instead.
 
     Args:
@@ -249,8 +250,8 @@ def unicodeify_species(specie_string):
     r"""
     Generates a unicode formatted species string, with appropriate
     superscripts for oxidation states.
-    
-    Note that Species now has a to_unicode_string() method that 
+
+    Note that Species now has a to_unicode_string() method that
     may be used instead.
 
     Args:
