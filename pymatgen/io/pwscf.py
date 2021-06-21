@@ -77,8 +77,8 @@ class PWInput:
                     raise PWInputError("Missing %s in pseudo specification!" % site)
         else:
             for species in self.structure.composition.keys():
-                if species.symbol not in pseudo:
-                    raise PWInputError("Missing %s in pseudo specification!" % species.symbol)
+                if str(species) not in pseudo:
+                    raise PWInputError("Missing %s in pseudo specification!" % species)
         self.pseudo = pseudo
 
         self.sections = sections
