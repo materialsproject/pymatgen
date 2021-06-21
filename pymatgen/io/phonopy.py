@@ -470,7 +470,7 @@ def get_gruneisenparamter(
 
     qpts, multiplicities, frequencies, eigendisplacements, gruneisen = ([] for _ in range(5))
     phonopy_labels_dict = {}
-    # TODO: This currently works only for a mesh. Adapt it for a gruneisen band structure?
+
     for p in gruneisen_dict['phonon']:
         q = p['q-position']
         qpts.append(q)
@@ -484,7 +484,6 @@ def get_gruneisenparamter(
             bands.append(b['frequency'])
             if 'gruneisen' in b:
                 gruneisenband.append(b['gruneisen'])
-            # TODO: this part is not tested yet
             if 'eigenvector' in b:
                 eig_b = []
                 for i, eig_a in enumerate(b['eigenvector']):
@@ -507,22 +506,6 @@ def get_gruneisenparamter(
     # transpose to match the convention in PhononBandStructure
     frequencies = np.transpose(frequencies)
     gruneisen = np.transpose(gruneisen)
-    if eigendisplacements:
-        eigendisplacements = np.transpose(eigendisplacements, (1, 0, 2, 3))
-
-    # this might be retrieved from structure as well
-    if 'reciprocal_lattice' in gruneisen_dict:
-        rec_latt = Lattice(gruneisen_dict['reciprocal_lattice'])
-
-    #labels_dict = labels_dict or phonopy_labels_dict
-
-    #ph_bs = PhononBandStructureSymmLine(qpts,
-    #                                    frequencies,
-    #                                    rec_latt,
-    #                                    has_nac=False,
-    #                                    labels_dict=labels_dict,
-    #                                    structure=structure,
-    #                                    eigendisplacements=eigendisplacements)
 
     return GruneisenParameter(gruneisen=gruneisen, qpoints=qpts, multiplicities=multiplicities,
                               frequencies=frequencies, structure=structure, is_bandstructure=is_bandstructure)

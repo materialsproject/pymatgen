@@ -35,14 +35,23 @@ class GruneisenParameterTest(PymatgenTest):
         structure = kpath.prim
         kpath_dict, kpath_concrete = get_kpath(structure)
 
-        bs_symm_line = get_gruneisen_ph_bs_symm_line(
+        self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR,"gruneisen/gruneisen_eq_plus_minus.yaml"),
             structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR,"gruneisen/eq/POSCAR"),
             labels_dict=kpath_dict["kpoints"],
             fit=True)
 
-        plotter = GruneisenPhononBSPlotter(bs=bs_symm_line)
+    def test_plot(self):
+        pass
+        plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
         plotter.get_plot_gs().show()
+
+
+    def test_as_dict_from_dict(self):
+        new_dict=self.bs_symm_line.as_dict()
+        self.new_bs_symm_line=GruneisenPhononBandStructureSymmLine.from_dict(new_dict)
+
+
 
 class GruneisenMeshTest(PymatgenTest):
     def setUp(self) -> None:
