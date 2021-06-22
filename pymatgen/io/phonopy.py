@@ -564,8 +564,7 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
                     for b in phonon[pa['nqpoint'] - i - 1]['band']:
                         bands.append(b['frequency'])
                         # Fraction of leftover points in current band
-                        leftover_fraction = (pa['nqpoint'] - i - 1) / pa['nqpoint']
-                        gruen = replace_grun(b, distance, gruneisen_temp, gruneisenband, leftover_fraction)
+                        gruen = extrapolate_grun(b, distance, gruneisen_temp, gruneisenband, i, pa)
                         gruneisenband.append(gruen)
                     q = phonon[pa['nqpoint'] - i - 1]['q-position']
                     qpts_temp.append(q)
@@ -582,24 +581,27 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
                     bands, gruneisenband = ([] for _ in range(2))
                     for b in phonon[i]['band']:
                         bands.append(b['frequency'])
-                        leftover_fraction = (pa['nqpoint'] - i - 1) / pa[
-                            'nqpoint']  # Fraction of leftover points @ current band
-                        if leftover_fraction < 0.1:
-                            diff = abs(b['gruneisen'] - gruneisenparameters[-1][len(gruneisenband)]) \
-                                   / abs(gruneisenparameters[-2][len(gruneisenband)] - gruneisenparameters[-1][
-                                len(gruneisenband)])
-                            if diff > 2:
-                                x = list(range(len(distance)))
-                                y = [i[len(gruneisenband)] for i in
-                                     gruneisenparameters]
-                                y = y[-len(x):]  # Only elements of current band
-                                extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
-                                g_extrapolated = extrapolator(len(distance))
-                                gruneisenband.append(float(g_extrapolated))
-                            else:
-                                gruneisenband.append(b['gruneisen'])
-                        else:
-                            gruneisenband.append(b['gruneisen'])
+                        # leftover_fraction = (pa['nqpoint'] - i - 1) / pa[
+                        #     'nqpoint']  # Fraction of leftover points @ current band
+                        # if leftover_fraction < 0.1:
+                        #     diff = abs(b['gruneisen'] - gruneisenparameters[-1][len(gruneisenband)]) \
+                        #            / abs(gruneisenparameters[-2][len(gruneisenband)] - gruneisenparameters[-1][
+                        #         len(gruneisenband)])
+                        #     if diff > 2:
+                        #         x = list(range(len(distance)))
+                        #         y = [i[len(gruneisenband)] for i in
+                        #              gruneisenparameters]
+                        #         y = y[-len(x):]  # Only elements of current band
+                        #         extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
+                        #         g_extrapolated = extrapolator(len(distance))
+                        #         gruen = float(g_extrapolated)
+                        #     else:
+                        #         gruen = b['gruneisen']
+                        # else:
+                        #     gruen = b['gruneisen']
+                        gruen = extrapolate_grun(b, distance, gruneisenparameters, gruneisenband, i, pa)
+
+                        gruneisenband.append(gruen)
                     q = phonon[i]['q-position']
                     qpts.append(q)
                     d = phonon[i]['distance']
@@ -661,13 +663,14 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
                                                 eigendisplacements=eigendisplacements)
 
 
-def replace_grun(b, distance, gruneisen_temp, gruneisenband, leftover_fraction):
+def extrapolate_grun(b, distance, gruneisenparameter, gruneisenband, i, pa):
+    leftover_fraction = (pa['nqpoint'] - i - 1) / pa['nqpoint']
     if leftover_fraction < 0.1:
-        diff = abs(b['gruneisen'] - gruneisen_temp[-1][len(gruneisenband)]) / abs(
-            gruneisen_temp[-2][len(gruneisenband)] - gruneisen_temp[-1][len(gruneisenband)])
+        diff = abs(b['gruneisen'] - gruneisenparameter[-1][len(gruneisenband)]) / abs(
+            gruneisenparameter[-2][len(gruneisenband)] - gruneisenparameter[-1][len(gruneisenband)])
         if diff > 2:
             x = list(range(len(distance)))
-            y = [i[len(gruneisenband)] for i in gruneisen_temp]
+            y = [i[len(gruneisenband)] for i in gruneisenparameter]
             y = y[-len(x):]  # Only elements of current band
             extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
             g_extrapolated = extrapolator(len(distance))
