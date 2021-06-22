@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.core.interface module &mdash; pymatgen 2022.0.9 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.core.interface.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.core.ion module" href="pymatgen.core.ion.html" />
+    <link rel="prev" title="pymatgen.core.composition module" href="pymatgen.core.composition.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2022.0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+        
+          <li><a href="pymatgen.core.html">pymatgen.core package</a> &raquo;</li>
+        
+      <li>pymatgen.core.interface module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.core.interface.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.core.interface">
+<span id="pymatgen-core-interface-module"></span><h1>pymatgen.core.interface module<a class="headerlink" href="#module-pymatgen.core.interface" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to store, generate, and manipulate material interfaces.</p>
+<dl class="py class">
+<dt id="pymatgen.core.interface.Interface">
+<em class="property">class </em><code class="sig-name descname">Interface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lattice</span></em>, <em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">coords</span></em>, <em class="sig-param"><span class="n">site_properties</span></em>, <em class="sig-param"><span class="n">validate_proximity</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">to_unit_cell</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">in_plane_offset</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">0, 0</span></em>, <em class="sig-param"><span class="n">gap</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">vacuum_over_film</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">interface_properties</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L23-L454"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
+<p>This class stores data for defining an interface between two structures.
+It is a subclass of pymatgen.core.structure.Structure.</p>
+<p>Makes an interface structure, a structure object with additional information
+and methods pertaining to interfaces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
+<li><p><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Species" title="pymatgen.core.periodic_table.Species"><em>Species</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+flexible input, including:</p>
+<ol class="lowerroman simple">
+<li><p>A sequence of element / species specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Species objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
+have to be the same length as the atomic species and
+fractional_coords. Defaults to None for no properties.</p></li>
+<li><p><strong>in_plane_offset</strong> – fractional shift in plane for the film with respect
+to the substrate</p></li>
+<li><p><strong>gap</strong> – gap between substrate and film in Angstroms; zero corresponds to
+the original distance between substrate and film sites</p></li>
+<li><p><strong>vacuum_over_film</strong> – vacuum space above the film in Angstroms</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L307-L316"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.core.interface.Interface" title="pymatgen.core.interface.Interface">pymatgen.core.interface.Interface</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L198-L207"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get a copy of the structure, with options to add
+site properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the Interface.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.film">
+<em class="property">property </em><code class="sig-name descname">film</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pymatgen Structure for just the film</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.film_indices">
+<em class="property">property </em><code class="sig-name descname">film_indices</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Site indices of the film sites</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.film_layers">
+<em class="property">property </em><code class="sig-name descname">film_layers</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of layers of the minimum element in the film composition</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.film_sites">
+<em class="property">property </em><code class="sig-name descname">film_sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the film sites of the interface.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.film_termination">
+<em class="property">property </em><code class="sig-name descname">film_termination</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.film_termination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label for the film termination chemistry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L318-L340"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Creates slab from dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.from_slabs">
+<em class="property">classmethod </em><code class="sig-name descname">from_slabs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">substrate_slab</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">pymatgen.core.surface.Slab</a></span></em>, <em class="sig-param"><span class="n">film_slab</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.surface.html#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">pymatgen.core.surface.Slab</a></span></em>, <em class="sig-param"><span class="n">in_plane_offset</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">0, 0</span></em>, <em class="sig-param"><span class="n">gap</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.6</span></em>, <em class="sig-param"><span class="n">vacuum_over_film</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">interface_properties</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">center_slab</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.core.interface.Interface" title="pymatgen.core.interface.Interface">pymatgen.core.interface.Interface</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L342-L454"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.from_slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes an interface structure by merging a substrate and film slabs
+The film a- and b-vectors will be forced to be the substrate slab’s
+a- and b-vectors.</p>
+<p>For now, it’s suggested to use a factory method that will ensure the
+appropriate interface structure is already met.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sub_slab</strong> – slab for the substrate</p></li>
+<li><p><strong>film_slab</strong> – slab for the film</p></li>
+<li><p><strong>in_plane_offset</strong> – fractional shift in plane
+for the film with respect to the substrate</p></li>
+<li><p><strong>gap</strong> – gap between substrate and film in Angstroms</p></li>
+<li><p><strong>vacuum_over_film</strong> – vacuum space above the film in Angstroms</p></li>
+<li><p><strong>structure_properties</strong> – dictionary of misc properties for this structure</p></li>
+<li><p><strong>center_slab</strong> – center the slab</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.gap">
+<em class="property">property </em><code class="sig-name descname">gap</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>The gap in cartesian units between the film and the substrate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.get_shifts_based_on_adsorbate_sites">
+<code class="sig-name descname">get_shifts_based_on_adsorbate_sites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tolerance</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.1</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L226-L263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.get_shifts_based_on_adsorbate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes possible in-plane shifts based on an adsorbate site  algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tolerance</strong> – tolerance for “uniqueness” for shifts in Cartesian unit
+This is usually Angstroms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.get_sorted_structure">
+<code class="sig-name descname">get_sorted_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reverse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L209-L224"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.get_sorted_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a sorted structure for the interface. The parameters have the same
+meaning as in list.sort. By default, sites are sorted by the
+electronegativity of the species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
+a comparison key from each list element: key=str.lower. The
+default value is None (compare the elements directly).</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
+as if each comparison were reversed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.in_plane_offset">
+<em class="property">property </em><code class="sig-name descname">in_plane_offset</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.in_plane_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shift between the film and substrate in fractional
+coordinates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.substrate">
+<em class="property">property </em><code class="sig-name descname">substrate</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pymatgen Structure for just the substrate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.substrate_indicies">
+<em class="property">property </em><code class="sig-name descname">substrate_indicies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_indicies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Site indicies for the substrate atoms</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.substrate_layers">
+<em class="property">property </em><code class="sig-name descname">substrate_layers</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of layers of the minimum element in the substrate composition</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.substrate_sites">
+<em class="property">property </em><code class="sig-name descname">substrate_sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>The site objects in the substrate</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.substrate_termination">
+<em class="property">property </em><code class="sig-name descname">substrate_termination</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.substrate_termination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label for the substrate termination chemistry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.core.interface.Interface.vacuum_over_film">
+<em class="property">property </em><code class="sig-name descname">vacuum_over_film</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.Interface.vacuum_over_film" title="Permalink to this definition">¶</a></dt>
+<dd><p>The vacuum space over the film in cartesian units</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.core.interface.count_layers">
+<code class="sig-name descname">count_layers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">struc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">el</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; int<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L499-L533"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.count_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts the number of ‘layers’ along the c-axis</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.core.interface.label_termination">
+<code class="sig-name descname">label_termination</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slab</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/interface.py#L457-L496"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.interface.label_termination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Labels the slab surface termination</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>
