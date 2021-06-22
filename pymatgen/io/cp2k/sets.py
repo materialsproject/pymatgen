@@ -95,7 +95,7 @@ class Cp2kInputSet(Cp2kInput):
     def __init__(
         self,
         structure: Union[Structure, Molecule],
-        basis_and_potential: Union[Dict, str] = 'preferred',
+        basis_and_potential: Union[Dict, str] = "preferred",
         multiplicity: int = 0,
         project_name: str = "CP2K",
         override_default_params: Dict = {},
@@ -191,20 +191,23 @@ class Cp2kInputSet(Cp2kInput):
 
             if "aux_basis" in self.structure.site_properties:
                 kwargs["aux_basis"] = self.structure.site_properties["aux_basis"][unique_kinds[k][0]]
+                if kwargs["aux_basis"] == "match":
+                    kwargs["aux_basis"] = basis_set
 
             _kind = Kind(
                 kind, alias=k, basis_set=basis_set, potential=potential, subsections={"BS": bs} if bs else {}, **kwargs
             )
 
-            if SETTINGS.get(kind, {}).get('dft_plus_u'):
-                dft_plus_u = Section(
-                    "DFT_PLUS_U",
-                    keywords={
-                        "U_MINUS_J": Keyword("U_MINUS_J", SETTINGS[kind]['dft_plus_u']["U_MINUS_J"], units="eV"),
-                        "L": Keyword("L", SETTINGS[kind]['dft_plus_u']["L"]),
-                    },
-                )
-                _kind.insert(dft_plus_u)
+            if SETTINGS.get(kind, {}).get("dft_plus_u"):
+                if SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"]:
+                    dft_plus_u = Section(
+                        "DFT_PLUS_U",
+                        keywords={
+                            "U_MINUS_J": Keyword("U_MINUS_J", SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"], units="eV"),
+                            "L": Keyword("L", SETTINGS[kind]["dft_plus_u"]["L"]),
+                        },
+                    )
+                    _kind.insert(dft_plus_u)
 
             subsys.insert(_kind)
 
@@ -574,6 +577,12 @@ class DftSet(Cp2kInputSet):
 
             for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
                 if v.name.upper() == "KIND":
+                    if isinstance(v.keywords["BASIS_SET"], KeywordList) and any(
+                        "AUX_FIT" in k.values for k in v.keywords["BASIS_SET"]
+                    ):
+                        continue
+                    elif any("AUX_FIT" == k.upper() for k in v.keywords["BASIS_SET"].values):
+                        continue
                     kind = v["ELEMENT"].values[0]
                     v.keywords["BASIS_SET"] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
 

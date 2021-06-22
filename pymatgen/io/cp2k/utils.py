@@ -215,7 +215,7 @@ def get_unique_site_indices(structure):
     """
     spins = []
     oxi_states = []
-    parsable_site_properties = {"magmom", "oxi_state", "spin", "u_minus_j", "basis", "potential", "ghost"}
+    parsable_site_properties = {"magmom", "oxi_state", "spin", "u_minus_j", "basis", "potential", "ghost", "aux_basis"}
 
     for site in structure:
         for sp, occu in site.species.items():
