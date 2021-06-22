@@ -1150,6 +1150,7 @@ class Kind(Section):
         basis_set: str = "GTH_BASIS",
         potential: str = "GTH_POTENTIALS",
         ghost: bool = False,
+        aux_basis: Union[str, None] = None,
         **kwargs,
     ):
         """
@@ -1178,6 +1179,7 @@ class Kind(Section):
         self.basis_set = basis_set
         self.potential = potential
         self.ghost = ghost
+        self.aux_basis = aux_basis
         self.kwargs = kwargs
 
         self.description = "The description of the kind of the atoms (mostly for QM)"
@@ -1193,6 +1195,8 @@ class Kind(Section):
             "POTENTIAL": Keyword("POTENTIAL", potential),
             "GHOST": Keyword("GHOST", ghost),
         }
+        if aux_basis:
+            keywords['BASIS_SET'] += Keyword('BASIS_SET', 'AUX_FIT', aux_basis)
 
         kind_name = alias if alias else specie.__str__()
         self.alias = kind_name
