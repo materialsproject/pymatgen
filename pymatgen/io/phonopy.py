@@ -441,15 +441,15 @@ def get_gruneisenparamter(
         structure_path=None
 ) -> GruneisenParameter:
     """
-    Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy.
+    Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
     The order is structure > structure path > structure from gruneisen dict.
     Newer versions of phonopy include the structure in the yaml file,
     the structure/structure_path is kept for compatibility.
 
     Args:
-        gruneisen_path:
-        structure:
-        structure_path:
+        gruneisen_path: Path to gruneisen.yaml file (frequencies have to be in THz!)
+        structure: pymatgen Structure object
+        structure_path: path to structure in a file (e.g., POSCAR)
 
     Returns:
 

@@ -13,22 +13,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
 
-def get_kpath(structure: Structure):
-    """
-    get high-symmetry points in k-space
-    Args:
-        structure: Structure Object
-    Returns:
-    """
-    kpath = HighSymmKpath(structure, symprec=0.01)
-    kpath_save = kpath.kpath
-    labels = copy.deepcopy(kpath_save["path"])
-    path = copy.deepcopy(kpath_save["path"])
-
-    for ilabelset, labelset in enumerate(labels):
-        for ilabel, label in enumerate(labelset):
-            path[ilabelset][ilabel] = kpath_save["kpoints"][label]
-    return kpath_save, path
 
 
 class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
@@ -36,13 +20,31 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
         kpath = HighSymmKpath(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR")),
                               symprec=0.01)
         structure = kpath.prim
-        kpath_dict, kpath_concrete = get_kpath(structure)
+        kpath_dict, kpath_concrete = self.get_kpath(structure)
 
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus.yaml"),
             structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR"),
             labels_dict=kpath_dict["kpoints"],
             fit=True)
+
+    @staticmethod
+    def get_kpath(structure: Structure):
+        """
+        get high-symmetry points in k-space
+        Args:
+            structure: Structure Object
+        Returns:
+        """
+        kpath = HighSymmKpath(structure, symprec=0.01)
+        kpath_save = kpath.kpath
+        labels = copy.deepcopy(kpath_save["path"])
+        path = copy.deepcopy(kpath_save["path"])
+
+        for ilabelset, labelset in enumerate(labels):
+            for ilabel, label in enumerate(labelset):
+                path[ilabelset][ilabel] = kpath_save["kpoints"][label]
+        return kpath_save, path
 
     def test_plot(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
@@ -72,11 +74,7 @@ class GruneisenParameterTest(PymatgenTest):
     def test_plot(self):
         plotter = GruneisenPlotter(self.gruneisenobject)
         plt = plotter.get_plot(units="mev")
-        plt.show()
-
-        plotter = GruneisenPlotter(self.gruneisenobject_small)
-        plt = plotter.get_plot(units="mev")
-        plt.show()
+        self.assertEqual(str(type(plt)),"<class 'module'>")
 
     def test_fromdict_asdict(self):
         new_dict = self.gruneisenobject.as_dict()
@@ -101,25 +99,17 @@ class GruneisenParameterTest(PymatgenTest):
     def test_tdos(self):
         tdos = self.gruneisenobject.tdos
         self.assertEqual(type(tdos), phonopy.phonon.dos.TotalDos)
-        # # TODO: test that it includes correct data
-        # tdos2 = self.gruneisenobject_small.tdos
-        # # print(tdos2.frequency_points)
-        # # print(tdos2.dos)
 
     def test_phdos(self):
-        pass
+        self.assertAlmostEqual(self.gruneisenobject.phdos.cv(298.15), 45.17772584681599)
 
     def test_average_gruneisen(self):
-        # print(self.gruneisenobject_small.average_gruneisen(t=100))
-        pass
-
-    # def test_heat_capacity(self):
-    #     self.assertAlmostEqual(self.gruneisenobject.heat_capacity(100)*1000, self.gruneisenobject.phdos.cv(100))
-    #     pass
+        self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(), 1.164231026696211)
+        self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(squared=False), 0.8497596674110489)
 
     def test_thermal_conductivity_slack(self):
-        pass
-
+        self.assertAlmostEqual(self.gruneisenobject.thermal_conductivity_slack(), 77.97582174520458)
+        self.assertAlmostEqual(self.gruneisenobject.thermal_conductivity_slack(t=300), 88.94562145031158)
 
     def test_debye_temp_phonopy(self):
         # This is the correct conversion when starting from THz in the debye_freq
@@ -128,8 +118,6 @@ class GruneisenParameterTest(PymatgenTest):
     def test_acoustic_debye_temp(self):
         self.assertAlmostEqual(self.gruneisenobject_small.acoustic_debye_temp, 317.54811309631845)
         self.assertAlmostEqual(self.gruneisenobject.acoustic_debye_temp, 342.2046198151735)
-
-        # self.assertAlmostEqual(self.gruneisenobject.debye_temp_limit, self.gruneisenobject.debye_temp_phonopy)
 
 
 if __name__ == "__main__":

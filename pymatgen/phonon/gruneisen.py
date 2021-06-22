@@ -12,6 +12,7 @@ from phonopy.phonon.dos import TotalDos
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import amu_to_kg
 from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.phonon.dos import PhononDos
 
@@ -33,10 +34,10 @@ class GruneisenParameter:
             self, qpoints, gruneisen, frequencies,
             multiplicities=None,
             densities=None,
-            #eigenvectors=None,
+            # eigenvectors=None,
             structure=None,
             lattice=None,
-            #is_bandstructure=False
+            # is_bandstructure=False
     ):
         """
 
@@ -57,10 +58,10 @@ class GruneisenParameter:
 
         self.multiplicities = multiplicities
         self.densities = densities
-        #self.eigenvectors = eigenvectors
+        # self.eigenvectors = eigenvectors
         self.lattice = lattice
         self.structure = structure
-        #self.is_bandstructure = is_bandstructure
+        # self.is_bandstructure = is_bandstructure
 
     @classmethod
     def from_dict(cls, d):
@@ -127,7 +128,7 @@ class GruneisenParameter:
         if t is None:
             t = self.acoustic_debye_temp
 
-        w = self.frequencies  # angular frequency
+        w = self.frequencies  # angular frequency TODO: this isn't an angular frequency!
         # TODO: define constant similar to in pymatgen.phonon.dos.py ?
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
@@ -228,8 +229,6 @@ class GruneisenParameter:
     def debye_temp_limit(self):
         """
         Debye temperature in K. Adapted from apipy.
-        TODO: limit to acoustic modes only
-        #TODO: make sure units are correct!
         """
         from scipy.interpolate import UnivariateSpline
         f_mesh = self.tdos.frequency_points * const.tera
@@ -255,10 +254,11 @@ class GruneisenParameter:
             Debye temperature in K.
 
         """
-
+        # Use of phonopy classes to compute Debye frequency
         t = self.tdos
         t.set_Debye_frequency(num_atoms=self.structure.num_sites, freq_max_fit=freq_max_fit)
         f_d = t.get_Debye_frequency()  # in THz
+        # f_d in THz is converted in a temperature (K)
         t_d = const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
 
         return t_d
@@ -302,7 +302,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                 (3*len(structure), len(qpoints)). The First index of the array
                 refers to the band and the second to the index of the qpoint.
             gruneisenparameters: list of Grueneisen parameters with the same structure
-                frewuencies.
+                frequencies.
             lattice: The reciprocal lattice as a pymatgen Lattice object.
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient.
@@ -455,7 +455,6 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
             structure
         )
 
-        # TODO: is creating "resue init" good practice?
         PhononBandStructureSymmLine._reuse_init(
             self,
             eigendisplacements,
