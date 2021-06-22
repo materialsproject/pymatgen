@@ -312,7 +312,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                 internally). The second element containing the 3*len(structure)
                 phonon frequencies with non-analytical correction for that direction.
             nac_gruneisenparameters: Grueneisen parameters derived from the
-                nac_frequencies. # ToDo: check this element! Do we need this?
+                nac_frequencies. # ToDo: what to do about this?
             eigendisplacements: the phonon eigendisplacements associated to the
                 frequencies in cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
@@ -343,13 +343,13 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         )
         self.gruneisen = gruneisenparameters
 
-        # TODO: is this needed?
+        # TODO: what about nac_grueneisen ?
         # normalize directions for nac_gruneisenparameters
         if nac_gruneisenparameters is not None:
             for t in nac_gruneisenparameters:
                 self.nac_gruneisen.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
 
-    # TODO: correct this part and add gruneisen parameters!
+
     def as_dict(self):
         """
 
@@ -376,6 +376,8 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                                        for direction, e in self.nac_eigendisplacements]
         d['nac_frequencies'] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
         d['gruneisen'] = self.gruneisen.tolist()
+        #TODO: what about nac_gruneisen? Do we need to do something?
+
         if self.structure:
             d['structure'] = self.structure.as_dict()
 
@@ -463,8 +465,6 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
             qpoints
         )
 
-    # TODO: Remove nac_gruneisenparameter?
-    # TODO: correct this part - someting is missing here
     def as_dict(self):
         """
 

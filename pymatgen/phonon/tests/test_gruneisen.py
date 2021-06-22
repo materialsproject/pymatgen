@@ -13,8 +13,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
 
-
-
 class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
     def setUp(self) -> None:
         kpath = HighSymmKpath(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR")),
@@ -48,7 +46,6 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
 
     def test_plot(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
-        # TODO: exclude show?
         plotter.get_plot_gs().show()
 
     def test_as_dict_from_dict(self):
@@ -74,7 +71,7 @@ class GruneisenParameterTest(PymatgenTest):
     def test_plot(self):
         plotter = GruneisenPlotter(self.gruneisenobject)
         plt = plotter.get_plot(units="mev")
-        self.assertEqual(str(type(plt)),"<class 'module'>")
+        self.assertEqual(str(type(plt)), "<class 'module'>")
 
     def test_fromdict_asdict(self):
         new_dict = self.gruneisenobject.as_dict()
