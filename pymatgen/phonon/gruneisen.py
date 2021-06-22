@@ -9,7 +9,7 @@ This module provides classes to define a Grueneisen band structure.
 import numpy as np
 import scipy.constants as const
 from phonopy.phonon.dos import TotalDos
-
+from phonopy.units import EvTokJmol
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
@@ -72,9 +72,8 @@ class GruneisenParameter:
     def tdos(self):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
-        TODO: is this good practice? Creating an "empty" class
         """
-
+        #Here, we will reuse phonopy classes
         class TempMesh(object):
             pass
 
@@ -99,12 +98,12 @@ class GruneisenParameter:
         is performed on the final result.
         Values associated to negative frequencies will be ignored.
         See Scripta Materialia 129, 88 for definitions.
-        Adapted from abipy.
+        Adapted from classes in abipy that have been written by Guido Petretto (UCLouvain).
 
         Args:
             t: the temperature at which the average Gruneisen will be evaluated. If None the acoustic Debye
                 temperature is used (see acoustic_debye_temp).
-            squared: if True the average is performed on the squared values of the Gruenisen.
+            squared: if True the average is performed on the squared values of the Grueneisen.
             limit_frequencies: if None (default) no limit on the frequencies will be applied.
                 Possible values are "debye" (only modes with frequencies lower than the acoustic Debye
                 temperature) and "acoustic" (only the acoustic modes, i.e. the first three modes).
@@ -151,7 +150,7 @@ class GruneisenParameter:
         """
         Calculates the heat capacity based on the values on the regular grid.
         Values associated to negative frequencies will be ignored.
-        Adapted from abipy.
+        Adapted from classes in abipy. These classes have been written by Guido Petretto (UCLouvain)
 
         Args:
             t: the temperature at which the average Gruneisen will be evaluated. If None the acoustic Debye
@@ -171,6 +170,7 @@ class GruneisenParameter:
                        (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
                                    exp_wdkt - 1) ** 2))  # in eV
 
+        #TODO: Add declaration: EvTokJmol
         return np.sum(cv * EvTokJmol)
 
     def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):

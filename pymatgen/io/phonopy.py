@@ -513,7 +513,7 @@ def get_gruneisenparamter(
 
 def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_path=None, has_nac=False,
                                      labels_dict=None, fit=False) -> GruneisenPhononBandStructureSymmLine:
-    r"""
+    """
     Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
     extracted by the gruneisen.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
