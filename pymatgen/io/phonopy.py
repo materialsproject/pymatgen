@@ -438,8 +438,7 @@ def get_phonon_band_structure_symm_line_from_fc(
 def get_gruneisenparamter(
         gruneisen_path,
         structure=None,
-        structure_path=None,
-        is_bandstructure=False
+        structure_path=None
 ) -> GruneisenParameter:
     """
     Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy.
@@ -451,7 +450,6 @@ def get_gruneisenparamter(
         gruneisen_path:
         structure:
         structure_path:
-        is_bandstructure:
 
     Returns:
 
@@ -508,7 +506,7 @@ def get_gruneisenparamter(
     gruneisen = np.transpose(gruneisen)
 
     return GruneisenParameter(gruneisen=gruneisen, qpoints=qpts, multiplicities=multiplicities,
-                              frequencies=frequencies, structure=structure, is_bandstructure=is_bandstructure)
+                              frequencies=frequencies, structure=structure)
 
 
 def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_path=None, has_nac=False,

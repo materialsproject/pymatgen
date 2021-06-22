@@ -146,14 +146,14 @@ class PhononDos(MSONable):
         """
         Numpy array containing the list of positive frequencies
         """
-        return self.frequencies[self.ind_zero_freq :]
+        return self.frequencies[self.ind_zero_freq:]
 
     @lazy_property
     def _positive_densities(self):
         """
         Numpy array containing the list of densities corresponding to positive frequencies
         """
-        return self.densities[self.ind_zero_freq :]
+        return self.densities[self.ind_zero_freq:]
 
     def cv(self, t, structure=None):
         """
@@ -302,7 +302,6 @@ class PhononDos(MSONable):
         the division is performed internally and the result is in J/mol
 
         Args:
-            t: a temperature in K
             structure: the structure of the system. If not None it will be used to determine the numer of
                 formula units
         Returns:

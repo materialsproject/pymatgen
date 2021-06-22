@@ -91,8 +91,8 @@ class GruneisenParameterTest(PymatgenTest):
         self.assertAlmostEqual(self.gruneisenobject_small.frequencies[5], 9.6601659578)
 
     def test_multi(self):
-        self.assertAlmostEqual(self.gruneisenobject_small.multiplicities[0],1)
-        self.assertAlmostEqual(self.gruneisenobject.multiplicities[0],2)
+        self.assertAlmostEqual(self.gruneisenobject_small.multiplicities[0], 1)
+        self.assertAlmostEqual(self.gruneisenobject.multiplicities[0], 2)
 
     def test_gruneisen(self):
         self.assertAlmostEqual(self.gruneisenobject_small.gruneisenparamters[0], -0.6176464482)
@@ -110,25 +110,26 @@ class GruneisenParameterTest(PymatgenTest):
         pass
 
     def test_average_gruneisen(self):
-        #print(self.gruneisenobject_small.average_gruneisen(t=100))
+        # print(self.gruneisenobject_small.average_gruneisen(t=100))
         pass
 
-
-    def test_heat_capacity(self):
-        print(self.gruneisenobject_small.heat_capacity(100))
-        pass
+    # def test_heat_capacity(self):
+    #     self.assertAlmostEqual(self.gruneisenobject.heat_capacity(100)*1000, self.gruneisenobject.phdos.cv(100))
+    #     pass
 
     def test_thermal_conductivity_slack(self):
         pass
 
-    def test_debye_temp_limit(self):
-        pass
 
     def test_debye_temp_phonopy(self):
-        pass
+        # This is the correct conversion when starting from THz in the debye_freq
+        self.assertAlmostEqual(self.gruneisenobject_small.debye_temp_phonopy, 473.31932718764284)
 
     def test_acoustic_debye_temp(self):
-        pass
+        self.assertAlmostEqual(self.gruneisenobject_small.acoustic_debye_temp, 317.54811309631845)
+        self.assertAlmostEqual(self.gruneisenobject.acoustic_debye_temp, 342.2046198151735)
+
+        # self.assertAlmostEqual(self.gruneisenobject.debye_temp_limit, self.gruneisenobject.debye_temp_phonopy)
 
 
 if __name__ == "__main__":

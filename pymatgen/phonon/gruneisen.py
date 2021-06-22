@@ -9,16 +9,16 @@ This module provides classes to define a Grueneisen band structure.
 import numpy as np
 import scipy.constants as const
 from phonopy.phonon.dos import TotalDos
-from phonopy.units import EvTokJmol
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.phonon.dos import PhononDos
 
-__author__ = "Alexander Bonkowski, Janine George"
+__author__ = "Alexander Bonkowski, J. George"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.1"
-__maintainer__ = "A. Bonkowski"
+__maintainer__ = "A. Bonkowski, J. George"
 __email__ = "alexander.bonkowski@uclouvain.be, janine.george@bam.de"
 __status__ = "Production"
 __date__ = "Apr 11, 2021"
@@ -33,11 +33,23 @@ class GruneisenParameter:
             self, qpoints, gruneisen, frequencies,
             multiplicities=None,
             densities=None,
-            eigenvectors=None,
+            #eigenvectors=None,
             structure=None,
             lattice=None,
-            is_bandstructure=False
+            #is_bandstructure=False
     ):
+        """
+
+        Args:
+            qpoints: list of qpoints as numpy arrays, in frac_coords of the given lattice by default
+            gruneisen: list of ...
+            frequencies: list of phonon frequencies in eV as a numpy array with shape (3*len(structure), len(qpoints))
+            multiplicities:
+            densities:
+            structure: The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.
+            lattice:The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of reciprocal lattice vectors WITH a 2*pi coefficient
+
+        """
 
         self.qpoints = qpoints
         self.gruneisenparamters = gruneisen
@@ -45,10 +57,10 @@ class GruneisenParameter:
 
         self.multiplicities = multiplicities
         self.densities = densities
-        self.eigenvectors = eigenvectors
+        #self.eigenvectors = eigenvectors
         self.lattice = lattice
         self.structure = structure
-        self.is_bandstructure = is_bandstructure
+        #self.is_bandstructure = is_bandstructure
 
     @classmethod
     def from_dict(cls, d):
@@ -73,7 +85,8 @@ class GruneisenParameter:
         """
         The total DOS (re)constructed from the gruneisen.yaml file
         """
-        #Here, we will reuse phonopy classes
+
+        # Here, we will reuse phonopy classes
         class TempMesh(object):
             pass
 
@@ -88,7 +101,6 @@ class GruneisenParameter:
 
     @property
     def phdos(self):
-
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     def average_gruneisen(self, t=None, squared=True, limit_frequencies=None):
@@ -116,11 +128,12 @@ class GruneisenParameter:
             t = self.acoustic_debye_temp
 
         w = self.frequencies  # angular frequency
+        # TODO: define constant similar to in pymatgen.phonon.dos.py ?
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(w > 0,
                        (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
-                                   exp_wdkt - 1) ** 2))  # in eV
+                               exp_wdkt - 1) ** 2))  # in eV
 
         gamma = self.gruneisenparamters
 
@@ -146,32 +159,32 @@ class GruneisenParameter:
 
         return g
 
-    def heat_capacity(self, t=None):
-        """
-        Calculates the heat capacity based on the values on the regular grid.
-        Values associated to negative frequencies will be ignored.
-        Adapted from classes in abipy. These classes have been written by Guido Petretto (UCLouvain)
-
-        Args:
-            t: the temperature at which the average Gruneisen will be evaluated. If None the acoustic Debye
-                temperature is used (see acoustic_debye_temp).
-
-        Returns:
-            The heat capacity
-
-        """
-        if t is None:
-            t = self.acoustic_debye_temp
-
-        w = self.frequencies  # angular frequency
-        wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
-        exp_wdkt = np.exp(wdkt)
-        cv = np.choose(w > 0,
-                       (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
-                                   exp_wdkt - 1) ** 2))  # in eV
-
-        #TODO: Add declaration: EvTokJmol
-        return np.sum(cv * EvTokJmol)
+    # def heat_capacity(self, t=None):
+    # not in abipy anymore
+    #     """
+    #     Calculates the heat capacity based on the values on the regular grid.
+    #     Values associated to negative frequencies will be ignored.
+    #     Adapted from classes in abipy. These classes have been written by Guido Petretto (UCLouvain)
+    #
+    #     Args:
+    #         t: the temperature at which the average Gruneisen will be evaluated. If None the acoustic Debye
+    #             temperature is used (see acoustic_debye_temp).
+    #
+    #     Returns:
+    #         The heat capacity
+    #
+    #     """
+    #     if t is None:
+    #         t = self.acoustic_debye_temp
+    #
+    #     w = self.frequencies  # angular frequency #TODO: is this true?
+    #     wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
+    #     exp_wdkt = np.exp(wdkt)
+    #     cv = np.choose(w > 0,
+    #                    (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
+    #                                exp_wdkt - 1) ** 2))  # in eV
+    #
+    #     return np.sum(cv * EvTokJmol)
 
     def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):
         """
@@ -216,10 +229,12 @@ class GruneisenParameter:
         """
         Debye temperature in K. Adapted from apipy.
         TODO: limit to acoustic modes only
+        #TODO: make sure units are correct!
         """
         from scipy.interpolate import UnivariateSpline
         f_mesh = self.tdos.frequency_points * const.tera
         dos = self.tdos.dos
+
         i_a = UnivariateSpline(f_mesh, dos * f_mesh ** 2, s=0).integral(f_mesh[0], f_mesh[-1])
         i_b = UnivariateSpline(f_mesh, dos, s=0).integral(f_mesh[0], f_mesh[-1])
 
@@ -243,8 +258,7 @@ class GruneisenParameter:
 
         t = self.tdos
         t.set_Debye_frequency(num_atoms=self.structure.num_sites, freq_max_fit=freq_max_fit)
-        f_d = t.get_Debye_frequency()
-
+        f_d = t.get_Debye_frequency()  # in THz
         t_d = const.value("Planck constant") * f_d * const.tera / const.value("Boltzmann constant")
 
         return t_d
@@ -329,13 +343,13 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         )
         self.gruneisen = gruneisenparameters
 
-        #TODO: is this needed?
+        # TODO: is this needed?
         # normalize directions for nac_gruneisenparameters
         if nac_gruneisenparameters is not None:
             for t in nac_gruneisenparameters:
                 self.nac_gruneisen.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
 
-    #TODO: correct this part and add gruneisen parameters!
+    # TODO: correct this part and add gruneisen parameters!
     def as_dict(self):
         """
 
@@ -361,7 +375,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         d['nac_eigendisplacements'] = [(direction, dict(real=np.real(e).tolist(), imag=np.imag(e).tolist()))
                                        for direction, e in self.nac_eigendisplacements]
         d['nac_frequencies'] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
-        d['gruneisen']=self.gruneisen.tolist()
+        d['gruneisen'] = self.gruneisen.tolist()
         if self.structure:
             d['structure'] = self.structure.as_dict()
 
@@ -451,7 +465,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     # TODO: Remove nac_gruneisenparameter?
-    #TODO: correct this part - someting is missing here
+    # TODO: correct this part - someting is missing here
     def as_dict(self):
         """
 
