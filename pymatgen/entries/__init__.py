@@ -11,6 +11,7 @@ and PDEntry inherit from this class.
 """
 
 from abc import ABCMeta, abstractmethod
+from typing import Union, Dict
 
 import numpy as np
 
@@ -36,7 +37,11 @@ class Entry(MSONable, metaclass=ABCMeta):
 
     """
 
-    def __init__(self, composition: Composition, energy: float):
+    def __init__(
+        self,
+        composition: Union[Composition, str, Dict[str, float]],
+        energy: float,
+    ):
         """
         Initializes an Entry.
 

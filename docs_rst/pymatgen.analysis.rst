@@ -13,6 +13,7 @@ Subpackages
    pymatgen.analysis.elasticity
    pymatgen.analysis.ferroelectricity
    pymatgen.analysis.gb
+   pymatgen.analysis.interfaces
    pymatgen.analysis.magnetism
    pymatgen.analysis.solar
    pymatgen.analysis.structure_prediction
