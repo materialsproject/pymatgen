@@ -821,6 +821,94 @@ $end
         qcinp = QCInput.from_string(str_molecule)
         self.assertEqual(str_molecule, str(qcinp))
 
+    def test_read_nbo(self):
+        str_molecule = """$molecule
+ 0 2
+ C     -2.0338520000      0.0865500000     -1.4158570000
+ C     -1.2819580000      0.3850830000     -0.1564990000
+ C     -2.0067300000      1.1271820000      0.9225950000
+ C      0.1219120000     -0.0366190000      0.0148810000
+ C      0.6767790000     -1.0507090000     -0.7802400000
+ C      2.0072450000     -1.4517610000     -0.6185380000
+ C      2.8079970000     -0.8434840000      0.3427930000
+ C      2.2778880000      0.1645690000      1.1416530000
+ C      0.9468200000      0.5630060000      0.9784410000
+ H     -1.3919850000      0.1591240000     -2.2995570000
+ H     -2.4671570000     -0.9174600000     -1.3722490000
+ H     -2.8505080000      0.8017250000     -1.5613060000
+ H     -3.0889210000      0.9823990000      0.8362370000
+ H     -1.7216740000      0.7761670000      1.9194500000
+ H     -1.8021560000      2.1999010000      0.8510710000
+ H      0.0793240000     -1.5592640000     -1.5324310000
+ H      2.4136820000     -2.2421190000     -1.2440900000
+ H      3.8415290000     -1.1539430000      0.4689660000
+ H      2.8984450000      0.6464300000      1.8925800000
+ H      0.5733200000      1.3632210000      1.6120990000
+$end
+
+$rem
+   job_type = sp
+   max_scf_cycles = 200
+   gen_scfman = true
+   xc_grid = 3
+   scf_algorithm = diis
+   method = wb97xv
+   basis = def2-tzvp
+   symmetry = false
+   sym_ignore = true
+   nbo = true
+$end
+
+$nbo
+$end
+"""
+        qcinp = QCInput.from_string(str_molecule)
+        self.assertEqual(str_molecule, str(qcinp))
+
+        str_molecule = """$molecule
+ 0 2
+ C     -2.0338520000      0.0865500000     -1.4158570000
+ C     -1.2819580000      0.3850830000     -0.1564990000
+ C     -2.0067300000      1.1271820000      0.9225950000
+ C      0.1219120000     -0.0366190000      0.0148810000
+ C      0.6767790000     -1.0507090000     -0.7802400000
+ C      2.0072450000     -1.4517610000     -0.6185380000
+ C      2.8079970000     -0.8434840000      0.3427930000
+ C      2.2778880000      0.1645690000      1.1416530000
+ C      0.9468200000      0.5630060000      0.9784410000
+ H     -1.3919850000      0.1591240000     -2.2995570000
+ H     -2.4671570000     -0.9174600000     -1.3722490000
+ H     -2.8505080000      0.8017250000     -1.5613060000
+ H     -3.0889210000      0.9823990000      0.8362370000
+ H     -1.7216740000      0.7761670000      1.9194500000
+ H     -1.8021560000      2.1999010000      0.8510710000
+ H      0.0793240000     -1.5592640000     -1.5324310000
+ H      2.4136820000     -2.2421190000     -1.2440900000
+ H      3.8415290000     -1.1539430000      0.4689660000
+ H      2.8984450000      0.6464300000      1.8925800000
+ H      0.5733200000      1.3632210000      1.6120990000
+$end
+
+$rem
+   job_type = sp
+   max_scf_cycles = 200
+   gen_scfman = true
+   xc_grid = 3
+   scf_algorithm = diis
+   method = wb97xv
+   basis = def2-tzvp
+   symmetry = false
+   sym_ignore = true
+   nbo = true
+$end
+
+$nbo
+   print = 1
+$end
+"""
+        qcinp = QCInput.from_string(str_molecule)
+        self.assertEqual(str_molecule, str(qcinp))
+
     def test_write_file_from_OptSet(self):
         from pymatgen.io.qchem.sets import OptSet
 
@@ -828,11 +916,34 @@ $end
         odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
         qcinp = OptSet(odd_mol)
         qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
-        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test.qin")).as_dict()
-        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref.qin")).as_dict()
-        for key in test_dict:
-            self.assertEqual(test_dict[key], test_ref_dict[key])
+        test_file = open(os.path.join(os.path.dirname(__file__), "test.qin"), "r")
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref.qin"), "r")
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            # By default, if this statement fails the offending line will be printed
+            assert l_test == l_ref
+
+        test_file.close()
+        ref_file.close()
         os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
+
+    def test_write_file_from_OptSet_with_vdw(self):
+        from pymatgen.io.qchem.sets import OptSet
+
+        odd_dict = loadfn(os.path.join(os.path.dirname(__file__), "odd.json"))
+        odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
+        qcinp = OptSet(odd_mol, overwrite_inputs={"van_der_waals": {"16": 3.14159}})
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
+        test_file = open(os.path.join(os.path.dirname(__file__), "test_vdw.qin"), "r")
+        ref_file = open(os.path.join(os.path.dirname(__file__), "test_ref_vdw.qin"), "r")
+
+        for l_test, l_ref in zip(test_file, ref_file):
+            # By default, if this statement fails the offending line will be printed
+            assert l_test == l_ref
+
+        test_file.close()
+        ref_file.close()
+        os.remove(os.path.join(os.path.dirname(__file__), "test_vdw.qin"))
 
 
 if __name__ == "__main__":
