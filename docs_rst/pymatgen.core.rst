@@ -16,6 +16,7 @@ Submodules
 
    pymatgen.core.bonds
    pymatgen.core.composition
+   pymatgen.core.interface
    pymatgen.core.ion
    pymatgen.core.lattice
    pymatgen.core.libxcfunc

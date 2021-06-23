@@ -17,7 +17,7 @@ from pymatgen.transformations.site_transformations import (
     RemoveSitesTransformation,
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
-    RadialSiteDistortionTransformation
+    RadialSiteDistortionTransformation,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -275,29 +275,44 @@ class AddSitePropertyTransformationTest(PymatgenTest):
 
 
 class RadialSiteDistortionTransformationTest(PymatgenTest):
-
     def setUp(self):
         self.molecule = Molecule(
-            species=['C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'],
+            species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[
                 [0, 0, 0],
-                [1, 0, 0], [0, 1, 0], [0, 0, 1],
-                [-1, 0, 0], [0, -1, 0], [0, 0, -1],
-                [3, 0, 0], [0, 3, 0], [0, 0, 3],
-                [-3, 0, 0], [0, -3, 0], [0, 0, -3],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1],
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+                [-3, 0, 0],
+                [0, -3, 0],
+                [0, 0, -3],
             ],
         )
         self.structure = Structure(
-            species=['C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'],
+            species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
             coords=[
                 [0, 0, 0],
-                [1, 0, 0], [0, 1, 0], [0, 0, 1],
-                [-1, 0, 0], [0, -1, 0], [0, 0, -1],
-                [3, 0, 0], [0, 3, 0], [0, 0, 3],
-                [-3, 0, 0], [0, -3, 0], [0, 0, -3],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1],
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+                [-3, 0, 0],
+                [0, -3, 0],
+                [0, 0, -3],
             ],
             lattice=[[10, 0, 0], [0, 10, 0], [0, 0, 10]],
-            coords_are_cartesian=True
+            coords_are_cartesian=True,
         )
 
     def test(self):
@@ -314,7 +329,7 @@ class RadialSiteDistortionTransformationTest(PymatgenTest):
         t = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         s = t.apply_transformation(self.structure)
         for c1, c2 in zip(self.structure[1:7], s[1:7]):
-            self.assertTrue(c1.distance(c2) == 1.)
+            self.assertTrue(c1.distance(c2) == 1.0)
 
         self.assertTrue(np.array_equal(s[0].coords, [0, 0, 0]))
         self.assertTrue(np.array_equal(s[1].coords, [2, 0, 0]))

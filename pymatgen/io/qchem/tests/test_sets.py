@@ -471,6 +471,29 @@ class OptSetTest(PymatgenTest):
         act_opt = {"fixed": ["1 XYZ", "2 XY"]}
         self.assertDictEqual(act_opt, test_OptSet.opt)
 
+    def test_nbo_init(self):
+        test_molecule = QCInput.from_file(os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_OptSet = OptSet(molecule=test_molecule, nbo_params={})
+        self.assertEqual(
+            test_OptSet.rem,
+            {
+                "job_type": "opt",
+                "gen_scfman": "true",
+                "geom_opt_max_cycles": "200",
+                "basis": "def2-tzvppd",
+                "max_scf_cycles": "200",
+                "method": "wb97xd",
+                "scf_algorithm": "diis",
+                "xc_grid": "3",
+                "symmetry": "false",
+                "sym_ignore": "true",
+                "resp_charges": "true",
+                "nbo": "true",
+            },
+        )
+        self.assertEqual(test_OptSet.nbo, {})
+        self.assertEqual(test_OptSet.molecule, test_molecule)
+
 
 class TransitionStateSetTest(PymatgenTest):
     def test_init(self):
