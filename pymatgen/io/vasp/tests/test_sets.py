@@ -1283,6 +1283,16 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(incar["ISMEAR"], -5)
         self.assertEqual(incar["SIGMA"], 0.05)
 
+    def test_kspacing_cap(self):
+        # Test that KSPACING is capped at 0.44 for insulators
+        file_path = self.TEST_FILES_DIR / "POSCAR.O2"
+        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
+        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
+        incar = scan_nonmetal_set.incar
+        self.assertAlmostEqual(incar["KSPACING"], 0.44, places=5)
+        self.assertEqual(incar["ISMEAR"], -5)
+        self.assertEqual(incar["SIGMA"], 0.05)
+
     def test_incar_overrides(self):
         # use 'user_incar_settings' to override the KSPACING, ISMEAR, and SIGMA
         # parameters that MPScanSet normally determines
