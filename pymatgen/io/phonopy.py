@@ -442,7 +442,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     return PhononBandStructureSymmLine(kpoints, frequencies, structure.lattice, labels_dict=labels_dict)
 
 
-def get_gruneisenparamter(
+def get_gruneisenparameter(
         gruneisen_path,
         structure=None,
         structure_path=None
@@ -581,26 +581,7 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
                     bands, gruneisenband = ([] for _ in range(2))
                     for b in phonon[i]['band']:
                         bands.append(b['frequency'])
-                        # leftover_fraction = (pa['nqpoint'] - i - 1) / pa[
-                        #     'nqpoint']  # Fraction of leftover points @ current band
-                        # if leftover_fraction < 0.1:
-                        #     diff = abs(b['gruneisen'] - gruneisenparameters[-1][len(gruneisenband)]) \
-                        #            / abs(gruneisenparameters[-2][len(gruneisenband)] - gruneisenparameters[-1][
-                        #         len(gruneisenband)])
-                        #     if diff > 2:
-                        #         x = list(range(len(distance)))
-                        #         y = [i[len(gruneisenband)] for i in
-                        #              gruneisenparameters]
-                        #         y = y[-len(x):]  # Only elements of current band
-                        #         extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
-                        #         g_extrapolated = extrapolator(len(distance))
-                        #         gruen = float(g_extrapolated)
-                        #     else:
-                        #         gruen = b['gruneisen']
-                        # else:
-                        #     gruen = b['gruneisen']
                         gruen = extrapolate_grun(b, distance, gruneisenparameters, gruneisenband, i, pa)
-
                         gruneisenband.append(gruen)
                     q = phonon[i]['q-position']
                     qpts.append(q)
@@ -690,7 +671,7 @@ def get_gruneisen_ph_bs_symm_line(
         labels_dict=None,
         fit=False
 ):
-    r"""
+    """
     Creates a pymatgen GruneisenPhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector' key is found the eigendisplacements will be
@@ -700,12 +681,17 @@ def get_gruneisen_ph_bs_symm_line(
 
     Args:
         gruneisen_path: path to the band.yaml file
-        structure:
-        structure_path:
+        structure: pymaten Structure object
+        structure_path: path to a structure file (e.g., POSCAR)
         has_nac: True if the data have been obtained with the option
             --nac option. Default False.
         labels_dict: dict that links a qpoint in frac coords to a label.
-        fit:
+        fit: Substitute Grueneisen parameters close to the gamma point
+            with points obtained from a fit to a spline if the derivate from
+            a smooth curve (i.e. if the slope changes by more than 200% in the
+            range of 10% around the gamma point).
+            These derivations occur because of very small frequencies
+            (and therefore numerical inaccuracies) close to gamma.
     """
     return get_gs_ph_bs_symm_line_from_dict(loadfn(gruneisen_path), structure, structure_path, has_nac, labels_dict,
                                             fit)

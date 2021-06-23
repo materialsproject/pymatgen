@@ -8,13 +8,18 @@ This module provides classes to define a Grueneisen band structure.
 
 import numpy as np
 import scipy.constants as const
-from phonopy.phonon.dos import TotalDos
 
+from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
 from pymatgen.core.units import amu_to_kg
 from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.phonon.dos import PhononDos
+
+try:
+    import phonopy
+    from phonopy.phonon.dos import TotalDos
+except ImportError:
+    TotalDos = None
 
 __author__ = "Alexander Bonkowski, J. George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -349,7 +354,6 @@ class GruneisenPhononBandStructure(PhononBandStructure):
             for t in nac_gruneisenparameters:
                 self.nac_gruneisen.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
 
-
     def as_dict(self):
         """
 
@@ -376,7 +380,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
                                        for direction, e in self.nac_eigendisplacements]
         d['nac_frequencies'] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
         d['gruneisen'] = self.gruneisen.tolist()
-        #TODO: what about nac_gruneisen? Do we need to do something?
+        # TODO: what about nac_gruneisen? Do we need to do something?
 
         if self.structure:
             d['structure'] = self.structure.as_dict()

@@ -6,7 +6,7 @@ import phonopy
 
 from pymatgen.core import Structure
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line
-from pymatgen.io.phonopy import get_gruneisenparamter
+from pymatgen.io.phonopy import get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
 from pymatgen.phonon.plotter import GruneisenPhononBSPlotter, GruneisenPhononBandStructureSymmLine, GruneisenPlotter
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -15,58 +15,36 @@ from pymatgen.util.testing import PymatgenTest
 
 class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
     def setUp(self) -> None:
-        kpath = HighSymmKpath(Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR")),
-                              symprec=0.01)
-        structure = kpath.prim
-        kpath_dict, kpath_concrete = self.get_kpath(structure)
 
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR"),
-            labels_dict=kpath_dict["kpoints"],
+            gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
             fit=True)
 
-    @staticmethod
-    def get_kpath(structure: Structure):
-        """
-        get high-symmetry points in k-space
-        Args:
-            structure: Structure Object
-        Returns:
-        """
-        kpath = HighSymmKpath(structure, symprec=0.01)
-        kpath_save = kpath.kpath
-        labels = copy.deepcopy(kpath_save["path"])
-        path = copy.deepcopy(kpath_save["path"])
-
-        for ilabelset, labelset in enumerate(labels):
-            for ilabel, label in enumerate(labelset):
-                path[ilabelset][ilabel] = kpath_save["kpoints"][label]
-        return kpath_save, path
 
     def test_plot(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
-        plotter.get_plot_gs().show()
+        plt=plotter.get_plot_gs()
+        self.assertEqual(str(type(plt)), "<class 'module'>")
 
     def test_as_dict_from_dict(self):
         new_dict = self.bs_symm_line.as_dict()
         self.new_bs_symm_line = GruneisenPhononBandStructureSymmLine.from_dict(new_dict)
         plotter = GruneisenPhononBSPlotter(bs=self.new_bs_symm_line)
-        # TODO: exclude show somehow?
-        plotter.get_plot_gs().show()
-
-    def test_fitting_procedure(self):
-        pass
-
+        plt=plotter.get_plot_gs()
+        self.assertEqual(str(type(plt)), "<class 'module'>")
 
 class GruneisenParameterTest(PymatgenTest):
     def setUp(self) -> None:
-        self.gruneisenobject = get_gruneisenparamter(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR"))
-        self.gruneisenobject_small = get_gruneisenparamter(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_only_one_q.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR"))
+        self.gruneisenobject = get_gruneisenparameter(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"))
+        self.gruneisenobject_small = get_gruneisenparameter(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_only_one_q_InP.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"))
+        self.gruneisenobject_Si = get_gruneisenparameter(
+            os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_Si.yaml"),
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"))
 
     def test_plot(self):
         plotter = GruneisenPlotter(self.gruneisenobject)
@@ -103,10 +81,12 @@ class GruneisenParameterTest(PymatgenTest):
     def test_average_gruneisen(self):
         self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(), 1.164231026696211)
         self.assertAlmostEqual(self.gruneisenobject.average_gruneisen(squared=False), 0.8497596674110489)
+        self.assertAlmostEqual(self.gruneisenobject_Si.average_gruneisen(), 1.1090815951892143)
 
     def test_thermal_conductivity_slack(self):
         self.assertAlmostEqual(self.gruneisenobject.thermal_conductivity_slack(), 77.97582174520458)
         self.assertAlmostEqual(self.gruneisenobject.thermal_conductivity_slack(t=300), 88.94562145031158)
+        self.assertAlmostEqual(self.gruneisenobject_Si.thermal_conductivity_slack(t=300), 127.69008331982265)
 
     def test_debye_temp_phonopy(self):
         # This is the correct conversion when starting from THz in the debye_freq
@@ -115,6 +95,7 @@ class GruneisenParameterTest(PymatgenTest):
     def test_acoustic_debye_temp(self):
         self.assertAlmostEqual(self.gruneisenobject_small.acoustic_debye_temp, 317.54811309631845)
         self.assertAlmostEqual(self.gruneisenobject.acoustic_debye_temp, 342.2046198151735)
+        self.assertAlmostEqual(self.gruneisenobject_Si.acoustic_debye_temp, 526.0725636300882)
 
 
 if __name__ == "__main__":
