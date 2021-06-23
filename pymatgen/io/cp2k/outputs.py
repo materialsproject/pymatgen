@@ -1196,7 +1196,7 @@ class Cp2kOutput:
         # and create the CompleteDos object
         _ldoss = {}
 
-        if len(ldoss) == len(self.initial_structure):
+        if self.initial_structure and len(ldoss) == len(self.initial_structure):
             for k in self.data["ldos"]:
                 _ldoss[self.initial_structure[int(k) - 1]] = self.data["ldos"][k]
             self.data["cdos"] = CompleteDos(self.final_structure, total_dos=tdos, pdoss=_ldoss)
