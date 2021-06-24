@@ -152,6 +152,6 @@ class Entry(MSONable, metaclass=ABCMeta):
         return self.composition == other.composition
 
     def __hash__(self):
-        # NOTE truncate _energy to 8 dp to ensure same robustness
+        # NOTE truncate _energy to 7 dp to ensure same robustness
         # as np.allclose
-        return hash(f"{self.__class__.__name__}{self._composition.formula}{self._energy:.8f}")
+        return hash(f"{self._composition.formula}{self._energy:.7f}")

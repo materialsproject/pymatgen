@@ -12,7 +12,7 @@ from collections import defaultdict
 import pytest
 from monty.json import MontyDecoder
 
-from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
 from pymatgen.entries.computed_entries import (
     CompositionEnergyAdjustment,
     ComputedEntry,
@@ -220,6 +220,12 @@ class ComputedEntryTest(unittest.TestCase):
     def test_is_element(self):
         entry = ComputedEntry("Fe3", 2.3)
         self.assertTrue(entry.is_element)
+
+    def test_eg_entry_id(self):
+        pdentry = PDEntry(self.entry4.composition, self.entry4.energy)
+
+        self.assertEqual(self.entry4, self.entry3)
+        self.assertEqual(self.entry4, pdentry)
 
 
 class ComputedStructureEntryTest(unittest.TestCase):

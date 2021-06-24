@@ -498,9 +498,9 @@ class ComputedEntry(Entry):
         if self is other:
             return True
 
-        # # if entry_ids are equivalent, skip the more expensive composition check
-        # if isinstance(other, self.__class__) and self.entry_id and other.entry_id and self.entry_id == other.entry_id:
-        #     return True
+        # if entry_ids are equivalent, skip the more expensive composition check
+        if isinstance(other, ComputedEntry) and self.entry_id and other.entry_id and self.entry_id == other.entry_id:
+            return True
 
         # Equality is defined based on composition and energy
         # If structures are involved, it is assumed that a {composition, energy} is
@@ -514,6 +514,9 @@ class ComputedEntry(Entry):
 
         # assumes that data, parameters, corrections are equivalent
         return True
+
+    def __hash__(self):
+        return super.__hash__(self)
 
     @classmethod
     def from_dict(cls, d) -> "ComputedEntry":
@@ -561,14 +564,6 @@ class ComputedEntry(Entry):
             }
         )
         return return_dict
-
-    def __hash__(self) -> int:
-        # NOTE It is assumed that the user will ensure entry_id is a
-        # unique identifier for ComputedEntry type classes.
-        if self.entry_id is not None:
-            return hash(f"{self.__class__.__name__}{self.entry_id}")
-
-        return super().__hash__()
 
 
 class ComputedStructureEntry(ComputedEntry):
