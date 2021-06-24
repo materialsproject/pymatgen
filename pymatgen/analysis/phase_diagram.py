@@ -950,7 +950,7 @@ class BasePhaseDiagram(MSONable):
         proj.sort()
 
         # only unique compositions
-        valid = np.ones(len(proj), dtype=np.bool)
+        valid = np.ones(len(proj), dtype=bool)
         valid[1:] = proj[1:] > proj[:-1] + self.numerical_tol
         proj = proj[valid]
 
