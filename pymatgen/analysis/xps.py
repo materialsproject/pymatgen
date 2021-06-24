@@ -31,8 +31,7 @@ from pymatgen.electronic_structure.dos import CompleteDos
 
 def _load_cross_sections(fname):
     data = pd.read_csv(fname)
-    data.to_csv(fname)
-
+    
     d = collections.defaultdict(dict)
     for index, row in data.iterrows():
         sym = row["element"]
