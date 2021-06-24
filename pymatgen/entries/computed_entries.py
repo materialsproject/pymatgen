@@ -505,6 +505,10 @@ class ComputedEntry(Entry):
         # Equality is defined based on composition and energy
         # If structures are involved, it is assumed that a {composition, energy} is
         # vanishingly unlikely to be the same if the structures are different
+        # if entry_ids are equivalent, skip the more expensive composition check
+
+        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None):
+            return self.entry_id == other.entry_id
 
         if not np.allclose(self.energy, other.energy):
             return False
