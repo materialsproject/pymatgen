@@ -351,17 +351,16 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """
 
         super().__init__(
-            qpoints,
-            frequencies,
-            lattice,
-            None,
-            eigendisplacements,
-            None,
-            labels_dict,
-            coords_are_cartesian,
-            structure,
+            qpoints=qpoints,
+            frequencies=frequencies,
+            lattice=lattice,
+            nac_frequencies=None,
+            eigendisplacements=eigendisplacements,
+            nac_eigendisplacements=None,
+            labels_dict=labels_dict,
+            coords_are_cartesian=coords_are_cartesian,
+            structure=structure,
         )
-
         self._reuse_init(eigendisplacements, frequencies, has_nac, qpoints)
 
     def _reuse_init(self, eigendisplacements, frequencies, has_nac, qpoints):

@@ -750,8 +750,8 @@ class GruneisenPlotter:
         plt.ylabel(r'$\mathrm{Grüneisen\ parameter}$')
 
         n = len(y) - 1
-        for i, (y, x) in enumerate(zip(y,x)):
-            color = (1. / n * i, 0, 1./ n * (n - i))
+        for i, (y, x) in enumerate(zip(y, x)):
+            color = (1. / n * i, 0, 1. / n * (n - i))
 
             if markersize:
                 plt.plot(x, y, marker, color=color, markersize=markersize)
@@ -791,6 +791,7 @@ class GruneisenPlotter:
         plt.savefig(filename, format=img_format)
         plt.close()
 
+
 class GruneisenPhononBSPlotter(PhononBSPlotter):
     """
     Class to plot or get data to facilitate the plot of band structure objects.
@@ -808,8 +809,8 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
                 "GruneisenPhononBSPlotter only works with GruneisenPhononBandStructureSymmLine objects. "
                 "A GruneisenPhononBandStructure object (on a uniform grid for instance and "
                 "not along symmetry lines won't work)")
-        self._bs = bs
-        self._nb_bands = self._bs.nb_bands
+        super().__init__(bs)
+
 
     def bs_plot_data(self):
 
@@ -823,7 +824,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             frequencies: A list (one element for each branch) of frequencies for
             each qpoint: [branch][qpoint][mode]. The data is
             stored by branch to facilitate the plotting
-            gruneisen:
+            gruneisen: TODO: add description
 
             lattice: The reciprocal lattice.
         """

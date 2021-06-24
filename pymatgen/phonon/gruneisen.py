@@ -339,12 +339,12 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
         PhononBandStructure.__init__(
             self, qpoints, frequencies, lattice,
-            nac_frequencies=None,
-            eigendisplacements=None,
-            nac_eigendisplacements=None,
-            labels_dict=None,
-            coords_are_cartesian=False,
-            structure=None
+            nac_frequencies=nac_frequencies,
+            eigendisplacements=eigendisplacements,
+            nac_eigendisplacements=nac_eigendisplacements,
+            labels_dict=labels_dict,
+            coords_are_cartesian=coords_are_cartesian,
+            structure=structure
         )
         self.gruneisen = gruneisenparameters
 
@@ -448,18 +448,19 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
 
         GruneisenPhononBandStructure.__init__(
             self,
-            qpoints,
-            frequencies,
-            gruneisenparameters,
-            lattice,
-            None,
-            None,
-            eigendisplacements,
-            None,
-            labels_dict,
-            coords_are_cartesian,
-            structure
+            qpoints=qpoints,
+            frequencies=frequencies,
+            gruneisenparameters=gruneisenparameters,
+            lattice=lattice,
+            nac_frequencies=None,
+            nac_gruneisenparameters=None,
+            eigendisplacements=eigendisplacements,
+            nac_eigendisplacements=None,
+            labels_dict=labels_dict,
+            coords_are_cartesian=coords_are_cartesian,
+            structure=structure
         )
+
 
         PhononBandStructureSymmLine._reuse_init(
             self,

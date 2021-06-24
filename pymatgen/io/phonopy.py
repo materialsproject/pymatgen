@@ -627,7 +627,6 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
                     phonopy_labels_dict[p['label']] = p['q-position']
                 if eig_q:
                     eigendisplacements.append(eig_q)
-
     qpts = np.array(qpts)
     # transpose to match the convention in PhononBandStructure
     frequencies = np.transpose(frequencies)
@@ -636,9 +635,7 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
         eigendisplacements = np.transpose(eigendisplacements, (1, 0, 2, 3))
 
     rec_latt = structure.lattice.reciprocal_lattice
-
     labels_dict = labels_dict or phonopy_labels_dict
-
     return GruneisenPhononBandStructureSymmLine(qpts, frequencies, gruneisenparameters, rec_latt,
                                                 has_nac=has_nac, labels_dict=labels_dict, structure=structure,
                                                 eigendisplacements=eigendisplacements)
