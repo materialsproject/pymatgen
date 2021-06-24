@@ -14,8 +14,7 @@ import math
 import os
 import re
 import warnings
-from multiprocessing import Pool, cpu_count
-from functools import lru_cache, partial
+from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
@@ -1539,30 +1538,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Calculate pds for smaller dimension spaces first
         spaces.sort(key=len, reverse=False)
 
-        # TODO is there a smart way to set up chunk sizes?
         # TODO PBarSafe is not safe as it cannot take an iteratble as input.
 
-        if workers == 0 or len(spaces) < 1000:  # serial if not a large number of PDs
-            results = [_get_pd_patch_for_space(space, self) for space in PBar(spaces, disable=(not verbose))]
-        else:
-            if workers < 0:
-                workers = cpu_count()
-
-            # NOTE that for large phase diagrams this is likely to be memory constrained.
-            with Pool(workers) as p:
-                results = [
-                    *PBar(
-                        p.imap_unordered(
-                            func=partial(_get_pd_patch_for_space, ppd=self),
-                            iterable=spaces,
-                            chunksize=500,  # using large chunksize reduces overhead
-                        ),
-                        disable=(not verbose),
-                        total=len(spaces),
-                    )
-                ]
-
-        pds = dict(results)
+        pds = [_get_pd_patch_for_space(space, self) for space in PBar(spaces, disable=(not verbose))]
+        pds = dict(pds)
 
         self.spaces = spaces
         self.pds = pds
@@ -1611,7 +1590,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     #     get_decomp_and_phase_separation_energy(),
     #     get_phase_separation_energy()
 
-    def get_pds_for_entry(self, entry):
+    def get_pd_for_entry(self, entry):
         """
         Get the possible phase diagrams for an entry
 
@@ -1626,41 +1605,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
         else:
             entry_space = frozenset(entry.composition.elements)
 
-        entry_pds = {}
-
         try:
             return self.pds[entry_space]
         except KeyError:
-            pass
+            for space in self.pds.keys():
+                if space.issuperset(entry_space):
+                    return self.pds[space]
 
-        # TODO this could be a bottleneck - find any pd
-        for space in self.pds.keys():
-            if space.issuperset(entry_space):
-                entry_pds = self.pds[space]
-                break
-
-        if not entry_pds:
             raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
-
-        return entry_pds
-
-    def get_smallest_pd_for_entry(self, entry):
-        """
-        Get the smallest phase diagram for an entry
-
-        Args:
-            entry (PDEntry/Composition): a PDEntry or Composition like entry
-
-        Returns:
-            smallest PhaseDiagram that contains the entry
-        """
-        # entry_pds = self.get_pds_for_entry(entry)
-
-        # # find the (first) shortest key
-        # skey = min(list(entry_pds), key=len)
-
-        # return entry_pds[skey]
-        return self.get_pds_for_entry(entry)
 
     def get_decomposition(self, comp):
         """
@@ -1674,7 +1626,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             is the amount of the fractional composition.
         """
         try:
-            pd = self.get_smallest_pd_for_entry(comp)
+            pd = self.get_pd_for_entry(comp)
             return pd.get_decomposition(comp)
         except ValueError as e:
             # NOTE warn when stitching across pds is being used
