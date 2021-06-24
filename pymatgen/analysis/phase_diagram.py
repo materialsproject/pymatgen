@@ -767,6 +767,7 @@ class BasePhaseDiagram(MSONable):
             for c in compare_entries
             if (  # NOTE use this construction to avoid calls to fractional_composition
                 len(entry_frac) == len(c.composition)
+                and np.isclose(entry.energy_per_atom, c.energy_per_atom)
                 and all(
                     abs(v - c.composition.get_atomic_fraction(el)) <= Composition.amount_tolerance
                     for el, v in entry_frac.items()

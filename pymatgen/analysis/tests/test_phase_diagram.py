@@ -330,7 +330,8 @@ class PhaseDiagramTest(unittest.TestCase):
         # polymorph
         self.assertAlmostEqual(
             toy_pd.get_phase_separation_energy(PDEntry("Li2O", -4)),
-            -2.0 / 3.0,
+            1.0 / 3.0,
+            # -2.0 / 3.0,
             7,
         )
 
