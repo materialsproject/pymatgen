@@ -504,8 +504,7 @@ class ComputedEntry(Entry):
         # if entry_ids are equivalent, skip the more expensive composition check
 
         if getattr(self, "entry_id", None) and getattr(other, "entry_id", None):
-            if self.entry_id == other.entry_id:
-                return True
+            return self.entry_id == other.entry_id
 
         if not np.allclose(self.energy, other.energy):
             return False
