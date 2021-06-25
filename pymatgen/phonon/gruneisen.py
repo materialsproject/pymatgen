@@ -445,7 +445,7 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
                 associated with the band structure. This is needed if we
                 provide projections to the band structure
         """
-
+        #TODO: what to do about the nac part?
         GruneisenPhononBandStructure.__init__(
             self,
             qpoints=qpoints,
