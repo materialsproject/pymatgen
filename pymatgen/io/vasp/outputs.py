@@ -19,6 +19,7 @@ from io import StringIO
 from collections import defaultdict
 from typing import Optional, Tuple, List, Union, DefaultDict
 from pathlib import Path
+import datetime
 
 import numpy as np
 from monty.dev import deprecated
@@ -758,9 +759,11 @@ class Vasprun(MSONable):
         """
         return self.parameters.get("ISPIN", 1) == 2
 
-    def get_computed_entry(self, inc_structure=True, parameters=None, data=None):
+    def get_computed_entry(
+        self, inc_structure=True, parameters=None, data=None, entry_id=f"vasprun-{datetime.datetime.now()}"
+    ):
         """
-        Returns a ComputedStructureEntry from the vasprun.
+        Returns a ComputedEntry or ComputedStructureEntry from the vasprun.
 
         Args:
             inc_structure (bool): Set to True if you want
@@ -772,6 +775,8 @@ class Vasprun(MSONable):
                 necessary for typical post-processing will be set.
             data (list): Output data to include. Has to be one of the properties
                 supported by the Vasprun object.
+            entry_id (object): Specify an entry id for the ComputedEntry. Defaults to
+                "vasprun-{current datetime}"
 
         Returns:
             ComputedStructureEntry/ComputedEntry
@@ -789,12 +794,11 @@ class Vasprun(MSONable):
         data = {p: getattr(self, p) for p in data} if data is not None else {}
 
         if inc_structure:
-            return ComputedStructureEntry(self.final_structure, self.final_energy, parameters=params, data=data)
+            return ComputedStructureEntry(
+                self.final_structure, self.final_energy, parameters=params, data=data, entry_id=entry_id
+            )
         return ComputedEntry(
-            self.final_structure.composition,
-            self.final_energy,
-            parameters=params,
-            data=data,
+            self.final_structure.composition, self.final_energy, parameters=params, data=data, entry_id=entry_id
         )
 
     def get_band_structure(

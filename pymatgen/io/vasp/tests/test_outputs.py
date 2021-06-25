@@ -232,6 +232,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
 
+        entry = vasprun.get_computed_entry(inc_structure=True)
+        self.assertTrue(entry.entry_id.startswith("vasprun"))
+        self.assertEqual(entry.parameters["run_type"], "PBEO or other Hybrid Functional")
+
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
         with warnings.catch_warnings(record=True) as w:
