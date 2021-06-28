@@ -2061,11 +2061,10 @@ class PDPlotter:
         machines have matplotlib installed, I have done it this way.
         """
         import matplotlib.pyplot as plt
-        import mpl_toolkits.mplot3d.axes3d as p3
         from matplotlib.font_manager import FontProperties
 
         fig = plt.figure()
-        ax = p3.Axes3D(fig)
+        ax = fig.add_subplot(111, projection="3d")
         font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1

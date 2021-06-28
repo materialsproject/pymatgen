@@ -3872,7 +3872,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             species: Species of inserted site
             coords: Coordinates of inserted site
             validate_proximity (bool): Whether to check if inserted site is
-                too close to an existing site. Defaults to True.
+                too close to an existing site. Defaults to False.
             properties (dict): A dict of properties for the Site.
 
         Returns:
