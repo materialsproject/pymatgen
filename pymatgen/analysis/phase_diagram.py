@@ -631,7 +631,7 @@ class BasePhaseDiagram(MSONable):
         _, hull_energy = self.get_decomp_and_hull_energy_per_atom(comp)
         return comp.num_atoms * hull_energy
 
-    def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
+    def get_decomp_and_e_above_hull(self, entry, allow_negative=False, check_stable=False):
         """
         Provides the decomposition and energy above convex hull for an entry.
         Due to caching, can be much faster if entries with the same composition
@@ -648,6 +648,12 @@ class BasePhaseDiagram(MSONable):
                 fractional composition. Stable entries should have energy above
                 convex hull of 0. The energy is given per atom.
         """
+        # Avoid computation for stable_entries.
+        # NOTE scaled duplicates of stable_entries will not be caught.
+        if check_stable:
+            if entry in list(self.stable_entries):
+                return {entry: 1}, 0
+        
         decomp, hull_energy = self.get_decomp_and_hull_energy_per_atom(entry.composition)
         e_above_hull = entry.energy_per_atom - hull_energy
 
