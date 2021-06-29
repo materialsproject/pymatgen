@@ -287,6 +287,7 @@ class Vasprun(MSONable):
         parse_projected_eigen=False,
         parse_potcar_file=True,
         occu_tol=1e-8,
+        separate_spins=False,
         exception_on_bad_xml=True,
     ):
         """
@@ -325,6 +326,10 @@ class Vasprun(MSONable):
             occu_tol (float): Sets the minimum tol for the determination of the
                 vbm and cbm. Usually the default of 1e-8 works well enough,
                 but there may be pathological cases.
+            separate_spins (bool): Whether the band gap, CBM, and VBM should be
+                reported for each individual spin channel. Defaults to False,
+                which computes the eigenvalue band properties independent of
+                the spin orientation. If True, the calculation must be spin-polarized.
             exception_on_bad_xml (bool): Whether to throw a ParseException if a
                 malformed XML is detected. Default to True, which ensures only
                 proper vasprun.xml are parsed. You can set to False if you want
@@ -335,6 +340,7 @@ class Vasprun(MSONable):
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
         self.occu_tol = occu_tol
+        self.separate_spins = separate_spins
         self.exception_on_bad_xml = exception_on_bad_xml
 
         with zopen(filename, "rt") as f:
@@ -952,13 +958,23 @@ class Vasprun(MSONable):
     def eigenvalue_band_properties(self):
         """
         Band properties from the eigenvalues as a tuple,
-        (band gap, cbm, vbm, is_band_gap_direct).
+        (band gap, cbm, vbm, is_band_gap_direct). In the case of separate_spins=True,
+        the band gap, cbm, vbm, and is_band_gap_direct are each lists of length 2,
+        with index 0 representing the spin-up channel and index 1 representing
+        the spin-down channel.
         """
         vbm = -float("inf")
         vbm_kpoint = None
         cbm = float("inf")
         cbm_kpoint = None
+        vbm_spins = []
+        vbm_spins_kpoints = []
+        cbm_spins = []
+        cbm_spins_kpoints = []
         for spin, d in self.eigenvalues.items():
+            if self.separate_spins:
+                vbm = -float("inf")
+                cbm = float("inf")
             for k, val in enumerate(d):
                 for (eigenval, occu) in val:
                     if occu > self.occu_tol and eigenval > vbm:
@@ -967,7 +983,20 @@ class Vasprun(MSONable):
                     elif occu <= self.occu_tol and eigenval < cbm:
                         cbm = eigenval
                         cbm_kpoint = k
-        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
+            if self.separate_spins:
+                vbm_spins.append(vbm)
+                vbm_spins_kpoints.append(vbm_kpoint)
+                cbm_spins.append(cbm)
+                cbm_spins_kpoints.append(cbm_kpoint)
+        if self.separate_spins:
+            return (
+                [max(cbm_spins[0] - vbm_spins[0], 0), max(cbm_spins[1] - vbm_spins[1], 0)],
+                [cbm_spins[0], cbm_spins[1]],
+                [vbm_spins[0], vbm_spins[1]],
+                [vbm_spins_kpoints[0] == cbm_spins_kpoints[0], vbm_spins_kpoints[1] == cbm_spins_kpoints[1]],
+            )
+        else:
+            return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     def calculate_efermi(self):
         """
@@ -5223,13 +5252,17 @@ class Eigenval:
         kpoint index is 0-based (unlike the 1-based indexing in VASP).
     """
 
-    def __init__(self, filename, occu_tol=1e-8):
+    def __init__(self, filename, occu_tol=1e-8, separate_spins=False):
         """
         Reads input from filename to construct Eigenval object
 
         Args:
             filename (str):     filename of EIGENVAL to read in
             occu_tol (float):   tolerance for determining band gap
+            separate_spins (bool):   whether the band gap, CBM, and VBM should be
+                reported for each individual spin channel. Defaults to False,
+                which computes the eigenvalue band properties independent of
+                the spin orientation. If True, the calculation must be spin-polarized.
 
         Returns:
             a pymatgen.io.vasp.outputs.Eigenval object
@@ -5237,9 +5270,12 @@ class Eigenval:
 
         self.filename = filename
         self.occu_tol = occu_tol
+        self.separate_spins = separate_spins
 
         with zopen(filename, "r") as f:
             self.ispin = int(f.readline().split()[-1])
+            if self.ispin != 2 and self.separate_spins:
+                raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
             # useless header information
             for _ in range(4):
@@ -5279,14 +5315,23 @@ class Eigenval:
     def eigenvalue_band_properties(self):
         """
         Band properties from the eigenvalues as a tuple,
-        (band gap, cbm, vbm, is_band_gap_direct).
+        (band gap, cbm, vbm, is_band_gap_direct). In the case of separate_spins=True,
+        the band gap, cbm, vbm, and is_band_gap_direct are each lists of length 2,
+        with index 0 representing the spin-up channel and index 1 representing
+        the spin-down channel.
         """
-
         vbm = -float("inf")
         vbm_kpoint = None
         cbm = float("inf")
         cbm_kpoint = None
+        vbm_spins = []
+        vbm_spins_kpoints = []
+        cbm_spins = []
+        cbm_spins_kpoints = []
         for spin, d in self.eigenvalues.items():
+            if self.separate_spins:
+                vbm = -float("inf")
+                cbm = float("inf")
             for k, val in enumerate(d):
                 for (eigenval, occu) in val:
                     if occu > self.occu_tol and eigenval > vbm:
@@ -5295,7 +5340,20 @@ class Eigenval:
                     elif occu <= self.occu_tol and eigenval < cbm:
                         cbm = eigenval
                         cbm_kpoint = k
-        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
+            if self.separate_spins:
+                vbm_spins.append(vbm)
+                vbm_spins_kpoints.append(vbm_kpoint)
+                cbm_spins.append(cbm)
+                cbm_spins_kpoints.append(cbm_kpoint)
+        if self.separate_spins:
+            return (
+                [max(cbm_spins[0] - vbm_spins[0], 0), max(cbm_spins[1] - vbm_spins[1], 0)],
+                [cbm_spins[0], cbm_spins[1]],
+                [vbm_spins[0], vbm_spins[1]],
+                [vbm_spins_kpoints[0] == cbm_spins_kpoints[0], vbm_spins_kpoints[1] == cbm_spins_kpoints[1]],
+            )
+        else:
+            return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
 
 class Wavederf:

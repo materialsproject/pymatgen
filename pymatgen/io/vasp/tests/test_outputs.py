@@ -710,6 +710,18 @@ class VasprunTest(PymatgenTest):
         vasprun = Vasprun(vpath, parse_potcar_file=False)
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
+    def test_eigenvalue_band_properties_separate_spins(self):
+        eig = Eigenval(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=True)
+        props = eig.eigenvalue_band_properties
+        self.assertAlmostEqual(props[0][0], 2.8772, places=4)
+        self.assertAlmostEqual(props[0][1], 1.2810, places=4)
+        self.assertAlmostEqual(props[1][0], 3.6741, places=4)
+        self.assertAlmostEqual(props[1][1], 1.6225, places=4)
+        self.assertAlmostEqual(props[2][0], 0.7969, places=4)
+        self.assertAlmostEqual(props[2][1], 0.3415, places=4)
+        self.assertEqual(props[3][0], True)
+        self.assertEqual(props[3][1], True)
+
 
 class OutcarTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -2016,6 +2028,18 @@ class EigenvalTest(PymatgenTest):
         self.assertAlmostEqual(props[1], 7.5587, places=4)
         self.assertAlmostEqual(props[2], 1.1434, places=4)
         self.assertEqual(props[3], False)
+
+    def test_eigenvalue_band_properties_separate_spins(self):
+        eig = Eigenval(self.TEST_FILES_DIR / "EIGENVAL_separate_spins.gz", separate_spins=True)
+        props = eig.eigenvalue_band_properties
+        self.assertAlmostEqual(props[0][0], 2.8772, places=4)
+        self.assertAlmostEqual(props[0][1], 1.2810, places=4)
+        self.assertAlmostEqual(props[1][0], 3.6741, places=4)
+        self.assertAlmostEqual(props[1][1], 1.6225, places=4)
+        self.assertAlmostEqual(props[2][0], 0.7969, places=4)
+        self.assertAlmostEqual(props[2][1], 0.3415, places=4)
+        self.assertEqual(props[3][0], True)
+        self.assertEqual(props[3][1], True)
 
 
 class WavederTest(PymatgenTest):
