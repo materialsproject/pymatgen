@@ -995,8 +995,7 @@ class Vasprun(MSONable):
                 [vbm_spins[0], vbm_spins[1]],
                 [vbm_spins_kpoints[0] == cbm_spins_kpoints[0], vbm_spins_kpoints[1] == cbm_spins_kpoints[1]],
             )
-        else:
-            return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
+        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
     def calculate_efermi(self):
         """
@@ -5352,8 +5351,7 @@ class Eigenval:
                 [vbm_spins[0], vbm_spins[1]],
                 [vbm_spins_kpoints[0] == cbm_spins_kpoints[0], vbm_spins_kpoints[1] == cbm_spins_kpoints[1]],
             )
-        else:
-            return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
+        return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
 
 class Wavederf:
