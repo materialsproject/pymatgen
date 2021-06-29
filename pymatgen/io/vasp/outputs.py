@@ -1479,6 +1479,7 @@ class BSVasprun(Vasprun):
         parse_projected_eigen: Union[bool, str] = False,
         parse_potcar_file: Union[bool, str] = False,
         occu_tol: float = 1e-8,
+        separate_spins: bool = False
     ):
         """
         Args:
@@ -1496,9 +1497,14 @@ class BSVasprun(Vasprun):
             occu_tol: Sets the minimum tol for the determination of the
                 vbm and cbm. Usually the default of 1e-8 works well enough,
                 but there may be pathological cases.
+            separate_spins (bool): Whether the band gap, CBM, and VBM should be
+                reported for each individual spin channel. Defaults to False,
+                which computes the eigenvalue band properties independent of
+                the spin orientation. If True, the calculation must be spin-polarized.
         """
         self.filename = filename
         self.occu_tol = occu_tol
+        self.separate_spins = separate_spins
 
         with zopen(filename, "rt") as f:
             self.efermi = None
