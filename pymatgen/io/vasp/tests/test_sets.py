@@ -513,6 +513,7 @@ class MPStaticSetTest(PymatgenTest):
         leps_vis = MPStaticSet.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
         self.assertTrue(leps_vis.incar["LEPSILON"])
         self.assertEqual(leps_vis.incar["IBRION"], 8)
+        self.assertEqual(leps_vis.incar["EDIFF"], 1e-5)
         self.assertNotIn("NPAR", leps_vis.incar)
         self.assertNotIn("NSW", leps_vis.incar)
         self.assertEqual(non_prev_vis.kpoints.kpts, [[11, 10, 10]])
@@ -1278,7 +1279,17 @@ class MPScanRelaxSetTest(PymatgenTest):
         struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
         scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=1.1)
         incar = scan_nonmetal_set.incar
-        self.assertAlmostEqual(incar["KSPACING"], 0.29125, places=5)
+        self.assertAlmostEqual(incar["KSPACING"], 0.3064757, places=5)
+        self.assertEqual(incar["ISMEAR"], -5)
+        self.assertEqual(incar["SIGMA"], 0.05)
+
+    def test_kspacing_cap(self):
+        # Test that KSPACING is capped at 0.44 for insulators
+        file_path = self.TEST_FILES_DIR / "POSCAR.O2"
+        struct = Poscar.from_file(file_path, check_for_POTCAR=False).structure
+        scan_nonmetal_set = MPScanRelaxSet(struct, bandgap=10)
+        incar = scan_nonmetal_set.incar
+        self.assertAlmostEqual(incar["KSPACING"], 0.44, places=5)
         self.assertEqual(incar["ISMEAR"], -5)
         self.assertEqual(incar["SIGMA"], 0.05)
 

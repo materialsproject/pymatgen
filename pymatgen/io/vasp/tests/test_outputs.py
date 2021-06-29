@@ -232,6 +232,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
 
+        entry = vasprun.get_computed_entry(inc_structure=True)
+        self.assertTrue(entry.entry_id.startswith("vasprun"))
+        self.assertEqual(entry.parameters["run_type"], "PBEO or other Hybrid Functional")
+
     def test_unconverged(self):
         filepath = self.TEST_FILES_DIR / "vasprun.xml.unconverged"
         with warnings.catch_warnings(record=True) as w:
@@ -275,6 +279,11 @@ class VasprunTest(PymatgenTest):
         self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
         self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
+
+    def test_chi(self):
+        filepath = self.TEST_FILES_DIR / "vasprun.xml.chi.gz"
+        vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
+        self.assertTrue(vasprun_chi.incar.get("ALGO", ""), "CHI")
 
     def test_uniform(self):
         vasprun_uniform = Vasprun(self.TEST_FILES_DIR / "vasprun.xml.uniform", parse_potcar_file=False)

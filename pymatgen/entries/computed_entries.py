@@ -15,7 +15,7 @@ import json
 import os
 import warnings
 from itertools import combinations
-from typing import List
+from typing import List, Union, Dict
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -310,7 +310,7 @@ class ComputedEntry(Entry):
 
     def __init__(
         self,
-        composition: Composition,
+        composition: Union[Composition, str, Dict[str, float]],
         energy: float,
         correction: float = 0.0,
         energy_adjustments: list = None,
@@ -501,13 +501,13 @@ class ComputedEntry(Entry):
         # Equality is defined based on composition and energy
         # If structures are involved, it is assumed that a {composition, energy} is
         # vanishingly unlikely to be the same if the structures are different
+        # if entry_ids are equivalent, skip the more expensive composition check
+
+        if getattr(self, "entry_id", None) and getattr(other, "entry_id", None):
+            return self.entry_id == other.entry_id
 
         if not np.allclose(self.energy, other.energy):
             return False
-
-        # if entry_ids are equivalent, skip the more expensive composition check
-        if self.entry_id and other.entry_id and self.entry_id == other.entry_id:
-            return True
 
         if self.composition != other.composition:
             return False
@@ -582,7 +582,7 @@ class ComputedStructureEntry(ComputedEntry):
         structure: Structure,
         energy: float,
         correction: float = 0.0,
-        composition: Composition = None,
+        composition: Union[Composition, str, Dict[str, float]] = None,
         energy_adjustments: list = None,
         parameters: dict = None,
         data: dict = None,
@@ -598,6 +598,10 @@ class ComputedStructureEntry(ComputedEntry):
             energy_adjustments: An optional list of EnergyAdjustment to
                 be applied to the energy. This is used to modify the energy for
                 certain analyses. Defaults to None.
+            composition (Composition): Composition of the entry. For
+                flexibility, this can take the form of all the typical input
+                taken by a Composition, including a {symbol: amt} dict,
+                a string formula, and others.
             parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
             data: An optional dict of any additional data associated
@@ -683,7 +687,7 @@ class ComputedStructureEntry(ComputedEntry):
                 composition.reduced_formula. The other option is "atom",
                 which normalizes such that the composition amounts sum to 1.
         """
-        # TODO this should raise TypeError
+        # TODO: this should raise TypeError since normalization does not make sense
         # raise TypeError("You cannot normalize a structure.")
         warnings.warn(
             (
@@ -697,7 +701,7 @@ class ComputedStructureEntry(ComputedEntry):
         d = super().normalize(mode).as_dict()
         d["structure"] = self.structure.as_dict()
         entry = self.from_dict(d)
-        entry._composition /= factor
+        entry._composition /= factor  # type: ignore
         return entry
 
 

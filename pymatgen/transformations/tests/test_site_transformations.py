@@ -9,7 +9,7 @@ import numpy as np
 from monty.os.path import which
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.transformations.site_transformations import (
     AddSitePropertyTransformation,
     InsertSitesTransformation,
@@ -17,6 +17,7 @@ from pymatgen.transformations.site_transformations import (
     RemoveSitesTransformation,
     ReplaceSiteSpeciesTransformation,
     TranslateSitesTransformation,
+    RadialSiteDistortionTransformation,
 )
 from pymatgen.util.testing import PymatgenTest
 
@@ -271,6 +272,78 @@ class AddSitePropertyTransformationTest(PymatgenTest):
         trans_set = trans.apply_transformation(s)
         for prop in site_props:
             self.assertArrayAlmostEqual(trans_set.site_properties[prop], manually_set.site_properties[prop])
+
+
+class RadialSiteDistortionTransformationTest(PymatgenTest):
+    def setUp(self):
+        self.molecule = Molecule(
+            species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+            coords=[
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1],
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+                [-3, 0, 0],
+                [0, -3, 0],
+                [0, 0, -3],
+            ],
+        )
+        self.structure = Structure(
+            species=["C", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+            coords=[
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [-1, 0, 0],
+                [0, -1, 0],
+                [0, 0, -1],
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+                [-3, 0, 0],
+                [0, -3, 0],
+                [0, 0, -3],
+            ],
+            lattice=[[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+            coords_are_cartesian=True,
+        )
+
+    def test(self):
+        t = RadialSiteDistortionTransformation(0, 1, nn_only=True)
+        s = t.apply_transformation(self.molecule)
+        self.assertTrue(np.array_equal(s[0].coords, [0, 0, 0]))
+        self.assertTrue(np.array_equal(s[1].coords, [2, 0, 0]))
+        self.assertTrue(np.array_equal(s[2].coords, [0, 2, 0]))
+        self.assertTrue(np.array_equal(s[3].coords, [0, 0, 2]))
+        self.assertTrue(np.array_equal(s[4].coords, [-2, 0, 0]))
+        self.assertTrue(np.array_equal(s[5].coords, [0, -2, 0]))
+        self.assertTrue(np.array_equal(s[6].coords, [0, 0, -2]))
+
+        t = RadialSiteDistortionTransformation(0, 1, nn_only=True)
+        s = t.apply_transformation(self.structure)
+        for c1, c2 in zip(self.structure[1:7], s[1:7]):
+            self.assertTrue(c1.distance(c2) == 1.0)
+
+        self.assertTrue(np.array_equal(s[0].coords, [0, 0, 0]))
+        self.assertTrue(np.array_equal(s[1].coords, [2, 0, 0]))
+        self.assertTrue(np.array_equal(s[2].coords, [0, 2, 0]))
+        self.assertTrue(np.array_equal(s[3].coords, [0, 0, 2]))
+        self.assertTrue(np.array_equal(s[4].coords, [8, 0, 0]))
+        self.assertTrue(np.array_equal(s[5].coords, [0, 8, 0]))
+        self.assertTrue(np.array_equal(s[6].coords, [0, 0, 8]))
+
+    def test_second_nn(self):
+        t = RadialSiteDistortionTransformation(0, 1, nn_only=False)
+        s = t.apply_transformation(self.molecule)
+        for c1, c2 in zip(self.molecule[7:], s[7:]):
+            self.assertEqual(abs(round(sum(c2.coords - c1.coords), 2)), 0.33)
 
 
 if __name__ == "__main__":
