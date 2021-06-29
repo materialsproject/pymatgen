@@ -1479,7 +1479,7 @@ class BSVasprun(Vasprun):
         parse_projected_eigen: Union[bool, str] = False,
         parse_potcar_file: Union[bool, str] = False,
         occu_tol: float = 1e-8,
-        separate_spins: bool = False
+        separate_spins: bool = False,
     ):
         """
         Args:
