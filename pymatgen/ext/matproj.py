@@ -199,6 +199,8 @@ class MPRester:
             except IOError:
                 d = {}
 
+            d = d if d else {}
+
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
 
