@@ -711,7 +711,7 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(vasprun.eigenvalues[Spin.up].shape[0], len(vasprun.actual_kpoints))
 
     def test_eigenvalue_band_properties_separate_spins(self):
-        eig = Eigenval(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=True)
+        eig = Vasprun(self.TEST_FILES_DIR / "vasprun_eig_separate_spins.xml.gz", separate_spins=True)
         props = eig.eigenvalue_band_properties
         self.assertAlmostEqual(props[0][0], 2.8772, places=4)
         self.assertAlmostEqual(props[0][1], 1.2810, places=4)
