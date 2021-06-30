@@ -721,7 +721,7 @@ class VasprunTest(PymatgenTest):
         self.assertAlmostEqual(props[1][1], 1.6225, places=4)
         self.assertAlmostEqual(props[2][0], 0.7969, places=4)
         self.assertAlmostEqual(props[2][1], 0.3415, places=4)
-        self.assertAlmostEqual(props2[0], np.min(props[1])-np.max(props[1]), places=4)
+        self.assertAlmostEqual(props2[0], np.min(props[1]) - np.max(props[1]), places=4)
         self.assertEqual(props[3][0], True)
         self.assertEqual(props[3][1], True)
 
@@ -2043,7 +2043,7 @@ class EigenvalTest(PymatgenTest):
         self.assertAlmostEqual(props[1][1], 1.6225, places=4)
         self.assertAlmostEqual(props[2][0], 0.7969, places=4)
         self.assertAlmostEqual(props[2][1], 0.3415, places=4)
-        self.assertAlmostEqual(props2[0], np.min(props[1])-np.max(props[1]), places=4)
+        self.assertAlmostEqual(props2[0], np.min(props[1]) - np.max(props[1]), places=4)
         self.assertEqual(props[3][0], True)
         self.assertEqual(props[3][1], True)
 
