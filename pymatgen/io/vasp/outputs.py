@@ -352,7 +352,7 @@ class Vasprun(MSONable):
                 preamble = steps.pop(0)
                 self.nionic_steps = len(steps)
                 new_steps = steps[ionic_step_offset :: int(ionic_step_skip)]
-                # add the tailing informat in the last step from the run
+                # add the tailing information in the last step from the run
                 to_parse = "<calculation>".join(new_steps)
                 if steps[-1] != new_steps[-1]:
                     to_parse = "{}<calculation>{}{}".format(preamble, to_parse, steps[-1].split("</calculation>")[-1])
@@ -971,6 +971,9 @@ class Vasprun(MSONable):
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
+        if len(self.eigenvalues.items()) != 2 and self.separate_spins:
+            raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
+
         for spin, d in self.eigenvalues.items():
             if self.separate_spins:
                 vbm = -float("inf")
@@ -5279,8 +5282,6 @@ class Eigenval:
 
         with zopen(filename, "r") as f:
             self.ispin = int(f.readline().split()[-1])
-            if self.ispin != 2 and self.separate_spins:
-                raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
             # useless header information
             for _ in range(4):
@@ -5333,6 +5334,9 @@ class Eigenval:
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
+        if len(self.eigenvalues.items()) != 2 and self.separate_spins:
+            raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
+
         for spin, d in self.eigenvalues.items():
             if self.separate_spins:
                 vbm = -float("inf")
