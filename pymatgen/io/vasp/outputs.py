@@ -971,7 +971,7 @@ class Vasprun(MSONable):
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
-        if len(self.eigenvalues.items()) != 2 and self.separate_spins:
+        if self.separate_spins and len(self.eigenvalues.keys()) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
         for spin, d in self.eigenvalues.items():
@@ -5334,7 +5334,7 @@ class Eigenval:
         vbm_spins_kpoints = []
         cbm_spins = []
         cbm_spins_kpoints = []
-        if len(self.eigenvalues.items()) != 2 and self.separate_spins:
+        if self.separate_spins and len(self.eigenvalues.keys()) != 2:
             raise ValueError("The separate_spins flag can only be True if ISPIN = 2")
 
         for spin, d in self.eigenvalues.items():
