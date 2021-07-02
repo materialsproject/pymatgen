@@ -267,10 +267,10 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in range(len(rxn.coeffs)):
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+            for i, v in enumerate(rxn.coeffs):
+                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
@@ -318,10 +318,10 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in range(len(rxn.coeffs)):
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
+            for i, v in enumerate(rxn.coeffs):
+                if abs(v) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
-                if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
+                if abs(v) > 1e-5 and rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
                     comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)

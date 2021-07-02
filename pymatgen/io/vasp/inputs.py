@@ -955,8 +955,7 @@ class Incar(dict, MSONable):
         keyword), your calculation will still run, however VASP will igore the
         parameter without letting you know, hence why we have this Incar method.
         """
-        for k in self.keys():
-
+        for k, v in self.items():
             # First check if this parameter even exists
             if k not in incar_params.keys():
                 warnings.warn(
@@ -969,15 +968,15 @@ class Incar(dict, MSONable):
                 if type(incar_params[k]).__name__ == "str":
                     # Now we check if this is an appropriate parameter type
                     if incar_params[k] == "float":
-                        if not type(self[k]) not in ["float", "int"]:
+                        if not type(v) not in ["float", "int"]:
                             warnings.warn(
-                                "%s: %s is not real" % (k, self[k]),
+                                "%s: %s is not real" % (k, v),
                                 BadIncarWarning,
                                 stacklevel=2,
                             )
-                    elif type(self[k]).__name__ != incar_params[k]:
+                    elif type(v).__name__ != incar_params[k]:
                         warnings.warn(
-                            "%s: %s is not a %s" % (k, self[k], incar_params[k]),
+                            "%s: %s is not a %s" % (k, v, incar_params[k]),
                             BadIncarWarning,
                             stacklevel=2,
                         )
@@ -985,9 +984,9 @@ class Incar(dict, MSONable):
                 # if we have a list of possible parameters, check
                 # if the user given parameter is in this list
                 elif type(incar_params[k]).__name__ == "list":
-                    if self[k] not in incar_params[k]:
+                    if v not in incar_params[k]:
                         warnings.warn(
-                            "%s: Cannot find %s in the list of parameters" % (k, self[k]),
+                            "%s: Cannot find %s in the list of parameters" % (k, v),
                             BadIncarWarning,
                             stacklevel=2,
                         )
