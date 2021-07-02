@@ -212,7 +212,6 @@ class TestGruneisen(unittest.TestCase):
             get_gruneisenparameter(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP_without_struct.yaml"))
 
-        #TODO: check if eigenvectors are read correctly
 
 if __name__ == "__main__":
     unittest.main()
