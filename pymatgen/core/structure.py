@@ -20,19 +20,13 @@ from abc import ABCMeta, abstractmethod
 from fnmatch import fnmatch
 from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple, Union, Callable
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 from tabulate import tabulate
 
+from pymatgen.core import yaml
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
