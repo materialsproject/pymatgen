@@ -754,9 +754,8 @@ class ForceFieldTest(unittest.TestCase):
         filename = "ff_test.yaml"
         v = self.virus
         v.to_file(filename=filename)
-        yml = yaml.YAML(typ="safe")
         with open(filename, "r") as f:
-            d = yml.load(f)
+            d = yaml.load(f)
         self.assertListEqual(d["mass_info"], [list(m) for m in v.mass_info])
         self.assertListEqual(d["nonbond_coeffs"], v.nonbond_coeffs)
 

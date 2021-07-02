@@ -802,9 +802,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             if label is not None and previous_label is not None:
                 self.distance.append(previous_distance)
             else:
-                self.distance.append(
-                    np.linalg.norm(kpt.cart_coords - previous_kpoint.cart_coords) + previous_distance
-                )
+                self.distance.append(np.linalg.norm(kpt.cart_coords - previous_kpoint.cart_coords) + previous_distance)
             previous_kpoint = kpt
             previous_distance = self.distance[i]
             if label:
