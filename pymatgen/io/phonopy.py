@@ -8,6 +8,7 @@ Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 
 import numpy as np
 from monty.dev import requires
+from typing import Dict, List, Any
 from monty.serialization import loadfn
 from scipy.interpolate import InterpolatedUnivariateSpline
 
@@ -329,12 +330,12 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
 
 @requires(Phonopy, "phonopy is required to calculate phonon density of states")
 def get_phonon_dos_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        mesh_density: float = 100.0,
-        num_dos_steps: int = 200,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    num_dos_steps: int = 200,
+    **kwargs,
 ) -> CompletePhononDos:
     """
     Get a projected phonon density of states from phonopy force constants.
@@ -379,11 +380,11 @@ def get_phonon_dos_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        mesh_density: float = 100.0,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    **kwargs,
 ) -> PhononBandStructure:
     """
     Get a uniform phonon band structure from phonopy force constants.
@@ -411,12 +412,12 @@ def get_phonon_band_structure_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_symm_line_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        line_density: float = 20.0,
-        symprec: float = 0.01,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    line_density: float = 20.0,
+    symprec: float = 0.01,
+    **kwargs,
 ) -> PhononBandStructureSymmLine:
     """
     Get a phonon band structure along a high symmetry path from phonopy force
@@ -505,13 +506,16 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
     gruneisen_np = np.transpose(gruneisen)
 
     return GruneisenParameter(
-        gruneisen=gruneisen_np, qpoints=qpts_np, multiplicities=multiplicities_np, frequencies=frequencies_np,
-        structure=structure
+        gruneisen=gruneisen_np,
+        qpoints=qpts_np,
+        multiplicities=multiplicities_np,
+        frequencies=frequencies_np,
+        structure=structure,
     )
 
 
 def get_gs_ph_bs_symm_line_from_dict(
-        gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
+    gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
 ) -> GruneisenPhononBandStructureSymmLine:
     """
     Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
@@ -548,7 +552,7 @@ def get_gs_ph_bs_symm_line_from_dict(
             raise ValueError("\nPlease provide a structure.\n")
 
     qpts, frequencies, gruneisenparameters = ([] for _ in range(3))
-    phonopy_labels_dict = {}
+    phonopy_labels_dict = {}  # type: Dict[Any,Any]
 
     if fit:
         for pa in gruneisen_dict["path"]:
@@ -557,9 +561,11 @@ def get_gs_ph_bs_symm_line_from_dict(
             end = pa["phonon"][-1]
 
             if start["q-position"] == [0, 0, 0]:  # Gamma at start of band
-                qpts_temp, frequencies_temp, gruneisen_temp, distance = ([] for _ in range(4))
+                qpts_temp, frequencies_temp, gruneisen_temp, distance = (
+                    [] for _ in range(4)
+                )  # type: List[Any],List[Any],List[Any],List[Any]
                 for i in range(pa["nqpoint"]):
-                    bands, gruneisenband = ([] for _ in range(2))
+                    bands, gruneisenband = ([] for _ in range(2))  # type: List[Any], List[Any]
                     for b in phonon[pa["nqpoint"] - i - 1]["band"]:
                         bands.append(b["frequency"])
                         # Fraction of leftover points in current band
@@ -654,7 +660,7 @@ def extrapolate_grun(b, distance, gruneisenparameter, gruneisenband, i, pa):
         if diff > 2:
             x = list(range(len(distance)))
             y = [i[len(gruneisenband)] for i in gruneisenparameter]
-            y = y[-len(x):]  # Only elements of current band
+            y = y[-len(x) :]  # Only elements of current band
             extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
             g_extrapolated = extrapolator(len(distance))
             gruen = float(g_extrapolated)

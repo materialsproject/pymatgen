@@ -10,6 +10,7 @@ import numpy as np
 import scipy.constants as const
 from monty.dev import requires
 from monty.json import MSONable
+
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import amu_to_kg
@@ -37,13 +38,13 @@ class GruneisenParameter(MSONable):
     """
 
     def __init__(
-        self,
-        qpoints,
-        gruneisen,
-        frequencies,
-        multiplicities=None,
-        structure=None,
-        lattice=None,
+            self,
+            qpoints,
+            gruneisen,
+            frequencies,
+            multiplicities=None,
+            structure=None,
+            lattice=None,
     ):
         """
 
@@ -63,30 +64,6 @@ class GruneisenParameter(MSONable):
         self.multiplicities = multiplicities
         self.lattice = lattice
         self.structure = structure
-
-    @property
-    @requires(phonopy, "This method requires phonopy to be installed")
-    def tdos(self):
-        """
-        The total DOS (re)constructed from the gruneisen.yaml file
-        """
-
-        # Here, we will reuse phonopy classes
-        class TempMesh(object):
-            pass
-
-        a = TempMesh()
-        a.frequencies = np.transpose(self.frequencies)
-        a.weights = self.multiplicities
-
-        b = TotalDos(a)
-        b.run()
-
-        return b
-
-    @property
-    def phdos(self):
-        return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     def average_gruneisen(self, t=None, squared=True, limit_frequencies=None):
         """
@@ -181,6 +158,30 @@ class GruneisenParameter(MSONable):
 
         return k
 
+    @property  #type: ignore
+    @requires(phonopy, "This method requires phonopy to be installed")
+    def tdos(self):
+        """
+        The total DOS (re)constructed from the gruneisen.yaml file
+        """
+
+        # Here, we will reuse phonopy classes
+        class TempMesh(object):
+            pass
+
+        a = TempMesh()
+        a.frequencies = np.transpose(self.frequencies)
+        a.weights = self.multiplicities
+
+        b = TotalDos(a)
+        b.run()
+
+        return b
+
+    @property
+    def phdos(self):
+        return PhononDos(self.tdos.frequency_points, self.tdos.dos)
+
     @property
     def debye_temp_limit(self):
         """
@@ -199,13 +200,12 @@ class GruneisenParameter(MSONable):
 
         return t_d
 
-    @property
     def debye_temp_phonopy(self, freq_max_fit=None):
         """
         Get Debye temperature in K as implemented in phonopy.
         Args:
             freq_max_fit: Maximum frequency to include for fitting.
-            Defaults to include first quartile of frequencies.
+                          Defaults to include first quartile of frequencies.
 
         Returns:
             Debye temperature in K.
@@ -238,15 +238,15 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     """
 
     def __init__(
-        self,
-        qpoints,
-        frequencies,
-        gruneisenparameters,
-        lattice,
-        eigendisplacements=None,
-        labels_dict=None,
-        coords_are_cartesian=False,
-        structure=None,
+            self,
+            qpoints,
+            frequencies,
+            gruneisenparameters,
+            lattice,
+            eigendisplacements=None,
+            labels_dict=None,
+            coords_are_cartesian=False,
+            structure=None,
     ):
         """
         Args:
@@ -353,15 +353,15 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
     """
 
     def __init__(
-        self,
-        qpoints,
-        frequencies,
-        gruneisenparameters,
-        lattice,
-        eigendisplacements=None,
-        labels_dict=None,
-        coords_are_cartesian=False,
-        structure=None,
+            self,
+            qpoints,
+            frequencies,
+            gruneisenparameters,
+            lattice,
+            eigendisplacements=None,
+            labels_dict=None,
+            coords_are_cartesian=False,
+            structure=None,
     ):
         """
 
