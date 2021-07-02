@@ -86,7 +86,7 @@ class GruneisenParameterTest(PymatgenTest):
 
     def test_debye_temp_phonopy(self):
         # This is the correct conversion when starting from THz in the debye_freq
-        self.assertAlmostEqual(self.gruneisenobject_small.debye_temp_phonopy, 473.31932718764284)
+        self.assertAlmostEqual(self.gruneisenobject_small.debye_temp_phonopy(), 473.31932718764284)
 
     def test_acoustic_debye_temp(self):
         self.assertAlmostEqual(self.gruneisenobject_small.acoustic_debye_temp, 317.54811309631845)

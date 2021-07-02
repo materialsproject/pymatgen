@@ -51,10 +51,11 @@ class GruneisenParameter(MSONable):
         Args:
             qpoints: list of qpoints as numpy arrays, in frac_coords of the given lattice by default
             gruneisen: list of gruneisen parameters as numpy arrays, shape: (3*len(structure), len(qpoints))
-            frequencies: list of phonon frequencies in eV as a numpy array with shape (3*len(structure), len(qpoints))
-            multiplicities:
+            frequencies: list of phonon frequencies in THz as a numpy array with shape (3*len(structure), len(qpoints))
+            multiplicities: list of multiplicities
             structure: The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.
-            lattice:The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of reciprocal lattice vectors WITH a 2*pi coefficient
+            lattice: The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of
+                     reciprocal lattice vectors WITH a 2*pi coefficient
 
         """
 
@@ -103,7 +104,7 @@ class GruneisenParameter(MSONable):
 
         if limit_frequencies == "debye":
             adt = self.acoustic_debye_temp
-            ind = np.where((0 <= w) & (w <= adt * const.value("Boltzmann constant in Hz/K")))
+            ind = np.where((w >= 0) & (w <= adt * const.value("Boltzmann constant in Hz/K")))
         elif limit_frequencies == "acoustic":
             w_acoustic = w[:, :3]
             ind = np.where(w_acoustic >= 0)
@@ -166,8 +167,10 @@ class GruneisenParameter(MSONable):
         """
 
         # Here, we will reuse phonopy classes
-        class TempMesh(object):
-            pass
+        class TempMesh:
+            """
+            Temporary Class
+            """
 
         a = TempMesh()
         a.frequencies = np.transpose(self.frequencies)
@@ -340,13 +343,11 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
         structure = Structure.from_dict(d["structure"]) if "structure" in d else None
         return cls(
-            d["qpoints"],
-            np.array(d["bands"]),
-            lattice_rec,
-            nac_frequencies,
-            eigendisplacements,
-            nac_eigendisplacements,
-            d["labels_dict"],
+            qpoints=d["qpoints"],
+            frequencies=np.array(d["bands"]),
+            lattice=lattice_rec,
+            eigendisplacements=eigendisplacements,
+            labels_dict=d["labels_dict"],
             structure=structure,
         )
 
