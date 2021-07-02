@@ -345,6 +345,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return cls(
             qpoints=d["qpoints"],
             frequencies=np.array(d["bands"]),
+            gruneisenparameters=d["gruneisen"]
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
             labels_dict=d["labels_dict"],
