@@ -38,13 +38,13 @@ class GruneisenParameter(MSONable):
     """
 
     def __init__(
-            self,
-            qpoints,
-            gruneisen,
-            frequencies,
-            multiplicities=None,
-            structure=None,
-            lattice=None,
+        self,
+        qpoints,
+        gruneisen,
+        frequencies,
+        multiplicities=None,
+        structure=None,
+        lattice=None,
     ):
         """
 
@@ -158,7 +158,7 @@ class GruneisenParameter(MSONable):
 
         return k
 
-    @property  #type: ignore
+    @property  # type: ignore
     @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
         """
@@ -180,6 +180,11 @@ class GruneisenParameter(MSONable):
 
     @property
     def phdos(self):
+        """
+
+        Returns: PhononDos object
+
+        """
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     @property
@@ -238,15 +243,15 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     """
 
     def __init__(
-            self,
-            qpoints,
-            frequencies,
-            gruneisenparameters,
-            lattice,
-            eigendisplacements=None,
-            labels_dict=None,
-            coords_are_cartesian=False,
-            structure=None,
+        self,
+        qpoints,
+        frequencies,
+        gruneisenparameters,
+        lattice,
+        eigendisplacements=None,
+        labels_dict=None,
+        coords_are_cartesian=False,
+        structure=None,
     ):
         """
         Args:
@@ -353,15 +358,15 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
     """
 
     def __init__(
-            self,
-            qpoints,
-            frequencies,
-            gruneisenparameters,
-            lattice,
-            eigendisplacements=None,
-            labels_dict=None,
-            coords_are_cartesian=False,
-            structure=None,
+        self,
+        qpoints,
+        frequencies,
+        gruneisenparameters,
+        lattice,
+        eigendisplacements=None,
+        labels_dict=None,
+        coords_are_cartesian=False,
+        structure=None,
     ):
         """
 
