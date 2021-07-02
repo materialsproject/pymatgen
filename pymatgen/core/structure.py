@@ -1707,8 +1707,8 @@ class IStructure(SiteCollection, MSONable):
         for i, site in enumerate(self):
             frac_coords = reduced_latt.get_fractional_coords(site.coords)
             site_props = {}
-            for p in props:
-                site_props[p] = props[p][i]
+            for p, v in props.items():
+                site_props[p] = v[i]
             new_sites.append(
                 PeriodicSite(
                     site.species,
