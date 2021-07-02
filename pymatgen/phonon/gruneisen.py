@@ -8,7 +8,8 @@ This module provides classes to define a Grueneisen band structure.
 
 import numpy as np
 import scipy.constants as const
-
+from monty.dev import requires
+from monty.json import MSONable
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import amu_to_kg
@@ -21,7 +22,7 @@ try:
 except ImportError:
     TotalDos = None
 
-__author__ = "Alexander Bonkowski, J. George"
+__author__ = "Alexander Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "A. Bonkowski, J. George"
@@ -30,7 +31,7 @@ __status__ = "Production"
 __date__ = "Apr 11, 2021"
 
 
-class GruneisenParameter:
+class GruneisenParameter(MSONable):
     """
     Class for Grueneisen parameters on a regular grid.
     """
@@ -38,55 +39,30 @@ class GruneisenParameter:
     def __init__(
             self, qpoints, gruneisen, frequencies,
             multiplicities=None,
-            densities=None,
-            # eigenvectors=None,
             structure=None,
             lattice=None,
-            # is_bandstructure=False
     ):
         """
 
         Args:
             qpoints: list of qpoints as numpy arrays, in frac_coords of the given lattice by default
-            gruneisen: list of ...
+            gruneisen: list of gruneisen parameters as numpy arrays, shape: (3*len(structure), len(qpoints))
             frequencies: list of phonon frequencies in eV as a numpy array with shape (3*len(structure), len(qpoints))
             multiplicities:
-            densities:
             structure: The crystal structure (as a pymatgen Structure object) associated with the gruneisen parameters.
             lattice:The reciprocal lattice as a pymatgen Lattice object. Pymatgen uses the physics convention of reciprocal lattice vectors WITH a 2*pi coefficient
 
         """
 
         self.qpoints = qpoints
-        self.gruneisenparamters = gruneisen
+        self.gruneisen = gruneisen
         self.frequencies = frequencies
-
         self.multiplicities = multiplicities
-        self.densities = densities
-        # self.eigenvectors = eigenvectors
         self.lattice = lattice
         self.structure = structure
-        # self.is_bandstructure = is_bandstructure
-
-    @classmethod
-    def from_dict(cls, d):
-        cls(d['gruneisenparameters'], d['qpoints'], d['multiplicities'], d['frequencies'])
-
-    def as_dict(self):
-        """
-
-        Returns:
-            Json-serializable dict representation of GruneisenParameter.
-
-        """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "gruneisenparameters": list(self.gruneisenparamters),
-                "qpoints": list(self.qpoints),
-                "multiplicities": list(self.multiplicities),
-                "frequencies": list(self.frequencies)}
 
     @property
+    @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
@@ -133,15 +109,14 @@ class GruneisenParameter:
         if t is None:
             t = self.acoustic_debye_temp
 
-        w = self.frequencies  # angular frequency TODO: this isn't an angular frequency!
-        # TODO: define constant similar to in pymatgen.phonon.dos.py ?
+        w = self.frequencies
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
         cv = np.choose(w > 0,
                        (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
                                exp_wdkt - 1) ** 2))  # in eV
 
-        gamma = self.gruneisenparamters
+        gamma = self.gruneisen
 
         if squared:
             gamma = gamma ** 2
@@ -165,32 +140,6 @@ class GruneisenParameter:
 
         return g
 
-    # def heat_capacity(self, t=None):
-    # not in abipy anymore
-    #     """
-    #     Calculates the heat capacity based on the values on the regular grid.
-    #     Values associated to negative frequencies will be ignored.
-    #     Adapted from classes in abipy. These classes have been written by Guido Petretto (UCLouvain)
-    #
-    #     Args:
-    #         t: the temperature at which the average Gruneisen will be evaluated. If None the acoustic Debye
-    #             temperature is used (see acoustic_debye_temp).
-    #
-    #     Returns:
-    #         The heat capacity
-    #
-    #     """
-    #     if t is None:
-    #         t = self.acoustic_debye_temp
-    #
-    #     w = self.frequencies  # angular frequency #TODO: is this true?
-    #     wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
-    #     exp_wdkt = np.exp(wdkt)
-    #     cv = np.choose(w > 0,
-    #                    (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
-    #                                exp_wdkt - 1) ** 2))  # in eV
-    #
-    #     return np.sum(cv * EvTokJmol)
 
     def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):
         """
@@ -291,10 +240,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
             frequencies,
             gruneisenparameters,
             lattice,
-            nac_frequencies=None,
-            nac_gruneisenparameters=None,
             eigendisplacements=None,
-            nac_eigendisplacements=None,
             labels_dict=None,
             coords_are_cartesian=False,
             structure=None
@@ -311,24 +257,12 @@ class GruneisenPhononBandStructure(PhononBandStructure):
             lattice: The reciprocal lattice as a pymatgen Lattice object.
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient.
-            nac_frequencies: Frequencies with non-analytical contributions at Gamma in THz.
-                A list of tuples. The first element of each tuple should be a list
-                defining the direction (not necessarily a versor, will be normalized
-                internally). The second element containing the 3*len(structure)
-                phonon frequencies with non-analytical correction for that direction.
-            nac_gruneisenparameters: Grueneisen parameters derived from the
-                nac_frequencies. # ToDo: what to do about this?
             eigendisplacements: the phonon eigendisplacements associated to the
                 frequencies in cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
                 he First index of the array refers to the band, the second to the index
                 of the qpoint, the third to the atom in the structure and the fourth
                 to the cartesian coordinates.
-            nac_eigendisplacements: the phonon eigendisplacements associated to the
-                non-analytical frequencies in nac_frequencies in cartesian coordinates.
-                A list of tuples. The first element of each tuple should be a list
-                defining the direction. The second element containing a numpy array of
-                complex numbers with shape (3*len(structure), len(structure), 3).
             labels_dict: (dict) of {} this links a qpoint (in frac coords or
                 cartesian coordinates depending on the coords) to a label.
             coords_are_cartesian: Whether the qpoint coordinates are cartesian.
@@ -339,20 +273,14 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
         PhononBandStructure.__init__(
             self, qpoints, frequencies, lattice,
-            nac_frequencies=nac_frequencies,
+            nac_frequencies=None,
             eigendisplacements=eigendisplacements,
-            nac_eigendisplacements=nac_eigendisplacements,
+            nac_eigendisplacements=None,
             labels_dict=labels_dict,
             coords_are_cartesian=coords_are_cartesian,
             structure=structure
         )
         self.gruneisen = gruneisenparameters
-
-        # TODO: what about nac_grueneisen ?
-        # normalize directions for nac_gruneisenparameters
-        if nac_gruneisenparameters is not None:
-            for t in nac_gruneisenparameters:
-                self.nac_gruneisen.append(([i / np.linalg.norm(t[0]) for i in t[0]], t[1]))
 
     def as_dict(self):
         """
@@ -376,12 +304,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         # split the eigendisplacements to real and imaginary part for serialization
         d['eigendisplacements'] = dict(real=np.real(self.eigendisplacements).tolist(),
                                        imag=np.imag(self.eigendisplacements).tolist())
-        d['nac_eigendisplacements'] = [(direction, dict(real=np.real(e).tolist(), imag=np.imag(e).tolist()))
-                                       for direction, e in self.nac_eigendisplacements]
-        d['nac_frequencies'] = [(direction, f.tolist()) for direction, f in self.nac_frequencies]
         d['gruneisen'] = self.gruneisen.tolist()
-        # TODO: what about nac_gruneisen? Do we need to do something?
-
         if self.structure:
             d['structure'] = self.structure.as_dict()
 
@@ -401,21 +324,18 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
         lattice_rec = Lattice(d['lattice_rec']['matrix'])
         eigendisplacements = np.array(d['eigendisplacements']['real']) + np.array(d['eigendisplacements']['imag']) * 1j
-        nac_eigendisplacements = [(direction, np.array(e['real']) + np.array(e['imag']) * 1j)
-                                  for direction, e in d['nac_eigendisplacements']]
-        nac_frequencies = [(direction, np.array(f)) for direction, f in d['nac_frequencies']]
         structure = Structure.from_dict(d['structure']) if 'structure' in d else None
         return cls(d['qpoints'], np.array(d['bands']), lattice_rec, nac_frequencies, eigendisplacements,
                    nac_eigendisplacements, d['labels_dict'], structure=structure)
 
 
 class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononBandStructureSymmLine):
-    r"""
-    This object stores a PhononBandStructureSymmLine together with Grueneisen parameters
+    """
+    This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
     for every frequency.
     """
 
-    def __init__(self, qpoints, frequencies, gruneisenparameters, lattice, has_nac=False, eigendisplacements=None,
+    def __init__(self, qpoints, frequencies, gruneisenparameters, lattice, eigendisplacements=None,
                  labels_dict=None, coords_are_cartesian=False, structure=None):
         """
 
@@ -429,9 +349,6 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
             lattice: The reciprocal lattice as a pymatgen Lattice object.
                 Pymatgen uses the physics convention of reciprocal lattice vectors
                 WITH a 2*pi coefficient
-            has_nac: specify if the band structure has been produced taking into account
-                non-analytical corrections at Gamma. If True frequenciens at Gamma from
-                diffent directions will be stored in naf. Default False.
             eigendisplacements: the phonon eigendisplacements associated to the
                 frequencies in cartesian coordinates. A numpy array of complex
                 numbers with shape (3*len(structure), len(qpoints), len(structure), 3).
@@ -445,44 +362,26 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
                 associated with the band structure. This is needed if we
                 provide projections to the band structure
         """
-        #TODO: what to do about the nac part?
         GruneisenPhononBandStructure.__init__(
             self,
             qpoints=qpoints,
             frequencies=frequencies,
             gruneisenparameters=gruneisenparameters,
             lattice=lattice,
-            nac_frequencies=None,
-            nac_gruneisenparameters=None,
             eigendisplacements=eigendisplacements,
-            nac_eigendisplacements=None,
             labels_dict=labels_dict,
             coords_are_cartesian=coords_are_cartesian,
             structure=structure
         )
 
-
         PhononBandStructureSymmLine._reuse_init(
             self,
-            eigendisplacements,
-            frequencies,
-            has_nac,
-            qpoints
+            eigendisplacements=eigendisplacements,
+            frequencies=frequencies,
+            has_nac=False,
+            qpoints=qpoints
         )
 
-    def as_dict(self):
-        """
-
-         Returns: MSONable dict
-
-        """
-        d = super().as_dict()
-        # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
-        # in the __init__ when the dict is deserialized
-        nac_frequencies = d.pop('nac_frequencies')
-        d.pop('nac_eigendisplacements')
-        d['has_nac'] = len(nac_frequencies) > 0
-        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -498,11 +397,11 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         eigendisplacements = np.array(d['eigendisplacements']['real']) + np.array(d['eigendisplacements']['imag']) * 1j
         structure = Structure.from_dict(d['structure']) if 'structure' in d else None
         return cls(
-            d['qpoints'],
-            np.array(d['bands']),
-            np.array(d['gruneisen']),
-            lattice_rec, d['has_nac'],
-            eigendisplacements,
-            d['labels_dict'],
+            qpoints=d['qpoints'],
+            frequencies=np.array(d['bands']),
+            gruneisenparameters=np.array(d['gruneisen']),
+            lattice=lattice_rec,
+            eigendisplacements=eigendisplacements,
+            labels_dict=d['labels_dict'],
             structure=structure,
         )

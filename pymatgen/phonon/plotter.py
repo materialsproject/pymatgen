@@ -742,7 +742,7 @@ class GruneisenPlotter:
         u = freq_units(units)
 
         x = self._gruneisen.frequencies.flatten() * u.factor
-        y = self._gruneisen.gruneisenparamters.flatten()
+        y = self._gruneisen.gruneisen.flatten()
 
         plt = pretty_plot(12, 8)
 

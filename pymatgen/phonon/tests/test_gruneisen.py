@@ -1,38 +1,34 @@
-import copy
 import os
 import unittest
 
 import phonopy
 
-from pymatgen.core import Structure
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line
 from pymatgen.io.phonopy import get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
 from pymatgen.phonon.plotter import GruneisenPhononBSPlotter, GruneisenPhononBandStructureSymmLine, GruneisenPlotter
-from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.testing import PymatgenTest
 
 
 class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
     def setUp(self) -> None:
-
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml"),
             structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
             fit=True)
 
-
     def test_plot(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
-        plt=plotter.get_plot_gs()
+        plt = plotter.get_plot_gs()
         self.assertEqual(str(type(plt)), "<class 'module'>")
 
     def test_as_dict_from_dict(self):
         new_dict = self.bs_symm_line.as_dict()
         self.new_bs_symm_line = GruneisenPhononBandStructureSymmLine.from_dict(new_dict)
         plotter = GruneisenPhononBSPlotter(bs=self.new_bs_symm_line)
-        plt=plotter.get_plot_gs()
+        plt = plotter.get_plot_gs()
         self.assertEqual(str(type(plt)), "<class 'module'>")
+
 
 class GruneisenParameterTest(PymatgenTest):
     def setUp(self) -> None:
@@ -68,8 +64,8 @@ class GruneisenParameterTest(PymatgenTest):
         self.assertAlmostEqual(self.gruneisenobject.multiplicities[0], 2)
 
     def test_gruneisen(self):
-        self.assertAlmostEqual(self.gruneisenobject_small.gruneisenparamters[0], -0.6176464482)
-        self.assertAlmostEqual(self.gruneisenobject_small.gruneisenparamters[5], 1.7574050911)
+        self.assertAlmostEqual(self.gruneisenobject_small.gruneisen[0], -0.6176464482)
+        self.assertAlmostEqual(self.gruneisenobject_small.gruneisen[5], 1.7574050911)
 
     def test_tdos(self):
         tdos = self.gruneisenobject.tdos
