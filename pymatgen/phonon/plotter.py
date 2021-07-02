@@ -724,18 +724,23 @@ class ThermoPlotter:
 class GruneisenPlotter:
 
     def __init__(self, gruneisen):
+        """
+        Class to plot information from Gruneisenparameter Object
+        Args:
+            gruneisen: GruneisenParameter Object
+        """
 
         self._gruneisen = gruneisen
 
     def get_plot(self, marker='o', markersize=None, units="thz"):
         """
-
+        will produce a plot
         Args:
-            marker:
-            markersize:
-            units:
+            marker: marker for the depiction
+            markersize: size of the marker
+            units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
-        Returns:
+        Returns: plot
 
         """
 
@@ -764,11 +769,11 @@ class GruneisenPlotter:
 
     def show(self, units="thz"):
         """
-
+        will show the plot
         Args:
-            units:
+            units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
-        Returns:
+        Returns: plot
 
         """
 
@@ -777,11 +782,11 @@ class GruneisenPlotter:
 
     def save_plot(self, filename, img_format="pdf", units="thz"):
         """
-
+        Will save the plot to a file
         Args:
-            filename:
-            img_format:
-            units:
+            filename: name of the filename
+            img_format: format of the saved plot
+            units: accepted units: thz, ev, mev, ha, cm-1, cm^-1
 
         Returns:
 
@@ -824,8 +829,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             frequencies: A list (one element for each branch) of frequencies for
             each qpoint: [branch][qpoint][mode]. The data is
             stored by branch to facilitate the plotting
-            gruneisen: TODO: add description
-
+            gruneisen: GruneisenPhononBandStructureSymmLine
             lattice: The reciprocal lattice.
         """
         distance, frequency, gruneisen = ([] for _ in range(3))
@@ -917,7 +921,6 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    # TODO: this is not testet yet
     def plot_compare_gs(self, other_plotter):
         """
         plot two band structure for comparison. One is in red the other in blue.
