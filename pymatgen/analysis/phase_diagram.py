@@ -546,7 +546,7 @@ class BasePhaseDiagram(MSONable):
         decomp = self.get_decomposition(comp)
         return comp.num_atoms * sum([e.energy_per_atom * n for e, n in decomp.items()])
 
-    def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
+    def get_decomp_and_e_above_hull(self, entry, allow_negative=False, check_stable=True):
         """
         Provides the decomposition and energy above convex hull for an entry.
         Due to caching, can be much faster if entries with the same composition
@@ -556,6 +556,11 @@ class BasePhaseDiagram(MSONable):
             entry (PDEntry): A PDEntry like object
             allow_negative (bool): Whether to allow negative e_above_hulls. Used to
                 calculate equilibrium reaction energies. Defaults to False.
+            check_stable (bool): Whether to first check whether an entry is stable.
+                In normal circumstances, this is the faster option since checking for
+                stable entries is relatively fast. However, if you have a huge proportion
+                of unstable entries, then this check can slow things down. You should then
+                set this to False.
 
         Returns:
             (decomp, energy_above_hull). The decomposition is provided
@@ -565,7 +570,7 @@ class BasePhaseDiagram(MSONable):
         """
         # Avoid computation for stable_entries.
         # NOTE scaled duplicates of stable_entries will not be caught.
-        if entry in list(self.stable_entries):
+        if check_stable and entry in self.stable_entries:
             return {entry: 1}, 0
 
         decomp = self.get_decomposition(entry.composition)
@@ -2056,11 +2061,10 @@ class PDPlotter:
         machines have matplotlib installed, I have done it this way.
         """
         import matplotlib.pyplot as plt
-        import mpl_toolkits.mplot3d.axes3d as p3
         from matplotlib.font_manager import FontProperties
 
         fig = plt.figure()
-        ax = p3.Axes3D(fig)
+        ax = fig.add_subplot(111, projection="3d")
         font = FontProperties(weight="bold", size=13)
         (lines, labels, unstable) = self.pd_plot_data
         count = 1
