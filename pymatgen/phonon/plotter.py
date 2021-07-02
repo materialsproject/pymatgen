@@ -722,6 +722,9 @@ class ThermoPlotter:
 
 
 class GruneisenPlotter:
+    """
+    Class to plot Gruneisenparameter Object
+    """
 
     def __init__(self, gruneisen):
         """
@@ -732,7 +735,7 @@ class GruneisenPlotter:
 
         self._gruneisen = gruneisen
 
-    def get_plot(self, marker='o', markersize=None, units="thz"):
+    def get_plot(self, marker="o", markersize=None, units="thz"):
         """
         will produce a plot
         Args:
@@ -751,12 +754,12 @@ class GruneisenPlotter:
 
         plt = pretty_plot(12, 8)
 
-        plt.xlabel(r'$\mathrm{{Frequency\ ({})}}$'.format(u.label))
-        plt.ylabel(r'$\mathrm{Grüneisen\ parameter}$')
+        plt.xlabel(r"$\mathrm{{Frequency\ ({})}}$".format(u.label))
+        plt.ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n = len(y) - 1
         for i, (y, x) in enumerate(zip(y, x)):
-            color = (1. / n * i, 0, 1. / n * (n - i))
+            color = (1.0 / n * i, 0, 1.0 / n * (n - i))
 
             if markersize:
                 plt.plot(x, y, marker, color=color, markersize=markersize)
@@ -813,9 +816,9 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             raise ValueError(
                 "GruneisenPhononBSPlotter only works with GruneisenPhononBandStructureSymmLine objects. "
                 "A GruneisenPhononBandStructure object (on a uniform grid for instance and "
-                "not along symmetry lines won't work)")
+                "not along symmetry lines won't work)"
+            )
         super().__init__(bs)
-
 
     def bs_plot_data(self):
 
@@ -840,20 +843,19 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
             frequency.append([])
             gruneisen.append([])
-            distance.append([self._bs.distance[j]
-                             for j in range(b['start_index'],
-                                            b['end_index'] + 1)])
+            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
 
             for i in range(self._nb_bands):
-                frequency[-1].append(
-                    [self._bs.bands[i][j]
-                     for j in range(b['start_index'], b['end_index'] + 1)])
-                gruneisen[-1].append(
-                    [self._bs.gruneisen[i][j]
-                     for j in range(b['start_index'], b['end_index'] + 1)])
+                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+                gruneisen[-1].append([self._bs.gruneisen[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
 
-        return {'ticks': ticks, 'distances': distance, 'frequency': frequency, 'gruneisen': gruneisen,
-                'lattice': self._bs.lattice_rec.as_dict()}
+        return {
+            "ticks": ticks,
+            "distances": distance,
+            "frequency": frequency,
+            "gruneisen": gruneisen,
+            "lattice": self._bs.lattice_rec.as_dict(),
+        }
 
     def get_plot_gs(self, ylim=None):
         """
@@ -869,26 +871,30 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         band_linewidth = 1
 
         data = self.bs_plot_data()
-        for d in range(len(data['distances'])):
+        for d in range(len(data["distances"])):
             for i in range(self._nb_bands):
-                plt.plot(data['distances'][d],
-                         [data['gruneisen'][d][i][j]
-                          for j in range(len(data['distances'][d]))], 'b-',
-                         # linewidth=band_linewidth)
-                         marker='o', markersize=2, linewidth=2)
+                plt.plot(
+                    data["distances"][d],
+                    [data["gruneisen"][d][i][j] for j in range(len(data["distances"][d]))],
+                    "b-",
+                    # linewidth=band_linewidth)
+                    marker="o",
+                    markersize=2,
+                    linewidth=2,
+                )
 
         self._maketicks(plt)
 
         # plot y=0 line
-        plt.axhline(0, linewidth=1, color='k')
+        plt.axhline(0, linewidth=1, color="k")
 
         # Main X and Y Labels
-        plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
-        plt.ylabel(r'$\mathrm{Grüneisen\ Parameter}$', fontsize=30)
+        plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
+        plt.ylabel(r"$\mathrm{Grüneisen\ Parameter}$", fontsize=30)
 
         # X range (K)
         # last distance point
-        x_max = data['distances'][-1][-1]
+        x_max = data["distances"][-1][-1]
         plt.xlim(0, x_max)
 
         if ylim is not None:
@@ -939,16 +945,18 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
 
-        if len(data_orig['distances']) != len(data['distances']):
-            raise ValueError('The two objects are not compatible.')
+        if len(data_orig["distances"]) != len(data["distances"]):
+            raise ValueError("The two objects are not compatible.")
 
         plt = self.get_plot()
         band_linewidth = 1
         for i in range(other_plotter._nb_bands):
-            for d in range(len(data_orig['distances'])):
-                plt.plot(data_orig['distances'][d],
-                         [data['gruneisen'][d][i][j]
-                          for j in range(len(data_orig['distances'][d]))],
-                         'r-', linewidth=band_linewidth)
+            for d in range(len(data_orig["distances"])):
+                plt.plot(
+                    data_orig["distances"][d],
+                    [data["gruneisen"][d][i][j] for j in range(len(data_orig["distances"][d]))],
+                    "r-",
+                    linewidth=band_linewidth,
+                )
 
         return plt
