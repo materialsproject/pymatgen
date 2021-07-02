@@ -714,14 +714,14 @@ class LammpsData(MSONable):
                 df = pd.read_csv(sio, header=None, comment="#", delim_whitespace=True)
                 if kw == "PairIJ Coeffs":
                     names = ["id1", "id2"] + ["coeff%d" % i for i in range(1, df.shape[1] - 1)]
-                    df.index.name = None
+                    df.index.name = None  # pylint: disable=E1101
                 elif kw in SECTION_HEADERS:
                     names = ["id"] + SECTION_HEADERS[kw]
                 elif kw == "Atoms":
                     names = ["id"] + ATOMS_HEADERS[atom_style]
-                    if df.shape[1] == len(names):
+                    if df.shape[1] == len(names):  # pylint: disable=E1101
                         pass
-                    elif df.shape[1] == len(names) + 3:
+                    elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
                         raise ValueError("Format in Atoms section inconsistent" " with atom_style %s" % atom_style)
@@ -1234,9 +1234,8 @@ class ForceField(MSONable):
             "nonbond_coeffs": self.nonbond_coeffs,
             "topo_coeffs": self.topo_coeffs,
         }
-        yml = yaml.YAML(typ="safe")
         with open(filename, "w") as f:
-            yml.dump(d, f)
+            yaml.dump(d, f)
 
     @classmethod
     def from_file(cls, filename):
@@ -1247,9 +1246,8 @@ class ForceField(MSONable):
             filename (str): Filename.
 
         """
-        yml = yaml.YAML(typ="safe")
         with open(filename, "r") as f:
-            d = yml.load(f)
+            d = yaml.load(f)
         return cls.from_dict(d)
 
     @classmethod
