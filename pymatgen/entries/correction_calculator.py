@@ -308,8 +308,8 @@ class CorrectionCalculator:
             )
         self.corrections = popt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(self.pcov)).tolist()
-        for i in range(len(self.species)):
-            self.corrections_dict[self.species[i]] = (
+        for i, v in enumerate(self.species):
+            self.corrections_dict[v] = (
                 round(self.corrections[i], 3),
                 round(self.corrections_std_error[i], 4),
             )

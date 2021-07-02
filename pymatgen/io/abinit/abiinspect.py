@@ -150,7 +150,7 @@ class ScfCycle(Mapping):
 
     def to_string(self, verbose=0):
         """String representation."""
-        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys()))) for it in range(self.num_iterations)]
+        rows = [[it + 1] + list(map(str, (v[it] for k, v in self.items()))) for it in range(self.num_iterations)]
 
         return tabulate(rows, headers=["Iter"] + list(self.keys()))
 
