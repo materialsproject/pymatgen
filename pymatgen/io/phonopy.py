@@ -319,12 +319,12 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
 
 @requires(Phonopy, "phonopy is required to calculate phonon density of states")
 def get_phonon_dos_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        mesh_density: float = 100.0,
-        num_dos_steps: int = 200,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    num_dos_steps: int = 200,
+    **kwargs,
 ) -> CompletePhononDos:
     """
     Get a projected phonon density of states from phonopy force constants.
@@ -369,11 +369,11 @@ def get_phonon_dos_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        mesh_density: float = 100.0,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    **kwargs,
 ) -> PhononBandStructure:
     """
     Get a uniform phonon band structure from phonopy force constants.
@@ -401,12 +401,12 @@ def get_phonon_band_structure_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_symm_line_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        line_density: float = 20.0,
-        symprec: float = 0.01,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    line_density: float = 20.0,
+    symprec: float = 0.01,
+    **kwargs,
 ) -> PhononBandStructureSymmLine:
     """
     Get a phonon band structure along a high symmetry path from phonopy force
@@ -441,11 +441,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     return PhononBandStructureSymmLine(kpoints, frequencies, structure.lattice, labels_dict=labels_dict)
 
 
-def get_gruneisenparameter(
-        gruneisen_path,
-        structure=None,
-        structure_path=None
-) -> GruneisenParameter:
+def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) -> GruneisenParameter:
     """
     Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
     The order is structure > structure path > structure from gruneisen dict.
@@ -474,27 +470,27 @@ def get_gruneisenparameter(
     qpts, multiplicities, frequencies, eigendisplacements, gruneisen = ([] for _ in range(5))
     phonopy_labels_dict = {}
 
-    for p in gruneisen_dict['phonon']:
-        q = p['q-position']
+    for p in gruneisen_dict["phonon"]:
+        q = p["q-position"]
         qpts.append(q)
         if "multiplicity" in p:
-            m = p['multiplicity']
+            m = p["multiplicity"]
         else:
             m = 1
         multiplicities.append(m)
         bands, gruneisenband, eig_q = ([] for _ in range(3))
-        for b in p['band']:
-            bands.append(b['frequency'])
-            if 'gruneisen' in b:
-                gruneisenband.append(b['gruneisen'])
+        for b in p["band"]:
+            bands.append(b["frequency"])
+            if "gruneisen" in b:
+                gruneisenband.append(b["gruneisen"])
             # currently, eigenvectors are not exported from phonopy. Will leave this option in case it will be implemented
             if "eigenvector" in b:
                 eig_b = get_eig_b(b, q, structure)
                 eig_q.append(eig_b)
         frequencies.append(bands)
         gruneisen.append(gruneisenband)
-        if 'label' in p:
-            phonopy_labels_dict[p['label']] = p['q-position']
+        if "label" in p:
+            phonopy_labels_dict[p["label"]] = p["q-position"]
         if eig_q:
             eigendisplacements.append(eig_q)
 
@@ -504,12 +500,14 @@ def get_gruneisenparameter(
     frequencies = np.transpose(frequencies)
     gruneisen = np.transpose(gruneisen)
 
-    return GruneisenParameter(gruneisen=gruneisen, qpoints=qpts, multiplicities=multiplicities,
-                              frequencies=frequencies, structure=structure)
+    return GruneisenParameter(
+        gruneisen=gruneisen, qpoints=qpts, multiplicities=multiplicities, frequencies=frequencies, structure=structure
+    )
 
 
-def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_path=None,
-                                     labels_dict=None, fit=False) -> GruneisenPhononBandStructureSymmLine:
+def get_gs_ph_bs_symm_line_from_dict(
+    gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
+) -> GruneisenPhononBandStructureSymmLine:
     """
     Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
     extracted by the gruneisen.yaml file produced by phonopy. The labels
@@ -548,99 +546,101 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
     phonopy_labels_dict = {}
 
     if fit:
-        for pa in gruneisen_dict['path']:
-            phonon = pa['phonon']  # This is a list
-            start = pa['phonon'][0]
-            end = pa['phonon'][-1]
+        for pa in gruneisen_dict["path"]:
+            phonon = pa["phonon"]  # This is a list
+            start = pa["phonon"][0]
+            end = pa["phonon"][-1]
 
-            if start['q-position'] == [0, 0, 0]:  # Gamma at start of band
-                qpts_temp, frequencies_temp, gruneisen_temp, distance, eigendisplacements_temp= ([] for _ in range(5))
-                for i in range(pa['nqpoint']):
+            if start["q-position"] == [0, 0, 0]:  # Gamma at start of band
+                qpts_temp, frequencies_temp, gruneisen_temp, distance, eigendisplacements_temp = ([] for _ in range(5))
+                for i in range(pa["nqpoint"]):
                     bands, gruneisenband, eig_q = ([] for _ in range(3))
-                    for b in phonon[pa['nqpoint'] - i - 1]['band']:
-                        bands.append(b['frequency'])
+                    for b in phonon[pa["nqpoint"] - i - 1]["band"]:
+                        bands.append(b["frequency"])
                         # Fraction of leftover points in current band
                         gruen = extrapolate_grun(b, distance, gruneisen_temp, gruneisenband, i, pa)
                         gruneisenband.append(gruen)
                         # currently, eigenvectors are not exported from phonopy. Will leave this option in case it will be implemented
-                        if 'eigenvector' in b:
+                        if "eigenvector" in b:
                             eig_b = get_eig_b(b, q, structure)
                             eig_q.append(eig_b)
-                    q = phonon[pa['nqpoint'] - i - 1]['q-position']
+                    q = phonon[pa["nqpoint"] - i - 1]["q-position"]
                     qpts_temp.append(q)
-                    d = phonon[pa['nqpoint'] - i - 1]['distance']
+                    d = phonon[pa["nqpoint"] - i - 1]["distance"]
                     distance.append(d)
                     frequencies_temp.append(bands)
                     gruneisen_temp.append(gruneisenband)
                     if eig_q:
                         eigendisplacements_temp.append(eig_q)
-                    if 'label' in phonon[pa['nqpoint'] - i - 1]:
-                        phonopy_labels_dict[phonon[pa['nqpoint'] - i - 1]]['label'] = phonon[pa['nqpoint'] - i - 1]['q-position']
+                    if "label" in phonon[pa["nqpoint"] - i - 1]:
+                        phonopy_labels_dict[phonon[pa["nqpoint"] - i - 1]]["label"] = phonon[pa["nqpoint"] - i - 1][
+                            "q-position"
+                        ]
 
                 qpts.extend(list(reversed(qpts_temp)))
                 frequencies.extend(list(reversed(frequencies_temp)))
                 gruneisenparameters.extend(list(reversed(gruneisen_temp)))
                 eigendisplacements.extend(list(reversed(eigendisplacements_temp)))
-            elif end['q-position'] == [0, 0, 0]:  # Gamma at end of band
+            elif end["q-position"] == [0, 0, 0]:  # Gamma at end of band
                 distance = []
-                for i in range(pa['nqpoint']):
+                for i in range(pa["nqpoint"]):
                     bands, gruneisenband, eig_q = ([] for _ in range(3))
-                    for b in phonon[i]['band']:
-                        bands.append(b['frequency'])
+                    for b in phonon[i]["band"]:
+                        bands.append(b["frequency"])
                         gruen = extrapolate_grun(b, distance, gruneisenparameters, gruneisenband, i, pa)
                         gruneisenband.append(gruen)
                         # currently, eigenvectors are not exported from phonopy. Will leave this option in case it will be implemented
-                        if 'eigenvector' in b:
+                        if "eigenvector" in b:
                             eig_b = get_eig_b(b, q, structure)
                             eig_q.append(eig_b)
-                    q = phonon[i]['q-position']
+                    q = phonon[i]["q-position"]
                     qpts.append(q)
-                    d = phonon[i]['distance']
+                    d = phonon[i]["distance"]
                     distance.append(d)
                     frequencies.append(bands)
                     gruneisenparameters.append(gruneisenband)
                     if eig_q:
                         eigendisplacements.append(eig_q)
-                    if 'label' in phonon[i]:
-                        phonopy_labels_dict[phonon[i]['label']] = phonon[i]['q-position']
+                    if "label" in phonon[i]:
+                        phonopy_labels_dict[phonon[i]["label"]] = phonon[i]["q-position"]
 
             else:  # No Gamma in band
-                for i in range(pa['nqpoint']):
+                for i in range(pa["nqpoint"]):
                     bands, gruneisenband, eig_q = ([] for _ in range(3))
-                    for b in phonon[i]['band']:
-                        bands.append(b['frequency'])
-                        gruneisenband.append(b['gruneisen'])
+                    for b in phonon[i]["band"]:
+                        bands.append(b["frequency"])
+                        gruneisenband.append(b["gruneisen"])
                         # currently, eigenvectors are not exported from phonopy. Will leave this option in case it will be implemented
-                        if 'eigenvector' in b:
+                        if "eigenvector" in b:
                             eig_b = get_eig_b(b, q, structure)
                             eig_q.append(eig_b)
-                    q = phonon[i]['q-position']
+                    q = phonon[i]["q-position"]
                     qpts.append(q)
-                    d = phonon[i]['distance']
+                    d = phonon[i]["distance"]
                     distance.append(d)
                     frequencies.append(bands)
                     gruneisenparameters.append(gruneisenband)
                     if eig_q:
                         eigendisplacements.append(eig_q)
-                    if 'label' in phonon[i]:
-                        phonopy_labels_dict[phonon[i]['label']] = phonon[i]['q-position']
+                    if "label" in phonon[i]:
+                        phonopy_labels_dict[phonon[i]["label"]] = phonon[i]["q-position"]
 
     else:
-        for pa in gruneisen_dict['path']:
-            for p in pa['phonon']:
-                q = p['q-position']
+        for pa in gruneisen_dict["path"]:
+            for p in pa["phonon"]:
+                q = p["q-position"]
                 qpts.append(q)
                 bands, gruneisen_bands, eig_q = ([] for _ in range(3))
-                for b in p['band']:
-                    bands.append(b['frequency'])
-                    gruneisen_bands.append(b['gruneisen'])
-                    if 'eigenvector' in b:
+                for b in p["band"]:
+                    bands.append(b["frequency"])
+                    gruneisen_bands.append(b["gruneisen"])
+                    if "eigenvector" in b:
                         eig_b = get_eig_b(b, q, structure)
                         eig_q.append(eig_b)
                 frequencies.append(bands)
                 gruneisenparameters.append(gruneisen_bands)
-                if 'label' in p:
-                    phonopy_labels_dict[p['label']] = p['q-position']
+                if "label" in p:
+                    phonopy_labels_dict[p["label"]] = p["q-position"]
                 if eig_q:
                     eigendisplacements.append(eig_q)
     qpts = np.array(qpts)
@@ -652,38 +652,38 @@ def get_gs_ph_bs_symm_line_from_dict(gruneisen_dict, structure=None, structure_p
 
     rec_latt = structure.lattice.reciprocal_lattice
     labels_dict = labels_dict or phonopy_labels_dict
-    return GruneisenPhononBandStructureSymmLine(qpoints=qpts, frequencies=frequencies,
-                                                gruneisenparameters=gruneisenparameters, lattice=rec_latt,
-                                                labels_dict=labels_dict, structure=structure,
-                                                eigendisplacements=eigendisplacements)
+    return GruneisenPhononBandStructureSymmLine(
+        qpoints=qpts,
+        frequencies=frequencies,
+        gruneisenparameters=gruneisenparameters,
+        lattice=rec_latt,
+        labels_dict=labels_dict,
+        structure=structure,
+        eigendisplacements=eigendisplacements,
+    )
 
 
 def extrapolate_grun(b, distance, gruneisenparameter, gruneisenband, i, pa):
-    leftover_fraction = (pa['nqpoint'] - i - 1) / pa['nqpoint']
+    leftover_fraction = (pa["nqpoint"] - i - 1) / pa["nqpoint"]
     if leftover_fraction < 0.1:
-        diff = abs(b['gruneisen'] - gruneisenparameter[-1][len(gruneisenband)]) / abs(
-            gruneisenparameter[-2][len(gruneisenband)] - gruneisenparameter[-1][len(gruneisenband)])
+        diff = abs(b["gruneisen"] - gruneisenparameter[-1][len(gruneisenband)]) / abs(
+            gruneisenparameter[-2][len(gruneisenband)] - gruneisenparameter[-1][len(gruneisenband)]
+        )
         if diff > 2:
             x = list(range(len(distance)))
             y = [i[len(gruneisenband)] for i in gruneisenparameter]
-            y = y[-len(x):]  # Only elements of current band
+            y = y[-len(x) :]  # Only elements of current band
             extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
             g_extrapolated = extrapolator(len(distance))
             gruen = float(g_extrapolated)
         else:
-            gruen = b['gruneisen']
+            gruen = b["gruneisen"]
     else:
-        gruen = b['gruneisen']
+        gruen = b["gruneisen"]
     return gruen
 
 
-def get_gruneisen_ph_bs_symm_line(
-        gruneisen_path,
-        structure=None,
-        structure_path=None,
-        labels_dict=None,
-        fit=False
-):
+def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path=None, labels_dict=None, fit=False):
     """
     Creates a pymatgen GruneisenPhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
@@ -704,5 +704,4 @@ def get_gruneisen_ph_bs_symm_line(
             These derivations occur because of very small frequencies
             (and therefore numerical inaccuracies) close to gamma.
     """
-    return get_gs_ph_bs_symm_line_from_dict(loadfn(gruneisen_path), structure, structure_path, labels_dict,
-                                            fit)
+    return get_gs_ph_bs_symm_line_from_dict(loadfn(gruneisen_path), structure, structure_path, labels_dict, fit)

@@ -37,10 +37,13 @@ class GruneisenParameter(MSONable):
     """
 
     def __init__(
-            self, qpoints, gruneisen, frequencies,
-            multiplicities=None,
-            structure=None,
-            lattice=None,
+        self,
+        qpoints,
+        gruneisen,
+        frequencies,
+        multiplicities=None,
+        structure=None,
+        lattice=None,
     ):
         """
 
@@ -112,9 +115,9 @@ class GruneisenParameter(MSONable):
         w = self.frequencies
         wdkt = w * const.tera / (const.value("Boltzmann constant in Hz/K") * t)
         exp_wdkt = np.exp(wdkt)
-        cv = np.choose(w > 0,
-                       (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (
-                               exp_wdkt - 1) ** 2))  # in eV
+        cv = np.choose(
+            w > 0, (0, const.value("Boltzmann constant in eV/K") * wdkt ** 2 * exp_wdkt / (exp_wdkt - 1) ** 2)
+        )  # in eV
 
         gamma = self.gruneisen
 
@@ -139,7 +142,6 @@ class GruneisenParameter(MSONable):
             g = np.sqrt(g)
 
         return g
-
 
     def thermal_conductivity_slack(self, squared=True, limit_frequencies=None, theta_d=None, t=None):
         """
@@ -169,9 +171,9 @@ class GruneisenParameter(MSONable):
             theta_d = self.acoustic_debye_temp
         mean_g = self.average_gruneisen(t=theta_d, squared=squared, limit_frequencies=limit_frequencies)
 
-        f1 = 0.849 * 3 * (4 ** (1. / 3.)) / (20 * np.pi ** 3 * (1 - 0.514 * mean_g ** -1 + 0.228 * mean_g ** -2))
+        f1 = 0.849 * 3 * (4 ** (1.0 / 3.0)) / (20 * np.pi ** 3 * (1 - 0.514 * mean_g ** -1 + 0.228 * mean_g ** -2))
         f2 = (const.k * theta_d / const.hbar) ** 2
-        f3 = const.k * average_mass * self.structure.volume ** (1. / 3.) * 1e-10 / (const.hbar * mean_g ** 2)
+        f3 = const.k * average_mass * self.structure.volume ** (1.0 / 3.0) * 1e-10 / (const.hbar * mean_g ** 2)
         k = f1 * f2 * f3
 
         if t is not None:
@@ -185,6 +187,7 @@ class GruneisenParameter(MSONable):
         Debye temperature in K. Adapted from apipy.
         """
         from scipy.interpolate import UnivariateSpline
+
         f_mesh = self.tdos.frequency_points * const.tera
         dos = self.tdos.dos
 
@@ -235,15 +238,15 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     """
 
     def __init__(
-            self,
-            qpoints,
-            frequencies,
-            gruneisenparameters,
-            lattice,
-            eigendisplacements=None,
-            labels_dict=None,
-            coords_are_cartesian=False,
-            structure=None
+        self,
+        qpoints,
+        frequencies,
+        gruneisenparameters,
+        lattice,
+        eigendisplacements=None,
+        labels_dict=None,
+        coords_are_cartesian=False,
+        structure=None,
     ):
         """
         Args:
@@ -272,13 +275,16 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         """
 
         PhononBandStructure.__init__(
-            self, qpoints, frequencies, lattice,
+            self,
+            qpoints,
+            frequencies,
+            lattice,
             nac_frequencies=None,
             eigendisplacements=eigendisplacements,
             nac_eigendisplacements=None,
             labels_dict=labels_dict,
             coords_are_cartesian=coords_are_cartesian,
-            structure=structure
+            structure=structure,
         )
         self.gruneisen = gruneisenparameters
 
@@ -289,24 +295,27 @@ class GruneisenPhononBandStructure(PhononBandStructure):
             MSONable (dict)
 
         """
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "lattice_rec": self.lattice_rec.as_dict(),
-             "qpoints": []}
+        d = {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "lattice_rec": self.lattice_rec.as_dict(),
+            "qpoints": [],
+        }
         # qpoints are not Kpoint objects dicts but are frac coords. This makes
         # the dict smaller and avoids the repetition of the lattice
         for q in self.qpoints:
             d["qpoints"].append(q.as_dict()["fcoords"])
         d["bands"] = self.bands.tolist()
-        d['labels_dict'] = {}
+        d["labels_dict"] = {}
         for c in self.labels_dict:
-            d['labels_dict'][c] = self.labels_dict[c].as_dict()['fcoords']
+            d["labels_dict"][c] = self.labels_dict[c].as_dict()["fcoords"]
         # split the eigendisplacements to real and imaginary part for serialization
-        d['eigendisplacements'] = dict(real=np.real(self.eigendisplacements).tolist(),
-                                       imag=np.imag(self.eigendisplacements).tolist())
-        d['gruneisen'] = self.gruneisen.tolist()
+        d["eigendisplacements"] = dict(
+            real=np.real(self.eigendisplacements).tolist(), imag=np.imag(self.eigendisplacements).tolist()
+        )
+        d["gruneisen"] = self.gruneisen.tolist()
         if self.structure:
-            d['structure'] = self.structure.as_dict()
+            d["structure"] = self.structure.as_dict()
 
         return d
 
@@ -322,11 +331,19 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
         """
 
-        lattice_rec = Lattice(d['lattice_rec']['matrix'])
-        eigendisplacements = np.array(d['eigendisplacements']['real']) + np.array(d['eigendisplacements']['imag']) * 1j
-        structure = Structure.from_dict(d['structure']) if 'structure' in d else None
-        return cls(d['qpoints'], np.array(d['bands']), lattice_rec, nac_frequencies, eigendisplacements,
-                   nac_eigendisplacements, d['labels_dict'], structure=structure)
+        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
+        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
+        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
+        return cls(
+            d["qpoints"],
+            np.array(d["bands"]),
+            lattice_rec,
+            nac_frequencies,
+            eigendisplacements,
+            nac_eigendisplacements,
+            d["labels_dict"],
+            structure=structure,
+        )
 
 
 class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononBandStructureSymmLine):
@@ -335,8 +352,17 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
     for every frequency.
     """
 
-    def __init__(self, qpoints, frequencies, gruneisenparameters, lattice, eigendisplacements=None,
-                 labels_dict=None, coords_are_cartesian=False, structure=None):
+    def __init__(
+        self,
+        qpoints,
+        frequencies,
+        gruneisenparameters,
+        lattice,
+        eigendisplacements=None,
+        labels_dict=None,
+        coords_are_cartesian=False,
+        structure=None,
+    ):
         """
 
         Args:
@@ -371,17 +397,12 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
             eigendisplacements=eigendisplacements,
             labels_dict=labels_dict,
             coords_are_cartesian=coords_are_cartesian,
-            structure=structure
+            structure=structure,
         )
 
         PhononBandStructureSymmLine._reuse_init(
-            self,
-            eigendisplacements=eigendisplacements,
-            frequencies=frequencies,
-            has_nac=False,
-            qpoints=qpoints
+            self, eigendisplacements=eigendisplacements, frequencies=frequencies, has_nac=False, qpoints=qpoints
         )
-
 
     @classmethod
     def from_dict(cls, d):
@@ -393,15 +414,15 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         Returns: GruneisenPhononBandStructureSummLine
 
         """
-        lattice_rec = Lattice(d['lattice_rec']['matrix'])
-        eigendisplacements = np.array(d['eigendisplacements']['real']) + np.array(d['eigendisplacements']['imag']) * 1j
-        structure = Structure.from_dict(d['structure']) if 'structure' in d else None
+        lattice_rec = Lattice(d["lattice_rec"]["matrix"])
+        eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j
+        structure = Structure.from_dict(d["structure"]) if "structure" in d else None
         return cls(
-            qpoints=d['qpoints'],
-            frequencies=np.array(d['bands']),
-            gruneisenparameters=np.array(d['gruneisen']),
+            qpoints=d["qpoints"],
+            frequencies=np.array(d["bands"]),
+            gruneisenparameters=np.array(d["gruneisen"]),
             lattice=lattice_rec,
             eigendisplacements=eigendisplacements,
-            labels_dict=d['labels_dict'],
+            labels_dict=d["labels_dict"],
             structure=structure,
         )
