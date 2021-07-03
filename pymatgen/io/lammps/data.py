@@ -351,7 +351,7 @@ class LammpsData(MSONable):
             velocity (int): No. of significant figures to output for
                 velocities. Default to 8.
             charge (int): No. of significant figures to output for
-                charges. Default to 3.
+                charges. Default to 4.
             hybrid (bool): Whether to write hybrid coeffs types.
                 Default to True. If the data object has no hybrid
                 coeffs types and has large coeffs section, one may
@@ -502,7 +502,7 @@ class LammpsData(MSONable):
             velocity (int): No. of significant figures to output for
                 velocities. Default to 8.
             charge (int): No. of significant figures to output for
-                charges. Default to 3.
+                charges. Default to 4.
 
         """
         with open(filename, "w") as f:
@@ -890,7 +890,7 @@ class LammpsData(MSONable):
         """
 
         def decode_df(s):
-            return pd.read_json(s, orient="split")
+            return pd.read_json(s, orient="split", dtype=False)
 
         items = dict()
         items["box"] = LammpsBox.from_dict(d["box"])
@@ -1084,7 +1084,7 @@ class ForceField(MSONable):
         """
 
         Args:
-            mass_into (list): List of atomic mass info. Elements,
+            mass_info (list): List of atomic mass info. Elements,
                 strings (symbols) and floats are all acceptable for the
                 values, with the first two converted to the atomic mass
                 of an element. It is recommended to use
@@ -1288,8 +1288,8 @@ class CombinedData(LammpsData):
                 restricted to word characters ([a-zA-Z0-9_]). If names with any non-word characters
                 are passed in, the special characters will be substituted by '_'.
             list_of_numbers: A list of Integer for counts of each molecule
-                coordinates (pandas.DataFrame): DataFrame with with four
-                columns ["atom", "x", "y", "z"] for coordinates of atoms.
+            coordinates (pandas.DataFrame): DataFrame at least containing
+                columns of ["x", "y", "z"] for coordinates of atoms.
             atom_style (str): Output atom_style. Default to "full".
 
         """
@@ -1365,6 +1365,62 @@ class CombinedData(LammpsData):
         if not bool(self.topology):
             self.topology = None
 
+    @property
+    def structure(self):
+        """
+        Exports a periodic structure object representing the simulation
+        box.
+        Return:
+            Structure
+        """
+        ld_cp = self.as_lammpsdata()
+        return ld_cp.structure
+
+    def disassemble(self, atom_labels=None, guess_element=True, ff_label="ff_map"):
+        """
+        Breaks down LammpsData to building blocks
+        (LammpsBox, ForceField and a series of Topology).
+        RESTRICTIONS APPLIED:
+        1. No complex force field defined not just on atom
+            types, where the same type or equivalent types of topology
+            may have more than one set of coefficients.
+        2. No intermolecular topologies (with atoms from different
+            molecule-ID) since a Topology object includes data for ONE
+            molecule or structure only.
+        Args:
+            atom_labels ([str]): List of strings (must be different
+                from one another) for labelling each atom type found in
+                Masses section. Default to None, where the labels are
+                automaticaly added based on either element guess or
+                dummy specie assignment.
+            guess_element (bool): Whether to guess the element based on
+                its atomic mass. Default to True, otherwise dummy
+                species "Qa", "Qb", ... will be assigned to various
+                atom types. The guessed or assigned elements will be
+                reflected on atom labels if atom_labels is None, as
+                well as on the species of molecule in each Topology.
+            ff_label (str): Site property key for labeling atoms of
+                different types. Default to "ff_map".
+        Returns:
+            LammpsBox, ForceField, [Topology]
+        """
+        ld_cp = self.as_lammpsdata()
+        return ld_cp.disassemble(atom_labels=None, guess_element=True, ff_label="ff_map")
+
+    @classmethod
+    def from_ff_and_topologies(cls):
+        """
+        Unsupported constructor for CombinedData objects.
+        """
+        raise AttributeError("Unsupported constructor for CombinedData objects.")
+
+    @classmethod
+    def from_structure(cls):
+        """
+        Unsupported constructor for CombinedData objects.
+        """
+        raise AttributeError("Unsupported constructor for CombinedData objects.")
+
     @classmethod
     def parse_xyz(cls, filename):
         """
@@ -1423,8 +1479,8 @@ class CombinedData(LammpsData):
                 may contain one or more molecule ID.
             names: a list of name for each cluster.
             list_of_numbers: a list of Integer for counts of each molecule
-                coordinates (pandas.DataFrame): DataFrame with with four
-                columns ["atom", "x", "y", "z"] for coordinates of atoms.
+            coordinates (pandas.DataFrame): DataFrame at least containing
+                columns of ["x", "y", "z"] for coordinates of atoms.
             atom_style (str): Output atom_style. Default to "full".
         """
         styles = []
@@ -1437,7 +1493,7 @@ class CombinedData(LammpsData):
             assert atom_style == style_return, "Data have different atom_style as specified."
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
-    def get_string(self, distance=6, velocity=8, charge=4):
+    def get_string(self, distance=6, velocity=8, charge=4, hybrid=True):
         """
         Returns the string representation of CombinedData, essentially
         the string to be written to a file. Combination info is included
@@ -1453,12 +1509,17 @@ class CombinedData(LammpsData):
             velocity (int): No. of significant figures to output for
                 velocities. Default to 8.
             charge (int): No. of significant figures to output for
-                charges. Default to 3.
+                charges. Default to 4.
+            hybrid (bool): Whether to write hybrid coeffs types.
+                Default to True. If the data object has no hybrid
+                coeffs types and has large coeffs section, one may
+                use False to speedup the process. Otherwise the
+                default is recommended.
 
         Returns:
             String representation
         """
-        lines = LammpsData.get_string(self, distance, velocity, charge).splitlines()
+        lines = LammpsData.get_string(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
             (str(a) + " " + b) if c == 1 else (str(a) + "(" + str(c) + ") " + b)
             for a, b, c in zip(self.nums, self.names, self.mols_per_data)
@@ -1466,19 +1527,71 @@ class CombinedData(LammpsData):
         lines.insert(1, info)
         return "\n".join(lines)
 
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Constructor that reads in a dictionary.
+        Args:
+            d (dict): Dictionary to read.
+        """
+
+        def decode_df(s):
+            return pd.read_json(s, orient="split", dtype=False)
+
+        items = dict()
+        items["list_of_molecules"] = [LammpsData.from_dict(mol) for mol in d["list_of_molecules"]]
+        items["list_of_numbers"] = d["list_of_numbers"]
+        items["coordinates"] = decode_df(d["coordinates"])
+        items["list_of_names"] = d["list_of_names"]
+        items["atom_style"] = d["atom_style"]
+
+        return cls(**items)
+
+    def as_dict(self):
+        """
+        Returns the CombinedData as a dict.
+        """
+
+        def encode_df(df):
+            return df.to_json(orient="split")
+
+        d = dict()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["list_of_molecules"] = [mol.as_dict() for mol in self.mols]
+        d["list_of_numbers"] = self.nums.copy()
+        d["list_of_names"] = self.names.copy()
+        d["coordinates"] = encode_df(self.atoms[["x", "y", "z"]])
+        d["atom_style"] = self.atom_style
+
+        return d
+
     def as_lammpsdata(self):
         """
-        Convert a CombinedData object to a LammpsData object.
+        Convert a CombinedData object to a LammpsData object. attributes are deepcopied.
+
+        box (LammpsBox): Simulation box.
+        force_field (dict): Data for force field sections. Optional
+            with default to None. Only keywords in force field and
+            class 2 force field are valid keys, and each value is a
+            DataFrame.
+        topology (dict): Data for topology sections. Optional with
+            default to None. Only keywords in topology are valid
+            keys, and each value is a DataFrame.
 
         """
         items = dict()
-        items["box"] = self.box
-        items["masses"] = self.masses
-        items["atoms"] = self.atoms
+        items["box"] = LammpsBox(self.box.bounds, self.box.tilt)
+        items["masses"] = self.masses.copy()
+        items["atoms"] = self.atoms.copy()
         items["atom_style"] = self.atom_style
-        items["velocities"] = self.velocities
-        items["force_field"] = self.force_field
-        items["topology"] = self.topology
+        items["velocities"] = None  # Velocities not supported
+        if self.force_field:
+            all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
+            items["force_field"] = {k: v.copy() for k, v in self.force_field.items() if k in all_ff_kws}
+
+        if self.topology:
+            items["topology"] = {k: v.copy() for k, v in self.topology.items() if k in SECTION_KEYWORDS["topology"]}
         return LammpsData(**items)
 
 
