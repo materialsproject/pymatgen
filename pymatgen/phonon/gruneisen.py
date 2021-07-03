@@ -23,11 +23,11 @@ try:
 except ImportError:
     TotalDos = None
 
-__author__ = "Alexander Bonkowski, J. George, G. Petretto"
+__author__ = "A. Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "A. Bonkowski, J. George"
-__email__ = "alexander.bonkowski@uclouvain.be, janine.george@bam.de"
+__email__ = "alexander.bonkowski@rwth-aachen.de, janine.george@bam.de"
 __status__ = "Production"
 __date__ = "Apr 11, 2021"
 
