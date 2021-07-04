@@ -737,7 +737,7 @@ class WulffShape:
         miller_energy_dict = self.miller_energy_dict
 
         for hkl, energy in miller_energy_dict.items():
-            square_diff_energy += (energy- weighted_energy) ** 2 * area_frac_dict[hkl]
+            square_diff_energy += (energy - weighted_energy) ** 2 * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property
