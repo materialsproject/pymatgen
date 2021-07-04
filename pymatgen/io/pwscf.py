@@ -328,7 +328,7 @@ class PWInput:
 
                     for k, v in site_properties.items():
                         if k != "pseudo":
-                            site_properties[k].append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
+                            v.append(sections["system"][k][pseudo[m_p.group(1)]["index"]])
                 if mode[1] == "angstrom":
                     coords_are_cartesian = True
                 elif mode[1] == "crystal":

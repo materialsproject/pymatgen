@@ -10,7 +10,7 @@ operations on them.
 import os
 
 try:
-    import ruamel.yaml as yaml
+    from ruamal import yaml
 except ImportError:
     try:
         import ruamel_yaml as yaml  # type: ignore  # noqa
