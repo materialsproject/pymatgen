@@ -997,12 +997,12 @@ class BasePhaseDiagram(MSONable):
             if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
-        for e in chempot_ranges.keys():
+        for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[dep_elt] / target_comp[dep_elt]
                 ef = e.energy / multiplicator
                 all_coords = []
-                for s in chempot_ranges[e]:
+                for s in chempots:
                     for v in s._coords:
                         elts = [e for e in self.elements if e != dep_elt]
                         res = {}
@@ -1050,12 +1050,12 @@ class BasePhaseDiagram(MSONable):
         min_open = float("inf")
         max_mus = None
         min_mus = None
-        for e in chempot_ranges.keys():
+        for e, chempots in chempot_ranges.items():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[open_elt] / target_comp[open_elt]
                 ef = e.energy / multiplicator
                 all_coords = []
-                for s in chempot_ranges[e]:
+                for s in chempots:
                     for v in s._coords:
                         all_coords.append(v)
                         test_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
