@@ -160,7 +160,7 @@ class GruneisenParameter(MSONable):
         return k
 
     @property  # type: ignore
-    @requires(phonopy, "This method requires phonopy to be installed")
+    @requires(TotalDos, "This method requires phonopy to be installed")
     def tdos(self):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
