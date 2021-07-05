@@ -15,7 +15,8 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
             gruneisen_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_eq_plus_minus_InP.yaml"),
             structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
-            fit=True)
+            fit=True,
+        )
 
     def test_plot(self):
         plotter = GruneisenPhononBSPlotter(bs=self.bs_symm_line)
@@ -34,13 +35,16 @@ class GruneisenParameterTest(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisenobject = get_gruneisenparameter(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_InP.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"))
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
+        )
         self.gruneisenobject_small = get_gruneisenparameter(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_only_one_q_InP.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"))
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_InP"),
+        )
         self.gruneisenobject_Si = get_gruneisenparameter(
             os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/gruneisen_mesh_Si.yaml"),
-            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"))
+            structure_path=os.path.join(PymatgenTest.TEST_FILES_DIR, "gruneisen/eq/POSCAR_Si"),
+        )
 
     def test_plot(self):
         plotter = GruneisenPlotter(self.gruneisenobject)

@@ -98,8 +98,8 @@ class ThermoPlotterTest(unittest.TestCase):
         self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
         self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
 
-#Gruneisen plotter is already tested in test_gruneisen
 
+# Gruneisen plotter is already tested in test_gruneisen
 
 
 if __name__ == "__main__":
