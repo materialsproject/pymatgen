@@ -75,7 +75,7 @@ class BornEffectiveCharge:
         for op in ops:
             uniquepointops.append(op)
 
-        for ops in self.pointops.values():
+        for ops in self.pointops:
             for op in ops:
                 if op not in uniquepointops:
                     uniquepointops.append(op)
@@ -219,20 +219,20 @@ class InternalStrainTensor:
         for op in ops:
             uniquepointops.append(op)
 
-        for ops in self.pointops.values():
+        for ops in self.pointops:
             for op in ops:
                 if op not in uniquepointops:
                     uniquepointops.append(op)
 
         IST_operations = []
-        for atom, op in enumerate(self.ist):
+        for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
             for j in range(0, atom):
                 for op in uniquepointops:
                     new = op.transform_tensor(self.ist[j])
 
                     # Check the matrix it references
-                    if np.allclose(new, op, atol=opstol):
+                    if np.allclose(new, self.ist[atom], atol=opstol):
                         IST_operations[atom].append([j, op])
 
         self.IST_operations = IST_operations
@@ -316,7 +316,7 @@ class ForceConstantMatrix:
         for op in ops:
             uniquepointops.append(op)
 
-        for ops in self.pointops.values():
+        for ops in self.pointops:
             for op in ops:
                 if op not in uniquepointops:
                     uniquepointops.append(op)
