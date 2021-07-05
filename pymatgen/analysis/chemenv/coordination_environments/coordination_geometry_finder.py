@@ -725,8 +725,7 @@ class LocalGeometryFinder:
         for isite, site in enumerate(self.structure):
             if isite not in sites_indices:
                 logging.debug(
-                    " ... in site #{:d}/{:d} ({}) : "
-                    "skipped".format(isite, len(self.structure), site.species_string)
+                    " ... in site #{:d}/{:d} ({}) : " "skipped".format(isite, len(self.structure), site.species_string)
                 )
                 continue
             if breakit:
@@ -735,9 +734,7 @@ class LocalGeometryFinder:
                     "skipped (timelimit)".format(isite, len(self.structure), site.species_string)
                 )
                 continue
-            logging.debug(
-                " ... in site #{:d}/{:d} ({})".format(isite, len(self.structure), site.species_string)
-            )
+            logging.debug(" ... in site #{:d}/{:d} ({})".format(isite, len(self.structure), site.species_string))
             t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = OrderedDict()

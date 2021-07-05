@@ -233,10 +233,10 @@ def get_unique_families(hkls):
     unique = collections.defaultdict(list)
     for hkl1 in hkls:
         found = False
-        for hkl2 in unique.keys():
+        for hkl2, v2 in unique.items():
             if is_perm(hkl1, hkl2):
                 found = True
-                unique[hkl2].append(hkl1)
+                v2.append(hkl1)
                 break
         if not found:
             unique[hkl1].append(hkl1)

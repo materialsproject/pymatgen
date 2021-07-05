@@ -13,7 +13,7 @@ from math import pi
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.constants as constants
+from scipy import constants
 from scipy.constants import physical_constants, speed_of_light
 from scipy.integrate import simps
 from scipy.interpolate import interp1d

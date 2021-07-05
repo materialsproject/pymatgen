@@ -264,7 +264,8 @@ class PhononBandStructure(MSONable):
         d["bands"] = self.bands.tolist()
         d["labels_dict"] = {}
         for kpoint_letter, kpoint_object in self.labels_dict.items():
-            d['labels_dict'][kpoint_letter] = kpoint_object.as_dict()['fcoords']
+            d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
+
         # split the eigendisplacements to real and imaginary part for serialization
         d["eigendisplacements"] = dict(
             real=np.real(self.eigendisplacements).tolist(),
