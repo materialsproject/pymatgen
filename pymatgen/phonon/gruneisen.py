@@ -18,7 +18,6 @@ from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructu
 from pymatgen.phonon.dos import PhononDos
 
 try:
-    import phonopy
     from phonopy.phonon.dos import TotalDos
 except ImportError:
     TotalDos = None
