@@ -330,12 +330,12 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
 
 @requires(Phonopy, "phonopy is required to calculate phonon density of states")
 def get_phonon_dos_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        mesh_density: float = 100.0,
-        num_dos_steps: int = 200,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    num_dos_steps: int = 200,
+    **kwargs,
 ) -> CompletePhononDos:
     """
     Get a projected phonon density of states from phonopy force constants.
@@ -380,11 +380,11 @@ def get_phonon_dos_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        mesh_density: float = 100.0,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    **kwargs,
 ) -> PhononBandStructure:
     """
     Get a uniform phonon band structure from phonopy force constants.
@@ -412,12 +412,12 @@ def get_phonon_band_structure_from_fc(
 
 @requires(Phonopy, "phonopy is required to calculate phonon band structures")
 def get_phonon_band_structure_symm_line_from_fc(
-        structure: Structure,
-        supercell_matrix: np.ndarray,
-        force_constants: np.ndarray,
-        line_density: float = 20.0,
-        symprec: float = 0.01,
-        **kwargs,
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    line_density: float = 20.0,
+    symprec: float = 0.01,
+    **kwargs,
 ) -> PhononBandStructureSymmLine:
     """
     Get a phonon band structure along a high symmetry path from phonopy force
@@ -515,7 +515,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
 
 
 def get_gs_ph_bs_symm_line_from_dict(
-        gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
+    gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
 ) -> GruneisenPhononBandStructureSymmLine:
     r"""
     Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
@@ -660,7 +660,7 @@ def _extrapolate_grun(b, distance, gruneisenparameter, gruneisenband, i, pa):
         if diff > 2:
             x = list(range(len(distance)))
             y = [i[len(gruneisenband)] for i in gruneisenparameter]
-            y = y[-len(x):]  # Only elements of current band
+            y = y[-len(x) :]  # Only elements of current band
             extrapolator = InterpolatedUnivariateSpline(x, y, k=5)
             g_extrapolated = extrapolator(len(distance))
             gruen = float(g_extrapolated)
