@@ -146,14 +146,14 @@ class PhononDos(MSONable):
         """
         Numpy array containing the list of positive frequencies
         """
-        return self.frequencies[self.ind_zero_freq:]
+        return self.frequencies[self.ind_zero_freq :]
 
     @lazy_property
     def _positive_densities(self):
         """
         Numpy array containing the list of densities corresponding to positive frequencies
         """
-        return self.densities[self.ind_zero_freq:]
+        return self.densities[self.ind_zero_freq :]
 
     def cv(self, t, structure=None):
         """
