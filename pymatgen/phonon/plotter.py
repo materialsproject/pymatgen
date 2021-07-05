@@ -868,7 +868,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
 
         plt = pretty_plot(12, 8)
 
-        band_linewidth = 1
+        # band_linewidth = 1
 
         data = self.bs_plot_data()
         for d in range(len(data["distances"])):
