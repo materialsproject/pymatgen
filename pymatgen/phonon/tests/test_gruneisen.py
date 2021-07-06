@@ -1,7 +1,11 @@
 import os
 import unittest
 
-import phonopy
+try:
+    import phonopy
+except ImportError as ex:
+    print(ex)
+    phonopy = None
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line
 from pymatgen.io.phonopy import get_gruneisenparameter
@@ -30,7 +34,7 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
         plt = plotter.get_plot_gs()
         self.assertEqual(str(type(plt)), "<class 'module'>")
 
-
+@unittest.skipIf(phonopy is None, "Phonopy not present")
 class GruneisenParameterTest(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisenobject = get_gruneisenparameter(
