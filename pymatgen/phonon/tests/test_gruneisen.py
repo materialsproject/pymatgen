@@ -34,6 +34,7 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
         plt = plotter.get_plot_gs()
         self.assertEqual(str(type(plt)), "<class 'module'>")
 
+
 @unittest.skipIf(phonopy is None, "Phonopy not present")
 class GruneisenParameterTest(PymatgenTest):
     def setUp(self) -> None:
