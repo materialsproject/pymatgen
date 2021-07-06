@@ -765,7 +765,7 @@ class CoordinationGeometry:
             else:
                 mindist_anions = 1000000.0
                 mindist_cation_anion = 1000000.0
-                for ipt1 in range(len(self.points)):
+                for ipt1 in range(len(self.points)):  # pylint: disable=C0200
                     pt1 = np.array(self.points[ipt1])
                     mindist_cation_anion = min(mindist_cation_anion, np.linalg.norm(pt1 - self.central_site))
                     for ipt2 in range(ipt1 + 1, len(self.points)):
