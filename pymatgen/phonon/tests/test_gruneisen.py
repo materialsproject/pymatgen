@@ -3,9 +3,11 @@ import unittest
 
 try:
     import phonopy
+    from phonopy.phonon.dos import TotalDos
 except ImportError as ex:
     print(ex)
     phonopy = None
+    TotalDos = None
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line
 from pymatgen.io.phonopy import get_gruneisenparameter
@@ -35,7 +37,7 @@ class GruneisenPhononBandStructureSymmLineTest(PymatgenTest):
         self.assertEqual(str(type(plt)), "<class 'module'>")
 
 
-@unittest.skipIf(phonopy is None, "Phonopy not present")
+@unittest.skipIf(TotalDos is None, "Phonopy not present")
 class GruneisenParameterTest(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisenobject = get_gruneisenparameter(

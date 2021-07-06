@@ -18,9 +18,11 @@ from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructu
 from pymatgen.phonon.dos import PhononDos
 
 try:
+    import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError:
-    TotalDos = None
+except ImportError as ex:
+    print(ex)
+    phonopy = None
 
 __author__ = "A. Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -159,7 +161,7 @@ class GruneisenParameter(MSONable):
         return k
 
     @property  # type: ignore
-    @requires(TotalDos, "This method requires phonopy to be installed")
+    @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
         """
         The total DOS (re)constructed from the gruneisen.yaml file
