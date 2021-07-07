@@ -110,7 +110,7 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 5.44595036)
 
         # test over delocalized free carriers which forces skipping charge correction
-        params = self.bandfill_params.copy() # No Freysoldt metadata
+        params = self.bandfill_params.copy()  # No Freysoldt metadata
         params.update(
             {
                 "hybrid_cbm": params["cbm"] + 0.2,
