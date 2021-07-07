@@ -427,7 +427,7 @@ class DefectCompatibilityTest(PymatgenTest):
             "vbm": 1.6465,  # bulk VBM
             "cbm": 3.1451,  # bulk CBM
             "run_metadata": {"defect_incar": defect_incar},
-                }
+        }
 
         soc_dentry = DefectEntry(
             interstitial,
@@ -435,7 +435,7 @@ class DefectCompatibilityTest(PymatgenTest):
             corrections={},
             parameters=bandfill_params,
             entry_id=None,
-               )
+        )
         dc = DefectCompatibility()
         soc_dentry = dc.process_entry(soc_dentry)
 
