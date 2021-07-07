@@ -110,6 +110,13 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 5.44595036)
 
         # test over delocalized free carriers which forces skipping charge correction
+        params = self.bandfill_params.copy() # No Freysoldt metadata
+        params.update(
+            {
+                "hybrid_cbm": params["cbm"] + 0.2,
+                "hybrid_vbm": params["vbm"] - 0.4,
+            }
+        )
         # modify the eigenvalue list to have free holes
         hole_eigenvalues = {}
         for spinkey, spinset in params["eigenvalues"].items():
@@ -127,7 +134,7 @@ class DefectCompatibilityTest(PymatgenTest):
         dc = DefectCompatibility(free_chg_cutoff=0.8)
         dentry = dc.process_entry(dentry)
         self.assertAlmostEqual(dentry.corrections["bandedgeshifting_correction"], 1.19999999)
-        self.assertAlmostEqual(dentry.corrections["bandfilling_correction"], -1.62202400)
+        self.assertAlmostEqual(dentry.corrections["bandfilling_correction"], -0.492633372744)
         self.assertAlmostEqual(dentry.corrections["charge_correction"], 0.0)
 
         # turn off band filling and band edge shifting
