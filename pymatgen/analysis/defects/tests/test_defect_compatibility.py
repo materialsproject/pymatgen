@@ -60,12 +60,14 @@ class DefectCompatibilityTest(PymatgenTest):
         potalign = -0.1
         vbm = v.eigenvalue_band_properties[2]
         cbm = v.eigenvalue_band_properties[1]
+        defect_incar = v.incar
         self.bandfill_params = {
             "eigenvalues": eigenvalues,
             "kpoint_weights": kptweights,
             "potalign": potalign,
             "vbm": vbm,
             "cbm": cbm,
+            "run_metadata": {"defect_incar": defect_incar},
         }
 
         self.band_edge_params = {
