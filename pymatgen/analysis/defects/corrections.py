@@ -828,9 +828,9 @@ class BandFillingCorrection(DefectCorrection):
                         VBM of bulk calculation (or band structure calculation of bulk);
                         calculated on same level of theory as the defect
                         (ex. GGA defects -> requires GGA vbm)
-                        
+
                     run_metadata["defect_incar"] (dict)
-                        Dictionary of INCAR settings for the defect calculation, 
+                        Dictionary of INCAR settings for the defect calculation,
                         required to check if the calculation included spin-orbit coupling
                         (to determine the spin factor for occupancies of the electron bands)
         Returns:
@@ -874,7 +874,7 @@ class BandFillingCorrection(DefectCorrection):
             raise ValueError("Eigenvalue keys greater than 2")
 
         # for tracking mid gap states...
-        shifted_cbm = cbm - potalign # shift cbm with potential alignment
+        shifted_cbm = cbm - potalign  # shift cbm with potential alignment
         shifted_vbm = vbm - potalign  # shift vbm with potential alignment
 
         for spinset in eigenvalues.values():
