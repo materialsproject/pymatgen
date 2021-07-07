@@ -411,6 +411,36 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertFalse(defect_delocal["is_compatible"])
         self.assertAlmostEqual(defect_delocal["metadata"]["relax_amount"], 0.10836054)
 
+    def test_bandfilling_SOC_calc(self):
+        v = Vasprun(os.path.join(PymatgenTest.TEST_FILES_DIR, "vasprun.xml.int_Te_SOC.gz"))
+        struc = v.structures[0]
+        interstitial = Interstitial(struc, struc.sites[-1], charge=-2)
+        eigenvalues = v.eigenvalues.copy()
+        kptweights = v.actual_kpoints_weights
+        potalign = -0.1
+        defect_incar = v.incar
+
+        bandfill_params = {
+            "eigenvalues": eigenvalues,
+            "kpoint_weights": kptweights,
+            "potalign": potalign,
+            "vbm": 1.6465,  # bulk VBM
+            "cbm": 3.1451,  # bulk CBM
+            "run_metadata": {"defect_incar": defect_incar},
+                }
+
+        soc_dentry = DefectEntry(
+            interstitial,
+            0.0,
+            corrections={},
+            parameters=bandfill_params,
+            entry_id=None,
+               )
+        dc = DefectCompatibility()
+        soc_dentry = dc.process_entry(soc_dentry)
+
+        self.assertAlmostEqual(soc_dentry.corrections["bandfilling_correction"], -1.9628402187500003)
+
 
 if __name__ == "__main__":
     unittest.main()
