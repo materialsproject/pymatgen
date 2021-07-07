@@ -128,14 +128,14 @@ class LammpsBox(MSONable):
         assert bounds_arr.shape == (
             3,
             2,
-        ), "Expecting a (3, 2) array for bounds," " got {}".format(bounds_arr.shape)
+        ), "Expecting a (3, 2) array for bounds, got {}".format(bounds_arr.shape)
         self.bounds = bounds_arr.tolist()
         matrix = np.diag(bounds_arr[:, 1] - bounds_arr[:, 0])
 
         self.tilt = None
         if tilt is not None:
             tilt_arr = np.array(tilt)
-            assert tilt_arr.shape == (3,), "Expecting a (3,) array for box_tilt," " got {}".format(tilt_arr.shape)
+            assert tilt_arr.shape == (3,), "Expecting a (3,) array for box_tilt, got {}".format(tilt_arr.shape)
             self.tilt = tilt_arr.tolist()
             matrix[1, 0] = tilt_arr[0]
             matrix[2, 0] = tilt_arr[1]
@@ -609,9 +609,9 @@ class LammpsData(MSONable):
                     topo_idx = topo[0] - 1
                     indices = list(topo[1:])
                     mids = atoms_df.loc[indices]["molecule-ID"].unique()
-                    assert len(mids) == 1, (
-                        "Do not support intermolecular topology formed " "by atoms with different molecule-IDs"
-                    )
+                    assert (
+                        len(mids) == 1
+                    ), "Do not support intermolecular topology formed by atoms with different molecule-IDs"
                     label = label_topo(indices)
                     topo_coeffs[ff_kw][topo_idx]["types"].append(label)
                     if data_by_mols[mids[0]].get(k):
@@ -724,9 +724,9 @@ class LammpsData(MSONable):
                     elif df.shape[1] == len(names) + 3:  # pylint: disable=E1101
                         names += ["nx", "ny", "nz"]
                     else:
-                        raise ValueError("Format in Atoms section inconsistent" " with atom_style %s" % atom_style)
+                        raise ValueError("Format in Atoms section inconsistent with atom_style %s" % atom_style)
                 else:
-                    raise NotImplementedError("Parser for %s section" " not implemented" % kw)
+                    raise NotImplementedError("Parser for %s section not implemented" % kw)
             df.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
@@ -746,7 +746,7 @@ class LammpsData(MSONable):
             if (
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
-                raise RuntimeError(err_msg + "%s section appears before" " Atoms section" % name)
+                raise RuntimeError(err_msg + "%s section appears before Atoms section" % name)
             body.update({name: section})
 
         err_msg += "Nos. of {} do not match between header and {} section"
@@ -1200,7 +1200,7 @@ class ForceField(MSONable):
         distinct_types = [set(itertools.chain(*[find_eq_types(t, kw) for t in dt])) for dt in distinct_types]
         type_counts = sum([len(dt) for dt in distinct_types])
         type_union = set.union(*distinct_types)
-        assert len(type_union) == type_counts, "Duplicated items found " "under different coefficients in %s" % kw
+        assert len(type_union) == type_counts, "Duplicated items found under different coefficients in %s" % kw
         atoms = set(np.ravel(list(itertools.chain(*distinct_types))))
         assert atoms.issubset(self.maps["Atoms"].keys()), "Undefined atom type found in %s" % kw
         mapper = {}
@@ -1378,7 +1378,7 @@ class CombinedData(LammpsData):
 
     def disassemble(self, atom_labels=None, guess_element=True, ff_label="ff_map"):
         """
-        Breaks down LammpsData to building blocks
+        Breaks down each LammpsData in CombinedData to building blocks
         (LammpsBox, ForceField and a series of Topology).
         RESTRICTIONS APPLIED:
         1. No complex force field defined not just on atom
@@ -1402,10 +1402,14 @@ class CombinedData(LammpsData):
             ff_label (str): Site property key for labeling atoms of
                 different types. Default to "ff_map".
         Returns:
-            LammpsBox, ForceField, [Topology]
+            [(LammpsBox, ForceField, [Topology]), ...]
         """
-        ld_cp = self.as_lammpsdata()
-        return ld_cp.disassemble(atom_labels=None, guess_element=True, ff_label="ff_map")
+        disassembles = list()
+        for mol in self.mols:
+            disassembles.append(
+                mol.disassemble(atom_labels=atom_labels, guess_element=guess_element, ff_label=ff_label)
+            )
+        return disassembles
 
     @classmethod
     def from_ff_and_topologies(cls):
@@ -1597,7 +1601,7 @@ class CombinedData(LammpsData):
 
 @deprecated(
     LammpsData.from_structure,
-    "structure_2_lmpdata has been deprecated " "in favor of LammpsData.from_structure",
+    "structure_2_lmpdata has been deprecated in favor of LammpsData.from_structure",
 )
 def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge", is_sort=False):
     """

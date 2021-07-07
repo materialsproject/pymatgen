@@ -1058,6 +1058,90 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(len(ec_fec_lines), 99159)
         self.assertEqual(len(ec_fec_double_lines), 198159)
 
+    def test_structure(self):
+        li_ec_structure = self.li_ec.structure
+        np.testing.assert_array_almost_equal(
+            li_ec_structure.lattice.matrix,
+            [[38.698274, 0, 0], [0, 38.698274, 0], [0, 0, 38.698274]],
+        )
+        np.testing.assert_array_almost_equal(
+            li_ec_structure.lattice.angles,
+            (90.0, 90.0, 90.0),
+        )
+        self.assertEqual(li_ec_structure.formula, "Li1 H4 C3 O3")
+        lbounds = np.array(self.li_ec.box.bounds)[:, 0]
+        coords = self.li_ec.atoms[["x", "y", "z"]].values - lbounds
+        np.testing.assert_array_almost_equal(li_ec_structure.cart_coords, coords)
+        np.testing.assert_array_almost_equal(li_ec_structure.site_properties["charge"], self.li_ec.atoms["q"])
+        frac_coords = li_ec_structure.frac_coords[0]
+        real_frac_coords = frac_coords - np.floor(frac_coords)
+        np.testing.assert_array_almost_equal(real_frac_coords, [0.01292047, 0.01292047, 0.01292047])
+
+    def test_from_ff_and_topologies(self):
+        with self.assertRaises(AttributeError):
+            CombinedData.from_ff_and_topologies()
+
+    def test_from_structure(self):
+        with self.assertRaises(AttributeError):
+            CombinedData.from_structure()
+
+    def test_disassemble(self):
+        # general tests
+        ld = self.li
+        cd = self.li_2
+        _, cd_ff, topos = cd.disassemble()[0]
+        mass_info = [
+            ("Li1", 6.94),
+        ]
+        self.assertListEqual(cd_ff.mass_info, mass_info)
+        np.testing.assert_array_equal(cd_ff.nonbond_coeffs, cd.force_field["Pair Coeffs"].values)
+
+        topo = topos[-1]
+        atoms = ld.atoms[ld.atoms["molecule-ID"] == 1]
+        np.testing.assert_array_almost_equal(topo.sites.cart_coords, atoms[["x", "y", "z"]])
+        np.testing.assert_array_equal(topo.charges, atoms["q"])
+        atom_labels = [m[0] for m in mass_info]
+        self.assertListEqual(
+            topo.sites.site_properties["ff_map"],
+            [atom_labels[i - 1] for i in atoms["type"]],
+        )
+
+        # test no guessing element
+        v = self.li_2
+        _, v_ff, _ = v.disassemble(guess_element=False)[0]
+        self.assertDictEqual(v_ff.maps["Atoms"], dict(Qa1=1))
+
+    def test_json_dict(self):
+        encoded = json.dumps(self.li_ec.as_dict())
+        decoded = json.loads(encoded)
+        lic3o3h4 = CombinedData.from_dict(decoded)
+        self.assertEqual(lic3o3h4.nums, self.li_ec.nums)
+        self.assertEqual(lic3o3h4.names, self.li_ec.names)
+        self.assertEqual(lic3o3h4.atom_style, self.li_ec.atom_style)
+        pd.testing.assert_frame_equal(lic3o3h4.masses, self.li_ec.masses)
+        pd.testing.assert_frame_equal(lic3o3h4.atoms, self.li_ec.atoms)
+        ff = self.li_ec.force_field
+        key, target_df = random.sample(ff.items(), 1)[0]
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(lic3o3h4.force_field[key], target_df, check_dtype=False),
+            key,
+        )
+        topo = self.li_ec.topology
+        key, target_df = random.sample(topo.items(), 1)[0]
+        self.assertIsNone(pd.testing.assert_frame_equal(lic3o3h4.topology[key], target_df), key)
+
+        pd.testing.assert_frame_equal(lic3o3h4.mols[1].masses, self.li_ec.mols[1].masses)
+        pd.testing.assert_frame_equal(lic3o3h4.mols[1].atoms, self.li_ec.mols[1].atoms)
+        ff_1 = self.li_ec.mols[1].force_field
+        key, target_df = random.sample(ff_1.items(), 1)[0]
+        self.assertIsNone(
+            pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False),
+            key,
+        )
+        topo_1 = self.li_ec.mols[1].topology
+        key, target_df = random.sample(topo_1.items(), 1)[0]
+        self.assertIsNone(pd.testing.assert_frame_equal(lic3o3h4.mols[1].topology[key], target_df), key)
+
     def test_as_lammpsdata(self):
         ec_fec = self.ec_fec_ld
         self.assertEqual(ec_fec.masses.shape, (12, 1))
