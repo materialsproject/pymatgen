@@ -59,7 +59,7 @@ class ZSLGenTest(PymatgenTest):
         z.bidirectional = True
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
         self.assertEqual(len(matches), 48)
-        
+
         for match in matches:
             assert match is not None
 
