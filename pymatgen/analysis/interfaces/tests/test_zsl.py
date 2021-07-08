@@ -62,6 +62,7 @@ class ZSLGenTest(PymatgenTest):
 
         for match in matches:
             assert match is not None
+            assert isinstance(match.match_area,float)
 
 
 if __name__ == "__main__":
