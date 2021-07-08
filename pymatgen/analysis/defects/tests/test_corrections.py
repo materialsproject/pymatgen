@@ -212,12 +212,14 @@ class DefectsCorrectionsTest(PymatgenTest):
         potalign = 0.0
         vbm = v.eigenvalue_band_properties[2]
         cbm = v.eigenvalue_band_properties[1]
+        defect_incar = v.incar
         params = {
             "eigenvalues": eigenvalues,
             "kpoint_weights": kptweights,
             "potalign": potalign,
             "vbm": vbm,
             "cbm": cbm,
+            "run_metadata": {"defect_incar": defect_incar},
         }
         bfc = BandFillingCorrection()
         struc = PymatgenTest.get_structure("VO2")
