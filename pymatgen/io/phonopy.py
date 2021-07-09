@@ -158,7 +158,19 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
         for b in p["band"]:
             bands.append(b["frequency"])
             if "eigenvector" in b:
-                eig_b = get_eig_b(b, q, structure)
+                eig_b = []
+                for i, eig_a in enumerate(b["eigenvector"]):
+                    v = np.zeros(3, np.complex)
+                    for x in range(3):
+                        v[x] = eig_a[x][0] + eig_a[x][1] * 1j
+                    eig_b.append(
+                        eigvec_to_eigdispl(
+                            v,
+                            q,
+                            structure[i].frac_coords,
+                            structure.site_properties["phonopy_masses"][i],
+                        )
+                    )
                 eig_q.append(eig_b)
         frequencies.append(bands)
         if "label" in p:
@@ -187,33 +199,6 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
     )
 
     return ph_bs
-
-
-def get_eig_b(b, q, structure):
-    """
-
-    Args:
-        b: band dict
-        q: qpoint
-        structure: Structure object
-
-    Returns:
-
-    """
-    eig_b = []
-    for i, eig_a in enumerate(b["eigenvector"]):
-        v = np.zeros(3, np.complex)
-        for x in range(3):
-            v[x] = eig_a[x][0] + eig_a[x][1] * 1j
-        eig_b.append(
-            eigvec_to_eigdispl(
-                v,
-                q,
-                structure[i].frac_coords,
-                structure.site_properties["phonopy_masses"][i],
-            )
-        )
-    return eig_b
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
@@ -464,7 +449,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
         structure: pymatgen Structure object
         structure_path: path to structure in a file (e.g., POSCAR)
 
-    Returns:
+    Returns: GruneisenParameter object
 
     """
 
