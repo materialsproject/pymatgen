@@ -722,7 +722,7 @@ class WulffShape:
         Returns:
             (dict): {hkl: area_hkl/total area on wulff}
         """
-        return {hkl: self.miller_area_dict[hkl] / self.surface_area for hkl in self.miller_area_dict.keys()}
+        return {hkl: area / self.surface_area for hkl, area in self.miller_area_dict.items()}
 
     @property
     def anisotropy(self):
@@ -736,8 +736,8 @@ class WulffShape:
         area_frac_dict = self.area_fraction_dict
         miller_energy_dict = self.miller_energy_dict
 
-        for hkl in miller_energy_dict.keys():
-            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy) ** 2 * area_frac_dict[hkl]
+        for hkl, energy in miller_energy_dict.items():
+            square_diff_energy += (energy - weighted_energy) ** 2 * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
     @property
@@ -773,8 +773,8 @@ class WulffShape:
             (float) sum(surface_energy_hkl * area_hkl)
         """
         tot_surface_energy = 0
-        for hkl in self.miller_energy_dict.keys():
-            tot_surface_energy += self.miller_energy_dict[hkl] * self.miller_area_dict[hkl]
+        for hkl, energy in self.miller_energy_dict.items():
+            tot_surface_energy += energy * self.miller_area_dict[hkl]
         return tot_surface_energy
 
     @property

@@ -722,22 +722,19 @@ class LocalGeometryFinder:
             self.detailed_voronoi.separations = [None] * len(self.structure)
 
         # Loop on all the sites
-        for isite in range(len(self.structure)):
+        for isite, site in enumerate(self.structure):
             if isite not in sites_indices:
                 logging.debug(
-                    " ... in site #{:d}/{:d} ({}) : "
-                    "skipped".format(isite, len(self.structure), self.structure[isite].species_string)
+                    " ... in site #{:d}/{:d} ({}) : " "skipped".format(isite, len(self.structure), site.species_string)
                 )
                 continue
             if breakit:
                 logging.debug(
                     " ... in site #{:d}/{:d} ({}) : "
-                    "skipped (timelimit)".format(isite, len(self.structure), self.structure[isite].species_string)
+                    "skipped (timelimit)".format(isite, len(self.structure), site.species_string)
                 )
                 continue
-            logging.debug(
-                " ... in site #{:d}/{:d} ({})".format(isite, len(self.structure), self.structure[isite].species_string)
-            )
+            logging.debug(" ... in site #{:d}/{:d} ({})".format(isite, len(self.structure), site.species_string))
             t1 = time.process_time()
             if optimization > 0:
                 self.detailed_voronoi.local_planes[isite] = OrderedDict()
@@ -887,44 +884,44 @@ class LocalGeometryFinder:
         else:
             logging.debug("Getting StructureEnvironments with standard algorithm")
             cncgsm = self.get_coordination_symmetry_measures()
-        for cg in cncgsm:
+        for cg, d in cncgsm.items():
             other_csms = {
-                "csm_wocs_ctwocc": cncgsm[cg]["csm_wocs_ctwocc"],
-                "csm_wocs_ctwcc": cncgsm[cg]["csm_wocs_ctwcc"],
-                "csm_wocs_csc": cncgsm[cg]["csm_wocs_csc"],
-                "csm_wcs_ctwocc": cncgsm[cg]["csm_wcs_ctwocc"],
-                "csm_wcs_ctwcc": cncgsm[cg]["csm_wcs_ctwcc"],
-                "csm_wcs_csc": cncgsm[cg]["csm_wcs_csc"],
-                "rotation_matrix_wocs_ctwocc": cncgsm[cg]["rotation_matrix_wocs_ctwocc"],
-                "rotation_matrix_wocs_ctwcc": cncgsm[cg]["rotation_matrix_wocs_ctwcc"],
-                "rotation_matrix_wocs_csc": cncgsm[cg]["rotation_matrix_wocs_csc"],
-                "rotation_matrix_wcs_ctwocc": cncgsm[cg]["rotation_matrix_wcs_ctwocc"],
-                "rotation_matrix_wcs_ctwcc": cncgsm[cg]["rotation_matrix_wcs_ctwcc"],
-                "rotation_matrix_wcs_csc": cncgsm[cg]["rotation_matrix_wcs_csc"],
-                "scaling_factor_wocs_ctwocc": cncgsm[cg]["scaling_factor_wocs_ctwocc"],
-                "scaling_factor_wocs_ctwcc": cncgsm[cg]["scaling_factor_wocs_ctwcc"],
-                "scaling_factor_wocs_csc": cncgsm[cg]["scaling_factor_wocs_csc"],
-                "scaling_factor_wcs_ctwocc": cncgsm[cg]["scaling_factor_wcs_ctwocc"],
-                "scaling_factor_wcs_ctwcc": cncgsm[cg]["scaling_factor_wcs_ctwcc"],
-                "scaling_factor_wcs_csc": cncgsm[cg]["scaling_factor_wcs_csc"],
-                "translation_vector_wocs_ctwocc": cncgsm[cg]["translation_vector_wocs_ctwocc"],
-                "translation_vector_wocs_ctwcc": cncgsm[cg]["translation_vector_wocs_ctwcc"],
-                "translation_vector_wocs_csc": cncgsm[cg]["translation_vector_wocs_csc"],
-                "translation_vector_wcs_ctwocc": cncgsm[cg]["translation_vector_wcs_ctwocc"],
-                "translation_vector_wcs_ctwcc": cncgsm[cg]["translation_vector_wcs_ctwcc"],
-                "translation_vector_wcs_csc": cncgsm[cg]["translation_vector_wcs_csc"],
+                "csm_wocs_ctwocc": d["csm_wocs_ctwocc"],
+                "csm_wocs_ctwcc": d["csm_wocs_ctwcc"],
+                "csm_wocs_csc": d["csm_wocs_csc"],
+                "csm_wcs_ctwocc": d["csm_wcs_ctwocc"],
+                "csm_wcs_ctwcc": d["csm_wcs_ctwcc"],
+                "csm_wcs_csc": d["csm_wcs_csc"],
+                "rotation_matrix_wocs_ctwocc": d["rotation_matrix_wocs_ctwocc"],
+                "rotation_matrix_wocs_ctwcc": d["rotation_matrix_wocs_ctwcc"],
+                "rotation_matrix_wocs_csc": d["rotation_matrix_wocs_csc"],
+                "rotation_matrix_wcs_ctwocc": d["rotation_matrix_wcs_ctwocc"],
+                "rotation_matrix_wcs_ctwcc": d["rotation_matrix_wcs_ctwcc"],
+                "rotation_matrix_wcs_csc": d["rotation_matrix_wcs_csc"],
+                "scaling_factor_wocs_ctwocc": d["scaling_factor_wocs_ctwocc"],
+                "scaling_factor_wocs_ctwcc": d["scaling_factor_wocs_ctwcc"],
+                "scaling_factor_wocs_csc": d["scaling_factor_wocs_csc"],
+                "scaling_factor_wcs_ctwocc": d["scaling_factor_wcs_ctwocc"],
+                "scaling_factor_wcs_ctwcc": d["scaling_factor_wcs_ctwcc"],
+                "scaling_factor_wcs_csc": d["scaling_factor_wcs_csc"],
+                "translation_vector_wocs_ctwocc": d["translation_vector_wocs_ctwocc"],
+                "translation_vector_wocs_ctwcc": d["translation_vector_wocs_ctwcc"],
+                "translation_vector_wocs_csc": d["translation_vector_wocs_csc"],
+                "translation_vector_wcs_ctwocc": d["translation_vector_wcs_ctwocc"],
+                "translation_vector_wcs_ctwcc": d["translation_vector_wcs_ctwcc"],
+                "translation_vector_wcs_csc": d["translation_vector_wcs_csc"],
             }
             ce.add_coord_geom(
                 cg,
-                cncgsm[cg]["csm"],
-                algo=cncgsm[cg]["algo"],
-                permutation=cncgsm[cg]["indices"],
-                local2perfect_map=cncgsm[cg]["local2perfect_map"],
-                perfect2local_map=cncgsm[cg]["perfect2local_map"],
+                d["csm"],
+                algo=d["algo"],
+                permutation=d["indices"],
+                local2perfect_map=d["local2perfect_map"],
+                perfect2local_map=d["perfect2local_map"],
                 detailed_voronoi_index={"cn": cn, "index": inb_set},
                 other_symmetry_measures=other_csms,
-                rotation_matrix=cncgsm[cg]["rotation_matrix"],
-                scaling_factor=cncgsm[cg]["scaling_factor"],
+                rotation_matrix=d["rotation_matrix"],
+                scaling_factor=d["scaling_factor"],
             )
         se.update_coordination_environments(isite=isite, cn=cn, nb_set=nb_set, ce=ce)
         return ce

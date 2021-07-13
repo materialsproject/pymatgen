@@ -987,8 +987,8 @@ class GaussianOutput:
                             ]
                             for j in range(self.num_basis_func):
                                 i = 0
-                                for iat in range(len(self.atom_basis_labels)):
-                                    for label in self.atom_basis_labels[iat]:
+                                for iat, labels in enumerate(self.atom_basis_labels):
+                                    for label in labels:
                                         mo[spin][j][iat][label] = self.eigenvectors[spin][i, j]
                                         i += 1
 

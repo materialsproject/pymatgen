@@ -10,8 +10,8 @@ x y value pairs.
 from typing import List, Union, Callable
 
 import numpy as np
-import scipy.stats as stats
 from monty.json import MSONable
+from scipy import stats
 from scipy.ndimage.filters import convolve1d
 
 from pymatgen.util.coord import get_linear_interpolated_value

@@ -23,18 +23,11 @@ from collections import defaultdict
 from enum import Enum, unique
 from time import sleep
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
 import requests
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
-from pymatgen.core import SETTINGS, SETTINGS_FILE
+from pymatgen.core import SETTINGS, SETTINGS_FILE, yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -198,6 +191,8 @@ class MPRester:
                     d = yaml.safe_load(f)
             except IOError:
                 d = {}
+
+            d = d if d else {}
 
             if "MAPI_DB_VERSION" not in d:
                 d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}

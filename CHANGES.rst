@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2022.0.10
+----------
+* Add spin-dependent eigenvalue band properties (@arosen93, #2187)
+* Bug fix for settings loading (@ardunn, #2186)
+
 v2022.0.9
 ---------
 * Significant new functionality for handling interfaces between structures (@shyamd, #2149)

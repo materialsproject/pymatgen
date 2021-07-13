@@ -2055,14 +2055,14 @@ class BSPlotterProjected(BSPlotter):
                     divide[orb[0]] = []
                     divide[orb[0]].append(orb)
             label = ""
-            for elem in divide:
+            for elem, v in divide.items():
                 if elem == "s":
                     label += "s" + ","
                 else:
-                    if len(divide[elem]) == len(individual_orbs[elem]):
+                    if len(v) == len(individual_orbs[elem]):
                         label += elem + ","
                     else:
-                        l = [o[1:] for o in divide[elem]]
+                        l = [o[1:] for o in v]
                         label += elem + str(l).replace("['", "").replace("']", "").replace("', '", "-") + ","
             return label[:-1]
 
@@ -2679,12 +2679,12 @@ class BSDOSPlotter:
         # x = [n + 0.25 for n in x]  # nudge x coordinates
         # y = [n + (max_y - 1) for n in y]  # shift y coordinates to top
         # plot the triangle
-        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)
-        inset_ax.set_xlim([-0.35, 1.00])
-        inset_ax.set_ylim([-0.35, 1.00])
+        inset_ax.scatter(x, y, s=7, marker=".", edgecolor=color)  # pylint: disable=E1101
+        inset_ax.set_xlim([-0.35, 1.00])  # pylint: disable=E1101
+        inset_ax.set_ylim([-0.35, 1.00])  # pylint: disable=E1101
 
         # add the labels
-        inset_ax.text(
+        inset_ax.text(  # pylint: disable=E1101
             0.70,
             -0.2,
             g_label,
@@ -2693,7 +2693,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="left",
         )
-        inset_ax.text(
+        inset_ax.text(  # pylint: disable=E1101
             0.325,
             0.70,
             r_label,
@@ -2702,7 +2702,7 @@ class BSDOSPlotter:
             color=(0, 0, 0),
             horizontalalignment="center",
         )
-        inset_ax.text(
+        inset_ax.text(  # pylint: disable=E1101
             -0.05,
             -0.2,
             b_label,
@@ -2712,8 +2712,8 @@ class BSDOSPlotter:
             horizontalalignment="right",
         )
 
-        inset_ax.get_xaxis().set_visible(False)
-        inset_ax.get_yaxis().set_visible(False)
+        inset_ax.get_xaxis().set_visible(False)  # pylint: disable=E1101
+        inset_ax.get_yaxis().set_visible(False)  # pylint: disable=E1101
 
     @staticmethod
     def _rb_line(ax, r_label, b_label, loc):
@@ -2734,6 +2734,7 @@ class BSDOSPlotter:
             color.append([math.sqrt(c) for c in [1 - (i / 1000) ** 2, 0, (i / 1000) ** 2]])
 
         # plot the bar
+        # pylint: disable=E1101
         inset_ax.scatter(x, y, s=250.0, marker="s", c=color)
         inset_ax.set_xlim([-0.1, 1.7])
         inset_ax.text(

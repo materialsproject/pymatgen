@@ -263,8 +263,9 @@ class PhononBandStructure(MSONable):
             d["qpoints"].append(q.as_dict()["fcoords"])
         d["bands"] = self.bands.tolist()
         d["labels_dict"] = {}
-        for c in self.labels_dict:
-            d["labels_dict"][c] = self.labels_dict[c].as_dict()["fcoords"]
+        for kpoint_letter, kpoint_object in self.labels_dict.items():
+            d["labels_dict"][kpoint_letter] = kpoint_object.as_dict()["fcoords"]
+
         # split the eigendisplacements to real and imaginary part for serialization
         d["eigendisplacements"] = dict(
             real=np.real(self.eigendisplacements).tolist(),
@@ -351,22 +352,23 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """
 
         super().__init__(
-            qpoints,
-            frequencies,
-            lattice,
-            None,
-            eigendisplacements,
-            None,
-            labels_dict,
-            coords_are_cartesian,
-            structure,
+            qpoints=qpoints,
+            frequencies=frequencies,
+            lattice=lattice,
+            nac_frequencies=None,
+            eigendisplacements=eigendisplacements,
+            nac_eigendisplacements=None,
+            labels_dict=labels_dict,
+            coords_are_cartesian=coords_are_cartesian,
+            structure=structure,
         )
+        self._reuse_init(eigendisplacements, frequencies, has_nac, qpoints)
 
+    def _reuse_init(self, eigendisplacements, frequencies, has_nac, qpoints):
         self.distance = []
         self.branches = []
         one_group = []
         branches_tmp = []
-
         # get labels and distance for each qpoint
         previous_qpoint = self.qpoints[0]
         previous_distance = 0.0
@@ -388,7 +390,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                     one_group = []
             previous_label = label
             one_group.append(i)
-
         if len(one_group) != 0:
             branches_tmp.append(one_group)
         for b in branches_tmp:
@@ -399,7 +400,6 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                     "name": str(self.qpoints[b[0]].label) + "-" + str(self.qpoints[b[-1]].label),
                 }
             )
-
         # extract the frequencies with non-analytical contribution at gamma
         if has_nac:
             naf = []
@@ -602,7 +602,9 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def as_dict(self):
         """
-        :return: MSONable dict
+
+        Returns: MSONable dict
+
         """
         d = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
@@ -615,8 +617,12 @@ class PhononBandStructureSymmLine(PhononBandStructure):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation
-        :return: PhononBandStructureSummLine
+
+        Args:
+            d: Dict representation
+
+        Returns: PhononBandStructureSummLine
+
         """
         lattice_rec = Lattice(d["lattice_rec"]["matrix"])
         eigendisplacements = np.array(d["eigendisplacements"]["real"]) + np.array(d["eigendisplacements"]["imag"]) * 1j

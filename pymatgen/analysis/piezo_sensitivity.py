@@ -75,8 +75,8 @@ class BornEffectiveCharge:
         for op in ops:
             uniquepointops.append(op)
 
-        for atom in range(len(self.pointops)):
-            for op in self.pointops[atom]:
+        for ops in self.pointops:
+            for op in ops:
                 if op not in uniquepointops:
                     uniquepointops.append(op)
 
@@ -128,8 +128,8 @@ class BornEffectiveCharge:
 
         l = len(struc)
         BEC = np.zeros((l, 3, 3))
-        for atom in range(len(self.BEC_operations)):
-            if self.BEC_operations[atom][0] == self.BEC_operations[atom][1]:
+        for atom, ops in enumerate(self.BEC_operations):
+            if ops[0] == ops[1]:
                 temp_tensor = Tensor(np.random.rand(3, 3) - 0.5)
                 temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) / len(
                     self.pointops[atom]
@@ -137,39 +137,35 @@ class BornEffectiveCharge:
                 BEC[atom] = temp_tensor
             else:
                 tempfcm = np.zeros([3, 3])
-                for op in self.BEC_operations[atom][2]:
+                for op in ops[2]:
 
                     tempfcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
-                BEC[self.BEC_operations[atom][0]] = tempfcm
-                if len(self.BEC_operations[atom][2]) != 0:
-                    BEC[self.BEC_operations[atom][0]] = BEC[self.BEC_operations[atom][0]] / len(
-                        self.BEC_operations[atom][2]
-                    )
+                BEC[ops[0]] = tempfcm
+                if len(ops[2]) != 0:
+                    BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
 
         #     Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk", BEC) / l
         add = np.zeros([l, 3, 3])
 
-        for atom in range(len(self.BEC_operations)):
+        for atom, ops in enumerate(self.BEC_operations):
 
-            if self.BEC_operations[atom][0] == self.BEC_operations[atom][1]:
+            if ops[0] == ops[1]:
                 temp_tensor = Tensor(disp_charge)
                 temp_tensor = sum([temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]]) / len(
                     self.pointops[atom]
                 )
-                add[self.BEC_operations[atom][0]] = temp_tensor
+                add[ops[0]] = temp_tensor
             else:
                 temp_tensor = np.zeros([3, 3])
-                for op in self.BEC_operations[atom][2]:
+                for op in ops[2]:
 
                     temp_tensor += op.transform_tensor(add[self.BEC_operations[atom][1]])
 
-                add[self.BEC_operations[atom][0]] = temp_tensor
+                add[ops[0]] = temp_tensor
 
-                if len(self.BEC_operations[atom]) != 0:
-                    add[self.BEC_operations[atom][0]] = add[self.BEC_operations[atom][0]] / len(
-                        self.BEC_operations[atom][2]
-                    )
+                if len(ops) != 0:
+                    add[ops[0]] = add[ops[0]] / len(ops[2])
 
         BEC = BEC - add
 
@@ -223,13 +219,13 @@ class InternalStrainTensor:
         for op in ops:
             uniquepointops.append(op)
 
-        for atom in range(len(self.pointops)):
-            for op in self.pointops[atom]:
+        for ops in self.pointops:
+            for op in ops:
                 if op not in uniquepointops:
                     uniquepointops.append(op)
 
         IST_operations = []
-        for atom in range(len(self.ist)):
+        for atom in range(len(self.ist)):  # pylint: disable=C0200
             IST_operations.append([])
             for j in range(0, atom):
                 for op in uniquepointops:
@@ -255,12 +251,12 @@ class InternalStrainTensor:
 
         l = len(self.structure)
         IST = np.zeros((l, 3, 3, 3))
-        for atom in range(len(self.IST_operations)):
+        for atom, ops in enumerate(self.IST_operations):
             temp_tensor = np.zeros([3, 3, 3])
-            for op in self.IST_operations[atom]:
+            for op in ops:
                 temp_tensor += op[1].transform_tensor(IST[op[0]])
 
-            if len(self.IST_operations[atom]) == 0:
+            if len(ops) == 0:
                 temp_tensor = Tensor(np.random.rand(3, 3, 3) - 0.5)
                 for dim in range(3):
                     temp_tensor[dim] = (temp_tensor[dim] + temp_tensor[dim].T) / 2
@@ -268,8 +264,8 @@ class InternalStrainTensor:
                     self.pointops[atom]
                 )
             IST[atom] = temp_tensor
-            if len(self.IST_operations[atom]) != 0:
-                IST[atom] = IST[atom] / len(self.IST_operations[atom])
+            if len(ops) != 0:
+                IST[atom] = IST[atom] / len(ops)
 
         return IST * max_force
 
@@ -320,14 +316,14 @@ class ForceConstantMatrix:
         for op in ops:
             uniquepointops.append(op)
 
-        for atom in range(len(self.pointops)):
-            for op in self.pointops[atom]:
+        for ops in self.pointops:
+            for op in ops:
                 if op not in uniquepointops:
                     uniquepointops.append(op)
 
         passed = []
         relations = []
-        for atom1 in range(len(self.fcm)):
+        for atom1 in range(len(self.fcm)):  # pylint: disable=C0200
             for atom2 in range(atom1, len(self.fcm)):
                 unique = 1
                 eig1, vecs1 = np.linalg.eig(self.fcm[atom1][atom2])

@@ -9,7 +9,7 @@ Defect thermodynamics, such as defect phase diagrams, etc.
 import logging
 from itertools import chain
 
-import matplotlib.cm as cm
+from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MSONable

@@ -201,8 +201,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
             for plane in bragg_angles:
                 scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(
-                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]), axis=None
-                )
+                    coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]),)
                 scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
@@ -460,9 +459,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points = self.zone_axis_filter(points)
         # first is the max_d, min_r
         first_point_dict = self.get_first_point(structure, points)
-        for point in first_point_dict:
+        for point, v in first_point_dict.items():
             first_point = point
-            first_d = first_point_dict[point]
+            first_d = v
         spacings = self.get_interplanar_spacings(structure, points)
         # second is the first non-parallel-to-first-point vector when sorted.
         # note 000 is "parallel" to every plane vector.
@@ -511,13 +510,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         bragg_angles = self.bragg_angles(interplanar_spacings)
         cell_intensity = self.normalized_cell_intensity(structure, bragg_angles)
         positions = self.get_positions(structure, points)
-        for plane in cell_intensity.keys():
+        for hkl, intensity in cell_intensity.items():
             dot = namedtuple("dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"])
-            position = positions[plane]
-            hkl = plane
-            intensity = cell_intensity[plane]
+            position = positions[hkl]
             film_radius = 0.91 * (10 ** -3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
-            d_spacing = interplanar_spacings[plane]
+            d_spacing = interplanar_spacings[hkl]
             tem_dot = dot(position, hkl, intensity, film_radius, d_spacing)
             dots.append(tem_dot)
         return dots
