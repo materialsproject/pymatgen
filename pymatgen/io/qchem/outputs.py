@@ -423,9 +423,6 @@ class QCOutput(MSONable):
                 r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
             )
             table_pattern = (
-                r"(?:\n[a-zA-Z_\s/]+\.C::(?:WARNING energy changes are now smaller than effective "
-                r"accuracy\.)*(?:\s+calculation will continue, but THRESH should be increased)*"
-                r"(?:\s+or SCF_CONVERGENCE decreased\. )*(?:\s+effective_thresh = [\d\-\.]+e[\d\-]+)*)*"
                 r"(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*"
                 r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+"
                 r"Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+"
@@ -438,6 +435,9 @@ class QCOutput(MSONable):
                 r"(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+"
                 r"(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, "
                 r"Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n)*"
+                r"(?:(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::WARNING energy changes are now smaller than effective "
+                r"accuracy\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+calculation will continue, but THRESH should be increased\s*"
+                r"(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+or SCF_CONVERGENCE decreased\.\s*(\n\s*[a-z\dA-Z_\s/]+\.C|\n\s*GDM)::\s+effective_thresh = [\d\-\.]+e[\d\-]+)*"
             )
         else:
             if "SCF_failed_to_converge" in self.data.get("errors"):
