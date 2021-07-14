@@ -39,7 +39,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5.0):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5.0, inc_magmoms=True):
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -51,6 +51,7 @@ class SpacegroupAnalyzer:
                 codes), a looser tolerance of 0.1 (the value used in Materials
                 Project) is often needed.
             angle_tolerance (float): Angle tolerance for symmetry finding.
+            inc_magmoms (bool): Include magmom properties in spglib inputs
         """
         self._symprec = symprec
         self._angle_tol = angle_tolerance
@@ -59,7 +60,6 @@ class SpacegroupAnalyzer:
         positions = structure.frac_coords
         unique_species = []
         zs = []
-        magmoms = []
 
         for species, g in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
@@ -69,18 +69,23 @@ class SpacegroupAnalyzer:
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(g)))
 
-        for site in structure:
-            if hasattr(site, "magmom"):
-                magmoms.append(site.magmom)
-            elif site.is_ordered and hasattr(site.specie, "spin"):
-                magmoms.append(site.specie.spin)
-            else:
-                magmoms.append(0)
-
         self._unique_species = unique_species
         self._numbers = zs
         # For now, we are setting magmom to zero.
-        self._cell = latt, positions, zs, magmoms
+        self._cell = latt, positions, zs
+
+        if inc_magmoms:
+            magmoms = []
+
+            for site in structure:
+                if hasattr(site, "magmom"):
+                    magmoms.append(site.magmom)
+                elif site.is_ordered and hasattr(site.specie, "spin"):
+                    magmoms.append(site.specie.spin)
+                else:
+                    magmoms.append(0)
+
+            self._cell += (magmoms,)
 
         self._space_group_data = spglib.get_symmetry_dataset(
             self._cell, symprec=self._symprec, angle_tolerance=angle_tolerance
