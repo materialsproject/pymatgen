@@ -12,7 +12,6 @@ bonding analysis with Lobster.
 import collections
 import copy
 import math
-import os
 
 import numpy as np
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -40,17 +39,18 @@ class LobsterNeighbors(NearNeighbors):
     """
 
     def __init__(
-        self,
-        are_coops=False,
-        filename_ICOHP=None,
-        valences=None,
-        limits=None,
-        structure=None,
-        additional_condition=0,
-        only_bonds_to=None,
-        perc_strength_ICOHP=0.15,
-        valences_from_charges=False,
-        filename_CHARGE=None,
+            self,
+            are_coops=False,
+            filename_ICOHP=None,
+            valences=None,
+            limits=None,
+            structure=None,
+            additional_condition=0,
+            only_bonds_to=None,
+            perc_strength_ICOHP=0.15,
+            valences_from_charges=False,
+            filename_CHARGE=None,
+            adapt_extremum_to_add_cond=False
     ):
         """
 
@@ -77,6 +77,8 @@ class LobsterNeighbors(NearNeighbors):
             valences_from_charges: if True and path to CHARGE.lobster is provided, will use Lobster charges (
             Mulliken) instead of valences
             filename_CHARGE: (str) Path to Charge.lobster
+            adapt_extremum_to_add_cond: (bool) will adapt the limits to only focus on the bonds determined by the
+            additional condition
         """
 
         self.ICOHP = Icohplist(are_coops=are_coops, filename=filename_ICOHP)
@@ -84,7 +86,9 @@ class LobsterNeighbors(NearNeighbors):
         self.structure = structure
         self.limits = limits
         self.only_bonds_to = only_bonds_to
+        self.adapt_extremum_to_add_cond = adapt_extremum_to_add_cond
         self.are_coops = are_coops
+
         if are_coops:
             raise ValueError("Algorithm only works correctly for ICOHPLIST.lobster")
 
@@ -125,6 +129,7 @@ class LobsterNeighbors(NearNeighbors):
             only_bonds_to=only_bonds_to,
             additional_condition=self.additional_condition,
             perc_strength_ICOHP=perc_strength_ICOHP,
+            adapt_extremum_to_add_cond=adapt_extremum_to_add_cond,
         )
 
     @property
@@ -142,6 +147,22 @@ class LobsterNeighbors(NearNeighbors):
         objects?
         """
         return False
+
+    def get_anion_types(self):
+        """
+        will return the types of anions present in crystal structure
+        Returns:
+
+        """
+        if self.valences is None:
+            raise ValueError("No cations and anions defined")
+
+        anion_species = []
+        for site, val in zip(self.structure, self.valences):
+            if val < 0.0:
+                anion_species.append(site.specie)
+
+        return set(anion_species)
 
     def get_nn_info(self, structure, n, use_weights=False):
         """
@@ -164,13 +185,13 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("The wrong structure was provided")
         return self.sg_list[n]
 
-    def get_light_structure_environment(self, only_cation_environments=False):
+    def get_light_structure_environment(self, only_cation_environments=False, only_indices=None):
         """
         will return a LobsterLightStructureEnvironments object
         if the structure only contains coordination environments smaller 13
         Args:
             only_cation_environments: only data for cations will be returned
-
+            only_indices: will only evaluate the list of isites in this list
         Returns: LobsterLightStructureEnvironments Object
 
         """
@@ -184,23 +205,61 @@ class LobsterNeighbors(NearNeighbors):
 
             if (len(_neigh_coords)) > 13:
                 raise ValueError("Environment cannot be determined. Number of neighbors is larger than 13.")
-            lgf.setup_local_geometry(isite=ival, coords=_neigh_coords, optimization=2)
-            cncgsm = lgf.get_coordination_symmetry_measures(optimization=2)
+            # to avoid problems if _neigh_coords is empty
+            if _neigh_coords != []:
+                lgf.setup_local_geometry(isite=ival, coords=_neigh_coords, optimization=2)
+                cncgsm = lgf.get_coordination_symmetry_measures(optimization=2)
+                list_ce_symbols.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[0])
+                list_csm.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[1]["csm_wcs_ctwcc"])
+                list_permut.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[1]["indices"])
+            else:
+                list_ce_symbols.append(None)
+                list_csm.append(None)
+                list_permut.append(None)
 
-            list_ce_symbols.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[0])
-            list_csm.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[1]["csm_wcs_ctwcc"])
-            list_permut.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[1]["indices"])
+        if only_indices is None:
+            if not only_cation_environments:
+                lse = LobsterLightStructureEnvironments.from_Lobster(
+                    list_ce_symbol=list_ce_symbols,
+                    list_csm=list_csm,
+                    list_permutation=list_permut,
+                    list_neighsite=self.list_neighsite,
+                    list_neighisite=self.list_neighisite,
+                    structure=self.structure,
+                    valences=self.valences,
+                )
+            else:
+                new_list_ce_symbols = []
+                new_list_csm = []
+                new_list_permut = []
+                new_list_neighsite = []
+                new_list_neighisite = []
 
-        if not only_cation_environments:
-            lse = LobsterLightStructureEnvironments.from_Lobster(
-                list_ce_symbol=list_ce_symbols,
-                list_csm=list_csm,
-                list_permutation=list_permut,
-                list_neighsite=self.list_neighsite,
-                list_neighisite=self.list_neighisite,
-                structure=self.structure,
-                valences=self.valences,
-            )
+                for ival, val in enumerate(self.valences):
+
+                    if val >= 0.0:
+
+                        new_list_ce_symbols.append(list_ce_symbols[ival])
+                        new_list_csm.append(list_csm[ival])
+                        new_list_permut.append(list_permut[ival])
+                        new_list_neighisite.append(self.list_neighisite[ival])
+                        new_list_neighsite.append(self.list_neighsite[ival])
+                    else:
+                        new_list_ce_symbols.append(None)
+                        new_list_csm.append(None)
+                        new_list_permut.append([])
+                        new_list_neighisite.append([])
+                        new_list_neighsite.append([])
+
+                lse = LobsterLightStructureEnvironments.from_Lobster(
+                    list_ce_symbol=new_list_ce_symbols,
+                    list_csm=new_list_csm,
+                    list_permutation=new_list_permut,
+                    list_neighsite=new_list_neighsite,
+                    list_neighisite=new_list_neighisite,
+                    structure=self.structure,
+                    valences=self.valences,
+                )
         else:
             new_list_ce_symbols = []
             new_list_csm = []
@@ -208,15 +267,15 @@ class LobsterNeighbors(NearNeighbors):
             new_list_neighsite = []
             new_list_neighisite = []
 
-            for ival, val in enumerate(self.valences):
+            for isite, site in enumerate(self.structure):
 
-                if val >= 0.0:
+                if isite in only_indices:
 
-                    new_list_ce_symbols.append(list_ce_symbols[ival])
-                    new_list_csm.append(list_csm[ival])
-                    new_list_permut.append(list_permut[ival])
-                    new_list_neighisite.append(self.list_neighisite[ival])
-                    new_list_neighsite.append(self.list_neighsite[ival])
+                    new_list_ce_symbols.append(list_ce_symbols[isite])
+                    new_list_csm.append(list_csm[isite])
+                    new_list_permut.append(list_permut[isite])
+                    new_list_neighisite.append(self.list_neighisite[isite])
+                    new_list_neighsite.append(self.list_neighsite[isite])
                 else:
                     new_list_ce_symbols.append(None)
                     new_list_csm.append(None)
@@ -281,16 +340,16 @@ class LobsterNeighbors(NearNeighbors):
         return summed_icohps, list_icohps, number_bonds, labels, atoms
 
     def plot_cohps_of_neighbors(
-        self,
-        path_to_COHPCAR="COHPCAR.lobster",
-        isites=[],
-        onlycation_isites=True,
-        only_bonds_to=None,
-        per_bond=False,
-        summed_spin_channels=False,
-        xlim=None,
-        ylim=[-10, 6],
-        integrated=False,
+            self,
+            path_to_COHPCAR="COHPCAR.lobster",
+            isites=[],
+            onlycation_isites=True,
+            only_bonds_to=None,
+            per_bond=False,
+            summed_spin_channels=False,
+            xlim=None,
+            ylim=[-10, 6],
+            integrated=False,
     ):
 
         """
@@ -336,13 +395,13 @@ class LobsterNeighbors(NearNeighbors):
         return plot
 
     def get_info_cohps_to_neighbors(
-        self,
-        path_to_COHPCAR="COHPCAR.lobster",
-        isites=[],
-        only_bonds_to=None,
-        onlycation_isites=True,
-        per_bond=True,
-        summed_spin_channels=False,
+            self,
+            path_to_COHPCAR="COHPCAR.lobster",
+            isites=[],
+            only_bonds_to=None,
+            onlycation_isites=True,
+            per_bond=True,
+            summed_spin_channels=False,
     ):
         """
         will return info about the cohps from all sites mentioned in isites with neighbors
@@ -364,18 +423,19 @@ class LobsterNeighbors(NearNeighbors):
         )
         import tempfile
 
-        with tempfile.TemporaryDirectory() as t:
-            path = os.path.join(t, "POSCAR.vasp")
+        with tempfile.NamedTemporaryFile(delete=True, suffix="POSCAR.vasp") as t:
+            path = t.name
 
             self.structure.to(filename=path, fmt="POSCAR")
 
-            completecohp = CompleteCohp.from_file(fmt="LOBSTER", filename=path_to_COHPCAR, structure_file=path)
+            if not hasattr(self, 'completecohp'):
+                self.completecohp = CompleteCohp.from_file(fmt="LOBSTER", filename=path_to_COHPCAR, structure_file=path)
 
         # will check that the number of bonds in ICOHPLIST and COHPCAR are identical
         # further checks could be implemented
-        if len(self.Icohpcollection._list_atom1) != len(completecohp.bonds.keys()):
+        if len(self.Icohpcollection._list_atom1) != len(self.completecohp.bonds.keys()):
             raise ValueError("COHPCAR and ICOHPLIST do not fit together")
-        is_spin_completecohp = Spin.down in completecohp.get_cohp_by_label("1").cohp
+        is_spin_completecohp = Spin.down in self.completecohp.get_cohp_by_label("1").cohp
         if self.Icohpcollection.is_spin_polarized != is_spin_completecohp:
             raise ValueError("COHPCAR and ICOHPLIST do not fit together")
 
@@ -387,11 +447,12 @@ class LobsterNeighbors(NearNeighbors):
                 divisor = 1
 
             plotlabel = self._get_plot_label(atoms, per_bond)
-            summed_cohp = completecohp.get_summed_cohp_by_label_list(
+            summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
                 label_list=labels, divisor=divisor, summed_spin_channels=summed_spin_channels
             )
 
         else:
+            # TODO: check if this is okay
             # labels of the COHPs that will be summed!
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
@@ -414,7 +475,7 @@ class LobsterNeighbors(NearNeighbors):
                     divisor = 1
 
                 plotlabel = self._get_plot_label(new_atoms, per_bond)
-                summed_cohp = completecohp.get_summed_cohp_by_label_list(
+                summed_cohp = self.completecohp.get_summed_cohp_by_label_list(
                     label_list=new_labels, divisor=divisor, summed_spin_channels=summed_spin_channels
                 )
             else:
@@ -502,7 +563,7 @@ class LobsterNeighbors(NearNeighbors):
                             label = icohp._label
 
                             if (index_n_site == atomnr1 and index_n_site2 == atomnr2) or (
-                                index_n_site == atomnr2 and index_n_site2 == atomnr1
+                                    index_n_site == atomnr2 and index_n_site2 == atomnr1
                             ):
 
                                 if atomnr1 != atomnr2:
@@ -522,16 +583,16 @@ class LobsterNeighbors(NearNeighbors):
                                 else:
                                     if not done:
                                         if (np.all(np.asarray(translation) == np.asarray(icohp._translation))) or (
-                                            np.all(
-                                                np.asarray(translation)
-                                                == np.asarray(
-                                                    [
-                                                        -icohp._translation[0],
-                                                        -icohp._translation[1],
-                                                        -icohp._translation[2],
-                                                    ]
+                                                np.all(
+                                                    np.asarray(translation)
+                                                    == np.asarray(
+                                                        [
+                                                            -icohp._translation[0],
+                                                            -icohp._translation[1],
+                                                            -icohp._translation[2],
+                                                        ]
+                                                    )
                                                 )
-                                            )
                                         ):
                                             summed_icohps += icohp.summed_icohp
                                             list_icohps.append(icohp.summed_icohp)
@@ -548,7 +609,8 @@ class LobsterNeighbors(NearNeighbors):
         return summed_icohps, list_icohps, number_bonds, label_list, atoms_list
 
     def _evaluate_ce(
-        self, lowerlimit, upperlimit, only_bonds_to=None, additional_condition=0, perc_strength_ICOHP=0.15
+            self, lowerlimit, upperlimit, only_bonds_to=None, additional_condition=0, perc_strength_ICOHP=0.15,
+            adapt_extremum_to_add_cond=False
     ):
         """
 
@@ -561,13 +623,19 @@ class LobsterNeighbors(NearNeighbors):
             additional_condition: Additional condition for the evaluation
             perc_strength_ICOHP: will be used to determine how strong the ICOHPs (percentage*strongest ICOHP) will be
             that are still considered for the evalulation
-
+            adapt_extremum_to_add_cond: will recalculate the limit based on the bonding type and not on the overall
+            extremum
         Returns:
 
         """
         # get extremum
         if lowerlimit is None and upperlimit is None:
-            lowerlimit, upperlimit = self._get_limit_from_extremum(self.Icohpcollection, percentage=perc_strength_ICOHP)
+
+            lowerlimit, upperlimit = self._get_limit_from_extremum(self.Icohpcollection,
+                                                                   percentage=perc_strength_ICOHP,
+                                                                   adapt_extremum_to_add_cond=adapt_extremum_to_add_cond,
+                                                                   additional_condition=additional_condition)
+
         elif lowerlimit is None and upperlimit is not None:
             raise ValueError("Please give two limits or leave them both at None")
         elif upperlimit is None and lowerlimit is not None:
@@ -592,17 +660,19 @@ class LobsterNeighbors(NearNeighbors):
                 {
                     "site": neighbor,
                     "image": tuple(
-                        int(round(i))
-                        for i in (
-                            neighbor.frac_coords
-                            - self.structure[
-                                [
-                                    isite
-                                    for isite, site in enumerate(self.structure)
-                                    if neighbor.is_periodic_image(site)
-                                ][0]
-                            ].frac_coords
+                        [
+                            int(round(i))
+                            for i in (
+                                neighbor.frac_coords
+                                - self.structure[
+                                    [
+                                        isite
+                                        for isite, site in enumerate(self.structure)
+                                        if neighbor.is_periodic_image(site)
+                                    ][0]
+                                ].frac_coords
                         )
+                        ]
                     ),
                     "weight": 1,
                     "site_index": [
@@ -693,8 +763,8 @@ class LobsterNeighbors(NearNeighbors):
 
                     for idist, dist in enumerate(copied_distances_from_ICOHPs):
                         if (
-                            np.isclose(dist, list_distances[ineigh], rtol=1e-4)
-                            and copied_neighbors_from_ICOHPs[idist] == index_here2
+                                np.isclose(dist, list_distances[ineigh], rtol=1e-4)
+                                and copied_neighbors_from_ICOHPs[idist] == index_here2
                         ):
                             _list_neighsite.append(neigh)
                             _list_neighisite.append(index_here2)
@@ -875,7 +945,8 @@ class LobsterNeighbors(NearNeighbors):
         )
         return icohps
 
-    def _get_atomnumber(self, atomstring):
+    @staticmethod
+    def _get_atomnumber(atomstring):
         """
         will return the number of the atom within the initial POSCAR (e.g., will return 0 for "Na1")
         Args:
@@ -884,7 +955,7 @@ class LobsterNeighbors(NearNeighbors):
         Returns: integer indicating the position in the POSCAR
 
         """
-        return int(self._split_string(atomstring)[1]) - 1
+        return int(LobsterNeighbors._split_string(atomstring)[1]) - 1
 
     @staticmethod
     def _split_string(s):
@@ -897,7 +968,7 @@ class LobsterNeighbors(NearNeighbors):
 
         """
         head = s.rstrip("0123456789")
-        tail = s[len(head) :]
+        tail = s[len(head):]
         return head, tail
 
     @staticmethod
@@ -917,8 +988,10 @@ class LobsterNeighbors(NearNeighbors):
 
         return unitcell
 
-    @staticmethod
-    def _get_limit_from_extremum(icohpcollection, percentage=0.15):
+    def _get_limit_from_extremum(self, icohpcollection, percentage=0.15, adapt_extremum_to_add_cond=False,
+                                 additional_condition=0):
+        # TODO: adapt this to give the extremum for the correct type of bond
+        # TODO add tests
         """
         will return limits for the evaluation of the icohp values from an icohpcollection
         will return -100000, min(max_icohp*0.15,-0.1)
@@ -930,7 +1003,146 @@ class LobsterNeighbors(NearNeighbors):
 
         """
         # TODO: make it work for COOPs
-        extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
+        if not adapt_extremum_to_add_cond:
+            extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
+        else:
+            if additional_condition == 0:
+                extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage
+            elif additional_condition == 1:
+                list_icohps = []
+                for key, value in icohpcollection._icohplist.items():
+                    atomnr1 = LobsterNeighbors._get_atomnumber(value._atom1)
+                    atomnr2 = LobsterNeighbors._get_atomnumber(value._atom2)
+
+                    val1 = self.valences[atomnr1]
+                    val2 = self.valences[atomnr2]
+                    if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
+                        list_icohps.append(value.summed_icohp)
+
+                extremum_based = min(list_icohps) * percentage
+                # print(extremum_based)
+
+                # icohpcollection
+                # pass
+                # neighbors_from_ICOHPs = []
+                # lengths_from_ICOHPs = []
+                # icohps_from_ICOHPs = []
+                # keys_from_ICOHPs = []
+                #
+                # for key, icohp in icohps.items():
+                #     atomnr1 = self._get_atomnumber(icohp._atom1)
+                #     atomnr2 = self._get_atomnumber(icohp._atom2)
+                #
+                #     # test additional conditions
+                #     if additional_condition in (1, 3, 5, 6):
+                #         val1 = self.valences[atomnr1]
+                #         val2 = self.valences[atomnr2]
+                #
+                #     if additional_condition == 0:
+                #         # NO_ADDITIONAL_CONDITION
+                #         if atomnr1 == isite:
+                #             neighbors_from_ICOHPs.append(atomnr2)
+                #             lengths_from_ICOHPs.append(icohp._length)
+                #             icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #             keys_from_ICOHPs.append(key)
+                #         elif atomnr2 == isite:
+                #             neighbors_from_ICOHPs.append(atomnr1)
+                #             lengths_from_ICOHPs.append(icohp._length)
+                #             icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #             keys_from_ICOHPs.append(key)
+                #
+                #     elif additional_condition == 1:
+                #         # ONLY_ANION_CATION_BONDS
+                #         if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
+                #             if atomnr1 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr2)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #             elif atomnr2 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr1)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #     elif additional_condition == 2:
+                #         # NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+                #         if icohp._atom1.rstrip("0123456789") != icohp._atom2.rstrip("0123456789"):
+                #             if atomnr1 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr2)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #             elif atomnr2 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr1)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #     elif additional_condition == 3:
+                #         # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
+                #         if (val1 < 0.0 < val2) or (val2 < 0.0 < val1):
+                #             if icohp._atom1.rstrip("0123456789") != icohp._atom2.rstrip("0123456789"):
+                #                 if atomnr1 == isite:
+                #                     neighbors_from_ICOHPs.append(atomnr2)
+                #                     lengths_from_ICOHPs.append(icohp._length)
+                #                     icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                     keys_from_ICOHPs.append(key)
+                #
+                #                 elif atomnr2 == isite:
+                #                     neighbors_from_ICOHPs.append(atomnr1)
+                #                     lengths_from_ICOHPs.append(icohp._length)
+                #                     icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                     keys_from_ICOHPs.append(key)
+                #
+                #     elif additional_condition == 4:
+                #         # ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
+                #         if icohp._atom1.rstrip("0123456789") == "O" or icohp._atom2.rstrip("0123456789") == "O":
+                #
+                #             if atomnr1 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr2)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #             elif atomnr2 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr1)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #     elif additional_condition == 5:
+                #         # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+                #         if (val1 > 0.0 and val2 > 0.0) or (val1 < 0.0 and val2 < 0.0):
+                #             if atomnr1 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr2)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #             elif atomnr2 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr1)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #     elif additional_condition == 6:
+                #         # ONLY_CATION_CATION_BONDS=6
+                #         if val1 > 0.0 and val2 > 0.0:
+                #             if atomnr1 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr2)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+                #
+                #             elif atomnr2 == isite:
+                #                 neighbors_from_ICOHPs.append(atomnr1)
+                #                 lengths_from_ICOHPs.append(icohp._length)
+                #                 icohps_from_ICOHPs.append(icohp.summed_icohp)
+                #                 keys_from_ICOHPs.append(key)
+
         # if not self.are_coops:
         max_here = min(extremum_based, -0.1)
         return -100000, max_here
@@ -945,7 +1157,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
     @classmethod
     def from_Lobster(
-        cls, list_ce_symbol, list_csm, list_permutation, list_neighsite, list_neighisite, structure, valences=None
+            cls, list_ce_symbol, list_csm, list_permutation, list_neighsite, list_neighisite, structure, valences=None
     ):
         """
         will set up a LightStructureEnvironments from Lobster
