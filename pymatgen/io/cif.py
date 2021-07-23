@@ -1037,10 +1037,12 @@ class CifParser:
                     raise NotImplementedError("Disordered magnetic structures not currently supported.")
 
         if coord_to_species.items():
-            for idx, (comp, group) in enumerate(groupby(
-                sorted(list(coord_to_species.items()), key=lambda x: x[1]),
-                key=lambda x: x[1],
-            )):
+            for idx, (comp, group) in enumerate(
+                groupby(
+                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    key=lambda x: x[1],
+                )
+            ):
                 tmp_coords = [site[0] for site in group]
                 tmp_magmom = [coord_to_magmoms[tmp_coord] for tmp_coord in tmp_coords]
 
@@ -1066,7 +1068,7 @@ class CifParser:
                 #   [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
                 # which is a list in the same order as the sites, but where if a site has the same integer
                 # it is equivalent.
-                equivalent_indices += (len(coords) * [idx])
+                equivalent_indices += len(coords) * [idx]
 
                 allhydrogens.extend(len(coords) * [im_h])
                 allcoords.extend(coords)
@@ -1139,8 +1141,10 @@ class CifParser:
         """
 
         if primitive and symmetrized:
-            raise ValueError("Using both 'primitive' and 'symmetrized' arguments is not currently supported "
-                             "since unexpected behavior might result.")
+            raise ValueError(
+                "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
+                "since unexpected behavior might result."
+            )
 
         structures = []
         for i, d in enumerate(self._cif.data.values()):
