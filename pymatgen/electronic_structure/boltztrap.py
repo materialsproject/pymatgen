@@ -262,7 +262,7 @@ class BoltztrapRunner(MSONable):
 
             if self.run_type == "FERMI":
                 sign = -1.0 if self.cond_band else 1.0
-                for i in range(len(self._bs.kpoints)):
+                for i, kpt in enumerate(self._bs.kpoints):
                     eigs = []
                     eigs.append(
                         Energy(
@@ -273,9 +273,9 @@ class BoltztrapRunner(MSONable):
                     f.write(
                         "%12.8f %12.8f %12.8f %d\n"
                         % (
-                            self._bs.kpoints[i].frac_coords[0],
-                            self._bs.kpoints[i].frac_coords[1],
-                            self._bs.kpoints[i].frac_coords[2],
+                            kpt.frac_coords[0],
+                            kpt.frac_coords[1],
+                            kpt.frac_coords[2],
                             len(eigs),
                         )
                     )
@@ -409,7 +409,7 @@ class BoltztrapRunner(MSONable):
                     with open(output_file_proj + "_" + str(site_nb) + "_" + str(o), "w") as f:
                         f.write(self._bs.structure.composition.formula + "\n")
                         f.write(str(len(self._bs.kpoints)) + "\n")
-                        for i in range(len(self._bs.kpoints)):
+                        for i, kpt in enumerate(self._bs.kpoints):
                             tmp_proj = []
                             for j in range(int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))):
                                 tmp_proj.append(self._bs.projections[Spin(self.spin)][j][i][oi][site_nb])
@@ -424,9 +424,9 @@ class BoltztrapRunner(MSONable):
                             f.write(
                                 "%12.8f %12.8f %12.8f %d\n"
                                 % (
-                                    self._bs.kpoints[i].frac_coords[0],
-                                    self._bs.kpoints[i].frac_coords[1],
-                                    self._bs.kpoints[i].frac_coords[2],
+                                    kpt.frac_coords[0],
+                                    kpt.frac_coords[1],
+                                    kpt.frac_coords[2],
                                     len(tmp_proj),
                                 )
                             )

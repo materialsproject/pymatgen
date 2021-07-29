@@ -17,13 +17,7 @@ from monty.collections import AttrDict
 from monty.functools import lazy_property
 from tabulate import tabulate
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
+from pymatgen.core import yaml
 from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 
@@ -156,7 +150,7 @@ class ScfCycle(Mapping):
 
     def to_string(self, verbose=0):
         """String representation."""
-        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys()))) for it in range(self.num_iterations)]
+        rows = [[it + 1] + list(map(str, (v[it] for k, v in self.items()))) for it in range(self.num_iterations)]
 
         return tabulate(rows, headers=["Iter"] + list(self.keys()))
 

@@ -4,9 +4,9 @@ sphinx_rtd_theme
 pytest==6.2.4
 pytest-cov==2.12.1
 coverage==5.5
-coveralls==3.1.0
+coveralls==3.2.0
 mypy==0.910
 pydocstyle==6.1.1
 flake8==3.9.2
-pylint==2.8.3
-black==21.6b0
+pylint==2.9.5
+black==21.7b0

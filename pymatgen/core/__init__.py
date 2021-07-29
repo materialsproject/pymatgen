@@ -10,7 +10,7 @@ operations on them.
 import os
 
 try:
-    import ruamel.yaml as yaml
+    from ruamel import yaml
 except ImportError:
     try:
         import ruamel_yaml as yaml  # type: ignore  # noqa
@@ -30,7 +30,7 @@ __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ = "shyuep@gmail.com"
-__version__ = "2022.0.9"
+__version__ = "2022.0.11"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")

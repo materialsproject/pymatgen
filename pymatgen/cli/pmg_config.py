@@ -68,14 +68,17 @@ def setup_potcars(args):
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
                     if ext.upper() in ["Z", "GZ"]:
-                        subprocess.Popen(["gunzip", dest]).communicate()
+                        with subprocess.Popen(["gunzip", dest]) as p:
+                            p.communicate()
                     elif ext.upper() in ["BZ2"]:
-                        subprocess.Popen(["bunzip2", dest]).communicate()
+                        with subprocess.Popen(["bunzip2", dest]) as p:
+                            p.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
                     dest = os.path.join(basedir, "POTCAR.{}".format(subdir))
                     shutil.move(os.path.join(basedir, "POTCAR"), dest)
-                    subprocess.Popen(["gzip", "-f", dest]).communicate()
+                    with subprocess.Popen(["gzip", "-f", dest]) as p:
+                        p.communicate()
                 except Exception as ex:
                     print("An error has occured. Message is %s. Trying to " "continue... " % str(ex))
 

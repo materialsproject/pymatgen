@@ -19,18 +19,12 @@ from functools import lru_cache
 from math import acos, asin, atan2, cos, exp, fabs, pi, pow, sin, sqrt
 from typing import List, Optional, Union, Dict, Any
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
 from scipy.spatial import Voronoi
 
+from pymatgen.core import yaml
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure, Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
@@ -125,8 +119,7 @@ class ValenceIonicRadiusEvaluator:
                 return after
             return before
 
-        for i in range(len(self._structure.sites)):
-            site = self._structure.sites[i]
+        for i, site in enumerate(self._structure.sites):
             if isinstance(site.specie, Element):
                 radius = site.specie.atomic_radius
                 # Handle elements with no atomic_radius
@@ -4380,31 +4373,31 @@ def metal_edge_extender(mol_graph):
             metal_sites[mol_graph.graph.nodes()[idx]["specie"]][idx] = [
                 site[2] for site in mol_graph.get_connected_sites(idx)
             ]
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
+    for metal, sites in metal_sites.items():
+        for idx, indices in sites.items():
             for ii, site in enumerate(mol_graph.molecule):
-                if ii != idx and ii not in metal_sites[metal][idx]:
+                if ii != idx and ii not in indices:
                     if str(site.specie) in coordinators:
                         if site.distance(mol_graph.molecule[idx]) < 2.5:
                             mol_graph.add_edge(idx, ii)
                             num_new_edges += 1
-                            metal_sites[metal][idx].append(ii)
+                            indices.append(ii)
     total_metal_edges = 0
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            total_metal_edges += len(metal_sites[metal][idx])
+    for sites in metal_sites.values():
+        for indices in sites.values():
+            total_metal_edges += len(indices)
     if total_metal_edges == 0:
-        for metal in metal_sites:
-            for idx in metal_sites[metal]:
+        for metal, sites in metal_sites.items():
+            for idx, indices in sites.items():
                 for ii, site in enumerate(mol_graph.molecule):
-                    if ii != idx and ii not in metal_sites[metal][idx]:
+                    if ii != idx and ii not in indices:
                         if str(site.specie) in coordinators:
                             if site.distance(mol_graph.molecule[idx]) < 3.5:
                                 mol_graph.add_edge(idx, ii)
                                 num_new_edges += 1
-                                metal_sites[metal][idx].append(ii)
+                                indices.append(ii)
     total_metal_edges = 0
-    for metal in metal_sites:
-        for idx in metal_sites[metal]:
-            total_metal_edges += len(metal_sites[metal][idx])
+    for sites in metal_sites.values():
+        for indices in sites.values():
+            total_metal_edges += len(indices)
     return mol_graph

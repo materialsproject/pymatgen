@@ -438,27 +438,27 @@ def multi_curve_fit(xs, ys, verbose):
 
     fit_results = {}
     best = ["", np.inf]
-    for function in functions:
+    for k, v in functions.items():
         try:
             weights = get_weights(xs, ys)
             popt, pcov = curve_fit(
-                function,
+                k,
                 xs,
                 ys,
-                functions[function](xs, ys),
+                v(xs, ys),
                 maxfev=8000,
                 sigma=weights,
             )
             pcov = []
-            m = measure(function, xs, ys, popt, weights)
-            fit_results.update({function: {"measure": m, "popt": popt, "pcov": pcov}})
-            for f in fit_results:
-                if fit_results[f]["measure"] <= best[1]:
-                    best = f, fit_results[f]["measure"]
+            m = measure(k, xs, ys, popt, weights)
+            fit_results.update({k: {"measure": m, "popt": popt, "pcov": pcov}})
+            for f, v in fit_results.items():
+                if v["measure"] <= best[1]:
+                    best = f, v["measure"]
             if verbose:
-                print(str(function), m)
+                print(str(k), m)
         except RuntimeError:
-            print("no fit found for ", function)
+            print("no fit found for ", k)
 
     return fit_results[best[0]]["popt"], fit_results[best[0]]["pcov"], best
 
@@ -478,9 +478,9 @@ def multi_reciprocal_extra(xs, ys, noise=False):
         m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
         fit_results.update({n: {"measure": m, "popt": popt, "pcov": pcov}})
-    for n in fit_results:
-        if fit_results[n]["measure"] <= best[1]:
-            best = reciprocal, fit_results[n]["measure"], n
+    for n, v in fit_results.items():
+        if v["measure"] <= best[1]:
+            best = reciprocal, v["measure"], n
     return fit_results[best[2]]["popt"], fit_results[best[2]]["pcov"], best
 
 
