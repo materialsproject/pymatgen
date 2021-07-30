@@ -18,7 +18,7 @@ from scipy.optimize import bisect
 from scipy.constants.codata import value as _cd
 from scipy.interpolate import interp1d
 from itertools import chain
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Iterable
 
 from pymatgen.electronic_structure.dos import CompleteDos, FermiDos, f0
 from pymatgen.analysis.defects.core import DefectEntry
@@ -315,7 +315,7 @@ class DefectPhaseDiagram(MSONable):
         all_stable_entries = self.all_stable_entries
         return [e for e in self.entries if e not in all_stable_entries]
 
-    def defect_concentrations(self, chemical_potentials, temperature=300, fermi_level=0.0):
+    def defect_concentrations(self, chemical_potentials, temperature=300, fermi_level=0.0, fixed_concentrations=None):
         """
         Give list of all concentrations at specified efermi in the DefectPhaseDiagram
         args:
@@ -326,13 +326,15 @@ class DefectPhaseDiagram(MSONable):
         returns:
             list of dictionaries of defect concentrations
         """
+        # TODO: defect dict for fixed concnetrations. How to index? Should use name so charge agnostic or smth else?
+        fixed_concentrations = {} if not fixed_concentrations else fixed_concentrations
         concentrations = []
         for dfct in self.all_stable_entries:
             concentrations.append(
                 {
                     "conc": dfct.defect_concentration(
                         chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=fermi_level,
-                    ),
+                    ) if dfct.name not in fixed_concentrations else fixed_concentrations[dfct.name],
                     "name": dfct.name,
                     "charge": dfct.charge,
                 }
@@ -436,6 +438,9 @@ class DefectPhaseDiagram(MSONable):
             temperature: Temperature to equilibrate fermi energies for
             chemical_potentials: dict of chemical potentials to use for calculation fermi level
             bulk_dos: bulk system dos (pymatgen Dos object)
+            charge: Set the charge of the system. Normally this is 0, i.e. charge neutrality for
+                the material. However, charge != 0 can occur, for example, due to an interfacial
+                barrier preventing charge equilibration.
         Returns:
             Fermi energy dictated by charge neutrality
         """
@@ -811,13 +816,16 @@ class DefectPredominanceDiagram(MSONable):
         mus = np.linspace(_min, _max, 50)
 
         _results = [self.solve(temperature, foo(cp)) for cp in mus]
+        
+        def _name(x):
+            return '_'.join([_ for _ in x['name'].split('_') if 'Voronoi' not in _ and "mult" not in _])
 
         results: Dict = {
-            d["name"] if combine_charges else f"{d['name']}_{d['charge']}": np.zeros(len(mus)) for d in _results[0]
+            _name(d) if combine_charges else f"{d['name']}_{d['charge']}": np.zeros(len(mus)) for d in _results[0]
         }
         for i, r in enumerate(_results):
             for d in r:
-                results[d["name"] if combine_charges else f"{d['name']}_{d['charge']}"][i] += d["conc"]
+                results[_name(d) if combine_charges else f"{d['name']}_{d['charge']}"][i] += d["conc"]
 
         return mus, results
 
@@ -831,32 +839,37 @@ class DefectPredominanceDiagram(MSONable):
             chempots (dict): dictionary of chemical potentials for the various elements in
                 the defect phase diagram.
         """
-        ef_scf = self.defect_phase_diagram.solve_for_fermi_energy(temperature, chempots, self.bulk_dos)
-        fd = FermiDos(self.bulk_dos, bandgap=self.defect_phase_diagram.band_gap)
 
-        cb_integral = np.sum(
-            fd.tdos[fd.idx_cbm :]
-            * f0(fd.energies[fd.idx_cbm :], ef_scf + fd.get_cbm_vbm()[1], temperature)
-            * fd.de[fd.idx_cbm :],
-            axis=0,
-        )
-        vb_integral = np.sum(
-            fd.tdos[: fd.idx_vbm + 1]
-            * f0(-fd.energies[: fd.idx_vbm + 1], -ef_scf - fd.get_cbm_vbm()[1], temperature)
-            * fd.de[: fd.idx_vbm + 1],
-            axis=0,
-        )
+        if self.defect_phase_diagram.band_gap:
+            ef_scf = self.defect_phase_diagram.solve_for_fermi_energy(temperature, chempots, self.bulk_dos)
+            fd = FermiDos(self.bulk_dos, bandgap=self.defect_phase_diagram.band_gap)
 
-        p = vb_integral / (fd.volume * fd.A_to_cm ** 3)
-        n = cb_integral / (fd.volume * fd.A_to_cm ** 3)
+            cb_integral = np.sum(
+                fd.tdos[fd.idx_cbm:]
+                * f0(fd.energies[fd.idx_cbm:], ef_scf + fd.get_cbm_vbm()[1], temperature)
+                * fd.de[fd.idx_cbm:],
+                axis=0,
+            )
+            vb_integral = np.sum(
+                fd.tdos[: fd.idx_vbm + 1]
+                * f0(-fd.energies[: fd.idx_vbm + 1], -(ef_scf + fd.get_cbm_vbm()[1]), temperature)
+                * fd.de[: fd.idx_vbm + 1],
+                axis=0,
+            )
+
+            p = vb_integral / (fd.volume * fd.A_to_cm ** 3)
+            n = cb_integral / (fd.volume * fd.A_to_cm ** 3)
+        else:
+            ef_scf = 0
 
         conc = self.defect_phase_diagram.defect_concentrations(chempots, temperature, fermi_level=ef_scf)
-        conc.extend([{"name": "n", "conc": n, "charge": -1}, {"name": "p", "conc": p, "charge": 1}])
+        if self.defect_phase_diagram.band_gap:
+            conc.extend([{"name": "n", "conc": n, "charge": -1}, {"name": "p", "conc": p, "charge": 1}])
         return conc
 
     def plot(
         self,
-        temperature: Union[int, float],
+        temperature: Union[int, float, Iterable],
         element: Element,
         partial_pressure: bool = False,
         concentration_threshold: Union[int, float] = 0,
@@ -879,44 +892,48 @@ class DefectPredominanceDiagram(MSONable):
             Matplotlib Axes
         """
         fig, ax1 = plt.subplots(figsize=(12, 8))
+        colors = [u'b', u'g', u'r', u'c', u'm', u'y', u'k']
 
         ax1.minorticks_on()
-        ax1.set_ylabel("log(C) $\\frac{1}{m^3}$", size=30)
+        ax1.set_ylabel("log(C) $\\frac{1}{cm^3}$", size=30)
         ax1.set_xlabel(
-            "$log \\left( p_{} \\right)$".format(element.symbol), size=30
-        ) if partial_pressure else ax1.set_xlabel("$\\mu_{}$".format(element.symbol), size=30)
+            "$log \\left( p_{}{}{} \\right)$".format("{", element.symbol, "}"), size=30
+        ) if partial_pressure else ax1.set_xlabel("$\\mu_{}{}{}$".format("{", element.symbol, "}"), size=30)
         ax1.tick_params(which="major", length=8, width=2, direction="in", top=True, right=True, labelsize=20)
         ax1.tick_params(which="minor", length=2, width=2, direction="in", top=True, right=True, labelsize=20)
 
+        temperature = temperature if isinstance(temperature, Iterable) else [temperature]
         mx = 0
         mn = 0
-        mus, results = self.solve_along_chempot_line(
-            temperature=temperature, element=element, combine_charges=combine_charges
-        )
-        px2 = ((mus[:-1]) / (boltzmann_eV * temperature)) * np.log(2.71828)
 
-        for r in results:
-            if all([_ < concentration_threshold for _ in results[r]]):
-                continue
-            cs = np.log10(np.multiply(1e6, results[r]))
-            mx, mn = max((mx, max(cs))), min((mn, min(cs)))
-            free_carrier = r == "n" or r == "p"
-            ax1.plot(
-                px2 if partial_pressure else mus,
-                cs[:-1] if partial_pressure else cs,
-                "--" if free_carrier else "-",
-                linewidth=3 if free_carrier else 5,
-                alpha=0.8,
-                label=r,
+        for t, temp in enumerate(temperature):
+            mus, results = self.solve_along_chempot_line(
+                temperature=temp, element=element, combine_charges=combine_charges
+            )
+            px2 = ((mus[:-1]) / (boltzmann_eV * temp)) * np.log(2.71828)
+
+            for i, r in enumerate(results):
+                if all([_ < concentration_threshold for _ in results[r]]):
+                    continue
+                cs = np.log10(np.multiply(1, results[r]))  # use 1e-6 for cm3
+                mx, mn = max((mx, max(cs))), min((mn, min(cs)))
+                free_carrier = r == "n" or r == "p"
+                ax1.plot(
+                    px2 if partial_pressure else mus,
+                    cs[:-1] if partial_pressure else cs,
+                    "--" if free_carrier else "-",
+                    linewidth=3 if free_carrier else 5,
+                    alpha=0.8 - t*.1,
+                    label=r if t == 0 else None,
+                    color=colors[i % len(colors)]
+                )
+
+            left = max(px2) if partial_pressure else max(mus)
+            ax1.axvspan(left, left + 0.1, alpha=0.2, color="red")
+            ax1.axvspan(min(px2), min(px2) - 0.1, alpha=0.2, color="red") if partial_pressure else ax1.axvspan(
+                min(mus), min(mus) - 0.1, alpha=0.2, color="red"
             )
 
-        left = max(px2) if partial_pressure else max(mus)
-        ax1.axvspan(left, left + 0.1, alpha=0.2, color="red")
-        ax1.axvspan(min(px2), min(px2) - 0.1, alpha=0.2, color="red") if partial_pressure else ax1.axvspan(
-            min(mus), min(mus) - 0.1, alpha=0.2, color="red"
-        )
-
         ax1.set_ylim(bottom=0, top=mx + 5)
-
         plt.legend(loc="best", fontsize=12)
         return ax1
