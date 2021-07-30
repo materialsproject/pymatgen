@@ -334,7 +334,7 @@ class Section(MSONable):
                 self.keywords[other.name] += other
             else:
                 self.keywords[other.name] = other
-        elif isinstance(other, Section):
+        elif isinstance(other, (Section, SectionList)):
             self.insert(other)
         else:
             TypeError("Can only add sections or keywords.")
@@ -365,7 +365,7 @@ class Section(MSONable):
         return default
 
     def __setitem__(self, key, value):
-        if isinstance(value, Section):
+        if isinstance(value, (Section, SectionList)):
             if key in self.subsections:
                 self.subsections[key] = value.__deepcopy__()
             else:
@@ -450,7 +450,7 @@ class Section(MSONable):
         for k, v in d.items():
             if isinstance(v, (str, float, int, bool)):
                 del self[k][v]
-            elif isinstance(v, (Keyword, Section, KeywordList)):
+            elif isinstance(v, (Keyword, Section, KeywordList, SectionList)):
                 del self[k][v.name]
             elif isinstance(v, dict):
                 self[k].unset(v)
@@ -464,7 +464,7 @@ class Section(MSONable):
         for k, v in d.items():
             if isinstance(v, (str, float, bool, int, list)):
                 v = Keyword(k, v)
-            if isinstance(v, (Keyword, Section, KeywordList)):
+            if isinstance(v, (Keyword, Section, KeywordList, SectionList)):
                 self.add(v)
             elif isinstance(v, dict):
                 self[k].inc(v)
@@ -475,7 +475,7 @@ class Section(MSONable):
         """
         Insert a new section as a subsection of the current one
         """
-        assert isinstance(d, Section)
+        assert isinstance(d, (Section, SectionList))
         self.subsections[d.alias or d.name] = d.__deepcopy__()
 
     def check(self, path: str):
@@ -571,6 +571,66 @@ class Section(MSONable):
                 del self.subsections["PRINT"]
             for _s in self.subsections:
                 self.subsections[_s].silence()
+
+
+class SectionList(MSONable):
+
+    """
+    Section list
+    """
+
+    def __init__(self, sections: Sequence[Section]):
+        """
+        Initializes a keyword. These Keywords and the value passed to them are sometimes as simple as KEYWORD VALUE,
+        but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2, which is why this class exists:
+        to handle many values and control easy printing to an input file.
+
+        Args:
+            sections: A list of keywords. Must all have the same name (case-insensitive)
+        """
+        assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
+        self.name = sections[0].name if sections else None
+        self.sections = sections
+
+    def __str__(self):
+        return self.get_string()
+
+    def __eq__(self, other):
+        return all(k == o for k, o in zip(self.sections, other.sections))
+
+    def __add__(self, other):
+        return self.extend(other)
+
+    def __len__(self):
+        return len(self.sections)
+
+    def __getitem__(self, item):
+        return self.sections[item]
+
+    def append(self, item):
+        """
+        append the keyword list
+        """
+        self.sections.append(item)
+
+    def extend(self, l):
+        """
+        extend the keyword list
+        """
+        self.sections.extend(l)
+
+    def get_string(self, indent=0):
+        """
+        String representation of Keyword
+        """
+        return " \n".join(["\t" * indent + k.__str__() for k in self.sections])
+
+    def verbosity(self, verbosity):
+        """
+        Silence all keywords in keyword list
+        """
+        for k in self.sections:
+            k.verbosity(verbosity)
 
 
 class Cp2kInput(Section):
