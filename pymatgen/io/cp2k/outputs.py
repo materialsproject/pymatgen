@@ -239,7 +239,8 @@ class Cp2kOutput:
         """
         for v in self.data.get("atomic_kind_info", {}).values():
             if "DFT_PLUS_U" in v:
-                return True
+                if v.get("DFT_PLUS_U").get("U_MINUS_J") > 0:
+                    return True
         return False
 
     def parse_files(self):
@@ -494,7 +495,7 @@ class Cp2kOutput:
         Get the stresses from the output file.
         """
         if len(self.filenames["stress"]) == 1:
-            dat = np.loadtxt(self.filenames["stress"][0], skiprows=1)
+            dat = np.genfromtxt(self.filenames["stress"][0], skip_header=1)
             dat = [dat] if len(np.shape(dat)) == 1 else dat
             self.data["stress_tensor"] = [[list(d[2:5]), list(d[5:8]), list(d[8:11])] for d in dat]
         else:
@@ -512,7 +513,7 @@ class Cp2kOutput:
 
             trace_pattern = re.compile(r"Trace\(stress tensor.+(-?\d+\.\d+E?-?\d+)")
             self.read_pattern(
-                {"stress": trace_pattern}, terminate_on_match=False, postprocess=float, reverse=False,
+                {"stress": trace_pattern}, terminate_on_match=False, postprocess=_postprocessor, reverse=False,
             )
 
     def parse_ionic_steps(self):
