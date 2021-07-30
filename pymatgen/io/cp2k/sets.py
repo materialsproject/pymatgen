@@ -199,7 +199,7 @@ class Cp2kInputSet(Cp2kInput):
             )
 
             if SETTINGS.get(kind, {}).get("dft_plus_u"):
-                if SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"]:
+                if SETTINGS[kind]["dft_plus_u"]["U_MINUS_J"] > 0:
                     dft_plus_u = Section(
                         "DFT_PLUS_U",
                         keywords={
@@ -370,10 +370,16 @@ class DftSet(Cp2kInputSet):
             )
         else:
             scf.insert(Section("DIAGONALIZATION", subsections={}))
-            mixing_kwds = {"ALPHA": Keyword("ALPHA", 0.05)}
+            mixing_kwds = {
+                "ALPHA": Keyword("ALPHA", kwargs.get("alpha", 0.05)),
+                "BETA": Keyword("BETA", kwargs.get("beta", .01)),
+                "NBUFFER": Keyword("NBUFFER", kwargs.get("nbuffer", 10)),
+                "N_SIMPLE_MIX": Keyword("N_SIMPLE_MIX", kwargs.get("n_simple_mix", 3)),
+                "METHOD": Keyword("METHOD", kwargs.get("mixing_method", "BROYDEN_MIXING"))
+            }
             mixing = Section("MIXING", keywords=mixing_kwds, subsections=None)
             scf.insert(mixing)
-            scf.add(Keyword("MAX_DIIS", 15))
+            scf['MAX_DIIS'] = Keyword("MAX_DIIS", 15)
 
         # Create the multigrid for FFTs
         if not cutoff:
@@ -400,7 +406,7 @@ class DftSet(Cp2kInputSet):
         if smearing or (band_gap <= 0.0):
             scf.kwargs["ADDED_MOS"] = 100
             scf["ADDED_MOS"] = 100  # TODO: how to grab the appropriate number?
-            scf.insert(Smear())
+            scf.insert(Smear(elec_temp=kwargs.get('elec_temp', 500)))
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
