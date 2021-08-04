@@ -2109,7 +2109,7 @@ class MoleculeGraph(MSONable):
             # in order to be used for Molecule instantiation
             for k, v in properties.items():
                 if len(v) != len(species):
-                    del properties[k]
+                    del properties[k]  # pylint: disable=R1733
 
             new_mol = Molecule(species, coords, charge=charge, site_properties=properties)
             graph_data = json_graph.adjacency_data(new_graph)
@@ -2203,9 +2203,9 @@ class MoleculeGraph(MSONable):
 
         # narrow to all unique fragments using graph isomorphism
         unique_frag_dict = {}
-        for key in frag_dict:
+        for key, fragments in frag_dict.items():
             unique_frags = []
-            for frag in frag_dict[key]:
+            for frag in fragments:
                 found = False
                 for f in unique_frags:
                     if _isomorphic(frag, f):
@@ -2217,9 +2217,9 @@ class MoleculeGraph(MSONable):
 
         # convert back to molecule graphs
         unique_mol_graph_dict = {}
-        for key in unique_frag_dict:
+        for key, fragments in unique_frag_dict.items():
             unique_mol_graph_list = []
-            for fragment in unique_frag_dict[key]:
+            for fragment in fragments:
                 mapping = {e: i for i, e in enumerate(sorted(fragment.nodes))}
                 remapped = nx.relabel_nodes(fragment, mapping)
 

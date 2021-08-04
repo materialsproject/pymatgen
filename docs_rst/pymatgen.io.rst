@@ -15,6 +15,7 @@ Subpackages
    pymatgen.io.lobster
    pymatgen.io.qchem
    pymatgen.io.vasp
+   pymatgen.io.xtb
 
 Submodules
 ----------

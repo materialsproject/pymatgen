@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.interfaces.zsl module &mdash; pymatgen 2022.0.9 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.interfaces.zsl.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.magnetism package" href="pymatgen.analysis.magnetism.html" />
+    <link rel="prev" title="pymatgen.analysis.interfaces.substrate_analyzer module" href="pymatgen.analysis.interfaces.substrate_analyzer.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2022.0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen namespace</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.interfaces.html">pymatgen.analysis.interfaces package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.interfaces.zsl module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.interfaces.zsl.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.interfaces.zsl">
+<span id="pymatgen-analysis-interfaces-zsl-module"></span><h1>pymatgen.analysis.interfaces.zsl module<a class="headerlink" href="#module-pymatgen.analysis.interfaces.zsl" title="Permalink to this headline">¶</a></h1>
+<p>This module implements the Zur and McGill lattice matching algorithm</p>
+<dl class="py class">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLGenerator">
+<em class="property">class </em><code class="sig-name descname">ZSLGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_area_ratio_tol</span><span class="o">=</span><span class="default_value">0.09</span></em>, <em class="sig-param"><span class="n">max_area</span><span class="o">=</span><span class="default_value">400</span></em>, <em class="sig-param"><span class="n">max_length_tol</span><span class="o">=</span><span class="default_value">0.03</span></em>, <em class="sig-param"><span class="n">max_angle_tol</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">bidirectional</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L60-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This class generate matching interface super lattices based on the methodology
+of lattice vector matching for heterostructural interfaces proposed by
+Zur and McGill:
+Journal of Applied Physics 55 (1984), 378 ; doi: 10.1063/1.333084
+The process of generating all possible matching super lattices is:
+1.) Reduce the surface lattice vectors and calculate area for the surfaces
+2.) Generate all super lattice transformations within a maximum allowed area</p>
+<blockquote>
+<div><p>limit that give nearly equal area super-lattices for the two
+surfaces - generate_sl_transformation_sets</p>
+</div></blockquote>
+<dl>
+<dt>3.) For each superlattice set:</dt><dd><p>1.) Reduce super lattice vectors
+2.) Check length and angle between film and substrate super lattice</p>
+<blockquote>
+<div><p>vectors to determine if the super lattices are the nearly same
+and therefore coincident - get_equiv_transformations</p>
+</div></blockquote>
+</dd>
+<dt>Intialize a Zur Super Lattice Generator for a specific film and</dt><dd><p>substrate</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_area_ratio_tol</strong> (<em>float</em>) – Max tolerance on ratio of
+super-lattices to consider equal</p></li>
+<li><p><strong>max_area</strong> (<em>float</em>) – max super lattice area to generate in search</p></li>
+<li><p><strong>max_length_tol</strong> – maximum length tolerance in checking if two
+vectors are of nearly the same length</p></li>
+<li><p><strong>max_angle_tol</strong> – maximum angle tolerance in checking of two sets
+of vectors have nearly the same angle between them</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLGenerator.generate_sl_transformation_sets">
+<code class="sig-name descname">generate_sl_transformation_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">film_area</span></em>, <em class="sig-param"><span class="n">substrate_area</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L139-L172"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLGenerator.generate_sl_transformation_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates transformation sets for film/substrate pair given the
+area of the unit cell area for the film and substrate. The
+transformation sets map the film and substrate unit cells to super
+lattices with a maximum area
+:param film_area: the unit cell area for the film
+:type film_area: int
+:param substrate_area: the unit cell area for the substrate
+:type substrate_area: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>a set of transformation_sets defined as:</dt><dd><p>1.) the transformation matricies for the film to create a
+super lattice of area i*film area
+2.) the tranformation matricies for the substrate to create
+a super lattice of area j*film area</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>transformation_sets</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLGenerator.get_equiv_transformations">
+<code class="sig-name descname">get_equiv_transformations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">transformation_sets</span></em>, <em class="sig-param"><span class="n">film_vectors</span></em>, <em class="sig-param"><span class="n">substrate_vectors</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L174-L203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLGenerator.get_equiv_transformations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the transformation_sets to the film and substrate vectors
+to generate super-lattices and checks if they matches.
+Returns all matching vectors sets.
+:param transformation_sets: an array of transformation sets:</p>
+<blockquote>
+<div><p>each transformation set is an array with the (i,j)
+indicating the area multipes of the film and subtrate it
+corresponds to, an array with all possible transformations
+for the film area multiple i and another array for the
+substrate area multiple j.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>film_vectors</strong> (<em>array</em>) – film vectors to generate super lattices</p></li>
+<li><p><strong>substrate_vectors</strong> (<em>array</em>) – substrate vectors to generate super
+lattices</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLGenerator.is_same_vectors">
+<code class="sig-name descname">is_same_vectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec_set1</span></em>, <em class="sig-param"><span class="n">vec_set2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L104-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLGenerator.is_same_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if two sets of vectors are the same within length and angle
+tolerances
+:param vec_set1: an array of two vectors
+:type vec_set1: array[array]
+:param vec_set2: second array of two vectors
+:type vec_set2: array[array]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch">
+<em class="property">class </em><code class="sig-name descname">ZSLMatch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">film_sl_vectors</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">substrate_sl_vectors</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">film_vectors</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">substrate_vectors</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">film_transformation</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">substrate_transformation</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L19-L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>A match from the Zur and McGill Algorithm. The super_lattice vectors are listed
+as _sl_vectors. These are reduced according to the algorithm in the paper which
+effectively a rotation in 3D space. Use the match_transformation property to get
+the appropriate transformation matrix</p>
+<dl class="py attribute">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.film_sl_vectors">
+<code class="sig-name descname">film_sl_vectors</code><em class="property">: np.ndarray</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.film_sl_vectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.film_transformation">
+<code class="sig-name descname">film_transformation</code><em class="property">: np.ndarray</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.film_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.film_vectors">
+<code class="sig-name descname">film_vectors</code><em class="property">: np.ndarray</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.film_vectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.match_area">
+<em class="property">property </em><code class="sig-name descname">match_area</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.match_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>The area of the match between the substrate and film super lattice vectors</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.match_transformation">
+<em class="property">property </em><code class="sig-name descname">match_transformation</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.match_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>The tranformation matrix to conver the film super lattice vectors to the substrate</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.substrate_sl_vectors">
+<code class="sig-name descname">substrate_sl_vectors</code><em class="property">: np.ndarray</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.substrate_sl_vectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.substrate_transformation">
+<code class="sig-name descname">substrate_transformation</code><em class="property">: np.ndarray</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.substrate_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.analysis.interfaces.zsl.ZSLMatch.substrate_vectors">
+<code class="sig-name descname">substrate_vectors</code><em class="property">: np.ndarray</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/analysis/interfaces/zsl.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.ZSLMatch.substrate_vectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.fast_norm">
+<code class="sig-name descname">fast_norm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L277-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.fast_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Much faster variant of numpy linalg norm</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.gen_sl_transform_matricies">
+<code class="sig-name descname">gen_sl_transform_matricies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">area_multiple</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L235-L256"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.gen_sl_transform_matricies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the transformation matricies that convert a set of 2D
+vectors into a super lattice of integer area multiple as proven
+in Cassels:</p>
+<p>Cassels, John William Scott. An introduction to the geometry of
+numbers. Springer Science &amp; Business Media, 2012.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>area_multiple</strong> (<em>int</em>) – integer multiple of unit cell area for super</p></li>
+<li><p><strong>area</strong> (<em>lattice</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformation matricies to covert unit vectors to
+super lattice vectors</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matrix_list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.get_factors">
+<code class="sig-name descname">get_factors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L321-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.get_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all factors of n</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.reduce_vectors">
+<code class="sig-name descname">reduce_vectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L300-L318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.reduce_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate independent and unique basis vectors based on the
+methodology of Zur and McGill</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.rel_angle">
+<code class="sig-name descname">rel_angle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec_set1</span></em>, <em class="sig-param"><span class="n">vec_set2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L266-L274"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.rel_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the relative angle between two vector sets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vec_set1</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – an array of two vectors</p></li>
+<li><p><strong>vec_set2</strong> (<em>array</em><em>[</em><em>array</em><em>]</em>) – second array of two vectors</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.rel_strain">
+<code class="sig-name descname">rel_strain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vec1</span></em>, <em class="sig-param"><span class="n">vec2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L259-L263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.rel_strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate relative strain between two vectors</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.vec_angle">
+<code class="sig-name descname">vec_angle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L284-L290"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.vec_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate angle between two vectors</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.interfaces.zsl.vec_area">
+<code class="sig-name descname">vec_area</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/interfaces/zsl.py#L293-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.vec_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Area of lattice plane defined by two vectors</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

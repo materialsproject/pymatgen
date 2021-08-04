@@ -514,18 +514,18 @@ class GulpIO:
         gin = "species \n"
         qerfstring = "qerfc\n"
 
-        for key in el_val_dict.keys():
-            if key != "O" and el_val_dict[key] % 1 != 0:
+        for key, value in el_val_dict.items():
+            if key != "O" and value % 1 != 0:
                 raise SystemError("Oxide has mixed valence on metal")
-            specie_string = key + " core " + str(el_val_dict[key]) + "\n"
+            specie_string = key + " core " + str(value) + "\n"
             gin += specie_string
             qerfstring += key + " " + key + " 0.6000 10.0000 \n"
 
         gin += "# noelectrostatics \n Morse \n"
         met_oxi_ters = TersoffPotential().data
-        for key in el_val_dict.keys():
+        for key, value in el_val_dict.items():
             if key != "O":
-                metal = key + "(" + str(int(el_val_dict[key])) + ")"
+                metal = key + "(" + str(int(value)) + ")"
                 ters_pot_str = met_oxi_ters[metal]
                 gin += ters_pot_str
 
