@@ -6,7 +6,7 @@
 Base classes representing defects.
 """
 
-
+import hashlib
 import logging
 from abc import ABCMeta, abstractmethod
 from functools import lru_cache
@@ -58,6 +58,21 @@ class Defect(MSONable, metaclass=ABCMeta):
         if not lattice_match:
             raise ValueError("defect_site lattice must be same as structure " "lattice.")
         self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
+
+    def get_hash(self):
+        """
+        Get a hexidecimal hash based on sha3 224 for this defect
+        """
+        s = "".join(
+            map(
+                str,
+                [
+                    SpacegroupAnalyzer(self.bulk_structure).get_space_group_symbol(),
+                    hash(self.bulk_structure.composition), self.name, self.charge, self.multiplicity
+                ]
+            )
+        )
+        return hashlib.sha3_224(s.encode('ascii')).hexdigest()
 
     @property
     def bulk_structure(self):
