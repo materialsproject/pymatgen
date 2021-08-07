@@ -851,8 +851,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         References:
             Wang, A., Kingsbury, R., McDermott, M., Horton, M., Jain. A., Ong, S.P.,
                 Dwaraknath, S., Persson, K. A framework for quantifying uncertainty
-                in DFT energy corrections. ChemRxiv. Preprint.
-                https://doi.org/10.26434/chemrxiv.14593476.v1
+                in DFT energy corrections. Scientific Reports 11: 15496, 2021.
+                https://doi.org/10.1038/s41598-021-94550-5
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).

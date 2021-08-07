@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2022.0.11
+----------
+* New features to handle Grüneisen parameters (@JaGeo, @ab5424, @gpetretto, #2190)
+* New option to return SymmetrizedStructure in CifParser (@mkhorton, 0d9a455)
+* Fix for SubstrateAnalyzer (@shyamd, #2198)
+* Fix for BandFillingCorrection (@kavanase, #2193)
+
 v2022.0.10
 ----------
 * Add spin-dependent eigenvalue band properties (@arosen93, #2187)
