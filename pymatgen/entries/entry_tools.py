@@ -279,18 +279,19 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         for entry in self.entries:
             els.update(entry.composition.elements)
         elements = sorted(list(els), key=lambda a: a.X)
-        writer = csv.writer(
-            open(filename, "w"),
-            delimiter=unicode2str(","),
-            quotechar=unicode2str('"'),
-            quoting=csv.QUOTE_MINIMAL,
-        )
-        writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
-        for entry in self.entries:
-            row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
-            row.extend([entry.composition[el] for el in elements])
-            row.append(str(entry.energy))
-            writer.writerow(row)
+        with open(filename, "w") as f:
+            writer = csv.writer(
+                f,
+                delimiter=unicode2str(","),
+                quotechar=unicode2str('"'),
+                quoting=csv.QUOTE_MINIMAL,
+            )
+            writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
+            for entry in self.entries:
+                row = [entry.name if not latexify_names else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+                row.extend([entry.composition[el] for el in elements])
+                row.append(str(entry.energy))
+                writer.writerow(row)
 
     @classmethod
     def from_csv(cls, filename: str):

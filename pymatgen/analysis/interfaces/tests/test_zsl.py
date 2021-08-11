@@ -60,6 +60,10 @@ class ZSLGenTest(PymatgenTest):
         matches = list(z(self.substrate.lattice.matrix[:2], self.film.lattice.matrix[:2]))
         self.assertEqual(len(matches), 48)
 
+        for match in matches:
+            assert match is not None
+            assert isinstance(match.match_area, float)
+
 
 if __name__ == "__main__":
     unittest.main()

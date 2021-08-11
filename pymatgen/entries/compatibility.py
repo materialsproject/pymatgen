@@ -851,8 +851,8 @@ class MaterialsProject2020Compatibility(Compatibility):
         References:
             Wang, A., Kingsbury, R., McDermott, M., Horton, M., Jain. A., Ong, S.P.,
                 Dwaraknath, S., Persson, K. A framework for quantifying uncertainty
-                in DFT energy corrections. ChemRxiv. Preprint.
-                https://doi.org/10.26434/chemrxiv.14593476.v1
+                in DFT energy corrections. Scientific Reports 11: 15496, 2021.
+                https://doi.org/10.1038/s41598-021-94550-5
 
             Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
                 Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
@@ -1220,7 +1220,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # check whether solid_compat has been instantiated
         if solid_compat is None:
             self.solid_compat = None
-        elif issubclass(solid_compat, Compatibility):
+        elif isinstance(solid_compat, type) and issubclass(solid_compat, Compatibility):
             self.solid_compat = solid_compat()
         elif issubclass(type(solid_compat), Compatibility):
             self.solid_compat = solid_compat
