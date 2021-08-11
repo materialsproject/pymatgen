@@ -160,6 +160,8 @@ class QChemDictSet(QCInput):
         myvdw = dict()
         myplots = dict()
         myrem = dict()
+        mysvp = dict()
+        mypcm_nonels = dict()
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = str(self.max_scf_cycles)
@@ -259,6 +261,14 @@ class QChemDictSet(QCInput):
                     temp_opts = lower_and_check_unique(sec_dict)
                     for k, v in temp_opts.items():
                         myopt[k] = v
+                if sec == "svp":
+                    temp_svp = lower_and_check_unique(sec_dict)
+                    for k, v in temp_svp.items():
+                        mysvp[k] = v
+                if sec == "opt":
+                    temp_pcm_nonels = lower_and_check_unique(sec_dict)
+                    for k, v in temp_pcm_nonels.items():
+                        mypcm_nonels[k] = v
 
         super().__init__(
             self.molecule,
@@ -272,6 +282,8 @@ class QChemDictSet(QCInput):
             vdw_mode=self.vdw_mode,
             plots=myplots,
             nbo=self.nbo_params,
+            svp=mysvp,
+            pcm_nonels=mypcm_nonels,
         )
 
     def write(self, input_file: str):
