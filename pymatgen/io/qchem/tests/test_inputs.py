@@ -103,6 +103,30 @@ $end"""
 $end"""
         self.assertEqual(pcm_actual, pcm_test)
 
+    def test_pcm_nonels_template(self):
+        # make sure values that are None get skipped in the output
+        pcm_nonels = {
+            "A": "-0.006736",
+            "B": "0.032698",
+            "C": "-1249.6",
+            "D": None,
+            "Delta": "7.0",
+            "Gamma": "3.7",
+            "SolvRho": "0.05",
+            "GauLag_N": "40",
+        }
+        pcm_nonels_test = QCInput.pcm_nonels_template(pcm_nonels)
+        pcm_nonels_actual = """$pcm_nonels
+   A -0.006736
+   B 0.032698
+   C -1249.6
+   Delta 7.0
+   Gamma 3.7
+   SolvRho 0.05
+   GauLag_N 40
+$end"""
+        self.assertEqual(pcm_nonels_actual, pcm_nonels_test)
+
     def test_solvent_template(self):
         solvent_params = {"dielectric": "5.0"}
         solvent_test = QCInput.solvent_template(solvent_params)
@@ -125,6 +149,14 @@ $end"""
    solvent dmso
 $end"""
         self.assertEqual(smx_actual, smx_test)
+
+    def test_svp_template(self):
+        svp_params = {"svp": "RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1"}
+        svp_test = QCInput.svp_template(svp_params)
+        svp_actual = """$svp
+RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1
+$end"""
+        self.assertEqual(svp_actual, svp_test)
 
     def test_scan_template(self):
         scan_params = {"stre": ["3 6 1.5 1.9 0.01"], "tors": ["1 2 3 4 -180 180 30"]}
@@ -657,6 +689,30 @@ $end"""
         pcm_actual = {"theory": "cpcm", "radii": "uff", "vdwscale": "1.1"}
         self.assertDictEqual(pcm_actual, pcm_test)
 
+    def test_read_pcm_nonels(self):
+        str_pcm_nonels = """$pcm_nonels
+   A         -0.006736
+   B          0.032698
+   C      -1249.6
+   D        -21.405
+   Delta    7.0
+   Gamma    3.7
+   SolvRho  0.05
+   GauLag_N 40
+$end"""
+        pcm_nonels_test = QCInput.read_pcm_nonels(str_pcm_nonels)
+        pcm_nonels_actual = {
+            "A": "-0.006736",
+            "B": "0.032698",
+            "C": "-1249.6",
+            "D": "-21.405",
+            "Delta": "7.0",
+            "Gamma": "3.7",
+            "SolvRho": "0.05",
+            "GauLag_N": "40",
+        }
+        self.assertDictEqual(pcm_nonels_actual, pcm_nonels_test)
+
     def test_read_bad_pcm(self):
         str_pcm = """I'm once again trying to break you!
 
@@ -702,6 +758,16 @@ $end"""
             "solvent": "water",
         }
         self.assertDictEqual(smx_actual, smx_test)
+
+    def test_read_svp(self):
+        str_svp = """$svp
+RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1
+$end"""
+        svp_test = QCInput.read_svp(str_svp)
+        svp_actual = {
+            "svp": "RHOISO=0.001, DIELST=78.36, NPTLEB=1202, ITRNGR=2, IROTGR=2, IPNRF=1, IDEFESR=1",
+        }
+        self.assertDictEqual(svp_actual, svp_test)
 
     def test_read_bad_smx(self):
         str_smx = """Once again, I'm trying to break you!

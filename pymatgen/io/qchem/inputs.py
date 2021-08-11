@@ -52,6 +52,8 @@ class QCInput(MSONable):
         vdw_mode: str = "atomic",
         plots: Optional[Dict] = None,
         nbo: Optional[Dict] = None,
+        svp: Optional[Dict] = None,
+        pcm_nonels: Optional[Dict] = None,
     ):
         """
         Args:
@@ -96,6 +98,10 @@ class QCInput(MSONable):
                     A dictionary of all the input parameters for the plots section of QChem input file.
             nbo (dict):
                     A dictionary of all the input parameters for the nbo section of QChem input file.
+            svp (dict):
+                A dictionary of all the input parameters for the svp section of QChem input file.
+            pcm_nonels (dict):
+                A dictionary of all the input parameters for the pcm_nonels section of QChem input file.
 
         """
         self.molecule = molecule
@@ -109,6 +115,8 @@ class QCInput(MSONable):
         self.vdw_mode = vdw_mode
         self.plots = lower_and_check_unique(plots)
         self.nbo = lower_and_check_unique(nbo)
+        self.svp = lower_and_check_unique(svp)
+        self.pcm_nonels = lower_and_check_unique(pcm_nonels)
 
         # Make sure rem is valid:
         #   - Has a basis
@@ -183,6 +191,14 @@ class QCInput(MSONable):
         if self.nbo is not None:
             combined_list.append(self.nbo_template(self.nbo))
             combined_list.append("")
+        # svp section
+        if self.svp:
+            combined_list.append(self.svp_template(self.svp))
+            combined_list.append("")
+        # pcm_nonels section
+        if self.pcm_nonels:
+            combined_list.append(self.pcm_nonels_template(self.pcm_nonels))
+            combined_list.append("")
         return "\n".join(combined_list)
 
     @staticmethod
@@ -242,6 +258,10 @@ class QCInput(MSONable):
             plots = cls.read_plots(string)
         if "nbo" in sections:
             nbo = cls.read_nbo(string)
+        if "svp" in sections:
+            svp = cls.read_svp(string)
+        if "pcm_nonels" in sections:
+            pcm_nonels = cls.read_pcm_nonels(string)
         return cls(
             molecule,
             rem,
@@ -254,6 +274,8 @@ class QCInput(MSONable):
             vdw_mode=vdw_mode,
             plots=plots,
             nbo=nbo,
+            svp=svp,
+            pcm_nonels=pcm_nonels,
         )
 
     def write_file(self, filename: str):
@@ -432,7 +454,7 @@ class QCInput(MSONable):
                 smx_list.append("   {key} {value}".format(key=key, value="thf"))
             # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
             elif value == "dimthyl sulfoxide":
-                smx_list.append("   {key} {value}".format(key=key, value="dmso"))    
+                smx_list.append("   {key} {value}".format(key=key, value="dmso"))
             else:
                 smx_list.append("   {key} {value}".format(key=key, value=value))
         smx_list.append("$end")
@@ -522,6 +544,42 @@ class QCInput(MSONable):
             nbo_list.append("   {key} = {value}".format(key=key, value=value))
         nbo_list.append("$end")
         return "\n".join(nbo_list)
+
+    @staticmethod
+    def svp_template(svp: Dict) -> str:
+        """
+        Args:
+            svp ():
+
+        Returns:
+            (str)
+        """
+        svp_list = []
+        svp_list.append("$svp")
+        for key, value in svp.items():
+            svp_list.append("{value}".format(value=value))
+        svp_list.append("$end")
+        return "\n".join(svp_list)
+
+    @staticmethod
+    def pcm_nonels_template(pcm_nonels: Dict) -> str:
+        """
+        Pcm run template.
+
+        Args:
+            pcm ():
+
+        Returns:
+            (str)
+        """
+        pcm_nonels_list = []
+        pcm_nonels_list.append("$pcm_nonels")
+        for key, value in pcm_nonels.items():
+            # if the value is None, don't write it to output
+            if value:
+                pcm_nonels_list.append("   {key} {value}".format(key=key, value=value))
+        pcm_nonels_list.append("$end")
+        return "\n".join(pcm_nonels_list)
 
     @staticmethod
     def find_sections(string: str) -> List:
@@ -756,7 +814,7 @@ class QCInput(MSONable):
         if smx["solvent"] == "tetrahydrofuran":
             smx["solvent"] = "thf"
         # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
-        elif smx["solvent"] == "dimethyl sulfoxide": 
+        elif smx["solvent"] == "dimethyl sulfoxide":
             smx["solvent"] = "dmso"
         return smx
 
@@ -840,3 +898,47 @@ class QCInput(MSONable):
         for key, val in nbo_table[0]:
             nbo[key] = val
         return nbo
+
+    @staticmethod
+    def read_svp(string: str) -> Dict:
+        """
+        Read svp parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) nbo parameters.
+        """
+        header = r"^\s*\$svp"
+        row = r"(\w.*)\n"
+        footer = r"^\s*\$end"
+        svp_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if svp_table == []:
+            print("No valid svp inputs found.")
+            return {}
+        return {"svp": str(svp_table[0][0][0])}
+
+    @staticmethod
+    def read_pcm_nonels(string: str) -> Dict:
+        """
+        Read pcm_nonels parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) PCM parameters
+        """
+        header = r"^\s*\$pcm_nonels"
+        row = r"\s*([a-zA-Z\_]+)\s+(.+)"
+        footer = r"^\s*\$end"
+        pcm_nonels_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if not pcm_nonels_table:
+            print(
+                "No valid $pcm_nonels inputs found. Note that there should be no '=' \
+                 chracters in $pcm_nonels input lines."
+            )
+            return {}
+
+        return dict(pcm_nonels_table[0])
