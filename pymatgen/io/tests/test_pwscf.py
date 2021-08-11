@@ -21,10 +21,10 @@ class PWInputTest(PymatgenTest):
         )
 
 
-    def test_str_mixed__oxidation(self):
+    def test_str_mixed_oxidation(self):
         s = self.get_structure("Li2O")
         s.remove_oxidation_states()
-        s[1]='Li1'
+        s[1] = "Li1"
         pw = PWInput(
             s,
             control={"calculation": "scf", "pseudo_dir": "./"},
