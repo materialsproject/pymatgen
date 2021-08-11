@@ -99,10 +99,22 @@ class QCInput(MSONable):
             nbo (dict):
                     A dictionary of all the input parameters for the nbo section of QChem input file.
             svp (dict):
-                A dictionary of all the input parameters for the svp section of QChem input file.
+                A dictionary of all the input parameters for the svp section of QChem input file. This section
+                is required to use the SS(V)PE and CMIRS solvation models. Note that for the CMIRS model, the
+                RHOISO value must be coordinated with the solvent parameters specified in the $pcm_nonels section.
+                svp parameters should be passed as a FORTRAN namelist with all variables on a single line, e.g.
+                svp={"svp": "RHOISO=0.001, DIELST=78.39, NPTLEB=110"}
             pcm_nonels (dict):
-                A dictionary of all the input parameters for the pcm_nonels section of QChem input file.
-
+                A dictionary of all the input parameters for the pcm_nonels section of QChem input file. This
+                section is required to use the CMIRS implicit solvent model. For example, this input is valid
+                for water when RHOISO is set to 0.001 in the $svp section (see Q-Chem manual):
+                pcm_nonels = {"A": -0.006736,
+                              "B": 0.032698,
+                              "C": -1249.6,
+                              "D": -21.405,
+                              "gamma": 3.7
+                              "solvrho": 0.05,
+                              }
         """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
