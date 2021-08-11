@@ -430,6 +430,9 @@ class QCInput(MSONable):
         for key, value in smx.items():
             if value == "tetrahydrofuran":
                 smx_list.append("   {key} {value}".format(key=key, value="thf"))
+            # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
+            elif value == "dimthyl sulfoxide":
+                smx_list.append("   {key} {value}".format(key=key, value="dmso"))    
             else:
                 smx_list.append("   {key} {value}".format(key=key, value=value))
         smx_list.append("$end")
@@ -752,6 +755,9 @@ class QCInput(MSONable):
             smx[key] = val
         if smx["solvent"] == "tetrahydrofuran":
             smx["solvent"] = "thf"
+        # Q-Chem bug, see https://talk.q-chem.com/t/smd-unrecognized-solvent/204
+        elif smx["solvent"] == "dimethyl sulfoxide": 
+            smx["solvent"] = "dmso"
         return smx
 
     @staticmethod

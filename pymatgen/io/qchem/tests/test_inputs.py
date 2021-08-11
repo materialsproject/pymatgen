@@ -119,6 +119,13 @@ $end"""
 $end"""
         self.assertEqual(smx_actual, smx_test)
 
+        smx_params = {"solvent": "dimethyl sulfoxide"}
+        smx_test = QCInput.smx_template(smx_params)
+        smx_actual = """$smx
+   solvent dmso
+$end"""
+        self.assertEqual(smx_actual, smx_test)
+
     def test_scan_template(self):
         scan_params = {"stre": ["3 6 1.5 1.9 0.01"], "tors": ["1 2 3 4 -180 180 30"]}
         scan_test = QCInput.scan_template(scan_params)
