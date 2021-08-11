@@ -266,8 +266,8 @@ class QChemDictSet(QCInput):
                     for k, v in temp_svp.items():
                         mysvp[k] = v
                 if sec == "pcm_nonels":
-                    temp_pcm_nonels = lower_and_check_unique(sec_dict)
-                    for k, v in temp_pcm_nonels.items():
+                    # temp_pcm_nonels = lower_and_check_unique(sec_dict)
+                    for k, v in sec_dict.items():
                         mypcm_nonels[k] = v
 
         super().__init__(
