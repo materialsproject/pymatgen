@@ -6,7 +6,7 @@
 This module implements the Zur and McGill lattice matching algorithm
 """
 
-from typing import Iterator
+from typing import Iterator, List
 
 from dataclasses import dataclass
 from itertools import product
@@ -24,17 +24,17 @@ class ZSLMatch(MSONable):
     the appropriate transformation matrix
     """
 
-    film_sl_vectors: np.ndarray
-    substrate_sl_vectors: np.ndarray
-    film_vectors: np.ndarray
-    substrate_vectors: np.ndarray
-    film_transformation: np.ndarray
-    substrate_transformation: np.ndarray
+    film_sl_vectors: List
+    substrate_sl_vectors: List
+    film_vectors: List
+    substrate_vectors: List
+    film_transformation: List
+    substrate_transformation: List
 
     @property
     def match_area(self):
         """The area of the match between the substrate and film super lattice vectors"""
-        return vec_area(*self.film_sl_vectors.tolist())
+        return vec_area(*self.film_sl_vectors)
 
     @property
     def match_transformation(self):

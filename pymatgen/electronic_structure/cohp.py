@@ -741,9 +741,9 @@ class CompleteCohp(Cohp):
             # Calculate the average COHP for the LMTO file to be
             # consistent with LOBSTER output.
             avg_data = {"COHP": {}, "ICOHP": {}}
-            for i in avg_data:
+            for i in avg_data:  # pylint: disable=C0206
                 for spin in spins:
-                    rows = np.array([cohp_data[label][i][spin] for label in cohp_data])
+                    rows = np.array([v[i][spin] for v in cohp_data.values()])
                     avg = np.average(rows, axis=0)
                     # LMTO COHPs have 5 significant figures
                     avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5) for a in avg], dtype=float)})
@@ -762,19 +762,19 @@ class CompleteCohp(Cohp):
             label: Cohp(
                 efermi,
                 energies,
-                cohp_data[label]["COHP"],
-                icohp=cohp_data[label]["ICOHP"],
+                v["COHP"],
+                icohp=v["ICOHP"],
                 are_coops=are_coops,
             )
-            for label in cohp_data
+            for label, v in cohp_data.items()
         }
 
         bond_dict = {
             label: {
-                "length": cohp_data[label]["length"],
-                "sites": [structure.sites[site] for site in cohp_data[label]["sites"]],
+                "length": v["length"],
+                "sites": [structure.sites[site] for site in v["sites"]],
             }
-            for label in cohp_data
+            for label, v in cohp_data.items()
         }
 
         return CompleteCohp(

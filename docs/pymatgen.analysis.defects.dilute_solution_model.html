@@ -1,21 +1,15 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.defects.dilute_solution_model module &mdash; pymatgen 2022.0.8 documentation</title>
+  <title>pymatgen.analysis.defects.dilute_solution_model module &mdash; pymatgen 2022.0.9 documentation</title>
   
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -25,20 +19,24 @@
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.defects.generators module" href="pymatgen.analysis.defects.generators.html" />
@@ -63,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
+            <a href="index.html" class="icon icon-home"> pymatgen
           
 
           
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2022.0.8
+                2022.0.9
               </div>
             
           
@@ -90,7 +88,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -138,7 +135,6 @@
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -177,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -217,8 +213,8 @@ Reference: Phys Rev B, 63, 094103, 2001,
 C. Woodward, M. Asta, G. Kresse and J. Hafner.
 Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.analysis.defects.dilute_solution_model.compute_defect_density">
-<span class="sig-name descname"><span class="pre">compute_defect_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antisite_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_chem_pot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'highcharts'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/defects/dilute_solution_model.py#L653-L740"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.compute_defect_density" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.defects.dilute_solution_model.compute_defect_density">
+<code class="sig-name descname">compute_defect_density</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">e0</span></em>, <em class="sig-param"><span class="n">vac_defs</span></em>, <em class="sig-param"><span class="n">antisite_defs</span></em>, <em class="sig-param"><span class="n">T</span><span class="o">=</span><span class="default_value">800</span></em>, <em class="sig-param"><span class="n">trial_chem_pot</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_style</span><span class="o">=</span><span class="default_value">'highcharts'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/defects/dilute_solution_model.py#L653-L740"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.compute_defect_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper for the dilute_solution_model.
 The computed plot data is prepared based on plot_style.</p>
 <dl class="field-list simple">
@@ -254,8 +250,8 @@ the plot generation. Format is {el1:mu1,…}</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.analysis.defects.dilute_solution_model.solute_defect_density">
-<span class="sig-name descname"><span class="pre">solute_defect_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antisite_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solute_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solute_concen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_chem_pot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'highchargs'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/defects/dilute_solution_model.py#L1255-L1359"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.solute_defect_density" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.defects.dilute_solution_model.solute_defect_density">
+<code class="sig-name descname">solute_defect_density</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">e0</span></em>, <em class="sig-param"><span class="n">vac_defs</span></em>, <em class="sig-param"><span class="n">antisite_defs</span></em>, <em class="sig-param"><span class="n">solute_defs</span></em>, <em class="sig-param"><span class="n">solute_concen</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">T</span><span class="o">=</span><span class="default_value">800</span></em>, <em class="sig-param"><span class="n">trial_chem_pot</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_style</span><span class="o">=</span><span class="default_value">'highchargs'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/defects/dilute_solution_model.py#L1255-L1359"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.solute_defect_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper for the solute_site_preference_finder.
 The computed plot data is prepared based on plot_style.</p>
 <dl class="field-list simple">
@@ -295,8 +291,8 @@ the plot generation. Format is {el1:mu1,…}</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pymatgen.analysis.defects.dilute_solution_model.solute_site_preference_finder">
-<span class="sig-name descname"><span class="pre">solute_site_preference_finder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vac_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antisite_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solute_defs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solute_concen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_chem_pot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.8/pymatgen/core/../analysis/defects/dilute_solution_model.py#L746-L1252"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.solute_site_preference_finder" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.defects.dilute_solution_model.solute_site_preference_finder">
+<code class="sig-name descname">solute_site_preference_finder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">e0</span></em>, <em class="sig-param"><span class="n">T</span></em>, <em class="sig-param"><span class="n">vac_defs</span></em>, <em class="sig-param"><span class="n">antisite_defs</span></em>, <em class="sig-param"><span class="n">solute_defs</span></em>, <em class="sig-param"><span class="n">solute_concen</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">trial_chem_pot</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2022.0.9/pymatgen/core/../analysis/defects/dilute_solution_model.py#L746-L1252"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.dilute_solution_model.solute_site_preference_finder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the solute defect densities using dilute solution model.
 :param structure: pymatgen.core.structure.Structure object representing the</p>
 <blockquote>
@@ -349,19 +345,11 @@ generation. Format is {el1:mu1,…}</p></li>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -372,6 +360,7 @@ generation. Format is {el1:mu1,…}</p></li>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

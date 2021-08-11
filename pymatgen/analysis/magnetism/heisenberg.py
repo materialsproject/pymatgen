@@ -200,7 +200,7 @@ class HeisenbergMapper:
         all_dists = []
 
         # Loop over unique sites and get neighbor distances up to NNNN
-        for k in unique_site_ids:
+        for k in unique_site_ids:  # pylint: disable=C0206
             i = k[0]
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
@@ -227,7 +227,7 @@ class HeisenbergMapper:
         dists = dict(zip(labels, all_dists))
 
         # Get dictionary keys for interactions
-        for k in unique_site_ids:
+        for k in unique_site_ids:  # pylint: disable=C0206
             i = k[0]
             i_key = unique_site_ids[k]
             connected_sites = sgraph.get_connected_sites(i)
@@ -237,9 +237,9 @@ class HeisenbergMapper:
                 dist = round(cs[-1], 2)  # i_j distance
 
                 j = cs[2]  # j index
-                for key in unique_site_ids.keys():
+                for key, value in unique_site_ids.items():
                     if j in key:
-                        j_key = unique_site_ids[key]
+                        j_key = value
                 if abs(dist - dists["nn"]) <= tol:
                     nn_dict[i_key] = j_key
                 elif abs(dist - dists["nnn"]) <= tol:
@@ -313,9 +313,9 @@ class HeisenbergMapper:
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
                     s_i = sgraph.structure.site_properties["magmom"][i]
 
-                    for k in unique_site_ids.keys():
+                    for k, v in unique_site_ids.items():
                         if i in k:
-                            i_index = unique_site_ids[k]
+                            i_index = v
 
                     # Get all connections for ith site and compute |S_i . S_j|
                     connections = sgraph.get_connected_sites(i)
@@ -329,9 +329,9 @@ class HeisenbergMapper:
                         # s_j_sign = np.sign(sgraph.structure.site_properties['magmom'][j_site])
                         s_j = sgraph.structure.site_properties["magmom"][j_site]
 
-                        for k in unique_site_ids.keys():
+                        for k, v in unique_site_ids.items():
                             if j_site in k:
-                                j_index = unique_site_ids[k]
+                                j_index = v
 
                         # Determine order of connection
                         if abs(dist - dists["nn"]) <= tol:
@@ -635,11 +635,11 @@ class HeisenbergMapper:
         """
 
         # Get unique site identifiers
-        for k in self.unique_site_ids.keys():
+        for k, v in self.unique_site_ids.items():
             if i in k:
-                i_index = self.unique_site_ids[k]
+                i_index = v
             if j in k:
-                j_index = self.unique_site_ids[k]
+                j_index = v
 
         order = ""
 

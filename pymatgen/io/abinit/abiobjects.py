@@ -17,7 +17,7 @@ from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
-import pymatgen.core.units as units
+from pymatgen.core import units
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit

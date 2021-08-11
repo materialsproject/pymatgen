@@ -8,6 +8,7 @@ import multiprocessing
 import os
 import unittest
 import warnings
+import pytest
 
 import numpy as np
 from monty.serialization import loadfn, dumpfn
@@ -258,9 +259,10 @@ class PourbaixDiagramTest(unittest.TestCase):
             "List of stable entries does not match",
         )
 
-        # Test with unprocessed entries included, this should result in the
+        # Test with unstable solid entries included (filter_solids=False), this should result in the
         # previously filtered entries being included
-        d = self.pbx.as_dict(include_unprocessed_entries=True)
+        with pytest.warns(DeprecationWarning, match="The include_unprocessed_entries kwarg is deprecated!"):
+            d = self.pbx_nofilter.as_dict(include_unprocessed_entries=True)
         new = PourbaixDiagram.from_dict(d)
         self.assertEqual(
             set([e.name for e in new.stable_entries]),

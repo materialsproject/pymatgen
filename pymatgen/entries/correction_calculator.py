@@ -8,18 +8,12 @@ import warnings
 from collections import OrderedDict
 from typing import Dict, List, Tuple, Union, Optional
 
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    try:
-        import ruamel_yaml as yaml  # type: ignore  # noqa
-    except ImportError:
-        import yaml  # type: ignore # noqa
 import numpy as np
 import plotly.graph_objects as go
 from monty.serialization import loadfn
 from scipy.optimize import curve_fit
 
+from pymatgen.core import yaml
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.reaction_calculator import ComputedReaction
@@ -314,8 +308,8 @@ class CorrectionCalculator:
             )
         self.corrections = popt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(self.pcov)).tolist()
-        for i in range(len(self.species)):
-            self.corrections_dict[self.species[i]] = (
+        for i, v in enumerate(self.species):
+            self.corrections_dict[v] = (
                 round(self.corrections[i], 3),
                 round(self.corrections_std_error[i], 4),
             )
