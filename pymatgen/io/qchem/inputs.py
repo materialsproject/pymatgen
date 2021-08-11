@@ -254,6 +254,8 @@ class QCInput(MSONable):
         vdw_mode = "atomic"
         plots = None
         nbo = None
+        svp = None
+        pcm_nonels = None
         if "opt" in sections:
             opt = cls.read_opt(string)
         if "pcm" in sections:
