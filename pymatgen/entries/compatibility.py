@@ -11,7 +11,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import Optional, Sequence, Union, List, Type
+from typing import Optional, Sequence, Union, List, Type, Any
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -25,6 +25,7 @@ from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.computed_entries import (
+    EnergyAdjustment,
     CompositionEnergyAdjustment,
     ComputedEntry,
     ComputedStructureEntry,
@@ -521,7 +522,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_adjustments(self, entry: ComputedEntry):
+    def get_adjustments(
+        self, entry: Union[ComputedEntry, ComputedStructureEntry], *args: Any, **kwargs: Any
+    ) -> List[EnergyAdjustment]:
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -540,7 +543,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if the entry is not compatible
         """
-        return
 
     def process_entry(self, entry):
         """
@@ -914,7 +916,7 @@ class MaterialsProject2020Compatibility(Compatibility):
             self.u_corrections = {}
             self.u_errors = {}
 
-    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]):
+    def get_adjustments(self, entry):
         """
         Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
 
@@ -1150,16 +1152,14 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
         # State variable to pass to get_adjustments
         gga_entries = []
         scan_entries = []
-        gga_ground_states = []
+        gga_ground_states: List = []
         pd_gga = None
         has_scan_ground_states = []
         has_scan_hull_entries = []
 
         # We can't operate on single entries in this scheme
         if len(entries) == 1:
-            warnings.warn("{} cannot process single entries. Supply a list of entries."
-                          .format(self.__class__.__name__)
-                          )
+            warnings.warn("{} cannot process single entries. Supply a list of entries.".format(self.__class__.__name__))
 
         # separate GGA and SCAN entries
         for e in entries:
@@ -1169,16 +1169,18 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                     e.energy_adjustments.remove(ea)
 
             if not isinstance(e, ComputedStructureEntry):
-                warnings.warn("Entry {} is not a ComputedStructureEntry and will be"
-                              "ignored. The SCAN/GGA(+U) mixing scheme requires structures for"
-                              " all entries".format(e.entry_id)
-                              )
+                warnings.warn(
+                    "Entry {} is not a ComputedStructureEntry and will be"
+                    "ignored. The SCAN/GGA(+U) mixing scheme requires structures for"
+                    " all entries".format(e.entry_id)
+                )
                 continue
 
             if not e.parameters.get("run_type"):
-                warnings.warn("Entry {} is missing parameters.run_type! This field"
-                              "is required. This entry will be ignored.".format(e.entry_id)
-                              )
+                warnings.warn(
+                    "Entry {} is missing parameters.run_type! This field"
+                    "is required. This entry will be ignored.".format(e.entry_id)
+                )
                 continue
 
             if e.parameters.get("run_type") == "GGA":
@@ -1188,28 +1190,33 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
             elif e.parameters.get("run_type") == "R2SCAN":
                 scan_entries.append(e)
             else:
-                warnings.warn("Invalid run_type {} for entry {}. This entry "
-                              "will be ignored".format(e.parameters.get("run_type"),
-                                                       e.entry_id)
-                              )
+                warnings.warn(
+                    "Invalid run_type {} for entry {}. This entry "
+                    "will be ignored".format(e.parameters.get("run_type"), e.entry_id)
+                )
                 continue
 
         if verbose:
-            print("Processing {} valid GGA(+U) and {} valid SCAN entries".format(len(gga_entries),
-                                                                                 len(scan_entries)))
+            print("Processing {} valid GGA(+U) and {} valid SCAN entries".format(len(gga_entries), len(scan_entries)))
 
         # preprocess entries with any corrections
         if self.gga_compat:
             gga_entries = self.gga_compat.process_entries(gga_entries)
             if verbose:
-                print("Processed {} compatible GGA(+U) entries with {}".format(len(gga_entries),
-                                                                               self.gga_compat.__class__.__name__))
+                print(
+                    "Processed {} compatible GGA(+U) entries with {}".format(
+                        len(gga_entries), self.gga_compat.__class__.__name__
+                    )
+                )
 
         if self.scan_compat:
             scan_entries = self.scan_compat.process_entries(scan_entries)
             if verbose:
-                print("Processed {} compatible SCAN entries with {}".format(len(scan_entries),
-                                                                            self.scan_compat.__class__.__name__))
+                print(
+                    "Processed {} compatible SCAN entries with {}".format(
+                        len(scan_entries), self.scan_compat.__class__.__name__
+                    )
+                )
 
         # Make deep copies of the entries at this point, because later we'll need their original, corrected
         # energies prior to mixing functionals
@@ -1221,11 +1228,11 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
         if len(gga_entries.chemsys) > 0:
             chemsys = gga_entries.chemsys
             if not scan_entries.chemsys <= gga_entries.chemsys:
-                warnings.warn("SCAN entries chemical system {} is larger than GGA entries"
-                              " chemical system {}. Entries outside the GGA chemical system"
-                              " will be discarded".format(scan_entries.chemsys,
-                                                          gga_entries.chemsys)
-                              )
+                warnings.warn(
+                    "SCAN entries chemical system {} is larger than GGA entries"
+                    " chemical system {}. Entries outside the GGA chemical system"
+                    " will be discarded".format(scan_entries.chemsys, gga_entries.chemsys)
+                )
             # If GGA entries are present, construct a gga phase diagram and
             # identify the GGA ground states
             try:
@@ -1248,7 +1255,16 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
         for e in gga_ground_states:
             has_scan = False
             for e2 in scan_entries:
-                if self.structure_matcher.fit(e.structure, e2.structure):
+                # Use fuzzier matching logic for diatomic gases
+                # match composition and spacegroup only
+                if e.composition.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2"]:
+                    if (
+                        e.composition.reduced_formula == e2.composition.reduced_formula
+                        and e.structure.get_space_group_info()[0] == e2.structure.get_space_group_info()[0]
+                    ):
+                        has_scan = True
+                        break
+                elif self.structure_matcher.fit(e.structure, e2.structure):
                     has_scan = True
                     break
 
@@ -1258,11 +1274,13 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
 
         if verbose:
             print("Entries belong to the {} chemical system".format(chemsys))
-            print("Entries contain SCAN calculations for {} of {} GGA(+U) hull "
-                  "entries.".format(sum(has_scan_hull_entries),
-                                    len(gga_hull_entries),
-                                    )
-                  )
+            print(
+                "Entries contain SCAN calculations for {} of {} GGA(+U) hull "
+                "entries.".format(
+                    sum(has_scan_hull_entries),
+                    len(gga_hull_entries),
+                )
+            )
 
         processed_entry_list = []
 
@@ -1270,14 +1288,15 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
             ignore_entry = False
             # get the energy adjustments
             try:
-                adjustments = self.get_adjustments(entry,
-                                                   gga_entries,
-                                                   scan_entries,
-                                                   gga_ground_states,
-                                                   pd_gga,
-                                                   has_scan_ground_states,
-                                                   has_scan_hull_entries
-                                                   )
+                adjustments = self.get_adjustments(
+                    entry,
+                    gga_entries,
+                    scan_entries,
+                    gga_ground_states,
+                    pd_gga,
+                    has_scan_ground_states,
+                    has_scan_hull_entries,
+                )
             except CompatibilityError as exc:
                 ignore_entry = True
                 print(exc)
@@ -1292,14 +1311,11 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                     # we already applied a correction with the same name
                     # but a different value. Something is wrong.
                     ignore_entry = True
-                    warnings.warn("Entry {} already has an energy adjustment called {}, but its "
-                                  "value differs from the value of {:.3f} calculated here. This "
-                                  "Entry will be discarded."
-                                  .format(entry.entry_id,
-                                          ea.name,
-                                          ea.value
-                                          )
-                                  )
+                    warnings.warn(
+                        "Entry {} already has an energy adjustment called {}, but its "
+                        "value differs from the value of {:.3f} calculated here. This "
+                        "Entry will be discarded.".format(entry.entry_id, ea.name, ea.value)
+                    )
                 else:
                     # Add the correction to the energy_adjustments list
                     entry.energy_adjustments.append(ea)
@@ -1309,15 +1325,16 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
 
         return processed_entry_list
 
-    def get_adjustments(self,
-                        entry: ComputedStructureEntry,
-                        gga_entries: EntrySet,
-                        scan_entries: EntrySet,
-                        gga_ground_states: List,
-                        pd_gga: Optional[PhaseDiagram],
-                        has_scan_ground_states: List,
-                        has_scan_hull_entries: List
-                        ):
+    def get_adjustments(  # type: ignore
+        self,
+        entry,
+        gga_entries: EntrySet = EntrySet([]),
+        scan_entries: EntrySet = EntrySet([]),
+        gga_ground_states: List = [],
+        pd_gga: Optional[PhaseDiagram] = None,
+        has_scan_ground_states: List = [],
+        has_scan_hull_entries: List = [],
+    ):
         """
         Returns the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the SCAN mixing scheme. Call process_entries instead,
@@ -1341,34 +1358,35 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
         Raises:
             CompatibilityError if the SCAN/GGA(+U) mixing scheme cannot be applied to the entry.
         """
-        adjustments = []
+        adjustments: List[ConstantEnergyAdjustment] = []
 
         run_type = entry.parameters.get("run_type")
 
         if run_type not in ["GGA", "GGA+U", "R2SCAN"]:
-            raise CompatibilityError("Invalid run type {} for entry {}. Must be GGA, GGA+U, "
-                                     "or R2SCAN".format(run_type, entry.entry_id)
-                                     )
+            raise CompatibilityError(
+                "Invalid run type {} for entry {}. Must be GGA, GGA+U, " "or R2SCAN".format(run_type, entry.entry_id)
+            )
 
         # The correction value depends on how many of the GGA reference states
         # are present as SCAN calculations
         if all(has_scan_hull_entries) and has_scan_hull_entries != [] or all(has_scan_ground_states):
             # If all SCAN reference are present,
-            if run_type == 'R2SCAN':
+            if run_type == "R2SCAN":
                 # For SCAN entries, there is no correction
                 return adjustments
 
             # Discard GGA entries whose structures already exist in SCAN.
-            present = False
             for e in scan_entries:
-                if self.structure_matcher.fit(entry.structure, e.structure):
-                    present = True
+                if self.structure_matcher.fit(entry.structure, e.structure) or (
+                    entry.composition.reduced_formula in ["O2", "H2", "Cl2", "F2", "N2"]
+                    and entry.composition.reduced_formula == e.composition.reduced_formula
+                    and entry.structure.get_space_group_info()[0] == e.structure.get_space_group_info()[0]
+                ):
                     raise CompatibilityError(
-                            "Discarding GGA entry {} for {} whose structure already "
-                            "exists in SCAN".format(entry.entry_id, entry.composition.formula)
-                            )
+                        "Discarding GGA entry {} for {} whose structure already "
+                        "exists in SCAN".format(entry.entry_id, entry.composition.formula)
+                    )
 
-            if not present:
                 # If a GGA is not present in SCAN, correct its energy to give the same
                 # e_above_hull on the SCAN hull that it would have on the GGA hull
                 try:
@@ -1376,37 +1394,43 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                     comp = entry.composition
                     scan_hull_energy = pd_scan.get_hull_energy_per_atom(comp)
                 except ValueError:
-                    raise CompatibilityError("Cannot adjust the energy of GGA(+U) entry {} because the "
-                                                "SCAN entries given do not form a complete phase diagram. "
-                                                "Discarding this entry.".format(entry.entry_id)
-                                                )
-
+                    raise CompatibilityError(
+                        "Cannot adjust the energy of GGA(+U) entry {} because the "
+                        "SCAN entries given do not form a complete phase diagram. "
+                        "Discarding this entry.".format(entry.entry_id)
+                    )
+                if not pd_gga:
+                    raise CompatibilityError("This is a problem")
                 gga_hull_energy = pd_gga.get_hull_energy_per_atom(comp)
                 correction = (scan_hull_energy - gga_hull_energy) * entry.composition.num_atoms
 
-                adjustments.append(ConstantEnergyAdjustment(correction, 0.0,
-                                                            name="MP GGA/SCAN mixing adjustment",
-                                                            cls=self.as_dict(),
-                                                            description="Place GGA energy onto the SCAN hull"
-                                                            ))
+                adjustments.append(
+                    ConstantEnergyAdjustment(
+                        correction,
+                        0.0,
+                        name="MP GGA/SCAN mixing adjustment",
+                        cls=self.as_dict(),
+                        description="Place GGA energy onto the SCAN hull",
+                    )
+                )
                 return adjustments
 
         elif not any(has_scan_ground_states):
             # Discard SCAN entries if there are no SCAN reference states
-            if run_type == 'R2SCAN':
+            if run_type == "R2SCAN":
                 raise CompatibilityError(
-                              "Discarding SCAN entry {} for {} because there are no "
-                              "SCAN reference structures".format(entry.entry_id, entry.composition.formula)
-                              )
+                    "Discarding SCAN entry {} for {} because there are no "
+                    "SCAN reference structures".format(entry.entry_id, entry.composition.formula)
+                )
             return adjustments
 
         # Discard SCAN entries if there are fewer than 2 SCAN entries
         elif len(scan_entries) < 2:
-            if run_type == 'R2SCAN':
+            if run_type == "R2SCAN":
                 raise CompatibilityError(
-                            "Discarding SCAN {} entry for {} because there are fewer "
-                            "than 2 SCAN entries".format(entry.entry_id, entry.composition.formula)
-                            )
+                    "Discarding SCAN {} entry for {} because there are fewer "
+                    "than 2 SCAN entries".format(entry.entry_id, entry.composition.formula)
+                )
             return adjustments
 
         # if there are some SCAN reference states, we may be able to replace
@@ -1418,55 +1442,62 @@ class MaterialsProjectScanCompatibility2020(Compatibility):
                     if present:
                         # correct the energy of GGA entries to maintain the same polymorph
                         # energy difference above the reference state
-                        if run_type == 'R2SCAN':
+                        if run_type == "R2SCAN":
                             # find the SCAN reference
                             if self.structure_matcher.fit(ref.structure, entry.structure):
                                 # this is the SCAN reference energy
                                 # correct the energy to match that of the GGA reference
                                 correction = (ref.energy_per_atom - entry.energy_per_atom) * entry.composition.num_atoms
                                 adjustments.append(
-                                            ConstantEnergyAdjustment(correction, 0.0,
-                                                                     name="MP GGA/SCAN mixing adjustment",
-                                                                     cls=self.as_dict(),
-                                                                     description="Place SCAN energy above hull onto "
-                                                                     "the GGA hull"
-                                                                     ))
+                                    ConstantEnergyAdjustment(
+                                        correction,
+                                        0.0,
+                                        name="MP GGA/SCAN mixing adjustment",
+                                        cls=self.as_dict(),
+                                        description="Place SCAN energy above hull onto " "the GGA hull",
+                                    )
+                                )
                                 return adjustments
 
                             # search the other SCAN entries to find the reference structure
                             for e in scan_entries:
                                 if self.structure_matcher.fit(ref.structure, e.structure):
                                     # correct the SCAN energy to the GGA hull using the references
-                                    correction = (ref.energy_per_atom - e.energy_per_atom) * \
-                                        entry.composition.num_atoms
+                                    correction = (ref.energy_per_atom - e.energy_per_atom) * entry.composition.num_atoms
 
                                     adjustments.append(
-                                        ConstantEnergyAdjustment(correction, 0.0,
-                                                                    name="MP GGA/SCAN mixing adjustment",
-                                                                    cls=self.as_dict(),
-                                                                    description="Place SCAN energy above hull onto "
-                                                                    "the GGA hull"
-                                                                    ))
+                                        ConstantEnergyAdjustment(
+                                            correction,
+                                            0.0,
+                                            name="MP GGA/SCAN mixing adjustment",
+                                            cls=self.as_dict(),
+                                            description="Place SCAN energy above hull onto " "the GGA hull",
+                                        )
+                                    )
                                     return adjustments
+
+                                raise CompatibilityError("This is a problem")
                         else:
                             # is there  a SCAN entry for this GGA structure?
                             for e in scan_entries:
                                 if self.structure_matcher.fit(entry.structure, e.structure):
                                     # if yes, discard the GGA entry
                                     raise CompatibilityError(
-                                                    "Discarding GGA entry {} for {} whose structure already "
-                                                    "exists in SCAN".format(entry.entry_id, entry.composition.formula)
-                                                    )
-                            else:
-                                return adjustments
+                                        "Discarding GGA entry {} for {} whose structure already "
+                                        "exists in SCAN".format(entry.entry_id, entry.composition.formula)
+                                    )
+                            # return adjustments
+                            raise CompatibilityError("This is a problem")
                     else:
                         # There's no SCAN reference state here, so nothing we can do
-                        if run_type == 'R2SCAN':
+                        if run_type == "R2SCAN":
                             raise CompatibilityError(
                                 "Discarding SCAN entry {} for {} for which there is no "
                                 "SCAN reference structure".format(entry.entry_id, entry.composition.formula)
-                                )
+                            )
                         return adjustments
+
+            raise CompatibilityError("This is a problem")
 
 
 class MITCompatibility(CorrectionsList):
@@ -1637,7 +1668,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
 
-    def get_adjustments(self, entry: ComputedEntry):
+    def get_adjustments(self, entry):
         """
         Returns the corrections applied to a particular entry.
 
