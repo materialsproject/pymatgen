@@ -3151,6 +3151,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
+        # To check whether the coords are cartesian or not
+        for coord in coords:
+            for i in coord:
+                if i > 1 or i < 0:
+                    coords_are_cartesian = True
+                    break   
+                    
         super().__init__(
             lattice,
             species,
