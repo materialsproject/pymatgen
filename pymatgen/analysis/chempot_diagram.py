@@ -246,7 +246,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         return simplices, ann_loc
 
-    def _get_formula_meshes(self, draw_domains, formula_colors) -> List[Mesh3d]:
+    @staticmethod
+    def _get_formula_meshes(draw_domains, formula_colors) -> List[Mesh3d]:
         meshes = []
         for idx, (formula, coords) in enumerate(draw_domains.items()):
             points_3d = coords[:, :3]
@@ -264,7 +265,8 @@ class ChemicalPotentialDiagram(MSONable):
             meshes.append(mesh)
         return meshes
 
-    def _get_formula_lines(self, draw_domains, formula_colors) -> List[Scatter3d]:
+    @staticmethod
+    def _get_formula_lines(draw_domains, formula_colors) -> List[Scatter3d]:
         lines = []
         for idx, (formula, coords) in enumerate(draw_domains.items()):
             points_3d = coords[:, :3]
