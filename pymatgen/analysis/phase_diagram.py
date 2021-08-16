@@ -2510,7 +2510,7 @@ class PDPlotter:
 
                 if hasattr(entry, "original_entry"):
                     comp = entry.original_entry.composition
-                    entry_id = getattr(entry, "attribute", "No ID")
+                    entry_id = getattr(entry, "attribute", "no ID")
 
                 formula = comp.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
