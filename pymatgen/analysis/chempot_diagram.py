@@ -69,8 +69,7 @@ class ChemicalPotentialDiagram(MSONable):
         self.limits = limits
         self.default_limit = default_limit
 
-        self.elements = list(sorted({els for e in self.entries for els in
-                                     e.composition.elements}))
+        self.elements = list(sorted({els for e in self.entries for els in e.composition.elements}))
         self.dim = len(self.elements)
         self._min_entries, self.el_refs = self._get_min_entries_and_el_refs(entries)
         self._entry_dict = {e.composition.reduced_formula: e for e in self._min_entries}
@@ -78,8 +77,7 @@ class ChemicalPotentialDiagram(MSONable):
         self._hyperplanes, self._hyperplane_entries = self._get_hyperplanes_and_entries()
 
         if self.dim < 3:
-            raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams "
-                             "with 3 or more elements!")
+            raise ValueError("ChemicalPotentialDiagram currently requires phase diagrams " "with 3 or more elements!")
 
         if len(self.el_refs) != self.dim:
             missing = set(self.elements).difference(self.el_refs.keys())
@@ -117,8 +115,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         domains = self.domains.copy()
         draw_domains = {}
-        draw_comps = [Composition(formula).reduced_composition for formula in
-                      formulas_to_draw]
+        draw_comps = [Composition(formula).reduced_composition for formula in formulas_to_draw]
         annotations = []
 
         for formula, points in domains.items():
@@ -202,8 +199,10 @@ class ChemicalPotentialDiagram(MSONable):
 
     def _get_hyperplanes_and_entries(self):
         data = np.array(
-            [[e.composition.get_atomic_fraction(el) for el in self.elements] + [
-                e.energy_per_atom] for e in self._min_entries]
+            [
+                [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
+                for e in self._min_entries
+            ]
         )
         vec = [self.el_refs[el].energy_per_atom for el in self.elements] + [-1]
         form_e = -np.dot(data, vec)
@@ -239,8 +238,7 @@ class ChemicalPotentialDiagram(MSONable):
             points_2d, v, w = simple_pca(points_3d, k=2)
             domain = ConvexHull(points_2d)
             centroid_2d = get_centroid_2d(points_2d[domain.vertices])
-            ann_loc = centroid_2d @ w.T + np.mean(points_3d.T,
-                                                  axis=1)  # recover orig 3D coords from eigenvectors
+            ann_loc = centroid_2d @ w.T + np.mean(points_3d.T, axis=1)  # recover orig 3D coords from eigenvectors
 
         simplices = [Simplex(points_3d[indices]) for indices in domain.simplices]
 
@@ -252,16 +250,16 @@ class ChemicalPotentialDiagram(MSONable):
         for idx, (formula, coords) in enumerate(draw_domains.items()):
             points_3d = coords[:, :3]
             mesh = Mesh3d(
-                    x=points_3d[:, 0],
-                    y=points_3d[:, 1],
-                    z=points_3d[:, 2],
-                    alphahull=0,
-                    showlegend=True,
-                    lighting=dict(fresnel=1.0),
-                    color=formula_colors[idx],
-                    name=f"{formula} (mesh)",
-                    opacity=0.13,
-                )
+                x=points_3d[:, 0],
+                y=points_3d[:, 1],
+                z=points_3d[:, 2],
+                alphahull=0,
+                showlegend=True,
+                lighting=dict(fresnel=1.0),
+                color=formula_colors[idx],
+                name=f"{formula} (mesh)",
+                opacity=0.13,
+            )
             meshes.append(mesh)
         return meshes
 
@@ -280,14 +278,14 @@ class ChemicalPotentialDiagram(MSONable):
                 z.extend(s.coords[:, 2].tolist() + [None])
 
             line = Scatter3d(
-                    x=x,
-                    y=y,
-                    z=z,
-                    mode="lines",
-                    line={"width": 8, "color": formula_colors[idx]},
-                    opacity=1.0,
-                    name=f"{formula} (lines)",
-                )
+                x=x,
+                y=y,
+                z=z,
+                mode="lines",
+                line={"width": 8, "color": formula_colors[idx]},
+                opacity=1.0,
+                name=f"{formula} (lines)",
+            )
             lines.append(line)
         return lines
 
@@ -356,8 +354,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_chempot_axis_title(element) -> str:
-        return f"μ<sub>{str(element)}</sub> - μ<sub>" \
-               f"{str(element)}</sub><sup>o</sup> (eV)"
+        return f"μ<sub>{str(element)}</sub> - μ<sub>" f"{str(element)}</sub><sup>o</sup> (eV)"
 
     @staticmethod
     def _get_annotation(ann_loc, formula) -> Dict[str, Union[str, float]]:
@@ -384,8 +381,7 @@ class ChemicalPotentialDiagram(MSONable):
         return axes_layout
 
     def __repr__(self):
-        return f"ChemicalPotentialDiagram for {self.chemical_system} with {len(self.entries)} " \
-               f"entries"
+        return f"ChemicalPotentialDiagram for {self.chemical_system} with {len(self.entries)} " f"entries"
 
 
 def simple_pca(data: np.array, k: int = 2) -> Tuple[np.array, np.array, np.array]:
