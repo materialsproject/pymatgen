@@ -20,7 +20,6 @@ class PWInputTest(PymatgenTest):
             pseudo={"Li": "Li.pbe-n-kjpaw_psl.0.1.UPF"},
         )
 
-
     def test_str_mixed_oxidation(self):
         s = self.get_structure("Li2O")
         s.remove_oxidation_states()
@@ -68,7 +67,6 @@ CELL_PARAMETERS angstrom
 """
         self.assertEqual(pw.__str__().strip(), ans.strip())
 
-
     def test_str_without_oxidation(self):
         s = self.get_structure("Li2O")
         s.remove_oxidation_states()
@@ -112,7 +110,6 @@ CELL_PARAMETERS angstrom
   0.133206 0.097894 3.286918
 """
         self.assertEqual(pw.__str__().strip(), ans.strip())
-
 
     def test_str_with_oxidation(self):
         s = self.get_structure("Li2O")
@@ -170,7 +167,6 @@ class PWOuputTest(PymatgenTest):
         self.assertAlmostEqual(self.pwout.get_celldm(1), 10.323)
         for i in range(2, 7):
             self.assertAlmostEqual(self.pwout.get_celldm(i), 0)
-
 
 
 if __name__ == "__main__":
