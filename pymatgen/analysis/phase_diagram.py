@@ -1307,6 +1307,9 @@ class CompoundPhaseDiagram(PhaseDiagram):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
         for entry in entries:
+            if getattr(entry, "attribute", None) is None:
+                entry.attribute = getattr(entry, "entry_id", None)
+
             try:
                 transformed_entry = TransformedPDEntry(entry, sp_mapping)
                 new_entries.append(transformed_entry)
@@ -2507,6 +2510,7 @@ class PDPlotter:
 
                 if hasattr(entry, "original_entry"):
                     comp = entry.original_entry.composition
+                    entry_id = getattr(entry, "attribute", "no ID")
 
                 formula = comp.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
