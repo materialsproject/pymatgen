@@ -7,11 +7,19 @@ from a list of entries within a chemical system containing 3 or more elements. T
 chemical potential diagram is the mathematical dual to the traditional compositional
 phase diagram.
 
-For more information, please reference the paper below:
+For more information, please cite/reference the paper below:
 
 Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
 synthesis via local chemical potentials in hyperdimensional phase space.”
 ArXiv:2104.05986 [Cond-Mat], Aug. 2021. arXiv.org, http://arxiv.org/abs/2104.05986.
+
+Please also consider referencing the original 1999 paper by H. Yokokawa,
+who outlined many of its possible uses:
+
+Yokokawa, H. "Generalized chemical potential diagram and its applications to
+chemical reactions at interfaces between dissimilar materials." JPE 20,
+258 (1999). https://doi.org/10.1361/105497199770335794
+
 """
 
 import json
@@ -43,11 +51,12 @@ class ChemicalPotentialDiagram(MSONable):
     hyperplanes. Accordingly, "points" on the compositional phase diagram
     become N-dimensional convex polytopes (domains) in chemical potential space.
 
-    For more information, please reference the paper below:
+    For more information on this specific implementation of the algorithm,
+    please cite/reference the paper below:
 
     Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
-    synthesis via local chemical potentials in hyperdimensional Phase Space.”
-    ArXiv:2104.05986 [Cond-Mat], Apr. 2021. arXiv.org, http://arxiv.org/abs/2104.05986.
+    synthesis via local chemical potentials in hyperdimensional phase space.”
+    ArXiv:2104.05986 [Cond-Mat], Apr. 2021. arXiv.org, http://arxiv.org/abs/2104.05986
     """
 
     def __init__(

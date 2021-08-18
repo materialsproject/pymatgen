@@ -32,9 +32,9 @@ class ChemicalPotentialDiagramTest(PymatgenTest):
 
     def test_pca(self):
         pass
+
     def test_centroid(self):
         pass
-
 
 
 if __name__ == "__main__":
