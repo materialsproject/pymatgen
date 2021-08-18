@@ -11,7 +11,7 @@ For more information, please reference the paper below:
 
 Todd, Paul K., McDermott, M.J., et al. “Selectivity in yttrium manganese oxide
 synthesis via local chemical potentials in hyperdimensional phase space.”
-ArXiv:2104.05986 [Cond-Mat], Apr. 2021. arXiv.org, http://arxiv.org/abs/2104.05986.
+ArXiv:2104.05986 [Cond-Mat], Aug. 2021. arXiv.org, http://arxiv.org/abs/2104.05986.
 """
 
 import json
