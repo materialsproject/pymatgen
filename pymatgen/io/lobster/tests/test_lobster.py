@@ -9,7 +9,6 @@ import unittest
 import warnings
 
 import numpy as np
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.io.lobster import (
@@ -412,6 +411,9 @@ class IcohplistTest(unittest.TestCase):
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "ICOHPLIST.lobster"),
             are_coops=True,
         )
+        # TODO: add ICOBI-test
+
+        # TODO: test orbitalwise ICOHPs with and without spin polarization
 
     def test_attributes(self):
         self.assertFalse(self.icohp_bise.are_coops)
@@ -620,8 +622,8 @@ class DoscarTest(unittest.TestCase):
         self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist())
         self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
         for coords, coords2 in zip(
-            self.DOSCAR_spin_pol.completedos.structure.frac_coords,
-            self.structure.frac_coords,
+                self.DOSCAR_spin_pol.completedos.structure.frac_coords,
+                self.structure.frac_coords,
         ):
             for xyz, xyz2 in zip(coords, coords2):
                 self.assertAlmostEqual(xyz, xyz2)
@@ -877,6 +879,8 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_onethread = Lobsterout(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.onethread")
         )
+        self.lobsterout_cobi_madelung=Lobsterout(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung"))
+
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -1304,6 +1308,11 @@ class LobsteroutTest(PymatgenTest):
         self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
 
         self.assertEqual(self.lobsterout_onethread.number_of_threads, 1)
+        #Test lobsterout of lobster-4.1.0
+        self.assertEqual(self.lobsterout_cobi_madelung.has_COBICAR, True)
+        self.assertEqual(self.lobsterout_cobi_madelung.has_COHPCAR, True)
+        self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
+
 
     def test_get_doc(self):
         comparedict = {
@@ -1358,16 +1367,17 @@ class LobsteroutTest(PymatgenTest):
             "hasDensityOfEnergies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
-            if isinstance(item, str):
-                self.assertTrue(comparedict[key], item)
-            elif isinstance(item, int):
-                self.assertEqual(comparedict[key], item)
-            elif key in ("chargespilling", "totalspilling"):
-                self.assertAlmostEqual(item[0], comparedict[key][0])
-            elif isinstance(item, list):
-                self.assertListEqual(item, comparedict[key])
-            elif isinstance(item, dict):
-                self.assertDictEqual(item, comparedict[key])
+            if key not in ["hasCOBICAR","hasmadelung"]:
+                if isinstance(item, str):
+                    self.assertTrue(comparedict[key], item)
+                elif isinstance(item, int):
+                    self.assertEqual(comparedict[key], item)
+                elif key in ("chargespilling", "totalspilling"):
+                    self.assertAlmostEqual(item[0], comparedict[key][0])
+                elif isinstance(item, list):
+                    self.assertListEqual(item, comparedict[key])
+                elif isinstance(item, dict):
+                    self.assertDictEqual(item, comparedict[key])
 
 
 class FatbandTest(PymatgenTest):
@@ -2133,16 +2143,16 @@ class LobsterinTest(unittest.TestCase):
         found = 0
         for ikpoint2, kpoint2 in enumerate(kpointlist):
             if (
-                np.isclose(kpoint[0], kpoint2[0])
-                and np.isclose(kpoint[1], kpoint2[1])
-                and np.isclose(kpoint[2], kpoint2[2])
+                    np.isclose(kpoint[0], kpoint2[0])
+                    and np.isclose(kpoint[1], kpoint2[1])
+                    and np.isclose(kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1
             elif (
-                np.isclose(-kpoint[0], kpoint2[0])
-                and np.isclose(-kpoint[1], kpoint2[1])
-                and np.isclose(-kpoint[2], kpoint2[2])
+                    np.isclose(-kpoint[0], kpoint2[0])
+                    and np.isclose(-kpoint[1], kpoint2[1])
+                    and np.isclose(-kpoint[2], kpoint2[2])
             ):
                 if weight == weightlist[ikpoint2]:
                     found += 1

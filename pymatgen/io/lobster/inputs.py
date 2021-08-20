@@ -18,7 +18,6 @@ import spglib
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -41,48 +40,7 @@ class Lobsterin(dict, MSONable):
     There are also several standard lobsterin files that can be easily generated.
     """
 
-    # all keywords known to this class so far
     # reminder: lobster is not case sensitive
-    AVAILABLEKEYWORDS = [
-        "COHPstartEnergy",
-        "COHPendEnergy",
-        "basisSet",
-        "cohpGenerator",
-        "gaussianSmearingWidth",
-        "saveProjectionToFile",
-        "basisfunctions",
-        "skipdos",
-        "skipcohp",
-        "skipcoop",
-        "skipPopulationAnalysis",
-        "skipGrossPopulation",
-        "userecommendedbasisfunctions",
-        "loadProjectionFromFile",
-        "forceEnergyRange",
-        "DensityOfEnergy",
-        "BWDF",
-        "BWDFCOHP",
-        "skipProjection",
-        "createFatband",
-        "writeBasisFunctions",
-        "writeMatricesToFile",
-        "realspaceHamiltonian",
-        "realspaceOverlap",
-        "printPAWRealSpaceWavefunction",
-        "printLCAORealSpaceWavefunction",
-        "noFFTforVisualization",
-        "RMSp",
-        "onlyReadVasprun.xml",
-        "noMemoryMappedFiles",
-        "skipPAWOrthonormalityTest",
-        "doNotIgnoreExcessiveBands",
-        "doNotUseAbsoluteSpilling",
-        "skipReOrthonormalization",
-        "forceV1HMatrix",
-        "useOriginalTetrahedronMethod",
-        "useDecimalPlaces",
-        "kSpaceCOHP",
-    ]
 
     # keyword + one float can be used in file
     FLOATKEYWORDS = [
@@ -101,6 +59,7 @@ class Lobsterin(dict, MSONable):
         "printPAWRealSpaceWavefunction",
         "printLCAORealSpaceWavefunction",
         "kSpaceCOHP",
+        "EwaldSum"
     ]
     # the keyword alone will turn on or off a function
     BOOLEANKEYWORDS = [
@@ -108,6 +67,8 @@ class Lobsterin(dict, MSONable):
         "skipdos",
         "skipcohp",
         "skipcoop",
+        "skipcobi",
+        "skipMadelungEnergy",
         "loadProjectionFromFile",
         "forceEnergyRange",
         "DensityOfEnergy",
@@ -135,6 +96,9 @@ class Lobsterin(dict, MSONable):
     ]
     # several of these keywords + ending can be used in a lobsterin file:
     LISTKEYWORDS = ["basisfunctions", "cohpbetween", "createFatband"]
+
+    # all keywords known to this class so far
+    AVAILABLEKEYWORDS = FLOATKEYWORDS + STRINGKEYWORDS + BOOLEANKEYWORDS + LISTKEYWORDS
 
     def __init__(self, settingsdict: dict):
         """
@@ -327,12 +291,12 @@ class Lobsterin(dict, MSONable):
         return Lobsterin({k: v for k, v in d.items() if k not in ["@module", "@class"]})
 
     def write_INCAR(
-        self,
-        incar_input: str = "INCAR",
-        incar_output: str = "INCAR.lobster",
-        poscar_input: str = "POSCAR",
-        isym: int = -1,
-        further_settings: dict = None,
+            self,
+            incar_input: str = "INCAR",
+            incar_output: str = "INCAR.lobster",
+            poscar_input: str = "POSCAR",
+            isym: int = -1,
+            further_settings: dict = None,
     ):
         """
         Will only make the run static, insert nbands, make ISYM=-1, set LWAVE=True and write a new INCAR.
@@ -365,9 +329,9 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def get_basis(
-        structure: Structure,
-        potcar_symbols: list,
-        address_basis_file: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml"),
+            structure: Structure,
+            potcar_symbols: list,
+            address_basis_file: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_standard.yaml"),
     ):
         """
         will get the basis from given potcar_symbols (e.g., ["Fe_pv","Si"]
@@ -405,10 +369,10 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def get_all_possible_basis_functions(
-        structure: Structure,
-        potcar_symbols: list,
-        address_basis_file_min: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
-        address_basis_file_max: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
+            structure: Structure,
+            potcar_symbols: list,
+            address_basis_file_min: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_min.yaml"),
+            address_basis_file_max: str = os.path.join(MODULE_DIR, "lobster_basis/BASIS_PBE_54_max.yaml"),
     ):
         """
 
@@ -459,15 +423,15 @@ class Lobsterin(dict, MSONable):
 
     @staticmethod
     def write_KPOINTS(
-        POSCAR_input: str = "POSCAR",
-        KPOINTS_output="KPOINTS.lobster",
-        reciprocal_density: int = 100,
-        isym: int = -1,
-        from_grid: bool = False,
-        input_grid: list = [5, 5, 5],
-        line_mode: bool = True,
-        kpoints_line_density: int = 20,
-        symprec: float = 0.01,
+            POSCAR_input: str = "POSCAR",
+            KPOINTS_output="KPOINTS.lobster",
+            reciprocal_density: int = 100,
+            isym: int = -1,
+            from_grid: bool = False,
+            input_grid: list = [5, 5, 5],
+            line_mode: bool = True,
+            kpoints_line_density: int = 20,
+            symprec: float = 0.01,
     ):
         """
         writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered
@@ -658,12 +622,12 @@ class Lobsterin(dict, MSONable):
 
     @classmethod
     def standard_calculations_from_vasp_files(
-        cls,
-        POSCAR_input: str = "POSCAR",
-        INCAR_input: str = "INCAR",
-        POTCAR_input: Optional[str] = None,
-        dict_for_basis: Optional[dict] = None,
-        option: str = "standard",
+            cls,
+            POSCAR_input: str = "POSCAR",
+            INCAR_input: str = "INCAR",
+            POTCAR_input: Optional[str] = None,
+            dict_for_basis: Optional[dict] = None,
+            option: str = "standard",
     ):
         """
         will generate Lobsterin with standard settings

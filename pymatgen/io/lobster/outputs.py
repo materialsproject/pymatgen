@@ -71,17 +71,28 @@ class Cohpcar:
 
     """
 
-    def __init__(self, are_coops: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
         """
         Args:
             are_coops: Determines if the file is a list of COHPs or COOPs.
               Default is False for COHPs.
+            are_cobis: Determines if the file is a list of COHPs or COOPs.
+              Default is False for COHPs.
+
             filename: Name of the COHPCAR file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         if filename is None:
-            filename = "COOPCAR.lobster" if are_coops else "COHPCAR.lobster"
+            if are_coops:
+                filename = "COOPCAR.lobster"
+            elif are_cobis:
+                filename = "COBICAR.lobster"
+            else:
+                filename = "COHPCAR.lobster"
 
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
@@ -100,8 +111,8 @@ class Cohpcar:
             self.is_spin_polarized = False
 
         # The COHP data start in row num_bonds + 3
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
-        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
+        data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3:]]).transpose()
         self.energies = data[0]
         cohp_data = {
             "average": {
@@ -272,17 +283,27 @@ class Icohplist:
 
     """
 
-    def __init__(self, are_coops: bool = False, filename: str = None):
+    def __init__(self, are_coops: bool = False, are_cobis: bool = False, filename: str = None):
         """
         Args:
-            are_coops: Determines if the file is a list of ICOHPs or ICOOPs.
+            are_coops: Determines if the file is a list of ICOOPs.
+              Defaults to False for ICOHPs.
+            are_cobis: Determines if the file is a list of ICOBIs.
               Defaults to False for ICOHPs.
             filename: Name of the ICOHPLIST file. If it is None, the default
               file name will be chosen, depending on the value of are_coops.
         """
+        if are_coops and are_cobis:
+            raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
         self.are_coops = are_coops
+        self.are_cobis = are_cobis
         if filename is None:
-            filename = "ICOOPLIST.lobster" if are_coops else "ICOHPLIST.lobster"
+            if are_coops:
+                filename = "ICOOPLIST.lobster"
+            elif are_cobis:
+                filename = "ICOBILIST.lobster"
+            else:
+                filename = "ICOHPLIST.lobster"
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
@@ -303,13 +324,33 @@ class Icohplist:
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
         if "distance" in data[len(data) // 2]:
-            num_bonds = len(data) // 2
-            if num_bonds == 0:
-                raise IOError("ICOHPLIST file contains no data.")
+            # TODO: adapt this for orbitalwise stuff
             self.is_spin_polarized = True
         else:
-            num_bonds = len(data)
             self.is_spin_polarized = False
+
+        # check if orbitalwise ICOHPLIST
+        if "_" in (data[2].split()[1]):
+            self.orbitalwise = True
+            warnings.warn("This is an orbitalwise IC**LIST.lobter. Currently, the orbitalwise information is not read!")
+        else:
+            self.orbitalwise = False
+
+        if self.orbitalwise:
+            data_without_orbitals = []
+            for line in data:
+                if "_" not in line.split()[1]:
+                    data_without_orbitals.append(line)
+        else:
+            data_without_orbitals = data
+
+        if "distance" in data_without_orbitals[len(data_without_orbitals) // 2]:
+            # TODO: adapt this for orbitalwise stuff
+            num_bonds = len(data_without_orbitals) // 2
+            if num_bonds == 0:
+                raise IOError("ICOHPLIST file contains no data.")
+        else:
+            num_bonds = len(data_without_orbitals)
 
         list_labels = []
         list_atom1 = []
@@ -319,7 +360,7 @@ class Icohplist:
         list_num = []
         list_icohp = []
         for bond in range(num_bonds):
-            line = data[bond].split()
+            line = data_without_orbitals[bond].split()
             icohp = {}
             if version == "2.2.1":
                 label = "%s" % (line[0])
@@ -330,7 +371,7 @@ class Icohplist:
                 num = int(line[5])
                 translation = [0, 0, 0]
                 if self.is_spin_polarized:
-                    icohp[Spin.down] = float(data[bond + num_bonds + 1].split()[4])
+                    icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[4])
 
             elif version == "3.1.1":
                 label = "%s" % (line[0])
@@ -342,7 +383,7 @@ class Icohplist:
                 num = int(1)
 
                 if self.is_spin_polarized:
-                    icohp[Spin.down] = float(data[bond + num_bonds + 1].split()[7])
+                    icohp[Spin.down] = float(data_without_orbitals[bond + num_bonds + 1].split()[7])
 
             list_labels.append(label)
             list_atom1.append(atom1)
@@ -435,10 +476,10 @@ class Doscar:
     """
 
     def __init__(
-        self,
-        doscar: str = "DOSCAR.lobster",
-        structure_file: str = "POSCAR",
-        dftprogram: str = "Vasp",
+            self,
+            doscar: str = "DOSCAR.lobster",
+            structure_file: str = "POSCAR",
+            dftprogram: str = "Vasp",
     ):
         """
         Args:
@@ -661,8 +702,14 @@ class Lobsterout:
       .. attribute: has_COHPCAR
         Boolean, indicates that COHPCAR.lobster and ICOHPLIST.lobster are present
 
+      .. attribute: has_madelung
+        Boolean, indicates that SitePotentials.lobster and MadelungEnergies.lobster are present
+
       .. attribute: has_COOPCAR
         Boolean, indicates that COOPCAR.lobster and ICOOPLIST.lobster are present
+
+      .. attribute: has_COBICAR
+        Boolean, indicates that COBICAR.lobster and ICOBILIST.lobster are present
 
       .. attribute: has_DOSCAR
         Boolean, indicates that DOSCAR.lobster is present
@@ -712,12 +759,13 @@ class Lobsterout:
 
     """
 
+    # TODO: add tests for skipping COBI and madelung
+    # TODO: add tests for including COBI and madelung
     def __init__(self, filename="lobsterout"):
         """
         Args:
             filename: filename of lobsterout
         """
-        warnings.warn("Make sure the lobsterout is read in correctly. This is a brand new class.")
         # read in file
         with zopen(filename, "rt") as f:
             data = f.read().split("\n")  # [3:-3]
@@ -764,19 +812,25 @@ class Lobsterout:
 
         self.has_DOSCAR = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
         self.has_COHPCAR = (
-            "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
-            and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
+                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
+                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
         )
         self.has_COOPCAR = (
-            "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
-            and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
+                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
+                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
         )
+        # TODO: include this into this version
+        self.has_COBICAR = (
+                "writing COBICAR.lobster and ICOBILIST.lobster..." in data
+                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data)
+
         self.has_CHARGE = "SKIPPING writing CHARGE.lobster..." not in data
         self.has_Projection = "saving projection to projectionData.lobster..." in data
         self.has_bandoverlaps = "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
         self.has_fatbands = self._has_fatband(data=data)
         self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
         self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
+        self.has_madelung = "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
 
     def get_doc(self):
         """
@@ -808,7 +862,9 @@ class Lobsterout:
         LobsterDict["hasDOSCAR"] = self.has_DOSCAR
         LobsterDict["hasCOHPCAR"] = self.has_COHPCAR
         LobsterDict["hasCOOPCAR"] = self.has_COOPCAR
+        LobsterDict["hasCOBICAR"] = self.has_COBICAR
         LobsterDict["hasCHARGE"] = self.has_CHARGE
+        LobsterDict["hasmadelung"] = self.has_madelung
         LobsterDict["hasProjection"] = self.has_Projection
         LobsterDict["hasbandoverlaps"] = self.has_bandoverlaps
         LobsterDict["hasfatband"] = self.has_fatbands
@@ -1113,7 +1169,7 @@ class Fatband:
                 self.is_spinpolarized = True
             else:
                 linenumbers = []
-                for iline, line in enumerate(contents[1 : self.nbands * 2 + 4]):
+                for iline, line in enumerate(contents[1: self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
                         linenumbers.append(iline)
 
@@ -1199,7 +1255,7 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
+        for ilabel, label in enumerate(kpoints_object.labels[-self.number_kpts:], start=0):
 
             if label is not None:
                 label_dict[label] = kpoints_array[ilabel]
@@ -1296,11 +1352,11 @@ class Bandoverlaps:
         return True
 
     def has_good_quality_check_occupied_bands(
-        self,
-        number_occ_bands_spin_up: int,
-        number_occ_bands_spin_down: Optional[int] = None,
-        spin_polarized: bool = False,
-        limit_deviation: float = 0.1,
+            self,
+            number_occ_bands_spin_up: int,
+            number_occ_bands_spin_down: Optional[int] = None,
+            spin_polarized: bool = False,
+            limit_deviation: float = 0.1,
     ) -> bool:
         """
         will check if the deviation from the ideal bandoverlap of all occupied bands is smaller or equal to
@@ -1586,9 +1642,9 @@ class Wavefunction:
 
         """
         if not (
-            hasattr(self, "volumetricdata_real")
-            and hasattr(self, "volumetricdata_imaginary")
-            and hasattr(self, "volumetricdata_density")
+                hasattr(self, "volumetricdata_real")
+                and hasattr(self, "volumetricdata_imaginary")
+                and hasattr(self, "volumetricdata_density")
         ):
             self.set_volumetric_data(self.grid, self.structure)
         if part == "real":

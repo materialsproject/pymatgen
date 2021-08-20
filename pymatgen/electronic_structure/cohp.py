@@ -651,7 +651,7 @@ class CompleteCohp(Cohp):
         )
 
     @classmethod
-    def from_file(cls, fmt, filename=None, structure_file=None, are_coops=False):
+    def from_file(cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis= False):
         """
         Creates a CompleteCohp object from an output file of a COHP
         calculation. Valid formats are either LMTO (for the Stuttgart
@@ -662,6 +662,9 @@ class CompleteCohp(Cohp):
                 for LMTO and COHPCAR.lobster/COOPCAR.lobster for LOBSTER.
 
             are_coops: Indicates whether the populations are COOPs or
+                COHPs. Defaults to False for COHPs.
+
+            are_coops: Indicates whether the populations are COBIs or
                 COHPs. Defaults to False for COHPs.
 
             fmt: A string for the code that was used to calculate
@@ -686,15 +689,19 @@ class CompleteCohp(Cohp):
                 filename = "COPL"
             cohp_file = LMTOCopl(filename=filename, to_eV=True)
         elif fmt == "LOBSTER":
+            if are_coops and are_cobis:
+                raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
             if structure_file is None:
                 structure_file = "POSCAR"
             if filename is None:
-                filename = "COOPCAR.lobster" if are_coops else "COHPCAR.lobster"
-            warnings.warn(
-                "The bond labels are currently consistent with ICOHPLIST.lobster/ICOOPLIST.lobster, not with "
-                "COHPCAR.lobster/COOPCAR.lobster. Please be aware!"
-            )
-            cohp_file = Cohpcar(filename=filename, are_coops=are_coops)
+                if filename is None:
+                    if are_coops:
+                        filename = "COOPCAR.lobster"
+                    elif are_cobis:
+                        filename = "COBICAR.lobster"
+                    else:
+                        filename = "COHPCAR.lobster"
+            cohp_file = Cohpcar(filename=filename, are_coops=are_coops, are_cobis=are_cobis)
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
             raise ValueError("Unknown format %s. Valid formats are LMTO " "and LOBSTER." % fmt)
