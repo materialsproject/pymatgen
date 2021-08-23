@@ -15,6 +15,7 @@ from pymatgen.analysis.structure_prediction.substitution_probability import (
 from pymatgen.core.periodic_table import Species
 from pymatgen.util.testing import PymatgenTest
 
+
 def get_table():
     """
     Loads a lightweight lambda table for use in unit tests to reduce

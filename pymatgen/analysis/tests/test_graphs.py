@@ -223,9 +223,7 @@ class StructureGraphTest(PymatgenTest):
         self.assertEqual(square_copy.graph.number_of_edges(), 3)
 
     def test_substitute(self):
-        structure = Structure.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif")
-        )
+        structure = Structure.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "Li2O.cif"))
         molecule = FunctionalGroups["methyl"]
 
         structure_copy = copy.deepcopy(structure)
@@ -600,9 +598,7 @@ class MoleculeGraphTest(unittest.TestCase):
             [6, 0],
             [6, 2],
         ]
-        self.pc_frag1 = Molecule.from_file(
-            os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC_frag1.xyz")
-        )
+        self.pc_frag1 = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "PC_frag1.xyz"))
         self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
         self.tfsi = Molecule.from_file(os.path.join(PymatgenTest.TEST_FILES_DIR, "graphs", "TFSI.xyz"))
         self.tfsi_edges = (
