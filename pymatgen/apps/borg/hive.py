@@ -242,7 +242,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             else:
                 for filename in filenames:
                     files = sorted(glob.glob(os.path.join(path, filename + "*")))
-                    if len(files) == 1 or filename in ("INCAR", "POTCAR", "DYNMAT"):
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR"):
+                        files_to_parse[filename] = files[0]
+                    elif len(files) == 1 and filename == "DYNMAT":
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always

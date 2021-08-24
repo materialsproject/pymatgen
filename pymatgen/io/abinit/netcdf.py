@@ -281,10 +281,7 @@ class ETSF_Reader(NetcdfReader):
         return self.chemical_symbols.index(symbol)
 
     def read_structure(self, cls=Structure):
-        """Returns the crystalline structure."""
-        if self.ngroups != 1:
-            raise NotImplementedError("In file %s: ngroups != 1" % self.path)
-
+        """Returns the crystalline structure stored in the rootgrp."""
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
@@ -354,7 +351,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     d = {}
     if site_properties is not None:
         for prop in site_properties:
-            d[property] = ncdata.read_value(prop)
+            d[prop] = ncdata.read_value(prop)
 
     structure = cls(lattice, species, red_coords, site_properties=d)
 
