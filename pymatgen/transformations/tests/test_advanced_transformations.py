@@ -60,7 +60,7 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files", "struct_predictor")
+    data_dir = os.path.join(PymatgenTest.TEST_FILES_DIR, "struct_predictor")
     json_file = os.path.join(data_dir, "test_lambda.json")
     with open(json_file) as f:
         lambda_table = json.load(f)
