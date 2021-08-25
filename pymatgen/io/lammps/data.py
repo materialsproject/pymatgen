@@ -880,60 +880,6 @@ class LammpsData(MSONable):
         topo = Topology(boxed_s)
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Constructor that reads in a dictionary.
-
-        Args:
-            d (dict): Dictionary to read.
-        """
-
-        def decode_df(s):
-            return pd.read_json(s, orient="split", dtype=False)
-
-        items = dict()
-        items["box"] = LammpsBox.from_dict(d["box"])
-        items["masses"] = decode_df(d["masses"])
-        items["atoms"] = decode_df(d["atoms"])
-        items["atom_style"] = d["atom_style"]
-
-        velocities = d["velocities"]
-        if velocities:
-            velocities = decode_df(velocities)
-        items["velocities"] = velocities
-        force_field = d["force_field"]
-        if force_field:
-            force_field = {k: decode_df(v) for k, v in force_field.items()}
-        items["force_field"] = force_field
-        topology = d["topology"]
-        if topology:
-            topology = {k: decode_df(v) for k, v in topology.items()}
-        items["topology"] = topology
-        return cls(**items)
-
-    def as_dict(self):
-        """
-        Returns the LammpsData as a dict.
-
-        """
-
-        def encode_df(df):
-            return df.to_json(orient="split")
-
-        d = dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["box"] = self.box.as_dict()
-        d["masses"] = encode_df(self.masses)
-        d["atoms"] = encode_df(self.atoms)
-        d["atom_style"] = self.atom_style
-
-        d["velocities"] = None if self.velocities is None else encode_df(self.velocities)
-        d["force_field"] = None if not self.force_field else {k: encode_df(v) for k, v in self.force_field.items()}
-        d["topology"] = None if not self.topology else {k: encode_df(v) for k, v in self.topology.items()}
-        return d
-
 
 class Topology(MSONable):
     """
@@ -1294,16 +1240,21 @@ class CombinedData(LammpsData):
 
         """
 
-        max_xyz = coordinates[["x", "y", "z"]].max().max()
-        min_xyz = coordinates[["x", "y", "z"]].min().min()
+        self._list_of_molecules = list_of_molecules
+        self._list_of_names = list_of_names
+        self._list_of_numbers = list_of_numbers
+        self._coordinates = coordinates
+        self._coordinates.index = self._coordinates.index.map(int)
+        max_xyz = self._coordinates[["x", "y", "z"]].max().max()
+        min_xyz = self._coordinates[["x", "y", "z"]].min().min()
         self.box = LammpsBox(np.array(3 * [[min_xyz - 0.5, max_xyz + 0.5]]))
         self.atom_style = atom_style
-        self.n = sum(list_of_numbers)
+        self.n = sum(self._list_of_numbers)
         self.names = list()
-        for name in list_of_names:
+        for name in self._list_of_names:
             self.names.append("_".join(re.findall(r"\w+", name)))
-        self.mols = list_of_molecules
-        self.nums = list_of_numbers
+        self.mols = self._list_of_molecules
+        self.nums = self._list_of_numbers
         self.masses = pd.concat([mol.masses.copy() for mol in self.mols], ignore_index=True)
         self.masses.index += 1
         all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
@@ -1335,8 +1286,8 @@ class CombinedData(LammpsData):
             type_count += len(mol.masses)
             mol_count += self.nums[i] * mols_in_data
         self.atoms.index += 1
-        assert len(self.atoms) == len(coordinates), "Wrong number of coordinates."
-        self.atoms.update(coordinates)
+        assert len(self.atoms) == len(self._coordinates), "Wrong number of coordinates."
+        self.atoms.update(self._coordinates)
 
         self.velocities = None
         assert self.mols[0].velocities is None, "Velocities not supported"
@@ -1530,45 +1481,6 @@ class CombinedData(LammpsData):
         )
         lines.insert(1, info)
         return "\n".join(lines)
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Constructor that reads in a dictionary.
-        Args:
-            d (dict): Dictionary to read.
-        """
-
-        def decode_df(s):
-            return pd.read_json(s, orient="split", dtype=False)
-
-        items = dict()
-        items["list_of_molecules"] = [LammpsData.from_dict(mol) for mol in d["list_of_molecules"]]
-        items["list_of_numbers"] = d["list_of_numbers"]
-        items["coordinates"] = decode_df(d["coordinates"])
-        items["list_of_names"] = d["list_of_names"]
-        items["atom_style"] = d["atom_style"]
-
-        return cls(**items)
-
-    def as_dict(self):
-        """
-        Returns the CombinedData as a dict.
-        """
-
-        def encode_df(df):
-            return df.to_json(orient="split")
-
-        d = dict()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["list_of_molecules"] = [mol.as_dict() for mol in self.mols]
-        d["list_of_numbers"] = self.nums.copy()
-        d["list_of_names"] = self.names.copy()
-        d["coordinates"] = encode_df(self.atoms[["x", "y", "z"]])
-        d["atom_style"] = self.atom_style
-
-        return d
 
     def as_lammpsdata(self):
         """

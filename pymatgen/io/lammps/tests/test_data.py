@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
+from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core import yaml
 from pymatgen.core.periodic_table import Element
@@ -516,19 +517,22 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
 
     def test_json_dict(self):
-        encoded = json.dumps(self.ethane.as_dict())
-        decoded = json.loads(encoded)
-        c2h6 = LammpsData.from_dict(decoded)
+        encoded = json.dumps(self.ethane.as_dict(), cls=MontyEncoder)
+        c2h6 = json.loads(encoded, cls=MontyDecoder)
+        c2h6.masses.index = c2h6.masses.index.map(int)
+        c2h6.atoms.index = c2h6.atoms.index.map(int)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
         ff = self.ethane.force_field
         key, target_df = random.sample(ff.items(), 1)[0]
+        c2h6.force_field[key].index = c2h6.force_field[key].index.map(int)
         self.assertIsNone(
             pd.testing.assert_frame_equal(c2h6.force_field[key], target_df, check_dtype=False),
             key,
         )
         topo = self.ethane.topology
         key, target_df = random.sample(topo.items(), 1)[0]
+        c2h6.topology[key].index = c2h6.topology[key].index.map(int)
         self.assertIsNone(pd.testing.assert_frame_equal(c2h6.topology[key], target_df), key)
 
     @classmethod
@@ -1112,9 +1116,8 @@ class CombinedDataTest(unittest.TestCase):
         self.assertDictEqual(v_ff.maps["Atoms"], dict(Qa1=1))
 
     def test_json_dict(self):
-        encoded = json.dumps(self.li_ec.as_dict())
-        decoded = json.loads(encoded)
-        lic3o3h4 = CombinedData.from_dict(decoded)
+        encoded = json.dumps(self.li_ec.as_dict(), cls=MontyEncoder)
+        lic3o3h4 = json.loads(encoded, cls=MontyDecoder)
         self.assertEqual(lic3o3h4.nums, self.li_ec.nums)
         self.assertEqual(lic3o3h4.names, self.li_ec.names)
         self.assertEqual(lic3o3h4.atom_style, self.li_ec.atom_style)
@@ -1122,6 +1125,7 @@ class CombinedDataTest(unittest.TestCase):
         pd.testing.assert_frame_equal(lic3o3h4.atoms, self.li_ec.atoms)
         ff = self.li_ec.force_field
         key, target_df = random.sample(ff.items(), 1)[0]
+        lic3o3h4.force_field[key].index = lic3o3h4.force_field[key].index.map(int)
         self.assertIsNone(
             pd.testing.assert_frame_equal(lic3o3h4.force_field[key], target_df, check_dtype=False),
             key,
@@ -1129,17 +1133,20 @@ class CombinedDataTest(unittest.TestCase):
         topo = self.li_ec.topology
         key, target_df = random.sample(topo.items(), 1)[0]
         self.assertIsNone(pd.testing.assert_frame_equal(lic3o3h4.topology[key], target_df), key)
-
+        lic3o3h4.mols[1].masses.index = lic3o3h4.mols[1].masses.index.map(int)
+        lic3o3h4.mols[1].atoms.index = lic3o3h4.mols[1].atoms.index.map(int)
         pd.testing.assert_frame_equal(lic3o3h4.mols[1].masses, self.li_ec.mols[1].masses)
         pd.testing.assert_frame_equal(lic3o3h4.mols[1].atoms, self.li_ec.mols[1].atoms)
         ff_1 = self.li_ec.mols[1].force_field
         key, target_df = random.sample(ff_1.items(), 1)[0]
+        lic3o3h4.mols[1].force_field[key].index = lic3o3h4.mols[1].force_field[key].index.map(int)
         self.assertIsNone(
             pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False),
             key,
         )
         topo_1 = self.li_ec.mols[1].topology
         key, target_df = random.sample(topo_1.items(), 1)[0]
+        lic3o3h4.mols[1].topology[key].index = lic3o3h4.mols[1].topology[key].index.map(int)
         self.assertIsNone(pd.testing.assert_frame_equal(lic3o3h4.mols[1].topology[key], target_df), key)
 
     def test_as_lammpsdata(self):
