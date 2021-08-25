@@ -19,8 +19,10 @@ from pymatgen.io.lobster import (
     Fatband,
     Grosspop,
     Icohplist,
+    MadelungEnergies,
     Lobsterin,
     Lobsterout,
+    SitePotential,
     Wavefunction,
 )
 from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
@@ -879,8 +881,8 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_onethread = Lobsterout(
             filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout.onethread")
         )
-        self.lobsterout_cobi_madelung=Lobsterout(filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung"))
-
+        self.lobsterout_cobi_madelung = Lobsterout(
+            filename=os.path.join(PymatgenTest.TEST_FILES_DIR, "cohp", "lobsterout_cobi_madelung"))
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -1308,11 +1310,10 @@ class LobsteroutTest(PymatgenTest):
         self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
 
         self.assertEqual(self.lobsterout_onethread.number_of_threads, 1)
-        #Test lobsterout of lobster-4.1.0
+        # Test lobsterout of lobster-4.1.0
         self.assertEqual(self.lobsterout_cobi_madelung.has_COBICAR, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_COHPCAR, True)
         self.assertEqual(self.lobsterout_cobi_madelung.has_madelung, True)
-
 
     def test_get_doc(self):
         comparedict = {
@@ -1367,7 +1368,7 @@ class LobsteroutTest(PymatgenTest):
             "hasDensityOfEnergies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
-            if key not in ["hasCOBICAR","hasmadelung"]:
+            if key not in ["hasCOBICAR", "hasmadelung"]:
                 if isinstance(item, str):
                     self.assertTrue(comparedict[key], item)
                 elif isinstance(item, int):
@@ -2564,6 +2565,36 @@ class WavefunctionTest(PymatgenTest):
 
     def tearDown(self):
         warnings.simplefilter("default")
+
+
+class SitePotentialsTest(PymatgenTest):
+    def setUp(self) -> None:
+        self.sitepotential = SitePotential(
+            filename=os.path.join(test_dir_doscar, "cohp", "SitePotentials.lobster.perovskite"))
+
+    def test_attributes(self):
+        self.assertListEqual(self.sitepotential.sitepotentials_Loewdin, [-8.77, -17.08, 9.57, 9.57, 8.45])
+        self.assertListEqual(self.sitepotential.sitepotentials_Mulliken, [-11.38, -19.62, 11.18, 11.18, 10.09])
+        self.assertAlmostEqual(self.sitepotential.madelungenergies_Loewdin, -28.64)
+        self.assertAlmostEqual(self.sitepotential.madelungenergies_Mulliken, -40.02)
+        self.assertListEqual(self.sitepotential.atomlist, ['La1', 'Ta2', 'N3', 'N4', 'O5'])
+        self.assertListEqual(self.sitepotential.types, ['La', 'Ta', 'N', 'N', 'O'])
+        self.assertEqual(self.sitepotential.num_atoms, 5)
+        self.assertAlmostEqual(self.sitepotential.ewald_splitting, 3.14)
+
+    def test_get_structure(self):
+        structure=self.sitepotential.get_structure_with_site_potentials(os.path.join(test_dir_doscar, "cohp", "POSCAR.perovskite"))
+        self.assertListEqual(structure.site_properties["Loewdin Site Potetials (eV)"], [-8.77, -17.08, 9.57, 9.57, 8.45])
+        self.assertListEqual(structure.site_properties["Mulliken Site Potetials (eV)"], [-11.38, -19.62, 11.18, 11.18, 10.09])
+
+class MadelungEnergiesTest(PymatgenTest):
+    def setUp(self) -> None:
+        self.madelungenergies = MadelungEnergies(
+            filename=os.path.join(test_dir_doscar, "cohp", "MadelungEnergies.lobster.perovskite"))
+    def test_attributes(self):
+        self.assertAlmostEqual(self.madelungenergies.madelungenergies_Loewdin, -28.64)
+        self.assertAlmostEqual(self.madelungenergies.madelungenergies_Mulliken, -40.02)
+        self.assertAlmostEqual(self.madelungenergies.ewald_splitting, 3.14)
 
 
 if __name__ == "__main__":
